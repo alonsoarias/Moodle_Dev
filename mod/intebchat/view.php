@@ -22,9 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(dirname(__FILE__) . '/lib.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID
 $n  = optional_param('n', 0, PARAM_INT);  // intebchat instance ID
@@ -116,7 +116,7 @@ $username = $USER->firstname ?: get_string('defaultusername', 'mod_intebchat');
 
 // Get user's conversations for this activity
 $conversations = [];
-if ($config->logging && isloggedin()) {
+if ($persistconvo && isloggedin()) {
     $conversations = intebchat_get_user_conversations($intebchat->id, $USER->id);
 }
 
@@ -132,10 +132,10 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
     </script>
 
     <style>
-        <?php echo $showlabelscss; ?>
-        .openai_message.user:before {
+        <?php echo $showlabelscss; ?>.openai_message.user:before {
             content: "<?php echo addslashes($username); ?>";
         }
+
         .openai_message.bot:before {
             content: "<?php echo addslashes($assistantname); ?>";
         }
@@ -156,10 +156,10 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
             <div class="intebchat-sidebar" id="conversations-sidebar">
                 <div class="intebchat-sidebar-header">
                     <div class="intebchat-sidebar-search">
-                        <input type="text" 
-                               id="conversation-search" 
-                               placeholder="<?php echo get_string('searchconversations', 'mod_intebchat'); ?>" 
-                               aria-label="<?php echo get_string('searchconversations', 'mod_intebchat'); ?>">
+                        <input type="text"
+                            id="conversation-search"
+                            placeholder="<?php echo get_string('searchconversations', 'mod_intebchat'); ?>"
+                            aria-label="<?php echo get_string('searchconversations', 'mod_intebchat'); ?>">
                         <i class="fa fa-search search-icon"></i>
                     </div>
                     <button class="intebchat-new-conversation" id="new-conversation-btn">
@@ -167,7 +167,7 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
                         <?php echo get_string('newconversation', 'mod_intebchat'); ?>
                     </button>
                 </div>
-                
+
                 <div class="intebchat-conversations-list" id="conversations-list">
                     <?php if (empty($conversations)): ?>
                         <div class="intebchat-no-conversations">
@@ -175,9 +175,9 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
                         </div>
                     <?php else: ?>
                         <?php foreach ($conversations as $conv): ?>
-                            <div class="intebchat-conversation-item" 
-                                 data-conversation-id="<?php echo $conv->id; ?>"
-                                 data-title="<?php echo s($conv->title); ?>">
+                            <div class="intebchat-conversation-item"
+                                data-conversation-id="<?php echo $conv->id; ?>"
+                                data-title="<?php echo s($conv->title); ?>">
                                 <div class="intebchat-conversation-title">
                                     <span class="title-text"><?php echo s($conv->title); ?></span>
                                     <span class="intebchat-conversation-date">
@@ -212,7 +212,7 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
 
                 <?php if (!$token_limit_info['allowed']): ?>
                     <div class="alert alert-warning">
-                        <i class="fa fa-exclamation-circle"></i> 
+                        <i class="fa fa-exclamation-circle"></i>
                         <?php echo get_string('tokenlimitexceeded', 'mod_intebchat', [
                             'used' => $token_limit_info['used'],
                             'limit' => $token_limit_info['limit'],
@@ -225,20 +225,20 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
                     <div class="token-usage-info">
                         <div class="token-display">
                             <span class="token-label"><?php echo get_string('tokensused', 'mod_intebchat', [
-                                'used' => $token_limit_info['used'],
-                                'limit' => $token_limit_info['limit']
-                            ]); ?></span>
+                                                            'used' => $token_limit_info['used'],
+                                                            'limit' => $token_limit_info['limit']
+                                                        ]); ?></span>
                         </div>
                         <div class="progress">
-                            <div class="progress-bar<?php 
-                                $percentage = ($token_limit_info['used'] / $token_limit_info['limit'] * 100);
-                                if ($percentage > 90) echo ' danger';
-                                elseif ($percentage > 75) echo ' warning';
-                            ?>" role="progressbar" 
-                                 style="width: <?php echo ($token_limit_info['used'] / $token_limit_info['limit'] * 100); ?>%"
-                                 aria-valuenow="<?php echo $token_limit_info['used']; ?>" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="<?php echo $token_limit_info['limit']; ?>">
+                            <div class="progress-bar<?php
+                                                    $percentage = ($token_limit_info['used'] / $token_limit_info['limit'] * 100);
+                                                    if ($percentage > 90) echo ' danger';
+                                                    elseif ($percentage > 75) echo ' warning';
+                                                    ?>" role="progressbar"
+                                style="width: <?php echo ($token_limit_info['used'] / $token_limit_info['limit'] * 100); ?>%"
+                                aria-valuenow="<?php echo $token_limit_info['used']; ?>"
+                                aria-valuemin="0"
+                                aria-valuemax="<?php echo $token_limit_info['limit']; ?>">
                             </div>
                         </div>
                     </div>
@@ -247,29 +247,29 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
                 <div id="intebchat_log" role="log" aria-live="polite">
                     <!-- Messages will be loaded here -->
                 </div>
-                
+
                 <div id="control_bar">
                     <?php if ($config->logging): ?>
                         <div class="logging-info">
                             <i class="fa fa-info-circle"></i> <?php echo get_string('loggingenabled', 'mod_intebchat'); ?>
                         </div>
                     <?php endif; ?>
-                    
+
                     <div class="openai_input_bar" id="input_bar">
-                        <?php 
+                        <?php
                         $showTextarea = ($intebchat->audiomode === 'text' || $intebchat->audiomode === 'both');
                         $showAudio = !empty($intebchat->enableaudio) && ($intebchat->audiomode === 'audio' || $intebchat->audiomode === 'both');
                         ?>
-                        
+
                         <?php if ($showTextarea): ?>
                             <textarea aria-label="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
-                                      rows="1"
-                                      id="openai_input"
-                                      placeholder="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
-                                      name="message"
-                                      <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>></textarea>
+                                rows="1"
+                                id="openai_input"
+                                placeholder="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
+                                name="message"
+                                <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>></textarea>
                         <?php endif; ?>
-                        
+
                         <?php if ($showAudio): ?>
                             <button class="openai_input_mic_btn" id="intebchat-icon-mic" title="<?php echo get_string('recordaudio', 'mod_intebchat'); ?>">
                                 <i class="fa fa-microphone"></i>
@@ -279,12 +279,12 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
                             </button>
                             <input type="hidden" id="intebchat-recorded-audio" name="audio" value="">
                         <?php endif; ?>
-                        
+
                         <?php if ($showTextarea): ?>
                             <button class='openai_input_submit_btn'
-                                    title="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
-                                    id="go"
-                                    <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>>
+                                title="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
+                                id="go"
+                                <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>>
                                 <i class="fa fa-paper-plane"></i>
                             </button>
                         <?php endif; ?>

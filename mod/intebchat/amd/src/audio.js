@@ -51,8 +51,8 @@ define(['jquery'], function ($) {
                         reader.readAsDataURL(new Blob(chunks, { type: 'audio/mp3' }));
                         reader.onloadend = function () {
                             $('#intebchat-recorded-audio').val(reader.result);
-                            // Trigger send automatically in audio or both modes
-                            if (audioMode === 'audio' || audioMode === 'both') {
+                            // Trigger auto send only for pure audio mode
+                            if (audioMode === 'audio') {
                                 $('#intebchat-icon-stop').trigger('audio-ready');
                             }
                         };
