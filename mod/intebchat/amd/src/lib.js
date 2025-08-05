@@ -486,392 +486,391 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                 },
                 done: function (response) {
                     if (response && response.success) {
-                        +                    // Update header
-                            +                    $('#conversation-title').text(newTitle);
-                        +
-                            +                    // Update sidebar and stored title
-                            +                    var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
-                        +                    $item.find('.title-text').text(newTitle);
-                        +                    $item.attr('data-title', newTitle);
-                        +
-                            +                    Notification.addNotification({
-+ message: strings.edittitle,
-                                +                        type: 'success'
-                    });
-        } else {
-            Notification.addNotification({
-                message: strings.erroroccurred,
-                type: 'error'
-            });
-    }
-            },
-    fail: function (error) {
-        Notification.addNotification({
-            message: error.message || strings.erroroccurred,
-            type: 'error'
-        });
-    }
-        }]);
-    };
+                        // Update header
+                        $('#conversation-title').text(newTitle);
+                        // Update sidebar and stored title
+                        var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
+                        $item.find('.title-text').text(newTitle);
+                        $item.attr('data-title', newTitle);
 
-/**
- * Refresh a conversation in the sidebar
- */
-var refreshConversationInSidebar = function (conversationId) {
-    var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
-    if ($item.length) {
-        // Update the modified time
-        var now = new Date();
-        $item.find('.intebchat-conversation-date').text(
-            now.toLocaleDateString([], { day: '2-digit', month: '2-digit' })
-        );
-
-        // Move to top if not already there
-        if (!$item.is(':first-child')) {
-            $item.fadeOut(200, function () {
-                $(this).prependTo('.intebchat-conversations-list').fadeIn(200);
-            });
-        }
-    }
-};
-
-/**
- * Filter conversations
- */
-var filterConversations = function (searchTerm) {
-    searchTerm = searchTerm.toLowerCase();
-
-    $('.intebchat-conversation-item').each(function () {
-        var title = $(this).find('.title-text').text().toLowerCase();
-        var preview = $(this).find('.intebchat-conversation-preview').text().toLowerCase();
-
-        if (title.includes(searchTerm) || preview.includes(searchTerm)) {
-            $(this).show();
-        } else {
-            $(this).hide();
-        }
-    });
-};
-
-/**
- * Create conversation list item HTML
- */
-var createConversationListItem = function (conversation) {
-    var date = new Date(conversation.lastmessage * 1000);
-    var dateStr = date.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
-
-    return '<div class="intebchat-conversation-item" ' +
-        'data-conversation-id="' + conversation.conversationid + '" ' +
-        'data-title="' + conversation.title + '">' +
-        '<div class="intebchat-conversation-title">' +
-        '<span class="title-text">' + conversation.title + '</span>' +
-        '<span class="intebchat-conversation-date">' + dateStr + '</span>' +
-        '</div>' +
-        '<div class="intebchat-conversation-preview">' + conversation.preview + '</div>' +
-        '</div>';
-};
-
-/**
- * Send message (enhanced with conversation management)
- */
-var sendMessage = function (message, instanceId, api_type) {
-    // Create new conversation if none exists
-    if (!currentConversationId) {
-        // Create conversation first, then send message
-        Ajax.call([{
-            methodname: 'mod_intebchat_create_conversation',
-            args: { instanceid: instanceId },
-            done: function (response) {
-                currentConversationId = response.conversationid;
-
-                // Update header
-                $('#conversation-title').text(response.title);
-
-                // Add to sidebar
-                var conversationHtml = createConversationListItem(response);
-                if ($('.intebchat-no-conversations').length > 0) {
-                    $('.intebchat-conversations-list').html(conversationHtml);
-                } else {
-                    $('.intebchat-conversations-list').prepend(conversationHtml);
-                }
-
-                // Set as active
-                $('.intebchat-conversation-item').removeClass('active');
-                $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]').addClass('active');
-
-                // Now send the message
-                addToChatLog('user', message, instanceId);
-                createCompletion(message, instanceId, api_type);
-            },
-            fail: function (error) {
-                Notification.addNotification({
-                    message: error.message || errorString,
-                    type: 'error'
-                });
-            }
-        }]);
-        return;
-    }
-
-    addToChatLog('user', message, instanceId);
-    createCompletion(message, instanceId, api_type);
-};
-
-/**
- * Update UI based on token limit status
- */
-var updateTokenUI = function () {
-    if (!tokenInfo.enabled) {
-        return;
-    }
-
-    var $container = $('.mod_intebchat');
-    var $input = $container.find('#openai_input');
-    var $submitBtn = $container.find('#go');
-    var $progressBar = $container.find('.progress-bar');
-
-    if (tokenInfo.exceeded) {
-        $input.prop('disabled', true);
-        $submitBtn.prop('disabled', true);
-    } else {
-        $input.prop('disabled', false);
-        $submitBtn.prop('disabled', false);
-    }
-
-    // Update progress bar
-    if ($progressBar.length) {
-        var percentage = (tokenInfo.used / tokenInfo.limit * 100);
-        $progressBar.css('width', percentage + '%');
-
-        // Update color based on usage
-        $progressBar.removeClass('warning danger');
-        if (percentage > 90) {
-            $progressBar.addClass('danger');
-        } else if (percentage > 75) {
-            $progressBar.addClass('warning');
-        }
-    }
-};
-
-/**
- * Check if token limit has reset
- */
-var checkTokenReset = function () {
-    var now = Date.now() / 1000;
-    if (tokenInfo.exceeded && now > tokenInfo.resetTime) {
-        // Reload page to refresh token status
-        window.location.reload();
-    }
-};
-
-/**
- * Add a message to the chat UI
- * @param {string} type Which side of the UI the message should be on. Can be "user" or "bot"
- * @param {string} message The text of the message to add
- * @param {int} instanceId The ID of the instance to manipulate
- * @param {boolean} animate Whether to animate the message
- */
-var addToChatLog = function (type, message, instanceId, animate = true) {
-    var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
-
-    // Remove transcribing message if exists
-    if (type !== 'user transcribing') {
-        messageContainer.find('.openai_message.transcribing').remove();
-    }
-
-    var messageElem = $('<div></div>').addClass('openai_message').addClass(type.replace(' ', '-'));
-    var messageText = $('<span></span>').html(message);
-    messageElem.append(messageText);
-
-    // Add timestamp
-    var timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    var timestampElem = $('<span></span>').addClass('message-timestamp').text(timestamp);
-    messageElem.append(timestampElem);
-
-    if (animate) {
-        messageElem.hide();
-        messageContainer.append(messageElem);
-        messageElem.fadeIn(300);
-    } else {
-        messageContainer.append(messageElem);
-    }
-
-    // Smooth scroll to bottom
-    messageContainer.animate({
-        scrollTop: messageContainer[0].scrollHeight
-    }, 300);
-};
-
-/**
- * Makes an API request to get a completion from GPT
- * @param {string} message The text to get a completion for
- * @param {int} instanceId The ID of the instance
- * @param {string} api_type "assistant" | "chat" The type of API to use
- */
-var createCompletion = function (message, instanceId, api_type) {
-    var threadId = null;
-
-    // Build history from current conversation
-    var history = buildTranscript(instanceId);
-
-    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').addClass('disabled');
-    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').removeClass('error');
-    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').attr('placeholder', questionString);
-    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').blur();
-
-    if (!$('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message.transcribing').length) {
-        addToChatLog('bot loading', '...', instanceId);
-    }
-
-    var audio = $('#intebchat-recorded-audio').val();
-    $.ajax({
-        url: M.cfg.wwwroot + '/mod/intebchat/api/completion.php',
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            message: message,
-            history: history,
-            instanceId: instanceId,
-            conversationId: currentConversationId || null,
-            threadId: threadId,
-            audio: audio || null
-        }),
-        success: function (data) {
-            $('#intebchat-recorded-audio').val('');
-            var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
-
-            // Remove loading or transcribing message
-            messageContainer.find('.openai_message.bot-loading, .openai_message.user-transcribing').remove();
-
-            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
-
-            if (data.message) {
-                // If we had audio input, replace the transcribing message with actual transcription
-                if (audio && data.transcription) {
-                    messageContainer.find('.openai_message.user-transcribing').remove();
-                    addToChatLog('user', data.transcription, instanceId);
-                }
-
-                addToChatLog('bot', data.message, instanceId);
-
-                // Update conversation ID if returned (for cases where conversation was created server-side)
-                if (data.conversationId && !currentConversationId) {
-                    currentConversationId = data.conversationId;
-                }
-
-                // Update conversation preview
-                if (currentConversationId) {
-                    updateConversationPreview(currentConversationId, data.transcription || message);
-                }
-
-                // Update token usage if provided
-                if (data.tokenInfo && tokenInfo.enabled) {
-                    tokenInfo.used += data.tokenInfo.total || 0;
-                    updateTokenUI();
-
-                    // Check if limit exceeded
-                    if (tokenInfo.used >= tokenInfo.limit) {
-                        tokenInfo.exceeded = true;
-                        updateTokenUI();
                         Notification.addNotification({
-                            message: strings.tokenlimitexceeded || 'Token limit exceeded',
+                            message: strings.edittitle,
+                            type: 'success'
+                        });
+                    } else {
+                        Notification.addNotification({
+                            message: strings.erroroccurred,
                             type: 'error'
                         });
                     }
-                }
-            } else if (data.error) {
-                if (data.error.type === 'token_limit_exceeded') {
-                    tokenInfo.exceeded = true;
-                    updateTokenUI();
+                },
+                fail: function (error) {
                     Notification.addNotification({
-                        message: data.error.message,
+                        message: error.message || strings.erroroccurred,
                         type: 'error'
                     });
+                }
+            }]);
+        };
+
+        /**
+         * Refresh a conversation in the sidebar
+         */
+        var refreshConversationInSidebar = function (conversationId) {
+            var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
+            if ($item.length) {
+                // Update the modified time
+                var now = new Date();
+                $item.find('.intebchat-conversation-date').text(
+                    now.toLocaleDateString([], { day: '2-digit', month: '2-digit' })
+                );
+
+                // Move to top if not already there
+                if (!$item.is(':first-child')) {
+                    $item.fadeOut(200, function () {
+                        $(this).prependTo('.intebchat-conversations-list').fadeIn(200);
+                    });
+                }
+            }
+        };
+
+        /**
+         * Filter conversations
+         */
+        var filterConversations = function (searchTerm) {
+            searchTerm = searchTerm.toLowerCase();
+
+            $('.intebchat-conversation-item').each(function () {
+                var title = $(this).find('.title-text').text().toLowerCase();
+                var preview = $(this).find('.intebchat-conversation-preview').text().toLowerCase();
+
+                if (title.includes(searchTerm) || preview.includes(searchTerm)) {
+                    $(this).show();
                 } else {
-                    addToChatLog('bot error', data.error.message, instanceId);
+                    $(this).hide();
                 }
-            }
-            if ($('#openai_input').length) {
-                $('#openai_input').focus();
-            }
-        },
-        error: function (xhr, status, error) {
-            var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
-            messageContainer.find('.openai_message.bot-loading, .openai_message.user-transcribing').remove();
-            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
-
-            var errorMsg = errorString;
-            try {
-                var response = JSON.parse(xhr.responseText);
-                if (response.error) {
-                    errorMsg = response.error;
-                }
-            } catch (e) {
-                // Use default error message
-            }
-
-            addToChatLog('bot error', errorMsg, instanceId);
-            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').addClass('error');
-            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').attr('placeholder', errorString);
-        }
-    });
-};
-
-/**
- * Update conversation preview in sidebar
- */
-var updateConversationPreview = function (conversationId, lastMessage) {
-    if (!lastMessage) return;
-
-    var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
-    if ($item.length) {
-        $item.find('.intebchat-conversation-preview').text(lastMessage);
-        var now = new Date();
-        $item.find('.intebchat-conversation-date').text(
-            now.toLocaleDateString([], { day: '2-digit', month: '2-digit' })
-        );
-
-        // Move conversation to top if it's not already there
-        if (!$item.is(':first-child')) {
-            $item.fadeOut(200, function () {
-                $(this).prependTo('.intebchat-conversations-list').fadeIn(200);
             });
-        }
-    }
-};
+        };
 
-/**
- * Using the existing messages in the chat history, create a string that can be used to aid completion
- * @param {int} instanceId The instance from which to build the history
- * @return {Array} A transcript of the conversation up to this point
- */
-var buildTranscript = function (instanceId) {
-    var transcript = [];
-    $('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message').each(function (index, element) {
-        var messages = $('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message');
-        if (index === messages.length - 1) {
-            return;
-        }
+        /**
+         * Create conversation list item HTML
+         */
+        var createConversationListItem = function (conversation) {
+            var date = new Date(conversation.lastmessage * 1000);
+            var dateStr = date.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
 
-        var user = userName;
-        if ($(element).hasClass('bot')) {
-            user = assistantName;
-        }
+            return '<div class="intebchat-conversation-item" ' +
+                'data-conversation-id="' + conversation.conversationid + '" ' +
+                'data-title="' + conversation.title + '">' +
+                '<div class="intebchat-conversation-title">' +
+                '<span class="title-text">' + conversation.title + '</span>' +
+                '<span class="intebchat-conversation-date">' + dateStr + '</span>' +
+                '</div>' +
+                '<div class="intebchat-conversation-preview">' + conversation.preview + '</div>' +
+                '</div>';
+        };
 
-        // Remove timestamp from message text
-        var messageText = $(element).clone();
-        messageText.find('.message-timestamp').remove();
-        messageText.find('audio').remove(); // Remove audio elements
-        messageText.find('.transcription').remove(); // Remove transcription wrapper
+        /**
+         * Send message (enhanced with conversation management)
+         */
+        var sendMessage = function (message, instanceId, api_type) {
+            // Create new conversation if none exists
+            if (!currentConversationId) {
+                // Create conversation first, then send message
+                Ajax.call([{
+                    methodname: 'mod_intebchat_create_conversation',
+                    args: { instanceid: instanceId },
+                    done: function (response) {
+                        currentConversationId = response.conversationid;
 
-        transcript.push({ "user": user, "message": messageText.text().trim() });
+                        // Update header
+                        $('#conversation-title').text(response.title);
+
+                        // Add to sidebar
+                        var conversationHtml = createConversationListItem(response);
+                        if ($('.intebchat-no-conversations').length > 0) {
+                            $('.intebchat-conversations-list').html(conversationHtml);
+                        } else {
+                            $('.intebchat-conversations-list').prepend(conversationHtml);
+                        }
+
+                        // Set as active
+                        $('.intebchat-conversation-item').removeClass('active');
+                        $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]').addClass('active');
+
+                        // Now send the message
+                        addToChatLog('user', message, instanceId);
+                        createCompletion(message, instanceId, api_type);
+                    },
+                    fail: function (error) {
+                        Notification.addNotification({
+                            message: error.message || errorString,
+                            type: 'error'
+                        });
+                    }
+                }]);
+                return;
+            }
+
+            addToChatLog('user', message, instanceId);
+            createCompletion(message, instanceId, api_type);
+        };
+
+        /**
+         * Update UI based on token limit status
+         */
+        var updateTokenUI = function () {
+            if (!tokenInfo.enabled) {
+                return;
+            }
+
+            var $container = $('.mod_intebchat');
+            var $input = $container.find('#openai_input');
+            var $submitBtn = $container.find('#go');
+            var $progressBar = $container.find('.progress-bar');
+
+            if (tokenInfo.exceeded) {
+                $input.prop('disabled', true);
+                $submitBtn.prop('disabled', true);
+            } else {
+                $input.prop('disabled', false);
+                $submitBtn.prop('disabled', false);
+            }
+
+            // Update progress bar
+            if ($progressBar.length) {
+                var percentage = (tokenInfo.used / tokenInfo.limit * 100);
+                $progressBar.css('width', percentage + '%');
+
+                // Update color based on usage
+                $progressBar.removeClass('warning danger');
+                if (percentage > 90) {
+                    $progressBar.addClass('danger');
+                } else if (percentage > 75) {
+                    $progressBar.addClass('warning');
+                }
+            }
+        };
+
+        /**
+         * Check if token limit has reset
+         */
+        var checkTokenReset = function () {
+            var now = Date.now() / 1000;
+            if (tokenInfo.exceeded && now > tokenInfo.resetTime) {
+                // Reload page to refresh token status
+                window.location.reload();
+            }
+        };
+
+        /**
+         * Add a message to the chat UI
+         * @param {string} type Which side of the UI the message should be on. Can be "user" or "bot"
+         * @param {string} message The text of the message to add
+         * @param {int} instanceId The ID of the instance to manipulate
+         * @param {boolean} animate Whether to animate the message
+         */
+        var addToChatLog = function (type, message, instanceId, animate = true) {
+            var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
+
+            // Remove transcribing message if exists
+            if (type !== 'user transcribing') {
+                messageContainer.find('.openai_message.transcribing').remove();
+            }
+
+            var messageElem = $('<div></div>').addClass('openai_message').addClass(type.replace(' ', '-'));
+            var messageText = $('<span></span>').html(message);
+            messageElem.append(messageText);
+
+            // Add timestamp
+            var timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            var timestampElem = $('<span></span>').addClass('message-timestamp').text(timestamp);
+            messageElem.append(timestampElem);
+
+            if (animate) {
+                messageElem.hide();
+                messageContainer.append(messageElem);
+                messageElem.fadeIn(300);
+            } else {
+                messageContainer.append(messageElem);
+            }
+
+            // Smooth scroll to bottom
+            messageContainer.animate({
+                scrollTop: messageContainer[0].scrollHeight
+            }, 300);
+        };
+
+        /**
+         * Makes an API request to get a completion from GPT
+         * @param {string} message The text to get a completion for
+         * @param {int} instanceId The ID of the instance
+         * @param {string} api_type "assistant" | "chat" The type of API to use
+         */
+        var createCompletion = function (message, instanceId, api_type) {
+            var threadId = null;
+
+            // Build history from current conversation
+            var history = buildTranscript(instanceId);
+
+            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').addClass('disabled');
+            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').removeClass('error');
+            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').attr('placeholder', questionString);
+            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').blur();
+
+            if (!$('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message.transcribing').length) {
+                addToChatLog('bot loading', '...', instanceId);
+            }
+
+            var audio = $('#intebchat-recorded-audio').val();
+            $.ajax({
+                url: M.cfg.wwwroot + '/mod/intebchat/api/completion.php',
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    message: message,
+                    history: history,
+                    instanceId: instanceId,
+                    conversationId: currentConversationId || null,
+                    threadId: threadId,
+                    audio: audio || null
+                }),
+                success: function (data) {
+                    $('#intebchat-recorded-audio').val('');
+                    var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
+
+                    // Remove loading or transcribing message
+                    messageContainer.find('.openai_message.bot-loading, .openai_message.user-transcribing').remove();
+
+                    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
+
+                    if (data.message) {
+                        // If we had audio input, replace the transcribing message with actual transcription
+                        if (audio && data.transcription) {
+                            messageContainer.find('.openai_message.user-transcribing').remove();
+                            addToChatLog('user', data.transcription, instanceId);
+                        }
+
+                        addToChatLog('bot', data.message, instanceId);
+
+                        // Update conversation ID if returned (for cases where conversation was created server-side)
+                        if (data.conversationId && !currentConversationId) {
+                            currentConversationId = data.conversationId;
+                        }
+
+                        // Update conversation preview
+                        if (currentConversationId) {
+                            updateConversationPreview(currentConversationId, data.transcription || message);
+                        }
+
+                        // Update token usage if provided
+                        if (data.tokenInfo && tokenInfo.enabled) {
+                            tokenInfo.used += data.tokenInfo.total || 0;
+                            updateTokenUI();
+
+                            // Check if limit exceeded
+                            if (tokenInfo.used >= tokenInfo.limit) {
+                                tokenInfo.exceeded = true;
+                                updateTokenUI();
+                                Notification.addNotification({
+                                    message: strings.tokenlimitexceeded || 'Token limit exceeded',
+                                    type: 'error'
+                                });
+                            }
+                        }
+                    } else if (data.error) {
+                        if (data.error.type === 'token_limit_exceeded') {
+                            tokenInfo.exceeded = true;
+                            updateTokenUI();
+                            Notification.addNotification({
+                                message: data.error.message,
+                                type: 'error'
+                            });
+                        } else {
+                            addToChatLog('bot error', data.error.message, instanceId);
+                        }
+                    }
+                    if ($('#openai_input').length) {
+                        $('#openai_input').focus();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
+                    messageContainer.find('.openai_message.bot-loading, .openai_message.user-transcribing').remove();
+                    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
+
+                    var errorMsg = errorString;
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.error) {
+                            errorMsg = response.error;
+                        }
+                    } catch (e) {
+                        // Use default error message
+                    }
+
+                    addToChatLog('bot error', errorMsg, instanceId);
+                    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').addClass('error');
+                    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').attr('placeholder', errorString);
+                }
+            });
+        };
+
+        /**
+         * Update conversation preview in sidebar
+         */
+        var updateConversationPreview = function (conversationId, lastMessage) {
+            if (!lastMessage) return;
+
+            var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
+            if ($item.length) {
+                $item.find('.intebchat-conversation-preview').text(lastMessage);
+                var now = new Date();
+                $item.find('.intebchat-conversation-date').text(
+                    now.toLocaleDateString([], { day: '2-digit', month: '2-digit' })
+                );
+
+                // Move conversation to top if it's not already there
+                if (!$item.is(':first-child')) {
+                    $item.fadeOut(200, function () {
+                        $(this).prependTo('.intebchat-conversations-list').fadeIn(200);
+                    });
+                }
+            }
+        };
+
+        /**
+         * Using the existing messages in the chat history, create a string that can be used to aid completion
+         * @param {int} instanceId The instance from which to build the history
+         * @return {Array} A transcript of the conversation up to this point
+         */
+        var buildTranscript = function (instanceId) {
+            var transcript = [];
+            $('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message').each(function (index, element) {
+                var messages = $('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message');
+                if (index === messages.length - 1) {
+                    return;
+                }
+
+                var user = userName;
+                if ($(element).hasClass('bot')) {
+                    user = assistantName;
+                }
+
+                // Remove timestamp from message text
+                var messageText = $(element).clone();
+                messageText.find('.message-timestamp').remove();
+                messageText.find('audio').remove(); // Remove audio elements
+                messageText.find('.transcription').remove(); // Remove transcription wrapper
+
+                transcript.push({ "user": user, "message": messageText.text().trim() });
+            });
+
+            return transcript;
+        };
+
+        return {
+            init: init
+        };
     });
-
-    return transcript;
-};
-
-return {
-    init: init
-};
-});
