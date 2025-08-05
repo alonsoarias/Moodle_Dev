@@ -77,10 +77,15 @@ $jsdata = [
     'tokenLimit' => $token_limit_info['limit'],
     'tokensUsed' => $token_limit_info['used'],
     'tokenLimitExceeded' => !$token_limit_info['allowed'],
-    'resetTime' => $token_limit_info['reset_time']
+    'resetTime' => $token_limit_info['reset_time'],
+    'audioEnabled' => !empty($intebchat->enableaudio),
+    'audioMode' => $intebchat->audiomode ?? 'text'
 ];
 
 $PAGE->requires->js_call_amd('mod_intebchat/lib', 'init', [$jsdata]);
+if (!empty($intebchat->enableaudio)) {
+    $PAGE->requires->js_call_amd('mod_intebchat/audio', 'init', [$intebchat->audiomode]);
+}
 
 // Add professional CSS
 $PAGE->requires->css('/mod/intebchat/styles.css');
@@ -251,18 +256,38 @@ $username = format_string($username, true, ['context' => $PAGE->context]);
                     <?php endif; ?>
                     
                     <div class="openai_input_bar" id="input_bar">
-                        <textarea aria-label="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>" 
-                                  rows="1" 
-                                  id="openai_input" 
-                                  placeholder="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>" 
-                                  name="message"
-                                  <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>></textarea>
-                        <button class='openai_input_submit_btn' 
-                                title="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>" 
-                                id="go"
-                                <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>>
-                            <i class="fa fa-paper-plane"></i>
-                        </button>
+                        <?php 
+                        $showTextarea = ($intebchat->audiomode === 'text' || $intebchat->audiomode === 'both');
+                        $showAudio = !empty($intebchat->enableaudio) && ($intebchat->audiomode === 'audio' || $intebchat->audiomode === 'both');
+                        ?>
+                        
+                        <?php if ($showTextarea): ?>
+                            <textarea aria-label="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
+                                      rows="1"
+                                      id="openai_input"
+                                      placeholder="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
+                                      name="message"
+                                      <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>></textarea>
+                        <?php endif; ?>
+                        
+                        <?php if ($showAudio): ?>
+                            <button class="openai_input_mic_btn" id="intebchat-icon-mic" title="<?php echo get_string('recordaudio', 'mod_intebchat'); ?>">
+                                <i class="fa fa-microphone"></i>
+                            </button>
+                            <button class="openai_input_stop_btn" id="intebchat-icon-stop" title="<?php echo get_string('stoprecording', 'mod_intebchat'); ?>" style="display:none">
+                                <i class="fa fa-stop"></i>
+                            </button>
+                            <input type="hidden" id="intebchat-recorded-audio" name="audio" value="">
+                        <?php endif; ?>
+                        
+                        <?php if ($showTextarea): ?>
+                            <button class='openai_input_submit_btn'
+                                    title="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
+                                    id="go"
+                                    <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>>
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

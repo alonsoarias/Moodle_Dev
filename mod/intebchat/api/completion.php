@@ -46,6 +46,7 @@ $history = isset($body['history']) ? clean_param_array($body['history'], PARAM_N
 $instance_id = clean_param($body['instanceId'], PARAM_INT);
 $conversation_id = isset($body['conversationId']) ? clean_param($body['conversationId'], PARAM_INT) : null;
 $thread_id = isset($body['threadId']) ? clean_param($body['threadId'], PARAM_NOTAGS) : null;
+$audio = isset($body['audio']) ? $body['audio'] : null;
 
 // Get the instance record
 $instance = $DB->get_record('intebchat', ['id' => $instance_id], '*', MUST_EXIST);
@@ -54,6 +55,15 @@ $cm = get_coursemodule_from_instance('intebchat', $instance->id, $course->id, fa
 
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
+
+// Handle audio transcription if provided
+$transcription = null;
+if ($audio && !empty($instance->enableaudio)) {
+    require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
+    $trans = \mod_intebchat\audio::transcribe($audio, current_language());
+    $message = $trans['text'];
+    $transcription = $trans['text'];
+}
 
 // Check token limit before processing
 $config = get_config('mod_intebchat');
@@ -168,8 +178,18 @@ try {
         }
     }
     
-    // Add conversation ID to response
+    // Add audio response if enabled
+    if (!empty($instance->enableaudio) && ($instance->audiomode === 'audio' || $instance->audiomode === 'both')) {
+        $voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
+        $audiosrc = \mod_intebchat\audio::speech(strip_tags($response['message']), $voice);
+        $response['message'] = "<audio controls autoplay src='{$audiosrc}'></audio><div class='transcription'>{$response['message']}</div>";
+    }
+    
+    // Add conversation ID and transcription to response
     $response['conversationId'] = $conversation_id;
+    if ($transcription) {
+        $response['transcription'] = $transcription;
+    }
 
 } catch (Exception $e) {
     $response = [

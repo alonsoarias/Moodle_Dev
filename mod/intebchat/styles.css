@@ -298,6 +298,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -336,9 +337,20 @@
 }
 
 @keyframes loadingDots {
-    0%, 20% { content: '•'; }
-    40% { content: '• •'; }
-    60%, 100% { content: '• • •'; }
+
+    0%,
+    20% {
+        content: '•';
+    }
+
+    40% {
+        content: '• •';
+    }
+
+    60%,
+    100% {
+        content: '• • •';
+    }
 }
 
 .mod_intebchat .openai_message.error {
@@ -364,6 +376,16 @@
     margin-top: 0.25rem;
 }
 
+/* Audio in messages */
+.mod_intebchat .openai_message audio {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.mod_intebchat .openai_message .transcription {
+    margin-top: 0.5rem;
+}
+
 /* Control Bar */
 .mod_intebchat #control_bar {
     padding: 1rem 1.5rem;
@@ -383,6 +405,8 @@
     border-radius: var(--intebchat-radius-lg);
     overflow: hidden;
     transition: border-color 0.2s ease;
+    align-items: center;
+    padding-right: 0.5rem;
 }
 
 .mod_intebchat .openai_input_bar:focus-within {
@@ -420,12 +444,13 @@
     background: var(--intebchat-primary);
     color: white;
     border: none;
-    padding: 0 1.25rem;
+    padding: 0.625rem 1rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
     display: flex;
     align-items: center;
     font-size: 0.875rem;
+    border-radius: var(--intebchat-radius);
 }
 
 .mod_intebchat .openai_input_submit_btn:hover:not(:disabled) {
@@ -435,6 +460,50 @@
 .mod_intebchat .openai_input_submit_btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Audio buttons */
+.mod_intebchat .openai_input_mic_btn,
+.mod_intebchat .openai_input_stop_btn {
+    background: var(--intebchat-bg-primary);
+    color: var(--intebchat-text-secondary);
+    border: 1px solid var(--intebchat-border);
+    border-radius: var(--intebchat-radius);
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.5rem;
+}
+
+.mod_intebchat .openai_input_mic_btn:hover,
+.mod_intebchat .openai_input_stop_btn:hover {
+    background: var(--intebchat-bg-tertiary);
+    color: var(--intebchat-text-primary);
+}
+
+.mod_intebchat .openai_input_mic_btn.recording {
+    background: var(--intebchat-danger);
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
 }
 
 .mod_intebchat .openai_input_refresh_btn {
@@ -585,28 +654,79 @@
         transform: translateX(-100%);
         box-shadow: var(--intebchat-shadow-lg);
     }
-    
+
     .intebchat-sidebar.mobile-open {
         transform: translateX(0);
     }
-    
+
     .intebchat-mobile-toggle {
         display: flex;
     }
-    
+
     .intebchat-main {
         margin-left: 0;
     }
-    
+
     .mod_intebchat .openai_message {
         max-width: 85%;
     }
-    
+
     .mod_intebchat #control_bar {
         padding: 0.75rem 1rem;
     }
-    
+
     .mod_intebchat #intebchat_log {
         padding: 1rem;
     }
+}
+
+/* Transcribing message style */
+.mod_intebchat .openai_message.user-transcribing {
+    align-self: flex-end;
+    background: var(--intebchat-primary);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: var(--intebchat-radius-lg) var(--intebchat-radius-lg) 0 var(--intebchat-radius-lg);
+    box-shadow: var(--intebchat-shadow-sm);
+    opacity: 0.8;
+}
+
+/* Audio-only mode styles */
+.mod_intebchat.audio-only .openai_input_bar {
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+.mod_intebchat.audio-only #openai_input,
+.mod_intebchat.audio-only .openai_input_submit_btn {
+    display: none;
+}
+
+.mod_intebchat.audio-only .openai_input_mic_btn,
+.mod_intebchat.audio-only .openai_input_stop_btn {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+/* Both mode styles */
+.mod_intebchat.both-mode .openai_input_bar {
+    gap: 0.5rem;
+}
+
+/* Hide elements based on instance configuration */
+.mod_intebchat[data-audio-mode="audio"] #openai_input,
+.mod_intebchat[data-audio-mode="audio"] .openai_input_submit_btn {
+    display: none !important;
+}
+
+.mod_intebchat[data-audio-mode="audio"] .openai_input_bar {
+    justify-content: center;
+    padding: 1rem;
+}
+
+.mod_intebchat[data-audio-mode="text"] .openai_input_mic_btn,
+.mod_intebchat[data-audio-mode="text"] .openai_input_stop_btn {
+    display: none !important;
 }

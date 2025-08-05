@@ -74,6 +74,30 @@ if ($ADMIN->fulltree) {
         0
     ));
 
+    // Audio conversation settings.
+    $settings->add(new admin_setting_configcheckbox(
+        'mod_intebchat/enableaudio',
+        get_string('enableaudio', 'mod_intebchat'),
+        get_string('enableaudio_desc', 'mod_intebchat'),
+        0
+    ));
+
+    $voices = [
+        'alloy' => 'Alloy',
+        'echo' => 'Echo',
+        'fable' => 'Fable',
+        'onyx' => 'Onyx',
+        'nova' => 'Nova',
+        'shimmer' => 'Shimmer',
+    ];
+    $settings->add(new admin_setting_configselect(
+        'mod_intebchat/voice',
+        get_string('voice', 'mod_intebchat'),
+        get_string('voice_desc', 'mod_intebchat'),
+        'alloy',
+        $voices
+    ));
+
     // Token limit settings header
     $settings->add(new admin_setting_heading(
         'mod_intebchat/tokenlimitheading',
@@ -123,7 +147,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext(
         'mod_intebchat/assistantname',
         get_string('assistantname', 'mod_intebchat'),
-        get_string('assistantnamedesc', 'mod_intebchat'),
+        get_string('config_assistantname', 'mod_intebchat'),
         get_string('defaultassistantname', 'mod_intebchat'),
         PARAM_TEXT
     ));
@@ -176,7 +200,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtextarea(
             'mod_intebchat/prompt',
             get_string('prompt', 'mod_intebchat'),
-            get_string('promptdesc', 'mod_intebchat'),
+            get_string('config_prompt', 'mod_intebchat'),
             get_string('defaultprompt', 'mod_intebchat'),
             PARAM_TEXT
         ));
@@ -184,7 +208,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtextarea(
             'mod_intebchat/sourceoftruth',
             get_string('sourceoftruth', 'mod_intebchat'),
-            get_string('sourceoftruthdesc', 'mod_intebchat'),
+            get_string('config_sourceoftruth', 'mod_intebchat'),
             '',
             PARAM_TEXT
         ));
@@ -193,7 +217,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configselect(
             'mod_intebchat/model',
             get_string('model', 'mod_intebchat'),
-            get_string('modeldesc', 'mod_intebchat'),
+            get_string('config_model', 'mod_intebchat'),
             'gpt-4o-mini',
             $models
         ));
@@ -201,7 +225,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtext(
             'mod_intebchat/temperature',
             get_string('temperature', 'mod_intebchat'),
-            get_string('temperaturedesc', 'mod_intebchat'),
+            get_string('config_temperature', 'mod_intebchat'),
             0.5,
             PARAM_FLOAT
         ));
@@ -209,7 +233,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtext(
             'mod_intebchat/maxlength',
             get_string('maxlength', 'mod_intebchat'),
-            get_string('maxlengthdesc', 'mod_intebchat'),
+            get_string('config_maxlength', 'mod_intebchat'),
             500,
             PARAM_INT
         ));
@@ -217,7 +241,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtext(
             'mod_intebchat/topp',
             get_string('topp', 'mod_intebchat'),
-            get_string('toppdesc', 'mod_intebchat'),
+            get_string('config_topp', 'mod_intebchat'),
             1,
             PARAM_FLOAT
         ));
@@ -225,7 +249,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtext(
             'mod_intebchat/frequency',
             get_string('frequency', 'mod_intebchat'),
-            get_string('frequencydesc', 'mod_intebchat'),
+            get_string('config_frequency', 'mod_intebchat'),
             1,
             PARAM_FLOAT
         ));
@@ -233,7 +257,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configtext(
             'mod_intebchat/presence',
             get_string('presence', 'mod_intebchat'),
-            get_string('presencedesc', 'mod_intebchat'),
+            get_string('config_presence', 'mod_intebchat'),
             1,
             PARAM_FLOAT
         ));

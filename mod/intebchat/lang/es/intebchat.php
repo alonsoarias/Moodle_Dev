@@ -75,26 +75,44 @@ $string['chatsettings'] = 'Configuración del chat';
 $string['showlabels'] = 'Mostrar etiquetas de nombre';
 $string['sourceoftruth'] = 'Fuente de verdad';
 $string['config_sourceoftruth'] = 'Información que la IA debe usar como base para sus respuestas';
+$string['config_sourceoftruth_help'] = 'Proporciona información específica que la IA debe considerar como factual y priorizar en sus respuestas. Esto ayuda a garantizar respuestas precisas y consistentes.';
 $string['prompt'] = 'Prompt personalizado';
 $string['config_prompt'] = 'Instrucciones adicionales para personalizar el comportamiento de la IA';
+$string['config_prompt_help'] = 'Proporciona instrucciones específicas para guiar cómo debe responder la IA. Esto se agregará al prompt del sistema.';
 $string['config_instructions'] = 'Instrucciones personalizadas para el asistente';
+$string['config_instructions_help'] = 'Proporciona instrucciones específicas para el asistente. Estas instrucciones anularán las instrucciones predeterminadas del asistente para esta instancia.';
 $string['assistantname'] = 'Nombre del asistente';
 $string['config_assistantname'] = 'Cómo se mostrará el nombre del asistente en el chat';
+$string['config_assistantname_help'] = 'Ingresa un nombre personalizado para el asistente. Este nombre se mostrará en la interfaz del chat en lugar del nombre predeterminado.';
 $string['advanced'] = 'Configuración avanzada';
+
+// Help strings for instance settings
+$string['config_assistant'] = 'Asistente';
+$string['config_assistant_help'] = 'Selecciona qué asistente usar de tu cuenta de OpenAI. Debes haber creado asistentes en tu cuenta de OpenAI primero.';
+$string['config_persistconvo'] = 'Persistir conversación';
+$string['config_persistconvo_help'] = 'Si está habilitado, el historial de conversación se mantendrá entre sesiones. Los usuarios pueden continuar conversaciones anteriores.';
+$string['config_apikey'] = 'Clave API (nivel de instancia)';
+$string['config_apikey_help'] = 'Opcionalmente proporciona una clave API específica de la instancia. Esto anulará la clave API global solo para esta instancia.';
 
 // Model settings
 $string['model'] = 'Modelo';
 $string['config_model'] = 'Qué modelo de OpenAI usar';
+$string['config_model_help'] = 'Selecciona el modelo de IA. Diferentes modelos tienen diferentes capacidades y costos. Los modelos GPT-4 son más capaces pero más caros.';
 $string['temperature'] = 'Temperatura';
 $string['config_temperature'] = 'Controla la aleatoriedad (0-2)';
+$string['config_temperature_help'] = 'Controla la aleatoriedad de las respuestas. Valores más bajos (0.0-0.5) hacen las respuestas más enfocadas y deterministas. Valores más altos (0.5-2.0) hacen las respuestas más creativas y variadas.';
 $string['maxlength'] = 'Longitud máxima';
 $string['config_maxlength'] = 'Número máximo de tokens en la respuesta';
+$string['config_maxlength_help'] = 'El número máximo de tokens a generar en la respuesta. Un token es aproximadamente 4 caracteres. Rango: 1-4000.';
 $string['topp'] = 'Top P';
 $string['config_topp'] = 'Muestreo del núcleo (0-1)';
+$string['config_topp_help'] = 'Una alternativa al muestreo por temperatura. El modelo considera tokens con masa de probabilidad top_p. 0.1 significa que solo se consideran los tokens del 10% superior de probabilidad.';
 $string['frequency'] = 'Penalización de frecuencia';
 $string['config_frequency'] = 'Reduce la repetición de tokens (-2 a 2)';
+$string['config_frequency_help'] = 'Los valores positivos penalizan los nuevos tokens según su frecuencia existente en el texto, disminuyendo la probabilidad de repetir la misma línea.';
 $string['presence'] = 'Penalización de presencia';
 $string['config_presence'] = 'Reduce la repetición de temas (-2 a 2)';
+$string['config_presence_help'] = 'Los valores positivos penalizan los nuevos tokens según si aparecen en el texto hasta ahora, aumentando la probabilidad de hablar sobre nuevos temas.';
 
 // Token limit settings
 $string['tokenlimitsettings'] = 'Configuración de límite de tokens';
@@ -120,6 +138,7 @@ $string['lastmessage'] = 'Último mensaje';
 $string['nomessages'] = 'No hay mensajes';
 $string['messages'] = 'Mensajes';
 $string['created'] = 'Creado';
+$string['transcribing'] = 'Transcribiendo...';
 
 // Default strings
 $string['defaultassistantname'] = 'Asistente';
@@ -140,6 +159,18 @@ $string['logging'] = 'Registrar conversaciones';
 $string['loggingdesc'] = 'Registrar todas las conversaciones para análisis posterior';
 $string['allowinstancesettings'] = 'Permitir configuración por instancia';
 $string['allowinstancesettingsdesc'] = 'Permitir que los profesores anulen la configuración global en instancias individuales';
+$string['enableaudio'] = 'Habilitar audio';
+$string['enableaudio_help'] = 'Habilitar características de audio para esta instancia de chat';
+$string['enableaudio_desc'] = 'Permitir grabación y respuestas de audio';
+$string['audiomode'] = 'Modo';
+$string['audiomode_help'] = 'Selecciona cómo los usuarios pueden interactuar con el chat: Solo texto, Solo audio, o Texto y audio';
+$string['audiomode_text'] = 'Solo texto';
+$string['audiomode_audio'] = 'Solo audio';
+$string['audiomode_both'] = 'Texto y audio';
+$string['voice'] = 'Voz usada en la respuesta de audio';
+$string['voice_desc'] = 'Selecciona la voz para las respuestas de texto a voz';
+$string['recordaudio'] = 'Grabar audio';
+$string['stoprecording'] = 'Detener grabación';
 $string['defaultvalues'] = 'Valores predeterminados';
 $string['defaultvaluesdesc'] = 'Valores predeterminados para nuevas instancias';
 

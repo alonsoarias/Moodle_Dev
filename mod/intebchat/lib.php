@@ -89,6 +89,14 @@ function intebchat_add_instance(stdClass $intebchat, mod_intebchat_mod_form $mfo
     if (!isset($intebchat->persistconvo)) {
         $intebchat->persistconvo = 0;
     }
+    if (!isset($intebchat->enableaudio)) {
+        $intebchat->enableaudio = 0;
+        $intebchat->audiomode = 'text';
+    }
+    if (!isset($intebchat->enableaudio)) {
+        $intebchat->enableaudio = 0;
+        $intebchat->audiomode = 'text';
+    }
 
     // Clean up fields based on API type
     if ($intebchat->apitype === 'assistant') {

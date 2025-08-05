@@ -75,26 +75,44 @@ $string['chatsettings'] = 'Chat settings';
 $string['showlabels'] = 'Show name labels';
 $string['sourceoftruth'] = 'Source of truth';
 $string['config_sourceoftruth'] = 'Information that the AI should use as a basis for its responses';
+$string['config_sourceoftruth_help'] = 'Provide specific information that the AI should consider as factual and prioritize in its responses. This helps ensure accurate and consistent answers.';
 $string['prompt'] = 'Custom prompt';
 $string['config_prompt'] = 'Additional instructions to customize AI behavior';
+$string['config_prompt_help'] = 'Provide specific instructions to guide how the AI should respond. This will be added to the system prompt.';
 $string['config_instructions'] = 'Custom instructions for the assistant';
+$string['config_instructions_help'] = 'Provide specific instructions for the assistant. These instructions will override the assistant\'s default instructions for this instance.';
 $string['assistantname'] = 'Assistant name';
 $string['config_assistantname'] = 'How the assistant name will be displayed in the chat';
+$string['config_assistantname_help'] = 'Enter a custom name for the assistant. This name will be displayed in the chat interface instead of the default name.';
 $string['advanced'] = 'Advanced settings';
+
+// Help strings for instance settings
+$string['config_assistant'] = 'Assistant';
+$string['config_assistant_help'] = 'Select which assistant to use from your OpenAI account. You must have created assistants in your OpenAI account first.';
+$string['config_persistconvo'] = 'Persist conversation';
+$string['config_persistconvo_help'] = 'If enabled, the conversation history will be maintained between sessions. Users can continue previous conversations.';
+$string['config_apikey'] = 'API Key (instance level)';
+$string['config_apikey_help'] = 'Optionally provide an instance-specific API key. This will override the global API key for this instance only.';
 
 // Model settings
 $string['model'] = 'Model';
 $string['config_model'] = 'Which OpenAI model to use';
+$string['config_model_help'] = 'Select the AI model. Different models have different capabilities and costs. GPT-4 models are more capable but more expensive.';
 $string['temperature'] = 'Temperature';
 $string['config_temperature'] = 'Controls randomness (0-2)';
+$string['config_temperature_help'] = 'Controls the randomness of responses. Lower values (0.0-0.5) make responses more focused and deterministic. Higher values (0.5-2.0) make responses more creative and varied.';
 $string['maxlength'] = 'Max length';
 $string['config_maxlength'] = 'Maximum number of tokens in response';
+$string['config_maxlength_help'] = 'The maximum number of tokens to generate in the response. One token is roughly 4 characters. Range: 1-4000.';
 $string['topp'] = 'Top P';
 $string['config_topp'] = 'Nucleus sampling (0-1)';
+$string['config_topp_help'] = 'An alternative to temperature sampling. The model considers tokens with top_p probability mass. 0.1 means only the top 10% probability tokens are considered.';
 $string['frequency'] = 'Frequency penalty';
 $string['config_frequency'] = 'Reduces token repetition (-2 to 2)';
+$string['config_frequency_help'] = 'Positive values penalize new tokens based on their existing frequency in the text, decreasing likelihood of repeating the same line.';
 $string['presence'] = 'Presence penalty';
 $string['config_presence'] = 'Reduces topic repetition (-2 to 2)';
+$string['config_presence_help'] = 'Positive values penalize new tokens based on whether they appear in the text so far, increasing likelihood of talking about new topics.';
 
 // Token limit settings
 $string['tokenlimitsettings'] = 'Token limit settings';
@@ -120,6 +138,7 @@ $string['lastmessage'] = 'Last message';
 $string['nomessages'] = 'No messages';
 $string['messages'] = 'Messages';
 $string['created'] = 'Created';
+$string['transcribing'] = 'Transcribing...';
 
 // Default strings
 $string['defaultassistantname'] = 'Assistant';
@@ -140,6 +159,18 @@ $string['logging'] = 'Log conversations';
 $string['loggingdesc'] = 'Log all conversations for later analysis';
 $string['allowinstancesettings'] = 'Allow per-instance settings';
 $string['allowinstancesettingsdesc'] = 'Allow teachers to override global settings on individual instances';
+$string['enableaudio'] = 'Enable audio';
+$string['enableaudio_help'] = 'Enable audio features for this chat instance';
+$string['enableaudio_desc'] = 'Allow recording and audio responses';
+$string['audiomode'] = 'Mode';
+$string['audiomode_help'] = 'Select how users can interact with the chat: Text only, Audio only, or Both text and audio';
+$string['audiomode_text'] = 'Text only';
+$string['audiomode_audio'] = 'Audio only';
+$string['audiomode_both'] = 'Text and audio';
+$string['voice'] = 'Voice used in the audio response';
+$string['voice_desc'] = 'Select the voice for text-to-speech responses';
+$string['recordaudio'] = 'Record audio';
+$string['stoprecording'] = 'Stop recording';
 $string['defaultvalues'] = 'Default values';
 $string['defaultvaluesdesc'] = 'Default values for new instances';
 

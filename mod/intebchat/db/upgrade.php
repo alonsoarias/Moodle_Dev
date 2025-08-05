@@ -263,5 +263,23 @@ function xmldb_intebchat_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025030100, 'intebchat');
     }
 
+    if ($oldversion < 2025030101) {
+        $table = new xmldb_table('intebchat');
+        
+        // Add enableaudio field
+        $field = new xmldb_field('enableaudio', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'persistconvo');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add audiomode field
+        $field = new xmldb_field('audiomode', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'text', 'enableaudio');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2025030101, 'intebchat');
+    }
+
     return true;
 }

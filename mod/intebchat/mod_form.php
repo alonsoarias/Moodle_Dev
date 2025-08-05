@@ -71,6 +71,24 @@ class mod_intebchat_mod_form extends moodleform_mod {
         $mform->addElement('advcheckbox', 'showlabels', get_string('showlabels', 'mod_intebchat'));
         $mform->setDefault('showlabels', 1);
 
+        // Audio settings - Only if audio is enabled globally
+        if (!empty($config->enableaudio)) {
+            $mform->addElement('advcheckbox', 'enableaudio', get_string('enableaudio', 'mod_intebchat'));
+            $mform->setDefault('enableaudio', 0);
+            $mform->addHelpButton('enableaudio', 'enableaudio', 'mod_intebchat');
+
+            $audiomodes = [
+                'text' => get_string('audiomode_text', 'mod_intebchat'),
+                'audio' => get_string('audiomode_audio', 'mod_intebchat'),
+                'both' => get_string('audiomode_both', 'mod_intebchat')
+            ];
+            
+            $mform->addElement('select', 'audiomode', get_string('audiomode', 'mod_intebchat'), $audiomodes);
+            $mform->setDefault('audiomode', 'text');
+            $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
+            $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
+        }
+
         // Hidden field for API type (always use global setting)
         $mform->addElement('hidden', 'apitype', $type);
         $mform->setType('apitype', PARAM_TEXT);
@@ -255,5 +273,10 @@ class mod_intebchat_mod_form extends moodleform_mod {
         // Ensure apitype is always set from global config
         $config = get_config('mod_intebchat');
         $data->apitype = $config->type ?: 'chat';
+        
+        // Set defaults for unchecked checkboxes
+        if (!isset($data->enableaudio)) {
+            $data->enableaudio = 0;
+        }
     }
 }
