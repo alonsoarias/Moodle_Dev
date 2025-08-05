@@ -172,18 +172,42 @@ function($, Ajax, Str, Notification, ModalFactory, ModalEvents, Templates) {
     /**
      * Send audio message
      */
-    var sendAudioMessage = function(instanceId, api_type) {
-        var audioData = $('#intebchat-recorded-audio').val();
-        if (!audioData) {
-            return;
-        }
+var sendAudioMessage = function(instanceId, api_type) {
+    var audioData = $('#intebchat-recorded-audio').val();
+    if (!audioData) {
+        return;
+    }
 
-        // Show transcribing message
-        addToChatLog('user transcribing', '<i class="fa fa-microphone"></i> ' + (strings.transcribing || 'Transcribing...'), instanceId);
-        
-        // Create completion with audio
+    var doSend = function() {
+        addToChatLog('user transcribing', '<i class="fa fa-microphone"></i> ' +
+                     (strings.transcribing || 'Transcribing...'), instanceId);
         createCompletion('', instanceId, api_type);
     };
+
+    if (!currentConversationId) {
+        Ajax.call([{
+            methodname: 'mod_intebchat_create_conversation',
+            args: {instanceid: instanceId},
+            done: function(response) {
+                currentConversationId = response.conversationid;
+                $('#conversation-title').text(response.title);
+                var conversationHtml = createConversationListItem(response);
+                if ($('.intebchat-no-conversations').length > 0) {
+                    $('.intebchat-conversations-list').html(conversationHtml);
+                } else {
+                    $('.intebchat-conversations-list').prepend(conversationHtml);
+                }
+                $('.intebchat-conversation-item').removeClass('active');
+                $('.intebchat-conversation-item[data-conversation-id="' +
+                  currentConversationId + '"]').addClass('active');
+                doSend();
+            }
+        }]);
+    } else {
+        doSend();
+    }
+};
+
 
     /**
      * Load all required strings

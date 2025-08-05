@@ -32,16 +32,17 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $limit Number of conversations to return
  * @return array Array of conversation objects
  */
-function intebchat_get_user_conversations($instanceid, $userid, $limit = 50) {
+function intebchat_get_user_conversations($instanceid, $userid, $limit = 50)
+{
     global $DB;
-    
+
     $sql = "SELECT c.*, 
                    COALESCE((SELECT MAX(timecreated) FROM {mod_intebchat_log} WHERE conversationid = c.id), c.timecreated) as lastmessage
             FROM {mod_intebchat_conversations} c
             WHERE c.instanceid = :instanceid 
               AND c.userid = :userid
             ORDER BY lastmessage DESC";
-    
+
     return $DB->get_records_sql($sql, ['instanceid' => $instanceid, 'userid' => $userid], 0, $limit);
 }
 
@@ -52,24 +53,27 @@ function intebchat_get_user_conversations($instanceid, $userid, $limit = 50) {
  * @param int $limit Number of messages to return (0 = all)
  * @return array Array of message objects
  */
-function intebchat_get_conversation_messages($conversationid, $limit = 0) {
+function intebchat_get_conversation_messages($conversationid, $limit = 0)
+{
     global $DB;
-    
+
     $params = ['conversationid' => $conversationid];
-    
+
     if ($limit > 0) {
         // Use Moodle's get_records with limit parameter instead of raw SQL LIMIT
-        return $DB->get_records('mod_intebchat_log', 
-            ['conversationid' => $conversationid], 
-            'timecreated ASC', 
-            'id, userid, usermessage, airesponse, totaltokens, timecreated', 
-            0, 
+        return $DB->get_records(
+            'mod_intebchat_log',
+            ['conversationid' => $conversationid],
+            'timecreated ASC',
+            'id, userid, usermessage, airesponse, totaltokens, timecreated',
+            0,
             $limit
         );
     } else {
         // Get all records
-        return $DB->get_records('mod_intebchat_log', 
-            ['conversationid' => $conversationid], 
+        return $DB->get_records(
+            'mod_intebchat_log',
+            ['conversationid' => $conversationid],
             'timecreated ASC'
         );
     }
@@ -83,29 +87,30 @@ function intebchat_get_conversation_messages($conversationid, $limit = 0) {
  * @param context $context Module context
  * @return bool True if user can view
  */
-function intebchat_can_view_conversation($conversationid, $userid, $context) {
+function intebchat_can_view_conversation($conversationid, $userid, $context)
+{
     global $DB;
-    
+
     $conversation = $DB->get_record('mod_intebchat_conversations', ['id' => $conversationid]);
     if (!$conversation) {
         return false;
     }
-    
+
     // User can view their own conversations
     if ($conversation->userid == $userid) {
         return true; // Simplified check since users should always see their own conversations
     }
-    
+
     // Teachers can view student conversations in their courses
     if (has_capability('mod/intebchat:viewstudentconversations', $context)) {
         return true;
     }
-    
+
     // Admins can view all conversations
     if (has_capability('mod/intebchat:viewallconversations', context_system::instance())) {
         return true;
     }
-    
+
     return false;
 }
 
@@ -115,22 +120,23 @@ function intebchat_can_view_conversation($conversationid, $userid, $context) {
  * @param string $firstmessage First message content
  * @return string Generated title
  */
-function intebchat_generate_conversation_title($firstmessage) {
+function intebchat_generate_conversation_title($firstmessage)
+{
     // Clean and truncate the message
     $title = strip_tags($firstmessage);
     $title = trim($title);
-    
+
     // Remove extra whitespace
     $title = preg_replace('/\s+/', ' ', $title);
-    
+
     // If message is short enough, use it as title
     if (mb_strlen($title) <= 50) {
         return $title;
     }
-    
+
     // Otherwise, truncate to 47 chars and add ellipsis
     $title = mb_substr($title, 0, 47) . '...';
-    
+
     return $title;
 }
 
@@ -141,38 +147,39 @@ function intebchat_generate_conversation_title($firstmessage) {
  * @param int $conversationid Conversation ID
  * @return array ['success' => bool, 'deleted' => bool]
  */
-function intebchat_clear_conversation_messages($conversationid) {
+function intebchat_clear_conversation_messages($conversationid)
+{
     global $DB;
-    
+
     try {
         // Start transaction
         $transaction = $DB->start_delegated_transaction();
-        
+
         // Get current message count
         $messagecount = $DB->count_records('mod_intebchat_log', ['conversationid' => $conversationid]);
-        
+
         if ($messagecount == 0) {
             // If conversation is already empty, delete it completely
             $DB->delete_records('mod_intebchat_conversations', ['id' => $conversationid]);
             $transaction->allow_commit();
             return ['success' => true, 'deleted' => true];
         }
-        
+
         // Delete all messages
         $DB->delete_records('mod_intebchat_log', ['conversationid' => $conversationid]);
-        
-        // Reset conversation
+
         $conversation = new stdClass();
         $conversation->id = $conversationid;
         $conversation->preview = '';
         $conversation->messagecount = 0;
+        $conversation->threadid = null;    // Reiniciar el hilo asociado
         $conversation->timemodified = time();
-        
+
         $DB->update_record('mod_intebchat_conversations', $conversation);
-        
+
         // Commit transaction
         $transaction->allow_commit();
-        
+
         return ['success' => true, 'deleted' => false];
     } catch (Exception $e) {
         if (isset($transaction)) {
@@ -189,22 +196,23 @@ function intebchat_clear_conversation_messages($conversationid) {
  * @param int $conversationid Conversation ID
  * @return bool Success
  */
-function intebchat_delete_conversation_completely($conversationid) {
+function intebchat_delete_conversation_completely($conversationid)
+{
     global $DB;
-    
+
     try {
         // Start transaction
         $transaction = $DB->start_delegated_transaction();
-        
+
         // Delete all messages first
         $DB->delete_records('mod_intebchat_log', ['conversationid' => $conversationid]);
-        
+
         // Delete the conversation
         $DB->delete_records('mod_intebchat_conversations', ['id' => $conversationid]);
-        
+
         // Commit transaction
         $transaction->allow_commit();
-        
+
         return true;
     } catch (Exception $e) {
         if (isset($transaction)) {
@@ -222,38 +230,39 @@ function intebchat_delete_conversation_completely($conversationid) {
  * @param string $period Period type (hour, day, week, month)
  * @return object Statistics object
  */
-function intebchat_get_user_token_stats($userid, $period = 'day') {
+function intebchat_get_user_token_stats($userid, $period = 'day')
+{
     global $DB;
-    
+
     require_once(__DIR__ . '/lib.php');
     $periodstart = intebchat_get_period_start($period);
-    
+
     $stats = new stdClass();
     $stats->period = $period;
     $stats->periodstart = $periodstart;
-    
+
     // Get current period usage
     $usage = $DB->get_record('mod_intebchat_token_usage', [
         'userid' => $userid,
         'periodtype' => $period,
         'periodstart' => $periodstart
     ]);
-    
+
     $stats->current_usage = $usage ? $usage->tokensused : 0;
-    
+
     // Get total historical usage - handle null values
     $sql = "SELECT COALESCE(SUM(totaltokens), 0) as total
             FROM {mod_intebchat_log} 
             WHERE userid = :userid";
     $result = $DB->get_record_sql($sql, ['userid' => $userid]);
     $stats->total_usage = $result ? $result->total : 0;
-    
+
     // Get conversation count
     $stats->conversation_count = $DB->count_records('mod_intebchat_conversations', ['userid' => $userid]);
-    
+
     // Get message count
     $stats->message_count = $DB->count_records('mod_intebchat_log', ['userid' => $userid]);
-    
+
     return $stats;
 }
 
@@ -265,15 +274,16 @@ function intebchat_get_user_token_stats($userid, $period = 'day') {
  * @param string $search Search term
  * @return array Array of matching conversations
  */
-function intebchat_search_conversations($instanceid, $userid, $search) {
+function intebchat_search_conversations($instanceid, $userid, $search)
+{
     global $DB;
-    
+
     if (empty($search)) {
         return intebchat_get_user_conversations($instanceid, $userid);
     }
-    
+
     $search = '%' . $DB->sql_like_escape($search) . '%';
-    
+
     $sql = "SELECT DISTINCT c.*,
                    COALESCE((SELECT MAX(timecreated) FROM {mod_intebchat_log} WHERE conversationid = c.id), c.timecreated) as lastmessage
             FROM {mod_intebchat_conversations} c
@@ -286,7 +296,7 @@ function intebchat_search_conversations($instanceid, $userid, $search) {
                   " . $DB->sql_like('l.airesponse', ':searchresponse') . "
               )
             ORDER BY lastmessage DESC";
-    
+
     return $DB->get_records_sql($sql, [
         'instanceid' => $instanceid,
         'userid' => $userid,

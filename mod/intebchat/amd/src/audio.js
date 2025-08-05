@@ -21,9 +21,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(['jquery'], function ($) {
     return {
-        init: function(mode) {
+        init: function (mode) {
             var chunks = [];
             var mediaRecorder = null;
             var audioMode = mode || 'text';
@@ -34,38 +34,37 @@ define(['jquery'], function($) {
                 $('#intebchat-recorded-audio').val('');
             }
 
-            $('#intebchat-icon-mic').on('click', function() {
+            $('#intebchat-icon-mic').on('click', function () {
                 reset();
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                     alert('Your browser does not support recording!');
                     return;
                 }
-                navigator.mediaDevices.getUserMedia({audio: true}).then(function(stream) {
+                navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
                     mediaRecorder = new MediaRecorder(stream);
                     mediaRecorder.start();
                     $('#intebchat-icon-mic').addClass('recording').hide();
                     $('#intebchat-icon-stop').show();
-                    mediaRecorder.ondataavailable = function(e) { chunks.push(e.data); };
-                    mediaRecorder.onstop = function() {
+                    mediaRecorder.ondataavailable = function (e) { chunks.push(e.data); };
+                    mediaRecorder.onstop = function () {
                         var reader = new FileReader();
-                        reader.readAsDataURL(new Blob(chunks, {type: 'audio/mp3'}));
-                        reader.onloadend = function() {
+                        reader.readAsDataURL(new Blob(chunks, { type: 'audio/mp3' }));
+                        reader.onloadend = function () {
                             $('#intebchat-recorded-audio').val(reader.result);
-                            
-                            // If audio-only mode, trigger send automatically
-                            if (audioMode === 'audio') {
+                            // Trigger send automatically in audio or both modes
+                            if (audioMode === 'audio' || audioMode === 'both') {
                                 $('#intebchat-icon-stop').trigger('audio-ready');
                             }
                         };
                         chunks = [];
                     };
-                }).catch(function(err) {
+                }).catch(function (err) {
                     alert(err);
                     reset();
                 });
             });
 
-            $('#intebchat-icon-stop').on('click', function() {
+            $('#intebchat-icon-stop').on('click', function () {
                 if (mediaRecorder) {
                     mediaRecorder.stop();
                     mediaRecorder = null;
