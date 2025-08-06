@@ -39,10 +39,18 @@ class audio
     {
         global $CFG;
 
-        $audio = str_replace('data:audio/mp3;base64,', '', $audio);
+        $mimetype = 'mp3';
+        if (strpos($audio, 'data:audio/') === 0) {
+            if (strpos($audio, 'audio/webm') !== false) {
+                $mimetype = 'webm';
+            } else if (strpos($audio, 'audio/mp4') !== false) {
+                $mimetype = 'mp4';
+            }
+        }
+        $audio = preg_replace('#^data:audio/\w+;base64,#i', '', $audio);
         $audiodata = base64_decode($audio);
         $filename = uniqid();
-        $filepath = "{$CFG->dataroot}/temp/{$filename}.mp3";
+        $filepath = "{$CFG->dataroot}/temp/{$filename}.{$mimetype}";
 
         // Ensure temp directory exists
         if (!file_exists("{$CFG->dataroot}/temp")) {
@@ -56,7 +64,7 @@ class audio
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, [
-            'file' => curl_file_create($filepath),
+            'file' => curl_file_create($filepath, 'audio/' . $mimetype, 'audio.' . $mimetype),
             'model' => 'whisper-1',
             'response_format' => 'verbose_json',
             'language' => $lang,

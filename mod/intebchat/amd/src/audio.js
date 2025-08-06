@@ -24,17 +24,18 @@
 define(['jquery'], function ($) {
     return {
         init: function (mode) {
-            var chunks = [];
-            var mediaRecorder = null;
-            var audioMode = mode || 'text';
-            var stream = null;
+            let chunks = [];
+            let mediaRecorder = null;
+            let audioMode = mode || 'text';
+            let stream = null;
 
+            /**
+             *
+             */
             function reset() {
                 $('#intebchat-icon-mic').removeClass('recording').show();
                 $('#intebchat-icon-stop').hide();
                 $('#intebchat-recorded-audio').val('');
-                
-                // Detener el stream si existe
                 if (stream) {
                     stream.getTracks().forEach(track => track.stop());
                     stream = null;
@@ -47,45 +48,34 @@ define(['jquery'], function ($) {
                     alert('Your browser does not support recording!');
                     return;
                 }
-                
+
                 navigator.mediaDevices.getUserMedia({ audio: true })
                     .then(function (userStream) {
                         stream = userStream;
-                        
-                        // Usar el tipo MIME correcto según el navegador
-                        var mimeType = 'audio/webm';
-                        if (MediaRecorder.isTypeSupported('audio/webm')) {
-                            mimeType = 'audio/webm';
-                        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                            mimeType = 'audio/mp4';
-                        }
-                        
-                        mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
-                        chunks = []; // Limpiar chunks anteriores
-                        
+
+                        mediaRecorder = new MediaRecorder(stream);
+                        chunks = [];
+
                         mediaRecorder.start();
                         $('#intebchat-icon-mic').addClass('recording').hide();
                         $('#intebchat-icon-stop').show();
-                        
-                        mediaRecorder.ondataavailable = function (e) { 
+
+                        mediaRecorder.ondataavailable = function (e) {
                             if (e.data && e.data.size > 0) {
-                                chunks.push(e.data); 
+                                chunks.push(e.data);
                             }
                         };
-                        
+
                         mediaRecorder.onstop = function () {
                             if (chunks.length > 0) {
-                                var blob = new Blob(chunks, { type: 'audio/webm' });
+                                var blob = new Blob(chunks, { type: 'audio/mp3' });
                                 var reader = new FileReader();
                                 reader.readAsDataURL(blob);
                                 reader.onloadend = function () {
                                     if (reader.result) {
                                         $('#intebchat-recorded-audio').val(reader.result);
-                                        
-                                        // Trigger auto send only for pure audio mode
-                                        if (audioMode === 'audio') {
-                                            // Dar tiempo para que el DOM se actualice
-                                            setTimeout(function() {
+                                        if (audioMode === 'audio' || audioMode === 'both') {
+                                            setTimeout(function () {
                                                 $('#intebchat-icon-stop').trigger('audio-ready');
                                             }, 100);
                                         }
@@ -93,22 +83,18 @@ define(['jquery'], function ($) {
                                 };
                             }
                             chunks = [];
-                            
-                            // Detener el stream
                             if (stream) {
                                 stream.getTracks().forEach(track => track.stop());
                                 stream = null;
                             }
                         };
-                        
-                        mediaRecorder.onerror = function(e) {
-                            console.error('MediaRecorder error:', e);
+
+                        mediaRecorder.onerror = function (e) {
                             alert('Error during recording: ' + e.error);
                             reset();
                         };
                     })
                     .catch(function (err) {
-                        console.error('getUserMedia error:', err);
                         alert('Error accessing microphone: ' + err.message);
                         reset();
                     });
