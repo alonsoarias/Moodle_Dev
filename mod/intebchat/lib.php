@@ -269,15 +269,25 @@ function intebchat_update_conversation($conversationid, $title = null, $preview 
         return false;
     }
 
-    if ($title !== null) {
-        $conversation->title = $title;
+    $updated = false;
+    
+    if ($title !== null && trim($title) !== '') {
+        // Sanitizar el título y limitar longitud
+        $conversation->title = substr(trim($title), 0, 255);
+        $updated = true;
     }
+    
     if ($preview !== null) {
         $conversation->preview = substr($preview, 0, 255);
+        $updated = true;
     }
-    $conversation->timemodified = time();
-
-    return $DB->update_record('mod_intebchat_conversations', $conversation);
+    
+    if ($updated) {
+        $conversation->timemodified = time();
+        return $DB->update_record('mod_intebchat_conversations', $conversation);
+    }
+    
+    return true; // No changes needed
 }
 
 /**

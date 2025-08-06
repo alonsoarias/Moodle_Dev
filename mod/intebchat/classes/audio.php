@@ -26,7 +26,8 @@ namespace mod_intebchat;
 
 defined('MOODLE_INTERNAL') || die();
 
-class audio {
+class audio
+{
     /**
      * Transcribe audio to text using OpenAI Whisper.
      *
@@ -34,19 +35,20 @@ class audio {
      * @param string|null $lang Language hint
      * @return array
      */
-    public static function transcribe(string $audio, ?string $lang = null): array {
+    public static function transcribe(string $audio, ?string $lang = null): array
+    {
         global $CFG;
 
         $audio = str_replace('data:audio/mp3;base64,', '', $audio);
         $audiodata = base64_decode($audio);
         $filename = uniqid();
         $filepath = "{$CFG->dataroot}/temp/{$filename}.mp3";
-        
+
         // Ensure temp directory exists
         if (!file_exists("{$CFG->dataroot}/temp")) {
             mkdir("{$CFG->dataroot}/temp", 0777, true);
         }
-        
+
         file_put_contents($filepath, $audiodata);
 
         $ch = curl_init();
@@ -65,11 +67,7 @@ class audio {
         ]);
 
         $result = curl_exec($ch);
-        curl_close($ch);
-        
-        // Clean up temp file
-        unlink($filepath);
-
+        curl_close($ch);  // El archivo se mantiene para poder reproducirlo luego
         $result = json_decode($result);
 
         return [
@@ -86,7 +84,8 @@ class audio {
      * @param string $voice Voice to use
      * @return string URL to generated audio
      */
-    public static function speech(string $input, string $voice = 'alloy'): string {
+    public static function speech(string $input, string $voice = 'alloy'): string
+    {
         global $CFG;
 
         $json = json_encode((object) [

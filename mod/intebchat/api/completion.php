@@ -56,20 +56,31 @@ $cm = get_coursemodule_from_instance('intebchat', $instance->id, $course->id, fa
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
+// CORRECCIÓN 4.1: Si tenemos conversation_id pero no thread_id, intentar recuperarlo
+$api_type = get_config('mod_intebchat', 'type') ?: 'chat';
+if ($conversation_id && !$thread_id && $api_type === 'assistant') {
+    $conversation = $DB->get_record('mod_intebchat_conversations', ['id' => $conversation_id]);
+    if ($conversation && !empty($conversation->threadid)) {
+        $thread_id = $conversation->threadid;
+    }
+}
+
 // Handle audio transcription if provided
 $transcription = null;
+$useraudio = null;
 if ($audio && !empty($instance->enableaudio)) {
     require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
     $trans = \mod_intebchat\audio::transcribe($audio, current_language());
     $message = $trans['text'];
     $transcription = $trans['text'];
+    $useraudio = $CFG->wwwroot . '/mod/intebchat/load-audio-temp.php?filename=' . $trans['filename'];
 }
 
 // Check token limit before processing
 $config = get_config('mod_intebchat');
 if (!empty($config->enabletokenlimit)) {
     $token_limit_info = intebchat_check_token_limit($USER->id);
-    
+
     if (!$token_limit_info['allowed']) {
         $response = [
             'error' => [
@@ -95,16 +106,16 @@ if (!$conversation_id && $config->logging && isloggedin()) {
 // Prepare instance settings
 $instance_settings = [];
 $setting_names = [
-    'sourceoftruth', 
+    'sourceoftruth',
     'prompt',
     'instructions',
-    'assistantname', 
-    'apikey', 
-    'model', 
-    'temperature', 
-    'maxlength', 
-    'topp', 
-    'frequency', 
+    'assistantname',
+    'apikey',
+    'model',
+    'temperature',
+    'maxlength',
+    'topp',
+    'frequency',
     'presence',
     'assistant'
 ];
@@ -118,7 +129,6 @@ foreach ($setting_names as $setting) {
 
 // Get API configuration
 $apiconfig = intebchat_get_api_config($instance);
-$api_type = $config->type ?: 'chat';
 $model = $apiconfig['model'];
 
 // Validate API key
@@ -156,6 +166,26 @@ try {
     // Format the markdown of each completion message into HTML.
     $response["message"] = format_text($response["message"], FORMAT_MARKDOWN, ['context' => $context]);
 
+    // CORRECCIÓN 4.2: Guardar thread_id en la conversación si es nueva (para Assistant API)
+    if ($api_type === 'assistant' && $conversation_id) {
+        // El thread_id puede venir en la respuesta con diferentes nombres según el completion engine
+        $response_thread_id = null;
+        
+        if (isset($response['thread_id'])) {
+            $response_thread_id = $response['thread_id'];
+        } elseif (isset($response['threadId'])) {
+            $response_thread_id = $response['threadId'];
+        }
+        
+        // Si tenemos un thread_id nuevo, guardarlo en la conversación
+        if ($response_thread_id) {
+            $conversation_record = $DB->get_record('mod_intebchat_conversations', ['id' => $conversation_id]);
+            if ($conversation_record && empty($conversation_record->threadid)) {
+                $DB->set_field('mod_intebchat_conversations', 'threadid', $response_thread_id, ['id' => $conversation_id]);
+            }
+        }
+    }
+
     // Normalize token usage from different API response formats
     $tokeninfo = null;
     if (isset($response['usage']) && is_array($response['usage'])) {
@@ -169,7 +199,7 @@ try {
     // Log the message with conversation support if conversation exists
     if ($conversation_id && $config->logging) {
         intebchat_log_message($instance_id, $conversation_id, $message, $response['message'], $context, $tokeninfo);
-        
+
         // Update conversation title if it's the first message
         $messagecount = $DB->count_records('mod_intebchat_log', ['conversationid' => $conversation_id]);
         if ($messagecount <= 2) { // User message + AI response
@@ -177,20 +207,28 @@ try {
             intebchat_update_conversation($conversation_id, $title);
         }
     }
-    
+
     // Add audio response if enabled
     if (!empty($instance->enableaudio) && ($instance->audiomode === 'audio' || $instance->audiomode === 'both')) {
         $voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
         $audiosrc = \mod_intebchat\audio::speech(strip_tags($response['message']), $voice);
         $response['message'] = "<audio controls autoplay src='{$audiosrc}'></audio><div class='transcription'>{$response['message']}</div>";
     }
-    
+
     // Add conversation ID and transcription to response
     $response['conversationId'] = $conversation_id;
     if ($transcription) {
         $response['transcription'] = $transcription;
     }
-
+    if (!empty($useraudio)) {
+        $response['useraudio'] = $useraudio;
+    }
+    
+    // CORRECCIÓN 4.2 (continuación): Asegurar que el thread_id se incluya en la respuesta
+    if ($api_type === 'assistant' && !empty($response_thread_id)) {
+        $response['threadId'] = $response_thread_id;
+    }
+    
 } catch (Exception $e) {
     $response = [
         'error' => [

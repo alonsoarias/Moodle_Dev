@@ -158,11 +158,18 @@ class external extends \external_api
                 }
             }
 
-            return [
+            $result = [
                 'conversationid' => (int)$conversation->id,
                 'title' => $conversation->title,
                 'messages' => $formattedmessages
             ];
+
+            // Incluir threadId si existe
+            if (!empty($conversation->threadid)) {
+                $result['threadId'] = $conversation->threadid;
+            }
+
+            return $result;
         } catch (\Exception $e) {
             debugging('Error loading conversation: ' . $e->getMessage(), DEBUG_DEVELOPER);
             throw new \moodle_exception('errorloadingconversation', 'mod_intebchat');

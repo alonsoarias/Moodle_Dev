@@ -200,23 +200,35 @@ function intebchat_delete_conversation_completely($conversationid)
 {
     global $DB;
 
+    // Verificar que la conversación existe
+    if (!$DB->record_exists('mod_intebchat_conversations', ['id' => $conversationid])) {
+        debugging('Conversation does not exist: ' . $conversationid, DEBUG_DEVELOPER);
+        return false;
+    }
+
+    $transaction = null;
     try {
         // Start transaction
         $transaction = $DB->start_delegated_transaction();
 
-        // Delete all messages first
+        // Delete all messages first (pueden no existir)
         $DB->delete_records('mod_intebchat_log', ['conversationid' => $conversationid]);
 
         // Delete the conversation
-        $DB->delete_records('mod_intebchat_conversations', ['id' => $conversationid]);
+        $deleted = $DB->delete_records('mod_intebchat_conversations', ['id' => $conversationid]);
 
         // Commit transaction
         $transaction->allow_commit();
 
-        return true;
+        return $deleted;
     } catch (Exception $e) {
-        if (isset($transaction)) {
-            $transaction->rollback($e);
+        if ($transaction) {
+            try {
+                $transaction->rollback($e);
+            } catch (Exception $rollback_exception) {
+                // Log rollback failure
+                debugging('Rollback failed: ' . $rollback_exception->getMessage(), DEBUG_DEVELOPER);
+            }
         }
         debugging('Error deleting conversation: ' . $e->getMessage(), DEBUG_DEVELOPER);
         return false;

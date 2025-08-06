@@ -27,11 +27,18 @@ define(['jquery'], function ($) {
             var chunks = [];
             var mediaRecorder = null;
             var audioMode = mode || 'text';
+            var stream = null;
 
             function reset() {
                 $('#intebchat-icon-mic').removeClass('recording').show();
                 $('#intebchat-icon-stop').hide();
                 $('#intebchat-recorded-audio').val('');
+                
+                // Detener el stream si existe
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
             }
 
             $('#intebchat-icon-mic').on('click', function () {
@@ -40,32 +47,75 @@ define(['jquery'], function ($) {
                     alert('Your browser does not support recording!');
                     return;
                 }
-                navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-                    mediaRecorder = new MediaRecorder(stream);
-                    mediaRecorder.start();
-                    $('#intebchat-icon-mic').addClass('recording').hide();
-                    $('#intebchat-icon-stop').show();
-                    mediaRecorder.ondataavailable = function (e) { chunks.push(e.data); };
-                    mediaRecorder.onstop = function () {
-                        var reader = new FileReader();
-                        reader.readAsDataURL(new Blob(chunks, { type: 'audio/mp3' }));
-                        reader.onloadend = function () {
-                            $('#intebchat-recorded-audio').val(reader.result);
-                            // Trigger auto send only for pure audio mode
-                            if (audioMode === 'audio') {
-                                $('#intebchat-icon-stop').trigger('audio-ready');
+                
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(function (userStream) {
+                        stream = userStream;
+                        
+                        // Usar el tipo MIME correcto según el navegador
+                        var mimeType = 'audio/webm';
+                        if (MediaRecorder.isTypeSupported('audio/webm')) {
+                            mimeType = 'audio/webm';
+                        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                            mimeType = 'audio/mp4';
+                        }
+                        
+                        mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+                        chunks = []; // Limpiar chunks anteriores
+                        
+                        mediaRecorder.start();
+                        $('#intebchat-icon-mic').addClass('recording').hide();
+                        $('#intebchat-icon-stop').show();
+                        
+                        mediaRecorder.ondataavailable = function (e) { 
+                            if (e.data && e.data.size > 0) {
+                                chunks.push(e.data); 
                             }
                         };
-                        chunks = [];
-                    };
-                }).catch(function (err) {
-                    alert(err);
-                    reset();
-                });
+                        
+                        mediaRecorder.onstop = function () {
+                            if (chunks.length > 0) {
+                                var blob = new Blob(chunks, { type: 'audio/webm' });
+                                var reader = new FileReader();
+                                reader.readAsDataURL(blob);
+                                reader.onloadend = function () {
+                                    if (reader.result) {
+                                        $('#intebchat-recorded-audio').val(reader.result);
+                                        
+                                        // Trigger auto send only for pure audio mode
+                                        if (audioMode === 'audio') {
+                                            // Dar tiempo para que el DOM se actualice
+                                            setTimeout(function() {
+                                                $('#intebchat-icon-stop').trigger('audio-ready');
+                                            }, 100);
+                                        }
+                                    }
+                                };
+                            }
+                            chunks = [];
+                            
+                            // Detener el stream
+                            if (stream) {
+                                stream.getTracks().forEach(track => track.stop());
+                                stream = null;
+                            }
+                        };
+                        
+                        mediaRecorder.onerror = function(e) {
+                            console.error('MediaRecorder error:', e);
+                            alert('Error during recording: ' + e.error);
+                            reset();
+                        };
+                    })
+                    .catch(function (err) {
+                        console.error('getUserMedia error:', err);
+                        alert('Error accessing microphone: ' + err.message);
+                        reset();
+                    });
             });
 
             $('#intebchat-icon-stop').on('click', function () {
-                if (mediaRecorder) {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                     mediaRecorder = null;
                 }

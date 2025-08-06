@@ -44,6 +44,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
          * @param {Object} data Configuration data
          */
         var init = function (data) {
+            console.log('INTEBCHAT: Initializing with data:', data);
+            
             var instanceId = data.instanceId;
             var api_type = data.api_type;
             var persistConvo = data.persistConvo;
@@ -76,20 +78,34 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
             // Event listeners for chat input - adjusted for audio modes
             if (audioConfig.mode === 'text' || audioConfig.mode === 'both') {
                 $(document).on('keyup', '.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input', function (e) {
-                    if (e.which === 13 && !e.shiftKey && e.target.value !== "") {
+                    if (e.which === 13 && !e.shiftKey) {
                         e.preventDefault();
-                        if (!tokenInfo.exceeded) {
+                        var audioData = $('#intebchat-recorded-audio').val();
+                        if (e.target.value !== "" && !tokenInfo.exceeded) {
                             sendMessage(e.target.value, instanceId, api_type);
                             e.target.value = '';
+                        } else if (audioData && !tokenInfo.exceeded) {
+                            sendAudioMessage(instanceId, api_type);
                         }
                     }
                 });
 
                 $(document).on('click', '.mod_intebchat[data-instance-id="' + instanceId + '"] #go', function (e) {
                     var input = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input');
-                    if (input.val() !== "" && !tokenInfo.exceeded) {
-                        sendMessage(input.val(), instanceId, api_type);
-                        input.val('');
+                    var audioData = $('#intebchat-recorded-audio').val();
+                    
+                    if (!tokenInfo.exceeded) {
+                        if (audioData && input.val() === "") {
+                            // Solo audio
+                            sendAudioMessage(instanceId, api_type);
+                        } else if (audioData && input.val() !== "") {
+                            // Audio + texto
+                            sendMessage(input.val(), instanceId, api_type);
+                        } else if (input.val() !== "") {
+                            // Solo texto
+                            sendMessage(input.val(), instanceId, api_type);
+                            input.val('');
+                        }
                     }
                 });
             }
@@ -101,7 +117,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                     $(document).on('audio-ready', '#intebchat-icon-stop', function () {
                         var audioData = $('#intebchat-recorded-audio').val();
                         if (audioData && !tokenInfo.exceeded) {
-                            sendAudioMessage(instanceId, api_type);
+                            setTimeout(function() {
+                                sendAudioMessage(instanceId, api_type);
+                            }, 100);
                         }
                     });
                 } else if (audioConfig.mode === 'both') {
@@ -205,7 +223,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
             }
         };
 
-
         /**
          * Load all required strings
          */
@@ -223,7 +240,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                 { key: 'save', component: 'core' },
                 { key: 'delete', component: 'core' },
                 { key: 'conversationtitle', component: 'mod_intebchat' },
-                { key: 'confirmclearmessage', component: 'mod_intebchat' }
+                { key: 'confirmclearmessage', component: 'mod_intebchat' },
+                { key: 'transcribing', component: 'mod_intebchat' }
             ];
 
             return Str.get_strings(stringkeys).then(function (results) {
@@ -240,6 +258,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                 strings.delete = results[10];
                 strings.conversationtitle = results[11] || 'Conversation Title';
                 strings.confirmclearmessage = results[12] || 'Are you sure you want to clear this conversation? This action cannot be undone.';
+                strings.transcribing = results[13] || 'Transcribing...';
 
                 questionString = strings.askaquestion;
                 errorString = strings.erroroccurred;
@@ -250,40 +269,45 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
          * Show modal for editing conversation title
          */
         var showEditTitleModal = function (conversationId) {
-            var currentTitle = $('#conversation-title').text();
+            require(['core/modal_factory', 'core/modal_events'], function(ModalFactory, ModalEvents) {
+                var currentTitle = $('#conversation-title').text();
 
-            ModalFactory.create({
-                type: ModalFactory.types.SAVE_CANCEL,
-                title: strings.edittitle,
-                body: '<div class="form-group">' +
-                    '<label for="conversation-title-input">' + strings.conversationtitle + '</label>' +
-                    '<input type="text" class="form-control" id="conversation-title-input" value="' +
-                    currentTitle.replace(/"/g, '&quot;') + '">' +
-                    '</div>'
-            }).then(function (modal) {
-                modal.setSaveButtonText(strings.save);
+                ModalFactory.create({
+                    type: ModalFactory.types.SAVE_CANCEL,
+                    title: strings.edittitle,
+                    body: '<div class="form-group">' +
+                        '<label for="conversation-title-input">' + strings.conversationtitle + '</label>' +
+                        '<input type="text" class="form-control" id="conversation-title-input" value="' +
+                        currentTitle.replace(/"/g, '&quot;') + '">' +
+                        '</div>'
+                }).then(function (modal) {
+                    modal.setSaveButtonText(strings.save);
 
-                // Handle save
-                modal.getRoot().on(ModalEvents.save, function (e) {
-                    var newTitle = $('#conversation-title-input').val().trim();
-                    if (newTitle && newTitle !== currentTitle) {
-                        updateConversationTitle(conversationId, newTitle);
-                    }
+                    // Handle save
+                    modal.getRoot().on(ModalEvents.save, function (e) {
+                        e.preventDefault();
+                        var newTitle = $('#conversation-title-input').val().trim();
+                        if (newTitle && newTitle !== currentTitle) {
+                            updateConversationTitle(conversationId, newTitle);
+                        }
+                        modal.hide();
+                    });
+
+                    // Focus input when modal is shown
+                    modal.getRoot().on(ModalEvents.shown, function () {
+                        $('#conversation-title-input').focus().select();
+                    });
+
+                    // Handle enter key in input
+                    modal.getRoot().on('keypress', '#conversation-title-input', function (e) {
+                        if (e.which === 13) {
+                            e.preventDefault();
+                            modal.getSaveButton().trigger('click');
+                        }
+                    });
+
+                    modal.show();
                 });
-
-                // Focus input when modal is shown
-                modal.getRoot().on(ModalEvents.shown, function () {
-                    $('#conversation-title-input').focus().select();
-                });
-
-                // Handle enter key in input
-                modal.getRoot().on('keypress', '#conversation-title-input', function (e) {
-                    if (e.which === 13) {
-                        modal.save();
-                    }
-                });
-
-                modal.show();
             });
         };
 
@@ -291,22 +315,26 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
          * Show modal for clearing conversation
          */
         var showClearConversationModal = function (conversationId, instanceId) {
-            ModalFactory.create({
-                type: ModalFactory.types.SAVE_CANCEL,
-                title: strings.clearconversation,
-                body: '<p>' + strings.confirmclearmessage + '</p>'
-            }).then(function (modal) {
-                modal.setSaveButtonText(strings.delete);
+            require(['core/modal_factory', 'core/modal_events'], function(ModalFactory, ModalEvents) {
+                ModalFactory.create({
+                    type: ModalFactory.types.SAVE_CANCEL,
+                    title: strings.clearconversation,
+                    body: '<p>' + strings.confirmclearmessage + '</p>'
+                }).then(function (modal) {
+                    modal.setSaveButtonText(strings.delete);
 
-                // Style the save button as danger
-                modal.getRoot().find('.btn-primary').removeClass('btn-primary').addClass('btn-danger');
+                    // Style the save button as danger
+                    modal.getRoot().find('.btn-primary').removeClass('btn-primary').addClass('btn-danger');
 
-                // Handle delete
-                modal.getRoot().on(ModalEvents.save, function (e) {
-                    clearConversation(conversationId, instanceId);
+                    // Handle delete
+                    modal.getRoot().on(ModalEvents.save, function (e) {
+                        e.preventDefault();
+                        clearConversation(conversationId, instanceId);
+                        modal.hide();
+                    });
+
+                    modal.show();
                 });
-
-                modal.show();
             });
         };
 
@@ -380,6 +408,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                     instanceid: instanceId
                 },
                 done: function (response) {
+                    console.log('Conversation loaded:', response);
+                    
                     currentConversationId = conversationId;
 
                     // Update header
@@ -387,9 +417,18 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
 
                     // Clear and load messages
                     $('#intebchat_log').empty();
-                    response.messages.forEach(function (msg) {
-                        addToChatLog(msg.role === 'user' ? 'user' : 'bot', msg.message, instanceId, false);
-                    });
+                    
+                    if (response.messages && response.messages.length > 0) {
+                        response.messages.forEach(function (msg) {
+                            addToChatLog(msg.role === 'user' ? 'user' : 'bot', msg.message, instanceId, false);
+                        });
+                    }
+
+                    // Store threadId if exists (for Assistant API)
+                    if (response.threadId) {
+                        $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]')
+                            .attr('data-thread-id', response.threadId);
+                    }
 
                     // Update active state
                     $('.intebchat-conversation-item').removeClass('active');
@@ -403,11 +442,25 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                     messageContainer.animate({
                         scrollTop: messageContainer[0].scrollHeight
                     }, 300);
+                    
+                    // Focus input
+                    $('#openai_input').focus();
                 },
                 fail: function (error) {
+                    console.error('Error loading conversation:', error);
                     $('#intebchat_log').empty();
+                    
+                    var errorMessage = strings.erroroccurred;
+                    if (error.message) {
+                        errorMessage = error.message;
+                    } else if (error.error) {
+                        errorMessage = error.error;
+                    }
+                    
+                    addToChatLog('bot error', errorMessage, instanceId);
+                    
                     Notification.addNotification({
-                        message: error.message || strings.erroroccurred,
+                        message: errorMessage,
                         type: 'error'
                     });
                 }
@@ -422,24 +475,26 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                 methodname: 'mod_intebchat_clear_conversation',
                 args: { conversationid: conversationId },
                 done: function (response) {
+                    console.log('Clear conversation response:', response);
+                    
                     if (response.deleted) {
                         // Conversation was deleted completely
-                        // Remove from sidebar
-                        $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]').fadeOut(300, function () {
-                            $(this).remove();
+                        $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]')
+                            .fadeOut(300, function () {
+                                $(this).remove();
 
-                            // Check if there are any conversations left
-                            if ($('.intebchat-conversation-item').length === 0) {
-                                // No conversations left, create a new one
-                                createNewConversation(instanceId);
-                            } else {
-                                // Select the first available conversation
-                                var firstConv = $('.intebchat-conversation-item').first();
-                                if (firstConv.length > 0) {
-                                    firstConv.click();
+                                // Check if there are any conversations left
+                                if ($('.intebchat-conversation-item').length === 0) {
+                                    // No conversations left, create a new one
+                                    createNewConversation(instanceId);
+                                } else {
+                                    // Select the first available conversation
+                                    var firstConv = $('.intebchat-conversation-item').first();
+                                    if (firstConv.length > 0) {
+                                        firstConv.click();
+                                    }
                                 }
-                            }
-                        });
+                            });
 
                         // Show notification
                         Notification.addNotification({
@@ -448,24 +503,24 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                         });
                     } else {
                         // Conversation was cleared but not deleted
-                        // Clear chat log
                         $('#intebchat_log').empty();
 
                         // Update the preview in sidebar to empty
                         var $conversationItem = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
                         $conversationItem.find('.intebchat-conversation-preview').text('');
+                        
+                        // Remove stored threadId
+                        $conversationItem.removeAttr('data-thread-id');
 
                         // Show notification
                         Notification.addNotification({
                             message: strings.conversationcleared,
                             type: 'success'
                         });
-
-                        // Update the conversation list to reflect the change
-                        refreshConversationInSidebar(conversationId);
                     }
                 },
                 fail: function (error) {
+                    console.error('Error clearing conversation:', error);
                     Notification.addNotification({
                         message: error.message || strings.erroroccurred,
                         type: 'error'
@@ -478,6 +533,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
          * Update conversation title
          */
         var updateConversationTitle = function (conversationId, newTitle) {
+            if (!newTitle || newTitle.trim() === '') {
+                return;
+            }
+            
             Ajax.call([{
                 methodname: 'mod_intebchat_update_conversation_title',
                 args: {
@@ -485,16 +544,19 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                     title: newTitle
                 },
                 done: function (response) {
+                    console.log('Title update response:', response);
+                    
                     if (response && response.success) {
                         // Update header
                         $('#conversation-title').text(newTitle);
-                        // Update sidebar and stored title
+                        
+                        // Update sidebar
                         var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
                         $item.find('.title-text').text(newTitle);
                         $item.attr('data-title', newTitle);
 
                         Notification.addNotification({
-                            message: strings.edittitle,
+                            message: 'Title updated successfully',
                             type: 'success'
                         });
                     } else {
@@ -505,6 +567,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                     }
                 },
                 fail: function (error) {
+                    console.error('Error updating title:', error);
                     Notification.addNotification({
                         message: error.message || strings.erroroccurred,
                         type: 'error'
@@ -709,6 +772,15 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
          */
         var createCompletion = function (message, instanceId, api_type) {
             var threadId = null;
+            
+            // Intentar obtener el threadId de la conversación actual
+            if (currentConversationId) {
+                // Buscar si tenemos un threadId almacenado para esta conversación
+                var $conversationItem = $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]');
+                if ($conversationItem.length && $conversationItem.data('thread-id')) {
+                    threadId = $conversationItem.data('thread-id');
+                }
+            }
 
             // Build history from current conversation
             var history = buildTranscript(instanceId);
@@ -723,20 +795,29 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
             }
 
             var audio = $('#intebchat-recorded-audio').val();
+            
+            // Preparar los datos para enviar
+            var requestData = {
+                message: message,
+                history: history,
+                instanceId: instanceId,
+                conversationId: currentConversationId || null,
+                threadId: threadId,
+                audio: audio || null
+            };
+            
+            // Debug log
+            console.log('Sending completion request:', requestData);
+            
             $.ajax({
                 url: M.cfg.wwwroot + '/mod/intebchat/api/completion.php',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',
-                data: JSON.stringify({
-                    message: message,
-                    history: history,
-                    instanceId: instanceId,
-                    conversationId: currentConversationId || null,
-                    threadId: threadId,
-                    audio: audio || null
-                }),
+                data: JSON.stringify(requestData),
                 success: function (data) {
+                    console.log('Completion response:', data);
+                    
                     $('#intebchat-recorded-audio').val('');
                     var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
 
@@ -749,14 +830,25 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                         // If we had audio input, replace the transcribing message with actual transcription
                         if (audio && data.transcription) {
                             messageContainer.find('.openai_message.user-transcribing').remove();
-                            addToChatLog('user', data.transcription, instanceId);
+                            var userContent = data.transcription;
+                            if (data.useraudio) {
+                                userContent = '<audio controls autoplay src="' + data.useraudio + '"></audio>' +
+                                    '<div class="transcription">' + data.transcription + '</div>';
+                            }
+                            addToChatLog('user', userContent, instanceId);
                         }
 
                         addToChatLog('bot', data.message, instanceId);
 
-                        // Update conversation ID if returned (for cases where conversation was created server-side)
+                        // Update conversation ID if returned
                         if (data.conversationId && !currentConversationId) {
                             currentConversationId = data.conversationId;
+                        }
+                        
+                        // Store threadId if returned (for assistant API)
+                        if (data.threadId && currentConversationId) {
+                            $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]')
+                                .attr('data-thread-id', data.threadId);
                         }
 
                         // Update conversation preview
@@ -766,7 +858,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
 
                         // Update token usage if provided
                         if (data.tokenInfo && tokenInfo.enabled) {
-                            tokenInfo.used += data.tokenInfo.total || 0;
+                            tokenInfo.used = (tokenInfo.used || 0) + (data.tokenInfo.total || 0);
                             updateTokenUI();
 
                             // Check if limit exceeded
@@ -780,6 +872,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                             }
                         }
                     } else if (data.error) {
+                        console.error('Server error:', data.error);
                         if (data.error.type === 'token_limit_exceeded') {
                             tokenInfo.exceeded = true;
                             updateTokenUI();
@@ -796,6 +889,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                     }
                 },
                 error: function (xhr, status, error) {
+                    console.error('AJAX error:', status, error, xhr.responseText);
                     var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
                     messageContainer.find('.openai_message.bot-loading, .openai_message.user-transcribing').remove();
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
@@ -804,10 +898,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                     try {
                         var response = JSON.parse(xhr.responseText);
                         if (response.error) {
-                            errorMsg = response.error;
+                            errorMsg = response.error.message || response.error;
                         }
                     } catch (e) {
-                        // Use default error message
+                        errorMsg = errorString + ' (' + error + ')';
                     }
 
                     addToChatLog('bot error', errorMsg, instanceId);

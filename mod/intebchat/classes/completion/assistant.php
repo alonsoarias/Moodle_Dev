@@ -33,23 +33,34 @@ class assistant extends \mod_intebchat\completion {
     private $thread_id;
     private $run_usage = null; // Store usage data from run
 
-    public function __construct($model, $message, $history, $instance_settings, $thread_id) {
+    public function __construct($model, $message, $history, $instance_settings, $thread_id = null) {
         parent::__construct($model, $message, $history, $instance_settings);
 
-        // If thread_id is NULL, create a new thread
-        if (!$thread_id) {
+        // If thread_id is NULL or empty, create a new thread
+        if (empty($thread_id)) {
             $thread_id = $this->create_thread();
         }
         $this->thread_id = $thread_id;
     }
 
     /**
-     * Given everything we know after constructing the parent, create a completion by constructing the prompt and making the api call
-     * @return array The API response including token usage
+     * Get the current thread ID
+     * @return string The thread ID
+     */
+    public function get_thread_id() {
+        return $this->thread_id;
+    }
+
+    /**
+     * Given everything we know after constructing the parent, create a completion
+     * @return array The API response including token usage and thread_id
      */
     public function create_completion($context) {
         $this->add_message_to_thread();
         $result = $this->run();
+        
+        // Always add thread_id to result
+        $result['thread_id'] = $this->thread_id;
         
         // Add usage data if available
         if ($this->run_usage) {
@@ -59,6 +70,10 @@ class assistant extends \mod_intebchat\completion {
         return $result;
     }
 
+    /**
+     * Create a new thread in OpenAI
+     * @return string The thread ID
+     */
     private function create_thread() {
         $curl = new \curl();
         $curl->setopt(array(
@@ -72,10 +87,26 @@ class assistant extends \mod_intebchat\completion {
         $response = $curl->post("https://api.openai.com/v1/threads");
         $response = json_decode($response);
 
+        if (isset($response->error)) {
+            throw new \Exception('Error creating thread: ' . $response->error->message);
+        }
+
+        if (!isset($response->id)) {
+            throw new \Exception('Thread creation failed: No thread ID returned');
+        }
+
         return $response->id;
     }
 
+    /**
+     * Add a message to the current thread
+     * @return string The message ID
+     */
     private function add_message_to_thread() {
+        if (empty($this->message)) {
+            return null;
+        }
+
         $curlbody = [
             "role" => "user",
             "content" => $this->message
@@ -96,7 +127,11 @@ class assistant extends \mod_intebchat\completion {
         );
         $response = json_decode($response);
 
-        return $response->id;
+        if (isset($response->error)) {
+            throw new \Exception('Error adding message to thread: ' . $response->error->message);
+        }
+
+        return isset($response->id) ? $response->id : null;
     }
 
     /**
@@ -104,10 +139,14 @@ class assistant extends \mod_intebchat\completion {
      * @return array The response from OpenAI
      */
     private function run() {
+        if (empty($this->assistant)) {
+            throw new \Exception('No assistant ID configured');
+        }
 
         $curlbody = [
             "assistant_id" => $this->assistant,
         ];
+        
         if ($this->instructions) {
             $curlbody["instructions"] = $this->instructions;
         }
@@ -131,24 +170,34 @@ class assistant extends \mod_intebchat\completion {
             throw new \Exception($response->error->message);
         }
 
+        if (!isset($response->id)) {
+            throw new \Exception('Run creation failed: No run ID returned');
+        }
+
         $run_id = $response->id;
         $run_completed = false;
         $iters = 0;
+        
         while (!$run_completed) {
             $iters++;
             if ($iters >= 60) {
                 return [
                     "id" => 0,
                     "message" => get_string('openaitimedout', 'mod_intebchat'),
-                    "thread_id" => 0
+                    "thread_id" => $this->thread_id
                 ];
             }
+            
             $run_status = $this->check_run_status($run_id);
             $run_completed = $run_status['completed'];
+            
             if ($run_status['usage']) {
                 $this->run_usage = $run_status['usage'];
             }
-            sleep(1);
+            
+            if (!$run_completed) {
+                sleep(1);
+            }
         }
 
         // Get the messages after run completion
@@ -160,13 +209,28 @@ class assistant extends \mod_intebchat\completion {
                 'OpenAI-Beta: assistants=v2'
             ),
         ));
+        
         $response = $curl->get("https://api.openai.com/v1/threads/" . $this->thread_id . '/messages');
         $response = json_decode($response);
 
+        if (isset($response->error)) {
+            throw new \Exception('Error retrieving messages: ' . $response->error->message);
+        }
+
+        if (!isset($response->data) || empty($response->data)) {
+            throw new \Exception('No messages returned from assistant');
+        }
+
+        $latest_message = $response->data[0];
+        
+        if (!isset($latest_message->content[0]->text->value)) {
+            throw new \Exception('Invalid message format returned from assistant');
+        }
+
         return [
-            "id" => $response->data[0]->id,
-            "message" => $response->data[0]->content[0]->text->value,
-            "thread_id" => $response->data[0]->thread_id
+            "id" => $latest_message->id,
+            "message" => $latest_message->content[0]->text->value,
+            "thread_id" => $this->thread_id
         ];
     }
 
@@ -192,7 +256,18 @@ class assistant extends \mod_intebchat\completion {
         $usage = null;
         
         if (isset($response['status'])) {
-            $completed = ($response['status'] === 'completed' || isset($response['error']));
+            // Run is completed when status is 'completed' or if there's an error
+            $completed = ($response['status'] === 'completed' || 
+                         $response['status'] === 'failed' || 
+                         $response['status'] === 'cancelled' ||
+                         $response['status'] === 'expired' ||
+                         isset($response['error']));
+            
+            // Handle failed runs
+            if ($response['status'] === 'failed' || isset($response['error'])) {
+                $error_msg = isset($response['error']) ? $response['error']['message'] : 'Run failed';
+                throw new \Exception('Assistant run failed: ' . $error_msg);
+            }
             
             // Extract usage data if available
             if (isset($response['usage'])) {
