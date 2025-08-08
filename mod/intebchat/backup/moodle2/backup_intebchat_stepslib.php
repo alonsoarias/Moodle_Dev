@@ -46,7 +46,8 @@ class backup_intebchat_activity_structure_step extends backup_activity_structure
             'sourceoftruth', 'prompt', 'instructions', 'username',
             'assistantname', 'apikey', 'model', 'temperature',
             'maxlength', 'topp', 'frequency', 'presence',
-            'assistant', 'persistconvo', 'timecreated', 'timemodified'
+            'assistant', 'persistconvo', 'enableaudio', 'audiomode', 'voice',
+            'timecreated', 'timemodified'
         ));
 
         // Define chat logs.

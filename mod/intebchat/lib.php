@@ -91,13 +91,13 @@ function intebchat_add_instance(stdClass $intebchat, mod_intebchat_mod_form $mfo
     if (!isset($intebchat->persistconvo)) {
         $intebchat->persistconvo = 0;
     }
+
     if (!isset($intebchat->enableaudio)) {
         $intebchat->enableaudio = 0;
         $intebchat->audiomode = 'text';
     }
-    if (!isset($intebchat->enableaudio)) {
-        $intebchat->enableaudio = 0;
-        $intebchat->audiomode = 'text';
+    if (!isset($intebchat->voice)) {
+        $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
     }
 
     // Clean up fields based on API type
@@ -153,6 +153,14 @@ function intebchat_update_instance(stdClass $intebchat, mod_intebchat_mod_form $
     }
     if (!isset($intebchat->persistconvo)) {
         $intebchat->persistconvo = 0;
+    }
+
+    if (!isset($intebchat->enableaudio)) {
+        $intebchat->enableaudio = 0;
+        $intebchat->audiomode = 'text';
+    }
+    if (!isset($intebchat->voice)) {
+        $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
     }
 
     // Clean up fields based on API type

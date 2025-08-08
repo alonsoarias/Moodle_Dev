@@ -87,6 +87,18 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->setDefault('audiomode', 'text');
             $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
             $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
+
+            $voices = [
+                'alloy' => 'Alloy',
+                'echo' => 'Echo',
+                'fable' => 'Fable',
+                'onyx' => 'Onyx',
+                'nova' => 'Nova',
+                'shimmer' => 'Shimmer',
+            ];
+            $mform->addElement('select', 'voice', get_string('voice', 'mod_intebchat'), $voices);
+            $mform->setDefault('voice', get_config('mod_intebchat', 'voice'));
+            $mform->disabledIf('voice', 'enableaudio', 'eq', 0);
         }
 
         // Hidden field for API type (always use global setting)
@@ -260,6 +272,9 @@ class mod_intebchat_mod_form extends moodleform_mod {
         // Always use global API type
         $config = get_config('mod_intebchat');
         $default_values['apitype'] = $config->type ?: 'chat';
+        if (empty($default_values['voice'])) {
+            $default_values['voice'] = get_config('mod_intebchat', 'voice');
+        }
     }
 
     /**
@@ -277,6 +292,9 @@ class mod_intebchat_mod_form extends moodleform_mod {
         // Set defaults for unchecked checkboxes
         if (!isset($data->enableaudio)) {
             $data->enableaudio = 0;
+        }
+        if (empty($data->voice)) {
+            $data->voice = get_config('mod_intebchat', 'voice');
         }
     }
 }

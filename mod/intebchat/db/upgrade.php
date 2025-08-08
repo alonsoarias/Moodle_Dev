@@ -281,5 +281,17 @@ function xmldb_intebchat_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025030101, 'intebchat');
     }
 
+    if ($oldversion < 2025030102) {
+        $table = new xmldb_table('intebchat');
+
+        // Add voice field.
+        $field = new xmldb_field('voice', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'alloy', 'audiomode');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2025030102, 'intebchat');
+    }
+
     return true;
 }
