@@ -87,7 +87,7 @@ if (!empty($intebchat->enableaudio)) {
     $PAGE->requires->js_call_amd('mod_intebchat/audio', 'init', [$intebchat->audiomode]);
 }
 
-// Add professional CSS
+// Add CSS
 $PAGE->requires->css('/mod/intebchat/styles.css');
 
 // Output starts here
@@ -100,16 +100,6 @@ if ($intebchat->intro) {
     echo $OUTPUT->box(format_module_intro('intebchat', $intebchat, $cm->id), 'generalbox mod_introbox', 'intebchatintro');
 }
 
-// Determine name labels visibility
-$showlabelscss = '';
-if (!$intebchat->showlabels) {
-    $showlabelscss = '
-        .openai_message:before {
-            display: none;
-        }
-    ';
-}
-
 // Get assistant and user names
 $assistantname = $intebchat->assistantname ?: ($config->assistantname ?: get_string('defaultassistantname', 'mod_intebchat'));
 $username = $USER->firstname ?: get_string('defaultusername', 'mod_intebchat');
@@ -120,181 +110,81 @@ if ($persistconvo && isloggedin()) {
     $conversations = intebchat_get_user_conversations($intebchat->id, $USER->id);
 }
 
-$assistantname = format_string($assistantname, true, ['context' => $PAGE->context]);
-$username = format_string($username, true, ['context' => $PAGE->context]);
+// Format conversations for template
+$formatted_conversations = [];
+foreach ($conversations as $conv) {
+    $formatted_conversations[] = [
+        'id' => $conv->id,
+        'title' => format_string($conv->title, true, ['context' => $PAGE->context]),
+        'preview' => format_string($conv->preview, true, ['context' => $PAGE->context]),
+        'lastmessage_formatted' => userdate($conv->lastmessage, '%d/%m')
+    ];
+}
 
-// Chat interface HTML with conversations sidebar
-?>
-<div class="mod_intebchat" data-instance-id="<?php echo $intebchat->id; ?>">
-    <script>
-        var assistantName = "<?php echo addslashes($assistantname); ?>";
-        var userName = "<?php echo addslashes($username); ?>";
-    </script>
+// Calculate token percentage
+$percentage = ($token_limit_info['limit'] > 0) ? 
+    ($token_limit_info['used'] / $token_limit_info['limit'] * 100) : 0;
 
-    <style>
-        <?php echo $showlabelscss; ?>.openai_message.user:before {
-            content: "<?php echo addslashes($username); ?>";
-        }
+// Determine progress bar class
+$progress_class = '';
+if ($percentage >= 100) {
+    $progress_class = ' danger';
+} elseif ($percentage > 90) {
+    $progress_class = ' danger';
+} elseif ($percentage > 75) {
+    $progress_class = ' warning';
+}
 
-        .openai_message.bot:before {
-            content: "<?php echo addslashes($assistantname); ?>";
-        }
-    </style>
+// Audio mode settings
+$showTextarea = ($intebchat->audiomode === 'text' || $intebchat->audiomode === 'both');
+$showAudio = !empty($intebchat->enableaudio) && ($intebchat->audiomode === 'audio' || $intebchat->audiomode === 'both');
 
-    <?php if (!$apikey_configured): ?>
-        <div class="alert alert-danger">
-            <i class="fa fa-exclamation-triangle"></i> <?php echo get_string('apikeymissing', 'mod_intebchat'); ?>
-        </div>
-    <?php else: ?>
-        <div class="intebchat-wrapper">
-            <!-- Mobile Toggle Button -->
-            <button class="intebchat-mobile-toggle" id="mobile-menu-toggle">
-                <i class="fa fa-bars"></i>
-            </button>
+// Prepare template context
+$templatecontext = [
+    'instanceid' => $intebchat->id,
+    'assistantname' => format_string($assistantname, true, ['context' => $PAGE->context]),
+    'username' => format_string($username, true, ['context' => $PAGE->context]),
+    'showlabels' => $intebchat->showlabels,
+    'apikey_configured' => $apikey_configured,
+    'apikeymissing' => get_string('apikeymissing', 'mod_intebchat'),
+    'conversations' => $formatted_conversations,
+    'hasconversations' => !empty($formatted_conversations),
+    'noconversations' => get_string('noconversations', 'mod_intebchat'),
+    'searchconversations' => get_string('searchconversations', 'mod_intebchat'),
+    'newconversation' => get_string('newconversation', 'mod_intebchat'),
+    'edittitle' => get_string('edittitle', 'mod_intebchat'),
+    'clearconversation' => get_string('clearconversation', 'mod_intebchat'),
+    'askaquestion' => get_string('askaquestion', 'mod_intebchat'),
+    'token_limit_exceeded' => !$token_limit_info['allowed'],
+    'token_limit_message' => !$token_limit_info['allowed'] ? get_string('tokenlimitexceeded', 'mod_intebchat', [
+        'used' => $token_limit_info['used'],
+        'limit' => $token_limit_info['limit'],
+        'reset' => userdate($token_limit_info['reset_time'])
+    ]) : '',
+    'token_limit_enabled' => !empty($config->enabletokenlimit),
+    'tokens_used' => $token_limit_info['used'],
+    'tokens_limit' => $token_limit_info['limit'],
+    'tokens_percentage' => number_format($percentage, 1),
+    'tokens_percentage_capped' => min($percentage, 100),
+    'progress_class' => $progress_class,
+    'tokens_used_label' => get_string('tokensused', 'mod_intebchat', [
+        'used' => $token_limit_info['used'],
+        'limit' => $token_limit_info['limit']
+    ]),
+    'show_reset_time' => $token_limit_info['reset_time'] > time(),
+    'tokens_reset_label' => get_string('tokensreset', 'mod_intebchat', 
+        userdate($token_limit_info['reset_time'], '%H:%M')),
+    'logging_enabled' => $config->logging,
+    'loggingenabled' => get_string('loggingenabled', 'mod_intebchat'),
+    'showTextarea' => $showTextarea,
+    'showAudio' => $showAudio,
+    'recordaudio' => get_string('recordaudio', 'mod_intebchat'),
+    'stoprecording' => get_string('stoprecording', 'mod_intebchat'),
+    'switchtheme' => get_string('switchtheme', 'mod_intebchat')
+];
 
-            <!-- Conversations Sidebar -->
-            <div class="intebchat-sidebar" id="conversations-sidebar">
-                <div class="intebchat-sidebar-header">
-                    <div class="intebchat-sidebar-search">
-                        <input type="text"
-                            id="conversation-search"
-                            placeholder="<?php echo get_string('searchconversations', 'mod_intebchat'); ?>"
-                            aria-label="<?php echo get_string('searchconversations', 'mod_intebchat'); ?>">
-                        <i class="fa fa-search search-icon"></i>
-                    </div>
-                    <button class="intebchat-new-conversation" id="new-conversation-btn">
-                        <i class="fa fa-plus"></i>
-                        <?php echo get_string('newconversation', 'mod_intebchat'); ?>
-                    </button>
-                </div>
+// Render the chat interface using Mustache template
+echo $OUTPUT->render_from_template('mod_intebchat/chat', $templatecontext);
 
-                <div class="intebchat-conversations-list" id="conversations-list">
-                    <?php if (empty($conversations)): ?>
-                        <div class="intebchat-no-conversations">
-                            <p><?php echo get_string('noconversations', 'mod_intebchat'); ?></p>
-                        </div>
-                    <?php else: ?>
-                        <?php foreach ($conversations as $conv): ?>
-                            <div class="intebchat-conversation-item"
-                                data-conversation-id="<?php echo $conv->id; ?>"
-                                data-title="<?php echo s($conv->title); ?>">
-                                <div class="intebchat-conversation-title">
-                                    <span class="title-text"><?php echo s($conv->title); ?></span>
-                                    <span class="intebchat-conversation-date">
-                                        <?php echo userdate($conv->lastmessage, '%d/%m'); ?>
-                                    </span>
-                                </div>
-                                <div class="intebchat-conversation-preview">
-                                    <?php echo s($conv->preview); ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Main Chat Area -->
-            <div class="intebchat-main">
-                <!-- Chat Header -->
-                <div class="intebchat-header">
-                    <h3 class="intebchat-header-title" id="conversation-title">
-                        <?php echo get_string('newconversation', 'mod_intebchat'); ?>
-                    </h3>
-                    <div class="intebchat-header-actions">
-                        <button class="intebchat-header-btn" id="edit-title-btn" title="<?php echo get_string('edittitle', 'mod_intebchat'); ?>">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                        <button class="intebchat-header-btn" id="clear-conversation-btn" title="<?php echo get_string('clearconversation', 'mod_intebchat'); ?>">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <?php if (!$token_limit_info['allowed']): ?>
-                    <div class="alert alert-warning">
-                        <i class="fa fa-exclamation-circle"></i>
-                        <?php echo get_string('tokenlimitexceeded', 'mod_intebchat', [
-                            'used' => $token_limit_info['used'],
-                            'limit' => $token_limit_info['limit'],
-                            'reset' => userdate($token_limit_info['reset_time'])
-                        ]); ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (!empty($config->enabletokenlimit)): ?>
-                    <div class="token-usage-info">
-                        <div class="token-display">
-                            <span class="token-label"><?php echo get_string('tokensused', 'mod_intebchat', [
-                                                            'used' => $token_limit_info['used'],
-                                                            'limit' => $token_limit_info['limit']
-                                                        ]); ?></span>
-                        </div>
-                        <div class="progress">
-                            <div class="progress-bar<?php
-                                                    $percentage = ($token_limit_info['used'] / $token_limit_info['limit'] * 100);
-                                                    if ($percentage > 90) echo ' danger';
-                                                    elseif ($percentage > 75) echo ' warning';
-                                                    ?>" role="progressbar"
-                                style="width: <?php echo ($token_limit_info['used'] / $token_limit_info['limit'] * 100); ?>%"
-                                aria-valuenow="<?php echo $token_limit_info['used']; ?>"
-                                aria-valuemin="0"
-                                aria-valuemax="<?php echo $token_limit_info['limit']; ?>">
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <div id="intebchat_log" role="log" aria-live="polite">
-                    <!-- Messages will be loaded here -->
-                </div>
-
-                <div id="control_bar">
-                    <?php if ($config->logging): ?>
-                        <div class="logging-info">
-                            <i class="fa fa-info-circle"></i> <?php echo get_string('loggingenabled', 'mod_intebchat'); ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="openai_input_bar" id="input_bar">
-                        <?php
-                        $showTextarea = ($intebchat->audiomode === 'text' || $intebchat->audiomode === 'both');
-                        $showAudio = !empty($intebchat->enableaudio) && ($intebchat->audiomode === 'audio' || $intebchat->audiomode === 'both');
-                        ?>
-
-                        <?php if ($showTextarea): ?>
-                            <textarea aria-label="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
-                                rows="1"
-                                id="openai_input"
-                                placeholder="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
-                                name="message"
-                                <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>></textarea>
-                        <?php endif; ?>
-
-                        <?php if ($showAudio): ?>
-                            <button class="openai_input_mic_btn" id="intebchat-icon-mic" title="<?php echo get_string('recordaudio', 'mod_intebchat'); ?>">
-                                <i class="fa fa-microphone"></i>
-                            </button>
-                            <button class="openai_input_stop_btn" id="intebchat-icon-stop" title="<?php echo get_string('stoprecording', 'mod_intebchat'); ?>" style="display:none">
-                                <i class="fa fa-stop"></i>
-                            </button>
-                            <input type="hidden" id="intebchat-recorded-audio" name="audio" value="">
-                        <?php endif; ?>
-
-                        <?php if ($showTextarea): ?>
-                            <button class='openai_input_submit_btn'
-                                title="<?php echo get_string('askaquestion', 'mod_intebchat'); ?>"
-                                id="go"
-                                <?php echo !$token_limit_info['allowed'] ? 'disabled' : ''; ?>>
-                                <i class="fa fa-paper-plane"></i>
-                            </button>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-
-<?php
 // Finish the page
 echo $OUTPUT->footer();

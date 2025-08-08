@@ -55,6 +55,7 @@ $string['loadingconversation'] = 'Loading conversation...';
 $string['defaultconversation'] = 'Migrated conversation';
 $string['errorloadingconversation'] = 'Error loading conversation';
 $string['errorclearingconversation'] = 'Error clearing conversation';
+$string['conversationtitleupdated'] = 'Title updated successfully';
 
 // Settings strings
 $string['generalsettings'] = 'General settings';
@@ -126,6 +127,11 @@ $string['tokenlimitperioddesc'] = 'The time period for the token limit';
 $string['tokensused'] = 'Tokens used: {$a->used} / {$a->limit}';
 $string['tokenlimitexceeded'] = 'You have exceeded your token limit. Used: {$a->used}, Limit: {$a->limit}. Resets at: {$a->reset}';
 $string['totaltokensused'] = 'Total tokens used: {$a}';
+$string['tokensreset'] = 'Tokens will reset at: {$a}';
+$string['audiotokens'] = 'Audio tokens used: {$a}';
+$string['texttokens'] = 'Text tokens used: {$a}';
+$string['totaltokensdetailed'] = 'Total tokens - Text: {$a->text}, Audio: {$a->audio}';
+$string['tokenlimitwarning'] = 'Only {$a} tokens remaining!';
 
 // Messages
 $string['askaquestion'] = 'Ask a question...';
@@ -140,25 +146,7 @@ $string['messages'] = 'Messages';
 $string['created'] = 'Created';
 $string['transcribing'] = 'Transcribing...';
 
-// Default strings
-$string['defaultassistantname'] = 'Assistant';
-$string['defaultusername'] = 'User';
-$string['defaultprompt'] = 'You are a helpful assistant.';
-$string['sourceoftruthpreamble'] = 'You have been provided with the following information as context:';
-$string['sourceoftruthreinforcement'] = ' In your responses, always prioritize the information provided in the context.';
-
-// Validation messages
-$string['temperaturerange'] = 'Temperature must be between 0 and 2';
-$string['topprange'] = 'Top P must be between 0 and 1';
-$string['maxlengthrange'] = 'Max length must be between 1 and 4000';
-
-// Other settings
-$string['restrictusage'] = 'Restrict to logged-in users';
-$string['restrictusagedesc'] = 'Only logged-in users can use the chat';
-$string['logging'] = 'Log conversations';
-$string['loggingdesc'] = 'Log all conversations for later analysis';
-$string['allowinstancesettings'] = 'Allow per-instance settings';
-$string['allowinstancesettingsdesc'] = 'Allow teachers to override global settings on individual instances';
+// Audio mode strings
 $string['enableaudio'] = 'Enable audio';
 $string['enableaudio_help'] = 'Enable audio features for this chat instance';
 $string['enableaudio_desc'] = 'Allow recording and audio responses';
@@ -171,6 +159,38 @@ $string['voice'] = 'Voice used in the audio response';
 $string['voice_desc'] = 'Select the voice for text-to-speech responses';
 $string['recordaudio'] = 'Record audio';
 $string['stoprecording'] = 'Stop recording';
+$string['switchtoaudiomode'] = 'Switch to audio mode';
+$string['switchtotextmode'] = 'Switch to text mode';
+$string['inputmode'] = 'Input mode';
+$string['responsemode'] = 'Response mode';
+$string['audioresponse'] = 'Audio response';
+$string['textresponse'] = 'Text response';
+
+// Theme strings
+$string['switchtheme'] = 'Switch theme';
+$string['darkmode'] = 'Dark mode';
+$string['lightmode'] = 'Light mode';
+
+// Default strings
+$string['defaultassistantname'] = 'Assistant';
+$string['defaultusername'] = 'User';
+$string['defaultprompt'] = 'You are a helpful assistant.';
+$string['sourceoftruthpreamble'] = 'You have been provided with the following information as context:';
+$string['sourceoftruthreinforcement'] = ' In your responses, always prioritize the information provided in the context.';
+
+// Validation messages
+$string['temperaturerange'] = 'Temperature must be between 0 and 2';
+$string['topprange'] = 'Top P must be between 0 and 1';
+$string['maxlengthrange'] = 'Max length must be between 1 and 4000';
+$string['reasoningmodelwarning'] = 'You have selected model "{$a}". This is an advanced reasoning model designed to solve complex problems through step-by-step analysis. Please note it may have higher cost and response time.';
+
+// Other settings
+$string['restrictusage'] = 'Restrict to logged-in users';
+$string['restrictusagedesc'] = 'Only logged-in users can use the chat';
+$string['logging'] = 'Log conversations';
+$string['loggingdesc'] = 'Log all conversations for later analysis';
+$string['allowinstancesettings'] = 'Allow per-instance settings';
+$string['allowinstancesettingsdesc'] = 'Allow teachers to override global settings on individual instances';
 $string['defaultvalues'] = 'Default values';
 $string['defaultvaluesdesc'] = 'Default values for new instances';
 

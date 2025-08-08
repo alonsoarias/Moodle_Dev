@@ -1,45 +1,222 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-  <!-- Modern chat bubble with AI symbol -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Enhanced Robot Icon for Moodle Plugin
+  - Improved design with more noticeable animations
+  - Better visual hierarchy and modern aesthetics
+  - Optimized for visibility at small sizes
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-labelledby="title desc">
+  <title id="title">Enhanced Robot Icon</title>
+  <desc id="desc">Enhanced animated robot icon for Moodle plugin with improved animations</desc>
+
   <defs>
-    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    <!-- Gradiente metálico mejorado -->
+    <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F1F5F9">
+        <animate attributeName="stop-color" values="#F1F5F9;#E2E8F0;#F1F5F9" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#475569">
+        <animate attributeName="stop-color" values="#475569;#334155;#475569" dur="3s" repeatCount="indefinite"/>
+      </stop>
     </linearGradient>
-    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
-      <feOffset dx="0" dy="1" result="offsetblur"/>
-      <feFlood flood-color="#000000" flood-opacity="0.1"/>
-      <feComposite in2="offsetblur" operator="in"/>
+    
+    <!-- Gradiente para pantalla -->
+    <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+
+    <!-- Gradiente animado para antenas -->
+    <linearGradient id="antennaGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA">
+        <animate attributeName="stop-color" values="#60A5FA;#3B82F6;#1D4ED8;#3B82F6;#60A5FA" dur="2s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#1D4ED8">
+        <animate attributeName="stop-color" values="#1D4ED8;#1E40AF;#1E3A8A;#1E40AF;#1D4ED8" dur="2s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+
+    <!-- Gradiente para ojos con animación -->
+    <radialGradient id="eyeGlow" cx="30%" cy="30%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="30%" stop-color="#60A5FA">
+        <animate attributeName="stop-color" values="#60A5FA;#3B82F6;#60A5FA" dur="1.5s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </radialGradient>
+
+    <!-- Filtros para efectos -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feColorMatrix in="blur" values="1 0 0 0 0.23  0 1 0 0 0.51  0 0 1 0 0.98  0 0 0 0.6 0"/>
       <feMerge>
         <feMergeNode/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+
+    <filter id="dropShadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
   </defs>
-  
-  <!-- Chat bubble -->
-  <path d="M19 2H5c-1.657 0-3 1.343-3 3v10c0 1.657 1.343 3 3 3h2l3 3 3-3h6c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z" 
-        fill="url(#gradient1)" 
-        filter="url(#shadow)"/>
-  
-  <!-- AI neural network symbol -->
-  <g fill="#ffffff">
-    <!-- Central node -->
-    <circle cx="12" cy="10" r="1.5" opacity="1"/>
-    
-    <!-- Left nodes -->
-    <circle cx="7" cy="8" r="1" opacity="0.9"/>
-    <circle cx="7" cy="12" r="1" opacity="0.9"/>
-    
-    <!-- Right nodes -->
-    <circle cx="17" cy="8" r="1" opacity="0.9"/>
-    <circle cx="17" cy="12" r="1" opacity="0.9"/>
-    
-    <!-- Connections -->
-    <path d="M8 8.5l3.5 1M8 11.5l3.5-1M13.5 9.5l3-1M13.5 10.5l3 1" 
-          stroke="#ffffff" 
-          stroke-width="0.5" 
-          opacity="0.7"/>
+
+  <!-- Fondo con patrón sutil animado -->
+  <circle cx="60" cy="60" r="55" fill="#F8FAFC" opacity="0.5">
+    <animate attributeName="r" values="55;58;55" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0.7;0.5" dur="4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Cuerpo principal del robot -->
+  <g filter="url(#dropShadow)">
+    <rect x="25" y="40" width="70" height="65" rx="15" ry="15" 
+          fill="url(#bodyGradient)" 
+          stroke="#64748B" 
+          stroke-width="2">
+      <!-- Animación de pulsación más visible -->
+      <animate attributeName="width" values="70;73;70" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="height" values="65;68;65" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="x" values="25;23.5;25" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="40;38.5;40" dur="2s" repeatCount="indefinite"/>
+    </rect>
   </g>
+
+  <!-- Antenas con animación mejorada -->
+  <g id="antennas">
+    <!-- Base de antenas -->
+    <rect x="45" y="30" width="30" height="4" rx="2" fill="#64748B"/>
+    
+    <!-- Antena izquierda -->
+    <rect x="48" y="15" width="4" height="20" fill="url(#antennaGlow)" rx="2">
+      <animate attributeName="height" values="20;25;20" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="15;10;15" dur="1.5s" repeatCount="indefinite"/>
+    </rect>
+    <circle cx="50" cy="12" r="5" fill="#3B82F6" filter="url(#glow)">
+      <animate attributeName="r" values="5;8;5" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="12;8;12" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Antena derecha -->
+    <rect x="68" y="15" width="4" height="20" fill="url(#antennaGlow)" rx="2">
+      <animate attributeName="height" values="20;25;20" dur="1.5s" begin="0.75s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="15;10;15" dur="1.5s" begin="0.75s" repeatCount="indefinite"/>
+    </rect>
+    <circle cx="70" cy="12" r="5" fill="#3B82F6" filter="url(#glow)">
+      <animate attributeName="r" values="5;8;5" dur="1.5s" begin="0.75s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="12;8;12" dur="1.5s" begin="0.75s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Pantalla frontal mejorada -->
+  <rect x="30" y="48" width="60" height="40" rx="8" ry="8" 
+        fill="url(#screenGradient)" 
+        stroke="#3B82F6" 
+        stroke-width="1">
+    <animate attributeName="stroke-width" values="1;3;1" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Marco interno de la pantalla -->
+  <rect x="33" y="51" width="54" height="34" rx="5" ry="5" 
+        fill="none" 
+        stroke="#475569" 
+        stroke-width="1" 
+        opacity="0.6"/>
+
+  <!-- Ojos con animación mejorada -->
+  <g id="eyes">
+    <!-- Ojo izquierdo -->
+    <circle cx="45" cy="65" r="8" fill="url(#eyeGlow)" filter="url(#glow)">
+      <!-- Parpadeo más dramático -->
+      <animate attributeName="r" values="8;8;8;0;8" keyTimes="0;0.8;0.85;0.9;1" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;1;1;0;1" keyTimes="0;0.8;0.85;0.9;1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Pupila -->
+    <circle cx="45" cy="65" r="4" fill="#0F172A">
+      <animate attributeName="r" values="4;4;4;0;4" keyTimes="0;0.8;0.85;0.9;1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Brillo dinámico -->
+    <circle cx="47" cy="63" r="2" fill="#FFFFFF" opacity="0.9">
+      <animate attributeName="opacity" values="0.9;0.9;0.9;0;0.9" keyTimes="0;0.8;0.85;0.9;1" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="2;3;2" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Ojo derecho -->
+    <circle cx="75" cy="65" r="8" fill="url(#eyeGlow)" filter="url(#glow)">
+      <!-- Parpadeo sincronizado -->
+      <animate attributeName="r" values="8;8;8;0;8" keyTimes="0;0.8;0.85;0.9;1" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;1;1;0;1" keyTimes="0;0.8;0.85;0.9;1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Pupila -->
+    <circle cx="75" cy="65" r="4" fill="#0F172A">
+      <animate attributeName="r" values="4;4;4;0;4" keyTimes="0;0.8;0.85;0.9;1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Brillo dinámico -->
+    <circle cx="77" cy="63" r="2" fill="#FFFFFF" opacity="0.9">
+      <animate attributeName="opacity" values="0.9;0.9;0.9;0;0.9" keyTimes="0;0.8;0.85;0.9;1" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="2;3;2" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Panel de control inferior -->
+  <rect x="35" y="92" width="50" height="8" rx="4" fill="#334155">
+    <animate attributeName="fill" values="#334155;#475569;#334155" dur="2s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- LEDs de estado más visibles -->
+  <g id="statusLeds">
+    <!-- LED izquierdo - Verde -->
+    <rect x="15" y="62" width="6" height="6" rx="3" fill="#10B981">
+      <animate attributeName="fill" values="#10B981;#34D399;#10B981" dur="1s" repeatCount="indefinite"/>
+      <animate attributeName="width" values="6;8;6" dur="1s" repeatCount="indefinite"/>
+      <animate attributeName="height" values="6;8;6" dur="1s" repeatCount="indefinite"/>
+      <animate attributeName="x" values="15;14;15" dur="1s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="62;61;62" dur="1s" repeatCount="indefinite"/>
+    </rect>
+    
+    <!-- LED derecho - Naranja -->
+    <rect x="99" y="62" width="6" height="6" rx="3" fill="#F59E0B">
+      <animate attributeName="fill" values="#F59E0B;#FBBF24;#F59E0B" dur="1.2s" begin="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="width" values="6;8;6" dur="1.2s" begin="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="height" values="6;8;6" dur="1.2s" begin="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="x" values="99;98;99" dur="1.2s" begin="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="62;61;62" dur="1.2s" begin="0.6s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Detalles decorativos animados -->
+  <g id="decorativeElements">
+    <!-- Tornillos que rotan -->
+    <g>
+      <circle cx="35" cy="50" r="3" fill="#64748B" stroke="#475569" stroke-width="1"/>
+      <line x1="35" y1="47" x2="35" y2="53" stroke="#475569" stroke-width="1">
+        <animateTransform attributeName="transform" type="rotate" values="0 35 50;360 35 50" dur="4s" repeatCount="indefinite"/>
+      </line>
+      <line x1="32" y1="50" x2="38" y2="50" stroke="#475569" stroke-width="1">
+        <animateTransform attributeName="transform" type="rotate" values="0 35 50;360 35 50" dur="4s" repeatCount="indefinite"/>
+      </line>
+    </g>
+
+    <g>
+      <circle cx="85" cy="50" r="3" fill="#64748B" stroke="#475569" stroke-width="1"/>
+      <line x1="85" y1="47" x2="85" y2="53" stroke="#475569" stroke-width="1">
+        <animateTransform attributeName="transform" type="rotate" values="0 85 50;-360 85 50" dur="3s" repeatCount="indefinite"/>
+      </line>
+      <line x1="82" y1="50" x2="88" y2="50" stroke="#475569" stroke-width="1">
+        <animateTransform attributeName="transform" type="rotate" values="0 85 50;-360 85 50" dur="3s" repeatCount="indefinite"/>
+      </line>
+    </g>
+  </g>
+
+  <!-- Ondas de comunicación -->
+  <g id="communicationWaves" opacity="0.6">
+    <circle cx="60" cy="60" r="95" fill="none" stroke="#3B82F6" stroke-width="2">
+      <animate attributeName="r" values="95;110;95" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;0;0.6" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="60" cy="60" r="95" fill="none" stroke="#60A5FA" stroke-width="1">
+      <animate attributeName="r" values="95;110;95" dur="3s" begin="1s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0;0.4" dur="3s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
 </svg>

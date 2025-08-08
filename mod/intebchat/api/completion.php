@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * API endpoint for retrieving GPT completion with conversation support
+ * API endpoint for retrieving GPT completion with conversation support and enhanced token tracking
  *
  * @package    mod_intebchat
  * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
@@ -47,6 +47,7 @@ $instance_id = clean_param($body['instanceId'], PARAM_INT);
 $conversation_id = isset($body['conversationId']) ? clean_param($body['conversationId'], PARAM_INT) : null;
 $thread_id = isset($body['threadId']) ? clean_param($body['threadId'], PARAM_NOTAGS) : null;
 $audio = isset($body['audio']) ? $body['audio'] : null;
+$response_mode = isset($body['responseMode']) ? clean_param($body['responseMode'], PARAM_TEXT) : 'text';
 
 // Get the instance record
 $instance = $DB->get_record('intebchat', ['id' => $instance_id], '*', MUST_EXIST);
@@ -56,7 +57,7 @@ $cm = get_coursemodule_from_instance('intebchat', $instance->id, $course->id, fa
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 
-// CORRECCIÓN 4.1: Si tenemos conversation_id pero no thread_id, intentar recuperarlo
+// Si tenemos conversation_id pero no thread_id, intentar recuperarlo
 $api_type = get_config('mod_intebchat', 'type') ?: 'chat';
 if ($conversation_id && !$thread_id && $api_type === 'assistant') {
     $conversation = $DB->get_record('mod_intebchat_conversations', ['id' => $conversation_id]);
@@ -65,15 +66,23 @@ if ($conversation_id && !$thread_id && $api_type === 'assistant') {
     }
 }
 
-// Handle audio transcription if provided
+// Handle audio transcription if provided with enhanced token tracking
 $transcription = null;
 $useraudio = null;
+$audio_input_tokens = 0; // Track audio input tokens
+
 if ($audio && !empty($instance->enableaudio)) {
     require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
     $trans = \mod_intebchat\audio::transcribe($audio, current_language());
     $message = $trans['text'];
     $transcription = $trans['text'];
     $useraudio = $CFG->wwwroot . '/mod/intebchat/load-audio-temp.php?filename=' . $trans['filename'];
+    
+    // Calculate audio tokens based on duration (approximation based on OpenAI pricing)
+    // Whisper typically uses ~0.006 per second of audio
+    if (isset($trans['duration'])) {
+        $audio_input_tokens = ceil($trans['duration'] * 10); // Approximate token count for audio
+    }
 }
 
 // Check token limit before processing
@@ -166,7 +175,7 @@ try {
     // Format the markdown of each completion message into HTML.
     $response["message"] = format_text($response["message"], FORMAT_MARKDOWN, ['context' => $context]);
 
-    // CORRECCIÓN 4.2: Guardar thread_id en la conversación si es nueva (para Assistant API)
+    // Guardar thread_id en la conversación si es nueva (para Assistant API)
     if ($api_type === 'assistant' && $conversation_id) {
         // El thread_id puede venir en la respuesta con diferentes nombres según el completion engine
         $response_thread_id = null;
@@ -186,15 +195,40 @@ try {
         }
     }
 
-    // Normalize token usage from different API response formats
+    // Handle audio response generation if requested
+    $audio_output_tokens = 0;
+    if (!empty($instance->enableaudio) && $response_mode === 'audio') {
+        require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
+        $voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
+        
+        // Use the enhanced speech function with tracking
+        $audio_result = \mod_intebchat\audio::speech_with_tracking(strip_tags($response['message']), $voice);
+        
+        if (!empty($audio_result['url'])) {
+            $audio_output_tokens = $audio_result['tokens'];
+            $response['message'] = "<audio controls autoplay src='{$audio_result['url']}'></audio><div class='transcription'>{$response['message']}</div>";
+        }
+    }
+
+    // Enhanced token normalization with audio tokens
     $tokeninfo = null;
     if (isset($response['usage']) && is_array($response['usage'])) {
-        $tokeninfo = intebchat_normalize_usage($response['usage']);
-        if ($tokeninfo) {
-            $response['tokenInfo'] = $tokeninfo;
-        }
-        unset($response['usage']); // Remove internal usage data from response
+        $tokeninfo = intebchat_normalize_usage_enhanced($response['usage'], $audio_input_tokens, $audio_output_tokens);
+    } elseif ($audio_input_tokens > 0 || $audio_output_tokens > 0) {
+        // Even if no text tokens, track audio tokens
+        $tokeninfo = intebchat_normalize_usage_enhanced([], $audio_input_tokens, $audio_output_tokens);
     }
+
+    if ($tokeninfo) {
+        $response['tokenInfo'] = $tokeninfo;
+        
+        // Update user's token usage with enhanced tracking
+        if (!empty($config->enabletokenlimit)) {
+            intebchat_update_token_usage($USER->id, $tokeninfo['total']);
+        }
+    }
+    
+    unset($response['usage']); // Remove internal usage data from response
 
     // Log the message with conversation support if conversation exists
     if ($conversation_id && $config->logging) {
@@ -208,13 +242,6 @@ try {
         }
     }
 
-    // Add audio response if enabled
-    if (!empty($instance->enableaudio) && ($instance->audiomode === 'audio' || $instance->audiomode === 'both')) {
-        $voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
-        $audiosrc = \mod_intebchat\audio::speech(strip_tags($response['message']), $voice);
-        $response['message'] = "<audio controls autoplay src='{$audiosrc}'></audio><div class='transcription'>{$response['message']}</div>";
-    }
-
     // Add conversation ID and transcription to response
     $response['conversationId'] = $conversation_id;
     if ($transcription) {
@@ -224,7 +251,7 @@ try {
         $response['useraudio'] = $useraudio;
     }
     
-    // CORRECCIÓN 4.2 (continuación): Asegurar que el thread_id se incluya en la respuesta
+    // Asegurar que el thread_id se incluya en la respuesta
     if ($api_type === 'assistant' && !empty($response_thread_id)) {
         $response['threadId'] = $response_thread_id;
     }
@@ -240,3 +267,48 @@ try {
 
 header('Content-Type: application/json');
 echo json_encode($response);
+
+/**
+ * Enhanced token normalization with audio token tracking
+ * 
+ * @param array $usage Raw usage data from API response
+ * @param int $audio_input_tokens Audio input tokens
+ * @param int $audio_output_tokens Audio output tokens
+ * @return array|null Normalized token info or null if empty
+ */
+function intebchat_normalize_usage_enhanced($usage, $audio_input_tokens = 0, $audio_output_tokens = 0) {
+    if (empty($usage) || !is_array($usage)) {
+        // Si no hay usage pero tenemos tokens de audio, crear estructura
+        if ($audio_input_tokens > 0 || $audio_output_tokens > 0) {
+            return [
+                'prompt' => $audio_input_tokens,
+                'completion' => $audio_output_tokens,
+                'total' => $audio_input_tokens + $audio_output_tokens,
+                'audio_input' => $audio_input_tokens,
+                'audio_output' => $audio_output_tokens
+            ];
+        }
+        return null;
+    }
+
+    // Handle both old format (prompt_tokens/completion_tokens) and new format (input_tokens/output_tokens)
+    $prompt = $usage['prompt_tokens'] ?? $usage['input_tokens'] ?? 0;
+    $completion = $usage['completion_tokens'] ?? $usage['output_tokens'] ?? 0;
+    $total = $usage['total_tokens'] ?? ($prompt + $completion);
+    
+    // Add audio tokens to the total
+    $total += $audio_input_tokens + $audio_output_tokens;
+
+    // Only return if we have actual token data
+    if ($total > 0) {
+        return [
+            'prompt' => (int)$prompt + (int)$audio_input_tokens,
+            'completion' => (int)$completion + (int)$audio_output_tokens,
+            'total' => (int)$total,
+            'audio_input' => (int)$audio_input_tokens,
+            'audio_output' => (int)$audio_output_tokens
+        ];
+    }
+
+    return null;
+}

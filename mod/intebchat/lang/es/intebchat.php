@@ -55,6 +55,7 @@ $string['loadingconversation'] = 'Cargando conversación...';
 $string['defaultconversation'] = 'Conversación migrada';
 $string['errorloadingconversation'] = 'Error al cargar la conversación';
 $string['errorclearingconversation'] = 'Error al limpiar la conversación';
+$string['conversationtitleupdated'] = 'Título actualizado exitosamente';
 
 // Settings strings
 $string['generalsettings'] = 'Configuración general';
@@ -126,10 +127,15 @@ $string['tokenlimitperioddesc'] = 'El período de tiempo para el límite de toke
 $string['tokensused'] = 'Tokens usados: {$a->used} / {$a->limit}';
 $string['tokenlimitexceeded'] = 'Has excedido tu límite de tokens. Usado: {$a->used}, Límite: {$a->limit}. Se restablece en: {$a->reset}';
 $string['totaltokensused'] = 'Total de tokens usados: {$a}';
+$string['tokensreset'] = 'Los tokens se restablecerán en: {$a}';
+$string['audiotokens'] = 'Tokens de audio usados: {$a}';
+$string['texttokens'] = 'Tokens de texto usados: {$a}';
+$string['totaltokensdetailed'] = 'Tokens totales - Texto: {$a->text}, Audio: {$a->audio}';
+$string['tokenlimitwarning'] = '¡Solo quedan {$a} tokens!';
 
 // Messages
 $string['askaquestion'] = 'Haz una pregunta...';
-$string['erroroccurred'] = '¡Ocurrió un error! Por favor intente de nuevo más tarde.';
+$string['erroroccurred'] = '¡Ocurrió un error! Por favor intenta de nuevo más tarde.';
 $string['new_chat'] = 'Nuevo chat';
 $string['loggingenabled'] = 'El registro está habilitado - tus conversaciones se guardarán';
 $string['messagecount'] = 'Número de mensajes: {$a}';
@@ -140,25 +146,7 @@ $string['messages'] = 'Mensajes';
 $string['created'] = 'Creado';
 $string['transcribing'] = 'Transcribiendo...';
 
-// Default strings
-$string['defaultassistantname'] = 'Asistente';
-$string['defaultusername'] = 'Usuario';
-$string['defaultprompt'] = 'Eres un asistente útil.';
-$string['sourceoftruthpreamble'] = 'Se te ha proporcionado la siguiente información como contexto:';
-$string['sourceoftruthreinforcement'] = ' En tus respuestas, prioriza siempre la información proporcionada en el contexto.';
-
-// Validation messages
-$string['temperaturerange'] = 'La temperatura debe estar entre 0 y 2';
-$string['topprange'] = 'Top P debe estar entre 0 y 1';
-$string['maxlengthrange'] = 'La longitud máxima debe estar entre 1 y 4000';
-
-// Other settings
-$string['restrictusage'] = 'Restringir a usuarios autenticados';
-$string['restrictusagedesc'] = 'Solo usuarios autenticados pueden usar el chat';
-$string['logging'] = 'Registrar conversaciones';
-$string['loggingdesc'] = 'Registrar todas las conversaciones para análisis posterior';
-$string['allowinstancesettings'] = 'Permitir configuración por instancia';
-$string['allowinstancesettingsdesc'] = 'Permitir que los profesores anulen la configuración global en instancias individuales';
+// Audio mode strings
 $string['enableaudio'] = 'Habilitar audio';
 $string['enableaudio_help'] = 'Habilitar características de audio para esta instancia de chat';
 $string['enableaudio_desc'] = 'Permitir grabación y respuestas de audio';
@@ -171,6 +159,38 @@ $string['voice'] = 'Voz usada en la respuesta de audio';
 $string['voice_desc'] = 'Selecciona la voz para las respuestas de texto a voz';
 $string['recordaudio'] = 'Grabar audio';
 $string['stoprecording'] = 'Detener grabación';
+$string['switchtoaudiomode'] = 'Cambiar a modo de audio';
+$string['switchtotextmode'] = 'Cambiar a modo de texto';
+$string['inputmode'] = 'Modo de entrada';
+$string['responsemode'] = 'Modo de respuesta';
+$string['audioresponse'] = 'Respuesta de audio';
+$string['textresponse'] = 'Respuesta de texto';
+
+// Theme strings
+$string['switchtheme'] = 'Cambiar tema';
+$string['darkmode'] = 'Modo oscuro';
+$string['lightmode'] = 'Modo claro';
+
+// Default strings
+$string['defaultassistantname'] = 'Asistente';
+$string['defaultusername'] = 'Usuario';
+$string['defaultprompt'] = 'Eres un asistente útil.';
+$string['sourceoftruthpreamble'] = 'Se te ha proporcionado la siguiente información como contexto:';
+$string['sourceoftruthreinforcement'] = ' En tus respuestas, prioriza siempre la información proporcionada en el contexto.';
+
+// Validation messages
+$string['temperaturerange'] = 'La temperatura debe estar entre 0 y 2';
+$string['topprange'] = 'Top P debe estar entre 0 y 1';
+$string['maxlengthrange'] = 'La longitud máxima debe estar entre 1 y 4000';
+$string['reasoningmodelwarning'] = 'Has seleccionado el modelo "{$a}". Este es un modelo de razonamiento avanzado diseñado para resolver problemas complejos mediante un análisis paso a paso. Ten en cuenta que puede tener un mayor costo y tiempo de respuesta.';
+
+// Other settings
+$string['restrictusage'] = 'Restringir a usuarios autenticados';
+$string['restrictusagedesc'] = 'Solo usuarios autenticados pueden usar el chat';
+$string['logging'] = 'Registrar conversaciones';
+$string['loggingdesc'] = 'Registrar todas las conversaciones para análisis posterior';
+$string['allowinstancesettings'] = 'Permitir configuración por instancia';
+$string['allowinstancesettingsdesc'] = 'Permitir que los profesores anulen la configuración global en instancias individuales';
 $string['defaultvalues'] = 'Valores predeterminados';
 $string['defaultvaluesdesc'] = 'Valores predeterminados para nuevas instancias';
 

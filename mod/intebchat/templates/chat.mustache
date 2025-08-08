@@ -1,0 +1,244 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_intebchat/chat
+
+    INTEB Chat interface template
+
+    Context variables required for this template:
+    * instanceid - The instance ID
+    * assistantname - The assistant name
+    * username - The user name
+    * showlabels - Whether to show name labels
+    * apikey_configured - Whether API key is configured
+    * apikeymissing - API key missing message
+    * conversations - List of conversations
+    * hasconversations - Whether there are conversations
+    * noconversations - No conversations message
+    * searchconversations - Search conversations placeholder
+    * newconversation - New conversation text
+    * edittitle - Edit title text
+    * clearconversation - Clear conversation text
+    * askaquestion - Ask a question placeholder
+    * token_limit_exceeded - Whether token limit is exceeded
+    * token_limit_message - Token limit exceeded message
+    * token_limit_enabled - Whether token limit is enabled
+    * tokens_used - Number of tokens used
+    * tokens_limit - Token limit
+    * tokens_percentage - Percentage of tokens used
+    * tokens_reset_time - When tokens reset
+    * logging_enabled - Whether logging is enabled
+    * loggingenabled - Logging enabled message
+    * showTextarea - Whether to show textarea
+    * showAudio - Whether to show audio controls
+    * recordaudio - Record audio text
+    * stoprecording - Stop recording text
+    * switchtheme - Switch theme text
+}}
+<div class="mod_intebchat" data-instance-id="{{instanceid}}">
+    <script>
+        var assistantName = "{{assistantname}}";
+        var userName = "{{username}}";
+    </script>
+
+    {{^showlabels}}
+    <style>
+        .openai_message:before {
+            display: none;
+        }
+    </style>
+    {{/showlabels}}
+    <style>
+        .openai_message.user:before {
+            content: "{{username}}";
+        }
+        .openai_message.bot:before {
+            content: "{{assistantname}}";
+        }
+    </style>
+
+    {{^apikey_configured}}
+        <div class="alert alert-danger">
+            <i class="fa fa-exclamation-triangle"></i> {{apikeymissing}}
+        </div>
+    {{/apikey_configured}}
+    
+    {{#apikey_configured}}
+        <div class="intebchat-wrapper">
+            <!-- Mobile Toggle Button -->
+            <button class="btn btn-sm btn-primary intebchat-mobile-toggle" id="mobile-menu-toggle">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <!-- Conversations Sidebar -->
+            <div class="intebchat-sidebar" id="conversations-sidebar">
+                <div class="intebchat-sidebar-header">
+                    <div class="intebchat-sidebar-search">
+                        <input type="text"
+                            class="form-control form-control-sm"
+                            id="conversation-search"
+                            placeholder="{{searchconversations}}"
+                            aria-label="{{searchconversations}}">
+                        <i class="fa fa-search search-icon"></i>
+                    </div>
+                    <button class="btn btn-primary btn-block intebchat-new-conversation" id="new-conversation-btn">
+                        <i class="fa fa-plus"></i>
+                        {{newconversation}}
+                    </button>
+                </div>
+
+                <div class="intebchat-conversations-list" id="conversations-list">
+                    {{^hasconversations}}
+                        <div class="intebchat-no-conversations text-center text-muted p-3">
+                            <p>{{noconversations}}</p>
+                        </div>
+                    {{/hasconversations}}
+                    {{#conversations}}
+                        <div class="intebchat-conversation-item"
+                            data-conversation-id="{{id}}"
+                            data-title="{{title}}">
+                            <div class="intebchat-conversation-title">
+                                <span class="title-text">{{title}}</span>
+                                <span class="intebchat-conversation-date">
+                                    {{lastmessage_formatted}}
+                                </span>
+                            </div>
+                            <div class="intebchat-conversation-preview">
+                                {{preview}}
+                            </div>
+                        </div>
+                    {{/conversations}}
+                </div>
+            </div>
+
+            <!-- Main Chat Area -->
+            <div class="intebchat-main">
+                <!-- Chat Header -->
+                <div class="intebchat-header">
+                    <h4 class="intebchat-header-title" id="conversation-title">
+                        {{newconversation}}
+                    </h4>
+                    <div class="intebchat-header-actions">
+                        <!-- Theme Toggle Button positioned here -->
+                        <button class="btn btn-sm btn-outline-secondary intebchat-header-btn theme-toggle-btn" 
+                                id="theme-toggle-btn" 
+                                title="{{switchtheme}}">
+                            <i class="fa fa-sun"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary intebchat-header-btn" 
+                                id="edit-title-btn" 
+                                title="{{edittitle}}">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger intebchat-header-btn" 
+                                id="clear-conversation-btn" 
+                                title="{{clearconversation}}">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {{#token_limit_exceeded}}
+                    <div class="alert alert-warning m-3">
+                        <i class="fa fa-exclamation-circle"></i>
+                        {{token_limit_message}}
+                    </div>
+                {{/token_limit_exceeded}}
+
+                {{#token_limit_enabled}}
+                    <div class="token-usage-info" id="token-usage-display">
+                        <div class="token-display">
+                            <div>
+                                <span class="token-label">{{tokens_used_label}}</span>
+                                <span class="token-count">{{tokens_percentage}}%</span>
+                            </div>
+                            {{#show_reset_time}}
+                                <div class="token-reset">
+                                    {{tokens_reset_label}}
+                                </div>
+                            {{/show_reset_time}}
+                        </div>
+                        <div class="progress" role="progressbar" 
+                             aria-valuenow="{{tokens_used}}"
+                             aria-valuemin="0"
+                             aria-valuemax="{{tokens_limit}}">
+                            <div class="progress-bar{{progress_class}}" style="width: {{tokens_percentage_capped}}%">
+                            </div>
+                        </div>
+                    </div>
+                {{/token_limit_enabled}}
+
+                <div id="intebchat_log" role="log" aria-live="polite">
+                    <!-- Messages will be loaded here -->
+                </div>
+
+                <div id="control_bar">
+                    <div class="input-container">
+                        {{#logging_enabled}}
+                            <div class="logging-info">
+                                <i class="fa fa-info-circle"></i> 
+                                {{loggingenabled}}
+                            </div>
+                        {{/logging_enabled}}
+
+                        <div class="openai_input_bar" id="input_bar">
+                            {{#showTextarea}}
+                                <textarea 
+                                    aria-label="{{askaquestion}}"
+                                    rows="1"
+                                    id="openai_input"
+                                    placeholder="{{askaquestion}}"
+                                    name="message"
+                                    {{#token_limit_exceeded}}disabled{{/token_limit_exceeded}}></textarea>
+                            {{/showTextarea}}
+
+                            {{#showAudio}}
+                                <!-- Direct microphone button -->
+                                <button class="btn btn-outline-secondary input-btn openai_input_mic_btn" 
+                                        id="intebchat-icon-mic" 
+                                        title="{{recordaudio}}"
+                                        {{#token_limit_exceeded}}disabled{{/token_limit_exceeded}}>
+                                    <i class="fa fa-microphone"></i>
+                                </button>
+                                
+                                <!-- Stop recording button -->
+                                <button class="btn btn-danger input-btn openai_input_stop_btn" 
+                                        id="intebchat-icon-stop" 
+                                        title="{{stoprecording}}" 
+                                        style="display:none">
+                                    <i class="fa fa-stop"></i>
+                                </button>
+                                
+                                <input type="hidden" id="intebchat-recorded-audio" name="audio" value="">
+                            {{/showAudio}}
+
+                            {{#showTextarea}}
+                                <!-- Submit button -->
+                                <button class="btn btn-primary input-btn openai_input_submit_btn"
+                                        title="{{askaquestion}}"
+                                        id="go"
+                                        {{#token_limit_exceeded}}disabled{{/token_limit_exceeded}}>
+                                    <i class="fa fa-paper-plane"></i>
+                                </button>
+                            {{/showTextarea}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/apikey_configured}}
+</div>

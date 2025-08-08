@@ -21,11 +21,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_factory', 'core/modal_events', 'core/templates'],
-    function ($, Ajax, Str, Notification, ModalFactory, ModalEvents, Templates) {
+define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save_cancel', 'core/modal_delete_cancel', 'core/templates'],
+    function ($, Ajax, Str, Notification, ModalSaveCancel, ModalDeleteCancel, Templates) {
         var questionString = 'Ask a question...';
         var errorString = 'An error occurred! Please try again later.';
         var currentConversationId = null;
+        var currentInputMode = 'text'; // 'text' or 'audio' - default to text
+        var lastInputMode = 'text'; // Track the last input mode used
         var tokenInfo = {
             enabled: false,
             limit: 0,
@@ -37,6 +39,102 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
         var audioConfig = {
             enabled: false,
             mode: 'text'
+        };
+
+        /**
+         * Token Tracker for real-time updates
+         */
+        var TokenTracker = {
+            used: 0,
+            limit: 0,
+            audioUsed: 0,
+            textUsed: 0,
+            
+            init: function(initialUsed, limit) {
+                this.used = initialUsed;
+                this.limit = limit;
+                this.updateDisplay();
+            },
+            
+            addTokens: function(tokenInfo) {
+                if (!tokenInfo) return;
+                
+                this.used += tokenInfo.total || 0;
+                
+                if (tokenInfo.audio_input || tokenInfo.audio_output) {
+                    this.audioUsed += (tokenInfo.audio_input || 0) + (tokenInfo.audio_output || 0);
+                }
+                
+                if (tokenInfo.prompt || tokenInfo.completion) {
+                    this.textUsed += (tokenInfo.prompt || 0) + (tokenInfo.completion || 0) - 
+                                    ((tokenInfo.audio_input || 0) + (tokenInfo.audio_output || 0));
+                }
+                
+                this.updateDisplay();
+                this.checkLimits();
+            },
+            
+            updateDisplay: function() {
+                var percentage = this.limit > 0 ? (this.used / this.limit * 100) : 0;
+                
+                // Update main display
+                $('.token-count').text(percentage.toFixed(1) + '%');
+                $('.progress-bar').css('width', Math.min(percentage, 100) + '%');
+                
+                // Update detailed breakdown if available
+                if (this.audioUsed > 0 || this.textUsed > 0) {
+                    if (!$('#token-breakdown').length) {
+                        $('.token-display').after(
+                            '<div id="token-breakdown" class="token-breakdown">' +
+                            '<small>' + strings.texttokens + ': <span id="text-tokens">0</span> | ' +
+                            strings.audiotokens + ': <span id="audio-tokens">0</span></small>' +
+                            '</div>'
+                        );
+                    }
+                    $('#text-tokens').text(this.textUsed.toLocaleString());
+                    $('#audio-tokens').text(this.audioUsed.toLocaleString());
+                }
+                
+                // Update progress bar color
+                $('.progress-bar').removeClass('warning danger');
+                if (percentage >= 90) {
+                    $('.progress-bar').addClass('danger');
+                } else if (percentage > 75) {
+                    $('.progress-bar').addClass('warning');
+                }
+            },
+            
+            checkLimits: function() {
+                var percentage = this.limit > 0 ? (this.used / this.limit * 100) : 0;
+                
+                if (percentage >= 100) {
+                    // Disable input when limit exceeded
+                    $('#openai_input').prop('disabled', true);
+                    $('#go').prop('disabled', true);
+                    $('#intebchat-icon-mic').prop('disabled', true);
+                    
+                    // Show alert
+                    if (!$('.token-limit-alert').length) {
+                        $('#intebchat_log').before(
+                            '<div class="alert alert-danger token-limit-alert">' +
+                            '<i class="fa fa-exclamation-circle"></i> ' +
+                            strings.tokenlimitexceeded +
+                            '</div>'
+                        );
+                    }
+                } else if (percentage > 90) {
+                    // Show warning
+                    var remaining = this.limit - this.used;
+                    if (!$('.token-warning-alert').length) {
+                        $('#intebchat_log').before(
+                            '<div class="alert alert-warning token-warning-alert">' +
+                            '<i class="fa fa-exclamation-triangle"></i> ' +
+                            strings.tokenlimitwarning.replace('{$a}', remaining) +
+                            '</div>'
+                        );
+                    }
+                }
+            }
         };
 
         /**
@@ -61,8 +159,17 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
             audioConfig.enabled = data.audioEnabled || false;
             audioConfig.mode = data.audioMode || 'text';
 
+            // Initialize current mode for mixed mode
+            if (audioConfig.mode === 'both') {
+                currentInputMode = sessionStorage.getItem('intebchat_input_mode_' + instanceId) || 'text';
+                lastInputMode = currentInputMode;
+            }
+
             // Update UI based on token limit status
             updateTokenUI();
+
+            // Initialize dark mode
+            initDarkMode();
 
             // Load strings first
             loadStrings().then(function () {
@@ -75,57 +182,61 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                 }
             });
 
+            // Initialize token tracker if enabled
+            if (tokenInfo.enabled) {
+                TokenTracker.init(tokenInfo.used, tokenInfo.limit);
+                
+                // Hook into AJAX responses to update token count
+                $(document).ajaxComplete(function(event, xhr, settings) {
+                    if (settings.url && settings.url.includes('/mod/intebchat/api/completion.php')) {
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.tokenInfo) {
+                                TokenTracker.addTokens(response.tokenInfo);
+                            }
+                        } catch(e) {
+                            console.error('Error processing token info:', e);
+                        }
+                    }
+                });
+            }
+
             // Event listeners for chat input - adjusted for audio modes
             if (audioConfig.mode === 'text' || audioConfig.mode === 'both') {
                 $(document).on('keyup', '.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input', function (e) {
                     if (e.which === 13 && !e.shiftKey) {
                         e.preventDefault();
-                        var audioData = $('#intebchat-recorded-audio').val();
                         if (e.target.value !== "" && !tokenInfo.exceeded) {
+                            lastInputMode = 'text'; // Track that text was used
                             sendMessage(e.target.value, instanceId, api_type);
                             e.target.value = '';
-                        } else if (audioData && !tokenInfo.exceeded) {
-                            sendAudioMessage(instanceId, api_type);
                         }
                     }
                 });
 
                 $(document).on('click', '.mod_intebchat[data-instance-id="' + instanceId + '"] #go', function (e) {
                     var input = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input');
-                    var audioData = $('#intebchat-recorded-audio').val();
                     
-                    if (!tokenInfo.exceeded) {
-                        if (audioData && input.val() === "") {
-                            // Solo audio
-                            sendAudioMessage(instanceId, api_type);
-                        } else if (audioData && input.val() !== "") {
-                            // Audio + texto
-                            sendMessage(input.val(), instanceId, api_type);
-                        } else if (input.val() !== "") {
-                            // Solo texto
-                            sendMessage(input.val(), instanceId, api_type);
-                            input.val('');
-                        }
+                    if (!tokenInfo.exceeded && input.val() !== "") {
+                        lastInputMode = 'text'; // Track that text was used
+                        sendMessage(input.val(), instanceId, api_type);
+                        input.val('');
                     }
                 });
             }
 
             // Audio mode specific handlers
             if (audioConfig.enabled) {
-                if (audioConfig.mode === 'audio') {
-                    // For audio-only mode, automatically send when recording stops
+                // For both audio-only mode AND both mode, automatically send when recording stops
+                if (audioConfig.mode === 'audio' || audioConfig.mode === 'both') {
                     $(document).on('audio-ready', '#intebchat-icon-stop', function () {
                         var audioData = $('#intebchat-recorded-audio').val();
                         if (audioData && !tokenInfo.exceeded) {
+                            lastInputMode = 'audio'; // Track that audio was used
                             setTimeout(function() {
                                 sendAudioMessage(instanceId, api_type);
                             }, 100);
                         }
-                    });
-                } else if (audioConfig.mode === 'both') {
-                    // In mixed mode wait for the user to press send
-                    $(document).on('audio-ready', '#intebchat-icon-stop', function () {
-                        $('#intebchat-icon-stop').data('ready', true);
                     });
                 }
             }
@@ -185,6 +296,54 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
         };
 
         /**
+         * Dark mode detection and management with visible toggle
+         */
+        var initDarkMode = function() {
+            var $container = $('.mod_intebchat');
+            
+            // Check for saved preference first
+            var savedTheme = localStorage.getItem('intebchat_theme');
+            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Apply initial theme
+            if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
+                $container.addClass('dark-mode');
+            }
+            
+            // Handle theme toggle click
+            $(document).on('click', '#theme-toggle-btn', function(e) {
+                e.preventDefault();
+                
+                if ($container.hasClass('dark-mode')) {
+                    $container.removeClass('dark-mode');
+                    localStorage.setItem('intebchat_theme', 'light');
+                    $(this).find('i').removeClass('fa-moon').addClass('fa-sun');
+                    $(this).attr('title', strings.darkmode || 'Switch to dark mode');
+                } else {
+                    $container.addClass('dark-mode');
+                    localStorage.setItem('intebchat_theme', 'dark');
+                    $(this).find('i').removeClass('fa-sun').addClass('fa-moon');
+                    $(this).attr('title', strings.lightmode || 'Switch to light mode');
+                }
+            });
+            
+            // Listen for system theme changes
+            if (window.matchMedia) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                    if (localStorage.getItem('intebchat_theme') === null) {
+                        if (e.matches) {
+                            $container.addClass('dark-mode');
+                            $('#theme-toggle-btn i').removeClass('fa-sun').addClass('fa-moon');
+                        } else {
+                            $container.removeClass('dark-mode');
+                            $('#theme-toggle-btn i').removeClass('fa-moon').addClass('fa-sun');
+                        }
+                    }
+                });
+            }
+        };
+
+        /**
          * Send audio message
          */
         var sendAudioMessage = function (instanceId, api_type) {
@@ -194,9 +353,14 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
             }
 
             var doSend = function () {
+                // Use the last input mode to determine response mode
+                var responseMode = (audioConfig.mode === 'both') ? lastInputMode : audioConfig.mode;
+                
                 addToChatLog('user transcribing', '<i class="fa fa-microphone"></i> ' +
                     (strings.transcribing || 'Transcribing...'), instanceId);
-                createCompletion('', instanceId, api_type);
+                    
+                // Pass the response mode expected
+                createCompletion('', instanceId, api_type, responseMode);
             };
 
             if (!currentConversationId) {
@@ -241,7 +405,18 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                 { key: 'delete', component: 'core' },
                 { key: 'conversationtitle', component: 'mod_intebchat' },
                 { key: 'confirmclearmessage', component: 'mod_intebchat' },
-                { key: 'transcribing', component: 'mod_intebchat' }
+                { key: 'transcribing', component: 'mod_intebchat' },
+                { key: 'switchtoaudiomode', component: 'mod_intebchat' },
+                { key: 'switchtotextmode', component: 'mod_intebchat' },
+                { key: 'tokenlimitexceeded', component: 'mod_intebchat' },
+                { key: 'switchtheme', component: 'mod_intebchat' },
+                { key: 'darkmode', component: 'mod_intebchat' },
+                { key: 'lightmode', component: 'mod_intebchat' },
+                { key: 'texttokens', component: 'mod_intebchat' },
+                { key: 'audiotokens', component: 'mod_intebchat' },
+                { key: 'tokenlimitwarning', component: 'mod_intebchat' },
+                { key: 'reasoningmodelwarning', component: 'mod_intebchat' },
+                { key: 'conversationtitleupdated', component: 'mod_intebchat' }
             ];
 
             return Str.get_strings(stringkeys).then(function (results) {
@@ -256,9 +431,20 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                 strings.cancel = results[8];
                 strings.save = results[9];
                 strings.delete = results[10];
-                strings.conversationtitle = results[11] || 'Conversation Title';
-                strings.confirmclearmessage = results[12] || 'Are you sure you want to clear this conversation? This action cannot be undone.';
-                strings.transcribing = results[13] || 'Transcribing...';
+                strings.conversationtitle = results[11];
+                strings.confirmclearmessage = results[12];
+                strings.transcribing = results[13];
+                strings.switchtoaudiomode = results[14];
+                strings.switchtotextmode = results[15];
+                strings.tokenlimitexceeded = results[16];
+                strings.switchtheme = results[17];
+                strings.darkmode = results[18];
+                strings.lightmode = results[19];
+                strings.texttokens = results[20];
+                strings.audiotokens = results[21];
+                strings.tokenlimitwarning = results[22];
+                strings.reasoningmodelwarning = results[23];
+                strings.conversationtitleupdated = results[24];
 
                 questionString = strings.askaquestion;
                 errorString = strings.erroroccurred;
@@ -266,76 +452,75 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
         };
 
         /**
-         * Show modal for editing conversation title
+         * Show modal for editing conversation title - Updated for Moodle 4.3+
          */
         var showEditTitleModal = function (conversationId) {
-            require(['core/modal_factory', 'core/modal_events'], function(ModalFactory, ModalEvents) {
-                var currentTitle = $('#conversation-title').text();
+            var currentTitle = $('#conversation-title').text();
 
-                ModalFactory.create({
-                    type: ModalFactory.types.SAVE_CANCEL,
-                    title: strings.edittitle,
-                    body: '<div class="form-group">' +
-                        '<label for="conversation-title-input">' + strings.conversationtitle + '</label>' +
-                        '<input type="text" class="form-control" id="conversation-title-input" value="' +
-                        currentTitle.replace(/"/g, '&quot;') + '">' +
-                        '</div>'
-                }).then(function (modal) {
-                    modal.setSaveButtonText(strings.save);
-
-                    // Handle save
-                    modal.getRoot().on(ModalEvents.save, function (e) {
-                        e.preventDefault();
-                        var newTitle = $('#conversation-title-input').val().trim();
-                        if (newTitle && newTitle !== currentTitle) {
-                            updateConversationTitle(conversationId, newTitle);
-                        }
-                        modal.hide();
-                    });
-
-                    // Focus input when modal is shown
-                    modal.getRoot().on(ModalEvents.shown, function () {
-                        $('#conversation-title-input').focus().select();
-                    });
-
-                    // Handle enter key in input
-                    modal.getRoot().on('keypress', '#conversation-title-input', function (e) {
-                        if (e.which === 13) {
-                            e.preventDefault();
-                            modal.getSaveButton().trigger('click');
-                        }
-                    });
-
-                    modal.show();
+            // Create modal using the new approach
+            ModalSaveCancel.create({
+                title: strings.edittitle,
+                body: '<div class="form-group">' +
+                    '<label for="conversation-title-input">' + strings.conversationtitle + '</label>' +
+                    '<input type="text" class="form-control" id="conversation-title-input" value="' +
+                    currentTitle.replace(/"/g, '&quot;') + '">' +
+                    '</div>',
+                buttons: {
+                    save: strings.save,
+                    cancel: strings.cancel
+                },
+                show: true
+            }).then(function(modal) {
+                // Handle save
+                modal.getRoot().on('save', function(e) {
+                    e.preventDefault();
+                    var newTitle = $('#conversation-title-input').val().trim();
+                    if (newTitle && newTitle !== currentTitle) {
+                        updateConversationTitle(conversationId, newTitle);
+                    }
+                    modal.destroy();
                 });
-            });
+
+                // Focus input when modal is shown  
+                modal.getRoot().on('shown', function() {
+                    $('#conversation-title-input').focus().select();
+                });
+
+                // Handle enter key in input
+                modal.getRoot().on('keypress', '#conversation-title-input', function(e) {
+                    if (e.which === 13) {
+                        e.preventDefault();
+                        modal.getRoot().find('[data-action="save"]').trigger('click');
+                    }
+                });
+
+                return modal;
+            }).catch(Notification.exception);
         };
 
         /**
-         * Show modal for clearing conversation
+         * Show modal for clearing conversation - Updated for Moodle 4.3+
          */
         var showClearConversationModal = function (conversationId, instanceId) {
-            require(['core/modal_factory', 'core/modal_events'], function(ModalFactory, ModalEvents) {
-                ModalFactory.create({
-                    type: ModalFactory.types.SAVE_CANCEL,
-                    title: strings.clearconversation,
-                    body: '<p>' + strings.confirmclearmessage + '</p>'
-                }).then(function (modal) {
-                    modal.setSaveButtonText(strings.delete);
-
-                    // Style the save button as danger
-                    modal.getRoot().find('.btn-primary').removeClass('btn-primary').addClass('btn-danger');
-
-                    // Handle delete
-                    modal.getRoot().on(ModalEvents.save, function (e) {
-                        e.preventDefault();
-                        clearConversation(conversationId, instanceId);
-                        modal.hide();
-                    });
-
-                    modal.show();
+            // Create modal using the new approach
+            ModalDeleteCancel.create({
+                title: strings.clearconversation,
+                body: '<p>' + strings.confirmclearmessage + '</p>',
+                buttons: {
+                    delete: strings.delete,
+                    cancel: strings.cancel
+                },
+                show: true
+            }).then(function(modal) {
+                // Handle delete
+                modal.getRoot().on('delete', function(e) {
+                    e.preventDefault();
+                    clearConversation(conversationId, instanceId);
+                    modal.destroy();
                 });
-            });
+
+                return modal;
+            }).catch(Notification.exception);
         };
 
         /**
@@ -396,7 +581,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
          */
         var loadConversation = function (conversationId, instanceId) {
             // Show loading state
-            $('#intebchat_log').html('<div class="loading-conversation">' +
+            $('#intebchat_log').html('<div class="loading-conversation text-center p-4">' +
                 '<i class="fa fa-spinner fa-spin"></i> ' +
                 strings.loadingconversation +
                 '</div>');
@@ -556,7 +741,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
                         $item.attr('data-title', newTitle);
 
                         Notification.addNotification({
-                            message: 'Title updated successfully',
+                            message: strings.conversationtitleupdated || 'Title updated successfully',
                             type: 'success'
                         });
                     } else {
@@ -663,7 +848,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
 
                         // Now send the message
                         addToChatLog('user', message, instanceId);
-                        createCompletion(message, instanceId, api_type);
+                        // Pass the response mode based on input type
+                        var responseMode = (audioConfig.mode === 'both') ? lastInputMode : 'text';
+                        createCompletion(message, instanceId, api_type, responseMode);
                     },
                     fail: function (error) {
                         Notification.addNotification({
@@ -676,7 +863,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
             }
 
             addToChatLog('user', message, instanceId);
-            createCompletion(message, instanceId, api_type);
+            // Pass the response mode based on input type
+            var responseMode = (audioConfig.mode === 'both') ? lastInputMode : 'text';
+            createCompletion(message, instanceId, api_type, responseMode);
         };
 
         /**
@@ -769,13 +958,13 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
          * @param {string} message The text to get a completion for
          * @param {int} instanceId The ID of the instance
          * @param {string} api_type "assistant" | "chat" The type of API to use
+         * @param {string} responseMode The desired response mode ('text' or 'audio')
          */
-        var createCompletion = function (message, instanceId, api_type) {
+        var createCompletion = function (message, instanceId, api_type, responseMode) {
             var threadId = null;
             
-            // Intentar obtener el threadId de la conversación actual
+            // Try to get threadId from current conversation
             if (currentConversationId) {
-                // Buscar si tenemos un threadId almacenado para esta conversación
                 var $conversationItem = $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]');
                 if ($conversationItem.length && $conversationItem.data('thread-id')) {
                     threadId = $conversationItem.data('thread-id');
@@ -796,14 +985,15 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
 
             var audio = $('#intebchat-recorded-audio').val();
             
-            // Preparar los datos para enviar
+            // Prepare request data with correct response mode
             var requestData = {
                 message: message,
                 history: history,
                 instanceId: instanceId,
                 conversationId: currentConversationId || null,
                 threadId: threadId,
-                audio: audio || null
+                audio: audio || null,
+                responseMode: responseMode || 'text' // Use the passed response mode
             };
             
             // Debug log
@@ -858,18 +1048,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_fact
 
                         // Update token usage if provided
                         if (data.tokenInfo && tokenInfo.enabled) {
-                            tokenInfo.used = (tokenInfo.used || 0) + (data.tokenInfo.total || 0);
-                            updateTokenUI();
-
-                            // Check if limit exceeded
-                            if (tokenInfo.used >= tokenInfo.limit) {
-                                tokenInfo.exceeded = true;
-                                updateTokenUI();
-                                Notification.addNotification({
-                                    message: strings.tokenlimitexceeded || 'Token limit exceeded',
-                                    type: 'error'
-                                });
-                            }
+                            TokenTracker.addTokens(data.tokenInfo);
                         }
                     } else if (data.error) {
                         console.error('Server error:', data.error);

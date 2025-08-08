@@ -15,10 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Audio helper functions based on local_geniai plugin.
+ * Audio helper functions with enhanced token tracking based on local_geniai plugin.
  *
  * @package    mod_intebchat
  * @copyright  2024 Eduardo Kraus
+ * @copyright  Enhanced 2025 Alonso Arias
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 class audio
 {
     /**
-     * Transcribe audio to text using OpenAI Whisper.
+     * Transcribe audio to text using OpenAI Whisper with enhanced token tracking.
      *
      * @param string $audio Base64 encoded MP3 data
      * @param string|null $lang Language hint
@@ -49,6 +50,10 @@ class audio
         }
         $audio = preg_replace('#^data:audio/\w+;base64,#i', '', $audio);
         $audiodata = base64_decode($audio);
+        
+        // Calculate audio file size for duration estimation
+        $file_size = strlen($audiodata);
+        
         $filename = uniqid();
         $filepath = "{$CFG->dataroot}/temp/{$filename}.{$mimetype}";
 
@@ -66,7 +71,7 @@ class audio
         curl_setopt($ch, CURLOPT_POSTFIELDS, [
             'file' => curl_file_create($filepath, 'audio/' . $mimetype, 'audio.' . $mimetype),
             'model' => 'whisper-1',
-            'response_format' => 'verbose_json',
+            'response_format' => 'verbose_json', // Get detailed response with duration
             'language' => $lang,
         ]);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -75,27 +80,43 @@ class audio
         ]);
 
         $result = curl_exec($ch);
-        curl_close($ch);  // El archivo se mantiene para poder reproducirlo luego
+        curl_close($ch);  // Keep file for playback
+        
         $result = json_decode($result);
+        
+        // Calculate duration from response or estimate from file size
+        $duration = 0;
+        if (isset($result->duration)) {
+            $duration = $result->duration;
+        } else {
+            // Estimate duration based on file size (rough approximation)
+            // Average bitrate for audio: 128 kbps = 16 KB/s
+            $duration = $file_size / (16 * 1024); // Rough estimate in seconds
+        }
 
         return [
             'text' => $result->text ?? '',
             'language' => $result->language ?? '',
+            'duration' => $duration,
             'filename' => $filename,
+            'file_size' => $file_size,
         ];
     }
 
     /**
-     * Convert text to speech using OpenAI TTS.
+     * Convert text to speech using OpenAI TTS with token tracking.
      *
      * @param string $input Text to convert
      * @param string $voice Voice to use
-     * @return string URL to generated audio
+     * @return array URL and token info
      */
-    public static function speech(string $input, string $voice = 'alloy'): string
+    public static function speech_with_tracking(string $input, string $voice = 'alloy'): array
     {
         global $CFG;
-
+        
+        // Calculate character count for token estimation
+        $char_count = strlen($input);
+        
         $json = json_encode((object) [
             'model' => 'tts-1',
             'input' => $input,
@@ -114,7 +135,16 @@ class audio
         ]);
 
         $audiodata = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        
+        if ($http_code !== 200) {
+            return [
+                'url' => '',
+                'error' => 'TTS generation failed',
+                'tokens' => 0
+            ];
+        }
 
         // Ensure temp directory exists
         if (!file_exists("{$CFG->dataroot}/temp")) {
@@ -124,7 +154,62 @@ class audio
         $filename = uniqid();
         $filepath = "{$CFG->dataroot}/temp/{$filename}.mp3";
         file_put_contents($filepath, $audiodata);
+        
+        // Calculate audio file size
+        $file_size = strlen($audiodata);
 
-        return "{$CFG->wwwroot}/mod/intebchat/load-audio-temp.php?filename={$filename}";
+        return [
+            'url' => "{$CFG->wwwroot}/mod/intebchat/load-audio-temp.php?filename={$filename}",
+            'tokens' => $char_count, // TTS is billed per character
+            'file_size' => $file_size,
+            'duration' => $file_size / (16 * 1024) // Rough duration estimate
+        ];
+    }
+
+    /**
+     * Convert text to speech using OpenAI TTS (backward compatibility).
+     *
+     * @param string $input Text to convert
+     * @param string $voice Voice to use
+     * @return string URL to generated audio
+     */
+    public static function speech(string $input, string $voice = 'alloy'): string
+    {
+        $result = self::speech_with_tracking($input, $voice);
+        return $result['url'];
+    }
+    
+    /**
+     * Clean up old temporary audio files
+     * 
+     * @param int $max_age Maximum age in seconds (default 1 hour)
+     * @return int Number of files cleaned
+     */
+    public static function cleanup_temp_files($max_age = 3600)
+    {
+        global $CFG;
+        
+        $tempdir = "{$CFG->dataroot}/temp/";
+        $cleaned = 0;
+        
+        if (!file_exists($tempdir)) {
+            return 0;
+        }
+        
+        if ($handle = opendir($tempdir)) {
+            while (false !== ($file = readdir($handle))) {
+                if ($file != "." && $file != ".." && (strpos($file, '.mp3') !== false || strpos($file, '.webm') !== false)) {
+                    $filepath = $tempdir . $file;
+                    $filemtime = filemtime($filepath);
+                    if (time() - $filemtime > $max_age) {
+                        unlink($filepath);
+                        $cleaned++;
+                    }
+                }
+            }
+            closedir($handle);
+        }
+        
+        return $cleaned;
     }
 }
