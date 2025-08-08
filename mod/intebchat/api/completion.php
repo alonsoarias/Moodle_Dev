@@ -199,7 +199,9 @@ try {
     $audio_output_tokens = 0;
     if (!empty($instance->enableaudio) && $response_mode === 'audio') {
         require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
-        $voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
+        $voice = !empty($instance->voice)
+            ? $instance->voice
+            : (get_config('mod_intebchat', 'voice') ?: 'alloy');
         
         // Use the enhanced speech function with tracking
         $audio_result = \mod_intebchat\audio::speech_with_tracking(strip_tags($response['message']), $voice);
