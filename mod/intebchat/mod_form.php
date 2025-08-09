@@ -287,11 +287,11 @@ class mod_intebchat_mod_form extends moodleform_mod {
         $config = get_config('mod_intebchat');
         $default_values['apitype'] = $config->type ?: 'chat';
         
-        // Voice default handling mirrors instance > global precedence.
+        // If instance-level settings are disabled, force the global voice so the
+        // form always shows the same value.  When instance settings are allowed we
+        // rely on the value coming from the database (similar to the way
+        // block_openai_chat lets the block config override the global default).
         if (!$config->allowinstancesettings) {
-            // Instance field hidden, always use global voice.
-            $default_values['voice'] = get_config('mod_intebchat', 'voice') ?: 'alloy';
-        } else if (!isset($default_values['voice']) || $default_values['voice'] === '') {
             $default_values['voice'] = get_config('mod_intebchat', 'voice') ?: 'alloy';
         }
     }
@@ -313,18 +313,13 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $data->enableaudio = 0;
         }
 
-        // Voice handling – replicates custom instruction precedence.
+        // When instance settings are disabled the voice selector is hidden in the
+        // form, so ensure the submitted data uses the global value.  When instance
+        // settings are enabled we leave the voice untouched so that the selected
+        // option is stored exactly as submitted – mirroring the behaviour of
+        // block_openai_chat where per-instance config overrides the global value.
         if (!$config->allowinstancesettings) {
-            // Force global voice when instance settings disabled.
             $data->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
-        } else if (!isset($data->voice) || $data->voice === '') {
-            // Try to get from optional_param first (for form submission).
-            $data->voice = optional_param('voice', '', PARAM_ALPHANUMEXT);
-
-            // If still empty, use global default.
-            if ($data->voice === '') {
-                $data->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
-            }
         }
     }
 }
