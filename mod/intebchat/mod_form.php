@@ -313,12 +313,19 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $data->enableaudio = 0;
         }
 
-        // When instance settings are disabled the voice selector is hidden in the
-        // form, so ensure the submitted data uses the global value.  When instance
-        // settings are enabled we leave the voice untouched so that the selected
-        // option is stored exactly as submitted – mirroring the behaviour of
-        // block_openai_chat where per-instance config overrides the global value.
-        if (!$config->allowinstancesettings) {
+        // Voice handling mirrors the instance > global precedence used in
+        // block_openai_chat. When per-instance settings are enabled we capture the
+        // submitted value (even if the form element was disabled) and fall back to
+        // the global configuration only when empty. If instance settings are
+        // disabled the voice always comes from the global config.
+        if ($config->allowinstancesettings) {
+            if (!isset($data->voice)) {
+                $data->voice = optional_param('voice', '', PARAM_ALPHANUMEXT);
+            }
+            if ($data->voice === '') {
+                $data->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
+            }
+        } else {
             $data->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
         }
     }
