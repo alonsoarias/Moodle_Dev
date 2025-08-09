@@ -82,13 +82,13 @@ class mod_intebchat_mod_form extends moodleform_mod {
                 'audio' => get_string('audiomode_audio', 'mod_intebchat'),
                 'both' => get_string('audiomode_both', 'mod_intebchat')
             ];
-            
+
             $mform->addElement('select', 'audiomode', get_string('audiomode', 'mod_intebchat'), $audiomodes);
             $mform->setDefault('audiomode', 'text');
             $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
             $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
 
-            // Voice selection - ALWAYS VISIBLE when audio is enabled globally
+            // Voice selection: replicated from local_geniai's audio logic.
             $voices = [
                 'alloy' => 'Alloy (Neutral, professional)',
                 'echo' => 'Echo (Warm, conversational)',
@@ -97,13 +97,19 @@ class mod_intebchat_mod_form extends moodleform_mod {
                 'nova' => 'Nova (Energetic, bright)',
                 'shimmer' => 'Shimmer (Gentle, soothing)',
             ];
-            
-            $mform->addElement('select', 'voice', get_string('voice', 'mod_intebchat'), $voices);
-            // Ensure submitted value is treated as text
-            $mform->setType('voice', PARAM_ALPHANUMEXT);
-            // Use global default as default value
-            $mform->setDefault('voice', get_config('mod_intebchat', 'voice') ?: 'alloy');
-            $mform->addHelpButton('voice', 'voice', 'mod_intebchat');
+
+            if ($config->allowinstancesettings) {
+                // Instance level selector – mirrors block_openai_chat pattern.
+                $mform->addElement('select', 'voice', get_string('voice', 'mod_intebchat'), $voices);
+                $mform->setType('voice', PARAM_ALPHANUMEXT);
+                $mform->setDefault('voice', get_config('mod_intebchat', 'voice') ?: 'alloy');
+                $mform->addHelpButton('voice', 'voice', 'mod_intebchat');
+                $mform->disabledIf('voice', 'enableaudio', 'eq', 0);
+            } else {
+                // When instance settings are disabled, store the global voice silently.
+                $mform->addElement('hidden', 'voice', get_config('mod_intebchat', 'voice') ?: 'alloy');
+                $mform->setType('voice', PARAM_ALPHANUMEXT);
+            }
         }
 
         // Hidden field for API type (always use global setting)
@@ -112,7 +118,8 @@ class mod_intebchat_mod_form extends moodleform_mod {
 
         // Assistant name (common for all API types)
         $mform->addElement('text', 'assistantname', get_string('assistantname', 'mod_intebchat'));
-        $mform->setDefault('assistantname', '');
+        // Default now respects global config so instance > global precedence.
+        $mform->setDefault('assistantname', get_config('mod_intebchat', 'assistantname') ?: '');
         $mform->setType('assistantname', PARAM_TEXT);
         $mform->addHelpButton('assistantname', 'config_assistantname', 'mod_intebchat');
 
@@ -280,8 +287,11 @@ class mod_intebchat_mod_form extends moodleform_mod {
         $config = get_config('mod_intebchat');
         $default_values['apitype'] = $config->type ?: 'chat';
         
-        // Set voice default if not present
-        if (!isset($default_values['voice']) || $default_values['voice'] === '') {
+        // If instance-level settings are disabled, force the global voice so the
+        // form always shows the same value.  When instance settings are allowed we
+        // rely on the value coming from the database (similar to the way
+        // block_openai_chat lets the block config override the global default).
+        if (!$config->allowinstancesettings) {
             $default_values['voice'] = get_config('mod_intebchat', 'voice') ?: 'alloy';
         }
     }
@@ -297,21 +307,26 @@ class mod_intebchat_mod_form extends moodleform_mod {
         // Ensure apitype is always set from global config
         $config = get_config('mod_intebchat');
         $data->apitype = $config->type ?: 'chat';
-        
+
         // Set defaults for unchecked checkboxes
         if (!isset($data->enableaudio)) {
             $data->enableaudio = 0;
         }
-        
-        // Ensure voice always has a value - Combined logic from both branches
-        if (!isset($data->voice) || $data->voice === '') {
-            // Try to get from optional_param first (for form submission)
-            $data->voice = optional_param('voice', '', PARAM_ALPHANUMEXT);
-            
-            // If still empty, use global default
+
+        // Voice handling mirrors the instance > global precedence used in
+        // block_openai_chat. When per-instance settings are enabled we capture the
+        // submitted value (even if the form element was disabled) and fall back to
+        // the global configuration only when empty. If instance settings are
+        // disabled the voice always comes from the global config.
+        if ($config->allowinstancesettings) {
+            if (!isset($data->voice)) {
+                $data->voice = optional_param('voice', '', PARAM_ALPHANUMEXT);
+            }
             if ($data->voice === '') {
                 $data->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
             }
+        } else {
+            $data->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
         }
     }
 }

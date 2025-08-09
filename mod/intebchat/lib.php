@@ -96,14 +96,20 @@ function intebchat_add_instance(stdClass $intebchat, mod_intebchat_mod_form $mfo
         $intebchat->enableaudio = 0;
         $intebchat->audiomode = 'text';
     }
-    
-    // Handle voice parameter with proper validation and sanitization
-    if (isset($intebchat->voice) && !empty($intebchat->voice)) {
-        $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
+
+    // Capture the submitted voice directly from the request.  This mirrors how
+    // other core modules (e.g. bigbluebuttonbn) retrieve optional form fields
+    // and avoids losing the value when Moodle does not include disabled fields
+    // in the data object.  If nothing was submitted we will later fall back to
+    // the global configuration.
+    $submittedvoice = optional_param('voice', '', PARAM_ALPHANUMEXT);
+    if ($submittedvoice !== '') {
+        $intebchat->voice = $submittedvoice;
     }
-    if (!isset($intebchat->voice) || $intebchat->voice === '') {
+    if (empty($intebchat->voice)) {
         $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
     }
+    $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
 
     // Clean up fields based on API type
     if ($intebchat->apitype === 'assistant') {
@@ -164,18 +170,22 @@ function intebchat_update_instance(stdClass $intebchat, mod_intebchat_mod_form $
         $intebchat->enableaudio = 0;
         $intebchat->audiomode = 'text';
     }
-    
-    // Handle voice parameter with proper validation and sanitization
-    if (isset($intebchat->voice) && !empty($intebchat->voice)) {
-        $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
+
+    // As with add_instance, fetch the voice directly from the request to capture
+    // user changes even if Moodle omits the field from the submitted object.  If
+    // no value is submitted we keep the existing DB value and finally fall back
+    // to the global configuration.
+    $submittedvoice = optional_param('voice', '', PARAM_ALPHANUMEXT);
+    if ($submittedvoice !== '') {
+        $intebchat->voice = $submittedvoice;
     }
     if (!isset($intebchat->voice) || $intebchat->voice === '') {
-        // Preserve existing voice if field not submitted during update
         $intebchat->voice = $DB->get_field('intebchat', 'voice', ['id' => $intebchat->id]);
+        if (empty($intebchat->voice)) {
+            $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
+        }
     }
-    if (empty($intebchat->voice)) {
-        $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
-    }
+    $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
 
     // Clean up fields based on API type
     if ($intebchat->apitype === 'assistant') {
