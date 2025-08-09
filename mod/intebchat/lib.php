@@ -96,14 +96,13 @@ function intebchat_add_instance(stdClass $intebchat, mod_intebchat_mod_form $mfo
         $intebchat->enableaudio = 0;
         $intebchat->audiomode = 'text';
     }
-    
-    // Handle voice parameter with proper validation and sanitization
-    if (isset($intebchat->voice) && !empty($intebchat->voice)) {
-        $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
-    }
-    if (!isset($intebchat->voice) || $intebchat->voice === '') {
+
+    // Clean and persist voice choice. The form already enforces the precedence
+    // instance > global, so here we simply ensure a value is stored.
+    if (empty($intebchat->voice)) {
         $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
     }
+    $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
 
     // Clean up fields based on API type
     if ($intebchat->apitype === 'assistant') {
@@ -164,18 +163,17 @@ function intebchat_update_instance(stdClass $intebchat, mod_intebchat_mod_form $
         $intebchat->enableaudio = 0;
         $intebchat->audiomode = 'text';
     }
-    
-    // Handle voice parameter with proper validation and sanitization
-    if (isset($intebchat->voice) && !empty($intebchat->voice)) {
-        $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
-    }
+
+    // Ensure a voice value is persisted. If the form does not provide one we keep
+    // the previously stored value (mirroring the behaviour of core modules) and
+    // finally fall back to the global configuration.
     if (!isset($intebchat->voice) || $intebchat->voice === '') {
-        // Preserve existing voice if field not submitted during update
         $intebchat->voice = $DB->get_field('intebchat', 'voice', ['id' => $intebchat->id]);
+        if (empty($intebchat->voice)) {
+            $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
+        }
     }
-    if (empty($intebchat->voice)) {
-        $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
-    }
+    $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
 
     // Clean up fields based on API type
     if ($intebchat->apitype === 'assistant') {
