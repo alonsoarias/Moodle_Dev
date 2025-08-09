@@ -155,8 +155,17 @@ $string['audiomode_help'] = 'Selecciona cómo los usuarios pueden interactuar co
 $string['audiomode_text'] = 'Solo texto';
 $string['audiomode_audio'] = 'Solo audio';
 $string['audiomode_both'] = 'Texto y audio';
-$string['voice'] = 'Voz usada en la respuesta de audio';
-$string['voice_desc'] = 'Selecciona la voz para las respuestas de texto a voz';
+$string['voice'] = 'Voz para respuestas de audio';
+$string['voice_desc'] = 'Selecciona la voz predeterminada para las respuestas de texto a voz. Esto puede ser anulado a nivel de instancia.';
+$string['voice_help'] = 'Selecciona la voz para las respuestas de texto a voz en esta instancia del chat. Cada voz tiene características diferentes:
+• Alloy: Neutral y profesional
+• Echo: Cálida y conversacional
+• Fable: Expresiva y dinámica
+• Onyx: Profunda y autoritaria
+• Nova: Energética y brillante
+• Shimmer: Suave y tranquilizadora
+
+Esta configuración anula la voz predeterminada global para esta instancia específica del chat.';
 $string['recordaudio'] = 'Grabar audio';
 $string['stoprecording'] = 'Detener grabación';
 $string['switchtoaudiomode'] = 'Cambiar a modo de audio';

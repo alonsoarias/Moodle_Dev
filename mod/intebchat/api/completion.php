@@ -195,17 +195,17 @@ try {
         }
     }
 
-    // Handle audio response generation if requested
+    // Handle audio response generation using the instance voice
     $audio_output_tokens = 0;
-    if (!empty($instance->enableaudio) && $response_mode === 'audio') {
+    if (!empty($instance->enableaudio) && ($response_mode === 'audio' || $instance->audiomode !== 'text')) {
         require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
-        $voice = !empty($instance->voice)
-            ? $instance->voice
-            : (get_config('mod_intebchat', 'voice') ?: 'alloy');
-        
-        // Use the enhanced speech function with tracking
+
+        // Use the instance voice, falling back to global config
+        $voice = !empty($instance->voice) ? $instance->voice : (get_config('mod_intebchat', 'voice') ?: 'alloy');
+
+        // Generate audio with token tracking
         $audio_result = \mod_intebchat\audio::speech_with_tracking(strip_tags($response['message']), $voice);
-        
+
         if (!empty($audio_result['url'])) {
             $audio_output_tokens = $audio_result['tokens'];
             $response['message'] = "<audio controls autoplay src='{$audio_result['url']}'></audio><div class='transcription'>{$response['message']}</div>";

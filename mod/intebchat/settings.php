@@ -213,12 +213,15 @@ if ($ADMIN->fulltree) {
             PARAM_TEXT
         ));
 
+        // ACTUALIZADO: Usando la función intebchat_get_models con el default correcto
         $models = intebchat_get_models()['models'];
+        $default_model = intebchat_get_models()['default'];
+        
         $settings->add(new admin_setting_configselect(
             'mod_intebchat/model',
             get_string('model', 'mod_intebchat'),
             get_string('config_model', 'mod_intebchat'),
-            'gpt-4o-mini',
+            $default_model, // Usa el default de la función (gpt-5-chat-latest)
             $models
         ));
 

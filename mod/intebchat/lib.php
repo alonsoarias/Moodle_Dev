@@ -96,7 +96,12 @@ function intebchat_add_instance(stdClass $intebchat, mod_intebchat_mod_form $mfo
         $intebchat->enableaudio = 0;
         $intebchat->audiomode = 'text';
     }
-    if (!isset($intebchat->voice)) {
+    
+    // Handle voice parameter with proper validation and sanitization
+    if (isset($intebchat->voice) && !empty($intebchat->voice)) {
+        $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
+    }
+    if (!isset($intebchat->voice) || $intebchat->voice === '') {
         $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
     }
 
@@ -159,7 +164,16 @@ function intebchat_update_instance(stdClass $intebchat, mod_intebchat_mod_form $
         $intebchat->enableaudio = 0;
         $intebchat->audiomode = 'text';
     }
-    if (!isset($intebchat->voice)) {
+    
+    // Handle voice parameter with proper validation and sanitization
+    if (isset($intebchat->voice) && !empty($intebchat->voice)) {
+        $intebchat->voice = clean_param($intebchat->voice, PARAM_ALPHANUMEXT);
+    }
+    if (!isset($intebchat->voice) || $intebchat->voice === '') {
+        // Preserve existing voice if field not submitted during update
+        $intebchat->voice = $DB->get_field('intebchat', 'voice', ['id' => $intebchat->id]);
+    }
+    if (empty($intebchat->voice)) {
         $intebchat->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
     }
 
@@ -774,35 +788,45 @@ function intebchat_fetch_assistants_array($apikey = null)
 }
 
 /**
- * Return a list of available models
+ * Return a list of available models - ACTUALIZADO CON GPT-5
  * @return Array: The list of model info
  */
 function intebchat_get_models()
 {
     return [
+        // <-- ESTE ES EL DEFAULT PARA TU APP SEGÚN OPENAI -->
+        "default" => "gpt-5-chat-latest",
         "models" => [
-            'gpt-4o-2025-06-15' => 'gpt-4o-2025-06-15',
-            'gpt-4o' => 'gpt-4o',
-            'gpt-4o-2024-11-20' => 'gpt-4o-2024-11-20',
-            'gpt-4o-2024-08-06' => 'gpt-4o-2024-08-06',
-            'gpt-4o-2024-05-13' => 'gpt-4o-2024-05-13',
+            // === GPT-5 (familia actual) ===
+            'gpt-5-chat-latest'   => 'gpt-5-chat-latest', // alias de Chat (apunta al snapshot vigente)
+            'gpt-5'               => 'gpt-5',             // razonamiento (mejor para tareas complejas)
+            'gpt-5-mini'          => 'gpt-5-mini',
+            'gpt-5-nano'          => 'gpt-5-nano',
+            // === GPT-4.1 (aún en API) ===
+            'gpt-4.1'             => 'gpt-4.1',
+            'gpt-4.1-mini'        => 'gpt-4.1-mini',
+            'gpt-4.1-nano'        => 'gpt-4.1-nano',
+            // === GPT-4o (omni) y snapshots ===
+            'chatgpt-4o-latest'   => 'chatgpt-4o-latest',
+            'gpt-4o'              => 'gpt-4o',
+            'gpt-4o-2024-11-20'   => 'gpt-4o-2024-11-20',
+            'gpt-4o-2024-08-06'   => 'gpt-4o-2024-08-06',
+            'gpt-4o-2024-05-13'   => 'gpt-4o-2024-05-13',
+            // === GPT-4o mini ===
+            'gpt-4o-mini'         => 'gpt-4o-mini',
             'gpt-4o-mini-2024-07-18' => 'gpt-4o-mini-2024-07-18',
-            'gpt-4o-mini' => 'gpt-4o-mini',
-            'gpt-4.5-turbo' => 'gpt-4.5-turbo',
-            'gpt-4-turbo-preview' => 'gpt-4-turbo-preview',
-            'gpt-4-turbo-2024-04-09' => 'gpt-4-turbo-2024-04-09',
-            'gpt-4-turbo' => 'gpt-4-turbo',
-            'gpt-4-32k-0314' => 'gpt-4-32k-0314',
-            'gpt-4-1106-preview' => 'gpt-4-1106-preview',
-            'gpt-4-0613' => 'gpt-4-0613',
-            'gpt-4-0314' => 'gpt-4-0314',
-            'gpt-4-0125-preview' => 'gpt-4-0125-preview',
-            'gpt-4' => 'gpt-4',
-            'gpt-3.5-turbo-16k-0613' => 'gpt-3.5-turbo-16k-0613',
-            'gpt-3.5-turbo-16k' => 'gpt-3.5-turbo-16k',
-            'gpt-3.5-turbo-1106' => 'gpt-3.5-turbo-1106',
-            'gpt-3.5-turbo-0125' => 'gpt-3.5-turbo-0125',
-            'gpt-3.5-turbo' => 'gpt-3.5-turbo'
+            // === (LEGADO, si aún los mantienes) ===
+            // 'gpt-4.5-turbo' => 'gpt-4.5-turbo',
+            // 'gpt-4-turbo-preview' => 'gpt-4-turbo-preview',
+            // 'gpt-4-turbo-2024-04-09' => 'gpt-4-turbo-2024-04-09',
+            // 'gpt-4-turbo' => 'gpt-4-turbo',
+            // 'gpt-4-32k-0314' => 'gpt-4-32k-0314',
+            // 'gpt-4-1106-preview' => 'gpt-4-1106-preview',
+            // 'gpt-4-0613' => 'gpt-4-0613',
+            // 'gpt-4-0314' => 'gpt-4-0314',
+            // 'gpt-4-0125-preview' => 'gpt-4-0125-preview',
+            // 'gpt-4' => 'gpt-4',
+            // 'gpt-3.5-turbo-*' -> deprecados/no recomendados
         ]
     ];
 }

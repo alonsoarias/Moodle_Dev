@@ -88,17 +88,22 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
             $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
 
+            // Voice selection - ALWAYS VISIBLE when audio is enabled globally
             $voices = [
-                'alloy' => 'Alloy',
-                'echo' => 'Echo',
-                'fable' => 'Fable',
-                'onyx' => 'Onyx',
-                'nova' => 'Nova',
-                'shimmer' => 'Shimmer',
+                'alloy' => 'Alloy (Neutral, professional)',
+                'echo' => 'Echo (Warm, conversational)',
+                'fable' => 'Fable (Expressive, dynamic)',
+                'onyx' => 'Onyx (Deep, authoritative)',
+                'nova' => 'Nova (Energetic, bright)',
+                'shimmer' => 'Shimmer (Gentle, soothing)',
             ];
+            
             $mform->addElement('select', 'voice', get_string('voice', 'mod_intebchat'), $voices);
-            $mform->setDefault('voice', get_config('mod_intebchat', 'voice'));
-            $mform->disabledIf('voice', 'enableaudio', 'eq', 0);
+            // Ensure submitted value is treated as text
+            $mform->setType('voice', PARAM_ALPHANUMEXT);
+            // Use global default as default value
+            $mform->setDefault('voice', get_config('mod_intebchat', 'voice') ?: 'alloy');
+            $mform->addHelpButton('voice', 'voice', 'mod_intebchat');
         }
 
         // Hidden field for API type (always use global setting)
@@ -166,10 +171,12 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->addHelpButton('apikey', 'config_apikey', 'mod_intebchat');
             
             if ($type !== 'assistant') {
-                // Model selection (for chat)
+                // Model selection (for chat) - Updated with GPT-5 models
                 $models = intebchat_get_models()['models'];
+                $default_model = intebchat_get_models()['default'];
+                
                 $mform->addElement('select', 'model', get_string('model', 'mod_intebchat'), $models);
-                $mform->setDefault('model', get_config('mod_intebchat', 'model'));
+                $mform->setDefault('model', get_config('mod_intebchat', 'model') ?: $default_model);
                 $mform->setType('model', PARAM_TEXT);
                 $mform->addHelpButton('model', 'config_model', 'mod_intebchat');
 
@@ -272,8 +279,10 @@ class mod_intebchat_mod_form extends moodleform_mod {
         // Always use global API type
         $config = get_config('mod_intebchat');
         $default_values['apitype'] = $config->type ?: 'chat';
-        if (empty($default_values['voice'])) {
-            $default_values['voice'] = get_config('mod_intebchat', 'voice');
+        
+        // Set voice default if not present
+        if (!isset($default_values['voice']) || $default_values['voice'] === '') {
+            $default_values['voice'] = get_config('mod_intebchat', 'voice') ?: 'alloy';
         }
     }
 
@@ -293,8 +302,16 @@ class mod_intebchat_mod_form extends moodleform_mod {
         if (!isset($data->enableaudio)) {
             $data->enableaudio = 0;
         }
-        if (empty($data->voice)) {
-            $data->voice = get_config('mod_intebchat', 'voice');
+        
+        // Ensure voice always has a value - Combined logic from both branches
+        if (!isset($data->voice) || $data->voice === '') {
+            // Try to get from optional_param first (for form submission)
+            $data->voice = optional_param('voice', '', PARAM_ALPHANUMEXT);
+            
+            // If still empty, use global default
+            if ($data->voice === '') {
+                $data->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
+            }
         }
     }
 }

@@ -26,8 +26,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         var questionString = 'Ask a question...';
         var errorString = 'An error occurred! Please try again later.';
         var currentConversationId = null;
-        var currentInputMode = 'text'; // 'text' or 'audio' - default to text
-        var lastInputMode = 'text'; // Track the last input mode used
+        var currentInputMode = 'text'; 
+        var lastInputMode = 'text';
         var tokenInfo = {
             enabled: false,
             limit: 0,
@@ -40,6 +40,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             enabled: false,
             mode: 'text'
         };
+        var assistant = null; // Para el asistente animado
 
         /**
          * Token Tracker for real-time updates
@@ -77,11 +78,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             updateDisplay: function() {
                 var percentage = this.limit > 0 ? (this.used / this.limit * 100) : 0;
                 
-                // Update main display
                 $('.token-count').text(percentage.toFixed(1) + '%');
                 $('.progress-bar').css('width', Math.min(percentage, 100) + '%');
                 
-                // Update detailed breakdown if available
                 if (this.audioUsed > 0 || this.textUsed > 0) {
                     if (!$('#token-breakdown').length) {
                         $('.token-display').after(
@@ -95,7 +94,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     $('#audio-tokens').text(this.audioUsed.toLocaleString());
                 }
                 
-                // Update progress bar color
                 $('.progress-bar').removeClass('warning danger');
                 if (percentage >= 90) {
                     $('.progress-bar').addClass('danger');
@@ -108,12 +106,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 var percentage = this.limit > 0 ? (this.used / this.limit * 100) : 0;
                 
                 if (percentage >= 100) {
-                    // Disable input when limit exceeded
                     $('#openai_input').prop('disabled', true);
                     $('#go').prop('disabled', true);
                     $('#intebchat-icon-mic').prop('disabled', true);
                     
-                    // Show alert
                     if (!$('.token-limit-alert').length) {
                         $('#intebchat_log').before(
                             '<div class="alert alert-danger token-limit-alert">' +
@@ -123,7 +119,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         );
                     }
                 } else if (percentage > 90) {
-                    // Show warning
                     var remaining = this.limit - this.used;
                     if (!$('.token-warning-alert').length) {
                         $('#intebchat_log').before(
@@ -138,6 +133,82 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
+         * Animated Assistant Class (Clippy-style) - FIXED VISIBILITY
+         */
+        var AnimatedAssistant = {
+            init: function() {
+                // Crear el contenedor del asistente DENTRO del chat container para asegurar visibilidad
+                var assistantHtml = '<div id="intebchat-assistant" class="intebchat-assistant">' +
+                    '<div class="assistant-body">' +
+                    '<div class="assistant-eyes">' +
+                    '<div class="eye left"></div>' +
+                    '<div class="eye right"></div>' +
+                    '</div>' +
+                    '<div class="assistant-mouth"></div>' +
+                    '</div>' +
+                    '<div class="assistant-bubble" style="display:none;"></div>' +
+                    '</div>';
+                
+                // Añadir al área principal del chat, no al contenedor general
+                $('.intebchat-main').append(assistantHtml);
+                this.bindEvents();
+                this.idle();
+                console.log('Assistant initialized');
+            },
+
+            bindEvents: function() {
+                var self = this;
+                $(document).on('click', '#intebchat-assistant', function() {
+                    self.wave();
+                });
+            },
+
+            idle: function() {
+                $('#intebchat-assistant').removeClass('thinking talking waving').addClass('idle');
+                this.blink();
+            },
+
+            thinking: function() {
+                $('#intebchat-assistant').removeClass('idle talking waving').addClass('thinking');
+                this.showBubble('🤔 Thinking...');
+            },
+
+            talking: function() {
+                $('#intebchat-assistant').removeClass('idle thinking waving').addClass('talking');
+                this.hideBubble();
+            },
+
+            wave: function() {
+                var self = this;
+                $('#intebchat-assistant').removeClass('idle thinking talking').addClass('waving');
+                setTimeout(function() {
+                    self.idle();
+                }, 1000);
+            },
+
+            showBubble: function(text) {
+                $('.assistant-bubble').text(text).fadeIn(200);
+            },
+
+            hideBubble: function() {
+                $('.assistant-bubble').fadeOut(200);
+            },
+
+            blink: function() {
+                var self = this;
+                if (self.blinkInterval) {
+                    clearInterval(self.blinkInterval);
+                }
+                self.blinkInterval = setInterval(function() {
+                    $('.assistant-eyes').addClass('blinking');
+                    setTimeout(function() {
+                        $('.assistant-eyes').removeClass('blinking');
+                    }, 150);
+                }, 3000 + Math.random() * 2000);
+            }
+        };
+
+        /**
          * Initialize the module with conversation management
          * @param {Object} data Configuration data
          */
@@ -148,45 +219,39 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             var api_type = data.api_type;
             var persistConvo = data.persistConvo;
 
-            // Initialize token info
             tokenInfo.enabled = data.tokenLimitEnabled || false;
             tokenInfo.limit = data.tokenLimit || 0;
             tokenInfo.used = data.tokensUsed || 0;
             tokenInfo.exceeded = data.tokenLimitExceeded || false;
             tokenInfo.resetTime = data.resetTime || 0;
 
-            // Initialize audio config
             audioConfig.enabled = data.audioEnabled || false;
             audioConfig.mode = data.audioMode || 'text';
 
-            // Initialize current mode for mixed mode
             if (audioConfig.mode === 'both') {
                 currentInputMode = sessionStorage.getItem('intebchat_input_mode_' + instanceId) || 'text';
                 lastInputMode = currentInputMode;
             }
 
-            // Update UI based on token limit status
             updateTokenUI();
-
-            // Initialize dark mode
             initDarkMode();
 
-            // Load strings first
             loadStrings().then(function () {
-                // Initialize conversation management after strings are loaded
                 initializeConversations(instanceId);
 
-                // Set placeholder
                 if ($('#openai_input').length) {
                     $('#openai_input').attr('placeholder', strings.askaquestion);
                 }
+                
+                // Initialize animated assistant AFTER strings are loaded
+                setTimeout(function() {
+                    AnimatedAssistant.init();
+                }, 500);
             });
 
-            // Initialize token tracker if enabled
             if (tokenInfo.enabled) {
                 TokenTracker.init(tokenInfo.used, tokenInfo.limit);
                 
-                // Hook into AJAX responses to update token count
                 $(document).ajaxComplete(function(event, xhr, settings) {
                     if (settings.url && settings.url.includes('/mod/intebchat/api/completion.php')) {
                         try {
@@ -201,13 +266,13 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 });
             }
 
-            // Event listeners for chat input - adjusted for audio modes
+            // Event listeners for chat input
             if (audioConfig.mode === 'text' || audioConfig.mode === 'both') {
                 $(document).on('keyup', '.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input', function (e) {
                     if (e.which === 13 && !e.shiftKey) {
                         e.preventDefault();
                         if (e.target.value !== "" && !tokenInfo.exceeded) {
-                            lastInputMode = 'text'; // Track that text was used
+                            lastInputMode = 'text';
                             sendMessage(e.target.value, instanceId, api_type);
                             e.target.value = '';
                         }
@@ -218,21 +283,20 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     var input = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input');
                     
                     if (!tokenInfo.exceeded && input.val() !== "") {
-                        lastInputMode = 'text'; // Track that text was used
+                        lastInputMode = 'text';
                         sendMessage(input.val(), instanceId, api_type);
                         input.val('');
                     }
                 });
             }
 
-            // Audio mode specific handlers
+            // Audio mode handlers
             if (audioConfig.enabled) {
-                // For both audio-only mode AND both mode, automatically send when recording stops
                 if (audioConfig.mode === 'audio' || audioConfig.mode === 'both') {
                     $(document).on('audio-ready', '#intebchat-icon-stop', function () {
                         var audioData = $('#intebchat-recorded-audio').val();
                         if (audioData && !tokenInfo.exceeded) {
-                            lastInputMode = 'audio'; // Track that audio was used
+                            lastInputMode = 'audio';
                             setTimeout(function() {
                                 sendAudioMessage(instanceId, api_type);
                             }, 100);
@@ -246,15 +310,17 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 createNewConversation(instanceId);
             });
 
-            // Clear conversation button with modal
+            // Clear conversation button - CORRECCIÓN PRINCIPAL
             $(document).on('click', '#clear-conversation-btn', function (e) {
+                e.preventDefault();
                 if (currentConversationId) {
                     showClearConversationModal(currentConversationId, instanceId);
                 }
             });
 
-            // Edit title button with modal
+            // Edit title button - CORRECCIÓN PRINCIPAL
             $(document).on('click', '#edit-title-btn', function (e) {
+                e.preventDefault();
                 if (currentConversationId) {
                     showEditTitleModal(currentConversationId);
                 }
@@ -284,33 +350,28 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 });
             }
 
-            // Check token limit periodically if enabled
             if (tokenInfo.enabled) {
-                setInterval(checkTokenReset, 60000); // Check every minute
+                setInterval(checkTokenReset, 60000);
             }
 
-            // Start with a new conversation if none exists
             if ($('.intebchat-conversation-item').length === 0) {
                 createNewConversation(instanceId);
             }
         };
 
         /**
-         * Dark mode detection and management with visible toggle
+         * Dark mode detection and management
          */
         var initDarkMode = function() {
             var $container = $('.mod_intebchat');
             
-            // Check for saved preference first
             var savedTheme = localStorage.getItem('intebchat_theme');
             var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             
-            // Apply initial theme
             if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
                 $container.addClass('dark-mode');
             }
             
-            // Handle theme toggle click
             $(document).on('click', '#theme-toggle-btn', function(e) {
                 e.preventDefault();
                 
@@ -327,7 +388,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 }
             });
             
-            // Listen for system theme changes
             if (window.matchMedia) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
                     if (localStorage.getItem('intebchat_theme') === null) {
@@ -353,13 +413,19 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             }
 
             var doSend = function () {
-                // Use the last input mode to determine response mode
                 var responseMode = (audioConfig.mode === 'both') ? lastInputMode : audioConfig.mode;
                 
-                addToChatLog('user transcribing', '<i class="fa fa-microphone"></i> ' +
-                    (strings.transcribing || 'Transcribing...'), instanceId);
+                // Mostrar animación de transcripción mejorada
+                addToChatLog('user transcribing', 
+                    '<div class="transcribing-animation">' +
+                    '<i class="fa fa-microphone pulse"></i> ' +
+                    '<span class="dots">' +
+                    '<span>.</span><span>.</span><span>.</span>' +
+                    '</span> ' +
+                    (strings.transcribing || 'Transcribing...') +
+                    '</div>', instanceId);
                     
-                // Pass the response mode expected
+                AnimatedAssistant.thinking();
                 createCompletion('', instanceId, api_type, responseMode);
             };
 
@@ -452,12 +518,11 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Show modal for editing conversation title - Updated for Moodle 4.3+
+         * Show modal for editing conversation title - CORREGIDO
          */
         var showEditTitleModal = function (conversationId) {
             var currentTitle = $('#conversation-title').text();
 
-            // Create modal using the new approach
             ModalSaveCancel.create({
                 title: strings.edittitle,
                 body: '<div class="form-group">' +
@@ -469,10 +534,13 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     save: strings.save,
                     cancel: strings.cancel
                 },
-                show: true
+                show: true,
+                removeOnClose: true
             }).then(function(modal) {
-                // Handle save
-                modal.getRoot().on('save', function(e) {
+                var root = modal.getRoot();
+                
+                // Handle save button click
+                root.on('modal-save-cancel:save', function(e) {
                     e.preventDefault();
                     var newTitle = $('#conversation-title-input').val().trim();
                     if (newTitle && newTitle !== currentTitle) {
@@ -481,16 +549,16 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     modal.destroy();
                 });
 
-                // Focus input when modal is shown  
-                modal.getRoot().on('shown', function() {
+                // Focus input when modal is shown
+                root.on('shown.bs.modal', function() {
                     $('#conversation-title-input').focus().select();
                 });
 
-                // Handle enter key in input
-                modal.getRoot().on('keypress', '#conversation-title-input', function(e) {
+                // Handle enter key
+                root.on('keypress', '#conversation-title-input', function(e) {
                     if (e.which === 13) {
                         e.preventDefault();
-                        modal.getRoot().find('[data-action="save"]').trigger('click');
+                        root.find('[data-action="save"]').trigger('click');
                     }
                 });
 
@@ -499,10 +567,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Show modal for clearing conversation - Updated for Moodle 4.3+
+         * Show modal for clearing conversation - CORREGIDO
          */
         var showClearConversationModal = function (conversationId, instanceId) {
-            // Create modal using the new approach
             ModalDeleteCancel.create({
                 title: strings.clearconversation,
                 body: '<p>' + strings.confirmclearmessage + '</p>',
@@ -510,12 +577,21 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     delete: strings.delete,
                     cancel: strings.cancel
                 },
-                show: true
+                show: true,
+                removeOnClose: true
             }).then(function(modal) {
-                // Handle delete
-                modal.getRoot().on('delete', function(e) {
+                var root = modal.getRoot();
+                
+                // Handle delete button click
+                root.on('modal-delete-cancel:delete', function(e) {
                     e.preventDefault();
                     clearConversation(conversationId, instanceId);
+                    modal.destroy();
+                });
+
+                // Handle cancel
+                root.on('modal-delete-cancel:cancel', function(e) {
+                    e.preventDefault();
                     modal.destroy();
                 });
 
@@ -527,7 +603,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
          * Initialize conversation management
          */
         var initializeConversations = function (instanceId) {
-            // Load first conversation if exists
             var firstConversation = $('.intebchat-conversation-item').first();
             if (firstConversation.length > 0) {
                 firstConversation.click();
@@ -544,13 +619,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 done: function (response) {
                     currentConversationId = response.conversationid;
 
-                    // Clear chat log
                     $('#intebchat_log').empty();
-
-                    // Update header
                     $('#conversation-title').text(response.title);
 
-                    // Add to sidebar
                     var conversationHtml = createConversationListItem(response);
                     if ($('.intebchat-no-conversations').length > 0) {
                         $('.intebchat-conversations-list').html(conversationHtml);
@@ -558,14 +629,14 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         $('.intebchat-conversations-list').prepend(conversationHtml);
                     }
 
-                    // Set as active
                     $('.intebchat-conversation-item').removeClass('active');
                     $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]').addClass('active');
 
-                    // Focus input
                     if ($('#openai_input').length) {
                         $('#openai_input').focus();
                     }
+                    
+                    AnimatedAssistant.wave();
                 },
                 fail: function (error) {
                     Notification.addNotification({
@@ -580,9 +651,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
          * Load a conversation
          */
         var loadConversation = function (conversationId, instanceId) {
-            // Show loading state
             $('#intebchat_log').html('<div class="loading-conversation text-center p-4">' +
-                '<i class="fa fa-spinner fa-spin"></i> ' +
+                '<div class="spinner-border text-primary" role="status">' +
+                '<span class="sr-only">Loading...</span></div> ' +
                 strings.loadingconversation +
                 '</div>');
 
@@ -596,11 +667,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     console.log('Conversation loaded:', response);
                     
                     currentConversationId = conversationId;
-
-                    // Update header
                     $('#conversation-title').text(response.title);
-
-                    // Clear and load messages
                     $('#intebchat_log').empty();
                     
                     if (response.messages && response.messages.length > 0) {
@@ -609,27 +676,23 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         });
                     }
 
-                    // Store threadId if exists (for Assistant API)
                     if (response.threadId) {
                         $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]')
                             .attr('data-thread-id', response.threadId);
                     }
 
-                    // Update active state
                     $('.intebchat-conversation-item').removeClass('active');
                     $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]').addClass('active');
 
-                    // Close mobile sidebar
                     $('#conversations-sidebar').removeClass('mobile-open');
 
-                    // Scroll to bottom
                     var messageContainer = $('#intebchat_log');
                     messageContainer.animate({
                         scrollTop: messageContainer[0].scrollHeight
                     }, 300);
                     
-                    // Focus input
                     $('#openai_input').focus();
+                    AnimatedAssistant.idle();
                 },
                 fail: function (error) {
                     console.error('Error loading conversation:', error);
@@ -653,7 +716,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Clear a conversation
+         * Clear a conversation - CORREGIDO
          */
         var clearConversation = function (conversationId, instanceId) {
             Ajax.call([{
@@ -663,17 +726,13 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     console.log('Clear conversation response:', response);
                     
                     if (response.deleted) {
-                        // Conversation was deleted completely
                         $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]')
                             .fadeOut(300, function () {
                                 $(this).remove();
 
-                                // Check if there are any conversations left
                                 if ($('.intebchat-conversation-item').length === 0) {
-                                    // No conversations left, create a new one
                                     createNewConversation(instanceId);
                                 } else {
-                                    // Select the first available conversation
                                     var firstConv = $('.intebchat-conversation-item').first();
                                     if (firstConv.length > 0) {
                                         firstConv.click();
@@ -681,23 +740,17 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                                 }
                             });
 
-                        // Show notification
                         Notification.addNotification({
                             message: strings.conversationcleared,
                             type: 'success'
                         });
                     } else {
-                        // Conversation was cleared but not deleted
                         $('#intebchat_log').empty();
 
-                        // Update the preview in sidebar to empty
                         var $conversationItem = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
                         $conversationItem.find('.intebchat-conversation-preview').text('');
-                        
-                        // Remove stored threadId
                         $conversationItem.removeAttr('data-thread-id');
 
-                        // Show notification
                         Notification.addNotification({
                             message: strings.conversationcleared,
                             type: 'success'
@@ -715,7 +768,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Update conversation title
+         * Update conversation title - CORREGIDO
          */
         var updateConversationTitle = function (conversationId, newTitle) {
             if (!newTitle || newTitle.trim() === '') {
@@ -732,10 +785,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     console.log('Title update response:', response);
                     
                     if (response && response.success) {
-                        // Update header
                         $('#conversation-title').text(newTitle);
                         
-                        // Update sidebar
                         var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
                         $item.find('.title-text').text(newTitle);
                         $item.attr('data-title', newTitle);
@@ -767,13 +818,11 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         var refreshConversationInSidebar = function (conversationId) {
             var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
             if ($item.length) {
-                // Update the modified time
                 var now = new Date();
                 $item.find('.intebchat-conversation-date').text(
                     now.toLocaleDateString([], { day: '2-digit', month: '2-digit' })
                 );
 
-                // Move to top if not already there
                 if (!$item.is(':first-child')) {
                     $item.fadeOut(200, function () {
                         $(this).prependTo('.intebchat-conversations-list').fadeIn(200);
@@ -822,19 +871,14 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
          * Send message (enhanced with conversation management)
          */
         var sendMessage = function (message, instanceId, api_type) {
-            // Create new conversation if none exists
             if (!currentConversationId) {
-                // Create conversation first, then send message
                 Ajax.call([{
                     methodname: 'mod_intebchat_create_conversation',
                     args: { instanceid: instanceId },
                     done: function (response) {
                         currentConversationId = response.conversationid;
-
-                        // Update header
                         $('#conversation-title').text(response.title);
 
-                        // Add to sidebar
                         var conversationHtml = createConversationListItem(response);
                         if ($('.intebchat-no-conversations').length > 0) {
                             $('.intebchat-conversations-list').html(conversationHtml);
@@ -842,13 +886,11 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                             $('.intebchat-conversations-list').prepend(conversationHtml);
                         }
 
-                        // Set as active
                         $('.intebchat-conversation-item').removeClass('active');
                         $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]').addClass('active');
 
-                        // Now send the message
                         addToChatLog('user', message, instanceId);
-                        // Pass the response mode based on input type
+                        AnimatedAssistant.thinking();
                         var responseMode = (audioConfig.mode === 'both') ? lastInputMode : 'text';
                         createCompletion(message, instanceId, api_type, responseMode);
                     },
@@ -863,7 +905,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             }
 
             addToChatLog('user', message, instanceId);
-            // Pass the response mode based on input type
+            AnimatedAssistant.thinking();
             var responseMode = (audioConfig.mode === 'both') ? lastInputMode : 'text';
             createCompletion(message, instanceId, api_type, responseMode);
         };
@@ -889,12 +931,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 $submitBtn.prop('disabled', false);
             }
 
-            // Update progress bar
             if ($progressBar.length) {
                 var percentage = (tokenInfo.used / tokenInfo.limit * 100);
                 $progressBar.css('width', percentage + '%');
 
-                // Update color based on usage
                 $progressBar.removeClass('warning danger');
                 if (percentage > 90) {
                     $progressBar.addClass('danger');
@@ -910,42 +950,81 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         var checkTokenReset = function () {
             var now = Date.now() / 1000;
             if (tokenInfo.exceeded && now > tokenInfo.resetTime) {
-                // Reload page to refresh token status
                 window.location.reload();
             }
         };
 
         /**
-         * Add a message to the chat UI
-         * @param {string} type Which side of the UI the message should be on. Can be "user" or "bot"
-         * @param {string} message The text of the message to add
-         * @param {int} instanceId The ID of the instance to manipulate
-         * @param {boolean} animate Whether to animate the message
+         * Add a message to the chat UI with improved animations
          */
         var addToChatLog = function (type, message, instanceId, animate = true) {
             var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
 
-            // Remove transcribing message if exists
             if (type !== 'user transcribing') {
                 messageContainer.find('.openai_message.transcribing').remove();
             }
 
             var messageElem = $('<div></div>').addClass('openai_message').addClass(type.replace(' ', '-'));
-            var messageText = $('<span></span>').html(message);
-            messageElem.append(messageText);
+            
+            // Add typing animation for bot messages
+            if (type === 'bot' && animate) {
+                messageElem.addClass('typing');
+                var messageText = $('<span></span>').addClass('message-content');
+                var cursor = $('<span class="typing-cursor">|</span>');
+                messageText.append(cursor);
+                messageElem.append(messageText);
+                
+                // Simulate typing effect
+                var fullMessage = message;
+                var currentIndex = 0;
+                var typingSpeed = 30;
+                
+                messageContainer.append(messageElem);
+                
+                var typeWriter = function() {
+                    if (currentIndex < fullMessage.length) {
+                        var char = fullMessage.charAt(currentIndex);
+                        if (char === '<') {
+                            // Handle HTML tags
+                            var tagEnd = fullMessage.indexOf('>', currentIndex);
+                            if (tagEnd !== -1) {
+                                var tag = fullMessage.substring(currentIndex, tagEnd + 1);
+                                cursor.before(tag);
+                                currentIndex = tagEnd + 1;
+                            } else {
+                                cursor.before(char);
+                                currentIndex++;
+                            }
+                        } else {
+                            cursor.before(char);
+                            currentIndex++;
+                        }
+                        setTimeout(typeWriter, typingSpeed);
+                    } else {
+                        cursor.remove();
+                        messageElem.removeClass('typing');
+                        AnimatedAssistant.idle();
+                    }
+                };
+                
+                typeWriter();
+            } else {
+                var messageText = $('<span></span>').html(message);
+                messageElem.append(messageText);
+                
+                if (animate) {
+                    messageElem.hide();
+                    messageContainer.append(messageElem);
+                    messageElem.fadeIn(300);
+                } else {
+                    messageContainer.append(messageElem);
+                }
+            }
 
             // Add timestamp
             var timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             var timestampElem = $('<span></span>').addClass('message-timestamp').text(timestamp);
             messageElem.append(timestampElem);
-
-            if (animate) {
-                messageElem.hide();
-                messageContainer.append(messageElem);
-                messageElem.fadeIn(300);
-            } else {
-                messageContainer.append(messageElem);
-            }
 
             // Smooth scroll to bottom
             messageContainer.animate({
@@ -955,15 +1034,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
         /**
          * Makes an API request to get a completion from GPT
-         * @param {string} message The text to get a completion for
-         * @param {int} instanceId The ID of the instance
-         * @param {string} api_type "assistant" | "chat" The type of API to use
-         * @param {string} responseMode The desired response mode ('text' or 'audio')
          */
         var createCompletion = function (message, instanceId, api_type, responseMode) {
             var threadId = null;
             
-            // Try to get threadId from current conversation
             if (currentConversationId) {
                 var $conversationItem = $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]');
                 if ($conversationItem.length && $conversationItem.data('thread-id')) {
@@ -971,7 +1045,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 }
             }
 
-            // Build history from current conversation
             var history = buildTranscript(instanceId);
 
             $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').addClass('disabled');
@@ -980,12 +1053,14 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').blur();
 
             if (!$('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message.transcribing').length) {
-                addToChatLog('bot loading', '...', instanceId);
+                addToChatLog('bot loading', 
+                    '<div class="loading-dots">' +
+                    '<span></span><span></span><span></span>' +
+                    '</div>', instanceId);
             }
 
             var audio = $('#intebchat-recorded-audio').val();
             
-            // Prepare request data with correct response mode
             var requestData = {
                 message: message,
                 history: history,
@@ -993,10 +1068,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 conversationId: currentConversationId || null,
                 threadId: threadId,
                 audio: audio || null,
-                responseMode: responseMode || 'text' // Use the passed response mode
+                responseMode: responseMode || 'text'
             };
             
-            // Debug log
             console.log('Sending completion request:', requestData);
             
             $.ajax({
@@ -1011,42 +1085,41 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     $('#intebchat-recorded-audio').val('');
                     var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
 
-                    // Remove loading or transcribing message
                     messageContainer.find('.openai_message.bot-loading, .openai_message.user-transcribing').remove();
 
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
 
                     if (data.message) {
-                        // If we had audio input, replace the transcribing message with actual transcription
                         if (audio && data.transcription) {
                             messageContainer.find('.openai_message.user-transcribing').remove();
                             var userContent = data.transcription;
                             if (data.useraudio) {
-                                userContent = '<audio controls autoplay src="' + data.useraudio + '"></audio>' +
+                                // IMPORTANTE: Removido autoplay del audio del usuario
+                                userContent = '<audio controls src="' + data.useraudio + '"></audio>' +
                                     '<div class="transcription">' + data.transcription + '</div>';
                             }
                             addToChatLog('user', userContent, instanceId);
                         }
 
                         addToChatLog('bot', data.message, instanceId);
+                        AnimatedAssistant.talking();
+                        setTimeout(function() {
+                            AnimatedAssistant.idle();
+                        }, 2000);
 
-                        // Update conversation ID if returned
                         if (data.conversationId && !currentConversationId) {
                             currentConversationId = data.conversationId;
                         }
                         
-                        // Store threadId if returned (for assistant API)
                         if (data.threadId && currentConversationId) {
                             $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]')
                                 .attr('data-thread-id', data.threadId);
                         }
 
-                        // Update conversation preview
                         if (currentConversationId) {
                             updateConversationPreview(currentConversationId, data.transcription || message);
                         }
 
-                        // Update token usage if provided
                         if (data.tokenInfo && tokenInfo.enabled) {
                             TokenTracker.addTokens(data.tokenInfo);
                         }
@@ -1062,6 +1135,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         } else {
                             addToChatLog('bot error', data.error.message, instanceId);
                         }
+                        AnimatedAssistant.idle();
                     }
                     if ($('#openai_input').length) {
                         $('#openai_input').focus();
@@ -1084,6 +1158,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     }
 
                     addToChatLog('bot error', errorMsg, instanceId);
+                    AnimatedAssistant.idle();
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').addClass('error');
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').attr('placeholder', errorString);
                 }
@@ -1104,7 +1179,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     now.toLocaleDateString([], { day: '2-digit', month: '2-digit' })
                 );
 
-                // Move conversation to top if it's not already there
                 if (!$item.is(':first-child')) {
                     $item.fadeOut(200, function () {
                         $(this).prependTo('.intebchat-conversations-list').fadeIn(200);
@@ -1114,9 +1188,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Using the existing messages in the chat history, create a string that can be used to aid completion
-         * @param {int} instanceId The instance from which to build the history
-         * @return {Array} A transcript of the conversation up to this point
+         * Build transcript from chat history
          */
         var buildTranscript = function (instanceId) {
             var transcript = [];
@@ -1131,11 +1203,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     user = assistantName;
                 }
 
-                // Remove timestamp from message text
                 var messageText = $(element).clone();
                 messageText.find('.message-timestamp').remove();
-                messageText.find('audio').remove(); // Remove audio elements
-                messageText.find('.transcription').remove(); // Remove transcription wrapper
+                messageText.find('audio').remove();
+                messageText.find('.transcription').remove();
 
                 transcript.push({ "user": user, "message": messageText.text().trim() });
             });

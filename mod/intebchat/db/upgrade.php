@@ -293,5 +293,21 @@ function xmldb_intebchat_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025030102, 'intebchat');
     }
 
+    // NUEVA ACTUALIZACIÓN PARA GPT-5 Y CORRECCIONES
+    if ($oldversion < 2025030200) {
+        // Update default model for existing instances to new GPT-5
+        $DB->execute("UPDATE {intebchat} 
+                      SET model = 'gpt-5-chat-latest' 
+                      WHERE model IN ('gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo')");
+        
+        // Update global setting if it's an old model
+        $current_model = get_config('mod_intebchat', 'model');
+        if (in_array($current_model, ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo'])) {
+            set_config('model', 'gpt-5-chat-latest', 'mod_intebchat');
+        }
+        
+        upgrade_mod_savepoint(true, 2025030200, 'intebchat');
+    }
+
     return true;
 }

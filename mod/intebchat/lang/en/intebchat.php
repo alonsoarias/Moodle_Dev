@@ -155,8 +155,17 @@ $string['audiomode_help'] = 'Select how users can interact with the chat: Text o
 $string['audiomode_text'] = 'Text only';
 $string['audiomode_audio'] = 'Audio only';
 $string['audiomode_both'] = 'Text and audio';
-$string['voice'] = 'Voice used in the audio response';
-$string['voice_desc'] = 'Select the voice for text-to-speech responses';
+$string['voice'] = 'Voice for audio responses';
+$string['voice_desc'] = 'Select the default voice for text-to-speech responses. This can be overridden at the instance level.';
+$string['voice_help'] = 'Select the voice for text-to-speech responses in this chat instance. Each voice has different characteristics:
+• Alloy: Neutral and professional
+• Echo: Warm and conversational
+• Fable: Expressive and dynamic
+• Onyx: Deep and authoritative
+• Nova: Energetic and bright
+• Shimmer: Gentle and soothing
+
+This setting overrides the global default voice for this specific chat instance.';
 $string['recordaudio'] = 'Record audio';
 $string['stoprecording'] = 'Stop recording';
 $string['switchtoaudiomode'] = 'Switch to audio mode';
