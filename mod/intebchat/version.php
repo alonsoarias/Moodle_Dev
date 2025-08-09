@@ -29,4 +29,3 @@ $plugin->version = 2025030204; // Bump version after adjusting voice capture
 $plugin->requires = 2022041900; // Moodle 4.0 minimum
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = 'v1.2.0'; // Nueva versión con correcciones y animaciones
-
