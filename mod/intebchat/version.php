@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_intebchat';
-$plugin->version = 2025030200; // Incrementado para las correcciones
+$plugin->version = 2025030201; // Bump version for voice precedence fix
 $plugin->requires = 2022041900; // Moodle 4.0 minimum
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = 'v1.2.0'; // Nueva versión con correcciones y animaciones
