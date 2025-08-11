@@ -101,6 +101,7 @@ require_login($course);
 $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php', ['courseid' => $course->id]));
 $PAGE->set_pagelayout('incourse');
 
+
 $downloadcenter = new local_downloadcenter_factory($course, $USER);
 
 if ($downloadall) {
