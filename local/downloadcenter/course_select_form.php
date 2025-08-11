@@ -15,27 +15,34 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Download center plugin
+ * Course selection form for download center.
  *
  * @package       local_downloadcenter
- * @author        Tim Schroeder (t.schroeder@itc.rwth-aachen.de)
- * @copyright     2020 Academic Moodle Cooperation {@link http://www.academic-moodle-cooperation.org}
+ * @author        ChatGPT
  * @license       http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-if ($hassiteconfig) {
-    $ADMIN->add('localplugins', new admin_externalpage('local_downloadcenter_index',
-        get_string('navigationlink', 'local_downloadcenter'), new moodle_url('/local/downloadcenter/index.php')));
+require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
-    $settings = new admin_settingpage('local_downloadcenter', get_string('settings_title', 'local_downloadcenter'));
-    $ADMIN->add('localplugins', $settings);
+class local_downloadcenter_course_select_form extends moodleform {
+    public function definition() {
+        $mform = $this->_form;
 
-    $settings->add(new admin_setting_configcheckbox(
-        'local_downloadcenter/exclude_empty_topics',
-        get_string('exclude_empty_topics', 'local_downloadcenter'),
-        get_string('exclude_empty_topics_help', 'local_downloadcenter'),
-        0
-    ));
+        $options = [];
+        $courses = \core_course_category::top()->get_courses([
+            'recursive' => true,
+            'sort' => ['fullname' => 1],
+        ]);
+        foreach ($courses as $course) {
+            $options[$course->id] = $course->get_formatted_name();
+        }
+
+        $mform->addElement('select', 'courseid', get_string('course'), $options);
+        $mform->setType('courseid', PARAM_INT);
+
+        $this->add_action_buttons(true, get_string('continue'));
+    }
 }
