@@ -27,26 +27,54 @@
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 require_once(__DIR__ . '/download_form.php');
+require_once(__DIR__ . '/course_select_form.php');
 
 // Raise timelimit as this could take a while for big archives.
 core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 
-$courseid = required_param('courseid', PARAM_INT);
+$courseid = optional_param('courseid', 0, PARAM_INT);
+$downloadall = optional_param('downloadall', 0, PARAM_BOOL);
+
+require_login();
+$systemcontext = context_system::instance();
+require_capability('local/downloadcenter:view', $systemcontext);
+
+if (empty($courseid)) {
+    $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php'));
+    $PAGE->set_context($systemcontext);
+    $PAGE->set_pagelayout('standard');
+    $PAGE->set_title(get_string('navigationlink', 'local_downloadcenter'));
+    $PAGE->set_heading($SITE->fullname);
+
+    $selectform = new local_downloadcenter_course_select_form();
+    if ($data = $selectform->get_data()) {
+        $params = ['courseid' => $data->courseid];
+        if (!empty($data->downloadall)) {
+            $params['downloadall'] = 1;
+        }
+        redirect(new moodle_url('/local/downloadcenter/index.php', $params));
+    }
+
+    echo $OUTPUT->header();
+    $selectform->display();
+    echo $OUTPUT->footer();
+    exit;
+}
 
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
-
-require_course_login($course);
-
-$context = context_course::instance($course->id);
-
-require_capability('local/downloadcenter:view', $context);
+require_login($course);
 
 $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php', array('courseid' => $course->id)));
-
 $PAGE->set_pagelayout('incourse');
 
+
 $downloadcenter = new local_downloadcenter_factory($course, $USER);
+
+if ($downloadall) {
+    $downloadcenter->select_all_resources();
+    $downloadcenter->create_zip();
+}
 
 $userresources = $downloadcenter->get_resources_for_user();
 
@@ -62,7 +90,6 @@ $PAGE->set_title(get_string('navigationlink', 'local_downloadcenter') . ': ' . $
 $PAGE->set_heading($course->fullname);
 
 if ($data = $downloadform->get_data()) {
-
     $event = \local_downloadcenter\event\zip_downloaded::create(array(
         'objectid' => $PAGE->course->id,
         'context' => $PAGE->context
@@ -86,7 +113,5 @@ if ($data = $downloadform->get_data()) {
 }
 
 echo $OUTPUT->heading(get_string('navigationlink', 'local_downloadcenter'), 1);
-
 $downloadform->display();
-
 echo $OUTPUT->footer();
