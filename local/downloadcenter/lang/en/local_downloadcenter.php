@@ -50,3 +50,5 @@ $string['untitled'] = 'Untitled';
 $string['privacy:null_reason'] = 'This plugin does not store or process any personal information. It presents an interface to download all course files which are manipulated from within the course.';
 
 $string['no_downloadable_content'] = 'No downloadable content';
+$string['downloadall'] = 'Download all';
+$string['selectfiles'] = 'Select files';

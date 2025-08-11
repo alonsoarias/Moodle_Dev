@@ -34,6 +34,7 @@ core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
+$downloadall = optional_param('downloadall', 0, PARAM_BOOL);
 
 require_login();
 $systemcontext = context_system::instance();
@@ -48,7 +49,11 @@ if (empty($courseid)) {
 
     $selectform = new local_downloadcenter_course_select_form();
     if ($data = $selectform->get_data()) {
-        redirect(new moodle_url('/local/downloadcenter/index.php', ['courseid' => $data->courseid]));
+        $params = ['courseid' => $data->courseid];
+        if (!empty($data->downloadall)) {
+            $params['downloadall'] = 1;
+        }
+        redirect(new moodle_url('/local/downloadcenter/index.php', $params));
     }
 
     echo $OUTPUT->header();
@@ -63,7 +68,14 @@ require_login($course);
 $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php', array('courseid' => $course->id)));
 $PAGE->set_pagelayout('incourse');
 
+
 $downloadcenter = new local_downloadcenter_factory($course, $USER);
+
+if ($downloadall) {
+    $downloadcenter->select_all_resources();
+    $downloadcenter->create_zip();
+}
+
 $userresources = $downloadcenter->get_resources_for_user();
 
 $PAGE->requires->js_call_amd('local_downloadcenter/modfilter', 'init', $downloadcenter->get_js_modnames());

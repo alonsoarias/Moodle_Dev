@@ -36,6 +36,11 @@ class local_downloadcenter_course_select_form extends moodleform {
         }
         $mform->addElement('select', 'courseid', get_string('course'), $options);
         $mform->setType('courseid', PARAM_INT);
-        $this->add_action_buttons(true, get_string('continue'));
+        $buttonarray = [];
+        $buttonarray[] = $mform->createElement('submit', 'downloadall',
+            get_string('downloadall', 'local_downloadcenter'));
+        $buttonarray[] = $mform->createElement('submit', 'submitbutton',
+            get_string('selectfiles', 'local_downloadcenter'));
+        $mform->addGroup($buttonarray, 'buttons', '', [' '], false);
     }
 }
