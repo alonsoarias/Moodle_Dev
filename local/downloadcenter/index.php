@@ -40,15 +40,17 @@ $systemcontext = context_system::instance();
 require_capability('local/downloadcenter:view', $systemcontext);
 
 if (empty($courseid)) {
-    $selectform = new local_downloadcenter_course_select_form();
-    if ($data = $selectform->get_data()) {
-        redirect(new moodle_url('/local/downloadcenter/index.php', ['courseid' => $data->courseid]));
-    }
     $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php'));
     $PAGE->set_context($systemcontext);
     $PAGE->set_pagelayout('standard');
     $PAGE->set_title(get_string('navigationlink', 'local_downloadcenter'));
     $PAGE->set_heading($SITE->fullname);
+
+    $selectform = new local_downloadcenter_course_select_form();
+    if ($data = $selectform->get_data()) {
+        redirect(new moodle_url('/local/downloadcenter/index.php', ['courseid' => $data->courseid]));
+    }
+
     echo $OUTPUT->header();
     $selectform->display();
     echo $OUTPUT->footer();
