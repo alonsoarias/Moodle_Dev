@@ -32,7 +32,7 @@ class local_downloadcenter_course_select_form extends moodleform {
             'sort' => ['fullname' => 1],
         ]);
         foreach ($courses as $course) {
-            if (!can_access_course($course)) {
+            if (!$course->can_access()) {
                 continue;
             }
             $options[$course->id] = $course->get_formatted_name();
