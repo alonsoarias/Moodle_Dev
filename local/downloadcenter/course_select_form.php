@@ -15,19 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   local_downloadcenter
- * @author    Simeon Naydenov
- * @copyright 2020 Academic Moodle Cooperation {@link http://www.academic-moodle-cooperation.org}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Course selection form for download center.
+ *
+ * @package       local_downloadcenter
+ * @author        ChatGPT
+ * @license       http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024010100;
-$plugin->requires  = 2022112800;
-$plugin->component = 'local_downloadcenter';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = "v4.1.1";
+require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
+class local_downloadcenter_course_select_form extends moodleform {
+    public function definition() {
+        $mform = $this->_form;
+
+        $courses = get_courses_menu();
+        $mform->addElement('select', 'courseid', get_string('course'), $courses);
+        $mform->setType('courseid', PARAM_INT);
+
+        $this->add_action_buttons(true, get_string('continue'));
+    }
+}
