@@ -65,7 +65,7 @@ class backup_intebchat_activity_structure_step extends backup_activity_structure
 
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
-            $log->set_source_table('mod_intebchat_log', array('instanceid' => backup::VAR_PARENTID), 'id ASC');
+            $log->set_source_table('intebchat_log', array('instanceid' => backup::VAR_PARENTID), 'id ASC');
         }
 
         // Define id annotations.

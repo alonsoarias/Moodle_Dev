@@ -60,7 +60,7 @@ $PAGE->set_context($context);
 // Si tenemos conversation_id pero no thread_id, intentar recuperarlo
 $api_type = get_config('mod_intebchat', 'type') ?: 'chat';
 if ($conversation_id && !$thread_id && $api_type === 'assistant') {
-    $conversation = $DB->get_record('mod_intebchat_conversations', ['id' => $conversation_id]);
+    $conversation = $DB->get_record('intebchat_conversations', ['id' => $conversation_id]);
     if ($conversation && !empty($conversation->threadid)) {
         $thread_id = $conversation->threadid;
     }
@@ -188,24 +188,24 @@ try {
         
         // Si tenemos un thread_id nuevo, guardarlo en la conversación
         if ($response_thread_id) {
-            $conversation_record = $DB->get_record('mod_intebchat_conversations', ['id' => $conversation_id]);
+            $conversation_record = $DB->get_record('intebchat_conversations', ['id' => $conversation_id]);
             if ($conversation_record && empty($conversation_record->threadid)) {
-                $DB->set_field('mod_intebchat_conversations', 'threadid', $response_thread_id, ['id' => $conversation_id]);
+                $DB->set_field('intebchat_conversations', 'threadid', $response_thread_id, ['id' => $conversation_id]);
             }
         }
     }
 
-    // Handle audio response generation using the instance voice
+    // Handle audio response generation if requested - CORRECCIÓN: Usar voz de la instancia
     $audio_output_tokens = 0;
-    if (!empty($instance->enableaudio) && ($response_mode === 'audio' || $instance->audiomode !== 'text')) {
+    if (!empty($instance->enableaudio) && $response_mode === 'audio') {
         require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
-
-        // Use the instance voice, falling back to global config
-        $voice = !empty($instance->voice) ? $instance->voice : (get_config('mod_intebchat', 'voice') ?: 'alloy');
-
-        // Generate audio with token tracking
+        
+        // IMPORTANTE: Usar la voz de la instancia, no la global
+        $voice = !empty($instance->voice) ? $instance->voice : 'alloy';
+        
+        // Use the enhanced speech function with tracking
         $audio_result = \mod_intebchat\audio::speech_with_tracking(strip_tags($response['message']), $voice);
-
+        
         if (!empty($audio_result['url'])) {
             $audio_output_tokens = $audio_result['tokens'];
             $response['message'] = "<audio controls autoplay src='{$audio_result['url']}'></audio><div class='transcription'>{$response['message']}</div>";
@@ -237,7 +237,7 @@ try {
         intebchat_log_message($instance_id, $conversation_id, $message, $response['message'], $context, $tokeninfo);
 
         // Update conversation title if it's the first message
-        $messagecount = $DB->count_records('mod_intebchat_log', ['conversationid' => $conversation_id]);
+        $messagecount = $DB->count_records('intebchat_log', ['conversationid' => $conversation_id]);
         if ($messagecount <= 2) { // User message + AI response
             $title = intebchat_generate_conversation_title($message);
             intebchat_update_conversation($conversation_id, $title);

@@ -37,8 +37,8 @@ function intebchat_get_user_conversations($instanceid, $userid, $limit = 50)
     global $DB;
 
     $sql = "SELECT c.*, 
-                   COALESCE((SELECT MAX(timecreated) FROM {mod_intebchat_log} WHERE conversationid = c.id), c.timecreated) as lastmessage
-            FROM {mod_intebchat_conversations} c
+                   COALESCE((SELECT MAX(timecreated) FROM {intebchat_log} WHERE conversationid = c.id), c.timecreated) as lastmessage
+            FROM {intebchat_conversations} c
             WHERE c.instanceid = :instanceid 
               AND c.userid = :userid
             ORDER BY lastmessage DESC";
@@ -62,7 +62,7 @@ function intebchat_get_conversation_messages($conversationid, $limit = 0)
     if ($limit > 0) {
         // Use Moodle's get_records with limit parameter instead of raw SQL LIMIT
         return $DB->get_records(
-            'mod_intebchat_log',
+            'intebchat_log',
             ['conversationid' => $conversationid],
             'timecreated ASC',
             'id, userid, usermessage, airesponse, totaltokens, timecreated',
@@ -72,7 +72,7 @@ function intebchat_get_conversation_messages($conversationid, $limit = 0)
     } else {
         // Get all records
         return $DB->get_records(
-            'mod_intebchat_log',
+            'intebchat_log',
             ['conversationid' => $conversationid],
             'timecreated ASC'
         );
@@ -91,7 +91,7 @@ function intebchat_can_view_conversation($conversationid, $userid, $context)
 {
     global $DB;
 
-    $conversation = $DB->get_record('mod_intebchat_conversations', ['id' => $conversationid]);
+    $conversation = $DB->get_record('intebchat_conversations', ['id' => $conversationid]);
     if (!$conversation) {
         return false;
     }
@@ -156,17 +156,17 @@ function intebchat_clear_conversation_messages($conversationid)
         $transaction = $DB->start_delegated_transaction();
 
         // Get current message count
-        $messagecount = $DB->count_records('mod_intebchat_log', ['conversationid' => $conversationid]);
+        $messagecount = $DB->count_records('intebchat_log', ['conversationid' => $conversationid]);
 
         if ($messagecount == 0) {
             // If conversation is already empty, delete it completely
-            $DB->delete_records('mod_intebchat_conversations', ['id' => $conversationid]);
+            $DB->delete_records('intebchat_conversations', ['id' => $conversationid]);
             $transaction->allow_commit();
             return ['success' => true, 'deleted' => true];
         }
 
         // Delete all messages
-        $DB->delete_records('mod_intebchat_log', ['conversationid' => $conversationid]);
+        $DB->delete_records('intebchat_log', ['conversationid' => $conversationid]);
 
         $conversation = new stdClass();
         $conversation->id = $conversationid;
@@ -175,7 +175,7 @@ function intebchat_clear_conversation_messages($conversationid)
         $conversation->threadid = null;    // Reiniciar el hilo asociado
         $conversation->timemodified = time();
 
-        $DB->update_record('mod_intebchat_conversations', $conversation);
+        $DB->update_record('intebchat_conversations', $conversation);
 
         // Commit transaction
         $transaction->allow_commit();
@@ -201,7 +201,7 @@ function intebchat_delete_conversation_completely($conversationid)
     global $DB;
 
     // Verificar que la conversación existe
-    if (!$DB->record_exists('mod_intebchat_conversations', ['id' => $conversationid])) {
+    if (!$DB->record_exists('intebchat_conversations', ['id' => $conversationid])) {
         debugging('Conversation does not exist: ' . $conversationid, DEBUG_DEVELOPER);
         return false;
     }
@@ -212,10 +212,10 @@ function intebchat_delete_conversation_completely($conversationid)
         $transaction = $DB->start_delegated_transaction();
 
         // Delete all messages first (pueden no existir)
-        $DB->delete_records('mod_intebchat_log', ['conversationid' => $conversationid]);
+        $DB->delete_records('intebchat_log', ['conversationid' => $conversationid]);
 
         // Delete the conversation
-        $deleted = $DB->delete_records('mod_intebchat_conversations', ['id' => $conversationid]);
+        $deleted = $DB->delete_records('intebchat_conversations', ['id' => $conversationid]);
 
         // Commit transaction
         $transaction->allow_commit();
@@ -254,7 +254,7 @@ function intebchat_get_user_token_stats($userid, $period = 'day')
     $stats->periodstart = $periodstart;
 
     // Get current period usage
-    $usage = $DB->get_record('mod_intebchat_token_usage', [
+    $usage = $DB->get_record('intebchat_token_usage', [
         'userid' => $userid,
         'periodtype' => $period,
         'periodstart' => $periodstart
@@ -264,16 +264,16 @@ function intebchat_get_user_token_stats($userid, $period = 'day')
 
     // Get total historical usage - handle null values
     $sql = "SELECT COALESCE(SUM(totaltokens), 0) as total
-            FROM {mod_intebchat_log} 
+            FROM {intebchat_log} 
             WHERE userid = :userid";
     $result = $DB->get_record_sql($sql, ['userid' => $userid]);
     $stats->total_usage = $result ? $result->total : 0;
 
     // Get conversation count
-    $stats->conversation_count = $DB->count_records('mod_intebchat_conversations', ['userid' => $userid]);
+    $stats->conversation_count = $DB->count_records('intebchat_conversations', ['userid' => $userid]);
 
     // Get message count
-    $stats->message_count = $DB->count_records('mod_intebchat_log', ['userid' => $userid]);
+    $stats->message_count = $DB->count_records('intebchat_log', ['userid' => $userid]);
 
     return $stats;
 }
@@ -297,9 +297,9 @@ function intebchat_search_conversations($instanceid, $userid, $search)
     $search = '%' . $DB->sql_like_escape($search) . '%';
 
     $sql = "SELECT DISTINCT c.*,
-                   COALESCE((SELECT MAX(timecreated) FROM {mod_intebchat_log} WHERE conversationid = c.id), c.timecreated) as lastmessage
-            FROM {mod_intebchat_conversations} c
-            LEFT JOIN {mod_intebchat_log} l ON l.conversationid = c.id
+                   COALESCE((SELECT MAX(timecreated) FROM {intebchat_log} WHERE conversationid = c.id), c.timecreated) as lastmessage
+            FROM {intebchat_conversations} c
+            LEFT JOIN {intebchat_log} l ON l.conversationid = c.id
             WHERE c.instanceid = :instanceid 
               AND c.userid = :userid
               AND (

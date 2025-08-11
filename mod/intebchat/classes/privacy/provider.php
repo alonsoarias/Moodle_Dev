@@ -41,7 +41,7 @@ class provider implements
 
     public static function get_metadata(collection $collection): collection {
         $collection->add_database_table(
-            'mod_intebchat_log',
+            'intebchat_log',
              [
                 'userid' => 'privacy:metadata:intebchat_log:userid',
                 'instanceid' => 'privacy:metadata:intebchat_log:instanceid',
@@ -63,7 +63,7 @@ class provider implements
                   JOIN {course_modules} cm ON cm.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   JOIN {modules} m ON m.id = cm.module AND m.name = :modname
                   JOIN {intebchat} oc ON oc.id = cm.instance
-                  JOIN {mod_intebchat_log} ocl ON ocl.instanceid = oc.id
+                  JOIN {intebchat_log} ocl ON ocl.instanceid = oc.id
                  WHERE ocl.userid = :userid";
         
         $params = [
@@ -87,7 +87,7 @@ class provider implements
                   FROM {course_modules} cm
                   JOIN {modules} m ON m.id = cm.module AND m.name = :modname
                   JOIN {intebchat} oc ON oc.id = cm.instance
-                  JOIN {mod_intebchat_log} ocl ON ocl.instanceid = oc.id
+                  JOIN {intebchat_log} ocl ON ocl.instanceid = oc.id
                  WHERE cm.id = :cmid";
 
         $params = [
@@ -117,7 +117,7 @@ class provider implements
 
             // Get messages.
             $sql = "SELECT id, userid, usermessage, airesponse, timecreated 
-                    FROM {mod_intebchat_log} 
+                    FROM {intebchat_log} 
                     WHERE instanceid = :instanceid AND userid = :userid
                     ORDER BY timecreated";
             
@@ -155,7 +155,7 @@ class provider implements
             return;
         }
 
-        $DB->delete_records('mod_intebchat_log', ['instanceid' => $cm->instance]);
+        $DB->delete_records('intebchat_log', ['instanceid' => $cm->instance]);
     }
 
     public static function delete_data_for_user(approved_contextlist $contextlist) {
@@ -173,7 +173,7 @@ class provider implements
                 continue;
             }
 
-            $DB->delete_records('mod_intebchat_log', ['instanceid' => $cm->instance, 'userid' => $userid]);
+            $DB->delete_records('intebchat_log', ['instanceid' => $cm->instance, 'userid' => $userid]);
         }
     }
 
@@ -194,6 +194,6 @@ class provider implements
         list($usersql, $userparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         
         $params = ['instanceid' => $cm->instance] + $userparams;
-        $DB->delete_records_select('mod_intebchat_log', "instanceid = :instanceid AND userid $usersql", $params);
+        $DB->delete_records_select('intebchat_log', "instanceid = :instanceid AND userid $usersql", $params);
     }
 }

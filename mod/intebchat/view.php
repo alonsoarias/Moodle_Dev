@@ -88,7 +88,7 @@ if (!empty($intebchat->enableaudio)) {
 }
 
 // Add CSS
-$PAGE->requires->css('/mod/intebchat/styles.css');
+$PAGE->requires->css('/mod/intebchat/styles/styles.css');
 
 // Output starts here
 echo $OUTPUT->header();

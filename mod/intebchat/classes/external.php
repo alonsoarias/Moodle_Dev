@@ -132,7 +132,7 @@ class external extends \external_api
             }
 
             // Get conversation
-            $conversation = $DB->get_record('mod_intebchat_conversations', ['id' => $conversationid], '*', MUST_EXIST);
+            $conversation = $DB->get_record('intebchat_conversations', ['id' => $conversationid], '*', MUST_EXIST);
 
             // Get messages using the fixed function
             $messages = intebchat_get_conversation_messages($conversationid);
@@ -222,7 +222,7 @@ class external extends \external_api
             ]);
 
             // Get conversation to check permissions
-            $conversation = $DB->get_record('mod_intebchat_conversations', ['id' => $conversationid], '*', MUST_EXIST);
+            $conversation = $DB->get_record('intebchat_conversations', ['id' => $conversationid], '*', MUST_EXIST);
 
             // Validate instance and context
             $instance = $DB->get_record('intebchat', ['id' => $conversation->instanceid], '*', MUST_EXIST);
@@ -293,7 +293,7 @@ class external extends \external_api
         ]);
 
         // Get conversation to check permissions
-        $conversation = $DB->get_record('mod_intebchat_conversations', ['id' => $conversationid], '*', MUST_EXIST);
+        $conversation = $DB->get_record('intebchat_conversations', ['id' => $conversationid], '*', MUST_EXIST);
 
         // Validate instance and context
         $instance = $DB->get_record('intebchat', ['id' => $conversation->instanceid], '*', MUST_EXIST);

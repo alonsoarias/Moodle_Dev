@@ -46,7 +46,7 @@ function xmldb_intebchat_upgrade($oldversion) {
         }
 
         // Add token tracking fields to log table
-        $table = new xmldb_table('mod_intebchat_log');
+        $table = new xmldb_table('intebchat_log');
         
         $field = new xmldb_field('prompttokens', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'airesponse');
         if (!$dbman->field_exists($table, $field)) {
@@ -64,7 +64,7 @@ function xmldb_intebchat_upgrade($oldversion) {
         }
 
         // Create token usage table
-        $table = new xmldb_table('mod_intebchat_token_usage');
+        $table = new xmldb_table('intebchat_token_usage');
 
         if (!$dbman->table_exists($table)) {
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -153,7 +153,7 @@ function xmldb_intebchat_upgrade($oldversion) {
 
     if ($oldversion < 2025030100) {
         // Create conversations table
-        $table = new xmldb_table('mod_intebchat_conversations');
+        $table = new xmldb_table('intebchat_conversations');
         
         if (!$dbman->table_exists($table)) {
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -177,14 +177,14 @@ function xmldb_intebchat_upgrade($oldversion) {
         }
 
         // Add conversationid field to log table
-        $table = new xmldb_table('mod_intebchat_log');
+        $table = new xmldb_table('intebchat_log');
         $field = new xmldb_field('conversationid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'userid');
         
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
             
             // Add foreign key
-            $key = new xmldb_key('conversationid', XMLDB_KEY_FOREIGN, ['conversationid'], 'mod_intebchat_conversations', ['id']);
+            $key = new xmldb_key('conversationid', XMLDB_KEY_FOREIGN, ['conversationid'], 'intebchat_conversations', ['id']);
             $dbman->add_key($table, $key);
             
             // Add index
@@ -198,7 +198,7 @@ function xmldb_intebchat_upgrade($oldversion) {
             // Get unique users who have messages in this instance
             $users = $DB->get_records_sql("
                 SELECT DISTINCT userid 
-                FROM {mod_intebchat_log} 
+                FROM {intebchat_log} 
                 WHERE instanceid = :instanceid",
                 ['instanceid' => $instance->id]
             );
@@ -214,11 +214,11 @@ function xmldb_intebchat_upgrade($oldversion) {
                 $conversation->timecreated = time();
                 $conversation->timemodified = time();
                 
-                $conversationid = $DB->insert_record('mod_intebchat_conversations', $conversation);
+                $conversationid = $DB->insert_record('intebchat_conversations', $conversation);
                 
                 // Update existing logs to reference this conversation
                 $DB->execute("
-                    UPDATE {mod_intebchat_log} 
+                    UPDATE {intebchat_log} 
                     SET conversationid = :conversationid 
                     WHERE instanceid = :instanceid AND userid = :userid",
                     [
@@ -231,7 +231,7 @@ function xmldb_intebchat_upgrade($oldversion) {
                 // Update conversation preview and message count
                 $lastmessage = $DB->get_record_sql("
                     SELECT usermessage 
-                    FROM {mod_intebchat_log} 
+                    FROM {intebchat_log} 
                     WHERE conversationid = :conversationid 
                     ORDER BY timecreated DESC 
                     LIMIT 1",
@@ -242,10 +242,10 @@ function xmldb_intebchat_upgrade($oldversion) {
                     $conversation->preview = substr($lastmessage->usermessage, 0, 100);
                 }
                 
-                $messagecount = $DB->count_records('mod_intebchat_log', ['conversationid' => $conversationid]);
+                $messagecount = $DB->count_records('intebchat_log', ['conversationid' => $conversationid]);
                 
                 $DB->execute("
-                    UPDATE {mod_intebchat_conversations} 
+                    UPDATE {intebchat_conversations} 
                     SET preview = :preview, messagecount = :messagecount 
                     WHERE id = :id",
                     [

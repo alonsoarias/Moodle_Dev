@@ -40,7 +40,7 @@
         <INDEX NAME="apitype" UNIQUE="false" FIELDS="apitype"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="mod_intebchat_log" COMMENT="Log of chat messages for mod_intebchat">
+    <TABLE NAME="intebchat_log" COMMENT="Log of chat messages for mod_intebchat">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The ID of the module instance"/>
@@ -58,7 +58,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
         <KEY NAME="instanceid" TYPE="foreign" FIELDS="instanceid" REFTABLE="intebchat" REFFIELDS="id"/>
-        <KEY NAME="conversationid" TYPE="foreign" FIELDS="conversationid" REFTABLE="mod_intebchat_conversations" REFFIELDS="id"/>
+        <KEY NAME="conversationid" TYPE="foreign" FIELDS="conversationid" REFTABLE="intebchat_conversations" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
@@ -67,7 +67,7 @@
         <INDEX NAME="conversation-time" UNIQUE="false" FIELDS="conversationid, timecreated"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="mod_intebchat_conversations" COMMENT="Conversations for intebchat module">
+    <TABLE NAME="intebchat_conversations" COMMENT="Conversations for intebchat module">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The ID of the module instance"/>
@@ -89,7 +89,7 @@
         <INDEX NAME="timemodified" UNIQUE="false" FIELDS="timemodified"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="mod_intebchat_token_usage" COMMENT="Track token usage per user for limiting">
+    <TABLE NAME="intebchat_token_usage" COMMENT="Track token usage per user for limiting">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The ID of the user"/>
