@@ -34,13 +34,14 @@ core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
+$courseids = optional_param_array('courseids', $courseid ? [$courseid] : [], PARAM_INT);
 $downloadall = optional_param('downloadall', 0, PARAM_BOOL);
 
 require_login();
 $systemcontext = context_system::instance();
 require_capability('local/downloadcenter:view', $systemcontext);
 
-if (empty($courseid)) {
+if (empty($courseids)) {
     $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php'));
     $PAGE->set_context($systemcontext);
     $PAGE->set_pagelayout('standard');
@@ -49,7 +50,10 @@ if (empty($courseid)) {
 
     $selectform = new local_downloadcenter_course_select_form();
     if ($data = $selectform->get_data()) {
-        $params = ['courseid' => $data->courseid];
+        $params = [];
+        if (!empty($data->courseids)) {
+            $params['courseids'] = $data->courseids;
+        }
         if (!empty($data->downloadall)) {
             $params['downloadall'] = 1;
         }
@@ -62,10 +66,39 @@ if (empty($courseid)) {
     exit;
 }
 
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+if (count($courseids) > 1) {
+    if (!$downloadall) {
+        throw new moodle_exception('selectonecourse', 'local_downloadcenter');
+    }
+
+    $filename = sprintf('courses_%s.zip', userdate(time(), '%Y%m%d_%H%M'));
+    $zipwriter = \core_files\archive_writer::get_stream_writer($filename, \core_files\archive_writer::ZIP_WRITER);
+    foreach ($courseids as $cid) {
+        $course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
+        require_login($course);
+        $downloadcenter = new local_downloadcenter_factory($course, $USER);
+        $downloadcenter->select_all_resources();
+        $filelist = $downloadcenter->build_filelist(local_downloadcenter_factory::shorten_filename($course->shortname) . '/');
+        foreach ($filelist as $pathinzip => $file) {
+            if ($file instanceof \stored_file) {
+                $zipwriter->add_file_from_stored_file($pathinzip, $file);
+            } else if (is_array($file)) {
+                $content = reset($file);
+                $zipwriter->add_file_from_string($pathinzip, $content);
+            } else if (is_string($file)) {
+                $zipwriter->add_file_from_filepath($pathinzip, $file);
+            }
+        }
+    }
+    $zipwriter->finish();
+    die;
+}
+
+$courseid = reset($courseids);
+$course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 require_login($course);
 
-$PAGE->set_url(new moodle_url('/local/downloadcenter/index.php', array('courseid' => $course->id)));
+$PAGE->set_url(new moodle_url('/local/downloadcenter/index.php', ['courseid' => $course->id]));
 $PAGE->set_pagelayout('incourse');
 
 

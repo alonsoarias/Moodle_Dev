@@ -32,10 +32,14 @@ class local_downloadcenter_course_select_form extends moodleform {
             'sort' => ['fullname' => 1],
         ]);
         foreach ($courses as $course) {
+            if (!can_access_course($course)) {
+                continue;
+            }
             $options[$course->id] = $course->get_formatted_name();
         }
-        $mform->addElement('select', 'courseid', get_string('course'), $options);
-        $mform->setType('courseid', PARAM_INT);
+        $attributes = ['multiple' => 'multiple', 'size' => 10];
+        $mform->addElement('select', 'courseids', get_string('course'), $options, $attributes);
+        $mform->setType('courseids', PARAM_INT);
         $buttonarray = [];
         $buttonarray[] = $mform->createElement('submit', 'downloadall',
             get_string('downloadall', 'local_downloadcenter'));

@@ -215,7 +215,7 @@ class local_downloadcenter_factory {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function create_zip() {
+    public function build_filelist($prefix = '') {
         global $DB, $CFG, $USER, $OUTPUT, $PAGE, $SITE;
 
         if (file_exists($CFG->dirroot . '/mod/publication/locallib.php')) {
@@ -668,17 +668,27 @@ class local_downloadcenter_factory {
 
         \core\session\manager::write_close();
 
+        if (!empty($prefix)) {
+            $prefixed = [];
+            foreach ($filelist as $path => $file) {
+                $prefixed[$prefix . $path] = $file;
+            }
+            return $prefixed;
+        }
+        return $filelist;
+    }
+
+    public function create_zip() {
+        $filelist = $this->build_filelist();
+
         $filename = sprintf('%s_%s.zip', $this->course->shortname, userdate(time(), '%Y%m%d_%H%M'));
 
         $zipwriter = \core_files\archive_writer::get_stream_writer($filename, \core_files\archive_writer::ZIP_WRITER);
 
-        // Stream the files into the zip.
         foreach ($filelist as $pathinzip => $file) {
             if ($file instanceof \stored_file) {
-                // Most of cases are \stored_file.
                 $zipwriter->add_file_from_stored_file($pathinzip, $file);
             } else if (is_array($file)) {
-                // Save $file as contents, from onlinetext subplugin.
                 $content = reset($file);
                 $zipwriter->add_file_from_string($pathinzip, $content);
             } else if (is_string($file)) {
@@ -686,7 +696,6 @@ class local_downloadcenter_factory {
             }
         }
 
-        // Finish the archive.
         $zipwriter->finish();
         die;
     }

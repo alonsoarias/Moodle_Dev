@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Download center plugin
  *
@@ -22,33 +21,24 @@
  * @copyright     2020 Academic Moodle Cooperation {@link http://www.academic-moodle-cooperation.org}
  * @license       http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 defined('MOODLE_INTERNAL') || die;
-
 $string['pluginname'] = 'Download center';
 $string['downloadcenter:view'] = 'View Download center';
-
 $string['navigationlink'] = 'Download center';
 $string['pagetitle'] = 'Download center for ';
-
 $string['settings_title'] = 'Download center';
 $string['exclude_empty_topics'] = 'Exclude empty topics';
 $string['exclude_empty_topics_help'] = 'Exclude empty topics from the downloaded zip.';
-
 $string['warningmessage'] = 'Here you can download single or all available contents of this course in a ZIP archive.';
-
 $string['createzip'] = 'Create ZIP archive';
-
 $string['zipready'] = 'The ZIP archive has been successfully created.';
 $string['download'] = 'Download';
 $string['zipcreating'] = 'The ZIP archive is being created...';
 $string['eventDOWNLOADEDZIP'] = 'ZIP was downloaded';
 $string['eventVIEWED'] = 'Download center viewed';
 $string['untitled'] = 'Untitled';
-
 $string['privacy:null_reason'] = 'This plugin does not store or process any personal information. It presents an interface to download all course files which are manipulated from within the course.';
-
 $string['no_downloadable_content'] = 'No downloadable content';
 $string['downloadall'] = 'Download all';
 $string['selectfiles'] = 'Select files';
+$string['selectonecourse'] = 'Please select exactly one course when choosing specific files.';
