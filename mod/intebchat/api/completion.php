@@ -119,6 +119,7 @@ $setting_names = [
     'prompt',
     'instructions',
     'assistantname',
+    'voice',
     'apikey',
     'model',
     'temperature',
@@ -199,10 +200,10 @@ try {
     $audio_output_tokens = 0;
     if (!empty($instance->enableaudio) && $response_mode === 'audio') {
         require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
-        
-        // IMPORTANTE: Usar la voz de la instancia, no la global
-        $voice = !empty($instance->voice) ? $instance->voice : 'alloy';
-        
+
+        // IMPORTANTE: Usar la voz obtenida tras combinar configuración global e instancia
+        $voice = $completion->get_voice() ?? 'alloy';
+
         // Use the enhanced speech function with tracking
         $audio_result = \mod_intebchat\audio::speech_with_tracking(strip_tags($response['message']), $voice);
         

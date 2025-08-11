@@ -101,6 +101,7 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->addElement('select', 'voice', get_string('voice', 'mod_intebchat'), $voices);
             // Use global default as default value
             $mform->setDefault('voice', get_config('mod_intebchat', 'voice') ?: 'alloy');
+            $mform->setType('voice', PARAM_TEXT);
             $mform->addHelpButton('voice', 'voice', 'mod_intebchat');
             // Only disable if audio is disabled for this instance
             $mform->disabledIf('voice', 'enableaudio', 'eq', 0);

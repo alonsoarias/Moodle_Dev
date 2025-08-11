@@ -45,6 +45,7 @@ class completion {
 
     protected $assistant;
     protected $instructions;
+    protected $voice;
 
     /**
      * Initialize all the class properties that we'll need regardless of model
@@ -78,6 +79,7 @@ class completion {
 
         $this->assistant = $this->get_setting('assistant');
         $this->instructions = $this->get_setting('instructions');
+        $this->voice = $this->get_setting('voice', 'alloy');
 
         // Then override with instance settings if applicable
         if (get_config('mod_intebchat', 'allowinstancesettings') === "1") {
@@ -92,6 +94,14 @@ class completion {
         $this->history = $history;
 
         $this->build_source_of_truth($instance_settings['sourceoftruth']);
+    }
+
+    /**
+     * Get the voice to use for audio responses
+     * @return string
+     */
+    public function get_voice() {
+        return $this->voice;
     }
 
     /**
