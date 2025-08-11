@@ -202,7 +202,7 @@ function intebchat_delete_instance($id)
     }
 
     // Delete all conversations
-    $conversations = $DB->get_records('mod_intebchat_conversations', array('instanceid' => $intebchat->id));
+    $conversations = $DB->get_records('intebchat_conversations', array('instanceid' => $intebchat->id));
     foreach ($conversations as $conversation) {
         intebchat_delete_conversation($conversation->id);
     }
@@ -224,10 +224,10 @@ function intebchat_delete_conversation($conversationid)
     global $DB;
 
     // Delete all messages in the conversation
-    $DB->delete_records('mod_intebchat_log', array('conversationid' => $conversationid));
+    $DB->delete_records('intebchat_log', array('conversationid' => $conversationid));
 
     // Delete the conversation
-    $DB->delete_records('mod_intebchat_conversations', array('id' => $conversationid));
+    $DB->delete_records('intebchat_conversations', array('id' => $conversationid));
 
     return true;
 }
@@ -257,7 +257,7 @@ function intebchat_create_conversation($instanceid, $userid, $title = null)
     $conversation->timecreated = time();
     $conversation->timemodified = time();
 
-    return $DB->insert_record('mod_intebchat_conversations', $conversation);
+    return $DB->insert_record('intebchat_conversations', $conversation);
 }
 
 /**
@@ -272,7 +272,7 @@ function intebchat_update_conversation($conversationid, $title = null, $preview 
 {
     global $DB;
 
-    $conversation = $DB->get_record('mod_intebchat_conversations', array('id' => $conversationid));
+    $conversation = $DB->get_record('intebchat_conversations', array('id' => $conversationid));
     if (!$conversation) {
         return false;
     }
@@ -292,7 +292,7 @@ function intebchat_update_conversation($conversationid, $title = null, $preview 
     
     if ($updated) {
         $conversation->timemodified = time();
-        return $DB->update_record('mod_intebchat_conversations', $conversation);
+        return $DB->update_record('intebchat_conversations', $conversation);
     }
     
     return true; // No changes needed
@@ -323,7 +323,7 @@ function intebchat_check_token_limit($userid)
     $periodstart = intebchat_get_period_start($period, $now);
 
     // Get or create token usage record
-    $usage = $DB->get_record('mod_intebchat_token_usage', [
+    $usage = $DB->get_record('intebchat_token_usage', [
         'userid' => $userid,
         'periodtype' => $period,
         'periodstart' => $periodstart
@@ -338,12 +338,12 @@ function intebchat_check_token_limit($userid)
         $usage->periodtype = $period;
         $usage->timecreated = $now;
         $usage->timemodified = $now;
-        $usage->id = $DB->insert_record('mod_intebchat_token_usage', $usage);
+        $usage->id = $DB->insert_record('intebchat_token_usage', $usage);
     }
 
     // Clean up old records
     $DB->delete_records_select(
-        'mod_intebchat_token_usage',
+        'intebchat_token_usage',
         'periodstart < :periodstart AND periodtype = :periodtype',
         ['periodstart' => $periodstart, 'periodtype' => $period]
     );
@@ -405,7 +405,7 @@ function intebchat_update_token_usage($userid, $tokens)
     $periodstart = intebchat_get_period_start($period, $now);
 
     // Get or create usage record
-    $usage = $DB->get_record('mod_intebchat_token_usage', [
+    $usage = $DB->get_record('intebchat_token_usage', [
         'userid' => $userid,
         'periodtype' => $period,
         'periodstart' => $periodstart
@@ -420,12 +420,12 @@ function intebchat_update_token_usage($userid, $tokens)
         $usage->periodtype = $period;
         $usage->timecreated = $now;
         $usage->timemodified = $now;
-        $DB->insert_record('mod_intebchat_token_usage', $usage);
+        $DB->insert_record('intebchat_token_usage', $usage);
     } else {
         // Update existing record
         $usage->tokensused += $tokens;
         $usage->timemodified = $now;
-        $DB->update_record('mod_intebchat_token_usage', $usage);
+        $DB->update_record('intebchat_token_usage', $usage);
     }
 
     return true;
@@ -505,14 +505,14 @@ function intebchat_log_message($instanceid, $conversationid, $usermessage, $aire
         $record->totaltokens = 0;
     }
 
-    $DB->insert_record('mod_intebchat_log', $record);
+    $DB->insert_record('intebchat_log', $record);
 
     // Update conversation message count and preview
     if ($conversationid) {
-        $messagecount = $DB->count_records('mod_intebchat_log', ['conversationid' => $conversationid]);
+        $messagecount = $DB->count_records('intebchat_log', ['conversationid' => $conversationid]);
         intebchat_update_conversation($conversationid, null, $usermessage);
 
-        $DB->set_field('mod_intebchat_conversations', 'messagecount', $messagecount, ['id' => $conversationid]);
+        $DB->set_field('intebchat_conversations', 'messagecount', $messagecount, ['id' => $conversationid]);
     }
 }
 
@@ -581,7 +581,7 @@ function intebchat_user_outline($course, $user, $mod, $intebchat)
     global $DB;
 
     $conversations = $DB->get_records(
-        'mod_intebchat_conversations',
+        'intebchat_conversations',
         array('instanceid' => $intebchat->id, 'userid' => $user->id),
         'timemodified DESC',
         '*',
@@ -608,7 +608,7 @@ function intebchat_user_complete($course, $user, $mod, $intebchat)
     global $DB, $OUTPUT;
 
     $conversations = $DB->get_records(
-        'mod_intebchat_conversations',
+        'intebchat_conversations',
         array('instanceid' => $intebchat->id, 'userid' => $user->id),
         'timecreated ASC'
     );
@@ -622,7 +622,7 @@ function intebchat_user_complete($course, $user, $mod, $intebchat)
             $totaltokens = 0;
             foreach ($conversations as $conv) {
                 $tokens = $DB->get_field_sql(
-                    "SELECT SUM(totaltokens) FROM {mod_intebchat_log} WHERE conversationid = :convid",
+                    "SELECT SUM(totaltokens) FROM {intebchat_log} WHERE conversationid = :convid",
                     ['convid' => $conv->id]
                 );
                 $totaltokens += $tokens;
