@@ -672,7 +672,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     
                     if (response.messages && response.messages.length > 0) {
                         response.messages.forEach(function (msg) {
-                            addToChatLog(msg.role === 'user' ? 'user' : 'bot', msg.message, instanceId, false);
+                            var clean = stripAutoplay(msg.message);
+                            addToChatLog(msg.role === 'user' ? 'user' : 'bot', clean, instanceId, false);
                         });
                     }
 
@@ -955,6 +956,19 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
+         * Remove autoplay attribute from audio tags to avoid unwanted playback
+         * @param {string} html
+         * @return {string}
+         */
+        function stripAutoplay(html) {
+            var container = $('<div></div>').html(html);
+            container.find('audio').each(function() {
+                $(this).removeAttr('autoplay');
+                this.autoplay = false;
+            });
+            return container.html();
+        }
+        /**
          * Add a message to the chat UI with improved animations
          */
         var addToChatLog = function (type, message, instanceId, animate = true) {
@@ -1009,6 +1023,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 
                 typeWriter();
             } else {
+                if (type !== 'bot' || !animate) {
+                    message = stripAutoplay(message);
+                }
                 var messageText = $('<span></span>').html(message);
                 messageElem.append(messageText);
                 
