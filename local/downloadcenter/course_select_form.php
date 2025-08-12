@@ -23,7 +23,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
 require_once($CFG->libdir . '/formslib.php');
 
 class local_downloadcenter_course_select_form extends moodleform {
@@ -47,7 +46,6 @@ class local_downloadcenter_course_select_form extends moodleform {
 
         $mform->addElement('hidden', 'catid', $catid);
         $mform->setType('catid', PARAM_INT);
-
         $this->add_action_buttons(false, get_string('addcoursestoselection', 'local_downloadcenter'));
     }
 }

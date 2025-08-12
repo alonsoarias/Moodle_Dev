@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 if ($hassiteconfig) {
     $settings = new admin_settingpage('local_downloadcenter', get_string('settings_title', 'local_downloadcenter'));
     $ADMIN->add('localplugins', $settings);
-
+    
     $settings->add(new admin_setting_configcheckbox(
         'local_downloadcenter/exclude_empty_topics',
         get_string('exclude_empty_topics', 'local_downloadcenter'),

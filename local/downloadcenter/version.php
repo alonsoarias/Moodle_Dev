@@ -21,8 +21,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2024010102;
@@ -30,4 +28,3 @@ $plugin->requires  = 2022112800;
 $plugin->component = 'local_downloadcenter';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = "v4.1.2";
-
