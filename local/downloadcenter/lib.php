@@ -79,25 +79,12 @@ function local_downloadcenter_extend_navigation_course(navigation_node $parentno
     $node->add_class('downloadcenterlink');
 }
 /**
- * Adds a top level link to the download center for privileged users.
- *
  * @param global_navigation $nav
+ * @throws coding_exception
+ * @throws moodle_exception
  */
 function local_downloadcenter_extend_navigation(global_navigation $nav) {
-    $context = context_system::instance();
-    if (!has_capability('local/downloadcenter:view', $context)) {
-        return;
-    }
-
-    if ($nav->find('local_downloadcenter', navigation_node::TYPE_CUSTOM)) {
-        return;
-    }
-
-    $title = get_string('navigationlink', 'local_downloadcenter');
-    $url = new moodle_url('/local/downloadcenter/index.php');
-    $icon = new pix_icon('icon', $title, 'local_downloadcenter');
-
-    $nav->add($title, $url, navigation_node::TYPE_CUSTOM, null, 'local_downloadcenter', $icon);
+    return; // Not used anymore!
 }
 
 /**
