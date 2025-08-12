@@ -52,13 +52,22 @@ if ($action === 'download') {
         redirect(new moodle_url('/local/downloadcenter/index.php'));
     }
 
-    \core\session\manager::write_close();
-    $filename = sprintf('courses_%s.zip', userdate(time(), '%Y%m%d_%H%M'));
-    $zipwriter = \core_files\archive_writer::get_stream_writer($filename, \core_files\archive_writer::ZIP_WRITER);
-
+    // Validate access to selected courses and prepare data before closing the session.
+    $downloadcourses = [];
     foreach ($selection as $cid => $data) {
         $course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
         require_login($course);
+        $downloadcourses[$cid] = [$course, $data];
+    }
+
+    // Clear the selection and close the session to avoid corrupting the output stream.
+    unset($SESSION->local_downloadcenter_selection);
+    \core\session\manager::write_close();
+
+    $filename = sprintf('courses_%s.zip', userdate(time(), '%Y%m%d_%H%M'));
+    $zipwriter = \core_files\archive_writer::get_stream_writer($filename, \core_files\archive_writer::ZIP_WRITER);
+
+    foreach ($downloadcourses as $cid => [$course, $data]) {
         $downloadcenter = new local_downloadcenter_factory($course, $USER);
         if (!empty($data['downloadall'])) {
             $downloadcenter->select_all();
@@ -78,9 +87,9 @@ if ($action === 'download') {
             }
         }
     }
+
     $zipwriter->finish();
-    unset($SESSION->local_downloadcenter_selection);
-    die;
+    exit;
 }
 
 if (empty($catid)) {
