@@ -26,7 +26,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-
     $settings = new admin_settingpage('local_downloadcenter', get_string('settings_title', 'local_downloadcenter'));
     $ADMIN->add('localplugins', $settings);
 

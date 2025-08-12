@@ -50,3 +50,11 @@ $string['untitled'] = 'Untitled';
 $string['privacy:null_reason'] = 'This plugin does not store or process any personal information. It presents an interface to download all course files which are manipulated from within the course.';
 
 $string['no_downloadable_content'] = 'No downloadable content';
+$string['downloadall'] = 'Download all';
+$string['selectfiles'] = 'Select files';
+$string['selectonecourse'] = 'Please select exactly one course when choosing specific files.';
+$string['selectcourses'] = 'Select courses';
+$string['downloadselection'] = 'Download selected courses';
+$string['clearselection'] = 'Clear selection';
+$string['selected'] = 'selected';
+$string['addcoursestoselection'] = 'Add selected courses';
