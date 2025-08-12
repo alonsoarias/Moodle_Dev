@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Course selection form for download center.
  *
@@ -20,31 +21,37 @@
  * @author        ChatGPT
  * @license       http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir . '/formslib.php');
-require_once($CFG->dirroot . '/course/lib.php');
+
 class local_downloadcenter_course_select_form extends moodleform {
+    
     public function definition() {
         $mform = $this->_form;
-        $options = [];
-        $courses = \core_course_category::top()->get_courses([
-            'recursive' => true,
-            'sort' => ['fullname' => 1],
-        ]);
+        $courses = $this->_customdata['courses'] ?? [];
+        $selection = $this->_customdata['selection'] ?? [];
+        $catid = $this->_customdata['catid'] ?? 0;
+
         foreach ($courses as $course) {
             if (!$course->can_access()) {
                 continue;
             }
-            $options[$course->id] = $course->get_formatted_name();
+            
+            $url = new moodle_url('/local/downloadcenter/index.php', ['catid' => $catid, 'courseid' => $course->id]);
+            $label = html_writer::link($url, $course->get_formatted_name());
+            
+            if (isset($selection[$course->id])) {
+                $label .= ' (' . get_string('selected', 'local_downloadcenter') . ')';
+            }
+            
+            $mform->addElement('advcheckbox', 'courses[' . $course->id . ']', '', $label, ['group' => 1]);
         }
-        $attributes = ['multiple' => 'multiple', 'size' => 10];
-        $mform->addElement('select', 'courseids', get_string('course'), $options, $attributes);
-        $mform->setType('courseids', PARAM_INT);
-        $buttonarray = [];
-        $buttonarray[] = $mform->createElement('submit', 'downloadall',
-            get_string('downloadall', 'local_downloadcenter'));
-        $buttonarray[] = $mform->createElement('submit', 'submitbutton',
-            get_string('selectfiles', 'local_downloadcenter'));
-        $mform->addGroup($buttonarray, 'buttons', '', [' '], false);
+
+        $mform->addElement('hidden', 'catid', $catid);
+        $mform->setType('catid', PARAM_INT);
+        
+        $this->add_action_buttons(false, get_string('addcoursestoselection', 'local_downloadcenter'));
     }
 }

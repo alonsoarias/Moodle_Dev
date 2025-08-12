@@ -752,6 +752,13 @@ class local_downloadcenter_factory {
     }
 
     /**
+     * Select all available resources in the course.
+     */
+    public function select_all() {
+        $this->filteredresources = $this->get_resources_for_user();
+    }
+
+    /**
      * @param $filename
      * @param int $maxlength
      * @return string

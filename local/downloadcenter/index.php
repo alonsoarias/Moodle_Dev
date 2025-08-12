@@ -27,6 +27,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 require_once(__DIR__ . '/download_form.php');
 require_once(__DIR__ . '/category_select_form.php');
+require_once(__DIR__ . '/course_select_form.php');
 
 core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
@@ -59,7 +60,11 @@ if ($action === 'download') {
         $course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
         require_login($course);
         $downloadcenter = new local_downloadcenter_factory($course, $USER);
-        $downloadcenter->parse_form_data((object)$data);
+        if (!empty($data['downloadall'])) {
+            $downloadcenter->select_all();
+        } else {
+            $downloadcenter->parse_form_data((object)$data);
+        }
         $prefix = local_downloadcenter_factory::shorten_filename(clean_filename($course->shortname)) . '/';
         $filelist = $downloadcenter->build_filelist($prefix);
         foreach ($filelist as $pathinzip => $file) {
@@ -137,21 +142,25 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_title(get_string('navigationlink', 'local_downloadcenter'));
 $PAGE->set_heading($SITE->fullname);
 
-echo $OUTPUT->header();
-
-echo html_writer::start_tag('ul');
-foreach ($courses as $course) {
-    if (!$course->can_access()) {
-        continue;
+$courseform = new local_downloadcenter_course_select_form(null, [
+    'courses' => $courses,
+    'selection' => $selection,
+    'catid' => $catid
+]);
+if ($data = $courseform->get_data()) {
+    if (!empty($data->courses)) {
+        foreach ($data->courses as $cid => $sel) {
+            if ($sel) {
+                $selection[$cid] = ['downloadall' => 1];
+            }
+        }
+        $SESSION->local_downloadcenter_selection = $selection;
     }
-    $url = new moodle_url('/local/downloadcenter/index.php', ['catid' => $catid, 'courseid' => $course->id]);
-    $label = $course->get_formatted_name();
-    if (isset($selection[$course->id])) {
-        $label .= ' (' . get_string('selected', 'local_downloadcenter') . ')';
-    }
-    echo html_writer::tag('li', html_writer::link($url, $label));
+    redirect(new moodle_url('/local/downloadcenter/index.php', ['catid' => $catid]));
 }
-echo html_writer::end_tag('ul');
+
+echo $OUTPUT->header();
+$courseform->display();
 
 if (!empty($selection)) {
     $downloadurl = new moodle_url('/local/downloadcenter/index.php', ['action' => 'download']);

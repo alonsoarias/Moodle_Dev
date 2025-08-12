@@ -46,3 +46,4 @@ $string['selectcourses'] = 'Select courses';
 $string['downloadselection'] = 'Download selected courses';
 $string['clearselection'] = 'Clear selection';
 $string['selected'] = 'selected';
+$string['addcoursestoselection'] = 'Add selected courses';
