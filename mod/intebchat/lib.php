@@ -101,22 +101,32 @@ function intebchat_add_instance(stdClass $intebchat, mod_intebchat_mod_form $mfo
     }
 
     // Clean up fields based on API type
-    if ($intebchat->apitype === 'assistant') {
-        // Clear chat-specific fields
-        $intebchat->sourceoftruth = null;
-        $intebchat->prompt = null;
-        $intebchat->model = null;
-        $intebchat->temperature = null;
-        $intebchat->maxlength = null;
-        $intebchat->topp = null;
-        $intebchat->frequency = null;
-        $intebchat->presence = null;
-    } else {
-        // Clear assistant-specific fields
-        $intebchat->assistant = null;
-        $intebchat->instructions = null;
-        $intebchat->persistconvo = 0;
-    }
+if ($intebchat->apitype === 'assistant') {
+    // Clear chat-specific fields
+    $intebchat->sourceoftruth = null;
+    $intebchat->prompt = null;
+    $intebchat->model = null;
+    $intebchat->temperature = null;
+    $intebchat->maxlength = null;
+    $intebchat->topp = null;
+    $intebchat->frequency = null;
+    $intebchat->presence = null;
+    // Keep instructions and assistantname for assistant type
+} else {
+    // For chat type: clear assistant-specific fields except instructions
+    $intebchat->assistant = null;
+    $intebchat->persistconvo = 0;
+    // Keep instructions and assistantname for all types
+    // Clear model-specific fields as they use global settings
+    $intebchat->sourceoftruth = null;
+    $intebchat->prompt = null;
+    $intebchat->model = null;
+    $intebchat->temperature = null;
+    $intebchat->maxlength = null;
+    $intebchat->topp = null;
+    $intebchat->frequency = null;
+    $intebchat->presence = null;
+}
 
     // Clear any Azure fields that might exist
     $intebchat->resourcename = null;
@@ -164,20 +174,32 @@ function intebchat_update_instance(stdClass $intebchat, mod_intebchat_mod_form $
     }
 
     // Clean up fields based on API type
-    if ($intebchat->apitype === 'assistant') {
-        $intebchat->sourceoftruth = null;
-        $intebchat->prompt = null;
-        $intebchat->model = null;
-        $intebchat->temperature = null;
-        $intebchat->maxlength = null;
-        $intebchat->topp = null;
-        $intebchat->frequency = null;
-        $intebchat->presence = null;
-    } else {
-        $intebchat->assistant = null;
-        $intebchat->instructions = null;
-        $intebchat->persistconvo = 0;
-    }
+if ($intebchat->apitype === 'assistant') {
+    // Clear chat-specific fields
+    $intebchat->sourceoftruth = null;
+    $intebchat->prompt = null;
+    $intebchat->model = null;
+    $intebchat->temperature = null;
+    $intebchat->maxlength = null;
+    $intebchat->topp = null;
+    $intebchat->frequency = null;
+    $intebchat->presence = null;
+    // Keep instructions and assistantname for assistant type
+} else {
+    // For chat type: clear assistant-specific fields except instructions
+    $intebchat->assistant = null;
+    $intebchat->persistconvo = 0;
+    // Keep instructions and assistantname for all types
+    // Clear model-specific fields as they use global settings
+    $intebchat->sourceoftruth = null;
+    $intebchat->prompt = null;
+    $intebchat->model = null;
+    $intebchat->temperature = null;
+    $intebchat->maxlength = null;
+    $intebchat->topp = null;
+    $intebchat->frequency = null;
+    $intebchat->presence = null;
+}
 
     // Clear any Azure fields
     $intebchat->resourcename = null;

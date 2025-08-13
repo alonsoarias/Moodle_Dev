@@ -84,11 +84,16 @@ if ($ADMIN->fulltree) {
 
     $voices = [
         'alloy' => 'Alloy',
+        'ash' => 'Ash',
+        'ballad' => 'Ballad',
+        'coral' => 'Coral',
         'echo' => 'Echo',
         'fable' => 'Fable',
         'onyx' => 'Onyx',
         'nova' => 'Nova',
+        'sage' => 'Sage',
         'shimmer' => 'Shimmer',
+        'verse' => 'Verse',
     ];
     $settings->add(new admin_setting_configselect(
         'mod_intebchat/voice',

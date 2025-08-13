@@ -78,7 +78,6 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->addHelpButton('enableaudio', 'enableaudio', 'mod_intebchat');
 
             $audiomodes = [
-                'text' => get_string('audiomode_text', 'mod_intebchat'),
                 'audio' => get_string('audiomode_audio', 'mod_intebchat'),
                 'both' => get_string('audiomode_both', 'mod_intebchat')
             ];
@@ -88,22 +87,25 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
             $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
 
-            // Voice selection - ALWAYS VISIBLE when audio is enabled globally
+            // Voice selection
             $voices = [
                 'alloy' => 'Alloy (Neutral, professional)',
+                'ash' => 'Ash (Calm, modern)',
+                'ballad' => 'Ballad (Narrative, engaging)',
+                'coral' => 'Coral (Bright, crisp)',
                 'echo' => 'Echo (Warm, conversational)',
                 'fable' => 'Fable (Expressive, dynamic)',
                 'onyx' => 'Onyx (Deep, authoritative)',
                 'nova' => 'Nova (Energetic, bright)',
+                'sage' => 'Sage (Calm, thoughtful)',
                 'shimmer' => 'Shimmer (Gentle, soothing)',
+                'verse' => 'Verse (Poetic, rhythmic)',
             ];
             
             $mform->addElement('select', 'voice', get_string('voice', 'mod_intebchat'), $voices);
-            // Use global default as default value
             $mform->setDefault('voice', get_config('mod_intebchat', 'voice') ?: 'alloy');
             $mform->setType('voice', PARAM_TEXT);
             $mform->addHelpButton('voice', 'voice', 'mod_intebchat');
-            // Only disable if audio is disabled for this instance
             $mform->disabledIf('voice', 'enableaudio', 'eq', 0);
         }
 
@@ -111,14 +113,22 @@ class mod_intebchat_mod_form extends moodleform_mod {
         $mform->addElement('hidden', 'apitype', $type);
         $mform->setType('apitype', PARAM_TEXT);
 
-        // Assistant name (common for all API types)
+        // MODIFICACIÓN PRINCIPAL: Campos que se muestran SIEMPRE
+        // Assistant name (SIEMPRE visible para TODOS los tipos)
         $mform->addElement('text', 'assistantname', get_string('assistantname', 'mod_intebchat'));
         $mform->setDefault('assistantname', '');
         $mform->setType('assistantname', PARAM_TEXT);
         $mform->addHelpButton('assistantname', 'config_assistantname', 'mod_intebchat');
 
-        // Assistant API specific settings
+        // Instructions field (SIEMPRE visible para TODOS los tipos)
+        $mform->addElement('textarea', 'instructions', get_string('config_instructions', 'mod_intebchat'), 
+            'rows="6" cols="80"');
+        $mform->setType('instructions', PARAM_TEXT);
+        $mform->addHelpButton('instructions', 'config_instructions', 'mod_intebchat');
+
+        // Campos específicos según el tipo de API
         if ($type === 'assistant') {
+            // Solo para Assistant API: mostrar campos adicionales específicos
             if ($config->allowinstancesettings) {
                 // Get assistants using the appropriate API key
                 $apikey = $config->apikey;
@@ -140,77 +150,19 @@ class mod_intebchat_mod_form extends moodleform_mod {
                 $mform->addElement('advcheckbox', 'persistconvo', get_string('persistconvo', 'mod_intebchat'));
                 $mform->setDefault('persistconvo', 1);
                 $mform->addHelpButton('persistconvo', 'config_persistconvo', 'mod_intebchat');
-
-                $mform->addElement('textarea', 'instructions', get_string('config_instructions', 'mod_intebchat'), 
-                    'rows="6" cols="80"');
-                $mform->setType('instructions', PARAM_TEXT);
-                $mform->addHelpButton('instructions', 'config_instructions', 'mod_intebchat');
-            }
-        } else {
-            // Chat API specific settings
-            $mform->addElement('textarea', 'sourceoftruth', get_string('sourceoftruth', 'mod_intebchat'), 
-                'rows="10" cols="80"');
-            $mform->setType('sourceoftruth', PARAM_TEXT);
-            $mform->addHelpButton('sourceoftruth', 'config_sourceoftruth', 'mod_intebchat');
-
-            if ($config->allowinstancesettings) {
-                $mform->addElement('textarea', 'prompt', get_string('prompt', 'mod_intebchat'), 
-                    'rows="6" cols="80"');
-                $mform->setDefault('prompt', '');
-                $mform->setType('prompt', PARAM_TEXT);
-                $mform->addHelpButton('prompt', 'config_prompt', 'mod_intebchat');
             }
         }
+        // Para tipo "chat" u otros tipos: NO mostrar source of truth, prompt, ni configuraciones del modelo
+        // Ya que estos se configuran globalmente en settings.php
 
-        // Advanced settings (if allowed)
-        if ($config->allowinstancesettings) {
+        // Advanced settings (solo si está permitido y NO es tipo chat)
+        if ($config->allowinstancesettings && $type === 'assistant') {
             $mform->addElement('header', 'advancedsettings', get_string('advanced', 'mod_intebchat'));
             
-            // API Key (instance level)
+            // API Key (instance level) - solo para assistant
             $mform->addElement('text', 'apikey', get_string('apikey', 'mod_intebchat'), array('size' => '60'));
             $mform->setType('apikey', PARAM_TEXT);
             $mform->addHelpButton('apikey', 'config_apikey', 'mod_intebchat');
-            
-            if ($type !== 'assistant') {
-                // Model selection (for chat) - Updated with GPT-5 models
-                $models = intebchat_get_models()['models'];
-                $default_model = intebchat_get_models()['default'];
-                
-                $mform->addElement('select', 'model', get_string('model', 'mod_intebchat'), $models);
-                $mform->setDefault('model', get_config('mod_intebchat', 'model') ?: $default_model);
-                $mform->setType('model', PARAM_TEXT);
-                $mform->addHelpButton('model', 'config_model', 'mod_intebchat');
-
-                // Temperature
-                $mform->addElement('text', 'temperature', get_string('temperature', 'mod_intebchat'));
-                $mform->setDefault('temperature', 0.5);
-                $mform->setType('temperature', PARAM_FLOAT);
-                $mform->addHelpButton('temperature', 'config_temperature', 'mod_intebchat');
-
-                // Max length
-                $mform->addElement('text', 'maxlength', get_string('maxlength', 'mod_intebchat'));
-                $mform->setDefault('maxlength', 500);
-                $mform->setType('maxlength', PARAM_INT);
-                $mform->addHelpButton('maxlength', 'config_maxlength', 'mod_intebchat');
-
-                // Top P
-                $mform->addElement('text', 'topp', get_string('topp', 'mod_intebchat'));
-                $mform->setDefault('topp', 1);
-                $mform->setType('topp', PARAM_FLOAT);
-                $mform->addHelpButton('topp', 'config_topp', 'mod_intebchat');
-
-                // Frequency penalty
-                $mform->addElement('text', 'frequency', get_string('frequency', 'mod_intebchat'));
-                $mform->setDefault('frequency', 1);
-                $mform->setType('frequency', PARAM_FLOAT);
-                $mform->addHelpButton('frequency', 'config_frequency', 'mod_intebchat');
-
-                // Presence penalty
-                $mform->addElement('text', 'presence', get_string('presence', 'mod_intebchat'));
-                $mform->setDefault('presence', 1);
-                $mform->setType('presence', PARAM_FLOAT);
-                $mform->addHelpButton('presence', 'config_presence', 'mod_intebchat');
-            }
         }
 
         // Add standard elements
@@ -244,25 +196,6 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $assistants = intebchat_fetch_assistants_array($apikey);
             if (!empty($assistants)) {
                 $errors['assistant'] = get_string('required');
-            }
-        }
-        
-        // Validate numeric fields
-        if (!empty($data['temperature'])) {
-            if ($data['temperature'] < 0 || $data['temperature'] > 2) {
-                $errors['temperature'] = get_string('temperaturerange', 'mod_intebchat');
-            }
-        }
-        
-        if (!empty($data['topp'])) {
-            if ($data['topp'] < 0 || $data['topp'] > 1) {
-                $errors['topp'] = get_string('topprange', 'mod_intebchat');
-            }
-        }
-        
-        if (!empty($data['maxlength'])) {
-            if ($data['maxlength'] < 1 || $data['maxlength'] > 4000) {
-                $errors['maxlength'] = get_string('maxlengthrange', 'mod_intebchat');
             }
         }
         

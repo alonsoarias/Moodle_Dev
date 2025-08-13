@@ -159,11 +159,16 @@ $string['voice'] = 'Voice for audio responses';
 $string['voice_desc'] = 'Select the default voice for text-to-speech responses. This can be overridden at the instance level.';
 $string['voice_help'] = 'Select the voice for text-to-speech responses in this chat instance. Each voice has different characteristics:
 • Alloy: Neutral and professional
+• Ash: Calm and modern
+• Ballad: Narrative and engaging
+• Coral: Bright and crisp
 • Echo: Warm and conversational
 • Fable: Expressive and dynamic
 • Onyx: Deep and authoritative
 • Nova: Energetic and bright
+• Sage: Calm and thoughtful
 • Shimmer: Gentle and soothing
+• Verse: Poetic and rhythmic
 
 This setting overrides the global default voice for this specific chat instance.';
 $string['recordaudio'] = 'Record audio';
@@ -233,3 +238,17 @@ $string['tokens'] = 'Tokens';
 $string['prompt'] = 'Prompt';
 $string['completion'] = 'Completion';
 $string['nopermission'] = 'You do not have permission to view this';
+
+// Agregar estas líneas a lang/en/intebchat.php y lang/es/intebchat.php
+
+// === ENGLISH (lang/en/intebchat.php) ===
+// Audio confirmation strings
+$string['audiorecorded'] = 'Audio Recorded';
+$string['confirmaudiosend'] = 'Do you want to send this audio message?';
+$string['playaudio'] = 'Play Audio';
+$string['rerecord'] = 'Re-record';
+$string['send'] = 'Send';
+$string['cancelrecording'] = 'Cancel Recording';
+$string['audioduration'] = 'Duration: {$a}';
+$string['confirmdelete'] = 'Are you sure you want to delete this recording?';
+

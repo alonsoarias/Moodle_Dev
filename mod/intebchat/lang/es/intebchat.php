@@ -159,11 +159,16 @@ $string['voice'] = 'Voz para respuestas de audio';
 $string['voice_desc'] = 'Selecciona la voz predeterminada para las respuestas de texto a voz. Esto puede ser anulado a nivel de instancia.';
 $string['voice_help'] = 'Selecciona la voz para las respuestas de texto a voz en esta instancia del chat. Cada voz tiene características diferentes:
 • Alloy: Neutral y profesional
+• Ash: Serena y moderna
+• Ballad: Melódica y narrativa
+• Coral: Brillante y nítida
 • Echo: Cálida y conversacional
 • Fable: Expresiva y dinámica
 • Onyx: Profunda y autoritaria
 • Nova: Energética y brillante
+• Sage: Serena y reflexiva
 • Shimmer: Suave y tranquilizadora
+• Verse: Poética y rítmica
 
 Esta configuración anula la voz predeterminada global para esta instancia específica del chat.';
 $string['recordaudio'] = 'Grabar audio';
@@ -233,3 +238,14 @@ $string['tokens'] = 'Tokens';
 $string['prompt'] = 'Prompt';
 $string['completion'] = 'Completado';
 $string['nopermission'] = 'No tienes permiso para ver esto';
+
+// === SPANISH (lang/es/intebchat.php) ===
+// Cadenas de confirmación de audio
+$string['audiorecorded'] = 'Audio Grabado';
+$string['confirmaudiosend'] = '¿Deseas enviar este mensaje de audio?';
+$string['playaudio'] = 'Reproducir Audio';
+$string['rerecord'] = 'Volver a grabar';
+$string['send'] = 'Enviar';
+$string['cancelrecording'] = 'Cancelar Grabación';
+$string['audioduration'] = 'Duración: {$a}';
+$string['confirmdelete'] = '¿Estás seguro de que deseas eliminar esta grabación?';
