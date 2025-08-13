@@ -26,7 +26,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         var questionString = 'Ask a question...';
         var errorString = 'An error occurred! Please try again later.';
         var currentConversationId = null;
-        var currentInputMode = 'text'; 
+        var currentInputMode = 'text';
         var lastInputMode = 'text';
         var tokenInfo = {
             enabled: false,
@@ -50,37 +50,37 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             limit: 0,
             audioUsed: 0,
             textUsed: 0,
-            
-            init: function(initialUsed, limit) {
+
+            init: function (initialUsed, limit) {
                 this.used = initialUsed;
                 this.limit = limit;
                 this.updateDisplay();
             },
-            
-            addTokens: function(tokenInfo) {
+
+            addTokens: function (tokenInfo) {
                 if (!tokenInfo) return;
-                
+
                 this.used += tokenInfo.total || 0;
-                
+
                 if (tokenInfo.audio_input || tokenInfo.audio_output) {
                     this.audioUsed += (tokenInfo.audio_input || 0) + (tokenInfo.audio_output || 0);
                 }
-                
+
                 if (tokenInfo.prompt || tokenInfo.completion) {
-                    this.textUsed += (tokenInfo.prompt || 0) + (tokenInfo.completion || 0) - 
-                                    ((tokenInfo.audio_input || 0) + (tokenInfo.audio_output || 0));
+                    this.textUsed += (tokenInfo.prompt || 0) + (tokenInfo.completion || 0) -
+                        ((tokenInfo.audio_input || 0) + (tokenInfo.audio_output || 0));
                 }
-                
+
                 this.updateDisplay();
                 this.checkLimits();
             },
-            
-            updateDisplay: function() {
+
+            updateDisplay: function () {
                 var percentage = this.limit > 0 ? (this.used / this.limit * 100) : 0;
-                
+
                 $('.token-count').text(percentage.toFixed(1) + '%');
                 $('.progress-bar').css('width', Math.min(percentage, 100) + '%');
-                
+
                 if (this.audioUsed > 0 || this.textUsed > 0) {
                     if (!$('#token-breakdown').length) {
                         $('.token-display').after(
@@ -93,7 +93,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     $('#text-tokens').text(this.textUsed.toLocaleString());
                     $('#audio-tokens').text(this.audioUsed.toLocaleString());
                 }
-                
+
                 $('.progress-bar').removeClass('warning danger');
                 if (percentage >= 90) {
                     $('.progress-bar').addClass('danger');
@@ -101,15 +101,15 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     $('.progress-bar').addClass('warning');
                 }
             },
-            
-            checkLimits: function() {
+
+            checkLimits: function () {
                 var percentage = this.limit > 0 ? (this.used / this.limit * 100) : 0;
-                
+
                 if (percentage >= 100) {
                     $('#openai_input').prop('disabled', true);
                     $('#go').prop('disabled', true);
                     $('#intebchat-icon-mic').prop('disabled', true);
-                    
+
                     if (!$('.token-limit-alert').length) {
                         $('#intebchat_log').before(
                             '<div class="alert alert-danger token-limit-alert">' +
@@ -136,7 +136,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
          * Animated Assistant Class (Clippy-style) - FIXED VISIBILITY
          */
         var AnimatedAssistant = {
-            init: function() {
+            init: function () {
                 // Crear el contenedor del asistente DENTRO del chat container para asegurar visibilidad
                 var assistantHtml = '<div id="intebchat-assistant" class="intebchat-assistant">' +
                     '<div class="assistant-body">' +
@@ -148,7 +148,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     '</div>' +
                     '<div class="assistant-bubble" style="display:none;"></div>' +
                     '</div>';
-                
+
                 // Añadir al área principal del chat, no al contenedor general
                 $('.intebchat-main').append(assistantHtml);
                 this.bindEvents();
@@ -156,52 +156,52 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 console.log('Assistant initialized');
             },
 
-            bindEvents: function() {
+            bindEvents: function () {
                 var self = this;
-                $(document).on('click', '#intebchat-assistant', function() {
+                $(document).on('click', '#intebchat-assistant', function () {
                     self.wave();
                 });
             },
 
-            idle: function() {
+            idle: function () {
                 $('#intebchat-assistant').removeClass('thinking talking waving').addClass('idle');
                 this.blink();
             },
 
-            thinking: function() {
+            thinking: function () {
                 $('#intebchat-assistant').removeClass('idle talking waving').addClass('thinking');
                 this.showBubble('🤔 Thinking...');
             },
 
-            talking: function() {
+            talking: function () {
                 $('#intebchat-assistant').removeClass('idle thinking waving').addClass('talking');
                 this.hideBubble();
             },
 
-            wave: function() {
+            wave: function () {
                 var self = this;
                 $('#intebchat-assistant').removeClass('idle thinking talking').addClass('waving');
-                setTimeout(function() {
+                setTimeout(function () {
                     self.idle();
                 }, 1000);
             },
 
-            showBubble: function(text) {
+            showBubble: function (text) {
                 $('.assistant-bubble').text(text).fadeIn(200);
             },
 
-            hideBubble: function() {
+            hideBubble: function () {
                 $('.assistant-bubble').fadeOut(200);
             },
 
-            blink: function() {
+            blink: function () {
                 var self = this;
                 if (self.blinkInterval) {
                     clearInterval(self.blinkInterval);
                 }
-                self.blinkInterval = setInterval(function() {
+                self.blinkInterval = setInterval(function () {
                     $('.assistant-eyes').addClass('blinking');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $('.assistant-eyes').removeClass('blinking');
                     }, 150);
                 }, 3000 + Math.random() * 2000);
@@ -214,7 +214,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
          */
         var init = function (data) {
             console.log('INTEBCHAT: Initializing with data:', data);
-            
+
             var instanceId = data.instanceId;
             var api_type = data.api_type;
             var persistConvo = data.persistConvo;
@@ -234,7 +234,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             }
 
             updateTokenUI();
-            initDarkMode();
+            initDarkMode(instanceId);
 
             loadStrings().then(function () {
                 initializeConversations(instanceId);
@@ -242,24 +242,24 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 if ($('#openai_input').length) {
                     $('#openai_input').attr('placeholder', strings.askaquestion);
                 }
-                
+
                 // Initialize animated assistant AFTER strings are loaded
-                setTimeout(function() {
+                setTimeout(function () {
                     AnimatedAssistant.init();
                 }, 500);
             });
 
             if (tokenInfo.enabled) {
                 TokenTracker.init(tokenInfo.used, tokenInfo.limit);
-                
-                $(document).ajaxComplete(function(event, xhr, settings) {
+
+                $(document).ajaxComplete(function (event, xhr, settings) {
                     if (settings.url && settings.url.includes('/mod/intebchat/api/completion.php')) {
                         try {
                             var response = JSON.parse(xhr.responseText);
                             if (response.tokenInfo) {
                                 TokenTracker.addTokens(response.tokenInfo);
                             }
-                        } catch(e) {
+                        } catch (e) {
                             console.error('Error processing token info:', e);
                         }
                     }
@@ -281,7 +281,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                 $(document).on('click', '.mod_intebchat[data-instance-id="' + instanceId + '"] #go', function (e) {
                     var input = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input');
-                    
+
                     if (!tokenInfo.exceeded && input.val() !== "") {
                         lastInputMode = 'text';
                         sendMessage(input.val(), instanceId, api_type);
@@ -297,7 +297,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         var audioData = $('#intebchat-recorded-audio').val();
                         if (audioData && !tokenInfo.exceeded) {
                             lastInputMode = 'audio';
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 sendAudioMessage(instanceId, api_type);
                             }, 100);
                         }
@@ -360,37 +360,51 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Dark mode detection and management
+         * Dark mode detection and management - Enhanced with user/instance persistence
          */
-        var initDarkMode = function() {
+        var initDarkMode = function (instanceId) {
             var $container = $('.mod_intebchat');
-            
-            var savedTheme = localStorage.getItem('intebchat_theme');
+
+            // Get user ID from the page or session
+            var userId = M.cfg.sesskey || 'default'; // Use session key as unique user identifier
+
+            // Create unique key for this user and instance
+            var themeKey = 'intebchat_theme_' + instanceId + '_' + userId;
+
+            // Get saved theme for this specific user and instance
+            var savedTheme = localStorage.getItem(themeKey);
             var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
+
+            // Apply saved theme or use system preference
             if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
                 $container.addClass('dark-mode');
+                $('#theme-toggle-btn i').removeClass('fa-sun').addClass('fa-moon');
+            } else {
+                $container.removeClass('dark-mode');
+                $('#theme-toggle-btn i').removeClass('fa-moon').addClass('fa-sun');
             }
-            
-            $(document).on('click', '#theme-toggle-btn', function(e) {
+
+            // Handle theme toggle
+            $(document).on('click', '#theme-toggle-btn', function (e) {
                 e.preventDefault();
-                
+
                 if ($container.hasClass('dark-mode')) {
                     $container.removeClass('dark-mode');
-                    localStorage.setItem('intebchat_theme', 'light');
+                    localStorage.setItem(themeKey, 'light');
                     $(this).find('i').removeClass('fa-moon').addClass('fa-sun');
                     $(this).attr('title', strings.darkmode || 'Switch to dark mode');
                 } else {
                     $container.addClass('dark-mode');
-                    localStorage.setItem('intebchat_theme', 'dark');
+                    localStorage.setItem(themeKey, 'dark');
                     $(this).find('i').removeClass('fa-sun').addClass('fa-moon');
                     $(this).attr('title', strings.lightmode || 'Switch to light mode');
                 }
             });
-            
+
+            // Listen for system theme changes only if user hasn't set a preference
             if (window.matchMedia) {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-                    if (localStorage.getItem('intebchat_theme') === null) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+                    if (localStorage.getItem(themeKey) === null) {
                         if (e.matches) {
                             $container.addClass('dark-mode');
                             $('#theme-toggle-btn i').removeClass('fa-sun').addClass('fa-moon');
@@ -414,9 +428,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
             var doSend = function () {
                 var responseMode = (audioConfig.mode === 'both') ? lastInputMode : audioConfig.mode;
-                
+
                 // Mostrar animación de transcripción mejorada
-                addToChatLog('user transcribing', 
+                addToChatLog('user transcribing',
                     '<div class="transcribing-animation">' +
                     '<i class="fa fa-microphone pulse"></i> ' +
                     '<span class="dots">' +
@@ -424,7 +438,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     '</span> ' +
                     (strings.transcribing || 'Transcribing...') +
                     '</div>', instanceId);
-                    
+
                 AnimatedAssistant.thinking();
                 createCompletion('', instanceId, api_type, responseMode);
             };
@@ -536,11 +550,11 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 },
                 show: true,
                 removeOnClose: true
-            }).then(function(modal) {
+            }).then(function (modal) {
                 var root = modal.getRoot();
-                
+
                 // Handle save button click
-                root.on('modal-save-cancel:save', function(e) {
+                root.on('modal-save-cancel:save', function (e) {
                     e.preventDefault();
                     var newTitle = $('#conversation-title-input').val().trim();
                     if (newTitle && newTitle !== currentTitle) {
@@ -550,12 +564,12 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 });
 
                 // Focus input when modal is shown
-                root.on('shown.bs.modal', function() {
+                root.on('shown.bs.modal', function () {
                     $('#conversation-title-input').focus().select();
                 });
 
                 // Handle enter key
-                root.on('keypress', '#conversation-title-input', function(e) {
+                root.on('keypress', '#conversation-title-input', function (e) {
                     if (e.which === 13) {
                         e.preventDefault();
                         root.find('[data-action="save"]').trigger('click');
@@ -579,18 +593,18 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 },
                 show: true,
                 removeOnClose: true
-            }).then(function(modal) {
+            }).then(function (modal) {
                 var root = modal.getRoot();
-                
+
                 // Handle delete button click
-                root.on('modal-delete-cancel:delete', function(e) {
+                root.on('modal-delete-cancel:delete', function (e) {
                     e.preventDefault();
                     clearConversation(conversationId, instanceId);
                     modal.destroy();
                 });
 
                 // Handle cancel
-                root.on('modal-delete-cancel:cancel', function(e) {
+                root.on('modal-delete-cancel:cancel', function (e) {
                     e.preventDefault();
                     modal.destroy();
                 });
@@ -635,7 +649,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     if ($('#openai_input').length) {
                         $('#openai_input').focus();
                     }
-                    
+
                     AnimatedAssistant.wave();
                 },
                 fail: function (error) {
@@ -665,11 +679,11 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 },
                 done: function (response) {
                     console.log('Conversation loaded:', response);
-                    
+
                     currentConversationId = conversationId;
                     $('#conversation-title').text(response.title);
                     $('#intebchat_log').empty();
-                    
+
                     if (response.messages && response.messages.length > 0) {
                         response.messages.forEach(function (msg) {
                             var clean = stripAutoplay(msg.message);
@@ -691,23 +705,23 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     messageContainer.animate({
                         scrollTop: messageContainer[0].scrollHeight
                     }, 300);
-                    
+
                     $('#openai_input').focus();
                     AnimatedAssistant.idle();
                 },
                 fail: function (error) {
                     console.error('Error loading conversation:', error);
                     $('#intebchat_log').empty();
-                    
+
                     var errorMessage = strings.erroroccurred;
                     if (error.message) {
                         errorMessage = error.message;
                     } else if (error.error) {
                         errorMessage = error.error;
                     }
-                    
+
                     addToChatLog('bot error', errorMessage, instanceId);
-                    
+
                     Notification.addNotification({
                         message: errorMessage,
                         type: 'error'
@@ -725,7 +739,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 args: { conversationid: conversationId },
                 done: function (response) {
                     console.log('Clear conversation response:', response);
-                    
+
                     if (response.deleted) {
                         $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]')
                             .fadeOut(300, function () {
@@ -775,7 +789,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             if (!newTitle || newTitle.trim() === '') {
                 return;
             }
-            
+
             Ajax.call([{
                 methodname: 'mod_intebchat_update_conversation_title',
                 args: {
@@ -784,10 +798,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 },
                 done: function (response) {
                     console.log('Title update response:', response);
-                    
+
                     if (response && response.success) {
                         $('#conversation-title').text(newTitle);
-                        
+
                         var $item = $('.intebchat-conversation-item[data-conversation-id="' + conversationId + '"]');
                         $item.find('.title-text').text(newTitle);
                         $item.attr('data-title', newTitle);
@@ -962,7 +976,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
          */
         function stripAutoplay(html) {
             var container = $('<div></div>').html(html);
-            container.find('audio').each(function() {
+            container.find('audio').each(function () {
                 $(this).removeAttr('autoplay');
                 this.autoplay = false;
             });
@@ -979,7 +993,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             }
 
             var messageElem = $('<div></div>').addClass('openai_message').addClass(type.replace(' ', '-'));
-            
+
             // Add typing animation for bot messages
             if (type === 'bot' && animate) {
                 messageElem.addClass('typing');
@@ -987,15 +1001,15 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 var cursor = $('<span class="typing-cursor">|</span>');
                 messageText.append(cursor);
                 messageElem.append(messageText);
-                
+
                 // Simulate typing effect
                 var fullMessage = message;
                 var currentIndex = 0;
                 var typingSpeed = 30;
-                
+
                 messageContainer.append(messageElem);
-                
-                var typeWriter = function() {
+
+                var typeWriter = function () {
                     if (currentIndex < fullMessage.length) {
                         var char = fullMessage.charAt(currentIndex);
                         if (char === '<') {
@@ -1020,7 +1034,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         AnimatedAssistant.idle();
                     }
                 };
-                
+
                 typeWriter();
             } else {
                 if (type !== 'bot' || !animate) {
@@ -1028,7 +1042,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 }
                 var messageText = $('<span></span>').html(message);
                 messageElem.append(messageText);
-                
+
                 if (animate) {
                     messageElem.hide();
                     messageContainer.append(messageElem);
@@ -1054,7 +1068,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
          */
         var createCompletion = function (message, instanceId, api_type, responseMode) {
             var threadId = null;
-            
+
             if (currentConversationId) {
                 var $conversationItem = $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]');
                 if ($conversationItem.length && $conversationItem.data('thread-id')) {
@@ -1070,14 +1084,14 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').blur();
 
             if (!$('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message.transcribing').length) {
-                addToChatLog('bot loading', 
+                addToChatLog('bot loading',
                     '<div class="loading-dots">' +
                     '<span></span><span></span><span></span>' +
                     '</div>', instanceId);
             }
 
             var audio = $('#intebchat-recorded-audio').val();
-            
+
             var requestData = {
                 message: message,
                 history: history,
@@ -1087,9 +1101,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 audio: audio || null,
                 responseMode: responseMode || 'text'
             };
-            
+
             console.log('Sending completion request:', requestData);
-            
+
             $.ajax({
                 url: M.cfg.wwwroot + '/mod/intebchat/api/completion.php',
                 type: 'POST',
@@ -1098,7 +1112,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 data: JSON.stringify(requestData),
                 success: function (data) {
                     console.log('Completion response:', data);
-                    
+
                     $('#intebchat-recorded-audio').val('');
                     var messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
 
@@ -1120,14 +1134,14 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                         addToChatLog('bot', data.message, instanceId);
                         AnimatedAssistant.talking();
-                        setTimeout(function() {
+                        setTimeout(function () {
                             AnimatedAssistant.idle();
                         }, 2000);
 
                         if (data.conversationId && !currentConversationId) {
                             currentConversationId = data.conversationId;
                         }
-                        
+
                         if (data.threadId && currentConversationId) {
                             $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]')
                                 .attr('data-thread-id', data.threadId);
