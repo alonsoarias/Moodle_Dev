@@ -18,7 +18,11 @@ export const init = (attemptid) => {
         checkbox.type = 'checkbox';
         checkbox.classList.add('quiz-retake-risky');
         checkbox.addEventListener('change', e => {
-            Ajax.call([{methodname: 'local_quiz_retake_ui_toggle_risky', args: {attemptid: attemptid, slot: slot, state: e.target.checked}, fail: Notification.exception}]);
+            Ajax.call([{
+                methodname: 'local_quiz_retake_ui_toggle_risky',
+                args: {attemptid: attemptid, slot: slot, state: e.target.checked},
+                fail: Notification.exception
+            }]);
         });
         label.append(checkbox, ' ', M.util.get_string('markrisky', 'local_quiz_retake_ui'));
         container.appendChild(label);

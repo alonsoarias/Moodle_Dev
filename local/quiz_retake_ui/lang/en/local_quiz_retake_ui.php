@@ -17,3 +17,4 @@ $string['repeatfailed'] = 'Repeat failed questions';
 $string['repeatfailedblank'] = 'Repeat failed and blank questions';
 $string['repeatfailedrisky'] = 'Repeat failed and risky questions';
 $string['repeatfailedblankrisky'] = 'Repeat failed, blank and risky questions';
+$string['nothingtoretake'] = 'No questions meet the selected criteria';

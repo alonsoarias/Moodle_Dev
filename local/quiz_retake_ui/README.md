@@ -10,5 +10,5 @@ filters and retake options.
 
 ## Notes
 
-Risky selections are stored per attempt and excluded from the risk-free grade. The retake endpoint is a stub and must be
-extended to build a new attempt using the Moodle question engine.
+Risky selections are stored per attempt and excluded from the risk-free grade. Retake attempts are created as real quiz
+attempts and linked to the original attempt for auditing.

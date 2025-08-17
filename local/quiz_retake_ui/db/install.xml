@@ -9,6 +9,8 @@
                 <FIELD NAME="newattemptid" TYPE="int" LENGTH="10" NOTNULL="true"/>
                 <FIELD NAME="questionids" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="options" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="normalgrade" TYPE="number" LENGTH="10" DECIMALS="5" NOTNULL="false"/>
+                <FIELD NAME="riskfreegrade" TYPE="number" LENGTH="10" DECIMALS="5" NOTNULL="false"/>
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
             </FIELDS>
             <KEYS>

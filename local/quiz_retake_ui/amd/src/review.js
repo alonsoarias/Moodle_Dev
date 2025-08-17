@@ -2,6 +2,8 @@
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
+import ModalFactory from 'core/modal_factory';
+import ModalEvents from 'core/modal_events';
 
 export const init = (attemptid) => {
     Ajax.call([{
@@ -32,7 +34,27 @@ export const init = (attemptid) => {
                 const retakebtn = root.querySelector('[data-action="retake"]');
                 if (retakebtn) {
                     retakebtn.addEventListener('click', () => {
-                        Ajax.call([{methodname: 'local_quiz_retake_ui_create_retake', args: {attemptid: attemptid, mode: 'failed'}, done: data => {window.location = M.cfg.wwwroot + '/mod/quiz/attempt.php?attempt=' + data.newattemptid;}, fail: Notification.exception}]);
+                        Templates.render('local_quiz_retake_ui/retake_modal', {}).then(html => {
+                            ModalFactory.create({
+                                type: ModalFactory.types.SAVE_CANCEL,
+                                title: M.util.get_string('retakequiz', 'local_quiz_retake_ui'),
+                                body: html
+                            }).then(modal => {
+                                modal.getRoot().on(ModalEvents.save, () => {
+                                    const form = modal.getRoot().find('form')[0];
+                                    const mode = form.querySelector('input[name="mode"]:checked').value;
+                                    Ajax.call([{
+                                        methodname: 'local_quiz_retake_ui_create_retake',
+                                        args: {attemptid: attemptid, mode: mode},
+                                        done: data => {
+                                            window.location = M.cfg.wwwroot + '/mod/quiz/attempt.php?attempt=' + data.newattemptid;
+                                        },
+                                        fail: Notification.exception
+                                    }]);
+                                });
+                                modal.show();
+                            }).catch(Notification.exception);
+                        }).catch(Notification.exception);
                     });
                 }
             }).catch(Notification.exception);
