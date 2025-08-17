@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMLDB PATH="local/quiz_retake_ui/db" VERSION="20241015" COMMENT="Install XML for quiz retake UI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <TABLES>
+        <TABLE NAME="local_quiz_retake_log" COMMENT="Links original attempts with generated retakes">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="originalattemptid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="newattemptid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="questionids" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="options" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="local_quiz_retake_risky" COMMENT="Questions flagged as risky by the user">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="slot" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+    </TABLES>
+</XMLDB>
