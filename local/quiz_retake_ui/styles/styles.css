@@ -1,0 +1,4 @@
+/* Compiled CSS placeholder for quiz retake UI */
+.quiz-retake-summary .quiz-retake-stats div{padding:.25rem .5rem;}
+.quiz-retake-summary .quiz-retake-filters .btn{border-radius:2rem;}
+.que.risky{border-left:4px solid #F59E0B;}
