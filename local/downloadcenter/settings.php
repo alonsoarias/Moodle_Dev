@@ -40,14 +40,6 @@ if ($hassiteconfig) {
         ));
     }
     
-    // También mantener en local plugins para compatibilidad
-    $ADMIN->add('localplugins', new admin_externalpage(
-        'local_downloadcenter_index',
-        get_string('navigationlink', 'local_downloadcenter'), 
-        new moodle_url('/local/downloadcenter/index.php'),
-        'local/downloadcenter:view'
-    ));
-
     // Configuraciones del plugin
     $settings = new admin_settingpage('local_downloadcenter', get_string('settings_title', 'local_downloadcenter'));
     $ADMIN->add('localplugins', $settings);
