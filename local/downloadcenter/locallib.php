@@ -67,7 +67,6 @@ function local_downloadcenter_category_path(stdClass $course): string {
     }
     return implode('/', array_reverse($names));
 }
-
 class local_downloadcenter_factory
 {
     /**
