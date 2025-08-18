@@ -17,7 +17,6 @@
  * Course selection form for download center.
  *
  * @package       local_downloadcenter
- * @author        ChatGPT
  * @license       http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
@@ -25,31 +24,22 @@ require_once($CFG->libdir . '/formslib.php');
 class local_downloadcenter_course_select_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
-        $coursesbycat = $this->_customdata['coursesbycat'] ?? [];
+        $courses = $this->_customdata['courses'] ?? [];
         $selection = $this->_customdata['selection'] ?? [];
-        $catids = $this->_customdata['catids'] ?? [];
-
-        foreach ($coursesbycat as $cid => $courses) {
-            $category = \core_course_category::get($cid, MUST_EXIST);
-            $mform->addElement('header', 'cat' . $cid, $category->get_formatted_name());
-            foreach ($courses as $course) {
-                if (!$course->can_access()) {
-                    continue;
-                }
-                $url = new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids, 'courseid' => $course->id]);
-                $label = html_writer::link($url, $course->get_formatted_name());
-                if (isset($selection[$course->id])) {
-                    $label .= ' (' . get_string('selected', 'local_downloadcenter') . ')';
-                }
-                $mform->addElement('advcheckbox', 'courses[' . $course->id . ']', '', $label, ['group' => 1]);
+        $catid = $this->_customdata['catid'] ?? 0;
+        foreach ($courses as $course) {
+            if (!$course->can_access()) {
+                continue;
             }
+            $url = new moodle_url('/local/downloadcenter/index.php', ['catid' => $catid, 'courseid' => $course->id]);
+            $label = html_writer::link($url, $course->get_formatted_name());
+            if (isset($selection[$course->id])) {
+                $label .= ' (' . get_string('selected', 'local_downloadcenter') . ')';
+            }
+            $mform->addElement('advcheckbox', 'courses[' . $course->id . ']', '', $label, ['group' => 1]);
         }
-
-        foreach ($catids as $cid) {
-            $mform->addElement('hidden', 'catids[' . $cid . ']', $cid);
-            $mform->setType('catids[' . $cid . ']', PARAM_INT);
-        }
-
+        $mform->addElement('hidden', 'catid', $catid);
+        $mform->setType('catid', PARAM_INT);
         $this->add_action_buttons(false, get_string('addcoursestoselection', 'local_downloadcenter'));
     }
 }

@@ -43,7 +43,40 @@ function local_downloadcenter_extend_settings_navigation(settings_navigation $se
  * @throws moodle_exception
  */
 function local_downloadcenter_extend_navigation_course(navigation_node $parentnode, stdClass $course, context_course $context) {
-    return; // Access via settings.php only.
+    if (!has_capability('local/downloadcenter:view', $context)) {
+        return;
+    }
+
+    // Find appropriate key where our link should come. Probably won't work, but at least try.
+    $keys = [
+        'questionbank' => navigation_node::TYPE_CONTAINER,
+        'unenrolself' => navigation_node::TYPE_SETTING,
+        'fitlermanagement' => navigation_node::TYPE_SETTING
+    ];
+    $beforekey = null;
+    foreach ($keys as $key => $type) {
+        if ($foundnode = $parentnode->find($key, $type)) {
+            $beforekey = $key;
+            break;
+        }
+    }
+
+    $url = new moodle_url('/local/downloadcenter/index.php', array('courseid' => $course->id));
+    $title = get_string('navigationlink', 'local_downloadcenter');
+    $pix = new pix_icon('icon', $title, 'local_downloadcenter');
+    $childnode = navigation_node::create(
+        $title,
+        $url,
+        navigation_node::TYPE_SETTING,
+        'downloadcenter',
+        'downloadcenter',
+        $pix
+    );
+
+    $node = $parentnode->add_node($childnode, $beforekey);
+    $node->nodetype = navigation_node::TYPE_SETTING;
+    $node->collapse = true;
+    $node->add_class('downloadcenterlink');
 }
 /**
  * @param global_navigation $nav

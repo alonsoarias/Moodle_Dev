@@ -18,7 +18,6 @@
  * Category selection form for download center.
  *
  * @package       local_downloadcenter
- * @author        ChatGPT
  * @license       http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,9 +30,8 @@ class local_downloadcenter_category_select_form extends moodleform {
         $mform = $this->_form;
 
         $options = \core_course_category::make_categories_list();
-        $mform->addElement('select', 'catids', get_string('categories'), $options, ['multiple' => 'multiple']);
-        $mform->getElement('catids')->setMultiple(true);
-        $mform->setType('catids', PARAM_INT);
+        $mform->addElement('select', 'catid', get_string('category'), $options);
+        $mform->setType('catid', PARAM_INT);
 
         $this->add_action_buttons(false, get_string('selectcourses', 'local_downloadcenter'));
     }

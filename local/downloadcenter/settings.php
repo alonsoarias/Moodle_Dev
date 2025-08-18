@@ -26,9 +26,29 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $ADMIN->add('localplugins', new admin_externalpage('local_downloadcenter_index',
-        get_string('navigationlink', 'local_downloadcenter'), new moodle_url('/local/downloadcenter/index.php')));
+    // Agregar en la sección de cursos (donde está management.php)
+    // Primero verificamos si existe la categoría courses
+    $courseadmin = $ADMIN->locate('courses');
+    
+    if ($courseadmin) {
+        // Agregar el enlace después de "Manage courses and categories"
+        $ADMIN->add('courses', new admin_externalpage(
+            'local_downloadcenter_courses',
+            get_string('navigationlink', 'local_downloadcenter'),
+            new moodle_url('/local/downloadcenter/index.php'),
+            'local/downloadcenter:view'
+        ));
+    }
+    
+    // También mantener en local plugins para compatibilidad
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_downloadcenter_index',
+        get_string('navigationlink', 'local_downloadcenter'), 
+        new moodle_url('/local/downloadcenter/index.php'),
+        'local/downloadcenter:view'
+    ));
 
+    // Configuraciones del plugin
     $settings = new admin_settingpage('local_downloadcenter', get_string('settings_title', 'local_downloadcenter'));
     $ADMIN->add('localplugins', $settings);
 
@@ -37,5 +57,21 @@ if ($hassiteconfig) {
         get_string('exclude_empty_topics', 'local_downloadcenter'),
         get_string('exclude_empty_topics_help', 'local_downloadcenter'),
         0
+    ));
+    
+    // Agregar configuraciones adicionales para mejorar la funcionalidad
+    $settings->add(new admin_setting_configtext(
+        'local_downloadcenter/maxzipsize',
+        get_string('maxzipsize', 'local_downloadcenter'),
+        get_string('maxzipsize_desc', 'local_downloadcenter'),
+        '512', // 512 MB por defecto
+        PARAM_INT
+    ));
+    
+    $settings->add(new admin_setting_configcheckbox(
+        'local_downloadcenter/includeassignments',
+        get_string('includeassignments', 'local_downloadcenter'),
+        get_string('includeassignments_desc', 'local_downloadcenter'),
+        1
     ));
 }

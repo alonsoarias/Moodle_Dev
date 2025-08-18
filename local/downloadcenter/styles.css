@@ -1,0 +1,413 @@
+/**
+ * Download Center - Enhanced Styles
+ * Modern, responsive design for better user experience
+ */
+
+/* Main container styles */
+.path-local-downloadcenter {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Header section */
+.path-local-downloadcenter .downloadcenter-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.path-local-downloadcenter .downloadcenter-header h2 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.path-local-downloadcenter .downloadcenter-header p {
+    margin: 0.5rem 0 0;
+    opacity: 0.95;
+    font-size: 1.1rem;
+}
+
+/* Cards and panels */
+.path-local-downloadcenter .card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.path-local-downloadcenter .card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.path-local-downloadcenter .card-header {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-weight: 600;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.path-local-downloadcenter .card.border-success .card-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+/* Form improvements */
+.path-local-downloadcenter form .form-group {
+    margin-bottom: 1rem;
+}
+
+.path-local-downloadcenter form .itemtitle {
+    font-weight: 500;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    transition: color 0.2s ease;
+}
+
+.path-local-downloadcenter form .itemtitle:hover {
+    color: #007bff;
+}
+
+.path-local-downloadcenter form .itemtitle span {
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.path-local-downloadcenter form .activityicon {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.75rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Checkboxes styling */
+.path-local-downloadcenter input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    margin-right: 0.75rem;
+}
+
+.path-local-downloadcenter .form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+/* Section blocks */
+.path-local-downloadcenter .card.block {
+    padding: 1rem;
+    background: #ffffff;
+    border-left: 4px solid #667eea;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.path-local-downloadcenter .card.block:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.path-local-downloadcenter .card.block:hover {
+    background-color: #f0f4ff;
+    border-left-color: #764ba2;
+}
+
+.path-local-downloadcenter .card.block .sectiontitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+/* Buttons */
+.path-local-downloadcenter .btn {
+    padding: 0.625rem 1.5rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+    text-transform: none;
+    letter-spacing: 0.025em;
+}
+
+.path-local-downloadcenter .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 4px 6px rgba(102, 126, 234, 0.25);
+}
+
+.path-local-downloadcenter .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.35);
+}
+
+.path-local-downloadcenter .btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.25);
+}
+
+.path-local-downloadcenter .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.35);
+}
+
+.path-local-downloadcenter .btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.path-local-downloadcenter .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+    background: transparent;
+}
+
+.path-local-downloadcenter .btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Search bar */
+.path-local-downloadcenter .input-group {
+    max-width: 500px;
+    margin: 1.5rem 0;
+}
+
+.path-local-downloadcenter .input-group .form-control {
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.375rem 0 0 0.375rem;
+}
+
+.path-local-downloadcenter .input-group .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Selection panel */
+.path-local-downloadcenter .current-selection {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e6ebff 100%);
+    border: 2px solid #667eea;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.path-local-downloadcenter .list-group-item {
+    border: 1px solid #dee2e6;
+    margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.path-local-downloadcenter .list-group-item:hover {
+    background-color: #f8f9fa;
+    border-color: #667eea;
+}
+
+/* Toolbar */
+.path-local-downloadcenter .downloadcenter-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.375rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Notifications */
+.path-local-downloadcenter .alert {
+    border: none;
+    border-radius: 0.5rem;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.path-local-downloadcenter .alert-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.path-local-downloadcenter .alert-success {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+}
+
+.path-local-downloadcenter .alert-warning {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: #856404;
+}
+
+.path-local-downloadcenter .alert-danger {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+/* Progress indicator */
+.path-local-downloadcenter .progress {
+    height: 2rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.path-local-downloadcenter .progress-bar {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    animation: progress-animation 2s ease-in-out infinite;
+}
+
+@keyframes progress-animation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Module type selector */
+.path-local-downloadcenter #mod_select_links {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+}
+
+.path-local-downloadcenter #mod_select_links .grouped_settings {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.path-local-downloadcenter #mod_select_links .grouped_settings:last-child {
+    border-bottom: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .path-local-downloadcenter .downloadcenter-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .path-local-downloadcenter .downloadcenter-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .path-local-downloadcenter .input-group {
+        max-width: 100%;
+    }
+    
+    .path-local-downloadcenter .downloadcenter-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .path-local-downloadcenter .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .path-local-downloadcenter form .itemtitle span {
+        max-width: 80%;
+    }
+}
+
+@media (max-width: 480px) {
+    .path-local-downloadcenter .card {
+        border-radius: 0;
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+    
+    .path-local-downloadcenter form .itemtitle span {
+        max-width: 70%;
+        font-size: 0.9rem;
+    }
+    
+    .path-local-downloadcenter form .activityicon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Animation for new selections */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.path-local-downloadcenter .list-group-item.new-item {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Loading spinner */
+.path-local-downloadcenter .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+/* Empty state */
+.path-local-downloadcenter .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.path-local-downloadcenter .empty-state i {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+/* Accessibility improvements */
+.path-local-downloadcenter a:focus,
+.path-local-downloadcenter button:focus,
+.path-local-downloadcenter input:focus {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .path-local-downloadcenter .card {
+        border: 2px solid #000;
+    }
+    
+    .path-local-downloadcenter .btn {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .path-local-downloadcenter .card {
+        background-color: #1a1a1a;
+        color: #e9ecef;
+    }
+    
+    .path-local-downloadcenter .card-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    }
+    
+    .path-local-downloadcenter .form-control {
+        background-color: #2c3e50;
+        border-color: #34495e;
+        color: #e9ecef;
+    }
+    
+    .path-local-downloadcenter .list-group-item {
+        background-color: #2c3e50;
+        border-color: #34495e;
+        color: #e9ecef;
+    }
+}

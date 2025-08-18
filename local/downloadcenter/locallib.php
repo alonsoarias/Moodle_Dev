@@ -25,7 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class local_downloadcenter_factory {
+class local_downloadcenter_factory
+{
     /**
      * @var
      */
@@ -48,9 +49,13 @@ class local_downloadcenter_factory {
     private $availableresources = [
         'resource',
         'folder',
+        'publication',
         'page',
         'book',
-        'assign'
+        'lightboxgallery',
+        'assign',
+        'glossary',
+        'etherpadlite'
     ];
     /**
      * @var array
@@ -66,7 +71,8 @@ class local_downloadcenter_factory {
      * @param $course
      * @param $user
      */
-    public function __construct($course, $user) {
+    public function __construct($course, $user)
+    {
         $this->course = $course;
         $this->user = $user;
     }
@@ -77,7 +83,8 @@ class local_downloadcenter_factory {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function get_resources_for_user() {
+    public function get_resources_for_user()
+    {
         global $DB, $CFG;
 
         // Only downloadable resources should be shown!
@@ -91,9 +98,12 @@ class local_downloadcenter_factory {
         $sorted = array();
         if ($usesections) {
             $sections = $DB->get_records('course_sections', array('course' => $this->course->id), 'section');
-            $sectionsformat = $DB->get_record('course_format_options', array(
+            $sectionsformat = $DB->get_record(
+                'course_format_options',
+                array(
                     'courseid' => $this->course->id,
-                    'name' => 'numsections')
+                    'name' => 'numsections'
+                )
             );
             $max = count($sections);
             if ($sectionsformat) {
@@ -130,7 +140,7 @@ class local_downloadcenter_factory {
                 $sorted[$sectionid]->title = $title;
             }
         } else {
-            $sorted['default'] = new stdClass;// TODO: fix here if needed!
+            $sorted['default'] = new stdClass; // TODO: fix here if needed!
             $sorted['default']->title = '0';
             $sorted['default']->res = array();
         }
@@ -176,7 +186,7 @@ class local_downloadcenter_factory {
 
             $cmcontext = context_module::instance($cm->id);
             if ($cm->modname == 'glossary') {
-                if ( !has_capability('mod/glossary:manageentries', $cmcontext) && !$resource->allowprintview) {
+                if (!has_capability('mod/glossary:manageentries', $cmcontext) && !$resource->allowprintview) {
                     continue;
                 }
             }
@@ -185,7 +195,7 @@ class local_downloadcenter_factory {
                 $this->jsnames[$cm->modname] = get_string('modulenameplural', 'mod_' . $cm->modname);
             }
 
-            $icon = '<img src="'.$cm->get_icon_url().'" class="activityicon" alt="'.$cm->get_module_type_name().'" /> ';
+            $icon = '<img src="' . $cm->get_icon_url() . '" class="activityicon" alt="' . $cm->get_module_type_name() . '" /> ';
             // TODO: $cm->visible..
             $res = new stdClass;
             $res->icon = $icon;
@@ -206,7 +216,8 @@ class local_downloadcenter_factory {
     /**
      * @return array
      */
-    public function get_js_modnames() {
+    public function get_js_modnames()
+    {
         return array($this->jsnames);
     }
 
@@ -215,7 +226,8 @@ class local_downloadcenter_factory {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function build_filelist($prefix = '') {
+    public function build_filelist($prefix = '')
+    {
         global $DB, $CFG, $USER, $OUTPUT, $PAGE, $SITE;
 
         if (file_exists($CFG->dirroot . '/mod/publication/locallib.php')) {
@@ -242,7 +254,7 @@ class local_downloadcenter_factory {
         // Needed for mod_publication!
         $userfields = \core_user\fields::for_userpic();
         $ufields = $userfields->get_sql('u', false, '', 'id', false)->selects;
-        $useridentityfields = $CFG->showuseridentity != '' ? 'u.'.str_replace(', ', ', u.', $CFG->showuseridentity) . ', ' : '';
+        $useridentityfields = $CFG->showuseridentity != '' ? 'u.' . str_replace(', ', ', u.', $CFG->showuseridentity) . ', ' : '';
 
         $excludeempty = get_config('local_downloadcenter', 'exclude_empty_topics');
         foreach ($filteredresources as $topicid => $info) {
@@ -293,21 +305,23 @@ class local_downloadcenter_factory {
                     list($esql, $params) = get_enrolled_sql($context, 'mod/publication:view', $currentgroup);
                     $showall = false;
 
-                    if (has_capability('mod/publication:approve', $context) ||
-                        has_capability('mod/publication:grantextension', $context)) {
+                    if (
+                        has_capability('mod/publication:approve', $context) ||
+                        has_capability('mod/publication:grantextension', $context)
+                    ) {
                         $showall = true;
                     }
 
                     if ($showall) {
-                        $sql = 'SELECT u.id FROM {user} u '.
-                            'LEFT JOIN ('.$esql.') eu ON eu.id=u.id '.
+                        $sql = 'SELECT u.id FROM {user} u ' .
+                            'LEFT JOIN (' . $esql . ') eu ON eu.id=u.id ' .
                             'WHERE u.deleted = 0 AND eu.id=u.id';
                     } else {
-                        $sql = 'SELECT u.id FROM {user} u '.
-                            'LEFT JOIN ('.$esql.') eu ON eu.id=u.id '.
-                            'LEFT JOIN {publication_file} files ON (u.id = files.userid) '.
-                            'WHERE u.deleted = 0 AND eu.id=u.id '.
-                            'AND files.publication = '. $res->instanceid . ' ';
+                        $sql = 'SELECT u.id FROM {user} u ' .
+                            'LEFT JOIN (' . $esql . ') eu ON eu.id=u.id ' .
+                            'LEFT JOIN {publication_file} files ON (u.id = files.userid) ' .
+                            'WHERE u.deleted = 0 AND eu.id=u.id ' .
+                            'AND files.publication = ' . $res->instanceid . ' ';
 
                         if ($res->resource->mode == PUBLICATION_MODE_UPLOAD) {
                             // Mode upload.
@@ -395,9 +409,11 @@ class local_downloadcenter_factory {
                                 if (!$res->resource->obtainstudentapproval && $record->teacherapproval == 1) {
                                     // No need to ask student and teacher has approved.
                                     $haspermission = true;
-                                } else if ($res->resource->obtainstudentapproval &&
+                                } else if (
+                                    $res->resource->obtainstudentapproval &&
                                     $record->teacherapproval == 1 &&
-                                    $record->studentapproval == 1) {
+                                    $record->studentapproval == 1
+                                ) {
                                     // Student and teacher have approved.
                                     $haspermission = true;
                                 }
@@ -412,7 +428,7 @@ class local_downloadcenter_factory {
                                 $fileext = strstr($file->get_filename(), '.');
                                 $fileoriginal = str_replace($fileext, '', $file->get_filename());
                                 $fileforzipname = clean_filename(($viewfullnames ? fullname($auser) : '') .
-                                    '_' . $fileoriginal.'_'.$auserid.$fileext);
+                                    '_' . $fileoriginal . '_' . $auserid . $fileext);
                                 $fileforzipname = $resdir . '/' . self::shorten_filename($fileforzipname);
                                 // Save file name to array for zipping.
                                 $filelist[$fileforzipname] = $file;
@@ -420,9 +436,11 @@ class local_downloadcenter_factory {
                         }
                     } // End of foreach.
                 } else if ($res->modname == 'page') {
-                    $fsfiles = $fs->get_area_files($context->id,
+                    $fsfiles = $fs->get_area_files(
+                        $context->id,
                         'mod_page',
-                        'content');
+                        'content'
+                    );
                     if (count($fsfiles) > 0) {
                         foreach ($fsfiles as $file) {
                             if ($file->get_filesize() == 0) {
@@ -442,9 +460,11 @@ class local_downloadcenter_factory {
                     $cm = $res->cm;
                     $chapters = book_preload_chapters($book);
 
-                    $fsfiles = $fs->get_area_files($context->id,
+                    $fsfiles = $fs->get_area_files(
+                        $context->id,
                         'mod_book',
-                        'chapter');
+                        'chapter'
+                    );
                     if (count($fsfiles) > 0) {
                         foreach ($fsfiles as $file) {
                             if ($file->get_filesize() == 0) {
@@ -470,14 +490,14 @@ class local_downloadcenter_factory {
                     $toc = $bookrenderer->render_print_book_toc($chapters, $book, $cm);
                     $content .= $toc;
                     // Chapters!
-                    $link1 = $CFG->wwwroot.'/mod/book/view.php?id='.$this->course->id.'&chapterid=';
-                    $link2 = $CFG->wwwroot.'/mod/book/view.php?id='.$this->course->id;
+                    $link1 = $CFG->wwwroot . '/mod/book/view.php?id=' . $this->course->id . '&chapterid=';
+                    $link2 = $CFG->wwwroot . '/mod/book/view.php?id=' . $this->course->id;
                     foreach ($chapters as $ch) {
                         $chapter = $allchapters[$ch->id];
                         if ($chapter->hidden) {
                             continue;
                         }
-                        $content .= '<div class="book_chapter"><a name="ch'.$ch->id.'"></a>';
+                        $content .= '<div class="book_chapter"><a name="ch' . $ch->id . '"></a>';
                         $title = book_get_chapter_title($chapter->id, $chapters, $book, $context);
                         if (!$book->customtitles) {
                             if (!$chapter->subchapter) {
@@ -490,9 +510,11 @@ class local_downloadcenter_factory {
                         $chaptercontent = str_replace($link2, '#top', $chaptercontent);
 
                         $chaptercontent = str_replace('@@PLUGINFILE@@', 'data', $chaptercontent);
-                        $content .= format_text($chaptercontent,
+                        $content .= format_text(
+                            $chaptercontent,
                             $chapter->contentformat,
-                            array('noclean' => true, 'context' => $context));
+                            array('noclean' => true, 'context' => $context)
+                        );
                         $content .= '</div>';
                         $content .= '<a href="#toc">&uarr; ' . get_string('top', 'mod_book') . '</a>';
                     }
@@ -558,14 +580,14 @@ class local_downloadcenter_factory {
                     $sitename = get_string("site") . ': <span class="strong">' . format_string($SITE->fullname) . '</span>';
                     echo html_writer::tag('div', $sitename, array('class' => 'sitename'));
 
-                    $coursename = get_string("course") . ': <span class="strong">' . format_string($course->fullname) . ' ('. format_string($course->shortname) . ')</span>';
+                    $coursename = get_string("course") . ': <span class="strong">' . format_string($course->fullname) . ' (' . format_string($course->shortname) . ')</span>';
                     echo html_writer::tag('div', $coursename, array('class' => 'coursename'));
 
                     $modname = get_string("modulename", "glossary") . ': <span class="strong">' . format_string($glossary->name, true) . '</span>';
                     echo html_writer::tag('div', $modname, array('class' => 'modname'));
 
                     list($allentries, $count) = glossary_get_entries_by_letter($glossary, $context, 'ALL', 0, 0);
-                    if ( $allentries ) {
+                    if ($allentries) {
                         foreach ($allentries as $entry) {
                             $pivot = $entry->{$pivotkey};
                             $upperpivot = core_text::strtoupper($pivot);
@@ -603,9 +625,11 @@ class local_downloadcenter_factory {
                     $filelist[$resdir . '/css/styles.css'] = $CFG->dirroot . '/mod/glossary/styles.css';
 
                     // Handle attachments.
-                    $fsfiles = $fs->get_area_files($context->id,
+                    $fsfiles = $fs->get_area_files(
+                        $context->id,
                         'mod_glossary',
-                        'attachment');
+                        'attachment'
+                    );
                     if (count($fsfiles) > 0) {
                         foreach ($fsfiles as $file) {
                             if ($file->get_filesize() == 0) {
@@ -616,9 +640,11 @@ class local_downloadcenter_factory {
                         }
                     }
                     // Handle entries.
-                    $fsfiles = $fs->get_area_files($context->id,
+                    $fsfiles = $fs->get_area_files(
+                        $context->id,
                         'mod_glossary',
-                        'entry');
+                        'entry'
+                    );
                     if (count($fsfiles) > 0) {
                         foreach ($fsfiles as $file) {
                             if ($file->get_filesize() == 0) {
@@ -633,7 +659,7 @@ class local_downloadcenter_factory {
                     $etherpadconfig = get_config('etherpadlite');
                     $domain = $etherpadconfig->url;
                     $padid = $res->resource->uri;
-                    $etherpadclient = new \mod_etherpadlite\client($etherpadconfig->apikey, $domain.'api');
+                    $etherpadclient = new \mod_etherpadlite\client($etherpadconfig->apikey, $domain . 'api');
                     // Handle groups here.
                     $groupmode = groups_get_activity_groupmode($res->cm);
                     if ($groupmode) {
@@ -678,7 +704,8 @@ class local_downloadcenter_factory {
         return $filelist;
     }
 
-    public function create_zip() {
+    public function create_zip()
+    {
         $filelist = $this->build_filelist();
 
         $filename = sprintf('%s_%s.zip', $this->course->shortname, userdate(time(), '%Y%m%d_%H%M'));
@@ -705,7 +732,8 @@ class local_downloadcenter_factory {
      * @param $folder
      * @param $path
      */
-    private function add_folder_contents(&$filelist, $folder, $path) {
+    private function add_folder_contents(&$filelist, $folder, $path)
+    {
         if (!empty($folder['subdirs'])) {
             foreach ($folder['subdirs'] as $foldername => $subfolder) {
                 $foldername = self::shorten_filename($foldername);
@@ -717,7 +745,8 @@ class local_downloadcenter_factory {
         }
     }
 
-    public function select_all_resources() {
+    public function select_all_resources()
+    {
         $this->filteredresources = $this->get_resources_for_user();
     }
 
@@ -727,7 +756,8 @@ class local_downloadcenter_factory {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function parse_form_data($data) {
+    public function parse_form_data($data)
+    {
         $data = (array)$data;
         $filtered = array();
 
@@ -754,7 +784,8 @@ class local_downloadcenter_factory {
     /**
      * Select all available resources in the course.
      */
-    public function select_all() {
+    public function select_all()
+    {
         $this->filteredresources = $this->get_resources_for_user();
     }
 
@@ -763,7 +794,8 @@ class local_downloadcenter_factory {
      * @param int $maxlength
      * @return string
      */
-    public static function shorten_filename($filename, $maxlength = 64) {
+    public static function shorten_filename($filename, $maxlength = 64)
+    {
         $filename = (string)$filename;
         $filename = str_replace('/', '_', $filename);
         if (strlen($filename) <= $maxlength) {
@@ -773,7 +805,8 @@ class local_downloadcenter_factory {
         return substr($filename, 0, $limit) . '___' . substr($filename, (1 - $limit));
     }
 
-    public static function convert_content_to_html_doc($title, $content, $additionalhead = '') {
+    public static function convert_content_to_html_doc($title, $content, $additionalhead = '')
+    {
         return <<<HTML
 <!doctype html>
 <html>
@@ -789,7 +822,8 @@ $content
 HTML;
     }
 
-    public static function append_etherpadlite_css($htmlcontent) {
+    public static function append_etherpadlite_css($htmlcontent)
+    {
         $csscontent = <<<CSS
 <style>
 ol {
@@ -826,7 +860,5 @@ ul.indent {
 </body>
 CSS;
         return str_replace('</body>', $csscontent, $htmlcontent);
-
     }
-
 }
