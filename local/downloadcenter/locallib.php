@@ -25,6 +25,24 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Helper to build URLs for the download centre index keeping category ids.
+ *
+ * moodle_url does not allow array values for parameters. To pass multiple
+ * category identifiers we implode them and later explode again when reading
+ * the request.
+ *
+ * @param array $catids List of category ids.
+ * @param array $params Extra parameters for the URL.
+ * @return moodle_url
+ */
+function local_downloadcenter_build_url(array $catids = [], array $params = []): moodle_url {
+    if (!empty($catids)) {
+        $params['catids'] = implode(',', $catids);
+    }
+    return new moodle_url('/local/downloadcenter/index.php', $params);
+}
+
 class local_downloadcenter_factory
 {
     /**
