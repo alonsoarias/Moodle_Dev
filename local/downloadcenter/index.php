@@ -113,7 +113,9 @@ if ($action === 'download') {
                 $downloadcenter->parse_form_data((object)$data);
             }
             
-            $prefix = local_downloadcenter_factory::shorten_filename(clean_filename($course->shortname)) . '/';
+            $categorypath = local_downloadcenter_category_path($course);
+            $prefix = ($categorypath ? $categorypath . '/' : '') .
+                local_downloadcenter_factory::shorten_filename(clean_filename($course->shortname)) . '/';
             $filelist = $downloadcenter->build_filelist($prefix);
             
             foreach ($filelist as $pathinzip => $file) {
@@ -266,6 +268,82 @@ if ($courseid) {
     }
 }
 
+/**
+ * Render a collapsible section for the given category including any child
+ * categories and their courses.
+ *
+ * @param \core_course_category $category Category to render.
+ * @param array $selection Current course selection (by reference).
+ * @param array $catids Top-level selected category ids.
+ * @param string $search Current search filter.
+ * @return string HTML output.
+ */
+function local_downloadcenter_render_category_tree(\core_course_category $category, array &$selection,
+        array $catids, string $search): string {
+    global $SESSION, $OUTPUT;
+
+    $courses = $category->get_courses(['recursive' => false, 'sort' => ['fullname' => 1]]);
+    if ($search !== '') {
+        $courses = array_filter($courses, function($course) use ($search) {
+            return stripos($course->fullname, $search) !== false ||
+                   stripos($course->shortname, $search) !== false;
+        });
+    }
+
+    $courseform = new local_downloadcenter_course_select_form(null, [
+        'courses' => $courses,
+        'selection' => $selection,
+        'catids' => $catids,
+    ]);
+
+    if ($data = $courseform->get_data()) {
+        if (!empty($data->courses)) {
+            foreach ($data->courses as $courseid => $sel) {
+                if ($sel) {
+                    $selection[$courseid] = ['downloadall' => 1];
+                }
+            }
+            $SESSION->local_downloadcenter_selection = $selection;
+        }
+        redirect(local_downloadcenter_build_url($catids));
+    }
+
+    if ($courseform->is_cancelled()) {
+        redirect(local_downloadcenter_build_url($catids));
+    }
+
+    ob_start();
+    if (!empty($courses)) {
+        $courseform->display();
+    } else {
+        echo $OUTPUT->notification(get_string('nocoursesfound', 'local_downloadcenter'),
+            \core\output\notification::NOTIFY_WARNING);
+    }
+    $innerhtml = ob_get_clean();
+
+    foreach ($category->get_children(['sort' => ['name' => 1]]) as $child) {
+        $innerhtml .= local_downloadcenter_render_category_tree($child, $selection, $catids, $search);
+    }
+
+    $collapseid = 'cat' . $category->id;
+    $html = html_writer::start_div('card mb-2');
+    $html .= html_writer::tag('div',
+        html_writer::tag('button', $category->get_formatted_name(), [
+            'class' => 'btn btn-link text-left w-100',
+            'data-toggle' => 'collapse',
+            'data-target' => '#' . $collapseid,
+            'aria-expanded' => 'false',
+            'aria-controls' => $collapseid,
+        ]),
+        ['class' => 'card-header p-0']
+    );
+    $html .= html_writer::start_div('collapse', ['id' => $collapseid]);
+    $html .= html_writer::div($innerhtml, 'card-body');
+    $html .= html_writer::end_div();
+    $html .= html_writer::end_div();
+    return $html;
+}
+
 // Vista de categorías seleccionadas
 if (!empty($catids)) {
     $PAGE->set_url(local_downloadcenter_build_url($catids));
@@ -276,35 +354,6 @@ if (!empty($catids)) {
     $PAGE->navbar->add(get_string('courses'), new moodle_url('/course/management.php'));
     $PAGE->navbar->add(get_string('navigationlink', 'local_downloadcenter'),
                       local_downloadcenter_build_url($catids));
-
-    $forms = [];
-    foreach ($catids as $cid) {
-        $category = \core_course_category::get($cid, MUST_EXIST);
-        $courses = $category->get_courses(['recursive' => false, 'sort' => ['fullname' => 1]]);
-        if (!empty($search)) {
-            $courses = array_filter($courses, function($course) use ($search) {
-                return stripos($course->fullname, $search) !== false ||
-                       stripos($course->shortname, $search) !== false;
-            });
-        }
-        $courseform = new local_downloadcenter_course_select_form(null, [
-            'courses' => $courses,
-            'selection' => $selection,
-            'catids' => $catids,
-        ]);
-        if ($data = $courseform->get_data()) {
-            if (!empty($data->courses)) {
-                foreach ($data->courses as $courseid => $sel) {
-                    if ($sel) {
-                        $selection[$courseid] = ['downloadall' => 1];
-                    }
-                }
-                $SESSION->local_downloadcenter_selection = $selection;
-            }
-            redirect(local_downloadcenter_build_url($catids));
-        }
-        $forms[$cid] = [$category, $courseform, $courses];
-    }
 
     echo $OUTPUT->header();
 
@@ -347,19 +396,10 @@ if (!empty($catids)) {
     echo html_writer::end_div();
     echo html_writer::end_div();
 
-    // Mostrar formulario de cursos por categoría
-    foreach ($forms as [$category, $courseform, $courses]) {
-        echo html_writer::start_div('card');
-        echo html_writer::start_div('card-body');
-        echo html_writer::tag('h3', $category->get_formatted_name(), ['class' => 'card-title h4']);
-        if (!empty($courses)) {
-            $courseform->display();
-        } else {
-            echo $OUTPUT->notification(get_string('nocoursesfound', 'local_downloadcenter'),
-                                      \core\output\notification::NOTIFY_WARNING);
-        }
-        echo html_writer::end_div();
-        echo html_writer::end_div();
+    // Mostrar categorías seleccionadas en forma colapsable
+    foreach ($catids as $cid) {
+        $category = \core_course_category::get($cid, MUST_EXIST);
+        echo local_downloadcenter_render_category_tree($category, $selection, $catids, $search);
     }
 
     // Panel de selección actual

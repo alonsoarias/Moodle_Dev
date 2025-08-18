@@ -43,6 +43,30 @@ function local_downloadcenter_build_url(array $catids = [], array $params = []):
     return new moodle_url('/local/downloadcenter/index.php', $params);
 }
 
+/**
+ * Build a category path for the given course.
+ *
+ * Returns the hierarchy of categories a course belongs to using
+ * category names separated by '/'. Each part is cleaned and shortened
+ * to keep paths reasonable in the resulting ZIP archive.
+ *
+ * @param stdClass $course Course record.
+ * @return string Category path or empty string if none.
+ */
+function local_downloadcenter_category_path(stdClass $course): string {
+    $names = [];
+    $category = \core_course_category::get($course->category, IGNORE_MISSING);
+    while ($category && $category->id) {
+        $names[] = local_downloadcenter_factory::shorten_filename(
+            clean_filename($category->get_formatted_name())
+        );
+        if (empty($category->parent)) {
+            break;
+        }
+        $category = \core_course_category::get($category->parent, IGNORE_MISSING);
+    }
+    return implode('/', array_reverse($names));
+}
 class local_downloadcenter_factory
 {
     /**
