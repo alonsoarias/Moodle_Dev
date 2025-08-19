@@ -40,9 +40,9 @@ class local_downloadcenter_course_select_form extends moodleform {
             }
             $mform->addElement('advcheckbox', 'courses[' . $course->id . ']', '', $label, ['group' => 1]);
         }
-        foreach ($catids as $cid) {
-            $mform->addElement('hidden', 'catids[]', $cid);
-            $mform->setType('catids[]', PARAM_INT);
+        if (!empty($catids)) {
+            $mform->addElement('hidden', 'catids', implode(',', $catids));
+            $mform->setType('catids', PARAM_SEQUENCE);
         }
         $this->add_action_buttons(false, get_string('addcoursestoselection', 'local_downloadcenter'));
     }
