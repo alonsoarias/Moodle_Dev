@@ -1,10 +1,4 @@
 /**
- * Minimal styles for Download Center relying on Bootstrap.
+ * Minimal styles for Download Center relying on Bootstrap utilities only.
+ * Custom rules have been removed to avoid heavy CSS dependencies.
  */
-.path-local-downloadcenter .downloadcenter-header {
-    margin-bottom: 1.5rem;
-}
-
-.path-local-downloadcenter .downloadcenter-toolbar {
-    margin-bottom: 1rem;
-}

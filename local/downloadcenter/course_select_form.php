@@ -21,6 +21,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/formslib.php');
+require_once(__DIR__ . '/locallib.php');
 class local_downloadcenter_course_select_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
@@ -32,16 +33,16 @@ class local_downloadcenter_course_select_form extends moodleform {
             if (!$course->can_access()) {
                 continue;
             }
-            $url = new moodle_url('/local/downloadcenter/index.php', ['courseid' => $course->id, 'catids' => $catids]);
+            $url = local_downloadcenter_build_url($catids, ['courseid' => $course->id]);
             $label = html_writer::link($url, $course->get_formatted_name());
             if (isset($selection[$course->id])) {
                 $label .= ' (' . get_string('selected', 'local_downloadcenter') . ')';
             }
             $mform->addElement('advcheckbox', 'courses[' . $course->id . ']', '', $label, ['group' => 1]);
         }
-        foreach ($catids as $cid) {
-            $mform->addElement('hidden', 'catids[]', $cid);
-            $mform->setType('catids[]', PARAM_INT);
+        if (!empty($catids)) {
+            $mform->addElement('hidden', 'catids', implode(',', $catids));
+            $mform->setType('catids', PARAM_SEQUENCE);
         }
         $this->add_action_buttons(false, get_string('addcoursestoselection', 'local_downloadcenter'));
     }
