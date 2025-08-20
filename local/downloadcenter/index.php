@@ -273,12 +273,12 @@ if ($courseid) {
  * categories and their courses.
  *
  * @param \core_course_category $category Category to render.
- * @param array $selection Current course selection (by reference).
+ * @param array $selection Current course selection.
  * @param array $catids Top-level selected category ids.
  * @param string $search Current search filter.
  * @return string HTML output.
  */
-function local_downloadcenter_render_category_tree(\core_course_category $category, array &$selection,
+function local_downloadcenter_render_category_tree(\core_course_category $category, array $selection,
         array $catids, string $search): string {
     global $SESSION, $OUTPUT;
 
@@ -294,21 +294,24 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
         'courses' => $courses,
         'selection' => $selection,
         'catids' => $catids,
+        'categoryid' => $category->id,
     ]);
 
     if ($data = $courseform->get_data()) {
-        if (!empty($data->courses)) {
-            foreach ($data->courses as $courseid => $sel) {
-                if ($sel) {
-                    $selection[$courseid] = ['downloadall' => 1];
+        if ((int)$data->categoryid === (int)$category->id) {
+            $sessionselection = $SESSION->local_downloadcenter_selection ?? [];
+            if (!empty($data->courses)) {
+                foreach ($data->courses as $courseid => $sel) {
+                    if ($sel) {
+                        $sessionselection[$courseid] = ['downloadall' => 1];
+                    }
                 }
             }
-            $SESSION->local_downloadcenter_selection = $selection;
+            $SESSION->local_downloadcenter_selection = $sessionselection;
+            redirect(local_downloadcenter_build_url($catids));
         }
-        redirect(local_downloadcenter_build_url($catids));
     }
-
-    if ($courseform->is_cancelled()) {
+    if ($courseform->is_cancelled() && optional_param('categoryid', 0, PARAM_INT) == $category->id) {
         redirect(local_downloadcenter_build_url($catids));
     }
 
