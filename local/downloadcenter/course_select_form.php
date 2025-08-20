@@ -39,8 +39,18 @@ class local_downloadcenter_course_select_form extends moodleform {
             if (isset($selection[$course->id])) {
                 $label .= ' (' . get_string('selected', 'local_downloadcenter') . ')';
             }
-            $mform->addElement('advcheckbox', 'courses[' . $course->id . ']', '', $label, ['group' => 1]);
-            $mform->setType('courses[' . $course->id . ']', PARAM_BOOL);
+            $checkboxname = 'courses[' . $course->id . ']';
+            $mform->addElement('advcheckbox', $checkboxname, '', $label, [
+                'group' => 1,
+                'class' => 'course-checkbox'
+            ]);
+            $mform->setType($checkboxname, PARAM_BOOL);
+            if (isset($selection[$course->id])) {
+                $mform->setDefault($checkboxname, 1);
+            }
+        }
+        if (!empty($courses)) {
+            $mform->add_checkbox_controller(1);
         }
         if (!empty($catids)) {
             $mform->addElement('hidden', 'catids', implode(',', $catids));
