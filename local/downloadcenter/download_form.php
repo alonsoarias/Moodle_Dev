@@ -40,6 +40,7 @@ class local_downloadcenter_download_form extends moodleform {
         $mform = $this->_form;
 
         $resources = $this->_customdata['res'];
+        $selection = $this->_customdata['selection'] ?? [];
 
         $mform->addElement('hidden', 'courseid', $COURSE->id);
         $mform->setType('courseid', PARAM_INT);
@@ -64,14 +65,14 @@ class local_downloadcenter_download_form extends moodleform {
             $mform->addElement('html', html_writer::start_tag('div', array('class' => 'card block mb-3')));
             $sectiontitle = html_writer::span($sectioninfo->title, 'sectiontitle');
             $mform->addElement('checkbox', $sectionname, $sectiontitle);
+            $mform->setDefault($sectionname, isset($selection[$sectionname]));
 
-            $mform->setDefault($sectionname, 1);
             foreach ($sectioninfo->res as $res) {
                 $name = 'item_' . $res->modname . '_' . $res->instanceid;
                 $title = html_writer::span($res->name) . ' ' . $res->icon;
                 $title = html_writer::tag('span', $title, array('class' => 'itemtitle'));
                 $mform->addElement('checkbox', $name, $title);
-                $mform->setDefault($name, 1);
+                $mform->setDefault($name, isset($selection[$name]));
             }
             $mform->addElement('html', html_writer::end_tag('div'));
         }
