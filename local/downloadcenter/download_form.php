@@ -64,7 +64,6 @@ class local_downloadcenter_download_form extends moodleform {
             $sectionname = 'item_topic_' . $sectionid;
             $mform->addElement('html', html_writer::start_tag('div', array('class' => 'card block mb-3')));
             $sectiontitle = html_writer::span($sectioninfo->title, 'sectiontitle');
-
             $totalitems = count($sectioninfo->res);
             $selecteditems = 0;
             foreach ($sectioninfo->res as $res) {
@@ -81,7 +80,6 @@ class local_downloadcenter_download_form extends moodleform {
                 }
             }
             $mform->addElement('checkbox', $sectionname, $sectiontitle, '', $sectionattrs);
-
             foreach ($sectioninfo->res as $res) {
                 $name = 'item_' . $res->modname . '_' . $res->instanceid;
                 $title = html_writer::span($res->name) . ' ' . $res->icon;
