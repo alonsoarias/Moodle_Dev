@@ -206,10 +206,9 @@ if ($courseid) {
 
     $downloadcenter = new local_downloadcenter_factory($course, $USER);
     $userresources = $downloadcenter->get_resources_for_user();
-
-    // Cargar JavaScript para filtros
     $PAGE->requires->js_call_amd('local_downloadcenter/modfilter', 'init',
                                  $downloadcenter->get_js_modnames());
+    $PAGE->requires->js_call_amd('local_downloadcenter/section_tree', 'init');
 
     $courseselection = $selection[$courseid] ?? [];
     $downloadform = new local_downloadcenter_download_form(
@@ -307,11 +306,18 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
     if ($data = $courseform->get_data()) {
         if ((int)$data->categoryid === (int)$category->id) {
             $sessionselection = $SESSION->local_downloadcenter_selection ?? [];
+            $selectedcourseids = [];
             if (!empty($data->courses)) {
                 foreach ($data->courses as $courseid => $sel) {
                     if ($sel) {
                         $sessionselection[$courseid] = ['downloadall' => 1];
+                        $selectedcourseids[] = $courseid;
                     }
+                }
+            }
+            foreach ($courses as $course) {
+                if (!in_array($course->id, $selectedcourseids)) {
+                    unset($sessionselection[$course->id]);
                 }
             }
             $SESSION->local_downloadcenter_selection = $sessionselection;

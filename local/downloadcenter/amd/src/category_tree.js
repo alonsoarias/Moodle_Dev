@@ -9,8 +9,9 @@ define(['jquery'], function($) {
 
     function updateCategoryState($checkbox) {
         var $container = $checkbox.closest('.downloadcenter-category');
-        var $courseboxes = $container.find('.course-checkbox');
-        var $subcatboxes = $container.find('> .collapse .card-body .downloadcenter-category-checkbox');
+        var $courseboxes = $container.find('> .collapse > .card-body > form .course-checkbox');
+        var $childcategories = $container.find('> .collapse > .card-body > .downloadcenter-category');
+        var $subcatboxes = $childcategories.find('> .card-header input.downloadcenter-category-checkbox');
         var total = $courseboxes.length + $subcatboxes.length;
         var checked = $courseboxes.filter(':checked').length + $subcatboxes.filter(':checked').length;
         var indeterminateChildren = $subcatboxes.filter(function() { return this.indeterminate; }).length;
@@ -20,7 +21,7 @@ define(['jquery'], function($) {
 
     function propagateToChildren($checkbox, checked) {
         var $container = $checkbox.closest('.downloadcenter-category');
-        $container.find('.course-checkbox, .downloadcenter-category-checkbox').each(function() {
+        $container.find('.course-checkbox, .downloadcenter-category-checkbox').not($checkbox).each(function() {
             this.checked = checked;
             this.indeterminate = false;
             $(this).trigger('change');

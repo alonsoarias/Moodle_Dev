@@ -49,6 +49,9 @@ class local_downloadcenter_course_select_form extends moodleform {
                 $mform->setDefault($checkboxname, 1);
             }
         }
+        if (!empty($courses)) {
+            $mform->add_checkbox_controller(1);
+        }
         if (!empty($catids)) {
             $mform->addElement('hidden', 'catids', implode(',', $catids));
             $mform->setType('catids', PARAM_SEQUENCE);
