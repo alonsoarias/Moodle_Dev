@@ -32,7 +32,11 @@ require_once($CFG->libdir . '/adminlib.php');
 core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 
-$catids = optional_param_array('catids', [], PARAM_INT);
+$catids = optional_param_array('catids', null, PARAM_INT);
+if ($catids === null) {
+    $catidsparam = optional_param('catids', '', PARAM_SEQUENCE);
+    $catids = $catidsparam === '' ? [] : array_map('intval', explode(',', $catidsparam));
+}
 $catid = optional_param('catid', 0, PARAM_INT);
 if ($catid && empty($catids)) {
     $catids = [$catid];
@@ -53,12 +57,12 @@ $selection = $SESSION->local_downloadcenter_selection ?? [];
 // Manejo de acciones
 if ($action === 'clear') {
     unset($SESSION->local_downloadcenter_selection);
-    redirect(new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]));
+    redirect(local_downloadcenter_build_url($catids));
 }
 
 if ($action === 'download') {
     if (empty($selection)) {
-        redirect(new moodle_url('/local/downloadcenter/index.php'), 
+        redirect(local_downloadcenter_build_url([]),
                 get_string('nocoursesselected', 'local_downloadcenter'), 
                 null, 
                 \core\output\notification::NOTIFY_WARNING);
@@ -87,7 +91,7 @@ if ($action === 'download') {
     
     if (!empty($errors)) {
         $SESSION->local_downloadcenter_errors = $errors;
-        redirect(new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]));
+        redirect(local_downloadcenter_build_url($catids));
     }
 
     // Limpiar selección y cerrar sesión
@@ -109,7 +113,9 @@ if ($action === 'download') {
                 $downloadcenter->parse_form_data((object)$data);
             }
             
-            $prefix = local_downloadcenter_factory::shorten_filename(clean_filename($course->shortname)) . '/';
+            $categorypath = local_downloadcenter_category_path($course);
+            $prefix = ($categorypath ? $categorypath . '/' : '') .
+                local_downloadcenter_factory::shorten_filename(clean_filename($course->shortname)) . '/';
             $filelist = $downloadcenter->build_filelist($prefix);
             
             foreach ($filelist as $pathinzip => $file) {
@@ -135,7 +141,7 @@ if ($action === 'download') {
         exit;
     } catch (Exception $e) {
         debugging('Error creating ZIP: ' . $e->getMessage(), DEBUG_DEVELOPER);
-        redirect(new moodle_url('/local/downloadcenter/index.php'), 
+        redirect(local_downloadcenter_build_url([]),
                 get_string('errorcreatinzip', 'local_downloadcenter'), 
                 null, 
                 \core\output\notification::NOTIFY_ERROR);
@@ -153,7 +159,7 @@ if (empty($catids) && empty($courseid)) {
     $catform = new local_downloadcenter_category_select_form();
 
     if ($data = $catform->get_data()) {
-        redirect(new moodle_url('/local/downloadcenter/index.php', ['catids' => $data->catids]));
+        redirect(local_downloadcenter_build_url($data->catids));
     }
 
     echo $OUTPUT->header();
@@ -189,13 +195,12 @@ if ($courseid) {
     
     // Verificar acceso al curso
     if (!can_access_course($course)) {
-        print_error('noaccesstocourse', 'local_downloadcenter', 
-                   new moodle_url('/local/downloadcenter/index.php'), 
+        print_error('noaccesstocourse', 'local_downloadcenter',
+                   local_downloadcenter_build_url([]),
                    $course->fullname);
     }
 
-    $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php',
-                                  ['catids' => $catids, 'courseid' => $courseid]));
+    $PAGE->set_url(local_downloadcenter_build_url($catids, ['courseid' => $courseid]));
     $PAGE->set_context($coursecontext);
     $PAGE->set_pagelayout('incourse');
 
@@ -220,7 +225,7 @@ if ($courseid) {
     // Agregar navegación
     $PAGE->navbar->add(get_string('courses'), new moodle_url('/course/management.php'));
     $PAGE->navbar->add(get_string('navigationlink', 'local_downloadcenter'),
-                      new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]));
+                      local_downloadcenter_build_url($catids));
     $PAGE->navbar->add($course->fullname);
 
     if ($data = $downloadform->get_data()) {
@@ -235,12 +240,12 @@ if ($courseid) {
         ]);
         $event->trigger();
         
-        redirect(new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]),
+        redirect(local_downloadcenter_build_url($catids),
                 get_string('filesadded', 'local_downloadcenter'),
                 null,
                 \core\output\notification::NOTIFY_SUCCESS);
     } else if ($downloadform->is_cancelled()) {
-        redirect(new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]));
+        redirect(local_downloadcenter_build_url($catids));
     } else {
         echo $OUTPUT->header();
         
@@ -251,7 +256,7 @@ if ($courseid) {
         
         // Botón de volver
         echo html_writer::link(
-            new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]),
+            local_downloadcenter_build_url($catids),
             get_string('back'),
             ['class' => 'btn btn-secondary']
         );
@@ -263,45 +268,96 @@ if ($courseid) {
     }
 }
 
+/**
+ * Render a collapsible section for the given category including any child
+ * categories and their courses.
+ *
+ * @param \core_course_category $category Category to render.
+ * @param array $selection Current course selection.
+ * @param array $catids Top-level selected category ids.
+ * @param string $search Current search filter.
+ * @return string HTML output.
+ */
+function local_downloadcenter_render_category_tree(\core_course_category $category, array $selection,
+        array $catids, string $search): string {
+    global $SESSION, $OUTPUT;
+
+    $courses = $category->get_courses(['recursive' => false, 'sort' => ['fullname' => 1]]);
+    if ($search !== '') {
+        $courses = array_filter($courses, function($course) use ($search) {
+            return stripos($course->fullname, $search) !== false ||
+                   stripos($course->shortname, $search) !== false;
+        });
+    }
+
+    $courseform = new local_downloadcenter_course_select_form(null, [
+        'courses' => $courses,
+        'selection' => $selection,
+        'catids' => $catids,
+        'categoryid' => $category->id,
+    ]);
+
+    if ($data = $courseform->get_data()) {
+        if ((int)$data->categoryid === (int)$category->id) {
+            $sessionselection = $SESSION->local_downloadcenter_selection ?? [];
+            if (!empty($data->courses)) {
+                foreach ($data->courses as $courseid => $sel) {
+                    if ($sel) {
+                        $sessionselection[$courseid] = ['downloadall' => 1];
+                    }
+                }
+            }
+            $SESSION->local_downloadcenter_selection = $sessionselection;
+            redirect(local_downloadcenter_build_url($catids));
+        }
+    }
+
+    if ($courseform->is_cancelled() && optional_param('categoryid', 0, PARAM_INT) == $category->id) {
+        redirect(local_downloadcenter_build_url($catids));
+    }
+
+    ob_start();
+    if (!empty($courses)) {
+        $courseform->display();
+    } else {
+        echo $OUTPUT->notification(get_string('nocoursesfound', 'local_downloadcenter'),
+            \core\output\notification::NOTIFY_WARNING);
+    }
+    $innerhtml = ob_get_clean();
+
+    foreach ($category->get_children(['sort' => ['name' => 1]]) as $child) {
+        $innerhtml .= local_downloadcenter_render_category_tree($child, $selection, $catids, $search);
+    }
+
+    $collapseid = 'cat' . $category->id;
+    $html = html_writer::start_div('card mb-2');
+    $html .= html_writer::tag('div',
+        html_writer::tag('button', $category->get_formatted_name(), [
+            'class' => 'btn btn-link text-left w-100',
+            'data-toggle' => 'collapse',
+            'data-target' => '#' . $collapseid,
+            'aria-expanded' => 'false',
+            'aria-controls' => $collapseid,
+        ]),
+        ['class' => 'card-header p-0']
+    );
+    $html .= html_writer::start_div('collapse', ['id' => $collapseid]);
+    $html .= html_writer::div($innerhtml, 'card-body');
+    $html .= html_writer::end_div();
+    $html .= html_writer::end_div();
+    return $html;
+}
+
 // Vista de categorías seleccionadas
 if (!empty($catids)) {
-    $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]));
+    $PAGE->set_url(local_downloadcenter_build_url($catids));
     $PAGE->set_title(get_string('navigationlink', 'local_downloadcenter'));
     $PAGE->set_heading($SITE->fullname);
 
     // Navegación
     $PAGE->navbar->add(get_string('courses'), new moodle_url('/course/management.php'));
     $PAGE->navbar->add(get_string('navigationlink', 'local_downloadcenter'),
-                      new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]));
-
-    $forms = [];
-    foreach ($catids as $cid) {
-        $category = \core_course_category::get($cid, MUST_EXIST);
-        $courses = $category->get_courses(['recursive' => false, 'sort' => ['fullname' => 1]]);
-        if (!empty($search)) {
-            $courses = array_filter($courses, function($course) use ($search) {
-                return stripos($course->fullname, $search) !== false ||
-                       stripos($course->shortname, $search) !== false;
-            });
-        }
-        $courseform = new local_downloadcenter_course_select_form(null, [
-            'courses' => $courses,
-            'selection' => $selection,
-            'catids' => $catids,
-        ]);
-        if ($data = $courseform->get_data()) {
-            if (!empty($data->courses)) {
-                foreach ($data->courses as $courseid => $sel) {
-                    if ($sel) {
-                        $selection[$courseid] = ['downloadall' => 1];
-                    }
-                }
-                $SESSION->local_downloadcenter_selection = $selection;
-            }
-            redirect(new moodle_url('/local/downloadcenter/index.php', ['catids' => $catids]));
-        }
-        $forms[$cid] = [$category, $courseform, $courses];
-    }
+                      local_downloadcenter_build_url($catids));
 
     echo $OUTPUT->header();
 
@@ -344,19 +400,10 @@ if (!empty($catids)) {
     echo html_writer::end_div();
     echo html_writer::end_div();
 
-    // Mostrar formulario de cursos por categoría
-    foreach ($forms as [$category, $courseform, $courses]) {
-        echo html_writer::start_div('card');
-        echo html_writer::start_div('card-body');
-        echo html_writer::tag('h3', $category->get_formatted_name(), ['class' => 'card-title h4']);
-        if (!empty($courses)) {
-            $courseform->display();
-        } else {
-            echo $OUTPUT->notification(get_string('nocoursesfound', 'local_downloadcenter'),
-                                      \core\output\notification::NOTIFY_WARNING);
-        }
-        echo html_writer::end_div();
-        echo html_writer::end_div();
+    // Mostrar categorías seleccionadas en forma colapsable
+    foreach ($catids as $cid) {
+        $category = \core_course_category::get($cid, MUST_EXIST);
+        echo local_downloadcenter_render_category_tree($category, $selection, $catids, $search);
     }
 
     // Panel de selección actual
@@ -384,15 +431,14 @@ if (!empty($catids)) {
         // Botones de acción
         echo html_writer::start_div('btn-group');
 
-        $downloadurl = new moodle_url('/local/downloadcenter/index.php', ['action' => 'download']);
+        $downloadurl = local_downloadcenter_build_url([], ['action' => 'download']);
         echo html_writer::link($downloadurl,
             html_writer::tag('i', '', ['class' => 'fa fa-download mr-2']) .
             get_string('downloadselection', 'local_downloadcenter'),
             ['class' => 'btn btn-success']
         );
 
-        $clearurl = new moodle_url('/local/downloadcenter/index.php',
-                                   ['action' => 'clear', 'catids' => $catids]);
+        $clearurl = local_downloadcenter_build_url($catids, ['action' => 'clear']);
         echo html_writer::link($clearurl,
             html_writer::tag('i', '', ['class' => 'fa fa-times mr-2']) .
             get_string('clearselection', 'local_downloadcenter'),
