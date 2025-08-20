@@ -311,7 +311,6 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
             redirect(local_downloadcenter_build_url($catids));
         }
     }
-
     if ($courseform->is_cancelled() && optional_param('categoryid', 0, PARAM_INT) == $category->id) {
         redirect(local_downloadcenter_build_url($catids));
     }
