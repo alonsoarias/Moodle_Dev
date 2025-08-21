@@ -50,7 +50,7 @@ class local_downloadcenter_course_select_form extends moodleform {
             }
         }
         if (!empty($courses)) {
-            $mform->add_checkbox_controller(1);
+            $this->add_checkbox_controller(1);
         }
         if (!empty($catids)) {
             $mform->addElement('hidden', 'catids', implode(',', $catids));
