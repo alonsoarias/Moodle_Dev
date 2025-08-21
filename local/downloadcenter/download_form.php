@@ -40,6 +40,7 @@ class local_downloadcenter_download_form extends moodleform {
         $mform = $this->_form;
 
         $resources = $this->_customdata['res'];
+        $selection = $this->_customdata['selection'] ?? [];
 
         $mform->addElement('hidden', 'courseid', $COURSE->id);
         $mform->setType('courseid', PARAM_INT);
@@ -63,15 +64,31 @@ class local_downloadcenter_download_form extends moodleform {
             $sectionname = 'item_topic_' . $sectionid;
             $mform->addElement('html', html_writer::start_tag('div', array('class' => 'card block mb-3')));
             $sectiontitle = html_writer::span($sectioninfo->title, 'sectiontitle');
-            $mform->addElement('checkbox', $sectionname, $sectiontitle);
 
-            $mform->setDefault($sectionname, 1);
+            $totalitems = count($sectioninfo->res);
+            $selecteditems = 0;
+            foreach ($sectioninfo->res as $res) {
+                $name = 'item_' . $res->modname . '_' . $res->instanceid;
+                if (isset($selection[$name])) {
+                    $selecteditems++;
+                }
+            }
+            $sectionattrs = array('class' => 'section-checkbox', 'data-section' => $sectionid);
+            if ($selecteditems > 0) {
+                $mform->setDefault($sectionname, 1);
+                if ($selecteditems < $totalitems) {
+                    $sectionattrs['data-indeterminate'] = 1;
+                }
+            }
+            $mform->addElement('checkbox', $sectionname, $sectiontitle, '', $sectionattrs);
+
             foreach ($sectioninfo->res as $res) {
                 $name = 'item_' . $res->modname . '_' . $res->instanceid;
                 $title = html_writer::span($res->name) . ' ' . $res->icon;
                 $title = html_writer::tag('span', $title, array('class' => 'itemtitle'));
-                $mform->addElement('checkbox', $name, $title);
-                $mform->setDefault($name, 1);
+                $itemattrs = array('class' => 'item-checkbox', 'data-section' => $sectionid);
+                $mform->addElement('checkbox', $name, $title, '', $itemattrs);
+                $mform->setDefault($name, isset($selection[$name]));
             }
             $mform->addElement('html', html_writer::end_tag('div'));
         }
