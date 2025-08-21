@@ -206,16 +206,18 @@ if ($courseid) {
 
     $downloadcenter = new local_downloadcenter_factory($course, $USER);
     $userresources = $downloadcenter->get_resources_for_user();
-    
-    // Cargar JavaScript para filtros
-    $PAGE->requires->js_call_amd('local_downloadcenter/modfilter', 'init', 
-                                 $downloadcenter->get_js_modnames());
 
+    // Cargar JavaScript para filtros y árbol de secciones.
+    $PAGE->requires->js_call_amd('local_downloadcenter/modfilter', 'init',
+                                 $downloadcenter->get_js_modnames());
+    $PAGE->requires->js_call_amd('local_downloadcenter/section_tree', 'init');
+
+    $courseselection = $selection[$courseid] ?? [];
     $downloadform = new local_downloadcenter_download_form(
-        null, 
-        ['res' => $userresources], 
-        'post', 
-        '', 
+        null,
+        ['res' => $userresources, 'selection' => $courseselection],
+        'post',
+        '',
         ['data-double-submit-protection' => 'off']
     );
 
@@ -290,6 +292,12 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
         });
     }
 
+    // Determine category checkbox state based on selected courses.
+    $allcourseids = array_keys($category->get_courses(['recursive' => true]));
+    $selectedcourseids = array_intersect($allcourseids, array_keys($selection));
+    $catchecked = !empty($allcourseids) && count($selectedcourseids) === count($allcourseids);
+    $catindeterminate = !empty($selectedcourseids) && !$catchecked;
+
     $courseform = new local_downloadcenter_course_select_form(null, [
         'courses' => $courses,
         'selection' => $selection,
@@ -300,11 +308,18 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
     if ($data = $courseform->get_data()) {
         if ((int)$data->categoryid === (int)$category->id) {
             $sessionselection = $SESSION->local_downloadcenter_selection ?? [];
+            $selectedcourseids = [];
             if (!empty($data->courses)) {
                 foreach ($data->courses as $courseid => $sel) {
                     if ($sel) {
                         $sessionselection[$courseid] = ['downloadall' => 1];
+                        $selectedcourseids[] = $courseid;
                     }
+                }
+            }
+            foreach ($courses as $course) {
+                if (!in_array($course->id, $selectedcourseids)) {
+                    unset($sessionselection[$course->id]);
                 }
             }
             $SESSION->local_downloadcenter_selection = $sessionselection;
@@ -329,17 +344,27 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
     }
 
     $collapseid = 'cat' . $category->id;
-    $html = html_writer::start_div('card mb-2');
-    $html .= html_writer::tag('div',
-        html_writer::tag('button', $category->get_formatted_name(), [
-            'class' => 'btn btn-link text-left w-100',
-            'data-toggle' => 'collapse',
-            'data-target' => '#' . $collapseid,
-            'aria-expanded' => 'false',
-            'aria-controls' => $collapseid,
-        ]),
-        ['class' => 'card-header p-0']
-    );
+    $checkboxattrs = [
+        'type' => 'checkbox',
+        'class' => 'downloadcenter-category-checkbox mr-2',
+        'data-categoryid' => $category->id,
+    ];
+    if ($catchecked) {
+        $checkboxattrs['checked'] = 'checked';
+    }
+    if ($catindeterminate) {
+        $checkboxattrs['data-indeterminate'] = 1;
+    }
+    $button = html_writer::tag('button', $category->get_formatted_name(), [
+        'class' => 'btn btn-link text-left w-100',
+        'data-toggle' => 'collapse',
+        'data-target' => '#' . $collapseid,
+        'aria-expanded' => 'false',
+        'aria-controls' => $collapseid,
+    ]);
+    $header = html_writer::empty_tag('input', $checkboxattrs) . $button;
+    $html = html_writer::start_div('card mb-2 downloadcenter-category');
+    $html .= html_writer::tag('div', $header, ['class' => 'card-header p-0 d-flex align-items-center']);
     $html .= html_writer::start_div('collapse', ['id' => $collapseid]);
     $html .= html_writer::div($innerhtml, 'card-body');
     $html .= html_writer::end_div();
@@ -357,6 +382,9 @@ if (!empty($catids)) {
     $PAGE->navbar->add(get_string('courses'), new moodle_url('/course/management.php'));
     $PAGE->navbar->add(get_string('navigationlink', 'local_downloadcenter'),
                       local_downloadcenter_build_url($catids));
+
+    // JavaScript for category checkbox tree.
+    $PAGE->requires->js_call_amd('local_downloadcenter/category_tree', 'init');
 
     echo $OUTPUT->header();
 
@@ -384,7 +412,7 @@ if (!empty($catids)) {
         'type' => 'text',
         'name' => 'search',
         'class' => 'form-control',
-        'placeholder' => get_string('searchcourses'),
+        'placeholder' => get_string('searchcourses', 'local_downloadcenter'),
         'value' => $search
     ]);
     echo html_writer::start_div('input-group-append');
