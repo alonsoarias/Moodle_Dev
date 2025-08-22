@@ -208,8 +208,6 @@ if ($courseid) {
 
     $downloadcenter = new local_downloadcenter_factory($course, $USER);
     $userresources = $downloadcenter->get_resources_for_user();
-
-    // Cargar JavaScript para filtros y árbol de secciones.
     $PAGE->requires->js_call_amd('local_downloadcenter/modfilter', 'init',
                                  $downloadcenter->get_js_modnames());
     $PAGE->requires->js_call_amd('local_downloadcenter/section_tree', 'init');
