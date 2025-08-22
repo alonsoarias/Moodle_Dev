@@ -56,15 +56,17 @@ $selection = $SESSION->local_downloadcenter_selection ?? [];
 
 // Manejo de acciones
 if ($action === 'clear') {
+    require_sesskey();
     unset($SESSION->local_downloadcenter_selection);
     redirect(local_downloadcenter_build_url($catids));
 }
 
 if ($action === 'download') {
+    require_sesskey();
     if (empty($selection)) {
         redirect(local_downloadcenter_build_url([]),
-                get_string('nocoursesselected', 'local_downloadcenter'), 
-                null, 
+                get_string('nocoursesselected', 'local_downloadcenter'),
+                null,
                 \core\output\notification::NOTIFY_WARNING);
     }
 
@@ -353,17 +355,19 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
     if ($catindeterminate) {
         $checkboxattrs['data-indeterminate'] = 1;
     }
+
+    $expanded = $catchecked || $catindeterminate;
     $button = html_writer::tag('button', $category->get_formatted_name(), [
         'class' => 'btn btn-link text-left w-100',
         'data-toggle' => 'collapse',
         'data-target' => '#' . $collapseid,
-        'aria-expanded' => 'false',
+        'aria-expanded' => $expanded ? 'true' : 'false',
         'aria-controls' => $collapseid,
     ]);
     $header = html_writer::empty_tag('input', $checkboxattrs) . $button;
     $html = html_writer::start_div('card mb-2 downloadcenter-category');
     $html .= html_writer::tag('div', $header, ['class' => 'card-header p-0 d-flex align-items-center']);
-    $html .= html_writer::start_div('collapse', ['id' => $collapseid]);
+    $html .= html_writer::start_div('collapse' . ($expanded ? ' show' : ''), ['id' => $collapseid]);
     $html .= html_writer::div($innerhtml, 'card-body');
     $html .= html_writer::end_div();
     $html .= html_writer::end_div();
@@ -453,22 +457,25 @@ if (!empty($catids)) {
         }
         echo html_writer::end_tag('ul');
 
-        // Botones de acción
+        // Botones de acción.
         echo html_writer::start_div('btn-group');
 
-        $downloadurl = local_downloadcenter_build_url([], ['action' => 'download']);
-        echo html_writer::link($downloadurl,
-            html_writer::tag('i', '', ['class' => 'fa fa-download mr-2']) .
+        $downloadbutton = new single_button(
+            local_downloadcenter_build_url([], ['action' => 'download']),
             get_string('downloadselection', 'local_downloadcenter'),
-            ['class' => 'btn btn-success']
+            'post',
+            single_button::BUTTON_SUCCESS
         );
+        $downloadbutton->class .= ' mr-2';
+        echo $OUTPUT->render($downloadbutton);
 
-        $clearurl = local_downloadcenter_build_url($catids, ['action' => 'clear']);
-        echo html_writer::link($clearurl,
-            html_writer::tag('i', '', ['class' => 'fa fa-times mr-2']) .
+        $clearbutton = new single_button(
+            local_downloadcenter_build_url($catids, ['action' => 'clear']),
             get_string('clearselection', 'local_downloadcenter'),
-            ['class' => 'btn btn-outline-danger']
+            'post',
+            single_button::BUTTON_DANGER
         );
+        echo $OUTPUT->render($clearbutton);
 
         echo html_writer::end_div();
         echo html_writer::end_div();
