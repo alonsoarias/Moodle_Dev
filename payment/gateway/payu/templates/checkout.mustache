@@ -1,0 +1,62 @@
+{{!
+    Template for PayU checkout form with multiple payment methods.
+}}
+<form method="post" action="{{url}}" id="payu-checkout">
+    <input type="hidden" name="sesskey" value="{{sesskey}}">
+    <input type="hidden" name="component" value="{{component}}">
+    <input type="hidden" name="paymentarea" value="{{paymentarea}}">
+    <input type="hidden" name="itemid" value="{{itemid}}">
+    <input type="hidden" name="description" value="{{description}}">
+
+    <div class="mb-3">
+        <label for="cardholder">{{# str }} cardholder, paygw_payu {{/ str }}</label>
+        <input type="text" class="form-control" name="cardholder" id="cardholder" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="paymentmethod">{{# str }} paymentmethod, paygw_payu {{/ str }}</label>
+        <select name="paymentmethod" id="paymentmethod" class="form-select">
+            <option value="creditcard">{{# str }} creditcard, paygw_payu {{/ str }}</option>
+            <option value="pse">{{# str }} pse, paygw_payu {{/ str }}</option>
+            <option value="nequi">{{# str }} nequi, paygw_payu {{/ str }}</option>
+            <option value="bancolombia">{{# str }} bancolombia, paygw_payu {{/ str }}</option>
+            <option value="googlepay">{{# str }} googlepay, paygw_payu {{/ str }}</option>
+            <option value="cash">{{# str }} cash, paygw_payu {{/ str }}</option>
+        </select>
+    </div>
+
+    <div class="payu-method-block" data-method="creditcard">
+        {{> paygw_payu/creditcard }}
+    </div>
+    <div class="payu-method-block" data-method="pse">
+        {{> paygw_payu/pse }}
+    </div>
+    <div class="payu-method-block" data-method="nequi">
+        {{> paygw_payu/nequi }}
+    </div>
+    <div class="payu-method-block" data-method="bancolombia">
+        {{> paygw_payu/bancolombia }}
+    </div>
+    <div class="payu-method-block" data-method="googlepay">
+        {{> paygw_payu/googlepay }}
+    </div>
+    <div class="payu-method-block" data-method="cash">
+        {{> paygw_payu/cash }}
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">{{# str }} submitpayment, paygw_payu {{/ str }}</button>
+    </div>
+</form>
+
+{{#js}}
+require(['jquery'], function($) {
+    function toggle() {
+        var method = $('#paymentmethod').val();
+        $('.payu-method-block').hide();
+        $('.payu-method-block[data-method="' + method + '"]').show();
+    }
+    $(document).on('change', '#paymentmethod', toggle);
+    toggle();
+});
+{{/js}}

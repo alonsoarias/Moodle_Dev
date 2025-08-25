@@ -1,0 +1,19 @@
+{{!
+    Cash payment options for PayU checkout.
+}}
+<div class="mb-3">
+    <label for="cashmethod">{{# str }} cashmethod, paygw_payu {{/ str }}</label>
+    <select name="cashmethod" id="cashmethod" class="form-select">
+        <option value="EFECTY">{{# str }} efecty, paygw_payu {{/ str }}</option>
+        <option value="OTHERS_CASH">{{# str }} otherscash, paygw_payu {{/ str }}</option>
+        <option value="BANK_REFERENCED">{{# str }} bankreferenced, paygw_payu {{/ str }}</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label for="phone">{{# str }} phone, paygw_payu {{/ str }}</label>
+    <input type="text" class="form-control" name="phone" id="phone" />
+</div>
+<div class="mb-3">
+    <label for="cashdocument">{{# str }} documentnumber, paygw_payu {{/ str }}</label>
+    <input type="text" class="form-control" name="documentnumber" id="cashdocument" />
+</div>
