@@ -4,7 +4,7 @@
  * @module     local_downloadcenter/category_tree
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+define(['jquery', 'core_form/changechecker'], function($, changechecker) {
     'use strict';
 
     function updateCategoryState($checkbox) {
@@ -45,13 +45,26 @@ define(['jquery'], function($) {
                         $current = $current.parents('.downloadcenter-category').first();
                     }
                 });
-                $cat.find('.course-checkbox').on('change', function() {
-                    var $current = $(this).closest('.downloadcenter-category');
+                $cat.find('.course-checkbox').each(function() {
+                    if ($(this).data('indeterminate')) {
+                        $(this).prop('indeterminate', true);
+                    }
+                }).on('change', function() {
+                    var $checkbox = $(this);
+                    var $current = $checkbox.closest('.downloadcenter-category');
                     while ($current.length) {
                         var $parentbox = $current.find('> .card-header input.downloadcenter-category-checkbox');
                         updateCategoryState($parentbox);
                         $current = $current.parents('.downloadcenter-category').first();
                     }
+                    $.post(M.cfg.wwwroot + '/local/downloadcenter/index.php', {
+                        action: 'togglecourse',
+                        courseid: $checkbox.data('courseid'),
+                        checked: $checkbox.is(':checked') ? 1 : 0,
+                        sesskey: M.cfg.sesskey
+                    }).done(function() {
+                        changechecker.resetFormDirtyState($checkbox.closest('form')[0]);
+                    });
                 });
             });
         }

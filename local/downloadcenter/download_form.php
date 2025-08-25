@@ -94,7 +94,8 @@ class local_downloadcenter_download_form extends moodleform {
         if ($empty) {
             $mform->addElement('html', html_writer::tag('h2', get_string('no_downloadable_content', 'local_downloadcenter')));
         }
-        $this->add_action_buttons(true, get_string('createzip', 'local_downloadcenter'));
+        // Save selection instead of creating the ZIP directly.
+        $this->add_action_buttons(true, get_string('saveselection', 'local_downloadcenter'));
 
     }
 }

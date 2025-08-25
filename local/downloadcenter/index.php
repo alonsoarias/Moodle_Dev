@@ -25,7 +25,6 @@
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 require_once(__DIR__ . '/download_form.php');
-require_once(__DIR__ . '/category_select_form.php');
 require_once(__DIR__ . '/course_select_form.php');
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -48,11 +47,52 @@ $search = optional_param('search', '', PARAM_RAW);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', 20, PARAM_INT);
 
+if (empty($catids)) {
+    $catids = array_map(function($cat) {
+        return $cat->id;
+    }, \core_course_category::top()->get_children());
+}
+
 require_login();
 $systemcontext = context_system::instance();
 require_capability('local/downloadcenter:view', $systemcontext);
 
 $selection = $SESSION->local_downloadcenter_selection ?? [];
+
+if ($action === 'togglecourse') {
+    require_sesskey();
+    $cid = required_param('courseid', PARAM_INT);
+    $checked = optional_param('checked', 0, PARAM_BOOL);
+    $sessionselection = $SESSION->local_downloadcenter_selection ?? [];
+    if ($checked) {
+        $sessionselection[$cid] = ['downloadall' => 1];
+    } else {
+        unset($sessionselection[$cid]);
+    }
+    $SESSION->local_downloadcenter_selection = $sessionselection;
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'ok']);
+    exit;
+}
+
+if ($action === 'savecourse' && $courseid) {
+    require_sesskey();
+    $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
+    if (!can_access_course($course)) {
+        throw new moodle_exception('noaccesstocourse', 'local_downloadcenter', '', $course->fullname);
+    }
+    $downloadcenter = new local_downloadcenter_factory($course, $USER);
+    $userresources = $downloadcenter->get_resources_for_user();
+    $downloadform = new local_downloadcenter_download_form(null, ['res' => $userresources]);
+    $data = data_submitted() ?? new stdClass();
+    unset($data->action, $data->sesskey);
+    $downloadcenter->parse_form_data($data);
+    $selection[$courseid] = (array)$data;
+    $SESSION->local_downloadcenter_selection = $selection;
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'ok']);
+    exit;
+}
 
 // Manejo de acciones
 if ($action === 'clear') {
@@ -148,46 +188,6 @@ if ($action === 'download') {
                 null, 
                 \core\output\notification::NOTIFY_ERROR);
     }
-}
-
-// Configurar página principal
-if (empty($catids) && empty($courseid)) {
-    $PAGE->set_title(get_string('navigationlink', 'local_downloadcenter'));
-    $PAGE->set_heading($SITE->fullname);
-    $PAGE->navbar->add(get_string('administrationsite'), new moodle_url('/admin/search.php'));
-    $PAGE->navbar->add(get_string('courses'), new moodle_url('/course/management.php'));
-    $PAGE->navbar->add(get_string('navigationlink', 'local_downloadcenter'));
-
-    $catform = new local_downloadcenter_category_select_form();
-
-    if ($data = $catform->get_data()) {
-        redirect(local_downloadcenter_build_url($data->catids));
-    }
-
-    echo $OUTPUT->header();
-    
-    // Mostrar barra de acciones similar a management.php
-    echo html_writer::start_div('downloadcenter-header mb-3');
-    echo $OUTPUT->heading(get_string('navigationlink', 'local_downloadcenter'), 2);
-    
-    // Información de ayuda
-    echo $OUTPUT->notification(
-        get_string('downloadcenter_help', 'local_downloadcenter'),
-        \core\output\notification::NOTIFY_INFO
-    );
-    echo html_writer::end_div();
-    
-    // Mostrar errores si existen
-    if (!empty($SESSION->local_downloadcenter_errors)) {
-        foreach ($SESSION->local_downloadcenter_errors as $error) {
-            echo $OUTPUT->notification($error, \core\output\notification::NOTIFY_ERROR);
-        }
-        unset($SESSION->local_downloadcenter_errors);
-    }
-    
-    $catform->display();
-    echo $OUTPUT->footer();
-    exit;
 }
 
 // Manejo de vista por curso específico
@@ -428,6 +428,14 @@ if (!empty($catids)) {
 
     echo html_writer::end_div();
     echo html_writer::end_div();
+
+    // Mostrar errores si existen.
+    if (!empty($SESSION->local_downloadcenter_errors)) {
+        foreach ($SESSION->local_downloadcenter_errors as $error) {
+            echo $OUTPUT->notification($error, \core\output\notification::NOTIFY_ERROR);
+        }
+        unset($SESSION->local_downloadcenter_errors);
+    }
 
     // Mostrar categorías seleccionadas en forma colapsable
     foreach ($catids as $cid) {
