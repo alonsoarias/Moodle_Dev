@@ -4,7 +4,7 @@
  * @module     local_downloadcenter/section_tree
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
- define(['jquery'], function($) {
+ define(['jquery', 'core_form/changechecker'], function($, changechecker) {
      'use strict';
  
      function updateSectionState(section) {
@@ -21,6 +21,14 @@
  
      return {
          init: function() {
+             var $form = $('form');
+             function saveForm() {
+                 var data = $form.serializeArray();
+                 data.push({name: 'action', value: 'savecourse'});
+                 $.post(M.cfg.wwwroot + '/local/downloadcenter/index.php', $.param(data))
+                     .done(function() { changechecker.resetFormDirtyState($form[0]); });
+             }
+
              $('input.section-checkbox').each(function() {
                  var section = $(this).data('section');
                  if ($(this).data('indeterminate')) {
@@ -32,11 +40,13 @@
                          checked: checked
                      }).trigger('change');
                      $(this).prop('indeterminate', false);
+                     saveForm();
                  });
              });
              $('input.item-checkbox').on('change', function() {
                  updateSectionState($(this).data('section'));
+                 saveForm();
              });
-         }
-     };
- });
+        }
+    };
+});

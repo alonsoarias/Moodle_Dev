@@ -40,13 +40,18 @@ class local_downloadcenter_course_select_form extends moodleform {
                 $label .= ' (' . get_string('selected', 'local_downloadcenter') . ')';
             }
             $checkboxname = 'courses[' . $course->id . ']';
-            $mform->addElement('advcheckbox', $checkboxname, '', $label, [
+            $attrs = [
                 'group' => 1,
-                'class' => 'course-checkbox'
-            ]);
+                'class' => 'course-checkbox',
+                'data-courseid' => $course->id
+            ];
+            $mform->addElement('advcheckbox', $checkboxname, '', $label, $attrs);
             $mform->setType($checkboxname, PARAM_BOOL);
             if (isset($selection[$course->id])) {
                 $mform->setDefault($checkboxname, 1);
+                if (empty($selection[$course->id]['downloadall'])) {
+                    $mform->updateElementAttr($checkboxname, ['data-indeterminate' => 1]);
+                }
             }
         }
         if (!empty($courses)) {
