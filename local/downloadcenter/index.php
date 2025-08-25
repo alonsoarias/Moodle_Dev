@@ -31,10 +31,13 @@ require_once($CFG->libdir . '/adminlib.php');
 core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 
-$catids = optional_param_array('catids', null, PARAM_INT);
-if ($catids === null) {
-    $catidsparam = optional_param('catids', '', PARAM_SEQUENCE);
-    $catids = $catidsparam === '' ? [] : array_map('intval', explode(',', $catidsparam));
+$rawcatids = optional_param('catids', null, PARAM_RAW);
+if (is_array($rawcatids)) {
+    $catids = array_map('intval', $rawcatids);
+} else if ($rawcatids === null || $rawcatids === '') {
+    $catids = [];
+} else {
+    $catids = array_map('intval', explode(',', $rawcatids));
 }
 $catid = optional_param('catid', 0, PARAM_INT);
 if ($catid && empty($catids)) {
@@ -55,6 +58,8 @@ if (empty($catids)) {
 
 require_login();
 $systemcontext = context_system::instance();
+$PAGE->set_context($systemcontext);
+$PAGE->set_url(new moodle_url('/local/downloadcenter/index.php'));
 require_capability('local/downloadcenter:view', $systemcontext);
 
 // Load current selection either from session or persistent user preference.
@@ -483,20 +488,28 @@ if (!empty($catids)) {
         // Botones de acción.
         echo html_writer::start_div('btn-group');
 
+        $downloadbuttontype = defined('single_button::BUTTON_SUCCESS')
+            ? single_button::BUTTON_SUCCESS
+            : (defined('single_button::BUTTON_PRIMARY') ? single_button::BUTTON_PRIMARY : true);
+
         $downloadbutton = new single_button(
             local_downloadcenter_build_url([], ['action' => 'download']),
             get_string('downloadselection', 'local_downloadcenter'),
             'post',
-            single_button::BUTTON_SUCCESS
+            $downloadbuttontype
         );
         $downloadbutton->class .= ' mr-2';
         echo $OUTPUT->render($downloadbutton);
+
+        $clearbuttontype = defined('single_button::BUTTON_DANGER')
+            ? single_button::BUTTON_DANGER
+            : (defined('single_button::BUTTON_SECONDARY') ? single_button::BUTTON_SECONDARY : false);
 
         $clearbutton = new single_button(
             local_downloadcenter_build_url($catids, ['action' => 'clear']),
             get_string('clearselection', 'local_downloadcenter'),
             'post',
-            single_button::BUTTON_DANGER
+            $clearbuttontype
         );
         echo $OUTPUT->render($clearbutton);
 
