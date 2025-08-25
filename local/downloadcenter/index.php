@@ -31,8 +31,10 @@ require_once($CFG->libdir . '/adminlib.php');
 core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 
-$catids = optional_param_array('catids', null, PARAM_INT);
-if ($catids === null) {
+$catids = [];
+if (param_exists('catids') && is_array($_REQUEST['catids'])) {
+    $catids = optional_param_array('catids', [], PARAM_INT);
+} else {
     $catidsparam = optional_param('catids', '', PARAM_SEQUENCE);
     $catids = $catidsparam === '' ? [] : array_map('intval', explode(',', $catidsparam));
 }
@@ -391,6 +393,7 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
 
 // Vista de categorías seleccionadas
 if (!empty($catids)) {
+    $PAGE->set_context($systemcontext);
     $PAGE->set_url(local_downloadcenter_build_url($catids));
     $PAGE->set_title(get_string('navigationlink', 'local_downloadcenter'));
     $PAGE->set_heading($SITE->fullname);
@@ -483,6 +486,7 @@ if (!empty($catids)) {
         // Botones de acción.
         echo html_writer::start_div('btn-group');
 
+        class_exists('single_button');
         $downloadbuttontype = defined('single_button::BUTTON_SUCCESS')
             ? single_button::BUTTON_SUCCESS
             : single_button::BUTTON_PRIMARY;
