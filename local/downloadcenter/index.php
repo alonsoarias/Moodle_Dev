@@ -483,11 +483,15 @@ if (!empty($catids)) {
         // Botones de acción.
         echo html_writer::start_div('btn-group');
 
+        $downloadbuttontype = defined('single_button::BUTTON_SUCCESS')
+            ? single_button::BUTTON_SUCCESS
+            : single_button::BUTTON_PRIMARY;
+
         $downloadbutton = new single_button(
             local_downloadcenter_build_url([], ['action' => 'download']),
             get_string('downloadselection', 'local_downloadcenter'),
             'post',
-            single_button::BUTTON_SUCCESS
+            $downloadbuttontype
         );
         $downloadbutton->class .= ' mr-2';
         echo $OUTPUT->render($downloadbutton);
