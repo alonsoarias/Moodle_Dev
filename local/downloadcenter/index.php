@@ -32,7 +32,7 @@ core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 
 $catids = [];
-if (param_exists('catids') && is_array($_REQUEST['catids'])) {
+if (array_key_exists('catids', $_REQUEST) && is_array($_REQUEST['catids'])) {
     $catids = optional_param_array('catids', [], PARAM_INT);
 } else {
     $catidsparam = optional_param('catids', '', PARAM_SEQUENCE);
