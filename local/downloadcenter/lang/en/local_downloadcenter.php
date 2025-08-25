@@ -41,7 +41,6 @@ $string['includeassignments_desc'] = 'Include assignment descriptions and intro 
 
 // Interface strings
 $string['warningmessage'] = 'Here you can download single or all available contents of this course in a ZIP archive.';
-$string['createzip'] = 'Create ZIP archive';
 $string['saveselection'] = 'Save selection';
 $string['zipready'] = 'The ZIP archive has been successfully created.';
 $string['download'] = 'Download';

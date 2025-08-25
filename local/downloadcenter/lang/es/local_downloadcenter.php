@@ -41,7 +41,6 @@ $string['includeassignments_desc'] = 'Incluye las descripciones de las tareas y 
 
 // Interface strings
 $string['warningmessage'] = 'Aquí puede descargar en un archivo ZIP uno o todos los contenidos disponibles de este curso.';
-$string['createzip'] = 'Crear archivo ZIP';
 $string['saveselection'] = 'Guardar selección';
 $string['zipready'] = 'El archivo ZIP se creó correctamente.';
 $string['download'] = 'Descargar';

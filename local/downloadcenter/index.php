@@ -57,7 +57,16 @@ require_login();
 $systemcontext = context_system::instance();
 require_capability('local/downloadcenter:view', $systemcontext);
 
-$selection = $SESSION->local_downloadcenter_selection ?? [];
+// Load current selection either from session or persistent user preference.
+$selection = $SESSION->local_downloadcenter_selection ?? null;
+if ($selection === null) {
+    $pref = get_user_preferences('local_downloadcenter_selection', '');
+    $selection = $pref === '' ? [] : json_decode($pref, true);
+    if (!is_array($selection)) {
+        $selection = [];
+    }
+    $SESSION->local_downloadcenter_selection = $selection;
+}
 
 if ($action === 'togglecourse') {
     require_sesskey();
@@ -70,6 +79,7 @@ if ($action === 'togglecourse') {
         unset($sessionselection[$cid]);
     }
     $SESSION->local_downloadcenter_selection = $sessionselection;
+    set_user_preference('local_downloadcenter_selection', json_encode($sessionselection));
     header('Content-Type: application/json');
     echo json_encode(['status' => 'ok']);
     exit;
@@ -89,6 +99,7 @@ if ($action === 'savecourse' && $courseid) {
     $downloadcenter->parse_form_data($data);
     $selection[$courseid] = (array)$data;
     $SESSION->local_downloadcenter_selection = $selection;
+    set_user_preference('local_downloadcenter_selection', json_encode($selection));
     header('Content-Type: application/json');
     echo json_encode(['status' => 'ok']);
     exit;
@@ -98,6 +109,7 @@ if ($action === 'savecourse' && $courseid) {
 if ($action === 'clear') {
     require_sesskey();
     unset($SESSION->local_downloadcenter_selection);
+    unset_user_preference('local_downloadcenter_selection');
     redirect(local_downloadcenter_build_url($catids));
 }
 
@@ -138,6 +150,7 @@ if ($action === 'download') {
 
     // Limpiar selección y cerrar sesión
     unset($SESSION->local_downloadcenter_selection);
+    unset_user_preference('local_downloadcenter_selection');
     \core\session\manager::write_close();
 
     // Generar archivo ZIP
@@ -234,7 +247,8 @@ if ($courseid) {
         $downloadcenter->parse_form_data($data);
         $selection[$courseid] = (array)$data;
         $SESSION->local_downloadcenter_selection = $selection;
-        
+        set_user_preference('local_downloadcenter_selection', json_encode($selection));
+
         // Registrar evento de visualización
         $event = \local_downloadcenter\event\plugin_viewed::create([
             'objectid' => $course->id,
@@ -323,6 +337,7 @@ function local_downloadcenter_render_category_tree(\core_course_category $catego
                 }
             }
             $SESSION->local_downloadcenter_selection = $sessionselection;
+            set_user_preference('local_downloadcenter_selection', json_encode($sessionselection));
             redirect(local_downloadcenter_build_url($catids));
         }
     }
