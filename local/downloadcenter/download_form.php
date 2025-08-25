@@ -36,13 +36,16 @@ class local_downloadcenter_download_form extends moodleform {
      * @throws coding_exception
      */
     public function definition() {
-        global $COURSE;
+        global $COURSE, $PAGE;
         $mform = $this->_form;
 
-        $resources = $this->_customdata['res'];
+        $resources = $this->_customdata['res'] ?? [];
         $selection = $this->_customdata['selection'] ?? [];
 
-        $mform->addElement('hidden', 'courseid', $COURSE->id);
+        // Get courseid from URL if not in global COURSE
+        $courseid = optional_param('courseid', $COURSE->id, PARAM_INT);
+        
+        $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
 
         $mform->addElement('html',
@@ -55,6 +58,9 @@ class local_downloadcenter_download_form extends moodleform {
 
         $empty = true;
         $excludeempty = get_config('local_downloadcenter', 'exclude_empty_topics');
+        $totalItemsAvailable = 0;
+        $totalItemsSelected = 0;
+        
         foreach ($resources as $sectionid => $sectioninfo) {
             if ($excludeempty && empty($sectioninfo->res)) { // Only display the sections that are not empty.
                 continue;
@@ -64,38 +70,101 @@ class local_downloadcenter_download_form extends moodleform {
             $sectionname = 'item_topic_' . $sectionid;
             $mform->addElement('html', html_writer::start_tag('div', array('class' => 'card block mb-3')));
             $sectiontitle = html_writer::span($sectioninfo->title, 'sectiontitle');
+            
+            // Count items in section
             $totalitems = count($sectioninfo->res);
             $selecteditems = 0;
+            
+            // Check which items are selected
             foreach ($sectioninfo->res as $res) {
+                $totalItemsAvailable++;
                 $name = 'item_' . $res->modname . '_' . $res->instanceid;
-                if (isset($selection[$name])) {
+                if (isset($selection[$name]) && $selection[$name]) {
                     $selecteditems++;
+                    $totalItemsSelected++;
                 }
             }
+            
+            // Section checkbox attributes
             $sectionattrs = array('class' => 'section-checkbox', 'data-section' => $sectionid);
-            if ($selecteditems > 0) {
+            
+            // Set section state based on item selection
+            if ($selecteditems === 0) {
+                // No items selected - section unchecked
+                $mform->setDefault($sectionname, 0);
+            } else if ($selecteditems === $totalitems) {
+                // All items selected - section checked
                 $mform->setDefault($sectionname, 1);
-                if ($selecteditems < $totalitems) {
-                    $sectionattrs['data-indeterminate'] = 1;
+            } else {
+                // Some items selected - section indeterminate
+                $mform->setDefault($sectionname, 1);
+                $sectionattrs['data-indeterminate'] = 1;
+            }
+            
+            // Also check if section itself was selected
+            if (isset($selection[$sectionname]) && $selection[$sectionname]) {
+                $mform->setDefault($sectionname, 1);
+                // If section was fully selected, select all items
+                if ($selecteditems === 0) {
+                    $selecteditems = $totalitems;
                 }
             }
+            
+            // Add section checkbox
             $mform->addElement('checkbox', $sectionname, $sectiontitle, '', $sectionattrs);
+            
+            // Add item checkboxes
             foreach ($sectioninfo->res as $res) {
                 $name = 'item_' . $res->modname . '_' . $res->instanceid;
                 $title = html_writer::span($res->name) . ' ' . $res->icon;
                 $title = html_writer::tag('span', $title, array('class' => 'itemtitle'));
                 $itemattrs = array('class' => 'item-checkbox', 'data-section' => $sectionid);
                 $mform->addElement('checkbox', $name, $title, '', $itemattrs);
-                $mform->setDefault($name, isset($selection[$name]));
+                
+                // Set default value based on selection
+                if (isset($selection[$name]) && $selection[$name]) {
+                    $mform->setDefault($name, 1);
+                } else if (isset($selection[$sectionname]) && $selection[$sectionname] && 
+                          (!isset($sectionattrs['data-indeterminate']) || !$sectionattrs['data-indeterminate'])) {
+                    // If section is fully selected, select this item too
+                    $mform->setDefault($name, 1);
+                }
             }
             $mform->addElement('html', html_writer::end_tag('div'));
         }
 
         if ($empty) {
             $mform->addElement('html', html_writer::tag('h2', get_string('no_downloadable_content', 'local_downloadcenter')));
+        } else {
+            // Show selection summary
+            if ($totalItemsSelected > 0) {
+                $summaryText = "$totalItemsSelected of $totalItemsAvailable items currently selected";
+                $mform->addElement('html', 
+                    html_writer::tag('div', $summaryText, 
+                                   array('class' => 'alert alert-success mb-3', 'id' => 'selection-summary'))
+                );
+            }
         }
-        // Save selection instead of creating the ZIP directly.
-        $this->add_action_buttons(true, get_string('saveselection', 'local_downloadcenter'));
-
+        
+        // Submit button - change label based on context
+        $buttonLabel = get_string('saveselection', 'local_downloadcenter');
+        if ($totalItemsSelected > 0) {
+            $buttonLabel = get_string('saveselection', 'local_downloadcenter') . " ($totalItemsSelected items)";
+        }
+        $this->add_action_buttons(true, $buttonLabel);
+    }
+    
+    /**
+     * Custom validation
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        
+        // No specific validation needed
+        
+        return $errors;
     }
 }
