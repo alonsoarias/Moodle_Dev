@@ -1,0 +1,36 @@
+{{!
+    Credit card fields for PayU checkout.
+}}
+<div class="mb-3">
+    <label for="ccnumber">{{# str }} cardnumber, paygw_payu {{/ str }}</label>
+    <input type="text" class="form-control" name="ccnumber" id="ccnumber" />
+</div>
+<div class="mb-3">
+    <label for="ccexpmonth">{{# str }} expmonth, paygw_payu {{/ str }}</label>
+    <input type="text" class="form-control" name="ccexpmonth" id="ccexpmonth" />
+</div>
+<div class="mb-3">
+    <label for="ccexpyear">{{# str }} expyear, paygw_payu {{/ str }}</label>
+    <input type="text" class="form-control" name="ccexpyear" id="ccexpyear" />
+</div>
+<div class="mb-3">
+    <label for="cvv">{{# str }} cvv, paygw_payu {{/ str }}</label>
+    <input type="password" class="form-control" name="cvv" id="cvv" />
+</div>
+<div class="mb-3">
+    <label for="cardnetwork">{{# str }} cardnetwork, paygw_payu {{/ str }}</label>
+    <select class="form-select" name="cardnetwork" id="cardnetwork">
+        <option value="VISA">Visa</option>
+        <option value="MASTERCARD">Mastercard</option>
+        <option value="AMEX">AMEX</option>
+        <option value="DINERS">Diners</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label for="ccphone">{{# str }} phone, paygw_payu {{/ str }}</label>
+    <input type="text" class="form-control" name="phone" id="ccphone" />
+</div>
+<div class="mb-3">
+    <label for="ccdocumentnumber">{{# str }} documentnumber, paygw_payu {{/ str }}</label>
+    <input type="text" class="form-control" name="documentnumber" id="ccdocumentnumber" />
+</div>
