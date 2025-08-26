@@ -15,18 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Cache definitions for PayU payment gateway.
  *
- * @package     paygw_payu
- * @copyright   2024 Orion Cloud Consulting SAS
- * @author      Alonso Arias <soporte@orioncloud.com.co>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    paygw_payu
+ * @copyright  2024 Orion Cloud Consulting SAS
+ * @author     Alonso Arias <soporte@orioncloud.com.co>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'paygw_payu';
-$plugin->version   = 2024121800;
-$plugin->requires  = 2023100900; // Requires Moodle 4.3+
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+$definitions = [
+    'psebanks' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'ttl' => 86400, // 24 hours.
+        'invalidationevents' => ['payu_banks_updated'],
+    ],
+    'paymentmethods' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'ttl' => 86400, // 24 hours.
+    ],
+];
