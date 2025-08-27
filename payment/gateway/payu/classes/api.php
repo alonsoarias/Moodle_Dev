@@ -159,7 +159,7 @@ class api {
             'test' => !empty($this->config->testmode),
             'transaction' => [
                 'order' => [
-                    'accountId' => $this->config->accountid,
+                    'accountId' => $this->config->payuaccountid,
                     'referenceCode' => (string)$paymentid,
                     'description' => substr($data->description ?? '', 0, 255),
                     'language' => 'es',
