@@ -59,10 +59,10 @@ class gateway extends \core_payment\gateway {
         $mform->addHelpButton('merchantid', 'merchantid', 'paygw_payu');
 
         // Account ID field.
-        $mform->addElement('text', 'accountid', get_string('accountid', 'paygw_payu'));
-        $mform->setType('accountid', PARAM_TEXT);
-        $mform->addRule('accountid', get_string('required'), 'required', null, 'client');
-        $mform->addHelpButton('accountid', 'accountid', 'paygw_payu');
+        $mform->addElement('text', 'payuaccountid', get_string('accountid', 'paygw_payu'));
+        $mform->setType('payuaccountid', PARAM_TEXT);
+        $mform->addRule('payuaccountid', get_string('required'), 'required', null, 'client');
+        $mform->addHelpButton('payuaccountid', 'accountid', 'paygw_payu');
 
         // API Login field.
         $mform->addElement('text', 'apilogin', get_string('apilogin', 'paygw_payu'));
@@ -132,8 +132,8 @@ class gateway extends \core_payment\gateway {
      * @param array $errors
      */
     public static function validate_gateway_form(account_gateway $form, \stdClass $data, array $files, array &$errors): void {
-        if ($data->enabled && 
-            (empty($data->merchantid) || empty($data->accountid) || 
+        if ($data->enabled &&
+            (empty($data->merchantid) || empty($data->payuaccountid) ||
              empty($data->apilogin) || empty($data->apikey))) {
             $errors['enabled'] = get_string('gatewaycannotbeenabled', 'payment');
         }
@@ -144,8 +144,8 @@ class gateway extends \core_payment\gateway {
         }
 
         // Validate account ID format (numeric).
-        if (!empty($data->accountid) && !is_numeric($data->accountid)) {
-            $errors['accountid'] = get_string('accountidinvalid', 'paygw_payu');
+        if (!empty($data->payuaccountid) && !is_numeric($data->payuaccountid)) {
+            $errors['payuaccountid'] = get_string('accountidinvalid', 'paygw_payu');
         }
 
         // Check that at least one payment method is enabled.

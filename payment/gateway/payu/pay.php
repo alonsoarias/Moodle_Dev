@@ -46,7 +46,7 @@ $description = clean_param($description, PARAM_TEXT);
 $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
 
 // Check if gateway is configured.
-if (empty($config->merchantid) || empty($config->accountid) || 
+if (empty($config->merchantid) || empty($config->payuaccountid) ||
     empty($config->apilogin) || empty($config->apikey)) {
     throw new moodle_exception('gatewaynotconfigured', 'paygw_payu');
 }
