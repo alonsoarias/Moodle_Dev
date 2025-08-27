@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Plugin version and other meta-data.
  *
- * @package     paygw_payu
- * @copyright   2024 Orion Cloud Consulting SAS
- * @author      Alonso Arias <soporte@orioncloud.com.co>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    paygw_payu
+ * @copyright  2024 Orion Cloud Consulting SAS
+ * @author     Alonso Arias <soporte@orioncloud.com.co>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'paygw_payu';
-$plugin->version   = 2024121900;
-$plugin->requires  = 2022112800; // Requires Moodle 4.1+.
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.0';
+$plugin->release = '2.0.0';
+$plugin->version = 2025010100;
+$plugin->requires = 2023100900; // Moodle 4.1+
+$plugin->maturity = MATURITY_STABLE;

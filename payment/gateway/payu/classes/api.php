@@ -49,6 +49,12 @@ class api {
     /** @var string Reports API endpoint for production */
     const REPORTS_PRODUCTION = 'https://api.payulatam.com/reports-api/4.0/service.cgi';
     
+    /** @var string Airlines API endpoint for sandbox */
+    const AIRLINES_SANDBOX = 'https://sandbox.api.payulatam.com/payments-api/rest/v4.3/payments/airline';
+    
+    /** @var string Airlines API endpoint for production */
+    const AIRLINES_PRODUCTION = 'https://api.payulatam.com/payments-api/rest/v4.3/payments/airline';
+    
     /** @var \stdClass Gateway configuration */
     protected $config;
     
@@ -57,6 +63,9 @@ class api {
     
     /** @var string Reports endpoint based on test mode */
     protected $reportsendpoint;
+    
+    /** @var string Airlines endpoint based on test mode */
+    protected $airlinesendpoint;
     
     /**
      * Constructor.
@@ -67,6 +76,7 @@ class api {
         $this->config = $config;
         $this->endpoint = !empty($config->testmode) ? self::ENDPOINT_SANDBOX : self::ENDPOINT_PRODUCTION;
         $this->reportsendpoint = !empty($config->testmode) ? self::REPORTS_SANDBOX : self::REPORTS_PRODUCTION;
+        $this->airlinesendpoint = !empty($config->testmode) ? self::AIRLINES_SANDBOX : self::AIRLINES_PRODUCTION;
     }
 
     /**
@@ -201,34 +211,17 @@ class api {
                         ],
                     ],
                     'buyer' => $buyer,
-                    'shippingAddress' => $this->build_address($data),
+                    'shippingAddress' => $buyer['shippingAddress'] ?? null,
                 ],
+                'payer' => $payer,
                 'type' => 'AUTHORIZATION_AND_CAPTURE',
                 'paymentCountry' => 'CO',
                 'ipAddress' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
-                'deviceSessionId' => $this->get_device_session_id(),
                 'cookie' => session_id(),
-                'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
-                'payer' => $payer,
+                'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Moodle PayU Gateway',
+                'deviceSessionId' => $this->generate_device_session_id(),
             ],
         ];
-        
-        // Add IVA if applicable.
-        if (!empty($data->includeiva)) {
-            $ivarate = 0.19; // 19% IVA in Colombia.
-            $basevalue = $amount / (1 + $ivarate);
-            $ivavalue = $amount - $basevalue;
-            
-            $request['transaction']['order']['additionalValues']['TX_TAX'] = [
-                'value' => round($ivavalue, 2),
-                'currency' => $currency,
-            ];
-            
-            $request['transaction']['order']['additionalValues']['TX_TAX_RETURN_BASE'] = [
-                'value' => round($basevalue, 2),
-                'currency' => $currency,
-            ];
-        }
         
         // Add payment method specific data.
         $request = $this->add_payment_method_data($request, $data);
@@ -241,17 +234,17 @@ class api {
                 $response->error ?? 'Transaction failed');
         }
         
-        return $response->transactionResponse;
+        return $response->transactionResponse ?? $response;
     }
 
     /**
-     * Query transaction status.
+     * Query transaction details by reference code.
      *
-     * @param string $transactionid Transaction ID
+     * @param string $referencecode Reference code
      * @return \stdClass Transaction details
      * @throws \moodle_exception
      */
-    public function query_transaction(string $transactionid): \stdClass {
+    public function query_transaction(string $referencecode): \stdClass {
         $request = [
             'language' => 'es',
             'command' => 'ORDER_DETAIL_BY_REFERENCE_CODE',
@@ -261,7 +254,7 @@ class api {
             ],
             'test' => !empty($this->config->testmode),
             'details' => [
-                'referenceCode' => $transactionid,
+                'referenceCode' => $referencecode,
             ],
         ];
         
@@ -272,18 +265,19 @@ class api {
                 $response->error ?? 'Query failed');
         }
         
-        return $response->result;
+        return $response->result ?? $response;
     }
 
     /**
-     * Process refund.
+     * Process refund for a transaction.
      *
-     * @param string $orderid Order ID
+     * @param string $transactionid Original transaction ID
+     * @param float $amount Amount to refund (null for full refund)
      * @param string $reason Refund reason
      * @return \stdClass Refund response
      * @throws \moodle_exception
      */
-    public function process_refund(string $orderid, string $reason = ''): \stdClass {
+    public function refund(string $transactionid, ?float $amount = null, string $reason = ''): \stdClass {
         $request = [
             'language' => 'es',
             'command' => 'SUBMIT_TRANSACTION',
@@ -294,13 +288,23 @@ class api {
             'test' => !empty($this->config->testmode),
             'transaction' => [
                 'order' => [
-                    'id' => $orderid,
+                    'id' => $transactionid,
                 ],
                 'type' => 'REFUND',
                 'reason' => $reason ?: 'Refund requested',
                 'paymentCountry' => 'CO',
             ],
         ];
+        
+        // Add partial refund amount if specified.
+        if ($amount !== null) {
+            $request['transaction']['additionalValues'] = [
+                'TX_VALUE' => [
+                    'value' => $amount,
+                    'currency' => 'COP',
+                ],
+            ];
+        }
         
         $response = $this->send_request($request);
         
@@ -310,6 +314,122 @@ class api {
         }
         
         return $response->transactionResponse;
+    }
+
+    /**
+     * Void/cancel a pending transaction.
+     *
+     * @param string $transactionid Transaction ID to void
+     * @param string $reason Void reason
+     * @return \stdClass Void response
+     * @throws \moodle_exception
+     */
+    public function void_transaction(string $transactionid, string $reason = ''): \stdClass {
+        $request = [
+            'language' => 'es',
+            'command' => 'SUBMIT_TRANSACTION',
+            'merchant' => [
+                'apiLogin' => $this->config->apilogin,
+                'apiKey' => $this->config->apikey,
+            ],
+            'test' => !empty($this->config->testmode),
+            'transaction' => [
+                'order' => [
+                    'id' => $transactionid,
+                ],
+                'type' => 'VOID',
+                'reason' => $reason ?: 'Transaction cancelled',
+                'paymentCountry' => 'CO',
+            ],
+        ];
+        
+        $response = $this->send_request($request);
+        
+        if ($response->code !== 'SUCCESS') {
+            throw new \moodle_exception('errorvoid', 'paygw_payu', '', 
+                $response->error ?? 'Void failed');
+        }
+        
+        return $response->transactionResponse;
+    }
+
+    /**
+     * Create payment token for card.
+     *
+     * @param \stdClass $carddata Card information
+     * @return \stdClass Token response
+     * @throws \moodle_exception
+     */
+    public function create_token(\stdClass $carddata): \stdClass {
+        global $USER;
+        
+        $request = [
+            'language' => 'es',
+            'command' => 'CREATE_TOKEN',
+            'merchant' => [
+                'apiLogin' => $this->config->apilogin,
+                'apiKey' => $this->config->apikey,
+            ],
+            'creditCardToken' => [
+                'payerId' => $USER->id,
+                'name' => $carddata->cardholder ?? fullname($USER),
+                'identificationNumber' => $carddata->documentnumber ?? '',
+                'paymentMethod' => strtoupper($carddata->cardnetwork ?? 'VISA'),
+                'number' => preg_replace('/\s+/', '', $carddata->cardnumber ?? ''),
+                'expirationDate' => sprintf('%s/%s', 
+                    $carddata->expyear ?? date('Y'), 
+                    $carddata->expmonth ?? '12'),
+            ],
+        ];
+        
+        $response = $this->send_request($request);
+        
+        if ($response->code !== 'SUCCESS') {
+            throw new \moodle_exception('errorcreatetoken', 'paygw_payu', '', 
+                $response->error ?? 'Token creation failed');
+        }
+        
+        return $response->creditCardToken;
+    }
+
+    /**
+     * Get airlines list for Colombia.
+     *
+     * @return array List of airlines
+     * @throws \moodle_exception
+     */
+    public function get_airlines(): array {
+        // Build authentication header.
+        $authstring = base64_encode($this->config->apilogin . ':' . $this->config->apikey);
+        
+        $options = [
+            'CURLOPT_RETURNTRANSFER' => true,
+            'CURLOPT_HTTPHEADER' => [
+                'Authorization: Basic ' . $authstring,
+                'Accept: application/json',
+            ],
+        ];
+        
+        $url = $this->airlinesendpoint . '?accountId=' . $this->config->payuaccountid;
+        
+        $curl = new \curl();
+        $response = $curl->get($url, [], $options);
+        
+        $result = json_decode($response);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \moodle_exception('errorgetairlines', 'paygw_payu', '', 
+                'Invalid response from airlines API');
+        }
+        
+        $airlines = [];
+        if (!empty($result->airlines)) {
+            foreach ($result->airlines as $airline) {
+                $airlines[$airline->code] = $airline->description;
+            }
+        }
+        
+        return $airlines;
     }
 
     /**
@@ -423,7 +543,7 @@ class api {
                 break;
                 
             case 'bancolombia':
-                $request['transaction']['paymentMethod'] = 'BANCOLOMBIA';
+                $request['transaction']['paymentMethod'] = 'BANCOLOMBIA_TRANSFER';
                 $request['transaction']['extraParameters'] = [
                     'BANCOLOMBIA_TRANSFER_TYPE' => 'A', // A=Authorization
                 ];
@@ -445,9 +565,29 @@ class api {
                 $request['transaction']['type'] = 'AUTHORIZATION';
                 $request['transaction']['expirationDate'] = date('c', strtotime('+7 days'));
                 break;
+                
+            case 'baloto':
+                $request['transaction']['paymentMethod'] = 'BALOTO';
+                $request['transaction']['type'] = 'AUTHORIZATION';
+                $request['transaction']['expirationDate'] = date('c', strtotime('+7 days'));
+                break;
+                
+            case 'bank_referenced':
+                $request['transaction']['paymentMethod'] = 'BANK_REFERENCED';
+                $request['transaction']['type'] = 'AUTHORIZATION';
+                break;
         }
         
         return $request;
+    }
+
+    /**
+     * Generate device session ID for fraud prevention.
+     *
+     * @return string Device session ID
+     */
+    protected function generate_device_session_id(): string {
+        return md5(session_id() . microtime());
     }
 
     /**
@@ -490,128 +630,68 @@ class api {
     /**
      * Build address structure.
      *
-     * @param \stdClass $data Payment data
+     * @param \stdClass $data Form data
      * @return array Address structure
      */
     protected function build_address(\stdClass $data): array {
         return [
-            'street1' => $data->address1 ?? 'N/A',
+            'street1' => $data->address ?? 'N/A',
             'street2' => $data->address2 ?? '',
             'city' => $data->city ?? 'Bogotá',
             'state' => $data->state ?? 'Bogotá D.C.',
             'country' => 'CO',
-            'postalCode' => $data->postalcode ?? '000000',
+            'postalCode' => $data->postalcode ?? '111111',
             'phone' => $this->validate_phone($data->phone ?? ''),
         ];
     }
 
     /**
+     * Generate signature for transaction.
+     *
+     * @param int $referencecode Reference code
+     * @param float $amount Amount
+     * @param string $currency Currency
+     * @return string MD5 signature
+     */
+    protected function generate_signature(int $referencecode, float $amount, string $currency): string {
+        $amount = number_format($amount, 2, '.', '');
+        return md5($this->config->apikey . '~' . $this->config->merchantid . '~' . 
+                  $referencecode . '~' . $amount . '~' . $currency);
+    }
+
+    /**
      * Send request to PayU API.
      *
-     * @param array $data Request data
-     * @param string|null $endpoint Optional endpoint override
+     * @param array $request Request data
+     * @param string|null $endpoint Custom endpoint
      * @return \stdClass Response object
      * @throws \moodle_exception
      */
-    protected function send_request(array $data, string $endpoint = null): \stdClass {
-        $endpoint = $endpoint ?: $this->endpoint;
+    protected function send_request(array $request, ?string $endpoint = null): \stdClass {
+        $endpoint = $endpoint ?? $this->endpoint;
         
-        $ch = curl_init($endpoint);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Accept: application/json',
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        $options = [
+            'CURLOPT_RETURNTRANSFER' => true,
+            'CURLOPT_HTTPHEADER' => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+            'CURLOPT_TIMEOUT' => 60,
+        ];
         
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
+        $curl = new \curl();
+        $response = $curl->post($endpoint, json_encode($request), $options);
         
-        if ($error) {
-            throw new \moodle_exception('errorcurlconnection', 'paygw_payu', '', $error);
-        }
-        
-        if ($httpcode !== 200) {
-            throw new \moodle_exception('errorhttpcode', 'paygw_payu', '', $httpcode);
+        if ($curl->error) {
+            throw new \moodle_exception('errorcurlconnection', 'paygw_payu', '', $curl->error);
         }
         
         $result = json_decode($response);
+        
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \moodle_exception('errorjsonparse', 'paygw_payu');
         }
         
-        // Log the transaction for debugging if in test mode.
-        if (!empty($this->config->testmode) || !empty($this->config->debugmode)) {
-            $this->log_transaction($data, $result);
-        }
-        
         return $result;
-    }
-
-    /**
-     * Generate signature for transaction.
-     *
-     * @param int $referencecode Reference code (payment ID)
-     * @param float $amount Amount
-     * @param string $currency Currency code
-     * @return string MD5 signature
-     */
-    protected function generate_signature(int $referencecode, float $amount, string $currency): string {
-        $formattedamount = number_format($amount, 2, '.', '');
-        return md5($this->config->apikey . '~' . $this->config->merchantid . '~' . 
-                  $referencecode . '~' . $formattedamount . '~' . $currency);
-    }
-
-    /**
-     * Get device session ID.
-     *
-     * @return string Device session ID
-     */
-    protected function get_device_session_id(): string {
-        return md5(session_id() . microtime());
-    }
-
-    /**
-     * Log transaction for debugging.
-     *
-     * @param array $request Request data
-     * @param \stdClass $response Response data
-     */
-    protected function log_transaction(array $request, \stdClass $response): void {
-        global $CFG;
-        
-        // Remove sensitive data.
-        if (isset($request['merchant']['apiKey'])) {
-            $request['merchant']['apiKey'] = '***HIDDEN***';
-        }
-        if (isset($request['transaction']['creditCard'])) {
-            $request['transaction']['creditCard']['number'] = '***HIDDEN***';
-            $request['transaction']['creditCard']['securityCode'] = '***';
-        }
-        
-        $logentry = [
-            'timestamp' => time(),
-            'endpoint' => $this->endpoint,
-            'request' => json_encode($request),
-            'response' => json_encode($response),
-        ];
-        
-        // Write to debug log.
-        if (!empty($CFG->debugdisplay)) {
-            mtrace('PayU Transaction: ' . print_r($logentry, true));
-        }
-        
-        // Log to file if debug mode.
-        if (!empty($this->config->debugmode)) {
-            $logfile = $CFG->dataroot . '/payu_debug.log';
-            file_put_contents($logfile, date('Y-m-d H:i:s') . ' - ' . 
-                json_encode($logentry) . PHP_EOL, FILE_APPEND);
-        }
     }
 }

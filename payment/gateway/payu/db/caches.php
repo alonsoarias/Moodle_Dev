@@ -28,12 +28,20 @@ defined('MOODLE_INTERNAL') || die();
 $definitions = [
     'psebanks' => [
         'mode' => cache_store::MODE_APPLICATION,
-        'ttl' => 86400, // 24 hours.
-        'invalidationevents' => ['payu_banks_updated'],
+        'ttl' => 86400, // 24 hours
+        'simplekeys' => true,
+        'simpledata' => false,
     ],
     'paymentmethods' => [
         'mode' => cache_store::MODE_APPLICATION,
-        'ttl' => 86400, // 24 hours.
-        'invalidationevents' => ['payu_methods_updated'],
+        'ttl' => 86400, // 24 hours
+        'simplekeys' => true,
+        'simpledata' => false,
+    ],
+    'airlines' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'ttl' => 604800, // 7 days
+        'simplekeys' => true,
+        'simpledata' => false,
     ],
 ];
