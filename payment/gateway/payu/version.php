@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'paygw_payu';
-$plugin->version   = 2024121800;
-$plugin->requires  = 2023100900; // Requires Moodle 4.3+
+$plugin->version   = 2024121900;
+$plugin->requires  = 2022112800; // Requires Moodle 4.1+.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+$plugin->release   = '1.1.0';

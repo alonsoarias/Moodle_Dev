@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Cache definitions for PayU payment gateway.
+ * Upgrade script for PayU payment gateway.
  *
  * @package    paygw_payu
  * @copyright  2024 Orion Cloud Consulting SAS
@@ -25,15 +25,30 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$definitions = [
-    'psebanks' => [
-        'mode' => cache_store::MODE_APPLICATION,
-        'ttl' => 86400, // 24 hours.
-        'invalidationevents' => ['payu_banks_updated'],
-    ],
-    'paymentmethods' => [
-        'mode' => cache_store::MODE_APPLICATION,
-        'ttl' => 86400, // 24 hours.
-        'invalidationevents' => ['payu_methods_updated'],
-    ],
-];
+/**
+ * Upgrade the PayU payment gateway plugin.
+ *
+ * @param int $oldversion The old version of the plugin
+ * @return bool
+ */
+function xmldb_paygw_payu_upgrade($oldversion) {
+    global $DB;
+    
+    $dbman = $DB->get_manager();
+    
+    if ($oldversion < 2024121900) {
+        // Define field extra_parameters to be added to paygw_payu.
+        $table = new xmldb_table('paygw_payu');
+        $field = new xmldb_field('extra_parameters', XMLDB_TYPE_TEXT, null, null, null, null, null, 'response_code');
+        
+        // Conditionally launch add field extra_parameters.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // PayU savepoint reached.
+        upgrade_plugin_savepoint(true, 2024121900, 'paygw', 'payu');
+    }
+    
+    return true;
+}

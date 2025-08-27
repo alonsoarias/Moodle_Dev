@@ -43,11 +43,20 @@ class api {
     /** @var string API endpoint for production environment */
     const ENDPOINT_PRODUCTION = 'https://api.payulatam.com/payments-api/4.0/service.cgi';
     
+    /** @var string Reports API endpoint for sandbox */
+    const REPORTS_SANDBOX = 'https://sandbox.api.payulatam.com/reports-api/4.0/service.cgi';
+    
+    /** @var string Reports API endpoint for production */
+    const REPORTS_PRODUCTION = 'https://api.payulatam.com/reports-api/4.0/service.cgi';
+    
     /** @var \stdClass Gateway configuration */
     protected $config;
     
     /** @var string API endpoint based on test mode */
     protected $endpoint;
+    
+    /** @var string Reports endpoint based on test mode */
+    protected $reportsendpoint;
     
     /**
      * Constructor.
@@ -57,6 +66,29 @@ class api {
     public function __construct(\stdClass $config) {
         $this->config = $config;
         $this->endpoint = !empty($config->testmode) ? self::ENDPOINT_SANDBOX : self::ENDPOINT_PRODUCTION;
+        $this->reportsendpoint = !empty($config->testmode) ? self::REPORTS_SANDBOX : self::REPORTS_PRODUCTION;
+    }
+
+    /**
+     * Test connectivity with PayU API.
+     *
+     * @return bool True if connection successful
+     * @throws \moodle_exception
+     */
+    public function ping(): bool {
+        $request = [
+            'language' => 'es',
+            'command' => 'PING',
+            'merchant' => [
+                'apiLogin' => $this->config->apilogin,
+                'apiKey' => $this->config->apikey,
+            ],
+            'test' => !empty($this->config->testmode),
+        ];
+        
+        $response = $this->send_request($request);
+        
+        return ($response->code === 'SUCCESS');
     }
 
     /**
@@ -70,13 +102,11 @@ class api {
         
         // Check cache first.
         $cache = \cache::make('paygw_payu', 'psebanks');
-        $cachekey = 'banks_' . md5($this->config->merchantid);
+        $cachekey = 'banks_' . ($this->config->testmode ? 'test' : 'prod');
         
-        if (!empty($this->config->enablecache)) {
-            $banks = $cache->get($cachekey);
-            if ($banks !== false) {
-                return $banks;
-            }
+        $banks = $cache->get($cachekey);
+        if ($banks !== false) {
+            return $banks;
         }
         
         $request = [
@@ -95,53 +125,52 @@ class api {
         
         $response = $this->send_request($request);
         
-        if ($response->code !== 'SUCCESS' || empty($response->banks)) {
+        if ($response->code !== 'SUCCESS') {
             throw new \moodle_exception('errorgetbanks', 'paygw_payu', '', 
                 $response->error ?? 'Unknown error');
         }
         
         $banks = [];
-        foreach ($response->banks as $bank) {
-            if (!empty($bank->pseCode) && $bank->pseCode !== '0') {
+        if (!empty($response->banks)) {
+            foreach ($response->banks as $bank) {
                 $banks[$bank->pseCode] = $bank->description;
             }
         }
         
         // Cache for 24 hours.
-        if (!empty($this->config->enablecache)) {
-            $cache->set($cachekey, $banks, 86400);
-        }
+        $cache->set($cachekey, $banks, 86400);
         
         return $banks;
     }
 
     /**
-     * Submit a transaction to PayU.
+     * Process payment transaction.
      *
-     * @param int $paymentid Local payment record ID
+     * @param int $paymentid Payment ID
      * @param float $amount Amount to charge
      * @param string $currency Currency code
-     * @param \stdClass $data Form data from checkout
+     * @param \stdClass $data Payment data from form
      * @return \stdClass Transaction response
      * @throws \moodle_exception
      */
-    public function submit_transaction(int $paymentid, float $amount, string $currency, \stdClass $data): \stdClass {
-        global $USER, $CFG;
+    public function process_payment(int $paymentid, float $amount, string $currency, \stdClass $data): \stdClass {
+        global $CFG, $USER;
         
-        // Build buyer/payer information.
+        // Build buyer information.
         $buyer = [
             'fullName' => $data->cardholder ?? fullname($USER),
             'emailAddress' => $data->email ?? $USER->email,
-            'contactPhone' => $data->phone ?? '',
-            'dniNumber' => $data->documentnumber ?? '',
+            'contactPhone' => $this->validate_phone($data->phone ?? ''),
+            'dniNumber' => $this->validate_document($data->documentnumber ?? ''),
             'shippingAddress' => $this->build_address($data),
         ];
         
+        // Build payer information.
         $payer = [
             'fullName' => $data->cardholder ?? fullname($USER),
             'emailAddress' => $data->email ?? $USER->email,
-            'contactPhone' => $data->phone ?? '',
-            'dniNumber' => $data->documentnumber ?? '',
+            'contactPhone' => $this->validate_phone($data->phone ?? ''),
+            'dniNumber' => $this->validate_document($data->documentnumber ?? ''),
             'billingAddress' => $this->build_address($data),
         ];
         
@@ -194,6 +223,7 @@ class api {
                 'value' => round($ivavalue, 2),
                 'currency' => $currency,
             ];
+            
             $request['transaction']['order']['additionalValues']['TX_TAX_RETURN_BASE'] = [
                 'value' => round($basevalue, 2),
                 'currency' => $currency,
@@ -201,18 +231,15 @@ class api {
         }
         
         // Add payment method specific data.
-        $this->add_payment_method_data($request, $data);
+        $request = $this->add_payment_method_data($request, $data);
         
-        // Send the request.
+        // Send request.
         $response = $this->send_request($request);
         
         if ($response->code !== 'SUCCESS') {
             throw new \moodle_exception('errortransaction', 'paygw_payu', '', 
-                $response->error ?? 'Unknown error');
+                $response->error ?? 'Transaction failed');
         }
-        
-        // Store transaction in local database.
-        $this->store_transaction($paymentid, $response->transactionResponse, $data->paymentmethod);
         
         return $response->transactionResponse;
     }
@@ -220,7 +247,7 @@ class api {
     /**
      * Query transaction status.
      *
-     * @param string $transactionid PayU transaction ID
+     * @param string $transactionid Transaction ID
      * @return \stdClass Transaction details
      * @throws \moodle_exception
      */
@@ -238,14 +265,51 @@ class api {
             ],
         ];
         
-        $response = $this->send_request($request);
+        $response = $this->send_request($request, $this->reportsendpoint);
         
         if ($response->code !== 'SUCCESS') {
             throw new \moodle_exception('errorquerytransaction', 'paygw_payu', '', 
-                $response->error ?? 'Unknown error');
+                $response->error ?? 'Query failed');
         }
         
         return $response->result;
+    }
+
+    /**
+     * Process refund.
+     *
+     * @param string $orderid Order ID
+     * @param string $reason Refund reason
+     * @return \stdClass Refund response
+     * @throws \moodle_exception
+     */
+    public function process_refund(string $orderid, string $reason = ''): \stdClass {
+        $request = [
+            'language' => 'es',
+            'command' => 'SUBMIT_TRANSACTION',
+            'merchant' => [
+                'apiLogin' => $this->config->apilogin,
+                'apiKey' => $this->config->apikey,
+            ],
+            'test' => !empty($this->config->testmode),
+            'transaction' => [
+                'order' => [
+                    'id' => $orderid,
+                ],
+                'type' => 'REFUND',
+                'reason' => $reason ?: 'Refund requested',
+                'paymentCountry' => 'CO',
+            ],
+        ];
+        
+        $response = $this->send_request($request);
+        
+        if ($response->code !== 'SUCCESS') {
+            throw new \moodle_exception('errorrefund', 'paygw_payu', '', 
+                $response->error ?? 'Refund failed');
+        }
+        
+        return $response->transactionResponse;
     }
 
     /**
@@ -273,9 +337,11 @@ class api {
         }
         
         $methods = [];
-        foreach ($response->paymentMethods as $method) {
-            if ($method->country === 'CO' && $method->enabled) {
-                $methods[$method->id] = $method->description;
+        if (!empty($response->paymentMethods)) {
+            foreach ($response->paymentMethods as $method) {
+                if ($method->country === 'CO' && $method->enabled) {
+                    $methods[$method->id] = $method->description;
+                }
             }
         }
         
@@ -308,14 +374,149 @@ class api {
     }
 
     /**
+     * Add payment method specific data to request.
+     *
+     * @param array $request Base request
+     * @param \stdClass $data Payment data
+     * @return array Modified request
+     */
+    protected function add_payment_method_data(array $request, \stdClass $data): array {
+        $method = $data->paymentmethod ?? 'creditcard';
+        
+        switch ($method) {
+            case 'creditcard':
+                $request['transaction']['creditCard'] = [
+                    'number' => preg_replace('/\s+/', '', $data->cardnumber ?? ''),
+                    'securityCode' => $data->cvv ?? '',
+                    'expirationDate' => sprintf('%s/%s', 
+                        $data->expyear ?? date('Y'), 
+                        $data->expmonth ?? '12'),
+                    'name' => $data->cardholder ?? '',
+                ];
+                $request['transaction']['paymentMethod'] = strtoupper($data->cardnetwork ?? 'VISA');
+                
+                // Add installments if specified.
+                if (!empty($data->installments) && $data->installments > 1) {
+                    $request['transaction']['extraParameters'] = [
+                        'INSTALLMENTS_NUMBER' => (int)$data->installments,
+                    ];
+                }
+                break;
+                
+            case 'pse':
+                $request['transaction']['paymentMethod'] = 'PSE';
+                $request['transaction']['extraParameters'] = [
+                    'FINANCIAL_INSTITUTION_CODE' => $data->psebank ?? '',
+                    'USER_TYPE' => $data->pseusertype ?? 'N', // N=Natural, J=Juridical
+                    'PSE_REFERENCE1' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+                    'PSE_REFERENCE2' => $data->psereference2 ?? 'CC',
+                    'PSE_REFERENCE3' => $data->documentnumber ?? '',
+                ];
+                $request['transaction']['type'] = 'AUTHORIZATION';
+                break;
+                
+            case 'nequi':
+                $request['transaction']['paymentMethod'] = 'NEQUI';
+                $request['transaction']['extraParameters'] = [
+                    'NEQUI_PUSH_NOTIFICATION_URL' => $data->phone ?? '',
+                ];
+                break;
+                
+            case 'bancolombia':
+                $request['transaction']['paymentMethod'] = 'BANCOLOMBIA';
+                $request['transaction']['extraParameters'] = [
+                    'BANCOLOMBIA_TRANSFER_TYPE' => 'A', // A=Authorization
+                ];
+                break;
+                
+            case 'googlepay':
+                $request['transaction']['paymentMethod'] = 'GOOGLEPAY';
+                $request['transaction']['googlePayMerchantId'] = $this->config->merchantid;
+                $request['transaction']['digitalWallet'] = [
+                    'message' => $data->gp_token ?? '',
+                    'type' => 'GOOGLE_PAY',
+                ];
+                $request['transaction']['paymentMethod'] = strtoupper($data->gp_network ?? 'VISA');
+                break;
+                
+            case 'cash':
+                $cashmethod = $data->cashmethod ?? 'EFECTY';
+                $request['transaction']['paymentMethod'] = $cashmethod;
+                $request['transaction']['type'] = 'AUTHORIZATION';
+                $request['transaction']['expirationDate'] = date('c', strtotime('+7 days'));
+                break;
+        }
+        
+        return $request;
+    }
+
+    /**
+     * Validate phone number format for Colombia.
+     *
+     * @param string $phone Phone number
+     * @return string Validated phone
+     */
+    protected function validate_phone(string $phone): string {
+        // Remove non-numeric characters.
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+        
+        // Colombian phone validation.
+        if (strlen($phone) === 10 && substr($phone, 0, 1) === '3') {
+            return $phone;
+        }
+        
+        // Return empty if invalid.
+        return '';
+    }
+
+    /**
+     * Validate document number.
+     *
+     * @param string $document Document number
+     * @return string Validated document
+     */
+    protected function validate_document(string $document): string {
+        // Remove special characters but keep alphanumeric.
+        $document = preg_replace('/[^A-Za-z0-9]/', '', $document);
+        
+        // Basic validation for Colombian documents.
+        if (strlen($document) >= 6 && strlen($document) <= 20) {
+            return $document;
+        }
+        
+        return '';
+    }
+
+    /**
+     * Build address structure.
+     *
+     * @param \stdClass $data Payment data
+     * @return array Address structure
+     */
+    protected function build_address(\stdClass $data): array {
+        return [
+            'street1' => $data->address1 ?? 'N/A',
+            'street2' => $data->address2 ?? '',
+            'city' => $data->city ?? 'Bogotá',
+            'state' => $data->state ?? 'Bogotá D.C.',
+            'country' => 'CO',
+            'postalCode' => $data->postalcode ?? '000000',
+            'phone' => $this->validate_phone($data->phone ?? ''),
+        ];
+    }
+
+    /**
      * Send request to PayU API.
      *
      * @param array $data Request data
+     * @param string|null $endpoint Optional endpoint override
      * @return \stdClass Response object
      * @throws \moodle_exception
      */
-    protected function send_request(array $data): \stdClass {
-        $ch = curl_init($this->endpoint);
+    protected function send_request(array $data, string $endpoint = null): \stdClass {
+        $endpoint = $endpoint ?: $this->endpoint;
+        
+        $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
@@ -346,9 +547,8 @@ class api {
         }
         
         // Log the transaction for debugging if in test mode.
-        if (!empty($this->config->testmode)) {
-            mtrace('PayU Request: ' . json_encode($data));
-            mtrace('PayU Response: ' . $response);
+        if (!empty($this->config->testmode) || !empty($this->config->debugmode)) {
+            $this->log_transaction($data, $result);
         }
         
         return $result;
@@ -374,138 +574,44 @@ class api {
      * @return string Device session ID
      */
     protected function get_device_session_id(): string {
-        // Generate a unique device session ID based on user session and timestamp.
-        return substr(md5(session_id() . microtime(true)), 0, 32);
+        return md5(session_id() . microtime());
     }
 
     /**
-     * Build address array from form data.
+     * Log transaction for debugging.
      *
-     * @param \stdClass $data Form data
-     * @return array Address array
+     * @param array $request Request data
+     * @param \stdClass $response Response data
      */
-    protected function build_address(\stdClass $data): array {
-        global $USER;
+    protected function log_transaction(array $request, \stdClass $response): void {
+        global $CFG;
         
-        return [
-            'street1' => $data->street1 ?? $USER->address ?? 'N/A',
-            'street2' => $data->street2 ?? '',
-            'city' => $data->city ?? $USER->city ?? 'Bogotá',
-            'state' => $data->state ?? 'Bogotá D.C.',
-            'country' => 'CO',
-            'postalCode' => $data->postalcode ?? '000000',
-            'phone' => $data->phone ?? '',
+        // Remove sensitive data.
+        if (isset($request['merchant']['apiKey'])) {
+            $request['merchant']['apiKey'] = '***HIDDEN***';
+        }
+        if (isset($request['transaction']['creditCard'])) {
+            $request['transaction']['creditCard']['number'] = '***HIDDEN***';
+            $request['transaction']['creditCard']['securityCode'] = '***';
+        }
+        
+        $logentry = [
+            'timestamp' => time(),
+            'endpoint' => $this->endpoint,
+            'request' => json_encode($request),
+            'response' => json_encode($response),
         ];
-    }
-
-    /**
-     * Add payment method specific data to request.
-     *
-     * @param array $request Request array (passed by reference)
-     * @param \stdClass $data Form data
-     */
-    protected function add_payment_method_data(array &$request, \stdClass $data): void {
-        switch ($data->paymentmethod) {
-            case 'creditcard':
-                $request['transaction']['paymentMethod'] = strtoupper($data->cardnetwork);
-                $request['transaction']['creditCard'] = [
-                    'number' => $data->ccnumber,
-                    'securityCode' => $data->cvv,
-                    'expirationDate' => $data->ccexpyear . '/' . str_pad($data->ccexpmonth, 2, '0', STR_PAD_LEFT),
-                    'name' => $data->cardholder,
-                ];
-                $request['transaction']['extraParameters'] = [
-                    'INSTALLMENTS_NUMBER' => $data->installments ?? 1,
-                ];
-                break;
-                
-            case 'pse':
-                $request['transaction']['paymentMethod'] = 'PSE';
-                $request['transaction']['extraParameters'] = [
-                    'RESPONSE_URL' => (new \moodle_url('/payment/gateway/payu/return.php', 
-                        ['paymentid' => $data->paymentid]))->out(false),
-                    'FINANCIAL_INSTITUTION_CODE' => $data->psebank,
-                    'USER_TYPE' => $data->usertype,
-                    'PSE_REFERENCE1' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
-                    'PSE_REFERENCE2' => $data->documenttype,
-                    'PSE_REFERENCE3' => $data->documentnumber,
-                ];
-                break;
-                
-            case 'nequi':
-                $request['transaction']['paymentMethod'] = 'NEQUI';
-                $request['transaction']['payer']['contactPhone'] = $this->format_phone_number($data->phone);
-                break;
-                
-            case 'bancolombia':
-                $request['transaction']['paymentMethod'] = 'BANCOLOMBIA_BUTTON';
-                break;
-                
-            case 'googlepay':
-                $request['transaction']['paymentMethod'] = strtoupper($data->gp_network);
-                $request['transaction']['creditCard'] = [
-                    'name' => $data->cardholder,
-                ];
-                $request['transaction']['digitalWallet'] = [
-                    'type' => 'GOOGLE_PAY',
-                    'message' => $data->gp_token,
-                ];
-                $request['transaction']['extraParameters'] = [
-                    'INSTALLMENTS_NUMBER' => 1,
-                ];
-                break;
-                
-            case 'cash':
-                $request['transaction']['paymentMethod'] = strtoupper($data->cashmethod);
-                $request['transaction']['expirationDate'] = date('Y-m-d\TH:i:s', strtotime('+7 days'));
-                break;
-        }
-    }
-
-    /**
-     * Format phone number for Nequi.
-     *
-     * @param string $phone Phone number
-     * @return string Formatted phone number
-     */
-    protected function format_phone_number(string $phone): string {
-        // Remove all non-digits.
-        $phone = preg_replace('/[^0-9]/', '', $phone);
         
-        // If starts with 57, separate country code.
-        if (substr($phone, 0, 2) === '57') {
-            return '57 ' . substr($phone, 2);
+        // Write to debug log.
+        if (!empty($CFG->debugdisplay)) {
+            mtrace('PayU Transaction: ' . print_r($logentry, true));
         }
         
-        // If 10 digits, assume Colombian number without country code.
-        if (strlen($phone) === 10) {
-            return '57 ' . $phone;
+        // Log to file if debug mode.
+        if (!empty($this->config->debugmode)) {
+            $logfile = $CFG->dataroot . '/payu_debug.log';
+            file_put_contents($logfile, date('Y-m-d H:i:s') . ' - ' . 
+                json_encode($logentry) . PHP_EOL, FILE_APPEND);
         }
-        
-        return $phone;
-    }
-
-    /**
-     * Store transaction in local database.
-     *
-     * @param int $paymentid Payment ID
-     * @param \stdClass $response Transaction response
-     * @param string $paymentmethod Payment method
-     */
-    protected function store_transaction(int $paymentid, \stdClass $response, string $paymentmethod): void {
-        global $DB;
-        
-        $record = new \stdClass();
-        $record->paymentid = $paymentid;
-        $record->payu_order_id = $response->orderId ?? null;
-        $record->payu_transaction_id = $response->transactionId ?? null;
-        $record->state = $response->state ?? 'UNKNOWN';
-        $record->payment_method = $paymentmethod;
-        $record->response_code = $response->responseCode ?? null;
-        $record->extra_parameters = json_encode($response->extraParameters ?? []);
-        $record->timecreated = time();
-        $record->timemodified = time();
-        
-        $DB->insert_record('paygw_payu', $record);
     }
 }

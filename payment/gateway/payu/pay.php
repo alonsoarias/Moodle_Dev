@@ -32,15 +32,28 @@ require_once(__DIR__ . '/../../../config.php');
 require_login();
 require_sesskey();
 
+global $DB, $USER, $PAGE, $OUTPUT;
+
 // Get payment parameters.
 $component   = required_param('component', PARAM_COMPONENT);
 $paymentarea = required_param('paymentarea', PARAM_AREA);
 $itemid      = required_param('itemid', PARAM_INT);
+$paymentid   = required_param('paymentid', PARAM_INT);
 $description = required_param('description', PARAM_TEXT);
-$method      = optional_param('paymentmethod', '', PARAM_ALPHA);
+$method      = required_param('paymentmethod', PARAM_ALPHA);
 
 // Clean description.
 $description = clean_param($description, PARAM_TEXT);
+
+// Verify payment exists.
+if (!$payment = $DB->get_record('payments', ['id' => $paymentid])) {
+    throw new moodle_exception('invalidpayment', 'paygw_payu');
+}
+
+// Verify payment is for correct user.
+if ($payment->userid != $USER->id) {
+    throw new moodle_exception('invaliduser', 'paygw_payu');
+}
 
 // Get gateway configuration.
 $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
@@ -53,206 +66,156 @@ if (empty($config->merchantid) || empty($config->payuaccountid) ||
 
 // Get payment details.
 $payable = helper::get_payable($component, $paymentarea, $itemid);
-$currency = $payable->get_currency();
+$currency = $payment->currency;
+$amount = $payment->amount;
 
 // Check supported currency.
 if (!in_array($currency, ['COP', 'USD'])) {
     throw new moodle_exception('currencynotsupported', 'paygw_payu');
 }
 
-// Calculate amount with surcharge.
-$surcharge = helper::get_gateway_surcharge('payu');
-$amount = helper::get_rounded_cost($payable->get_amount(), $currency, $surcharge);
+// Initialize API client.
+$api = new api($config);
 
-// If no payment method selected, show the form.
-if (empty($method)) {
-    $PAGE->set_url('/payment/gateway/payu/pay.php');
-    $PAGE->set_context(context_system::instance());
-    $PAGE->set_title(get_string('gatewayname', 'paygw_payu'));
-    
-    // Initialize API client.
-    $api = new api($config);
-    
-    // Get PSE banks if PSE is enabled.
-    $banks = [];
-    if (!empty($config->enabledmethods) && in_array('pse', $config->enabledmethods)) {
-        try {
-            $banks = $api->get_pse_banks();
-        } catch (Exception $e) {
-            debugging('Error loading PSE banks: ' . $e->getMessage(), DEBUG_DEVELOPER);
-        }
-    }
-    
-    // Prepare template context.
-    $context = [
-        'component' => $component,
-        'paymentarea' => $paymentarea,
-        'itemid' => $itemid,
-        'description' => $description,
-        'amount' => $amount,
-        'currency' => $currency,
-        'localizedcost' => helper::get_cost_as_string($amount, $currency),
-        'banks' => array_map(function($code, $name) {
-            return ['code' => $code, 'name' => $name];
-        }, array_keys($banks), $banks),
-        'months' => [],
-        'years' => [],
-        'installments' => [],
-    ];
-    
-    // Generate months.
-    for ($i = 1; $i <= 12; $i++) {
-        $context['months'][] = [
-            'value' => str_pad($i, 2, '0', STR_PAD_LEFT),
-            'label' => str_pad($i, 2, '0', STR_PAD_LEFT),
-        ];
-    }
-    
-    // Generate years.
-    $currentyear = date('Y');
-    for ($i = 0; $i < 20; $i++) {
-        $year = $currentyear + $i;
-        $context['years'][] = [
-            'value' => $year,
-            'label' => $year,
-        ];
-    }
-    
-    // Generate installments.
-    for ($i = 2; $i <= 36; $i++) {
-        if ($i <= 12 || $i == 18 || $i == 24 || $i == 36) {
-            $context['installments'][] = ['value' => $i];
-        }
-    }
-    
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('gatewayname', 'paygw_payu'));
-    echo $OUTPUT->render_from_template('paygw_payu/checkout', $context);
-    echo $OUTPUT->footer();
-    exit;
-}
+// Prepare payment data.
+$paymentdata = new stdClass();
+$paymentdata->paymentmethod = $method;
+$paymentdata->description = $description;
 
-// Process payment submission.
-$formdata = new stdClass();
-$formdata->paymentmethod = $method;
-$formdata->cardholder = required_param('cardholder', PARAM_TEXT);
-$formdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
-$formdata->phone = optional_param('phone', '', PARAM_TEXT);
-$formdata->documentnumber = optional_param('documentnumber', '', PARAM_TEXT);
-$formdata->description = $description;
-$formdata->paymentid = $itemid; // Will be replaced with actual payment ID.
-
-// Get method-specific data.
+// Collect form data based on payment method.
 switch ($method) {
     case 'creditcard':
-        $formdata->ccnumber = required_param('cardnumber', PARAM_TEXT);
-        $formdata->ccexpmonth = required_param('expmonth', PARAM_TEXT);
-        $formdata->ccexpyear = required_param('expyear', PARAM_TEXT);
-        $formdata->cvv = required_param('cvv', PARAM_TEXT);
-        $formdata->cardnetwork = required_param('cardnetwork', PARAM_ALPHANUMEXT);
-        $formdata->installments = optional_param('installments', 1, PARAM_INT);
+        $paymentdata->cardholder = required_param('cardholder', PARAM_TEXT);
+        $paymentdata->cardnumber = required_param('cardnumber', PARAM_RAW);
+        $paymentdata->expmonth = required_param('expmonth', PARAM_INT);
+        $paymentdata->expyear = required_param('expyear', PARAM_INT);
+        $paymentdata->cvv = required_param('cvv', PARAM_INT);
+        $paymentdata->cardnetwork = required_param('cardnetwork', PARAM_ALPHA);
+        $paymentdata->installments = optional_param('installments', 1, PARAM_INT);
+        $paymentdata->phone = optional_param('phone', '', PARAM_RAW);
+        $paymentdata->documentnumber = optional_param('documentnumber', '', PARAM_RAW);
+        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
         break;
         
     case 'pse':
-        $formdata->psebank = required_param('psebank', PARAM_ALPHANUMEXT);
-        $formdata->usertype = required_param('usertype', PARAM_ALPHA);
-        $formdata->documenttype = required_param('documenttype', PARAM_ALPHANUMEXT);
+        $paymentdata->psebank = required_param('psebank', PARAM_ALPHANUMEXT);
+        $paymentdata->pseusertype = required_param('pseusertype', PARAM_ALPHA);
+        $paymentdata->documentnumber = required_param('documentnumber', PARAM_RAW);
+        $paymentdata->phone = required_param('phone', PARAM_RAW);
+        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
+        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
         break;
         
     case 'nequi':
+        $paymentdata->phone = required_param('phone', PARAM_RAW);
+        $paymentdata->documentnumber = required_param('documentnumber', PARAM_RAW);
+        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
+        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
+        
+        // Validate Nequi phone.
+        if (!preg_match('/^3[0-9]{9}$/', $paymentdata->phone)) {
+            throw new moodle_exception('invalidphone', 'paygw_payu');
+        }
+        break;
+        
     case 'bancolombia':
-        // Phone is required for these methods.
-        $formdata->phone = required_param('phone', PARAM_TEXT);
+        $paymentdata->phone = required_param('phone', PARAM_RAW);
+        $paymentdata->documentnumber = required_param('documentnumber', PARAM_RAW);
+        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
+        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
         break;
         
     case 'googlepay':
-        $formdata->gp_network = required_param('gp_network', PARAM_ALPHANUMEXT);
-        $formdata->gp_token = required_param('gp_token', PARAM_RAW);
+        $paymentdata->gp_token = required_param('gp_token', PARAM_RAW);
+        $paymentdata->gp_network = required_param('gp_network', PARAM_ALPHA);
+        $paymentdata->phone = optional_param('phone', '', PARAM_RAW);
+        $paymentdata->documentnumber = optional_param('documentnumber', '', PARAM_RAW);
+        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
+        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
         break;
         
     case 'cash':
-        $formdata->cashmethod = required_param('cashmethod', PARAM_ALPHANUMEXT);
+        $paymentdata->cashmethod = required_param('cashmethod', PARAM_ALPHA);
+        $paymentdata->documentnumber = required_param('documentnumber', PARAM_RAW);
+        $paymentdata->phone = optional_param('phone', '', PARAM_RAW);
+        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
+        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
         break;
         
     default:
         throw new moodle_exception('invalidpaymentmethod', 'paygw_payu');
 }
 
-// Save payment record.
-$paymentid = helper::save_payment(
-    $payable->get_account_id(),
-    $component,
-    $paymentarea,
-    $itemid,
-    $USER->id,
-    $amount,
-    $currency,
-    'payu'
-);
+// Add address information if provided.
+$paymentdata->address1 = optional_param('address1', '', PARAM_TEXT);
+$paymentdata->address2 = optional_param('address2', '', PARAM_TEXT);
+$paymentdata->city = optional_param('city', 'Bogotá', PARAM_TEXT);
+$paymentdata->state = optional_param('state', 'Bogotá D.C.', PARAM_TEXT);
+$paymentdata->postalcode = optional_param('postalcode', '000000', PARAM_TEXT);
 
-// Update form data with payment ID.
-$formdata->paymentid = $paymentid;
+// Add IVA if applicable.
+$paymentdata->includeiva = optional_param('includeiva', 0, PARAM_BOOL);
 
-// Initialize API client and submit transaction.
-$api = new api($config);
+// Update transaction record.
+$transaction = $DB->get_record('paygw_payu', ['paymentid' => $paymentid]);
+if (!$transaction) {
+    $transaction = new stdClass();
+    $transaction->paymentid = $paymentid;
+    $transaction->timecreated = time();
+}
+$transaction->payment_method = $method;
+$transaction->amount = $amount;
+$transaction->currency = $currency;
+$transaction->state = 'PROCESSING';
+$transaction->timemodified = time();
+
+if (empty($transaction->id)) {
+    $transaction->id = $DB->insert_record('paygw_payu', $transaction);
+} else {
+    $DB->update_record('paygw_payu', $transaction);
+}
 
 try {
-    $response = $api->submit_transaction($paymentid, $amount, $currency, $formdata);
+    // Process payment with PayU.
+    $response = $api->process_payment($paymentid, $amount, $currency, $paymentdata);
+    
+    // Update transaction with response.
+    $transaction->payu_order_id = $response->orderId ?? null;
+    $transaction->payu_transaction_id = $response->transactionId ?? null;
+    $transaction->state = $response->state ?? 'UNKNOWN';
+    $transaction->response_code = $response->responseCode ?? null;
+    $transaction->extra_parameters = json_encode($response->extraParameters ?? []);
+    $transaction->timemodified = time();
+    $DB->update_record('paygw_payu', $transaction);
     
     // Handle response based on state.
-    if ($response->state === 'APPROVED') {
-        // Payment approved - deliver order.
-        helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $USER->id);
-        
-        // Send notification if enabled.
-        if (!empty($config->enablenotifications)) {
-            notifications::send_payment_receipt(
-                $USER->id,
-                $amount,
-                $currency,
-                $paymentid,
-                'APPROVED',
-                [
-                    'transactionid' => $response->transactionId,
-                    'paymentmethod' => $method,
-                    'contexturl' => helper::get_success_url($component, $paymentarea, $itemid)->out(false),
-                ]
-            );
-        }
-        
-        // Redirect to success page.
-        redirect(helper::get_success_url($component, $paymentarea, $itemid));
-        
-    } else if ($response->state === 'PENDING') {
-        // Payment pending - handle based on method.
-        if (!empty($response->extraParameters->BANK_URL)) {
-            // PSE or Bancolombia - redirect to bank.
-            redirect($response->extraParameters->BANK_URL);
+    switch ($response->state) {
+        case 'APPROVED':
+            // Payment approved immediately.
+            helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $USER->id);
             
-        } else if (!empty($response->extraParameters->URL_PAYMENT_RECEIPT_HTML)) {
-            // Cash payment - show receipt.
-            $receipturl = $response->extraParameters->URL_PAYMENT_RECEIPT_HTML;
-            
-            // Send notification if enabled.
+            // Send success notification.
             if (!empty($config->enablenotifications)) {
-                $expirationdate = $response->extraParameters->EXPIRATION_DATE ?? '';
-                $reference = $response->extraParameters->REFERENCE ?? '';
-                
-                notifications::send_cash_payment_reminder(
+                notifications::send_payment_receipt(
                     $USER->id,
                     $amount,
                     $currency,
-                    $reference,
-                    $expirationdate,
-                    $receipturl
+                    $paymentid,
+                    'APPROVED',
+                    [
+                        'transactionid' => $response->transactionId ?? '',
+                        'paymentmethod' => $method,
+                    ]
                 );
             }
             
-            // Redirect to receipt.
-            redirect($receipturl);
+            // Redirect to success page.
+            $successurl = $payable->get_success_url();
+            redirect($successurl, get_string('paymentsuccess', 'paygw_payu'), 0);
+            break;
             
-        } else {
-            // Nequi or other pending payment.
+        case 'PENDING':
+            // Payment pending (PSE, cash, etc.).
             if (!empty($config->enablenotifications)) {
                 notifications::send_payment_receipt(
                     $USER->id,
@@ -261,60 +224,97 @@ try {
                     $paymentid,
                     'PENDING',
                     [
-                        'transactionid' => $response->transactionId,
+                        'transactionid' => $response->transactionId ?? '',
                         'paymentmethod' => $method,
                     ]
                 );
             }
             
-            // Show pending message.
+            // Show pending message with instructions.
             $PAGE->set_url('/payment/gateway/payu/pay.php');
             $PAGE->set_context(context_system::instance());
             $PAGE->set_title(get_string('paymentpending', 'paygw_payu'));
             
             echo $OUTPUT->header();
             echo $OUTPUT->notification(get_string('paymentpending', 'paygw_payu'), 'info');
-            echo $OUTPUT->continue_button(helper::get_success_url($component, $paymentarea, $itemid));
+            
+            // Show payment receipt for cash payments.
+            if ($method === 'cash' && !empty($response->extraParameters)) {
+                $receipturl = $response->extraParameters->URL_PAYMENT_RECEIPT_HTML ?? '';
+                if ($receipturl) {
+                    echo html_writer::tag('p', get_string('instruction_cash', 'paygw_payu'));
+                    echo html_writer::link($receipturl, get_string('viewreceipt', 'paygw_payu'), 
+                        ['class' => 'btn btn-primary', 'target' => '_blank']);
+                }
+            }
+            
+            // Show PSE redirect URL.
+            if ($method === 'pse' && !empty($response->extraParameters)) {
+                $pseurl = $response->extraParameters->BANK_URL ?? '';
+                if ($pseurl) {
+                    echo html_writer::tag('p', get_string('instruction_pse', 'paygw_payu'));
+                    redirect($pseurl);
+                }
+            }
+            
             echo $OUTPUT->footer();
-        }
-        
-    } else {
-        // Payment failed or rejected.
-        $errormessage = $response->responseMessage ?? get_string('paymenterror', 'paygw_payu');
-        
-        if (!empty($config->enablenotifications)) {
-            notifications::send_payment_receipt(
-                $USER->id,
-                $amount,
-                $currency,
-                $paymentid,
-                $response->state,
-                [
-                    'transactionid' => $response->transactionId ?? '',
-                    'paymentmethod' => $method,
-                ]
-            );
-        }
-        
-        throw new moodle_exception('paymenterror', 'paygw_payu', '', $errormessage);
+            break;
+            
+        case 'DECLINED':
+        case 'ERROR':
+        case 'EXPIRED':
+            // Payment failed.
+            if (!empty($config->enablenotifications)) {
+                notifications::send_payment_receipt(
+                    $USER->id,
+                    $amount,
+                    $currency,
+                    $paymentid,
+                    $response->state,
+                    [
+                        'transactionid' => $response->transactionId ?? '',
+                        'paymentmethod' => $method,
+                        'errorcode' => $response->responseCode ?? '',
+                    ]
+                );
+            }
+            
+            // Show error and retry option.
+            $retryurl = new moodle_url('/payment/gateway/payu/method.php', [
+                'component' => $component,
+                'paymentarea' => $paymentarea,
+                'itemid' => $itemid,
+                'description' => $description,
+                'sesskey' => sesskey(),
+            ]);
+            
+            throw new moodle_exception('paymenterror', 'paygw_payu', $retryurl, 
+                $response->responseMessage ?? 'Payment failed');
+            break;
+            
+        default:
+            // Unknown state.
+            throw new moodle_exception('unknownstate', 'paygw_payu', '', $response->state);
     }
     
 } catch (Exception $e) {
+    // Update transaction with error.
+    $transaction->state = 'ERROR';
+    $transaction->response_code = 'EXCEPTION';
+    $transaction->timemodified = time();
+    $DB->update_record('paygw_payu', $transaction);
+    
     // Log error.
     debugging('PayU payment error: ' . $e->getMessage(), DEBUG_DEVELOPER);
     
-    // Show error page.
-    $PAGE->set_url('/payment/gateway/payu/pay.php');
-    $PAGE->set_context(context_system::instance());
-    $PAGE->set_title(get_string('paymenterror', 'paygw_payu'));
-    
-    echo $OUTPUT->header();
-    echo $OUTPUT->notification($e->getMessage(), 'error');
-    echo $OUTPUT->continue_button(new moodle_url('/payment/gateway/payu/pay.php', [
+    // Show error to user.
+    $retryurl = new moodle_url('/payment/gateway/payu/method.php', [
         'component' => $component,
         'paymentarea' => $paymentarea,
         'itemid' => $itemid,
         'description' => $description,
-    ]));
-    echo $OUTPUT->footer();
+        'sesskey' => sesskey(),
+    ]);
+    
+    throw new moodle_exception('paymenterror', 'paygw_payu', $retryurl, $e->getMessage());
 }
