@@ -28,15 +28,14 @@ namespace paygw_payu;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Notifications class for handling payment notifications.
+ * Notifications class.
  *
- * @copyright  2024 Orion Cloud Consulting SAS
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Handles email notifications for PayU payment transactions.
  */
 class notifications {
-    
+
     /**
-     * Send payment receipt notification.
+     * Send payment notification to user.
      *
      * @param int $userid User ID
      * @param float $amount Payment amount
@@ -44,18 +43,18 @@ class notifications {
      * @param int $paymentid Payment ID
      * @param string $state Transaction state
      * @param array $extradata Additional data for the notification
-     * @return int|false Message ID or false on error
+     * @return bool True if notification sent successfully
      */
-    public static function send_payment_receipt(int $userid, float $amount, string $currency, 
-            int $paymentid, string $state, array $extradata = []) {
+    public static function notify($userid, $amount, $currency, $paymentid, $state, $extradata = []) {
         global $DB;
-        
+
+        // Get user object.
         $user = \core_user::get_user($userid);
         if (empty($user) || isguestuser($user) || !empty($user->deleted)) {
             return false;
         }
-        
-        // Prepare message data.
+
+        // Prepare notification data.
         $a = (object)[
             'fullname' => fullname($user),
             'amount' => \core_payment\helper::get_cost_as_string($amount, $currency),
@@ -63,84 +62,80 @@ class notifications {
             'state' => $state,
             'transactionid' => $extradata['transactionid'] ?? '',
             'paymentmethod' => $extradata['paymentmethod'] ?? '',
-            'date' => userdate(time()),
+            'reference' => $extradata['reference'] ?? '',
         ];
-        
-        // Choose message based on state.
-        $messagetype = 'payment_receipt';
-        if ($state === 'PENDING') {
-            $messagetype = 'payment_pending';
-            $messagebody = get_string('message_payment_pending', 'paygw_payu', $a);
-        } else if ($state === 'APPROVED') {
-            $messagebody = get_string('message_payment_success', 'paygw_payu', $a);
-        } else {
-            $messagetype = 'payment_error';
-            $messagebody = get_string('message_payment_error', 'paygw_payu', $a);
-        }
-        
-        // Create message.
+
+        // Create message object.
         $message = new \core\message\message();
         $message->component = 'paygw_payu';
-        $message->name = $messagetype;
+        $message->name = 'payment_receipt';
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
-        $message->subject = get_string('messagesubject_' . $messagetype, 'paygw_payu');
-        $message->fullmessage = $messagebody;
+        $message->subject = get_string('messagesubject_payment_receipt', 'paygw_payu');
         $message->fullmessageformat = FORMAT_MARKDOWN;
-        $message->fullmessagehtml = markdown_to_html($messagebody);
         $message->notification = 1;
-        
-        // Add context URL if available.
-        if (!empty($extradata['contexturl'])) {
-            $message->contexturl = $extradata['contexturl'];
-            $message->contexturlname = get_string('viewpayment', 'paygw_payu');
+        $message->contexturl = new \moodle_url('/');
+        $message->contexturlname = get_string('viewpayment', 'paygw_payu');
+
+        // Set message based on state.
+        switch ($state) {
+            case 'APPROVED':
+                $message->fullmessage = get_string('message_payment_success', 'paygw_payu', $a);
+                $message->fullmessagehtml = get_string('message_payment_success', 'paygw_payu', $a);
+                break;
+            case 'PENDING':
+                $message->fullmessage = get_string('message_payment_pending', 'paygw_payu', $a);
+                $message->fullmessagehtml = get_string('message_payment_pending', 'paygw_payu', $a);
+                break;
+            case 'DECLINED':
+            case 'ERROR':
+                $message->fullmessage = get_string('message_payment_error', 'paygw_payu', $a);
+                $message->fullmessagehtml = get_string('message_payment_error', 'paygw_payu', $a);
+                break;
+            default:
+                return false;
         }
-        
-        // Send the message.
+
+        // Send notification.
         return message_send($message);
     }
-    
+
     /**
-     * Send payment reminder for pending cash payments.
+     * Send cash payment reminder.
      *
      * @param int $userid User ID
-     * @param float $amount Payment amount
-     * @param string $currency Currency code
      * @param string $reference Payment reference
-     * @param string $expirationdate Expiration date
-     * @param string $receipturl Receipt URL
-     * @return int|false Message ID or false on error
+     * @param \DateTime $expiry Expiry date
+     * @param float $amount Amount to pay
+     * @param string $currency Currency code
+     * @return bool
      */
-    public static function send_cash_payment_reminder(int $userid, float $amount, string $currency,
-            string $reference, string $expirationdate, string $receipturl) {
+    public static function send_cash_reminder($userid, $reference, $expiry, $amount, $currency) {
         global $DB;
-        
+
         $user = \core_user::get_user($userid);
-        if (empty($user) || isguestuser($user) || !empty($user->deleted)) {
+        if (empty($user) || isguestuser($user)) {
             return false;
         }
-        
+
         $a = (object)[
             'fullname' => fullname($user),
-            'amount' => \core_payment\helper::get_cost_as_string($amount, $currency),
             'reference' => $reference,
-            'expirationdate' => userdate(strtotime($expirationdate)),
-            'receipturl' => $receipturl,
+            'expiry' => userdate($expiry->getTimestamp()),
+            'amount' => \core_payment\helper::get_cost_as_string($amount, $currency),
         ];
-        
+
         $message = new \core\message\message();
         $message->component = 'paygw_payu';
-        $message->name = 'payment_pending';
+        $message->name = 'cash_reminder';
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;
         $message->subject = get_string('messagesubject_cashreminder', 'paygw_payu');
-        $message->fullmessage = get_string('message_cash_reminder', 'paygw_payu', $a);
+        $message->fullmessage = get_string('message_cashreminder', 'paygw_payu', $a);
+        $message->fullmessagehtml = get_string('message_cashreminder_html', 'paygw_payu', $a);
         $message->fullmessageformat = FORMAT_MARKDOWN;
-        $message->fullmessagehtml = markdown_to_html($message->fullmessage);
         $message->notification = 1;
-        $message->contexturl = $receipturl;
-        $message->contexturlname = get_string('viewreceipt', 'paygw_payu');
-        
+
         return message_send($message);
     }
 }

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * PayU return page after payment.
+ * Return page after PayU payment processing.
  *
  * @package    paygw_payu
  * @copyright  2024 Orion Cloud Consulting SAS
@@ -27,76 +27,103 @@ use core_payment\helper;
 
 require_once(__DIR__ . '/../../../config.php');
 
+global $DB, $USER;
+
 require_login();
 
-global $DB;
+// Get return parameters from PayU.
+$merchantid = required_param('merchantId', PARAM_INT);
+$referencecode = required_param('referenceCode', PARAM_INT); 
+$signature = required_param('signature', PARAM_RAW);
+$currency = required_param('currency', PARAM_TEXT);
+$transactionstate = required_param('transactionState', PARAM_INT);
+$value = required_param('TX_VALUE', PARAM_RAW);
+$message = optional_param('message', '', PARAM_TEXT);
+$transactionid = optional_param('transactionId', PARAM_TEXT);
+$referencepol = optional_param('reference_pol', PARAM_TEXT);
+$responsecode = optional_param('lapResponseCode', PARAM_TEXT);
 
-// Get return parameters.
-$paymentid = optional_param('paymentid', 0, PARAM_INT);
-$referencecode = optional_param('referenceCode', '', PARAM_TEXT);
-
-// Try to find payment by ID or reference code.
-if ($paymentid) {
-    $payment = $DB->get_record('payments', ['id' => $paymentid]);
-} else if ($referencecode) {
-    $payment = $DB->get_record('payments', ['id' => $referencecode]);
-} else {
-    // No payment identifier provided.
-    $PAGE->set_url('/payment/gateway/payu/return.php');
-    $PAGE->set_context(context_system::instance());
-    $PAGE->set_title(get_string('gatewayname', 'paygw_payu'));
-    
-    echo $OUTPUT->header();
-    echo $OUTPUT->notification(get_string('invalidreference', 'paygw_payu'), 'error');
-    echo $OUTPUT->continue_button(new moodle_url('/'));
-    echo $OUTPUT->footer();
-    exit;
+// Get payment record.
+if (!$payment = $DB->get_record('payments', ['id' => $referencecode])) {
+    throw new \moodle_exception('invalidreference', 'paygw_payu');
 }
 
-if (!$payment) {
-    throw new moodle_exception('invalidreference', 'paygw_payu');
+// Get PayU transaction record.
+if (!$payutx = $DB->get_record('paygw_payu', ['paymentid' => $payment->id])) {
+    throw new \moodle_exception('invalidtransaction', 'paygw_payu');
 }
 
-// Check if user is authorized to view this payment.
-if ($payment->userid != $USER->id) {
-    throw new moodle_exception('nopermissions', 'error');
-}
-
-// Get transaction details.
-$transaction = $DB->get_record('paygw_payu', ['paymentid' => $payment->id]);
-
-// Redirect to success URL.
-$successurl = helper::get_success_url(
+// Get gateway configuration.
+$config = (object) helper::get_gateway_configuration(
     $payment->component,
     $payment->paymentarea,
-    $payment->itemid
+    $payment->itemid,
+    'payu'
 );
 
-// Show appropriate message based on transaction state.
-if ($transaction) {
-    switch ($transaction->state) {
-        case 'APPROVED':
-            redirect($successurl, get_string('payment_success', 'paygw_payu'), 
-                    null, \core\output\notification::NOTIFY_SUCCESS);
-            break;
-            
-        case 'PENDING':
-            redirect($successurl, get_string('payment_pending', 'paygw_payu'), 
-                    null, \core\output\notification::NOTIFY_INFO);
-            break;
-            
-        case 'DECLINED':
-        case 'ERROR':
-        case 'EXPIRED':
-            redirect($successurl, get_string('payment_failed', 'paygw_payu'), 
-                    null, \core\output\notification::NOTIFY_ERROR);
-            break;
-            
-        default:
-            redirect($successurl);
+// Validate merchant ID.
+if ($merchantid != $config->merchantid) {
+    throw new \moodle_exception('invalidmerchant', 'paygw_payu');
+}
+
+// Generate expected signature.
+$formattedvalue = number_format((float)$value, 1, '.', '');
+$expectedsignature = md5($config->apikey . '~' . $merchantid . '~' . 
+                        $referencecode . '~' . $formattedvalue . '~' . 
+                        $currency . '~' . $transactionstate);
+
+// Validate signature.
+if (strtoupper($expectedsignature) !== strtoupper($signature)) {
+    throw new \moodle_exception('invalidsignature', 'paygw_payu');
+}
+
+// Update transaction record.
+$payutx->payu_transaction_id = $transactionid;
+$payutx->response_code = $responsecode;
+$payutx->timemodified = time();
+
+// Map PayU transaction states.
+switch ($transactionstate) {
+    case 4: // Approved
+        $payutx->state = 'APPROVED';
+        $success = true;
+        break;
+    case 6: // Declined
+        $payutx->state = 'DECLINED';
+        $success = false;
+        break;
+    case 5: // Expired
+        $payutx->state = 'EXPIRED';
+        $success = false;
+        break;
+    case 7: // Pending
+        $payutx->state = 'PENDING';
+        $success = false;
+        break;
+    default:
+        $payutx->state = 'ERROR';
+        $success = false;
+}
+
+$DB->update_record('paygw_payu', $payutx);
+
+// Get success URL.
+$url = helper::get_success_url($payment->component, $payment->paymentarea, $payment->itemid);
+
+// Redirect with appropriate message.
+if ($success) {
+    // Deliver order if approved.
+    if ($payutx->state === 'APPROVED') {
+        helper::deliver_order($payment->component, $payment->paymentarea, 
+                            $payment->itemid, $payment->id, $payment->userid);
     }
+    redirect($url, get_string('paymentsuccess', 'paygw_payu'), 0, 'success');
+} else if ($payutx->state === 'PENDING') {
+    redirect($url, get_string('paymentpending', 'paygw_payu'), 0, 'info');
 } else {
-    // No transaction record yet - payment is being processed.
-    redirect($successurl, get_string('payment_processing', 'paygw_payu'), 
-            null, \core\output\notification::NOTIFY_INFO);
+    $errormsg = get_string('paymenterror', 'paygw_payu');
+    if (!empty($message)) {
+        $errormsg .= ': ' . $message;
+    }
+    redirect($url, $errormsg, 0, 'error');
 }

@@ -26,22 +26,25 @@
 defined('MOODLE_INTERNAL') || die();
 
 $definitions = [
+    // Cache for PSE banks list.
     'psebanks' => [
         'mode' => cache_store::MODE_APPLICATION,
         'ttl' => 86400, // 24 hours
         'simplekeys' => true,
-        'simpledata' => false,
+        'simplevalues' => false,
     ],
+    // Cache for payment methods.
     'paymentmethods' => [
         'mode' => cache_store::MODE_APPLICATION,
         'ttl' => 86400, // 24 hours
         'simplekeys' => true,
-        'simpledata' => false,
+        'simplevalues' => false,
     ],
+    // Cache for airlines list.
     'airlines' => [
         'mode' => cache_store::MODE_APPLICATION,
         'ttl' => 604800, // 7 days
         'simplekeys' => true,
-        'simpledata' => false,
+        'simplevalues' => false,
     ],
 ];

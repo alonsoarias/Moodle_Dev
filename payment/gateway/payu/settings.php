@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Settings for the PayU payment gateway.
+ * Settings for the PayU Colombia payment gateway.
  *
  * @package    paygw_payu
  * @copyright  2024 Orion Cloud Consulting SAS
@@ -26,21 +26,30 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
-    // Introduction.
+    // Add heading.
     $settings->add(new admin_setting_heading(
         'paygw_payu_settings',
         '',
         get_string('pluginname_desc', 'paygw_payu')
     ));
-    
-    // Debug mode.
+
+    // Debug mode setting.
     $settings->add(new admin_setting_configcheckbox(
         'paygw_payu/debugmode',
         get_string('debugmode', 'paygw_payu'),
         get_string('debugmode_help', 'paygw_payu'),
         0
     ));
-    
+
+    // Cache TTL setting.
+    $settings->add(new admin_setting_configduration(
+        'paygw_payu/cachettl',
+        get_string('cachettl', 'paygw_payu'),
+        get_string('cachettl_help', 'paygw_payu'),
+        86400, // 24 hours default
+        86400  // Unit is seconds
+    ));
+
     // Add common gateway settings.
     \core_payment\helper::add_common_gateway_settings($settings, 'paygw_payu');
 }
