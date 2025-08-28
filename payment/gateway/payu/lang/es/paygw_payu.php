@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'paygw_payu', language 'es'.
+ * Strings for component 'paygw_payu', language 'en' - COMPLETE.
  *
  * @package    paygw_payu
  * @copyright  2024 Orion Cloud Consulting SAS
@@ -24,176 +24,232 @@
  */
 
 $string['pluginname'] = 'PayU Colombia';
-$string['pluginname_desc'] = 'La pasarela de pagos PayU Colombia permite pagos en línea a través de varios métodos incluyendo tarjetas de crédito, transferencias bancarias PSE, Nequi y pagos en efectivo.';
+$string['pluginname_desc'] = 'The PayU Colombia payment gateway enables online payments through various methods including credit cards, PSE bank transfers, Nequi, and cash payments.';
 $string['gatewayname'] = 'PayU Colombia';
-$string['gatewaydescription'] = 'PayU es un proveedor líder de servicios de pago en América Latina, procesando pagos seguros en línea en Colombia.';
+$string['gatewaydescription'] = 'PayU is a leading payment service provider in Latin America, processing secure online payments in Colombia.';
 
-// Configuración.
-$string['merchantid'] = 'ID de Comercio';
-$string['merchantid_help'] = 'Tu número identificador de comercio en PayU.';
-$string['accountid'] = 'ID de Cuenta';
-$string['accountid_help'] = 'Tu identificador de cuenta PayU para Colombia.';
-$string['apikey'] = 'Llave API';
-$string['apikey_help'] = 'Tu llave API secreta proporcionada por PayU. ¡Mantenla segura!';
-$string['apilogin'] = 'Login API';
-$string['apilogin_help'] = 'Tu credencial de login para los servicios API de PayU.';
-$string['testmode'] = 'Modo de prueba';
-$string['testmode_help'] = 'Habilita el modo de prueba para usar el ambiente sandbox de PayU.';
+// Configuration strings.
+$string['merchantid'] = 'Merchant ID';
+$string['merchantid_help'] = 'Your PayU merchant identifier number.';
+$string['payuaccountid'] = 'Account ID';
+$string['accountid'] = 'Account ID';
+$string['accountid_help'] = 'Your PayU account identifier for Colombia.';
+$string['apikey'] = 'API Key';
+$string['apikey_help'] = 'Your secret API key provided by PayU. Keep this secure!';
+$string['apilogin'] = 'API Login';
+$string['apilogin_help'] = 'Your API login credential for PayU services.';
+$string['testmode'] = 'Test mode';
+$string['testmode_help'] = 'Enable test mode to use the PayU sandbox environment for testing payments.';
+$string['debugmode'] = 'Debug mode';
+$string['debugmode_help'] = 'Enable debug mode to log detailed transaction information for troubleshooting.';
 
-// Configuración de métodos de pago.
-$string['paymentmethods'] = 'Configuración de Métodos de Pago';
-$string['enabledmethods'] = 'Métodos de pago habilitados';
-$string['enabledmethods_help'] = 'Selecciona qué métodos de pago estarán disponibles para los usuarios. Al menos un método debe estar habilitado.';
+// Payment methods configuration.
+$string['paymentmethods'] = 'Payment Methods Configuration';
+$string['enabledmethods'] = 'Enabled payment methods';
+$string['enabledmethods_help'] = 'Select which payment methods should be available to users. At least one method must be enabled.';
 
-// Configuración de caché.
-$string['cachesettings'] = 'Configuración de Caché';
-$string['enablecache'] = 'Habilitar caché';
-$string['enablecache_help'] = 'Habilita el caché de listas de bancos PSE y otros datos para mejorar el rendimiento.';
-
-// Configuración de notificaciones.
-$string['notificationsettings'] = 'Configuración de Notificaciones';
-$string['enablenotifications'] = 'Habilitar notificaciones por correo';
-$string['enablenotifications_help'] = 'Envía notificaciones por correo a los usuarios sobre el estado de sus pagos.';
-
-// URL de callback.
-$string['callbackurl'] = 'URL de Confirmación';
-$string['callbackurl_help'] = 'Configura esta URL en tu cuenta PayU para confirmaciones de pago. Copia esta URL en el campo URL de confirmación en tu panel de comercio PayU.';
-
-// Métodos de pago.
-$string['paymentmethod'] = 'Método de pago';
-$string['creditcard'] = 'Tarjeta de crédito/débito';
-$string['pse'] = 'PSE - Transferencia bancaria';
+// Payment methods.
+$string['paymentmethod'] = 'Payment method';
+$string['choosepaymentmethod'] = 'Choose payment method';
+$string['creditcard'] = 'Credit/Debit Card';
+$string['pse'] = 'PSE - Bank Transfer';
 $string['nequi'] = 'Nequi';
-$string['bancolombia'] = 'Botón Bancolombia';
+$string['bancolombia'] = 'Bancolombia Button';
 $string['googlepay'] = 'Google Pay';
-$string['cash'] = 'Pago en efectivo';
-
-// Campos del formulario.
-$string['cardholder'] = 'Nombre del titular';
-$string['cardnumber'] = 'Número de tarjeta';
-$string['expmonth'] = 'Mes de vencimiento';
-$string['expyear'] = 'Año de vencimiento';
-$string['cvv'] = 'Código de seguridad (CVV)';
-$string['cardnetwork'] = 'Tipo de tarjeta';
-$string['installments'] = 'Cuotas';
-$string['documenttype'] = 'Tipo de documento';
-$string['documentnumber'] = 'Número de documento';
-$string['phone'] = 'Número de teléfono';
-$string['email'] = 'Correo electrónico';
-$string['psebank'] = 'Selecciona tu banco';
-$string['usertype'] = 'Tipo de persona';
-$string['personnatural'] = 'Persona natural';
-$string['personjuridica'] = 'Persona jurídica';
-$string['cashmethod'] = 'Lugar de pago en efectivo';
+$string['cash'] = 'Cash Payment';
 $string['efecty'] = 'Efecty';
-$string['otherscash'] = 'Su Red (Otros)';
-$string['bankreferenced'] = 'Referencia bancaria';
-$string['googlepaytoken'] = 'Token de Google Pay';
+$string['otherscash'] = 'Other Cash Networks';
+$string['bankreferenced'] = 'Bank Referenced';
+$string['cashmethod'] = 'Cash payment network';
 
-// Campos de dirección.
-$string['street1'] = 'Dirección línea 1';
-$string['street2'] = 'Dirección línea 2';
-$string['city'] = 'Ciudad';
-$string['state'] = 'Departamento';
-$string['postalcode'] = 'Código postal';
+// Form fields.
+$string['cardholder'] = 'Cardholder name';
+$string['cardnumber'] = 'Card number';
+$string['expmonth'] = 'Expiry month';
+$string['expyear'] = 'Expiry year';
+$string['cvv'] = 'CVV';
+$string['cardnetwork'] = 'Card network';
+$string['installments'] = 'Installments';
+$string['installment'] = 'installment';
+$string['phone'] = 'Phone number';
+$string['documentnumber'] = 'Document number';
+$string['documenttype'] = 'Document type';
+$string['email'] = 'Email address';
+$string['address'] = 'Address';
+$string['city'] = 'City';
+$string['state'] = 'State/Province';
+$string['postalcode'] = 'Postal code';
 
-// Botones y acciones.
-$string['submitpayment'] = 'Procesar pago';
-$string['processingpayment'] = 'Procesando tu pago...';
-$string['continuetopayment'] = 'Continuar al pago';
-$string['returntocourse'] = 'Volver al curso';
-$string['viewreceipt'] = 'Ver recibo';
-$string['viewpayment'] = 'Ver detalles del pago';
+// PSE specific.
+$string['psebank'] = 'Bank';
+$string['selectbank'] = 'Select your bank';
+$string['usertype'] = 'Person type';
+$string['personnatural'] = 'Natural Person';
+$string['personjuridica'] = 'Legal Entity';
+$string['nequi_phone_help'] = 'Enter your 10-digit mobile number starting with 3';
 
-// Mensajes y notificaciones.
-$string['messagesubject_payment_receipt'] = 'Recibo de Pago - PayU';
-$string['messagesubject_payment_pending'] = 'Pago Pendiente - PayU';
-$string['messagesubject_payment_error'] = 'Error en el Pago - PayU';
-$string['messagesubject_cashreminder'] = 'Recordatorio de Pago en Efectivo - PayU';
+// Google Pay.
+$string['googlepaytoken'] = 'Google Pay Token';
+$string['googlepaytoken_help'] = 'The payment token generated by Google Pay';
 
-$string['message_payment_success'] = 'Estimado/a {$a->fullname},
+// Cache settings.
+$string['cachesettings'] = 'Cache Settings';
+$string['enablecache'] = 'Enable caching';
+$string['enablecache_help'] = 'Enable caching of PSE bank lists and other data to improve performance.';
 
-Tu pago de {$a->amount} ha sido procesado exitosamente.
+// Notification settings.
+$string['notificationsettings'] = 'Notification Settings';
+$string['enablenotifications'] = 'Enable email notifications';
+$string['enablenotifications_help'] = 'Send email notifications to users about their payment status.';
 
-ID de Pago: {$a->paymentid}
-ID de Transacción: {$a->transactionid}
-Método de Pago: {$a->paymentmethod}
-Fecha: {$a->date}
+// Callback URL.
+$string['callbackurl'] = 'Callback URL';
+$string['callbackurl_help'] = 'Configure this URL in your PayU merchant panel for payment notifications.';
 
-Gracias por tu pago.';
+// Payment interface.
+$string['paymentdetails'] = 'Payment Details';
+$string['ordersummary'] = 'Order Summary';
+$string['description'] = 'Description';
+$string['amount'] = 'Amount';
 
-$string['message_payment_pending'] = 'Estimado/a {$a->fullname},
+// Payment processing.
+$string['submitpayment'] = 'Process Payment';
+$string['processingpayment'] = 'Processing payment...';
+$string['paymentsuccess'] = 'Payment successful!';
+$string['paymentpending'] = 'Payment pending';
+$string['paymenterror'] = 'Payment error';
+$string['viewreceipt'] = 'View Receipt';
+$string['viewpayment'] = 'View Payment Details';
+$string['loadingpaymentgateway'] = 'Loading payment gateway...';
 
-Tu pago de {$a->amount} está actualmente pendiente.
+// Payment instructions.
+$string['instruction_pse'] = 'You will be redirected to your bank\'s secure website to complete the payment.';
+$string['instruction_nequi'] = 'You will receive a push notification on your Nequi app to authorize the payment.';
+$string['instruction_cash'] = 'Print or save the payment receipt and pay at any authorized location.';
+$string['instruction_bancolombia'] = 'You will be redirected to Bancolombia to complete the payment.';
 
-ID de Pago: {$a->paymentid}
-Estado: {$a->state}
-Fecha: {$a->date}
+// Airline specific.
+$string['airline'] = 'Airline';
+$string['airline_code'] = 'Airline code';
+$string['airline_transaction'] = 'Airline transaction';
+$string['errorgetairlines'] = 'Error retrieving airlines list: {$a}';
 
-Te notificaremos una vez que el pago sea confirmado.';
+// Test mode.
+$string['sandboxmode'] = 'Sandbox Mode Configuration';
+$string['sandboxmode_help'] = 'You are configuring the gateway in test mode. Use the credentials below for testing.';
+$string['autofillsandbox'] = 'Auto-fill Sandbox Credentials';
+$string['testcredentials'] = 'PayU Sandbox Credentials';
+$string['autofillprompt'] = 'Do you want to auto-fill the sandbox credentials for testing?';
+$string['credentialsfilled'] = 'Sandbox credentials have been filled successfully.';
+$string['sandboxactive'] = 'SANDBOX MODE ACTIVE';
+$string['testcards'] = 'Test Credit Cards';
+$string['selecttestcard'] = 'Select a test card';
+$string['choosetestcard'] = 'Choose a test card';
+$string['filltestcard'] = 'Fill Test Card';
+$string['testcardfilled'] = 'Test card data has been filled.';
+$string['testpse'] = 'Test PSE Bank Transfer';
+$string['testpse_help'] = 'Use the test bank credentials for PSE testing.';
+$string['filltestpse'] = 'Fill Test PSE Data';
+$string['testpsefilled'] = 'Test PSE data has been filled.';
+$string['testnequi'] = 'Test Nequi Payment';
+$string['testnequi_help'] = 'Use test phone number for Nequi testing.';
+$string['filltestnequi'] = 'Fill Test Nequi Data';
+$string['testnequifilled'] = 'Test Nequi data has been filled.';
+$string['testmodeactive'] = 'Test Mode Active';
+$string['testmodeactive_help'] = 'You are in PayU sandbox mode. Transactions will not be real.';
+$string['testmodeinfo1'] = 'No real money will be charged';
+$string['testmodeinfo2'] = 'Use test credit cards provided';
+$string['testmodeinfo3'] = 'Transactions can be verified in PayU sandbox dashboard';
 
-$string['message_payment_error'] = 'Estimado/a {$a->fullname},
+// Message notifications.
+$string['messagesubject_payment_receipt'] = 'Payment Receipt';
+$string['messagesubject_payment_pending'] = 'Payment Pending';
+$string['messagesubject_payment_error'] = 'Payment Failed';
+$string['messagesubject_cashreminder'] = 'Cash Payment Reminder';
 
-Hubo un error procesando tu pago de {$a->amount}.
+$string['message_payment_success'] = 'Dear {$a->fullname},
 
-ID de Pago: {$a->paymentid}
-Estado: {$a->state}
-Fecha: {$a->date}
+Your payment of {$a->amount} has been successfully processed.
 
-Por favor intenta nuevamente o contacta a soporte si el problema persiste.';
+Payment ID: {$a->paymentid}
+Transaction ID: {$a->transactionid}
+Payment Method: {$a->paymentmethod}
+Date: {$a->date}
 
-$string['message_cash_reminder'] = 'Estimado/a {$a->fullname},
+Thank you for your payment.';
 
-Este es un recordatorio sobre tu pago en efectivo pendiente.
+$string['message_payment_pending'] = 'Dear {$a->fullname},
 
-Monto: {$a->amount}
-Referencia: {$a->reference}
-Fecha de vencimiento: {$a->expirationdate}
+Your payment of {$a->amount} is currently pending.
 
-Por favor completa tu pago en cualquier punto autorizado. Puedes ver e imprimir tu recibo de pago aquí:
+Payment ID: {$a->paymentid}
+Status: {$a->state}
+Date: {$a->date}
+
+We will notify you once the payment is confirmed.';
+
+$string['message_payment_error'] = 'Dear {$a->fullname},
+
+There was an error processing your payment of {$a->amount}.
+
+Payment ID: {$a->paymentid}
+Status: {$a->state}
+Date: {$a->date}
+
+Please try again or contact support if the problem persists.';
+
+$string['message_cash_reminder'] = 'Dear {$a->fullname},
+
+This is a reminder about your pending cash payment.
+
+Amount: {$a->amount}
+Reference: {$a->reference}
+Expiration date: {$a->expirationdate}
+
+Please complete your payment at any authorized location. You can view and print your payment receipt here:
 {$a->receipturl}';
 
-// Errores.
-$string['merchantidinvalid'] = 'El ID de Comercio debe ser numérico.';
-$string['accountidinvalid'] = 'El ID de Cuenta debe ser numérico.';
-$string['atleastonemethodrequired'] = 'Al menos un método de pago debe estar habilitado.';
-$string['errorgetbanks'] = 'Error obteniendo lista de bancos: {$a}';
-$string['errorgetmethods'] = 'Error obteniendo métodos de pago: {$a}';
-$string['errortransaction'] = 'Error en transacción: {$a}';
-$string['errorquerytransaction'] = 'Error consultando transacción: {$a}';
-$string['errorcurlconnection'] = 'Error de conexión: {$a}';
-$string['errorhttpcode'] = 'Código de error HTTP: {$a}';
-$string['errorjsonparse'] = 'Error procesando respuesta de PayU.';
-$string['paymenterror'] = 'No se pudo procesar el pago. Por favor intenta nuevamente.';
-$string['paymentpending'] = 'Tu pago está siendo procesado. Recibirás una confirmación pronto.';
-$string['invalidphone'] = 'Formato de teléfono inválido. Debe tener 10 dígitos.';
-$string['invalidsignature'] = 'Firma de pago inválida.';
-$string['invalidmerchant'] = 'Configuración de comercio inválida.';
-$string['invalidreference'] = 'Referencia de pago inválida.';
+// Errors.
+$string['gatewaynotconfigured'] = 'Payment gateway is not properly configured.';
+$string['currencynotsupported'] = 'Currency {$a} is not supported by PayU Colombia.';
+$string['invalidpayment'] = 'Invalid payment record.';
+$string['invaliduser'] = 'Invalid user for this payment.';
+$string['invalidpaymentmethod'] = 'Invalid payment method selected.';
+$string['merchantidinvalid'] = 'Merchant ID must be numeric.';
+$string['accountidinvalid'] = 'Account ID must be numeric.';
+$string['atleastonemethodrequired'] = 'At least one payment method must be enabled.';
+$string['errorgetbanks'] = 'Error retrieving bank list: {$a}';
+$string['errorgetmethods'] = 'Error retrieving payment methods: {$a}';
+$string['errortransaction'] = 'Transaction error: {$a}';
+$string['errorquerytransaction'] = 'Error querying transaction: {$a}';
+$string['errorrefund'] = 'Refund error: {$a}';
+$string['errorcurlconnection'] = 'Connection error: {$a}';
+$string['errorhttpcode'] = 'HTTP error code: {$a}';
+$string['errorjsonparse'] = 'Error parsing response from PayU.';
+$string['errorconnection'] = 'Unable to connect to PayU servers.';
+$string['unknownstate'] = 'Unknown transaction state: {$a}';
+$string['invalidphone'] = 'Invalid phone number format. Must be 10 digits starting with 3.';
+$string['invalidsignature'] = 'Invalid payment signature.';
+$string['invalidmerchant'] = 'Invalid merchant configuration.';
+$string['invalidreference'] = 'Invalid payment reference.';
 
-// Privacidad.
-$string['privacy:metadata:paygw_payu:payu'] = 'Información enviada a PayU para procesar el pago.';
-$string['privacy:metadata:paygw_payu:payu:fullname'] = 'El nombre completo del usuario que realiza el pago.';
-$string['privacy:metadata:paygw_payu:payu:email'] = 'La dirección de correo electrónico del usuario.';
-$string['privacy:metadata:paygw_payu:payu:phone'] = 'El número de teléfono proporcionado para el pago.';
-$string['privacy:metadata:paygw_payu:payu:documentnumber'] = 'El número de documento de identificación.';
-$string['privacy:metadata:paygw_payu:payu:address'] = 'La dirección de facturación o envío.';
-$string['privacy:metadata:paygw_payu:payu:creditcard'] = 'Información de tarjeta de crédito (transmitida de forma segura a PayU).';
-$string['privacy:metadata:paygw_payu:payu:amount'] = 'El monto del pago.';
-$string['privacy:metadata:paygw_payu:payu:currency'] = 'La moneda del pago.';
+// Privacy.
+$string['privacy:metadata:paygw_payu:payu'] = 'Information sent to PayU for payment processing.';
+$string['privacy:metadata:paygw_payu:payu:fullname'] = 'The full name of the user making the payment.';
+$string['privacy:metadata:paygw_payu:payu:email'] = 'The email address of the user.';
+$string['privacy:metadata:paygw_payu:payu:phone'] = 'The phone number provided for the payment.';
+$string['privacy:metadata:paygw_payu:payu:documentnumber'] = 'The identification document number.';
+$string['privacy:metadata:paygw_payu:payu:address'] = 'The billing or shipping address.';
+$string['privacy:metadata:paygw_payu:payu:creditcard'] = 'Credit card information (transmitted securely to PayU).';
+$string['privacy:metadata:paygw_payu:payu:amount'] = 'The payment amount.';
+$string['privacy:metadata:paygw_payu:payu:currency'] = 'The payment currency.';
 
-$string['privacy:metadata:paygw_payu:database'] = 'Registros de transacciones almacenados localmente.';
-$string['privacy:metadata:paygw_payu:database:paymentid'] = 'El ID de pago interno.';
-$string['privacy:metadata:paygw_payu:database:payu_order_id'] = 'El identificador de orden de PayU.';
-$string['privacy:metadata:paygw_payu:database:payu_transaction_id'] = 'El identificador de transacción de PayU.';
-$string['privacy:metadata:paygw_payu:database:state'] = 'El estado de la transacción.';
-$string['privacy:metadata:paygw_payu:database:payment_method'] = 'El método de pago utilizado.';
-$string['privacy:metadata:paygw_payu:database:amount'] = 'El monto de la transacción.';
-$string['privacy:metadata:paygw_payu:database:currency'] = 'La moneda de la transacción.';
-$string['privacy:metadata:paygw_payu:database:timecreated'] = 'Cuando se creó la transacción.';
-
-// Instrucciones de pago.
-$string['instruction_pse'] = 'Serás redirigido al sitio web seguro de tu banco para completar el pago.';
-$string['instruction_nequi'] = 'Recibirás una notificación push en tu app de Nequi para autorizar el pago.';
-$string['instruction_cash'] = 'Imprime o guarda el recibo de pago y paga en cualquier punto autorizado.';
-$string['instruction_bancolombia'] = 'Serás redirigido a Bancolombia para completar el pago.';
+$string['privacy:metadata:paygw_payu:database'] = 'Transaction records stored locally.';
+$string['privacy:metadata:paygw_payu:database:paymentid'] = 'The internal payment ID.';
+$string['privacy:metadata:paygw_payu:database:payu_order_id'] = 'The PayU order identifier.';
+$string['privacy:metadata:paygw_payu:database:payu_transaction_id'] = 'The PayU transaction identifier.';
+$string['privacy:metadata:paygw_payu:database:state'] = 'The transaction state.';
+$string['privacy:metadata:paygw_payu:database:payment_method'] = 'The payment method used.';
+$string['privacy:metadata:paygw_payu:database:amount'] = 'The transaction amount.';
+$string['privacy:metadata:paygw_payu:database:currency'] = 'The transaction currency.';
+$string['privacy:metadata:paygw_payu:database:timecreated'] = 'When the transaction was created.';
