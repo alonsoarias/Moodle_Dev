@@ -253,3 +253,71 @@ $string['privacy:metadata:paygw_payu:database:payment_method'] = 'The payment me
 $string['privacy:metadata:paygw_payu:database:amount'] = 'The transaction amount.';
 $string['privacy:metadata:paygw_payu:database:currency'] = 'The transaction currency.';
 $string['privacy:metadata:paygw_payu:database:timecreated'] = 'When the transaction was created.';
+
+// Add at the end of the file, before the closing PHP tag if present:
+
+// Messages for notifications
+$string['messagesubject_payment_receipt'] = 'Payment Receipt - PayU';
+$string['message_payment_success'] = 'Hello {$a->fullname},
+
+Your payment of {$a->amount} has been successfully processed.
+
+Transaction ID: {$a->transactionid}
+Payment Method: {$a->paymentmethod}
+Payment ID: {$a->paymentid}
+
+Thank you for your payment.';
+
+$string['message_payment_pending'] = 'Hello {$a->fullname},
+
+Your payment of {$a->amount} is pending processing.
+
+Transaction ID: {$a->transactionid}
+Payment Method: {$a->paymentmethod}
+Payment ID: {$a->paymentid}
+
+We will notify you once the payment is confirmed.';
+
+$string['message_payment_error'] = 'Hello {$a->fullname},
+
+Your payment of {$a->amount} could not be processed.
+
+Transaction ID: {$a->transactionid}
+Payment Method: {$a->paymentmethod}
+Payment ID: {$a->paymentid}
+
+Please try again or contact support.';
+
+$string['messagesubject_cashreminder'] = 'Cash Payment Reminder';
+$string['message_cashreminder'] = 'Hello {$a->fullname},
+
+This is a reminder about your pending cash payment.
+
+Reference: {$a->reference}
+Amount: {$a->amount}
+Expires: {$a->expiry}
+
+Please complete your payment before the expiration date.';
+
+$string['message_cashreminder_html'] = '<p>Hello {$a->fullname},</p>
+<p>This is a reminder about your pending cash payment.</p>
+<ul>
+<li>Reference: <strong>{$a->reference}</strong></li>
+<li>Amount: <strong>{$a->amount}</strong></li>
+<li>Expires: <strong>{$a->expiry}</strong></li>
+</ul>
+<p>Please complete your payment before the expiration date.</p>';
+
+// Additional error messages
+$string['invalidpaymentreference'] = 'Invalid payment reference';
+$string['invalidmerchantid'] = 'Invalid merchant ID';
+$string['errortokenization'] = 'Error creating payment token: {$a}';
+
+// Additional help strings
+$string['cardholder_help'] = 'Name as it appears on the card';
+$string['cachettl'] = 'Cache time to live';
+$string['cachettl_help'] = 'How long to cache PSE bank lists and other data (in seconds)';
+
+// Additional UI strings
+$string['installments'] = 'Number of installments';
+$string['chooseinstallments'] = 'Choose number of installments';

@@ -48,6 +48,6 @@ $definitions = [
         'simpledata' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'ttl' => 604800, // 7 days - airlines change rarely
+        'ttl' => 604800, // 7 days
     ],
 ];
