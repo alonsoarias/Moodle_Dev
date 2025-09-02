@@ -76,6 +76,9 @@ $string['developer_info_desc'] = '<strong>This plugin has been created for anoth
 $string['role_styles_applied'] = 'Styles applied for roles: {$a}';
 $string['no_roles_found'] = 'No matching roles found for this user';
 
+// Filtering indicator
+$string['filterindicator'] = 'Role filter active: {$a->visible} of {$a->total} participants shown ({$a->hidden} hidden)';
+
 // Errors
 $string['error_no_roles_selected'] = 'No roles have been selected. Please select at least one role in settings.';
 $string['error_invalid_css'] = 'CSS contains elements not allowed for security reasons.';

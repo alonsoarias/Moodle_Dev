@@ -76,6 +76,9 @@ $string['developer_info_desc'] = '<strong>Este plugin ha sido creado para otro c
 $string['role_styles_applied'] = 'Estilos aplicados para los roles: {$a}';
 $string['no_roles_found'] = 'No se encontraron roles coincidentes para este usuario';
 
+// Indicador de filtrado
+$string['filterindicator'] = 'Filtro de rol activo: se muestran {$a->visible} de {$a->total} participantes ({$a->hidden} ocultos)';
+
 // Errores
 $string['error_no_roles_selected'] = 'No se han seleccionado roles. Por favor, selecciona al menos un rol en la configuración.';
 $string['error_invalid_css'] = 'El CSS contiene elementos no permitidos por seguridad.';

@@ -35,12 +35,26 @@ class assign_renderer extends assign_renderer_base {
         if (\local_rolestyles_has_selected_role()) {
             $pagesize = $table->get_rows_per_page();
             $table->setup();
-            $table->query_db($pagesize, false);
-            if (!empty($table->rawdata)) {
-                $table->rawdata = array_filter($table->rawdata, function($row) {
-                    return $row->status !== ASSIGN_SUBMISSION_STATUS_NEW && $row->grade === null;
-                });
+
+            // Cache filtered rows per assignment and page to avoid repeated DB queries.
+            $assignid = $table->assignment->get_instance()->id ?? 0;
+            $page = property_exists($table, 'currpage') ? $table->currpage : 0;
+            static $cache = [];
+            $cachekey = $assignid . ':' . $page;
+
+            if (!array_key_exists($cachekey, $cache)) {
+                $table->query_db($pagesize, false);
+                if (!empty($table->rawdata)) {
+                    $table->rawdata = array_filter($table->rawdata, function($row) {
+                        return $row->status !== ASSIGN_SUBMISSION_STATUS_NEW && $row->grade === null;
+                    });
+                }
+                $cache[$cachekey] = $table->rawdata;
+            } else {
+                $table->query_db($pagesize, false); // Ensure pagination setup.
+                $table->rawdata = $cache[$cachekey];
             }
+
             $table->build_table();
             $table->close_recordset();
             $o = '';

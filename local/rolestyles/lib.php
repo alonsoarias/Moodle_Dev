@@ -93,8 +93,10 @@ function local_rolestyles_inject_css() {
             $PAGE->add_body_class($class);
         }
 
-        // Load filtering script to hide participants without submissions on grading pages.
+        // Load filtering script to hide participants without submissions on grading pages
+        // and provide strings for the client-side indicator.
         $PAGE->requires->js(new moodle_url('/local/rolestyles/assets/filter.js'));
+        $PAGE->requires->strings_for_js(['filterindicator'], 'local_rolestyles');
         
         // Get custom CSS
         $custom_css = get_config('local_rolestyles', 'custom_css');
@@ -146,29 +148,40 @@ function local_rolestyles_get_context() {
 function local_rolestyles_has_selected_role(): bool {
     global $USER;
 
+    // Basic caching to avoid repeated role lookups during a single request.
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+
     $enabled = get_config('local_rolestyles', 'enabled');
     if (!$enabled || !isloggedin() || isguestuser()) {
-        return false;
+        $cached = false;
+        return $cached;
     }
 
     $context = local_rolestyles_get_context();
     if (!$context) {
-        return false;
+        $cached = false;
+        return $cached;
     }
 
     $selected = get_config('local_rolestyles', 'selected_roles');
     if (empty($selected)) {
-        return false;
+        $cached = false;
+        return $cached;
     }
 
     $selected = explode(',', $selected);
     $userroles = get_user_roles($context, $USER->id, true);
     foreach ($userroles as $role) {
         if (in_array($role->roleid, $selected)) {
-            return true;
+            $cached = true;
+            return $cached;
         }
     }
-    return false;
+    $cached = false;
+    return $cached;
 }
 
 /**
