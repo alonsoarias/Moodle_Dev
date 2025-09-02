@@ -24,7 +24,8 @@ function local_rolestyles_before_http_headers($hook = null): void {
     local_rolestyles_inject_css();
     if (local_rolestyles_has_selected_role()) {
         require_once($CFG->dirroot . '/local/rolestyles/classes/assign_renderer_factory.php');
-        $PAGE->theme->rf = new \local_rolestyles\assign_renderer_factory($PAGE->theme);
+        // Register custom renderer factory for this request when a role is active.
+        $PAGE->theme->rendererfactory = \local_rolestyles\assign_renderer_factory::class;
     }
 }
 
