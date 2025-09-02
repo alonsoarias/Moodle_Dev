@@ -19,7 +19,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Hook implementation for Moodle 4.0+
  */
-function local_rolestyles_before_http_headers($hook = null): void {
+function local_rolestyles_hook_before_http_headers($hook = null): void {
     global $PAGE, $CFG;
     local_rolestyles_inject_css();
     if (local_rolestyles_has_selected_role()) {
@@ -27,13 +27,6 @@ function local_rolestyles_before_http_headers($hook = null): void {
         // Register custom renderer factory for this request when a role is active.
         $PAGE->theme->rendererfactory = \local_rolestyles\assign_renderer_factory::class;
     }
-}
-
-/**
- * Legacy callback for earlier versions
- */
-function local_rolestyles_before_http_headers_callback() {
-    local_rolestyles_before_http_headers();
 }
 
 /**
@@ -195,6 +188,41 @@ function local_rolestyles_get_filter_summary(int $total, int $visible): string {
         'hidden' => $hidden,
     ];
     return get_string('filtersummary', 'local_rolestyles', $data);
+}
+
+/**
+ * Filter assignment grading table rows to include only submitted and ungraded participants.
+ *
+ * This helper centralises the logic used by the custom assign renderer and provides
+ * a basic in-memory cache to avoid repeating the same database query within a request.
+ *
+ * @param assign_grading_table $table The grading table instance.
+ * @param int $pagesize Number of rows per page.
+ * @return array Array containing the filtered rows and the total rows count.
+ */
+function local_rolestyles_filter_assign_grading(assign_grading_table $table): array {
+    $assignid = $table->assignment->get_instance()->id ?? 0;
+    $page = property_exists($table, 'currpage') ? $table->currpage : 0;
+    static $cache = [];
+    $cachekey = $assignid . ':' . $page;
+
+    if (!isset($cache[$cachekey])) {
+        $rows = $table->rawdata ?? [];
+        if ($rows instanceof \Traversable) {
+            $rows = iterator_to_array($rows);
+        }
+        $filtered = array_filter($rows, static function($row) {
+            return isset($row->status) &&
+                $row->status === ASSIGN_SUBMISSION_STATUS_SUBMITTED &&
+                $row->grade === null;
+        });
+        $cache[$cachekey] = [
+            'rows' => array_values($filtered),
+            'total' => is_array($rows) ? count($rows) : 0
+        ];
+    }
+
+    return [$cache[$cachekey]['rows'], $cache[$cachekey]['total']];
 }
 
 /**
