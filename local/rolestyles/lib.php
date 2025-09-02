@@ -198,6 +198,41 @@ function local_rolestyles_get_filter_summary(int $total, int $visible): string {
 }
 
 /**
+ * Filter assignment grading table rows to include only submitted and ungraded participants.
+ *
+ * This helper centralises the logic used by the custom assign renderer and provides
+ * a basic in-memory cache to avoid repeating the same database query within a request.
+ *
+ * @param assign_grading_table $table The grading table instance.
+ * @param int $pagesize Number of rows per page.
+ * @return array Array containing the filtered rows and the total rows count.
+ */
+function local_rolestyles_filter_assign_grading(assign_grading_table $table, int $pagesize): array {
+    $assignid = $table->assignment->get_instance()->id ?? 0;
+    $page = property_exists($table, 'currpage') ? $table->currpage : 0;
+    static $cache = [];
+    $cachekey = $assignid . ':' . $page;
+
+    if (!isset($cache[$cachekey])) {
+        $table->query_db($pagesize, false);
+        $rows = $table->rawdata ?? [];
+        if (!empty($rows)) {
+            $filtered = array_filter($rows, static function($row) {
+                return $row->status !== ASSIGN_SUBMISSION_STATUS_NEW && $row->grade === null;
+            });
+        } else {
+            $filtered = [];
+        }
+        $cache[$cachekey] = ['rows' => $filtered, 'total' => count($rows)];
+    } else {
+        // Ensure pagination setup when using cached results.
+        $table->query_db($pagesize, false);
+    }
+
+    return [$cache[$cachekey]['rows'], $cache[$cachekey]['total']];
+}
+
+/**
  * Direct CSS injection method
  */
 function local_rolestyles_inject_css_direct($css, $role_names) {
