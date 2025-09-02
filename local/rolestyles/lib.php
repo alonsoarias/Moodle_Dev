@@ -93,9 +93,6 @@ function local_rolestyles_inject_css() {
             $PAGE->add_body_class($class);
         }
 
-        // Load filtering script to hide participants without submissions on grading pages.
-        $PAGE->requires->js(new moodle_url('/local/rolestyles/assets/filter.js'));
-        
         // Get custom CSS
         $custom_css = get_config('local_rolestyles', 'custom_css');
         if (!empty($custom_css)) {
@@ -146,29 +143,57 @@ function local_rolestyles_get_context() {
 function local_rolestyles_has_selected_role(): bool {
     global $USER;
 
+    // Basic caching to avoid repeated role lookups during a single request.
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+
     $enabled = get_config('local_rolestyles', 'enabled');
     if (!$enabled || !isloggedin() || isguestuser()) {
-        return false;
+        $cached = false;
+        return $cached;
     }
 
     $context = local_rolestyles_get_context();
     if (!$context) {
-        return false;
+        $cached = false;
+        return $cached;
     }
 
     $selected = get_config('local_rolestyles', 'selected_roles');
     if (empty($selected)) {
-        return false;
+        $cached = false;
+        return $cached;
     }
 
     $selected = explode(',', $selected);
     $userroles = get_user_roles($context, $USER->id, true);
     foreach ($userroles as $role) {
         if (in_array($role->roleid, $selected)) {
-            return true;
+            $cached = true;
+            return $cached;
         }
     }
-    return false;
+    $cached = false;
+    return $cached;
+}
+
+/**
+ * Build a summary string for the current filter state.
+ *
+ * @param int $total Total number of participants.
+ * @param int $visible Number of participants visible after filtering.
+ * @return string Localised summary message.
+ */
+function local_rolestyles_get_filter_summary(int $total, int $visible): string {
+    $hidden = max($total - $visible, 0);
+    $data = (object) [
+        'visible' => $visible,
+        'total' => $total,
+        'hidden' => $hidden,
+    ];
+    return get_string('filtersummary', 'local_rolestyles', $data);
 }
 
 /**

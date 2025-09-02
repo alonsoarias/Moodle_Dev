@@ -35,15 +35,40 @@ class assign_renderer extends assign_renderer_base {
         if (\local_rolestyles_has_selected_role()) {
             $pagesize = $table->get_rows_per_page();
             $table->setup();
-            $table->query_db($pagesize, false);
-            if (!empty($table->rawdata)) {
-                $table->rawdata = array_filter($table->rawdata, function($row) {
-                    return $row->status !== ASSIGN_SUBMISSION_STATUS_NEW && $row->grade === null;
-                });
+
+            // Cache filtered rows per assignment and page to avoid repeated DB queries.
+            $assignid = $table->assignment->get_instance()->id ?? 0;
+            $page = property_exists($table, 'currpage') ? $table->currpage : 0;
+            static $cache = [];
+            $cachekey = $assignid . ':' . $page;
+
+            if (!array_key_exists($cachekey, $cache)) {
+                $table->query_db($pagesize, false);
+                $allrows = $table->rawdata ?? [];
+                if (!empty($allrows)) {
+                    $filtered = array_filter($allrows, function($row) {
+                        return $row->status !== ASSIGN_SUBMISSION_STATUS_NEW && $row->grade === null;
+                    });
+                } else {
+                    $filtered = [];
+                }
+                $cache[$cachekey] = ['filtered' => $filtered, 'total' => count($allrows)];
+            } else {
+                // Ensure pagination setup.
+                $table->query_db($pagesize, false);
             }
+
+            $filtered = $cache[$cachekey]['filtered'];
+            $total = $cache[$cachekey]['total'];
+            $visible = count($filtered);
+
+            $table->rawdata = $filtered;
             $table->build_table();
             $table->close_recordset();
+
             $o = '';
+            $summary = \local_rolestyles_get_filter_summary($total, $visible);
+            $o .= $this->output->notification($summary, 'info');
             $o .= $this->output->box_start('boxaligncenter gradingtable position-relative');
             $this->page->requires->js_init_call('M.mod_assign.init_grading_table', array());
             ob_start();
