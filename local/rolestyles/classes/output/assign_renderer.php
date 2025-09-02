@@ -35,7 +35,6 @@ class assign_renderer extends assign_renderer_base {
         if (\local_rolestyles_has_selected_role()) {
             $table->setup();
             $table->query_db($table->get_rows_per_page(), false);
-
             [$filtered, $total] = \local_rolestyles_filter_assign_grading($table);
             $visible = count($filtered);
 
