@@ -218,137 +218,63 @@ class paygw_payu_external extends external_api {
      */
     public static function process_payment_parameters() {
         return new external_function_parameters([
-            'component' => new external_value(PARAM_COMPONENT, 'Component'),
-            'paymentarea' => new external_value(PARAM_AREA, 'Payment area'),
-            'itemid' => new external_value(PARAM_INT, 'Item ID'),
-            'description' => new external_value(PARAM_TEXT, 'Description'),
+            'paymentid' => new external_value(PARAM_INT, 'Payment ID'),
             'paymentmethod' => new external_value(PARAM_ALPHA, 'Payment method'),
-            'cardnumber' => new external_value(PARAM_TEXT, 'Card number', VALUE_OPTIONAL),
-            'cardexpmonth' => new external_value(PARAM_TEXT, 'Card expiry month', VALUE_OPTIONAL),
-            'cardexpyear' => new external_value(PARAM_TEXT, 'Card expiry year', VALUE_OPTIONAL),
-            'cvv' => new external_value(PARAM_TEXT, 'CVV', VALUE_OPTIONAL),
-            'cardholder' => new external_value(PARAM_TEXT, 'Cardholder name', VALUE_OPTIONAL),
-            'phone' => new external_value(PARAM_TEXT, 'Phone number', VALUE_OPTIONAL),
-            'documentnumber' => new external_value(PARAM_TEXT, 'Document number', VALUE_OPTIONAL),
-            'email' => new external_value(PARAM_EMAIL, 'Email', VALUE_OPTIONAL),
-            'psebank' => new external_value(PARAM_TEXT, 'PSE bank code', VALUE_OPTIONAL),
-            'cashmethod' => new external_value(PARAM_TEXT, 'Cash method', VALUE_OPTIONAL),
-            'gp_token' => new external_value(PARAM_TEXT, 'Google Pay token', VALUE_OPTIONAL),
-            'airline_code' => new external_value(PARAM_TEXT, 'Airline code', VALUE_OPTIONAL),
+            'formdata' => new external_value(PARAM_RAW, 'Form data JSON'),
         ]);
     }
     
     /**
      * Process payment transaction.
      *
-     * @param string $component Component
-     * @param string $paymentarea Payment area
-     * @param int $itemid Item ID
-     * @param string $description Description
+     * @param int $paymentid Payment ID
      * @param string $paymentmethod Payment method
-     * @param string $cardnumber Card number
-     * @param string $cardexpmonth Card expiry month
-     * @param string $cardexpyear Card expiry year
-     * @param string $cvv CVV
-     * @param string $cardholder Cardholder name
-     * @param string $phone Phone number
-     * @param string $documentnumber Document number
-     * @param string $email Email
-     * @param string $psebank PSE bank code
-     * @param string $cashmethod Cash method
-     * @param string $gp_token Google Pay token
-     * @param string $airline_code Airline code
-     * @return array Transaction result
+     * @param string $formdata Form data as JSON
+     * @return array Result
      */
-    public static function process_payment($component, $paymentarea, $itemid, $description, $paymentmethod,
-            $cardnumber = '', $cardexpmonth = '', $cardexpyear = '', $cvv = '', $cardholder = '',
-            $phone = '', $documentnumber = '', $email = '', $psebank = '', $cashmethod = '',
-            $gp_token = '', $airline_code = '') {
+    public static function process_payment($paymentid, $paymentmethod, $formdata) {
+        global $DB, $USER;
         
-        global $USER, $DB;
-        
-        require_login();
-        
-        // Validate parameters.
+        // Parameter validation.
         $params = self::validate_parameters(self::process_payment_parameters(), [
-            'component' => $component,
-            'paymentarea' => $paymentarea,
-            'itemid' => $itemid,
-            'description' => $description,
+            'paymentid' => $paymentid,
             'paymentmethod' => $paymentmethod,
-            'cardnumber' => $cardnumber,
-            'cardexpmonth' => $cardexpmonth,
-            'cardexpyear' => $cardexpyear,
-            'cvv' => $cvv,
-            'cardholder' => $cardholder,
-            'phone' => $phone,
-            'documentnumber' => $documentnumber,
-            'email' => $email,
-            'psebank' => $psebank,
-            'cashmethod' => $cashmethod,
-            'gp_token' => $gp_token,
-            'airline_code' => $airline_code,
+            'formdata' => $formdata,
         ]);
         
-        // Get payment details.
-        $payable = \core_payment\helper::get_payable($component, $paymentarea, $itemid);
-        $currency = $payable->get_currency();
-        $surcharge = \core_payment\helper::get_gateway_surcharge('payu');
-        $amount = \core_payment\helper::get_rounded_cost($payable->get_amount(), $currency, $surcharge);
+        // Check login.
+        require_login();
         
-        // Save payment record.
-        $paymentid = \core_payment\helper::save_payment(
-            $payable->get_account_id(),
-            $component,
-            $paymentarea,
-            $itemid,
-            $USER->id,
-            $amount,
-            $currency,
+        // Get payment record.
+        $payment = $DB->get_record('payments', ['id' => $paymentid], '*', MUST_EXIST);
+        
+        // Verify user owns this payment.
+        if ($payment->userid != $USER->id) {
+            throw new moodle_exception('invaliduser', 'paygw_payu');
+        }
+        
+        // Parse form data.
+        $data = json_decode($formdata);
+        if (!$data) {
+            throw new moodle_exception('invalidformdata', 'paygw_payu');
+        }
+        
+        // Get gateway configuration.
+        $config = (object) \core_payment\helper::get_gateway_configuration(
+            $payment->component,
+            $payment->paymentarea,
+            $payment->itemid,
             'payu'
         );
         
-        // Get config.
-        $config = (object)\core_payment\helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
-        
-        // Build payment data.
-        $data = new stdClass();
-        $data->paymentmethod = $paymentmethod;
-        $data->description = $description;
-        $data->cardnumber = $cardnumber;
-        $data->expmonth = $cardexpmonth;
-        $data->expyear = $cardexpyear;
-        $data->cvv = $cvv;
-        $data->cardholder = $cardholder ?: fullname($USER);
-        $data->phone = $phone;
-        $data->documentnumber = $documentnumber;
-        $data->email = $email ?: $USER->email;
-        $data->psebank = $psebank;
-        $data->cashmethod = $cashmethod;
-        $data->gp_token = $gp_token;
-        $data->airline_code = $airline_code;
-        
+        // Process payment via API.
         try {
             $api = new \paygw_payu\api($config);
-            $response = $api->process_payment($paymentid, $amount, $currency, $data);
+            $response = $api->process_payment($paymentid, $payment->amount, $payment->currency, $data);
             
-            // Save transaction record.
-            $transaction = new stdClass();
-            $transaction->paymentid = $paymentid;
-            $transaction->payu_order_id = $response->orderId ?? null;
-            $transaction->payu_transaction_id = $response->transactionId ?? null;
-            $transaction->state = $response->state ?? 'PENDING';
-            $transaction->payment_method = $paymentmethod;
-            $transaction->amount = $amount;
-            $transaction->currency = $currency;
-            $transaction->response_code = $response->responseCode ?? '';
-            $transaction->timecreated = time();
-            $transaction->timemodified = time();
-            
-            $DB->insert_record('paygw_payu', $transaction);
-            
+            // Build result.
             $result = [
-                'success' => ($response->state === 'APPROVED'),
+                'success' => ($response->state === 'APPROVED' || $response->state === 'PENDING'),
                 'paymentid' => $paymentid,
                 'transactionid' => $response->transactionId ?? '',
                 'orderid' => $response->orderId ?? '',
@@ -415,27 +341,45 @@ class paygw_payu_external extends external_api {
      * @return array Transaction details
      */
     public static function query_transaction($referencecode) {
-        global $USER;
+        global $DB;
         
-        require_login();
-        
+        // Parameter validation.
         $params = self::validate_parameters(self::query_transaction_parameters(), [
             'referencecode' => $referencecode,
         ]);
         
-        $config = get_config('paygw_payu');
+        require_login();
         
+        // Find transaction.
+        $transaction = $DB->get_record('paygw_payu', ['payu_order_id' => $referencecode]);
+        if (!$transaction) {
+            throw new moodle_exception('transactionnotfound', 'paygw_payu');
+        }
+        
+        // Get payment record.
+        $payment = $DB->get_record('payments', ['id' => $transaction->paymentid], '*', MUST_EXIST);
+        
+        // Get config.
+        $config = (object) \core_payment\helper::get_gateway_configuration(
+            $payment->component,
+            $payment->paymentarea,
+            $payment->itemid,
+            'payu'
+        );
+        
+        // Query via API.
         try {
             $api = new \paygw_payu\api($config);
-            $result = $api->query_transaction($referencecode);
+            $response = $api->query_transaction($referencecode);
             
             return [
                 'success' => true,
-                'orderid' => $result->id ?? '',
-                'state' => $result->state ?? 'UNKNOWN',
-                'responsecode' => $result->responseCode ?? '',
-                'amount' => $result->additionalValues->TX_VALUE->value ?? 0,
-                'currency' => $result->additionalValues->TX_VALUE->currency ?? '',
+                'transactionid' => $response->transactionId ?? '',
+                'orderid' => $response->orderId ?? '',
+                'state' => $response->state ?? '',
+                'responsecode' => $response->responseCode ?? '',
+                'amount' => $response->amount ?? 0,
+                'currency' => $response->currency ?? '',
             ];
             
         } catch (Exception $e) {
@@ -454,6 +398,7 @@ class paygw_payu_external extends external_api {
     public static function query_transaction_returns() {
         return new external_single_structure([
             'success' => new external_value(PARAM_BOOL, 'Success status'),
+            'transactionid' => new external_value(PARAM_TEXT, 'Transaction ID', VALUE_OPTIONAL),
             'orderid' => new external_value(PARAM_TEXT, 'Order ID', VALUE_OPTIONAL),
             'state' => new external_value(PARAM_TEXT, 'Transaction state', VALUE_OPTIONAL),
             'responsecode' => new external_value(PARAM_TEXT, 'Response code', VALUE_OPTIONAL),
@@ -470,8 +415,8 @@ class paygw_payu_external extends external_api {
      */
     public static function process_refund_parameters() {
         return new external_function_parameters([
-            'orderid' => new external_value(PARAM_TEXT, 'Order ID'),
-            'transactionid' => new external_value(PARAM_TEXT, 'Transaction ID'),
+            'paymentid' => new external_value(PARAM_INT, 'Payment ID'),
+            'amount' => new external_value(PARAM_FLOAT, 'Refund amount', VALUE_OPTIONAL),
             'reason' => new external_value(PARAM_TEXT, 'Refund reason', VALUE_OPTIONAL),
         ]);
     }
@@ -479,37 +424,60 @@ class paygw_payu_external extends external_api {
     /**
      * Process refund for a transaction.
      *
-     * @param string $orderid Order ID
-     * @param string $transactionid Transaction ID
+     * @param int $paymentid Payment ID
+     * @param float $amount Refund amount (optional, defaults to full)
      * @param string $reason Refund reason
-     * @return array Refund result
+     * @return array Result
      */
-    public static function process_refund($orderid, $transactionid, $reason = '') {
-        global $USER;
+    public static function process_refund($paymentid, $amount = null, $reason = '') {
+        global $DB;
         
-        require_login();
-        
-        // Check capability.
-        $context = context_system::instance();
-        require_capability('moodle/payment:manageaccounts', $context);
-        
+        // Parameter validation.
         $params = self::validate_parameters(self::process_refund_parameters(), [
-            'orderid' => $orderid,
-            'transactionid' => $transactionid,
+            'paymentid' => $paymentid,
+            'amount' => $amount,
             'reason' => $reason,
         ]);
         
-        $config = get_config('paygw_payu');
+        // Check capability.
+        require_capability('paygw/payu:managerefunds', context_system::instance());
         
+        // Get transaction.
+        $transaction = $DB->get_record('paygw_payu', ['paymentid' => $paymentid], '*', MUST_EXIST);
+        
+        // Get payment.
+        $payment = $DB->get_record('payments', ['id' => $paymentid], '*', MUST_EXIST);
+        
+        // Get config.
+        $config = (object) \core_payment\helper::get_gateway_configuration(
+            $payment->component,
+            $payment->paymentarea,
+            $payment->itemid,
+            'payu'
+        );
+        
+        // Default to full refund if amount not specified.
+        if ($amount === null) {
+            $amount = $payment->amount;
+        }
+        
+        // Process refund via API.
         try {
             $api = new \paygw_payu\api($config);
-            $result = $api->process_refund($orderid, $transactionid, $reason);
+            $response = $api->process_refund($transaction->payu_order_id, $amount, $reason);
+            
+            // Update transaction state.
+            if ($response->state === 'REFUNDED') {
+                $transaction->state = 'REFUNDED';
+                $transaction->timemodified = time();
+                $DB->update_record('paygw_payu', $transaction);
+            }
             
             return [
-                'success' => ($result->state === 'APPROVED'),
-                'transactionid' => $result->transactionId ?? '',
-                'state' => $result->state ?? 'UNKNOWN',
-                'message' => $result->responseMessage ?? '',
+                'success' => ($response->state === 'REFUNDED'),
+                'transactionid' => $response->transactionId ?? '',
+                'state' => $response->state ?? '',
+                'message' => $response->responseMessage ?? '',
             ];
             
         } catch (Exception $e) {
@@ -541,69 +509,72 @@ class paygw_payu_external extends external_api {
      */
     public static function autofill_test_data_parameters() {
         return new external_function_parameters([
-            'paymentmethod' => new external_value(PARAM_TEXT, 'Payment method'),
-            'result' => new external_value(PARAM_TEXT, 'Desired result (approved/declined)', VALUE_OPTIONAL),
+            'paymentmethod' => new external_value(PARAM_ALPHA, 'Payment method'),
         ]);
     }
     
     /**
-     * Get test data for sandbox mode.
+     * Auto-fill test data for sandbox mode.
      *
      * @param string $paymentmethod Payment method
-     * @param string $result Desired result
      * @return array Test data
      */
-    public static function autofill_test_data($paymentmethod, $result = 'approved') {
-        global $USER;
+    public static function autofill_test_data($paymentmethod) {
+        // Parameter validation.
+        $params = self::validate_parameters(self::autofill_test_data_parameters(), [
+            'paymentmethod' => $paymentmethod,
+        ]);
         
         require_login();
         
-        $params = self::validate_parameters(self::autofill_test_data_parameters(), [
-            'paymentmethod' => $paymentmethod,
-            'result' => $result,
-        ]);
+        // Only works in test mode.
+        $config = get_config('paygw_payu');
+        if (empty($config->testmode)) {
+            return [];
+        }
         
         $testdata = [];
         
-        // Test credentials from PayU documentation.
-        $testdata['apilogin'] = 'pRRXKOl8ikMmt9u';
-        $testdata['apikey'] = '4Vj8eK4rloUd272L48hsrarnUA';
-        $testdata['merchantid'] = '508029';
-        $testdata['accountid'] = '512321'; // Colombia account.
-        
         switch ($paymentmethod) {
             case 'creditcard':
-                if ($result === 'approved') {
-                    $testdata['cardnumber'] = '4111111111111111'; // Visa approved.
-                    $testdata['cardholder'] = 'APPROVED';
-                } else {
-                    $testdata['cardnumber'] = '4000000000000002'; // Visa declined.
-                    $testdata['cardholder'] = 'DECLINED';
-                }
-                $testdata['expmonth'] = '12';
-                $testdata['expyear'] = date('Y', strtotime('+5 years'));
-                $testdata['cvv'] = '123';
-                $testdata['documentnumber'] = '1234567890';
+                $testdata = [
+                    'cardnumber' => '4111111111111111',
+                    'cardholder' => 'APPROVED',
+                    'expmonth' => '12',
+                    'expyear' => '2030',
+                    'cvv' => '123',
+                    'documentnumber' => '1234567890',
+                    'phone' => '3001234567',
+                    'email' => 'test@example.com',
+                ];
                 break;
                 
             case 'pse':
-                $testdata['psebank'] = '1022'; // Test bank code.
-                $testdata['documentnumber'] = '1234567890';
-                $testdata['phone'] = '3001234567';
+                $testdata = [
+                    'psebank' => '1022',
+                    'usertype' => 'N',
+                    'documenttype' => 'CC',
+                    'documentnumber' => '1234567890',
+                    'phone' => '3001234567',
+                    'email' => 'test@example.com',
+                ];
                 break;
                 
             case 'nequi':
-                $testdata['phone'] = '3001234567';
-                $testdata['documentnumber'] = '1234567890';
+                $testdata = [
+                    'phone' => '3009876543',
+                    'documentnumber' => '1234567890',
+                ];
                 break;
                 
             case 'cash':
-                $testdata['documentnumber'] = '1234567890';
-                $testdata['phone'] = '3001234567';
+                $testdata = [
+                    'documentnumber' => '1234567890',
+                    'phone' => '3001234567',
+                    'email' => 'test@example.com',
+                ];
                 break;
         }
-        
-        $testdata['email'] = 'test_buyer@test.com';
         
         return $testdata;
     }

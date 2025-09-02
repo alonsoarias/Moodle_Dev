@@ -1,0 +1,104 @@
+{{!
+    @template paygw_payu/receipt
+    
+    Payment receipt template.
+}}
+<div class="payu-receipt-container">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3>{{#str}} paymentreceipt, paygw_payu {{/str}}</h3>
+        </div>
+        <div class="card-body">
+            <div class="receipt-header mb-4">
+                <h4>{{description}}</h4>
+                <p class="text-muted">{{#str}} for, paygw_payu {{/str}} {{username}}</p>
+            </div>
+            
+            <div class="receipt-details">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th scope="row">{{#str}} reference, paygw_payu {{/str}}</th>
+                            <td><strong>{{reference}}</strong></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">{{#str}} amount, paygw_payu {{/str}}</th>
+                            <td><strong>{{currency}} {{amount}}</strong></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">{{#str}} paymentmethod, paygw_payu {{/str}}</th>
+                            <td>{{paymentmethod}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">{{#str}} status, paygw_payu {{/str}}</th>
+                            <td>
+                                {{#state}}
+                                <span class="badge badge-{{#str}} statusbadge_{{state}}, paygw_payu {{/str}}">
+                                    {{state}}
+                                </span>
+                                {{/state}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">{{#str}} date, paygw_payu {{/str}}</th>
+                            <td>{{timecreated}}</td>
+                        </tr>
+                        {{#iscash}}
+                        <tr>
+                            <th scope="row">{{#str}} expirationdate, paygw_payu {{/str}}</th>
+                            <td class="text-danger"><strong>{{expirationdate}}</strong></td>
+                        </tr>
+                        {{/iscash}}
+                    </tbody>
+                </table>
+            </div>
+            
+            {{#iscash}}
+            <div class="cash-instructions alert alert-warning mt-4">
+                <h5>{{#str}} paymentinstructions, paygw_payu {{/str}}</h5>
+                <p>{{instructions}}</p>
+                
+                <div class="receipt-downloads mt-3">
+                    {{#receipthtml}}
+                    <a href="{{receipthtml}}" target="_blank" class="btn btn-primary">
+                        <i class="fa fa-file-text"></i> {{#str}} viewhtmlreceipt, paygw_payu {{/str}}
+                    </a>
+                    {{/receipthtml}}
+                    
+                    {{#receiptpdf}}
+                    <a href="{{receiptpdf}}" target="_blank" class="btn btn-danger">
+                        <i class="fa fa-file-pdf-o"></i> {{#str}} downloadpdfreceipt, paygw_payu {{/str}}
+                    </a>
+                    {{/receiptpdf}}
+                </div>
+            </div>
+            {{/iscash}}
+            
+            {{#ispse}}
+            <div class="pse-instructions alert alert-info mt-4">
+                <h5>{{#str}} pseinstructions, paygw_payu {{/str}}</h5>
+                {{#bankurl}}
+                <a href="{{bankurl}}" target="_blank" class="btn btn-primary">
+                    <i class="fa fa-university"></i> {{#str}} gotobanksite, paygw_payu {{/str}}
+                </a>
+                {{/bankurl}}
+            </div>
+            {{/ispse}}
+        </div>
+        <div class="card-footer">
+            <button onclick="window.print();" class="btn btn-secondary">
+                <i class="fa fa-print"></i> {{#str}} print, core {{/str}}
+            </button>
+            <a href="{{wwwroot}}" class="btn btn-primary">
+                {{#str}} backtohome, paygw_payu {{/str}}
+            </a>
+        </div>
+    </div>
+</div>
+
+{{#css}}
+@media print {
+    .card-footer { display: none; }
+    .btn { display: none; }
+}
+{{/css}}

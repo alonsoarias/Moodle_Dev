@@ -1,0 +1,103 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template paygw_payu/return
+    
+    PayU return page template.
+    
+    Context variables required for this template:
+    * alerttype - Type of alert (success, warning, danger, info)
+    * alertmessage - Alert message to display
+    * showdetails - Whether to show transaction details
+    * transactionid - Transaction ID
+    * orderid - Order ID
+    * amount - Payment amount
+    * currency - Currency code
+    * paymentmethod - Payment method used
+    * responsecode - Response code
+    * retryurl - URL to retry payment (optional)
+    * continueurl - URL to continue (optional)
+    * receipturl - URL to receipt (optional)
+    
+    Example context (json):
+    {
+        "alerttype": "success",
+        "alertmessage": "Payment successful",
+        "showdetails": true,
+        "transactionid": "123456",
+        "orderid": "789",
+        "amount": "100000",
+        "currency": "COP",
+        "paymentmethod": "VISA",
+        "responsecode": "APPROVED",
+        "continueurl": "https://example.com/course/view.php?id=2"
+    }
+}}
+<div class="payu-return-container">
+    <div class="alert alert-{{alerttype}} alert-dismissible fade show" role="alert">
+        <h4 class="alert-heading">{{alertmessage}}</h4>
+        {{#showdetails}}
+        <hr>
+        <div class="transaction-details">
+            <p><strong>{{#str}} transactionid, paygw_payu {{/str}}:</strong> {{transactionid}}</p>
+            {{#orderid}}
+            <p><strong>{{#str}} orderid, paygw_payu {{/str}}:</strong> {{orderid}}</p>
+            {{/orderid}}
+            <p><strong>{{#str}} amount, paygw_payu {{/str}}:</strong> {{currency}} {{amount}}</p>
+            <p><strong>{{#str}} paymentmethod, paygw_payu {{/str}}:</strong> {{paymentmethod}}</p>
+            {{#responsecode}}
+            <p><strong>{{#str}} status, paygw_payu {{/str}}:</strong> {{responsecode}}</p>
+            {{/responsecode}}
+        </div>
+        {{/showdetails}}
+    </div>
+    
+    <div class="action-buttons mt-4">
+        {{#continueurl}}
+        <a href="{{continueurl}}" class="btn btn-primary">
+            {{#str}} continue {{/str}}
+        </a>
+        {{/continueurl}}
+        
+        {{#retryurl}}
+        <a href="{{retryurl}}" class="btn btn-warning">
+            {{#str}} tryagain, paygw_payu {{/str}}
+        </a>
+        {{/retryurl}}
+        
+        {{#receipturl}}
+        <a href="{{receipturl}}" target="_blank" class="btn btn-info">
+            {{#str}} viewreceipt, paygw_payu {{/str}}
+        </a>
+        {{/receipturl}}
+    </div>
+</div>
+
+{{#js}}
+require(['jquery'], function($) {
+    // Auto-redirect for successful payments after 5 seconds
+    {{#continueurl}}
+    {{#alerttype}}
+    if ('{{alerttype}}' === 'success') {
+        setTimeout(function() {
+            window.location.href = '{{continueurl}}';
+        }, 5000);
+    }
+    {{/alerttype}}
+    {{/continueurl}}
+});
+{{/js}}

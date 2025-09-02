@@ -29,37 +29,33 @@ use paygw_payu\notifications;
 
 require_once(__DIR__ . '/../../../config.php');
 
-global $DB, $USER, $PAGE, $OUTPUT;
-
 require_login();
 
+global $DB, $USER, $PAGE, $OUTPUT;
+
 // Get return parameters from PayU.
-$referencecode = optional_param('referenceCode', '', PARAM_TEXT);
-$txvalue = optional_param('TX_VALUE', 0, PARAM_FLOAT);
-$currency = optional_param('currency', '', PARAM_TEXT);
-$transactionstate = optional_param('transactionState', '', PARAM_INT);
-$responsecode = optional_param('polResponseCode', '', PARAM_TEXT);
-$transactionid = optional_param('transactionId', '', PARAM_TEXT);
-$message = optional_param('message', '', PARAM_TEXT);
+$merchantid = required_param('merchantId', PARAM_INT);
+$referencecode = required_param('referenceCode', PARAM_TEXT);
+$signature = required_param('signature', PARAM_RAW);
+$txvalue = required_param('TX_VALUE', PARAM_RAW);
+$currency = required_param('currency', PARAM_TEXT);
+$transactionstate = required_param('transactionState', PARAM_INT);
+$transactionid = required_param('transactionId', PARAM_TEXT);
+$referencepol = optional_param('reference_pol', '', PARAM_TEXT);
+$responsecode = optional_param('lapResponseCode', '', PARAM_TEXT);
 $paymentmethodname = optional_param('lapPaymentMethodType', '', PARAM_TEXT);
-$signature = optional_param('signature', '', PARAM_RAW);
 
-// If no reference code, check for payment ID in session.
-if (empty($referencecode)) {
-    $referencecode = optional_param('paymentid', '', PARAM_INT);
-}
-
-if (empty($referencecode)) {
+// Extract payment ID from reference code.
+if (preg_match('/MOODLE-(\d+)-/', $referencecode, $matches)) {
+    $paymentid = $matches[1];
+} else {
     throw new moodle_exception('invalidreference', 'paygw_payu');
 }
 
 // Get payment record.
-$payment = $DB->get_record('payments', ['id' => $referencecode]);
-if (!$payment) {
-    throw new moodle_exception('invalidpayment', 'paygw_payu');
-}
+$payment = $DB->get_record('payments', ['id' => $paymentid], '*', MUST_EXIST);
 
-// Verify payment belongs to current user.
+// Verify user owns this payment.
 if ($payment->userid != $USER->id) {
     throw new moodle_exception('invaliduser', 'paygw_payu');
 }
@@ -162,7 +158,7 @@ switch ($newstate) {
     case 'EXPIRED':
         $pagetitle = get_string('paymenterror', 'paygw_payu');
         $alerttype = 'danger';
-        $alertmessage = get_string('paymenterror', 'paygw_payu') . ' - ' . $message;
+        $alertmessage = paygw_payu_get_response_message($responsecode);
         break;
         
     default:
@@ -172,33 +168,28 @@ switch ($newstate) {
 }
 
 $PAGE->set_title($pagetitle);
-$PAGE->set_heading(format_string($payable->get_description()));
+$PAGE->set_heading($pagetitle);
 
 // Prepare template context.
 $templatecontext = [
-    'success' => ($newstate === 'APPROVED'),
-    'pending' => ($newstate === 'PENDING'),
-    'error' => in_array($newstate, ['DECLINED', 'ERROR', 'EXPIRED']),
     'alerttype' => $alerttype,
     'alertmessage' => $alertmessage,
-    'paymentid' => $payment->id,
-    'transactionid' => $transactionid,
-    'state' => $newstate,
-    'responsecode' => $responsecode,
-    'amount' => $payment->currency . ' ' . number_format($payment->amount, 2),
-    'description' => format_string($payable->get_description()),
-    'paymentmethod' => $paymentmethodname,
     'showdetails' => $showdetails,
+    'transactionid' => $transactionid,
+    'orderid' => $referencepol,
+    'amount' => $payment->amount,
+    'currency' => $payment->currency,
+    'paymentmethod' => $paymentmethodname,
+    'responsecode' => $responsecode,
 ];
 
-// Add success URL if payment was successful.
+// Add continue URL for successful payments.
 if ($newstate === 'APPROVED') {
     $successurl = helper::get_success_url($payment->component, $payment->paymentarea, $payment->itemid);
     $templatecontext['continueurl'] = $successurl->out(false);
-    $templatecontext['continuebutton'] = get_string('continue');
 }
 
-// Add retry button if payment failed.
+// Add retry URL for failed payments.
 if (in_array($newstate, ['DECLINED', 'ERROR', 'EXPIRED'])) {
     $retryurl = new moodle_url('/payment/gateway/payu/method.php', [
         'component' => $payment->component,
