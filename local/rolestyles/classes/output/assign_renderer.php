@@ -33,10 +33,8 @@ class assign_renderer extends assign_renderer_base {
      */
     public function render_assign_grading_table(assign_grading_table $table) {
         if (\local_rolestyles_has_selected_role()) {
-            $pagesize = $table->get_rows_per_page();
             $table->setup();
-
-            [$filtered, $total] = \local_rolestyles_filter_assign_grading($table, $pagesize);
+            [$filtered, $total] = \local_rolestyles_filter_assign_grading($table);
             $visible = count($filtered);
 
             $table->rawdata = $filtered;
