@@ -87,6 +87,9 @@ function local_rolestyles_inject_css() {
         foreach ($role_classes as $class) {
             $PAGE->add_body_class($class);
         }
+
+        // Load filtering script to hide participants without submissions on grading pages.
+        $PAGE->requires->js(new moodle_url('/local/rolestyles/assets/filter.js'));
         
         // Get custom CSS
         $custom_css = get_config('local_rolestyles', 'custom_css');
