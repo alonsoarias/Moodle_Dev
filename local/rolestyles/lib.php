@@ -17,20 +17,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Hook implementation for Moodle 4.0+
- */
-function local_rolestyles_before_http_headers($hook = null): void {
-    local_rolestyles_inject_css();
-}
-
-/**
- * Legacy callback for earlier versions
- */
-function local_rolestyles_before_http_headers_callback() {
-    local_rolestyles_inject_css();
-}
-
-/**
  * Main function to inject CSS based on user roles
  */
 function local_rolestyles_inject_css() {
@@ -88,9 +74,6 @@ function local_rolestyles_inject_css() {
             $PAGE->add_body_class($class);
         }
 
-        // Load filtering script to hide participants without submissions on grading pages.
-        $PAGE->requires->js(new moodle_url('/local/rolestyles/assets/filter.js'));
-        
         // Get custom CSS
         $custom_css = get_config('local_rolestyles', 'custom_css');
         if (!empty($custom_css)) {
@@ -131,6 +114,39 @@ function local_rolestyles_get_context() {
     
     // Fallback: System context
     return context_system::instance();
+}
+
+/**
+ * Determine if the current user has one of the selected roles.
+ *
+ * @return bool True if a selected role is active
+ */
+function local_rolestyles_has_selected_role(): bool {
+    global $USER;
+
+    $enabled = get_config('local_rolestyles', 'enabled');
+    if (!$enabled || !isloggedin() || isguestuser()) {
+        return false;
+    }
+
+    $context = local_rolestyles_get_context();
+    if (!$context) {
+        return false;
+    }
+
+    $selected = get_config('local_rolestyles', 'selected_roles');
+    if (empty($selected)) {
+        return false;
+    }
+
+    $selected = explode(',', $selected);
+    $userroles = get_user_roles($context, $USER->id, true);
+    foreach ($userroles as $role) {
+        if (in_array($role->roleid, $selected)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
