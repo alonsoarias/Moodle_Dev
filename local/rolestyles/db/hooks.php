@@ -20,16 +20,9 @@ defined('MOODLE_INTERNAL') || die();
 $hooks = [
     // Nuevo hook system para Moodle 4.0+
     [
-        'callback' => 'local_rolestyles_before_http_headers',
-        'hookname' => 'core\hook\output\before_http_headers',
+        'callback' => 'local_rolestyles_hook_before_http_headers',
+        'hookname' => 'core\\hook\\output\\before_http_headers',
         'priority' => 100,
     ],
 ];
 
-// Callbacks legacy para versiones anteriores de Moodle
-$callbacks = [
-    [
-        'file' => 'local/rolestyles/lib.php',
-        'function' => 'local_rolestyles_before_http_headers'
-    ]
-];
