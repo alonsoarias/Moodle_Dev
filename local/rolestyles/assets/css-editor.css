@@ -1,0 +1,469 @@
+/* Role Styles Plugin - Enhanced CSS Editor Styles */
+
+/* Container for syntax highlighting */
+.rolestyles-editor-container {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+/* Main textarea styling */
+textarea#id_s_local_rolestyles_custom_css,
+#id_s_local_rolestyles_custom_css {
+    font-family: "Consolas", "Monaco", "Menlo", "Ubuntu Mono", "Courier New", monospace !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    background-color: transparent !important;
+    color: transparent !important;
+    border: 2px solid #3c3c3c !important;
+    border-radius: 6px !important;
+    padding: 15px !important;
+    tab-size: 4 !important;
+    -moz-tab-size: 4 !important;
+    min-height: 400px !important;
+    max-height: 600px !important;
+    resize: vertical !important;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    position: relative !important;
+    z-index: 2 !important;
+    caret-color: #d4d4d4 !important;
+    overflow: auto !important;
+    white-space: pre !important;
+    word-wrap: normal !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Syntax highlighting overlay */
+.rolestyles-syntax-overlay {
+    position: absolute !important;
+    top: 2px !important;
+    left: 2px !important;
+    right: 2px !important;
+    bottom: 2px !important;
+    font-family: "Consolas", "Monaco", "Menlo", "Ubuntu Mono", "Courier New", monospace !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    background-color: #1e1e1e !important;
+    color: #d4d4d4 !important;
+    border-radius: 4px !important;
+    padding: 15px !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+    white-space: pre !important;
+    word-wrap: normal !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Focus state */
+textarea#id_s_local_rolestyles_custom_css:focus,
+#id_s_local_rolestyles_custom_css:focus {
+    border-color: #007acc !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.3), inset 0 1px 3px rgba(0,0,0,0.3) !important;
+}
+
+.rolestyles-syntax-overlay:focus {
+    border-color: #007acc !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.3), inset 0 1px 3px rgba(0,0,0,0.3) !important;
+}
+
+/* Syntax highlighting colors (VSCode Dark Theme) */
+.css-comment {
+    color: #6a9955 !important;
+    font-style: italic !important;
+}
+
+.css-selector {
+    color: #d7ba7d !important;
+    font-weight: normal !important;
+}
+
+.css-property {
+    color: #9cdcfe !important;
+    font-weight: normal !important;
+}
+
+.css-value {
+    color: #d4d4d4 !important;
+    font-weight: normal !important;
+}
+
+.css-string {
+    color: #ce9178 !important;
+    font-weight: normal !important;
+}
+
+.css-number {
+    color: #b5cea8 !important;
+    font-weight: normal !important;
+}
+
+.css-unit {
+    color: #b5cea8 !important;
+    font-weight: normal !important;
+}
+
+.css-color-hex {
+    color: #d4d4d4 !important;
+    background-color: rgba(212, 212, 212, 0.1) !important;
+    padding: 0 2px !important;
+    border-radius: 2px !important;
+    font-weight: normal !important;
+}
+
+.css-important {
+    color: #c586c0 !important;
+    font-weight: bold !important;
+}
+
+.css-brace-open,
+.css-brace-close {
+    color: #ffd700 !important;
+    font-weight: bold !important;
+}
+
+.css-semicolon {
+    color: #d4d4d4 !important;
+    font-weight: normal !important;
+}
+
+.css-colon {
+    color: #d4d4d4 !important;
+    font-weight: normal !important;
+}
+
+.css-comma {
+    color: #d4d4d4 !important;
+    font-weight: normal !important;
+}
+
+.css-function {
+    color: #dcdcaa !important;
+    font-weight: normal !important;
+}
+
+.css-at-rule {
+    color: #c586c0 !important;
+    font-weight: bold !important;
+}
+
+/* Focus state */
+textarea#id_s_local_rolestyles_custom_css:focus,
+#id_s_local_rolestyles_custom_css:focus {
+    border-color: #007acc !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.3), inset 0 1px 3px rgba(0,0,0,0.3) !important;
+}
+
+.rolestyles-syntax-overlay:focus {
+    border-color: #007acc !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.3), inset 0 1px 3px rgba(0,0,0,0.3) !important;
+}
+
+/* Syntax highlighting colors (VSCode Dark Theme) */
+.css-comment {
+    color: #6a9955 !important;
+    font-style: italic !important;
+}
+
+.css-selector {
+    color: #d7ba7d !important;
+    font-weight: normal !important;
+}
+
+.css-class-selector {
+    color: #d7ba7d !important;
+}
+
+.css-id-selector {
+    color: #d7ba7d !important;
+}
+
+.css-pseudo-selector {
+    color: #d7ba7d !important;
+}
+
+.css-property {
+    color: #9cdcfe !important;
+}
+
+.css-value {
+    color: #ce9178 !important;
+}
+
+.css-string {
+    color: #ce9178 !important;
+}
+
+.css-number {
+    color: #b5cea8 !important;
+}
+
+.css-unit {
+    color: #b5cea8 !important;
+}
+
+.css-color-hex {
+    color: #d4d4d4 !important;
+    background-color: rgba(212, 212, 212, 0.1) !important;
+    padding: 0 2px !important;
+    border-radius: 2px !important;
+}
+
+.css-color-rgb {
+    color: #d4d4d4 !important;
+}
+
+.css-important {
+    color: #c586c0 !important;
+    font-weight: bold !important;
+}
+
+.css-brace-open {
+    color: #ffd700 !important;
+    font-weight: bold !important;
+}
+
+.css-brace-close {
+    color: #ffd700 !important;
+    font-weight: bold !important;
+}
+
+.css-semicolon {
+    color: #d4d4d4 !important;
+}
+
+.css-colon {
+    color: #d4d4d4 !important;
+}
+
+.css-comma {
+    color: #d4d4d4 !important;
+}
+
+.css-url {
+    color: #ce9178 !important;
+}
+
+.css-function {
+    color: #dcdcaa !important;
+}
+
+.css-vendor-prefix {
+    color: #569cd6 !important;
+}
+
+.css-at-rule {
+    color: #c586c0 !important;
+    font-weight: bold !important;
+}
+
+/* Selection styling */
+textarea#id_s_local_rolestyles_custom_css::selection,
+#id_s_local_rolestyles_custom_css::selection {
+    background: rgba(0, 122, 204, 0.3) !important;
+    color: #ffffff !important;
+}
+
+/* Button container */
+.rolestyles-editor-buttons {
+    margin: 15px 0 20px 0 !important;
+    display: flex !important;
+    gap: 12px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    clear: both !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Button base styles */
+.rolestyles-editor-btn {
+    padding: 10px 18px !important;
+    border: none !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: white !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    user-select: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 11 !important;
+}
+
+/* Format button */
+.rolestyles-format-btn {
+    background: linear-gradient(135deg, #0e639c, #1177bb) !important;
+}
+
+.rolestyles-format-btn:hover {
+    background: linear-gradient(135deg, #1177bb, #0e639c) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3) !important;
+}
+
+.rolestyles-format-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+}
+
+/* Validate button */
+.rolestyles-validate-btn {
+    background: linear-gradient(135deg, #106ebe, #1e88e5) !important;
+}
+
+.rolestyles-validate-btn:hover {
+    background: linear-gradient(135deg, #1e88e5, #106ebe) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3) !important;
+}
+
+.rolestyles-validate-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+}
+
+/* Info panel */
+.rolestyles-editor-info {
+    font-size: 13px !important;
+    color: #666 !important;
+    font-style: italic !important;
+    margin-left: auto !important;
+    padding: 8px 12px !important;
+    background: #f8f9fa !important;
+    border-radius: 4px !important;
+    border-left: 4px solid #007acc !important;
+    max-width: 250px !important;
+    text-align: left !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.rolestyles-editor-info strong {
+    color: #333 !important;
+    font-weight: 600 !important;
+}
+
+/* Loading indicator */
+.rolestyles-loading {
+    display: inline-block !important;
+    width: 16px !important;
+    height: 16px !important;
+    border: 2px solid #f3f3f3 !important;
+    border-top: 2px solid #007acc !important;
+    border-radius: 50% !important;
+    animation: rolestyles-spin 1s linear infinite !important;
+    margin-right: 8px !important;
+}
+
+@keyframes rolestyles-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success/Error messages */
+.rolestyles-message {
+    margin: 10px 0 !important;
+    padding: 12px 16px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.rolestyles-message.success {
+    background: #d4edda !important;
+    color: #155724 !important;
+    border-left: 4px solid #28a745 !important;
+}
+
+.rolestyles-message.error {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+    border-left: 4px solid #dc3545 !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .rolestyles-editor-info {
+        margin-left: 0 !important;
+        margin-top: 10px !important;
+        max-width: 100% !important;
+    }
+    
+    .rolestyles-editor-buttons {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .rolestyles-editor-btn {
+        justify-content: center !important;
+        margin-bottom: 8px !important;
+    }
+    
+    textarea#id_s_local_rolestyles_custom_css,
+    #id_s_local_rolestyles_custom_css {
+        font-size: 13px !important;
+        padding: 12px !important;
+    }
+}
+
+/* Scrollbar styling for webkit browsers */
+textarea#id_s_local_rolestyles_custom_css::-webkit-scrollbar,
+#id_s_local_rolestyles_custom_css::-webkit-scrollbar {
+    width: 12px !important;
+    height: 12px !important;
+}
+
+textarea#id_s_local_rolestyles_custom_css::-webkit-scrollbar-track,
+#id_s_local_rolestyles_custom_css::-webkit-scrollbar-track {
+    background: #2d2d30 !important;
+    border-radius: 6px !important;
+}
+
+textarea#id_s_local_rolestyles_custom_css::-webkit-scrollbar-thumb,
+#id_s_local_rolestyles_custom_css::-webkit-scrollbar-thumb {
+    background: #464647 !important;
+    border-radius: 6px !important;
+}
+
+textarea#id_s_local_rolestyles_custom_css::-webkit-scrollbar-thumb:hover,
+#id_s_local_rolestyles_custom_css::-webkit-scrollbar-thumb:hover {
+    background: #5a5a5c !important;
+}
+
+textarea#id_s_local_rolestyles_custom_css::-webkit-scrollbar-corner,
+#id_s_local_rolestyles_custom_css::-webkit-scrollbar-corner {
+    background: #2d2d30 !important;
+}
+
+/* Print styles */
+@media print {
+    .rolestyles-editor-buttons,
+    .rolestyles-editor-info {
+        display: none !important;
+    }
+    
+    textarea#id_s_local_rolestyles_custom_css,
+    #id_s_local_rolestyles_custom_css {
+        background: white !important;
+        color: black !important;
+        border: 1px solid #000 !important;
+    }
+}
