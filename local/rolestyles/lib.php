@@ -208,14 +208,18 @@ function local_rolestyles_filter_assign_grading(assign_grading_table $table): ar
 
     if (!isset($cache[$cachekey])) {
         $rows = $table->rawdata ?? [];
-        if (!empty($rows)) {
-            $filtered = array_filter($rows, static function($row) {
-                return !empty($row->status) && $row->status !== ASSIGN_SUBMISSION_STATUS_NEW && $row->grade === null;
-            });
-        } else {
-            $filtered = [];
+        if ($rows instanceof \Traversable) {
+            $rows = iterator_to_array($rows);
         }
-        $cache[$cachekey] = ['rows' => $filtered, 'total' => is_array($rows) ? count($rows) : 0];
+        $filtered = array_filter($rows, static function($row) {
+            return isset($row->status) &&
+                $row->status === ASSIGN_SUBMISSION_STATUS_SUBMITTED &&
+                $row->grade === null;
+        });
+        $cache[$cachekey] = [
+            'rows' => array_values($filtered),
+            'total' => is_array($rows) ? count($rows) : 0
+        ];
     }
 
     return [$cache[$cachekey]['rows'], $cache[$cachekey]['total']];

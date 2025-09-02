@@ -34,21 +34,22 @@ class assign_renderer extends assign_renderer_base {
     public function render_assign_grading_table(assign_grading_table $table) {
         if (\local_rolestyles_has_selected_role()) {
             $table->setup();
+            $table->query_db($table->get_rows_per_page(), false);
             [$filtered, $total] = \local_rolestyles_filter_assign_grading($table);
             $visible = count($filtered);
 
             $table->rawdata = $filtered;
+            ob_start();
             $table->build_table();
             $table->close_recordset();
+            $table->finish_output();
+            $tablehtml = ob_get_clean();
 
-            $o = '';
             $summary = \local_rolestyles_get_filter_summary($total, $visible);
-            $o .= $this->output->notification($summary, 'info');
+            $o = $this->output->notification($summary, 'info');
             $o .= $this->output->box_start('boxaligncenter gradingtable position-relative');
             $this->page->requires->js_init_call('M.mod_assign.init_grading_table', []);
-            ob_start();
-            $table->finish_output();
-            $o .= ob_get_clean();
+            $o .= $tablehtml;
             $o .= $this->output->box_end();
             return $o;
         }
