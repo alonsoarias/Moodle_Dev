@@ -19,7 +19,8 @@
  *
  * @package    paygw_payu
  * @category   privacy
- * @copyright  2024 Your Organization
+ * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
+ * @author     Alonso Arias
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +33,8 @@ use core_privacy\local\request\writer;
 /**
  * Privacy Subsystem implementation for paygw_payu.
  *
- * @copyright  2024 Your Organization
+ * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
+ * @author     Alonso Arias
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\request\data_provider, paygw_provider, \core_privacy\local\metadata\provider {
@@ -50,7 +52,7 @@ class provider implements \core_privacy\local\request\data_provider, paygw_provi
             [
                 'email'    => 'privacy:metadata:paygw_payu:email',
             ],
-            'privacy:metadata:paygw_payu:payu_data'
+            'privacy:metadata:paygw_payu:payu_latam'
         );
 
         // The paygw_payu has a database table that contains user data.
@@ -72,16 +74,18 @@ class provider implements \core_privacy\local\request\data_provider, paygw_provi
      *
      * @param \context $context Context
      * @param array $subcontext The location within the current context that the payment data belongs
-     * @param \stdClass $payment The payment record
+     * @param int $paymentid The payment ID
      */
-    public static function export_payment_data(\context $context, array $subcontext, \stdClass $payment) {
+    public static function export_payment_data(\context $context, array $subcontext, int $paymentid) {
         global $DB;
 
         $subcontext[] = get_string('gatewayname', 'paygw_payu');
-        $record = $DB->get_record('paygw_payu', ['paymentid' => $payment->id]);
+        $record = $DB->get_record('paygw_payu', ['paymentid' => $paymentid]);
 
         $data = (object) [
-            'transactionid' => $record->transactionid,
+            'courseid' => $record->courseid,
+            'groupnames' => $record->groupnames,
+            'success' => $record->success,
         ];
         writer::with_context($context)->export_data(
             $subcontext,
@@ -92,10 +96,10 @@ class provider implements \core_privacy\local\request\data_provider, paygw_provi
     /**
      * Delete all user data related to the given payments.
      *
-     * @param string $paymentsql SQL query that selects payment.id field for the payments
+     * @param string $paymentsql SQL query that selects payment.id values
      * @param array $paymentparams Array of parameters for $paymentsql
      */
-    public static function delete_data_for_payment_sql(string $paymentsql, array $paymentparams) {
+    public static function delete_data(string $paymentsql, array $paymentparams) {
         global $DB;
 
         $DB->delete_records_select('paygw_payu', "paymentid IN ({$paymentsql})", $paymentparams);

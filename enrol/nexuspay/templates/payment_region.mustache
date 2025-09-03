@@ -1,0 +1,181 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template enrol_nexuspay/payment_region
+
+    This template will render information about course fee along with a button for payment.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-component
+    * data-paymentarea
+    * data-itemid
+    * data-cost
+    * data-description
+    * data-successurl
+
+    Context variables required for this template:
+    * cost - Human readable cost string including amount and currency
+    * instanceid - Id of the enrolment instance
+    * description - The description for this purchase
+    * successurl - The URL of the course
+
+    Example context (json):
+    {
+        "cost": "$108.50",
+        "instanceid": 11,
+        "instancename": "NexusPay",
+        "description": "Enrolment in course Introduction to algorithms",
+        "successurl": "https://moodlesite/course/view.php?id=2",
+        "isguestuser": false,
+        "dateend": "9 May 2025",
+        "timeend": "0:10",
+        "enrolperiod": "7",
+        "enrolperiod_desc": "day",
+        "freetrial": true,
+        "sesskey": 234587628,
+        "unpaidperiod": 1,
+        "uninterrupted": true,
+        "force": true,
+        "groupkey": true,
+        "courseid": 22,
+        "hide": false
+    }
+
+}}
+<div class="mform">
+
+  <div class="position-relative d-flex ftoggler align-items-center position-relative mr-1" id="heading{{instanceid}}">
+    <a data-toggle="collapse" href="#collapse{{instanceid}}" role="button" aria-expanded="true" aria-controls="collapse{{instanceid}}" class="btn btn-icon mr-1 icons-collapse-expand stretched-link fheader">
+                <span class="expanded-icon icon-no-margin p-2">
+                    <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
+                </span>
+                <span class="collapsed-icon icon-no-margin p-2">
+                    <span class="dir-rtl-hide"><i class="icon fa fa-chevron-right fa-fw " aria-hidden="true"></i></span>
+                    <span class="dir-ltr-hide"><i class="icon fa fa-chevron-left fa-fw " aria-hidden="true"></i></span>
+                </span>
+        </a>
+    <h3 class="d-flex align-self-stretch align-items-center mb-0" aria-level="3">
+        {{instancename}}
+    </h3>
+  </div>
+
+  <div class="fcontainer collapse show" id="collapse{{instanceid}}">
+    <div id="payment-region-container">
+
+{{^isguestuser}}
+
+<div class="mdl-align">
+<p>{{# str }} cost, enrol_nexuspay {{/ str }}: <b>{{cost}}</b></p>
+{{#enrolperiod}}
+{{#showduration}}
+<p>{{# str }} enrolperiod, enrol_nexuspay, {"desc": "{{enrolperiod_desc}}", "count": {{enrolperiod}} } {{/ str }}</p>
+{{/showduration}}
+{{/enrolperiod}}
+{{#dateend}}
+<p>{{# str }} enrolperiodend, enrol_nexuspay, {"date": "{{dateend}}", "time": "{{timeend}}" } {{/ str }}</p>
+{{/dateend}}
+{{#uninterrupted}}
+{{#unpaidperiod}}
+{{# str }} uninterrupted_desc, enrol_nexuspay {{/ str }}
+{{/unpaidperiod}}
+{{/uninterrupted}}
+</div>
+{{^freetrial}}
+
+<div class="mdl-align">
+{{#notpaid}}
+<p>{{# str }} paymentrequired, enrol_nexuspay {{/ str }}</p>
+{{/notpaid}}
+{{#renew}}
+<p>{{# str }} renewenrolment_text, enrol_nexuspay {{/ str }}: <b>{{cost}}</b></p>
+{{/renew}}
+
+</br>
+
+{{#groupkey}}
+{{#hide}}
+<details open>
+ <summary>{{# str }} groupkeytextforce, enrol_nexuspay {{/ str }}</summary>
+{{/hide}}
+{{^hide}}
+<details class="mb-3">
+ <summary>{{# str }} groupkeytext, enrol_nexuspay {{/ str }}</summary>
+{{/hide}}
+
+<div class="d-flex mt-2" style="justify-content: center;">
+
+<form class="form-inline" id="groupkey-select" action="{{config.wwwroot}}/enrol/nexuspay/pay.php" method="POST">
+ <input type="hidden" class="hidden-inputs" id="id" name="id" value="{{instanceid}}">
+ <input type="hidden" class="hidden-inputs" id="courseid" name="courseid" value="{{courseid}}">
+ <input type="hidden" class="hidden-inputs" id="sesskey" name="sesskey" value="{{sesskey}}">
+ <input type="hidden" class="hidden-inputs" id="force" name="force" value="{{force}}">
+
+{{# str }} password, enrol_self {{/ str }}
+&nbsp; <input class="form-control" type="password" id="password" name="password" value="" autocomplete="new-password">
+&nbsp; <button type "submit" id="groupkey" name="groupkey" value="1" class="form-control btn
+{{^hide}}
+ btn-secondary
+{{/hide}}
+{{#hide}}
+ btn-primary
+{{/hide}}
+ btn-enrol_nexuspay-groupkey">{{# str }} submit {{/ str }}</button>
+
+</form>
+</div>
+</details>
+</br>
+{{/groupkey}}
+
+{{^hide}}
+        <button
+            class="btn btn-primary"
+            type="button"
+            id="gateways-modal-trigger-{{ uniqid }}"
+            data-action="core_payment/triggerPayment"
+            data-component="enrol_nexuspay"
+            data-paymentarea="fee"
+            data-itemid="{{instanceid}}"
+            data-cost="{{cost}}"
+            data-successurl="{{successurl}}"
+            data-description="{{description}}"
+        >
+            {{# str }} sendpaymentbutton, enrol_nexuspay {{/ str }}
+        </button>
+{{/hide}}
+
+{{/freetrial}}
+
+{{/isguestuser}}
+
+</div>
+
+    </div>
+  </div>
+
+</div>
+
+<hr>
+
+{{#js}}
+    require(['core_payment/gateways_modal'], function(modal) {
+        modal.init();
+    });
+{{/js}}

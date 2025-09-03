@@ -1,5 +1,5 @@
 <?php
-// This file is part of the PayU payment module for Moodle - http://moodle.org/
+// This file is part of the bank paymnts module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,19 +18,20 @@
  * paygw_payu installer script.
  *
  * @package    paygw_payu
- * @copyright  2024 Your Organization
+ * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
+ * @author     Alonso Arias
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
- * Installer
+ * Enabler
  *
  * @return boolean
  */
 function xmldb_paygw_payu_install() {
     global $CFG;
 
-    // Enable the PayU payment gateway on installation.
+    // Enable the PayU payment gateway on installation. It still needs to be configured and enabled for accounts.
     $order = (!empty($CFG->paygw_plugins_sortorder)) ? explode(',', $CFG->paygw_plugins_sortorder) : [];
     set_config('paygw_plugins_sortorder', join(',', array_merge($order, ['payu'])));
     return true;

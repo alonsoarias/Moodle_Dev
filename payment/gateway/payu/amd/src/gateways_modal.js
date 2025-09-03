@@ -17,7 +17,8 @@
  * This module is responsible for PayU content in the gateways modal.
  *
  * @module     paygw_payu/gateways_modal
- * @copyright  2024 Your Organization
+ * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
+ * @author     Alonso Arias
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

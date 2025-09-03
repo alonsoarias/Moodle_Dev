@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of the bank paymnts module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,15 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines message providers for PayU payment gateway.
+ * enrol_nexuspay installer script.
  *
- * @package    paygw_payu
- * @copyright  2024 Your Organization
+ * @package    enrol_nexuspay
+ * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
+ * @author    Alonso Arias
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+/**
+ * Enabler
+ *
+ * @return boolean
+ */
+function xmldb_enrol_nexuspay_install() {
 
-$messageproviders = [
-    'payment_receipt'     => [],
-];
+    $class = \core_plugin_manager::resolve_plugininfo_class('enrol');
+    $class::enable_plugin('nexuspay', true);
+
+    return true;
+}

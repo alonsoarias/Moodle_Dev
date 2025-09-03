@@ -15,10 +15,11 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * PayU callback handler
+ * PayU callback/confirmation handler
  *
  * @package     paygw_payu
- * @copyright   2024 Your Organization
+ * @copyright   2024 Alonso Arias <soporte@nexuslabs.com.co>
+ * @author      Alonso Arias
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,57 +32,61 @@ global $CFG, $USER, $DB;
 
 defined('MOODLE_INTERNAL') || die();
 
-// PayU response parameters.
-$merchant_id = required_param('merchant_id', PARAM_INT);
-$state_pol = required_param('state_pol', PARAM_INT);
-$reference_sale = required_param('reference_sale', PARAM_TEXT);
-$reference_pol = optional_param('reference_pol', '', PARAM_TEXT);
-$signature = required_param('sign', PARAM_TEXT);
-$value = required_param('value', PARAM_FLOAT);
-$currency = required_param('currency', PARAM_TEXT);
-$transaction_state = required_param('response_code_pol', PARAM_INT);
+// PayU parameters.
+$merchantid    = required_param('merchant_id', PARAM_TEXT);
+$state         = required_param('state_pol', PARAM_TEXT);
+$referencecode = required_param('reference_sale', PARAM_TEXT);
+$amount        = required_param('value', PARAM_FLOAT);
+$currency      = required_param('currency', PARAM_TEXT);
+$signature     = required_param('sign', PARAM_TEXT);
+$transactionid = optional_param('transaction_id', '', PARAM_TEXT);
+$referencepol  = optional_param('reference_pol', '', PARAM_TEXT);
+$paymentmethod = optional_param('payment_method_type', '', PARAM_INT);
 
-// Get transaction from DB.
-if (!$payutx = $DB->get_record('paygw_payu', ['referencecode' => $reference_sale])) {
-    die('Invalid reference code');
+// Extract payment ID from reference code.
+if (!preg_match('/MOODLE_(\d+)_/', $referencecode, $matches)) {
+    die('Invalid reference code format');
+}
+$paymentid = $matches[1];
+
+if (!$payutx = $DB->get_record('paygw_payu', ['paymentid' => $paymentid])) {
+    die('FAIL. Not a valid transaction id');
 }
 
 if (!$payment = $DB->get_record('payments', ['id' => $payutx->paymentid])) {
-    die('Invalid payment');
+    die('FAIL. Not a valid payment.');
 }
 
 $component   = $payment->component;
 $paymentarea = $payment->paymentarea;
 $itemid      = $payment->itemid;
-$paymentid   = $payment->id;
 $userid      = $payment->userid;
 
 // Get config.
 $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
 
-// Round the amount.
-$cost = number_format($value, 2, '.', '');
+// Round amount to 2 decimal places for signature validation.
+$roundedamount = number_format($amount, 2, '.', '');
 
-// Generate signature for validation.
-$signature_string = $config->apikey . '~' . $merchant_id . '~' . $reference_sale . '~' . $cost . '~' . $currency . '~' . $state_pol;
-$generated_signature = md5($signature_string);
+// Build signature for validation.
+$validsignature = md5($config->apikey . '~' . $config->merchantid . '~' . $referencecode . '~' . 
+                      $roundedamount . '~' . $currency . '~' . $state);
 
-// Validate signature.
-if (strtoupper($generated_signature) !== strtoupper($signature)) {
-    die('Invalid signature');
+// Check signature.
+if (strtoupper($validsignature) !== strtoupper($signature)) {
+    die('FAIL. Signature does not match.');
 }
 
-// Update payment amount.
-$payment->amount = $value;
-$payment->currency = $currency;
-$DB->update_record('payments', $payment);
-
 // Process based on transaction state.
-// State 4 = Approved, 6 = Declined, 5 = Expired, 7 = Pending.
-if ($state_pol == 4) {
-    // Transaction approved.
+if ($state == '4') { // Approved.
+    // Update payment.
+    $payment->amount = $amount;
+    $payment->currency = $currency;
+    $DB->update_record('payments', $payment);
+
+    // Deliver.
     helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $userid);
-    
+
     // Notify user.
     notifications::notify(
         $userid,
@@ -90,35 +95,30 @@ if ($state_pol == 4) {
         $paymentid,
         'Success completed'
     );
-    
-    // Update success status.
+
+    // Update transaction status.
     if ($config->testmode) {
         $payutx->success = 3; // Test mode success.
     } else {
         $payutx->success = 1; // Production success.
     }
-    $payutx->state = 'APPROVED';
-    $payutx->transactionid = $reference_pol;
-} else if ($state_pol == 6) {
-    // Transaction declined.
-    $payutx->success = 0;
-    $payutx->state = 'DECLINED';
-    $payutx->transactionid = $reference_pol;
-} else if ($state_pol == 7) {
-    // Transaction pending.
-    $payutx->success = 0;
-    $payutx->state = 'PENDING';
-    $payutx->transactionid = $reference_pol;
-} else {
-    // Other states.
-    $payutx->success = 0;
-    $payutx->state = 'ERROR';
-    $payutx->transactionid = $reference_pol;
-}
 
-// Update database.
-if (!$DB->update_record('paygw_payu', $payutx)) {
-    die('Database update error');
+    // Write to DB.
+    if (!$DB->update_record('paygw_payu', $payutx)) {
+        die('FAIL. Update db error. Please contact us.');
+    }
+
+    die('SUCCESS');
+} else if ($state == '6') { // Rejected.
+    $payutx->success = 2;
+    $DB->update_record('paygw_payu', $payutx);
+    die('Transaction rejected');
+} else if ($state == '5') { // Expired.
+    $payutx->success = 4;
+    $DB->update_record('paygw_payu', $payutx);
+    die('Transaction expired');
+} else if ($state == '7') { // Pending.
+    die('Transaction pending');
 } else {
-    echo 'OK'; // PayU expects this response.
+    die('Unknown state: ' . $state);
 }

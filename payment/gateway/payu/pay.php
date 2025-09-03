@@ -15,10 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Redirects user to the payment page
+ * Redirects user to the PayU payment portal
  *
  * @package     paygw_payu
- * @copyright   2024 Your Organization
+ * @copyright   2024 Alonso Arias <soporte@nexuslabs.com.co>
+ * @author      Alonso Arias
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -46,8 +47,10 @@ $description = json_decode('"' . $description . '"');
 
 $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
 $payable = helper::get_payable($component, $paymentarea, $itemid);
+
+// Get currency and payment amount.
 $currency = $payable->get_currency();
-$surcharge = helper::get_gateway_surcharge('payu');
+$surcharge = helper::get_gateway_surcharge('payu'); // In case user uses surcharge.
 
 $cost = helper::get_rounded_cost($payable->get_amount(), $payable->get_currency(), $surcharge);
 
@@ -61,13 +64,14 @@ if ($config->maxcost && $cost > $config->maxcost) {
     $cost = $config->maxcost;
 }
 
-// Check uninterrupted mode.
-$plugin = \core_plugin_manager::instance()->get_plugin_info('enrol_yafee');
+// Check uninterrupted mode for enrol_nexuspay.
+$plugin = \core_plugin_manager::instance()->get_plugin_info('enrol_nexuspay');
 $ver = 2025040100;
-if ($component == "enrol_yafee" && $config->fixcost) {
-    $cs = $DB->get_record('enrol', ['id' => $itemid, 'enrol' => 'yafee']);
+if ($component == "enrol_nexuspay" && $config->fixcost && $plugin && $plugin->versiondisk >= $ver) {
+    $cs = $DB->get_record('enrol', ['id' => $itemid, 'enrol' => 'nexuspay']);
     if ($cs->customint5) {
         $data = $DB->get_record('user_enrolments', ['userid' => $USER->id, 'enrolid' => $cs->id]);
+        // Prepare month and year.
         $ctime = time();
         $timeend = $ctime;
         if (isset($data->timeend)) {
@@ -75,122 +79,35 @@ if ($component == "enrol_yafee" && $config->fixcost) {
         }
         $t1 = getdate($timeend);
         $t2 = getdate($ctime);
-        if (isset($data->timeend) && $data->timeend < $ctime) {
-            if ($cs->enrolperiod) {
-                $price = $cost / $cs->enrolperiod;
-                $delta = ceil((($ctime - $data->timestart) / $cs->enrolperiod) + 0) * $cs->enrolperiod +
-                     $data->timestart - $data->timeend;
-                if ($plugin->versiondisk < $ver) {
-                    $cost = $delta * $price;
-                }
-                $uninterrupted = true;
-            } else if ($cs->customchar1 == 'month' && $cs->customint7 > 0) {
-                $delta = ($t2['year'] - $t1['year']) * 12 + $t2['mon'] - $t1['mon'] + 1;
-                if ($plugin->versiondisk < $ver) {
-                    $cost = $delta * $cost;
-                }
-                $uninterrupted = true;
-            } else if ($cs->customchar1 == 'year' && $cs->customint7 > 0) {
-                $delta = ($t2['year'] - $t1['year']) + 1;
-                if ($plugin->versiondisk < $ver) {
-                    $cost = $delta * $cost;
-                }
-                $uninterrupted = true;
+        
+        // Check periods.
+        $counter = 0;
+        if ($t2['year'] > $t1['year']) {
+            $ydiff = $t2['year'] - $t1['year'];
+            if ($ydiff > 1) {
+                $counter += 12 * ($ydiff - 1);
             }
-        }
-    }
-}
-
-$cost = number_format($cost, 2, '.', '');
-
-// Get course and groups for user.
-if ($component == "enrol_yafee" || $component == "enrol_fee") {
-    $cs = $DB->get_record('enrol', ['id' => $itemid]);
-    $cs->course = $cs->courseid;
-} else if ($paymentarea == "cmfee") {
-    $cs = $DB->get_record('course_modules', ['id' => $itemid]);
-} else if ($paymentarea == "sectionfee") {
-    $cs = $DB->get_record('course_sections', ['id' => $itemid]);
-} else if ($component == "mod_gwpayments") {
-    $cs = $DB->get_record('gwpayments', ['id' => $itemid]);
-}
-$groupnames = '';
-if (!empty($cs->course)) {
-    $courseid = $cs->course;
-    if ($gs = groups_get_user_groups($courseid, $userid, true)) {
-        foreach ($gs as $gr) {
-            foreach ($gr as $g) {
-                $groups[] = groups_get_group_name($g);
+            if ($t2['mon'] >= $t1['mon']) {
+                $counter += 12 + $t2['mon'] - $t1['mon'];
+            } else {
+                $counter += 12 - ($t1['mon'] - $t2['mon']);
             }
+        } else {
+            $counter += $t2['mon'] - $t1['mon'];
         }
-        if (isset($groups)) {
-            $groupnames = implode(',', $groups);
+        
+        // Check day.
+        if ($t2['mday'] < $t1['mday'] && $counter > 0) {
+            $counter -= 1;
         }
-    }
-} else {
-    $courseid = '';
-}
-
-// Write tx to DB.
-$paygwdata = new stdClass();
-$paygwdata->courseid = $courseid;
-$paygwdata->groupnames = $groupnames;
-
-if (!$transactionid = $DB->insert_record('paygw_payu', $paygwdata)) {
-    throw new Error(get_string('error_txdatabase', 'paygw_payu'));
-}
-
-$paygwdata->id = $transactionid;
-
-// Build redirect.
-$url = helper::get_success_url($component, $paymentarea, $itemid);
-
-// Set the context of the page.
-$PAGE->set_url($SCRIPT);
-$PAGE->set_context(context_system::instance());
-
-// Check passwordmode or skipmode.
-if (!empty($password) || $skipmode) {
-    $success = false;
-    if ($config->skipmode) {
-        $success = true;
-    } else if (isset($cs->password) && !empty($cs->password)) {
-        if ($password === $cs->password) {
-            $success = true;
-        }
-    } else if ($config->passwordmode && !empty($config->password)) {
-        if ($password === $config->password) {
-            $success = true;
+        
+        if ($counter > 0) {
+            $cost = $cost * $counter;
         }
     }
-
-    if ($success) {
-        // Make fake pay.
-        $paymentid = helper::save_payment(
-            $payable->get_account_id(),
-            $component,
-            $paymentarea,
-            $itemid,
-            $userid,
-            0,
-            $payable->get_currency(),
-            'payu'
-        );
-        helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $userid);
-
-        // Write to DB.
-        $paygwdata->success = 2;
-        $paygwdata->paymentid = $paymentid;
-        $DB->update_record('paygw_payu', $paygwdata);
-
-        redirect($url, get_string('password_success', 'paygw_payu'), 0, 'success');
-    } else {
-        redirect($url, get_string('password_error', 'paygw_payu'), 0, 'error');
-    }
-    die;
 }
 
-// Save payment.
+// Create payment record in database.
 $paymentid = helper::save_payment(
     $payable->get_account_id(),
     $component,
@@ -198,60 +115,65 @@ $paymentid = helper::save_payment(
     $itemid,
     $userid,
     $cost,
-    $payable->get_currency(),
+    $currency,
     'payu'
 );
 
-// Generate PayU reference code.
+// Save PayU transaction data.
+$payutx = new stdClass();
+$payutx->paymentid = $paymentid;
+$payutx->courseid = $COURSE->id;
+$payutx->success = 0;
+$payutx->groupnames = '';
+$DB->insert_record('paygw_payu', $payutx);
+
+// Generate reference code.
 $referencecode = 'MOODLE_' . $paymentid . '_' . time();
 
-// Generate PayU signature.
+// Generate signature for PayU.
 $signature = md5($config->apikey . '~' . $config->merchantid . '~' . $referencecode . '~' . $cost . '~' . $currency);
 
-// Write to DB.
-$paygwdata->paymentid = $paymentid;
-$paygwdata->referencecode = $referencecode;
-$DB->update_record('paygw_payu', $paygwdata);
+// Determine PayU URL based on test mode.
+$payuurl = $config->testmode 
+    ? 'https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/' 
+    : 'https://checkout.payulatam.com/ppp-web-gateway-payu/';
 
-$successurl = $CFG->wwwroot . "/payment/gateway/payu/return.php";
-$responseurl = $CFG->wwwroot . "/payment/gateway/payu/callback.php";
+// Build response and confirmation URLs.
+$responseurl = new moodle_url('/payment/gateway/payu/response.php', [
+    'component' => $component,
+    'paymentarea' => $paymentarea,
+    'itemid' => $itemid,
+    'paymentid' => $paymentid
+]);
 
-// Determine PayU checkout URL.
-if ($config->testmode) {
-    $paymenturl = "https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/";
-} else {
-    $paymenturl = "https://checkout.payulatam.com/ppp-web-gateway-payu/";
+$confirmationurl = new moodle_url('/payment/gateway/payu/callback.php');
+
+// Prepare form parameters for PayU.
+$params = [
+    'merchantId' => $config->merchantid,
+    'accountId' => $config->accountid,
+    'description' => $description,
+    'referenceCode' => $referencecode,
+    'amount' => $cost,
+    'tax' => '0',
+    'taxReturnBase' => '0',
+    'currency' => $currency,
+    'signature' => $signature,
+    'test' => $config->testmode ? '1' : '0',
+    'buyerEmail' => $USER->email,
+    'buyerFullName' => fullname($USER),
+    'responseUrl' => $responseurl->out(false),
+    'confirmationUrl' => $confirmationurl->out(false)
+];
+
+// Build HTML form for redirection to PayU.
+$html = '<html><body>';
+$html .= '<form id="payuform" action="' . $payuurl . '" method="post">';
+foreach ($params as $key => $value) {
+    $html .= '<input type="hidden" name="' . $key . '" value="' . htmlspecialchars($value) . '">';
 }
+$html .= '</form>';
+$html .= '<script>document.getElementById("payuform").submit();</script>';
+$html .= '</body></html>';
 
-// Prepare form for PayU.
-?>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Redirecting to PayU...</title>
-</head>
-<body>
-    <form id="payu_form" action="<?php echo $paymenturl; ?>" method="post">
-        <input name="merchantId" type="hidden" value="<?php echo $config->merchantid; ?>">
-        <input name="accountId" type="hidden" value="<?php echo $config->accountid; ?>">
-        <input name="description" type="hidden" value="<?php echo htmlspecialchars($description); ?>">
-        <input name="referenceCode" type="hidden" value="<?php echo $referencecode; ?>">
-        <input name="amount" type="hidden" value="<?php echo $cost; ?>">
-        <input name="currency" type="hidden" value="<?php echo $currency; ?>">
-        <input name="signature" type="hidden" value="<?php echo $signature; ?>">
-        <input name="test" type="hidden" value="<?php echo $config->testmode ? '1' : '0'; ?>">
-        <input name="buyerEmail" type="hidden" value="<?php echo $USER->email; ?>">
-        <input name="buyerFullName" type="hidden" value="<?php echo fullname($USER); ?>">
-        <input name="responseUrl" type="hidden" value="<?php echo $responseurl; ?>">
-        <input name="confirmationUrl" type="hidden" value="<?php echo $successurl; ?>">
-        <?php if (!empty($config->paymentsystem) && $config->paymentsystem != '0'): ?>
-        <input name="paymentMethods" type="hidden" value="<?php echo $config->paymentsystem; ?>">
-        <?php endif; ?>
-    </form>
-    <script type="text/javascript">
-        document.getElementById('payu_form').submit();
-    </script>
-    <p>Redirecting to PayU payment gateway...</p>
-</body>
-</html>
-<?php
+echo $html;
