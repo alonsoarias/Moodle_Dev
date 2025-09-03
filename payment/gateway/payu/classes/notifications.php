@@ -14,209 +14,86 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Notifications handler for PayU payment gateway.
+/** 
+ * Notifications for paygw_payu.
  *
  * @package    paygw_payu
- * @copyright  2024 Orion Cloud Consulting SAS
- * @author     Alonso Arias <soporte@orioncloud.com.co>
+ * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace paygw_payu;
 
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Notifications handler class.
+/** 
+ * Notifications class.
+ *
+ * Handle notifications for users about their transactions.
+ *
+ * @package    paygw_payu
+ * @copyright  2024 Your Organization
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class notifications {
-    
     /**
-     * Send payment receipt notification.
+     * Function that handle the notifications about transactions using PayU payment gateway
+     * and all kinds of responses.
      *
-     * @param int $userid User ID
-     * @param float $amount Payment amount
-     * @param string $currency Currency code
-     * @param int $paymentid Payment ID
-     * @param string $state Transaction state
-     * @param array $extradata Additional data
-     * @return bool Success status
+     * this function sending the message to the user and return the id of the message if needed
+     * or false in case of error.
+     *
+     * @param int $userid
+     * @param float $fee
+     * @param string $currency
+     * @param int $orderid
+     * @param string $type
+     * @return int|false
      */
-    public static function send_payment_receipt(int $userid, float $amount, string $currency, 
-            int $paymentid, string $state, array $extradata = []): bool {
-        global $DB, $CFG;
-        
-        $user = $DB->get_record('user', ['id' => $userid]);
-        if (!$user) {
+    public static function notify($userid, $fee, $currency, $orderid, $type = '') {
+        global $DB;
+
+        // Get the user object for messaging and fullname.
+        $user = \core_user::get_user($userid);
+        if (empty($user) || isguestuser($user) || !empty($user->deleted)) {
             return false;
         }
-        
-        $subject = get_string('messagesubject_payment_receipt', 'paygw_payu');
-        
-        $a = new \stdClass();
-        $a->fullname = fullname($user);
-        $a->amount = $currency . ' ' . number_format($amount, 2);
-        $a->paymentid = $paymentid;
-        $a->transactionid = $extradata['transactionid'] ?? '';
-        $a->paymentmethod = $extradata['paymentmethod'] ?? '';
-        $a->date = userdate(time());
-        $a->state = $state;
-        
-        $messagehtml = '';
-        $messagetext = '';
-        
-        switch ($state) {
-            case 'APPROVED':
-                $messagetext = get_string('message_payment_success', 'paygw_payu', $a);
-                break;
-            case 'PENDING':
-                $subject = get_string('messagesubject_payment_pending', 'paygw_payu');
-                $messagetext = get_string('message_payment_pending', 'paygw_payu', $a);
-                break;
-            case 'DECLINED':
-            case 'ERROR':
-                $subject = get_string('messagesubject_payment_error', 'paygw_payu');
-                $messagetext = get_string('message_payment_error', 'paygw_payu', $a);
-                break;
-        }
-        
-        $messagehtml = text_to_html($messagetext);
-        
-        $message = new \core\message\message();
-        $message->component = 'paygw_payu';
-        $message->name = 'payment_receipt';
-        $message->userfrom = \core_user::get_noreply_user();
-        $message->userto = $user;
-        $message->subject = $subject;
-        $message->fullmessage = $messagetext;
-        $message->fullmessageformat = FORMAT_PLAIN;
-        $message->fullmessagehtml = $messagehtml;
-        $message->smallmessage = $subject;
-        $message->notification = 1;
-        
-        return message_send($message);
-    }
-    
-    /**
-     * Send cash payment reminder.
-     *
-     * @param int $userid User ID
-     * @param float $amount Payment amount
-     * @param string $currency Currency code
-     * @param string $reference Payment reference
-     * @param int $expirationtime Expiration timestamp
-     * @return bool Success status
-     */
-    public static function send_cash_reminder(int $userid, float $amount, string $currency, 
-            string $reference, int $expirationtime): bool {
-        global $DB, $CFG;
-        
-        $user = $DB->get_record('user', ['id' => $userid]);
-        if (!$user) {
-            return false;
-        }
-        
-        $subject = get_string('messagesubject_cashreminder', 'paygw_payu');
-        
-        $a = new \stdClass();
-        $a->fullname = fullname($user);
-        $a->amount = $currency . ' ' . number_format($amount, 2);
-        $a->reference = $reference;
-        $a->expirationdate = userdate($expirationtime);
-        $a->receipturl = $CFG->wwwroot . '/payment/gateway/payu/receipt.php?reference=' . $reference;
-        
-        $messagetext = get_string('message_cash_reminder', 'paygw_payu', $a);
-        $messagehtml = text_to_html($messagetext);
-        
-        $message = new \core\message\message();
-        $message->component = 'paygw_payu';
-        $message->name = 'payment_receipt';
-        $message->userfrom = \core_user::get_noreply_user();
-        $message->userto = $user;
-        $message->subject = $subject;
-        $message->fullmessage = $messagetext;
-        $message->fullmessageformat = FORMAT_PLAIN;
-        $message->fullmessagehtml = $messagehtml;
-        $message->smallmessage = $subject;
-        $message->notification = 1;
-        
-        return message_send($message);
-    }
-    
-    /**
-     * Send admin notification for failed payments.
-     *
-     * @param int $paymentid Payment ID
-     * @param string $error Error message
-     * @param array $data Transaction data
-     * @return bool Success status
-     */
-    public static function notify_admin_error(int $paymentid, string $error, array $data = []): bool {
-        global $CFG;
-        
-        $admins = get_admins();
-        if (empty($admins)) {
-            return false;
-        }
-        
-        $subject = 'PayU Payment Error - Payment #' . $paymentid;
-        
-        $messagetext = "A payment error has occurred:\n\n";
-        $messagetext .= "Payment ID: $paymentid\n";
-        $messagetext .= "Error: $error\n";
-        $messagetext .= "Time: " . userdate(time()) . "\n";
-        
-        if (!empty($data)) {
-            $messagetext .= "\nAdditional Data:\n";
-            foreach ($data as $key => $value) {
-                $messagetext .= "$key: $value\n";
-            }
-        }
-        
-        $messagehtml = text_to_html($messagetext);
-        
-        $message = new \core\message\message();
-        $message->component = 'paygw_payu';
-        $message->name = 'payment_receipt';
-        $message->userfrom = \core_user::get_noreply_user();
-        $message->subject = $subject;
-        $message->fullmessage = $messagetext;
-        $message->fullmessageformat = FORMAT_PLAIN;
-        $message->fullmessagehtml = $messagehtml;
-        $message->smallmessage = $subject;
-        $message->notification = 1;
-        
-        $success = true;
-        foreach ($admins as $admin) {
-            $message->userto = $admin;
-            $success = message_send($message) && $success;
-        }
-        
-        return $success;
-    }
-    
-    /**
-     * Process and send notification based on transaction state.
-     *
-     * @param \stdClass $transaction Transaction record
-     * @param \stdClass $payment Payment record
-     * @return bool Success status
-     */
-    public static function process_transaction_notification(\stdClass $transaction, \stdClass $payment): bool {
-        $extradata = [
-            'transactionid' => $transaction->payu_transaction_id ?? '',
-            'paymentmethod' => $transaction->payment_method ?? '',
-            'responsecode' => $transaction->response_code ?? '',
+
+        // Set the object with all information to notify the user.
+        $a = (object)[
+            'fee'      => $fee,
+            'currency' => $currency,
+            'orderid'  => $orderid,
+            'fullname' => fullname($user),
+            'firstname' => $user->firstname,
+            'localizedcost' => \core_payment\helper::get_cost_as_string($fee, $currency),
         ];
+
+        $message = new \core\message\message();
+        $message->component = 'paygw_payu';
+        $message->name      = 'payment_receipt';
+        $message->userfrom  = \core_user::get_noreply_user();
+        $message->userto    = $user;
+        $message->subject   = get_string('messagesubject', 'paygw_payu', $type);
         
-        return self::send_payment_receipt(
-            $payment->userid,
-            $payment->amount,
-            $payment->currency,
-            $payment->id,
-            $transaction->state,
-            $extradata
-        );
+        switch ($type) {
+            case 'Success completed':
+                $messagebody = get_string('message_success_completed', 'paygw_payu', $a);
+                break;
+            default:
+                $messagebody = get_string('message_success_completed', 'paygw_payu', $a);
+                break;
+        }
+
+        $message->fullmessage       = $messagebody;
+        $message->fullmessageformat = FORMAT_MARKDOWN;
+        $message->fullmessagehtml   = "<p>$messagebody</p>";
+        $message->notification      = 1;
+        $message->contexturl        = '';
+        $message->contexturlname    = '';
+        $content = ['*' => ['header' => '', 'footer' => '']];
+        $message->set_additional_content('email', $content);
+
+        // Actually send the message.
+        $messageid = message_send($message);
+
+        return $messageid;
     }
 }

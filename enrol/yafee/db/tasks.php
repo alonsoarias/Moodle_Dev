@@ -15,17 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Settings for the PayU payment gateway
- *
- * @package     paygw_payu
- * @copyright   2024 Your Organization
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Task definition for enrol_yafee.
+ * @package   enrol_yafee
+ * @copyright 2024 Alex Orlov <snickser@gmail.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_heading('paygw_payu_settings', '', get_string('pluginname_desc', 'paygw_payu')));
-
-    \core_payment\helper::add_common_gateway_settings($settings, 'paygw_payu');
-}
+$tasks = [
+    [
+        'classname' => '\enrol_yafee\task\sync_enrolments',
+        'blocking' => 0,
+        'minute' => '*/10',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 1,
+    ],
+    [
+        'classname' => '\enrol_yafee\task\send_expiry_notifications',
+        'blocking' => 0,
+        'minute' => '*/15',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0,
+    ],
+];

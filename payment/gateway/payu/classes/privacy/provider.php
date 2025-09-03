@@ -18,8 +18,8 @@
  * Privacy Subsystem implementation for paygw_payu.
  *
  * @package    paygw_payu
- * @copyright  2024 Orion Cloud Consulting SAS
- * @author     Alonso Arias <soporte@orioncloud.com.co>
+ * @category   privacy
+ * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,106 +28,76 @@ namespace paygw_payu\privacy;
 use core_payment\privacy\paygw_provider;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\writer;
-use core_privacy\local\request\approved_contextlist;
-use core_privacy\local\request\approved_userlist;
-use core_privacy\local\request\contextlist;
-use core_privacy\local\request\userlist;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
- * Privacy Subsystem for paygw_payu.
+ * Privacy Subsystem implementation for paygw_payu.
  *
- * @copyright  2024 Orion Cloud Consulting SAS
+ * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements 
-    \core_privacy\local\request\data_provider,
-    \core_privacy\local\metadata\provider,
-    paygw_provider {
-
+class provider implements \core_privacy\local\request\data_provider, paygw_provider, \core_privacy\local\metadata\provider {
     /**
-     * Returns metadata about this plugin's privacy.
+     * Returns meta data about this system.
      *
-     * @param collection $collection The metadata collection to add to
-     * @return collection The updated collection
+     * @param collection $collection The initialised collection to add items to.
+     * @return collection A listing of user data stored through this system.
      */
     public static function get_metadata(collection $collection): collection {
-        
-        // External location - PayU.
+
+        // Data may be exported to an external location.
         $collection->add_external_location_link(
-            'payu',
+            'payu.latam',
             [
-                'fullname' => 'privacy:metadata:paygw_payu:payu:fullname',
-                'email' => 'privacy:metadata:paygw_payu:payu:email',
-                'phone' => 'privacy:metadata:paygw_payu:payu:phone',
-                'documentnumber' => 'privacy:metadata:paygw_payu:payu:documentnumber',
-                'address' => 'privacy:metadata:paygw_payu:payu:address',
-                'creditcard' => 'privacy:metadata:paygw_payu:payu:creditcard',
-                'amount' => 'privacy:metadata:paygw_payu:payu:amount',
-                'currency' => 'privacy:metadata:paygw_payu:payu:currency',
+                'email'    => 'privacy:metadata:paygw_payu:email',
             ],
-            'privacy:metadata:paygw_payu:payu'
+            'privacy:metadata:paygw_payu:payu_data'
         );
-        
-        // Database table.
+
+        // The paygw_payu has a database table that contains user data.
         $collection->add_database_table(
             'paygw_payu',
             [
-                'paymentid' => 'privacy:metadata:paygw_payu:database:paymentid',
-                'payu_order_id' => 'privacy:metadata:paygw_payu:database:payu_order_id',
-                'payu_transaction_id' => 'privacy:metadata:paygw_payu:database:payu_transaction_id',
-                'state' => 'privacy:metadata:paygw_payu:database:state',
-                'payment_method' => 'privacy:metadata:paygw_payu:database:payment_method',
-                'amount' => 'privacy:metadata:paygw_payu:database:amount',
-                'currency' => 'privacy:metadata:paygw_payu:database:currency',
-                'timecreated' => 'privacy:metadata:paygw_payu:database:timecreated',
+                'courseid'   => 'privacy:metadata:paygw_payu:courseid',
+                'groupnames' => 'privacy:metadata:paygw_payu:groupnames',
+                'success'    => 'privacy:metadata:paygw_payu:success',
             ],
-            'privacy:metadata:paygw_payu:database'
+            'privacy:metadata:paygw_payu:paygw_payu'
         );
-        
         return $collection;
     }
 
+
     /**
-     * Export all user data for the specified payment record.
+     * Export all user data for the specified payment record, and the given context.
      *
      * @param \context $context Context
-     * @param array $subcontext The location within the context
+     * @param array $subcontext The location within the current context that the payment data belongs
      * @param \stdClass $payment The payment record
      */
     public static function export_payment_data(\context $context, array $subcontext, \stdClass $payment) {
         global $DB;
-        
+
         $subcontext[] = get_string('gatewayname', 'paygw_payu');
-        
         $record = $DB->get_record('paygw_payu', ['paymentid' => $payment->id]);
-        if ($record) {
-            $data = (object) [
-                'payu_order_id' => $record->payu_order_id,
-                'payu_transaction_id' => $record->payu_transaction_id,
-                'state' => $record->state,
-                'payment_method' => $record->payment_method,
-                'amount' => $record->amount,
-                'currency' => $record->currency,
-                'response_code' => $record->response_code,
-                'timecreated' => transform::datetime($record->timecreated),
-                'timemodified' => transform::datetime($record->timemodified),
-            ];
-            
-            writer::with_context($context)->export_data($subcontext, $data);
-        }
+
+        $data = (object) [
+            'transactionid' => $record->transactionid,
+        ];
+        writer::with_context($context)->export_data(
+            $subcontext,
+            $data
+        );
     }
 
     /**
-     * Delete all user data for the specified payments.
+     * Delete all user data related to the given payments.
      *
-     * @param string $paymentsql SQL query selecting payment IDs
-     * @param array $paymentparams Parameters for the SQL query
+     * @param string $paymentsql SQL query that selects payment.id field for the payments
+     * @param array $paymentparams Array of parameters for $paymentsql
      */
     public static function delete_data_for_payment_sql(string $paymentsql, array $paymentparams) {
         global $DB;
-        
+
         $DB->delete_records_select('paygw_payu', "paymentid IN ({$paymentsql})", $paymentparams);
     }
 }

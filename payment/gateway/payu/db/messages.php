@@ -15,29 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Message providers for PayU payment gateway.
+ * Defines message providers for PayU payment gateway.
  *
  * @package    paygw_payu
- * @copyright  2024 Orion Cloud Consulting SAS
- * @author     Alonso Arias <soporte@orioncloud.com.co>
+ * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $messageproviders = [
-    'payment_receipt' => [
-        'capability' => 'paygw/payu:receivepaymentnotifications',
-        'defaults' => [
-            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN,
-            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN,
-        ],
-    ],
-    'cash_reminder' => [
-        'capability' => 'paygw/payu:receivepaymentnotifications',
-        'defaults' => [
-            'popup' => MESSAGE_PERMITTED,
-            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN,
-        ],
-    ],
+    'payment_receipt'     => [],
 ];

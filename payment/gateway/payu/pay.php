@@ -15,306 +15,243 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Process payment for PayU gateway.
+ * Redirects user to the payment page
  *
- * @package    paygw_payu
- * @copyright  2024 Orion Cloud Consulting SAS
- * @author     Alonso Arias <soporte@orioncloud.com.co>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     paygw_payu
+ * @copyright   2024 Your Organization
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core_payment\helper;
-use paygw_payu\api;
-use paygw_payu\notifications;
 
 require_once(__DIR__ . '/../../../config.php');
+global $CFG, $USER, $DB;
+require_once($CFG->libdir . '/filelib.php');
 
 require_login();
 require_sesskey();
 
-global $DB, $USER, $PAGE, $OUTPUT;
+$userid = $USER->id;
 
-// Get payment parameters.
 $component   = required_param('component', PARAM_COMPONENT);
 $paymentarea = required_param('paymentarea', PARAM_AREA);
 $itemid      = required_param('itemid', PARAM_INT);
-$paymentid   = required_param('paymentid', PARAM_INT);
 $description = required_param('description', PARAM_TEXT);
-$method      = required_param('paymentmethod', PARAM_ALPHA);
 
-// Clean description.
-$description = clean_param($description, PARAM_TEXT);
+$password    = optional_param('password', null, PARAM_TEXT);
+$skipmode    = optional_param('skipmode', null, PARAM_INT);
+$costself    = optional_param('costself', null, PARAM_TEXT);
 
-// Verify payment exists.
-if (!$payment = $DB->get_record('payments', ['id' => $paymentid])) {
-    throw new moodle_exception('invalidpayment', 'paygw_payu');
-}
+$description = json_decode('"' . $description . '"');
 
-// Verify payment is for correct user.
-if ($payment->userid != $USER->id) {
-    throw new moodle_exception('invaliduser', 'paygw_payu');
-}
-
-// Get gateway configuration.
 $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
-
-// Check if gateway is configured.
-if (empty($config->merchantid) || empty($config->payuaccountid) ||
-    empty($config->apilogin) || empty($config->apikey)) {
-    throw new moodle_exception('gatewaynotconfigured', 'paygw_payu');
-}
-
-// Get payment details.
 $payable = helper::get_payable($component, $paymentarea, $itemid);
-$currency = $payment->currency;
-$amount = $payment->amount;
+$currency = $payable->get_currency();
+$surcharge = helper::get_gateway_surcharge('payu');
 
-// Check supported currency.
-if (!in_array($currency, ['COP', 'USD'])) {
-    throw new moodle_exception('currencynotsupported', 'paygw_payu');
+$cost = helper::get_rounded_cost($payable->get_amount(), $payable->get_currency(), $surcharge);
+
+// Check self cost if not fixcost.
+if (!empty($costself) && !$config->fixcost) {
+    $cost = $costself;
 }
 
-// Initialize API client.
-$api = new api($config);
+// Check maxcost.
+if ($config->maxcost && $cost > $config->maxcost) {
+    $cost = $config->maxcost;
+}
 
-// Prepare payment data.
-$paymentdata = new stdClass();
-$paymentdata->paymentmethod = $method;
-$paymentdata->description = $description;
-
-// Collect form data based on payment method.
-switch ($method) {
-    case 'creditcard':
-        $paymentdata->cardholder = required_param('cardholder', PARAM_TEXT);
-        $paymentdata->cardnumber = required_param('cardnumber', PARAM_RAW);
-        $paymentdata->expmonth = required_param('expmonth', PARAM_INT);
-        $paymentdata->expyear = required_param('expyear', PARAM_INT);
-        $paymentdata->cvv = required_param('cvv', PARAM_INT);
-        $paymentdata->cardnetwork = required_param('cardnetwork', PARAM_ALPHA);
-        $paymentdata->installments = optional_param('installments', 1, PARAM_INT);
-        $paymentdata->phone = optional_param('phone', '', PARAM_RAW);
-        $paymentdata->documentnumber = optional_param('documentnumber', '', PARAM_RAW);
-        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
-        break;
-        
-    case 'pse':
-        $paymentdata->psebank = required_param('psebank', PARAM_ALPHANUMEXT);
-        $paymentdata->pseusertype = required_param('pseusertype', PARAM_ALPHA);
-        $paymentdata->documentnumber = required_param('documentnumber', PARAM_RAW);
-        $paymentdata->phone = required_param('phone', PARAM_RAW);
-        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
-        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
-        break;
-        
-    case 'nequi':
-        $paymentdata->phone = required_param('phone', PARAM_RAW);
-        $paymentdata->documentnumber = required_param('documentnumber', PARAM_RAW);
-        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
-        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
-        
-        // Validate Nequi phone.
-        if (!preg_match('/^3[0-9]{9}$/', $paymentdata->phone)) {
-            throw new moodle_exception('invalidphone', 'paygw_payu');
+// Check uninterrupted mode.
+$plugin = \core_plugin_manager::instance()->get_plugin_info('enrol_yafee');
+$ver = 2025040100;
+if ($component == "enrol_yafee" && $config->fixcost) {
+    $cs = $DB->get_record('enrol', ['id' => $itemid, 'enrol' => 'yafee']);
+    if ($cs->customint5) {
+        $data = $DB->get_record('user_enrolments', ['userid' => $USER->id, 'enrolid' => $cs->id]);
+        $ctime = time();
+        $timeend = $ctime;
+        if (isset($data->timeend)) {
+            $timeend = $data->timeend;
         }
-        break;
-        
-    case 'bancolombia':
-        $paymentdata->phone = required_param('phone', PARAM_RAW);
-        $paymentdata->documentnumber = required_param('documentnumber', PARAM_RAW);
-        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
-        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
-        break;
-        
-    case 'googlepay':
-        $paymentdata->gp_token = required_param('gp_token', PARAM_RAW);
-        $paymentdata->gp_network = required_param('gp_network', PARAM_ALPHA);
-        $paymentdata->phone = optional_param('phone', '', PARAM_RAW);
-        $paymentdata->documentnumber = optional_param('documentnumber', '', PARAM_RAW);
-        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
-        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
-        break;
-        
-    case 'cash':
-        $paymentdata->cashmethod = required_param('cashmethod', PARAM_ALPHA);
-        $paymentdata->documentnumber = required_param('documentnumber', PARAM_RAW);
-        $paymentdata->phone = optional_param('phone', '', PARAM_RAW);
-        $paymentdata->email = optional_param('email', $USER->email, PARAM_EMAIL);
-        $paymentdata->cardholder = optional_param('cardholder', fullname($USER), PARAM_TEXT);
-        break;
-        
-    default:
-        throw new moodle_exception('invalidpaymentmethod', 'paygw_payu');
-}
-
-// Add address information if provided.
-$paymentdata->address1 = optional_param('address1', '', PARAM_TEXT);
-$paymentdata->address2 = optional_param('address2', '', PARAM_TEXT);
-$paymentdata->city = optional_param('city', 'Bogotá', PARAM_TEXT);
-$paymentdata->state = optional_param('state', 'Bogotá D.C.', PARAM_TEXT);
-$paymentdata->postalcode = optional_param('postalcode', '000000', PARAM_TEXT);
-
-// Add IVA if applicable.
-$paymentdata->includeiva = optional_param('includeiva', 0, PARAM_BOOL);
-
-// Update transaction record.
-$transaction = $DB->get_record('paygw_payu', ['paymentid' => $paymentid]);
-if (!$transaction) {
-    $transaction = new stdClass();
-    $transaction->paymentid = $paymentid;
-    $transaction->timecreated = time();
-}
-$transaction->payment_method = $method;
-$transaction->amount = $amount;
-$transaction->currency = $currency;
-$transaction->state = 'PROCESSING';
-$transaction->timemodified = time();
-
-if (empty($transaction->id)) {
-    $transaction->id = $DB->insert_record('paygw_payu', $transaction);
-} else {
-    $DB->update_record('paygw_payu', $transaction);
-}
-
-try {
-    // Process payment with PayU.
-    $response = $api->process_payment($paymentid, $amount, $currency, $paymentdata);
-    
-    // Update transaction with response.
-    $transaction->payu_order_id = $response->orderId ?? null;
-    $transaction->payu_transaction_id = $response->transactionId ?? null;
-    $transaction->state = $response->state ?? 'UNKNOWN';
-    $transaction->response_code = $response->responseCode ?? null;
-    $transaction->extra_parameters = json_encode($response->extraParameters ?? []);
-    $transaction->timemodified = time();
-    $DB->update_record('paygw_payu', $transaction);
-    
-    // Handle response based on state.
-    switch ($response->state) {
-        case 'APPROVED':
-            // Payment approved immediately.
-            helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $USER->id);
-            
-            // Send success notification.
-            if (!empty($config->enablenotifications)) {
-                notifications::send_payment_receipt(
-                    $USER->id,
-                    $amount,
-                    $currency,
-                    $paymentid,
-                    'APPROVED',
-                    [
-                        'transactionid' => $response->transactionId ?? '',
-                        'paymentmethod' => $method,
-                    ]
-                );
-            }
-            
-            // Redirect to success page.
-            $successurl = $payable->get_success_url();
-            redirect($successurl, get_string('paymentsuccess', 'paygw_payu'), 0);
-            break;
-            
-        case 'PENDING':
-            // Payment pending (PSE, cash, etc.).
-            if (!empty($config->enablenotifications)) {
-                notifications::send_payment_receipt(
-                    $USER->id,
-                    $amount,
-                    $currency,
-                    $paymentid,
-                    'PENDING',
-                    [
-                        'transactionid' => $response->transactionId ?? '',
-                        'paymentmethod' => $method,
-                    ]
-                );
-            }
-            
-            // Show pending message with instructions.
-            $PAGE->set_url('/payment/gateway/payu/pay.php');
-            $PAGE->set_context(context_system::instance());
-            $PAGE->set_title(get_string('paymentpending', 'paygw_payu'));
-            
-            echo $OUTPUT->header();
-            echo $OUTPUT->notification(get_string('paymentpending', 'paygw_payu'), 'info');
-            
-            // Show payment receipt for cash payments.
-            if ($method === 'cash' && !empty($response->extraParameters)) {
-                $receipturl = $response->extraParameters->URL_PAYMENT_RECEIPT_HTML ?? '';
-                if ($receipturl) {
-                    echo html_writer::tag('p', get_string('instruction_cash', 'paygw_payu'));
-                    echo html_writer::link($receipturl, get_string('viewreceipt', 'paygw_payu'), 
-                        ['class' => 'btn btn-primary', 'target' => '_blank']);
+        $t1 = getdate($timeend);
+        $t2 = getdate($ctime);
+        if (isset($data->timeend) && $data->timeend < $ctime) {
+            if ($cs->enrolperiod) {
+                $price = $cost / $cs->enrolperiod;
+                $delta = ceil((($ctime - $data->timestart) / $cs->enrolperiod) + 0) * $cs->enrolperiod +
+                     $data->timestart - $data->timeend;
+                if ($plugin->versiondisk < $ver) {
+                    $cost = $delta * $price;
                 }
-            }
-            
-            // Show PSE redirect URL.
-            if ($method === 'pse' && !empty($response->extraParameters)) {
-                $pseurl = $response->extraParameters->BANK_URL ?? '';
-                if ($pseurl) {
-                    echo html_writer::tag('p', get_string('instruction_pse', 'paygw_payu'));
-                    redirect($pseurl);
+                $uninterrupted = true;
+            } else if ($cs->customchar1 == 'month' && $cs->customint7 > 0) {
+                $delta = ($t2['year'] - $t1['year']) * 12 + $t2['mon'] - $t1['mon'] + 1;
+                if ($plugin->versiondisk < $ver) {
+                    $cost = $delta * $cost;
                 }
+                $uninterrupted = true;
+            } else if ($cs->customchar1 == 'year' && $cs->customint7 > 0) {
+                $delta = ($t2['year'] - $t1['year']) + 1;
+                if ($plugin->versiondisk < $ver) {
+                    $cost = $delta * $cost;
+                }
+                $uninterrupted = true;
             }
-            
-            echo $OUTPUT->footer();
-            break;
-            
-        case 'DECLINED':
-        case 'ERROR':
-        case 'EXPIRED':
-            // Payment failed.
-            if (!empty($config->enablenotifications)) {
-                notifications::send_payment_receipt(
-                    $USER->id,
-                    $amount,
-                    $currency,
-                    $paymentid,
-                    $response->state,
-                    [
-                        'transactionid' => $response->transactionId ?? '',
-                        'paymentmethod' => $method,
-                        'errorcode' => $response->responseCode ?? '',
-                    ]
-                );
-            }
-            
-            // Show error and retry option.
-            $retryurl = new moodle_url('/payment/gateway/payu/method.php', [
-                'component' => $component,
-                'paymentarea' => $paymentarea,
-                'itemid' => $itemid,
-                'description' => $description,
-                'sesskey' => sesskey(),
-            ]);
-            
-            throw new moodle_exception('paymenterror', 'paygw_payu', $retryurl, 
-                $response->responseMessage ?? 'Payment failed');
-            break;
-            
-        default:
-            // Unknown state.
-            throw new moodle_exception('unknownstate', 'paygw_payu', '', $response->state);
+        }
     }
-    
-} catch (Exception $e) {
-    // Update transaction with error.
-    $transaction->state = 'ERROR';
-    $transaction->response_code = 'EXCEPTION';
-    $transaction->timemodified = time();
-    $DB->update_record('paygw_payu', $transaction);
-    
-    // Log error.
-    debugging('PayU payment error: ' . $e->getMessage(), DEBUG_DEVELOPER);
-    
-    // Show error to user.
-    $retryurl = new moodle_url('/payment/gateway/payu/method.php', [
-        'component' => $component,
-        'paymentarea' => $paymentarea,
-        'itemid' => $itemid,
-        'description' => $description,
-        'sesskey' => sesskey(),
-    ]);
-    
-    throw new moodle_exception('paymenterror', 'paygw_payu', $retryurl, $e->getMessage());
 }
+
+$cost = number_format($cost, 2, '.', '');
+
+// Get course and groups for user.
+if ($component == "enrol_yafee" || $component == "enrol_fee") {
+    $cs = $DB->get_record('enrol', ['id' => $itemid]);
+    $cs->course = $cs->courseid;
+} else if ($paymentarea == "cmfee") {
+    $cs = $DB->get_record('course_modules', ['id' => $itemid]);
+} else if ($paymentarea == "sectionfee") {
+    $cs = $DB->get_record('course_sections', ['id' => $itemid]);
+} else if ($component == "mod_gwpayments") {
+    $cs = $DB->get_record('gwpayments', ['id' => $itemid]);
+}
+$groupnames = '';
+if (!empty($cs->course)) {
+    $courseid = $cs->course;
+    if ($gs = groups_get_user_groups($courseid, $userid, true)) {
+        foreach ($gs as $gr) {
+            foreach ($gr as $g) {
+                $groups[] = groups_get_group_name($g);
+            }
+        }
+        if (isset($groups)) {
+            $groupnames = implode(',', $groups);
+        }
+    }
+} else {
+    $courseid = '';
+}
+
+// Write tx to DB.
+$paygwdata = new stdClass();
+$paygwdata->courseid = $courseid;
+$paygwdata->groupnames = $groupnames;
+
+if (!$transactionid = $DB->insert_record('paygw_payu', $paygwdata)) {
+    throw new Error(get_string('error_txdatabase', 'paygw_payu'));
+}
+
+$paygwdata->id = $transactionid;
+
+// Build redirect.
+$url = helper::get_success_url($component, $paymentarea, $itemid);
+
+// Set the context of the page.
+$PAGE->set_url($SCRIPT);
+$PAGE->set_context(context_system::instance());
+
+// Check passwordmode or skipmode.
+if (!empty($password) || $skipmode) {
+    $success = false;
+    if ($config->skipmode) {
+        $success = true;
+    } else if (isset($cs->password) && !empty($cs->password)) {
+        if ($password === $cs->password) {
+            $success = true;
+        }
+    } else if ($config->passwordmode && !empty($config->password)) {
+        if ($password === $config->password) {
+            $success = true;
+        }
+    }
+
+    if ($success) {
+        // Make fake pay.
+        $paymentid = helper::save_payment(
+            $payable->get_account_id(),
+            $component,
+            $paymentarea,
+            $itemid,
+            $userid,
+            0,
+            $payable->get_currency(),
+            'payu'
+        );
+        helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $userid);
+
+        // Write to DB.
+        $paygwdata->success = 2;
+        $paygwdata->paymentid = $paymentid;
+        $DB->update_record('paygw_payu', $paygwdata);
+
+        redirect($url, get_string('password_success', 'paygw_payu'), 0, 'success');
+    } else {
+        redirect($url, get_string('password_error', 'paygw_payu'), 0, 'error');
+    }
+    die;
+}
+
+// Save payment.
+$paymentid = helper::save_payment(
+    $payable->get_account_id(),
+    $component,
+    $paymentarea,
+    $itemid,
+    $userid,
+    $cost,
+    $payable->get_currency(),
+    'payu'
+);
+
+// Generate PayU reference code.
+$referencecode = 'MOODLE_' . $paymentid . '_' . time();
+
+// Generate PayU signature.
+$signature = md5($config->apikey . '~' . $config->merchantid . '~' . $referencecode . '~' . $cost . '~' . $currency);
+
+// Write to DB.
+$paygwdata->paymentid = $paymentid;
+$paygwdata->referencecode = $referencecode;
+$DB->update_record('paygw_payu', $paygwdata);
+
+$successurl = $CFG->wwwroot . "/payment/gateway/payu/return.php";
+$responseurl = $CFG->wwwroot . "/payment/gateway/payu/callback.php";
+
+// Determine PayU checkout URL.
+if ($config->testmode) {
+    $paymenturl = "https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/";
+} else {
+    $paymenturl = "https://checkout.payulatam.com/ppp-web-gateway-payu/";
+}
+
+// Prepare form for PayU.
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting to PayU...</title>
+</head>
+<body>
+    <form id="payu_form" action="<?php echo $paymenturl; ?>" method="post">
+        <input name="merchantId" type="hidden" value="<?php echo $config->merchantid; ?>">
+        <input name="accountId" type="hidden" value="<?php echo $config->accountid; ?>">
+        <input name="description" type="hidden" value="<?php echo htmlspecialchars($description); ?>">
+        <input name="referenceCode" type="hidden" value="<?php echo $referencecode; ?>">
+        <input name="amount" type="hidden" value="<?php echo $cost; ?>">
+        <input name="currency" type="hidden" value="<?php echo $currency; ?>">
+        <input name="signature" type="hidden" value="<?php echo $signature; ?>">
+        <input name="test" type="hidden" value="<?php echo $config->testmode ? '1' : '0'; ?>">
+        <input name="buyerEmail" type="hidden" value="<?php echo $USER->email; ?>">
+        <input name="buyerFullName" type="hidden" value="<?php echo fullname($USER); ?>">
+        <input name="responseUrl" type="hidden" value="<?php echo $responseurl; ?>">
+        <input name="confirmationUrl" type="hidden" value="<?php echo $successurl; ?>">
+        <?php if (!empty($config->paymentsystem) && $config->paymentsystem != '0'): ?>
+        <input name="paymentMethods" type="hidden" value="<?php echo $config->paymentsystem; ?>">
+        <?php endif; ?>
+    </form>
+    <script type="text/javascript">
+        document.getElementById('payu_form').submit();
+    </script>
+    <p>Redirecting to PayU payment gateway...</p>
+</body>
+</html>
+<?php

@@ -1,32 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="payment/gateway/payu/db" VERSION="20241218" COMMENT="XMLDB file for Moodle payment/gateway/payu"
+<XMLDB PATH="payment/gateway/payu/db" VERSION="20240502" COMMENT="XMLDB file for Moodle payment/gateway/payu"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd">
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
   <TABLES>
-    <TABLE NAME="paygw_payu" COMMENT="PayU transactions tracking">
+    <TABLE NAME="paygw_payu" COMMENT="List of successful PayU transactions.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="paymentid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Payment ID from payments table"/>
-        <FIELD NAME="payu_order_id" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="PayU order ID"/>
-        <FIELD NAME="payu_transaction_id" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="PayU transaction ID"/>
-        <FIELD NAME="state" TYPE="char" LENGTH="32" NOTNULL="false" SEQUENCE="false" COMMENT="Transaction state"/>
-        <FIELD NAME="payment_method" TYPE="char" LENGTH="32" NOTNULL="false" SEQUENCE="false" COMMENT="Payment method used"/>
-        <FIELD NAME="amount" TYPE="number" LENGTH="12" DECIMALS="2" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="currency" TYPE="char" LENGTH="3" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="response_code" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="extra_parameters" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON extra parameters"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="paymentid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="groupnames" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="transactionid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="referencecode" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="state" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="success" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="paymentid" TYPE="foreign-unique" FIELDS="paymentid" REFTABLE="payments" REFFIELDS="id"/>
       </KEYS>
-      <INDEXES>
-        <INDEX NAME="payu_order_id" UNIQUE="false" FIELDS="payu_order_id"/>
-        <INDEX NAME="payu_transaction_id" UNIQUE="false" FIELDS="payu_transaction_id"/>
-        <INDEX NAME="state" UNIQUE="false" FIELDS="state"/>
-      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>

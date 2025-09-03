@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,163 +12,113 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * PayU payment gateway callback handler.
+ * PayU callback handler
  *
- * @package    paygw_payu
- * @copyright  2024 Orion Cloud Consulting SAS
- * @author     Alonso Arias <soporte@orioncloud.com.co>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     paygw_payu
+ * @copyright   2024 Your Organization
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core_payment\helper;
-use paygw_payu\api;
 use paygw_payu\notifications;
 
-// No login required for callback.
-require_once(__DIR__ . '/../../../config.php');
+require("../../../config.php");
 
-global $DB;
+global $CFG, $USER, $DB;
 
-// Log incoming data for debugging in test mode.
-$debugmode = get_config('paygw_payu', 'debugmode');
-if ($debugmode) {
-    error_log('PayU Callback Data: ' . print_r($_REQUEST, true));
-}
+defined('MOODLE_INTERNAL') || die();
 
-// Get callback parameters.
-$merchantid = required_param('merchant_id', PARAM_INT);
-$referencesale = required_param('reference_sale', PARAM_INT);
-$value = required_param('value', PARAM_RAW);
+// PayU response parameters.
+$merchant_id = required_param('merchant_id', PARAM_INT);
+$state_pol = required_param('state_pol', PARAM_INT);
+$reference_sale = required_param('reference_sale', PARAM_TEXT);
+$reference_pol = optional_param('reference_pol', '', PARAM_TEXT);
+$signature = required_param('sign', PARAM_TEXT);
+$value = required_param('value', PARAM_FLOAT);
 $currency = required_param('currency', PARAM_TEXT);
-$statepol = required_param('state_pol', PARAM_INT);
-$signature = required_param('sign', PARAM_RAW);
+$transaction_state = required_param('response_code_pol', PARAM_INT);
 
-// Optional parameters.
-$responsecode = optional_param('response_code_pol', '', PARAM_TEXT);
-$responsemessage = optional_param('response_message_pol', '', PARAM_TEXT);
-$paymentmethod = optional_param('payment_method', '', PARAM_TEXT);
-$paymentmethodtype = optional_param('payment_method_type', '', PARAM_TEXT);
-$transactionid = optional_param('transaction_id', '', PARAM_TEXT);
-$email = optional_param('email_buyer', '', PARAM_EMAIL);
-
-// Get payment record.
-if (!$payment = $DB->get_record('payments', ['id' => $referencesale])) {
-    http_response_code(400);
-    die('Invalid payment reference');
+// Get transaction from DB.
+if (!$payutx = $DB->get_record('paygw_payu', ['referencecode' => $reference_sale])) {
+    die('Invalid reference code');
 }
 
-// Get gateway configuration.
-$config = (object) helper::get_gateway_configuration(
-    $payment->component,
-    $payment->paymentarea,
-    $payment->itemid,
-    'payu'
-);
-
-// Validate merchant ID.
-if ($merchantid != $config->merchantid) {
-    http_response_code(400);
-    die('Invalid merchant ID');
+if (!$payment = $DB->get_record('payments', ['id' => $payutx->paymentid])) {
+    die('Invalid payment');
 }
 
-// Initialize API and validate signature.
-$api = new api($config);
-if (!$api->validate_callback_signature($_REQUEST)) {
-    http_response_code(400);
+$component   = $payment->component;
+$paymentarea = $payment->paymentarea;
+$itemid      = $payment->itemid;
+$paymentid   = $payment->id;
+$userid      = $payment->userid;
+
+// Get config.
+$config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
+
+// Round the amount.
+$cost = number_format($value, 2, '.', '');
+
+// Generate signature for validation.
+$signature_string = $config->apikey . '~' . $merchant_id . '~' . $reference_sale . '~' . $cost . '~' . $currency . '~' . $state_pol;
+$generated_signature = md5($signature_string);
+
+// Validate signature.
+if (strtoupper($generated_signature) !== strtoupper($signature)) {
     die('Invalid signature');
 }
 
-// Get or create PayU transaction record.
-$transaction = $DB->get_record('paygw_payu', ['paymentid' => $referencesale]);
-if (!$transaction) {
-    $transaction = new stdClass();
-    $transaction->paymentid = $referencesale;
-    $transaction->payu_transaction_id = $transactionid;
-    $transaction->payment_method = $paymentmethod;
-    $transaction->amount = $value;
-    $transaction->currency = $currency;
-    $transaction->timecreated = time();
-}
+// Update payment amount.
+$payment->amount = $value;
+$payment->currency = $currency;
+$DB->update_record('payments', $payment);
 
-// Map PayU state to internal state.
-$states = [
-    4 => 'APPROVED',
-    6 => 'DECLINED',
-    7 => 'PENDING',
-    5 => 'EXPIRED',
-    104 => 'ERROR',
-];
-
-$newstate = $states[$statepol] ?? 'UNKNOWN';
-$transaction->state = $newstate;
-$transaction->response_code = $responsecode;
-$transaction->timemodified = time();
-
-// Update or insert transaction record.
-if (!empty($transaction->id)) {
-    $DB->update_record('paygw_payu', $transaction);
+// Process based on transaction state.
+// State 4 = Approved, 6 = Declined, 5 = Expired, 7 = Pending.
+if ($state_pol == 4) {
+    // Transaction approved.
+    helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $userid);
+    
+    // Notify user.
+    notifications::notify(
+        $userid,
+        $payment->amount,
+        $payment->currency,
+        $paymentid,
+        'Success completed'
+    );
+    
+    // Update success status.
+    if ($config->testmode) {
+        $payutx->success = 3; // Test mode success.
+    } else {
+        $payutx->success = 1; // Production success.
+    }
+    $payutx->state = 'APPROVED';
+    $payutx->transactionid = $reference_pol;
+} else if ($state_pol == 6) {
+    // Transaction declined.
+    $payutx->success = 0;
+    $payutx->state = 'DECLINED';
+    $payutx->transactionid = $reference_pol;
+} else if ($state_pol == 7) {
+    // Transaction pending.
+    $payutx->success = 0;
+    $payutx->state = 'PENDING';
+    $payutx->transactionid = $reference_pol;
 } else {
-    $transaction->id = $DB->insert_record('paygw_payu', $transaction);
+    // Other states.
+    $payutx->success = 0;
+    $payutx->state = 'ERROR';
+    $payutx->transactionid = $reference_pol;
 }
 
-// Process based on state.
-switch ($newstate) {
-    case 'APPROVED':
-        // Deliver order if not already delivered.
-        if ($payment->status != 'complete') {
-            helper::deliver_order(
-                $payment->component,
-                $payment->paymentarea,
-                $payment->itemid,
-                $payment->id,
-                $payment->userid
-            );
-            
-            // Send notification if enabled.
-            if (!empty($config->enablenotifications)) {
-                notifications::send_payment_receipt(
-                    $payment->userid,
-                    $payment->amount,
-                    $payment->currency,
-                    $payment->id,
-                    'APPROVED',
-                    [
-                        'transactionid' => $transactionid,
-                        'paymentmethod' => $paymentmethod,
-                    ]
-                );
-            }
-        }
-        break;
-        
-    case 'DECLINED':
-    case 'EXPIRED':
-    case 'ERROR':
-        // Send failure notification if enabled.
-        if (!empty($config->enablenotifications)) {
-            notifications::send_payment_receipt(
-                $payment->userid,
-                $payment->amount,
-                $payment->currency,
-                $payment->id,
-                $newstate,
-                [
-                    'transactionid' => $transactionid,
-                    'paymentmethod' => $paymentmethod,
-                    'errormessage' => $responsemessage,
-                ]
-            );
-        }
-        break;
-        
-    case 'PENDING':
-        // Payment still pending - no action needed.
-        break;
+// Update database.
+if (!$DB->update_record('paygw_payu', $payutx)) {
+    die('Database update error');
+} else {
+    echo 'OK'; // PayU expects this response.
 }
-
-// Return success response to PayU.
-http_response_code(200);
-echo 'OK';

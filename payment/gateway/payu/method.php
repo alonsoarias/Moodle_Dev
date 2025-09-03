@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,22 +12,22 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Payment method selector for PayU payment gateway.
+ * Payment method page
  *
- * @package    paygw_payu
- * @copyright  2024 Orion Cloud Consulting SAS
- * @author     Alonso Arias <soporte@orioncloud.com.co>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     paygw_payu
+ * @copyright   2024 Your Organization
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core_payment\helper;
-use paygw_payu\api;
 
 require_once(__DIR__ . '/../../../config.php');
-global $CFG, $USER, $DB, $PAGE, $OUTPUT;
+global $CFG, $USER, $DB;
+
+defined('MOODLE_INTERNAL') || die();
 
 require_login();
 require_sesskey();
@@ -37,163 +37,167 @@ $paymentarea = required_param('paymentarea', PARAM_AREA);
 $itemid      = required_param('itemid', PARAM_INT);
 $description = required_param('description', PARAM_TEXT);
 
-// Clean description.
-$description = clean_param($description, PARAM_TEXT);
+$description = json_decode('"' . $description . '"');
 
-// Get gateway configuration.
+$params = [
+    'component'   => $component,
+    'paymentarea' => $paymentarea,
+    'itemid'      => $itemid,
+    'description' => $description,
+];
+
 $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
-
-// Validate configuration.
-if (empty($config->merchantid) || empty($config->payuaccountid) || 
-    empty($config->apilogin) || empty($config->apikey)) {
-    throw new moodle_exception('gatewaynotconfigured', 'paygw_payu');
-}
-
-// Get payment details.
 $payable = helper::get_payable($component, $paymentarea, $itemid);
 $currency = $payable->get_currency();
-
-// Validate supported currency.
-$supportedcurrencies = ['COP', 'USD'];
-if (!in_array($currency, $supportedcurrencies)) {
-    throw new moodle_exception('currencynotsupported', 'paygw_payu', '', $currency);
-}
-
-// Calculate amount with surcharge.
 $surcharge = helper::get_gateway_surcharge('payu');
-$amount = helper::get_rounded_cost($payable->get_amount(), $currency, $surcharge);
+$fee = helper::get_rounded_cost($payable->get_amount(), $currency, $surcharge);
 
-// Setup page.
-$PAGE->set_url('/payment/gateway/payu/method.php');
+// Get course info.
+$enrolperiod = 0;
+$enrolperioddesc = null;
+$uninterrupted = false;
+$showenrolperiod = true;
+
+// Check area.
+$plugin = \core_plugin_manager::instance()->get_plugin_info('enrol_yafee');
+$ver = 2025040100;
+if ($component == "enrol_yafee") {
+    $cs = $DB->get_record('enrol', ['id' => $itemid, 'enrol' => 'yafee']);
+    $enrolperiod = $cs->enrolperiod;
+    // Check uninterrupted cost.
+    if ($cs->customint5) {
+        if ($data = $DB->get_record('user_enrolments', ['userid' => $USER->id, 'enrolid' => $cs->id])) {
+            // Prepare month and year.
+            $ctime = time();
+            $timeend = $ctime;
+            if (isset($data->timeend)) {
+                $timeend = $data->timeend;
+            }
+            $t1 = getdate($timeend);
+            $t2 = getdate($ctime);
+            // Check periods.
+            if ($data->timeend < $ctime && $data->timestart) {
+                if ($cs->enrolperiod) {
+                    $price = $fee / $cs->enrolperiod;
+                    $delta = ceil((($ctime - $data->timestart) / $cs->enrolperiod) + 0) * $cs->enrolperiod +
+                             $data->timestart - $data->timeend;
+                    if ($plugin->versiondisk < $ver) {
+                        $fee = $delta * $price;
+                    }
+                    $uninterrupted = true;
+                } else if ($cs->customchar1 == 'month' && $cs->customint7 > 0) {
+                    $delta = ($t2['year'] - $t1['year']) * 12 + $t2['mon'] - $t1['mon'] + 1;
+                    if ($plugin->versiondisk < $ver) {
+                        $fee = $delta * $fee;
+                    }
+                    $uninterrupted = true;
+                } else if ($cs->customchar1 == 'year' && $cs->customint7 > 0) {
+                    $delta = ($t2['year'] - $t1['year']) + 1;
+                    if ($plugin->versiondisk < $ver) {
+                        $fee = $delta * $fee;
+                    }
+                    $uninterrupted = true;
+                }
+                if ($plugin->versiondisk < $ver) {
+                    $fee = helper::get_rounded_cost($fee, $currency, $surcharge);
+                }
+            }
+        }
+    }
+    // Set month/year period.
+    if ($cs->customchar1 == 'month' && $cs->customint7 > 0) {
+        $enrolperiod = $cs->customint7;
+        $enrolperioddesc = get_string('months');
+        $showenrolperiod = false;
+    } else if ($cs->customchar1 == 'year' && $cs->customint7 > 0) {
+        $enrolperiod = $cs->customint7;
+        $enrolperioddesc = get_string('years');
+        $showenrolperiod = false;
+    }
+} else if ($component == "mod_gwpayments") {
+    $cs = $DB->get_record('gwpayments', ['id' => $itemid]);
+    $enrolperiod = $cs->costduration;
+}
+
+if ($enrolperiod > 0) {
+    if ($enrolperiod >= 86400 * 7) {
+        $enrolperioddesc = get_string('weeks');
+        $enrolperiod = round($enrolperiod / (86400 * 7));
+    } else if ($enrolperiod >= 86400) {
+        $enrolperioddesc = get_string('days');
+        $enrolperiod = round($enrolperiod / 86400);
+    } else if ($enrolperiod >= 3600) {
+        $enrolperioddesc = get_string('hours');
+        $enrolperiod = round($enrolperiod / 3600);
+    } else if ($enrolperiod >= 60) {
+        $enrolperioddesc = get_string('minutes');
+        $enrolperiod = round($enrolperiod / 60);
+    } else {
+        $enrolperioddesc = get_string('seconds');
+    }
+}
+
+// Set the context of the page.
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title(get_string('gatewayname', 'paygw_payu'));
-$PAGE->set_heading(format_string($payable->get_description()));
-$PAGE->set_secondary_navigation(false);
 
-// Initialize PayU API.
-$api = new api($config);
+$PAGE->set_url('/payment/gateway/payu/method.php', $params);
+$string = get_string('payment', 'paygw_payu');
+$PAGE->set_title(format_string($string));
+$PAGE->set_heading(format_string($string));
 
-// Test connectivity with PayU.
-try {
-    if (!$api->ping()) {
-        throw new moodle_exception('errorconnection', 'paygw_payu');
-    }
-} catch (Exception $e) {
-    debugging('PayU connectivity test failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
-}
+// Set the appropriate headers for the page.
+$PAGE->set_cacheable(false);
+$PAGE->set_pagelayout('standard');
 
-// Get enabled payment methods from config.
-$enabledmethods = !empty($config->enabledmethods) ? $config->enabledmethods : ['creditcard'];
-if (is_string($enabledmethods)) {
-    $enabledmethods = explode(',', $enabledmethods);
-}
-
-// Get PSE banks if PSE is enabled.
-$banks = [];
-if (in_array('pse', $enabledmethods)) {
-    try {
-        $banks = $api->get_pse_banks();
-    } catch (Exception $e) {
-        debugging('Error loading PSE banks: ' . $e->getMessage(), DEBUG_DEVELOPER);
-        // Remove PSE from enabled methods if banks cannot be loaded.
-        $enabledmethods = array_diff($enabledmethods, ['pse']);
-    }
-}
-
-// Create payment record.
-$paymentid = helper::save_payment(
-    $component,
-    $paymentarea,
-    $itemid,
-    $USER->id,
-    $amount,
-    $currency,
-    'payu'
-);
-
-// Create PayU transaction record.
-$transaction = new stdClass();
-$transaction->paymentid = $paymentid;
-$transaction->state = 'PENDING';
-$transaction->timecreated = time();
-$transaction->timemodified = time();
-$transactionid = $DB->insert_record('paygw_payu', $transaction);
-
-// Prepare template context.
-$templatecontext = [
-    'component' => $component,
-    'paymentarea' => $paymentarea,
-    'itemid' => $itemid,
-    'paymentid' => $paymentid,
-    'description' => $description,
-    'amount' => $amount,
-    'amountformatted' => \core_payment\helper::get_cost_as_string($amount, $currency),
-    'currency' => $currency,
-    'sesskey' => sesskey(),
-    'banks' => [],
-    'enabledmethods' => [],
-    'formaction' => new moodle_url('/payment/gateway/payu/pay.php'),
-    'returnurl' => $payable->get_success_url()->out(false),
-    'cancelurl' => new moodle_url('/'),
-];
-
-// Add banks for PSE.
-if (!empty($banks)) {
-    foreach ($banks as $code => $name) {
-        $templatecontext['banks'][] = [
-            'code' => $code,
-            'name' => $name,
-        ];
-    }
-}
-
-// Build enabled methods array for template.
-$methodnames = [
-    'creditcard' => get_string('creditcard', 'paygw_payu'),
-    'pse' => get_string('pse', 'paygw_payu'),
-    'nequi' => get_string('nequi', 'paygw_payu'),
-    'bancolombia' => get_string('bancolombia', 'paygw_payu'),
-    'googlepay' => get_string('googlepay', 'paygw_payu'),
-    'cash' => get_string('cash', 'paygw_payu'),
-];
-
-foreach ($enabledmethods as $method) {
-    if (isset($methodnames[$method])) {
-        $templatecontext['enabledmethods'][] = [
-            'value' => $method,
-            'name' => $methodnames[$method],
-            'selected' => (count($enabledmethods) == 1),
-        ];
-    }
-}
-
-// Add years for credit card expiry.
-$currentyear = (int)date('Y');
-$years = [];
-for ($i = $currentyear; $i <= $currentyear + 20; $i++) {
-    $years[] = ['value' => $i, 'label' => $i];
-}
-$templatecontext['years'] = $years;
-
-// Add months for credit card expiry.
-$months = [];
-for ($i = 1; $i <= 12; $i++) {
-    $months[] = ['value' => sprintf('%02d', $i), 'label' => sprintf('%02d', $i)];
-}
-$templatecontext['months'] = $months;
-
-// Add installments options for Colombia.
-$installments = [];
-for ($i = 2; $i <= 36; $i++) {
-    $installments[] = ['value' => $i];
-}
-$templatecontext['installments'] = $installments;
-
-// Add user information.
-$templatecontext['useremail'] = $USER->email;
-$templatecontext['userfullname'] = fullname($USER);
-
-// Output page.
 echo $OUTPUT->header();
-echo $OUTPUT->render_from_template('paygw_payu/checkout_modal', $templatecontext);
+
+$templatedata = new stdClass();
+$templatedata->component   = $component;
+$templatedata->paymentarea = $paymentarea;
+$templatedata->itemid      = $itemid;
+$templatedata->description = $description;
+$templatedata->fee         = $fee;
+$templatedata->currency    = $currency;
+$templatedata->sesskey     = sesskey();
+
+if ($config->showduration) {
+    $templatedata->enrolperiod = $enrolperiod;
+    $templatedata->enrolperiod_desc = $enrolperioddesc;
+}
+
+$templatedata->passwordmode = $config->passwordmode;
+
+$templatedata->maxcost = $config->maxcost;
+$templatedata->fixcost = $config->fixcost;
+if (!$config->fixcost) {
+    if ($config->suggest < $fee) {
+        $templatedata->suggest = $fee;
+    } else {
+        $templatedata->suggest = $config->suggest;
+    }
+} else {
+    $templatedata->localizedcost = \core_payment\helper::get_cost_as_string($fee, $currency);
+}
+
+if ($uninterrupted && $fee != $cs->cost) {
+    $templatedata->uninterrupted = true;
+}
+
+$templatedata->skipmode = $config->skipmode;
+if ($config->skipmode || $config->passwordmode) {
+    $templatedata->usedetails = $config->usedetails;
+}
+
+if (!empty($config->fixdesc)) {
+    $templatedata->description = $config->fixdesc;
+    $templatedata->fixdesc = 1;
+} else {
+    $templatedata->description = $description;
+}
+
+// Use PayU logo image.
+$templatedata->image = $OUTPUT->image_url('img', 'paygw_payu');
+
+echo $OUTPUT->render_from_template('paygw_payu/method', $templatedata);
+
 echo $OUTPUT->footer();

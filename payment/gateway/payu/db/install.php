@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of the PayU payment module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,30 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * PayU payment gateway installation script.
+ * paygw_payu installer script.
  *
  * @package    paygw_payu
- * @copyright  2024 Orion Cloud Consulting SAS
- * @author     Alonso Arias <soporte@orioncloud.com.co>
+ * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
- * Enable PayU payment gateway on installation.
+ * Installer
  *
- * @return bool
+ * @return boolean
  */
 function xmldb_paygw_payu_install() {
     global $CFG;
 
     // Enable the PayU payment gateway on installation.
     $order = (!empty($CFG->paygw_plugins_sortorder)) ? explode(',', $CFG->paygw_plugins_sortorder) : [];
-    if (!in_array('payu', $order)) {
-        $order[] = 'payu';
-        set_config('paygw_plugins_sortorder', implode(',', $order));
-    }
-
+    set_config('paygw_plugins_sortorder', join(',', array_merge($order, ['payu'])));
     return true;
 }

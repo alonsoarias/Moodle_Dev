@@ -14,63 +14,48 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This module handles PayU content in the gateways modal.
+ * This module is responsible for PayU content in the gateways modal.
  *
  * @module     paygw_payu/gateways_modal
- * @copyright  2024 Orion Cloud Consulting SAS
- * @author     Alonso Arias <soporte@orioncloud.com.co>
+ * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core/templates', 'core/modal'], function(Templates, Modal) {
-    'use strict';
-    
-    /**
-     * Process payment gateway selection.
-     *
-     * @param {String} component
-     * @param {String} paymentArea
-     * @param {String} itemId
-     * @param {String} description
-     * @returns {Promise}
-     */
-    const process = function(component, paymentArea, itemId, description) {
-        return showModalWithPlaceholder()
-            .then(function() {
-                // Redirect to method selection page.
-                location.href = M.cfg.wwwroot + '/payment/gateway/payu/method.php?' +
-                    'sesskey=' + M.cfg.sesskey +
-                    '&component=' + component +
-                    '&paymentarea=' + paymentArea +
-                    '&itemid=' + itemId +
-                    '&description=' + encodeURIComponent(description);
-                
-                return new Promise(function() {
-                    // Keep promise pending to prevent modal closing.
-                });
-            });
-    };
-    
-    /**
-     * Show modal with PayU placeholder.
-     *
-     * @returns {Promise}
-     */
-    const showModalWithPlaceholder = async function() {
-        const modal = await Modal.create({
-            body: await Templates.render('paygw_payu/button_placeholder', {}),
-            show: true,
-            removeOnClose: true,
+import Templates from 'core/templates';
+import Modal from 'core/modal';
+
+/**
+ * Show modal with the PayU placeholder.
+ *
+ * @returns {Promise}
+ */
+const showModalWithPlaceholder = async() => {
+    const modal = await Modal.create({
+        body: await Templates.render('paygw_payu/button_placeholder', {}),
+        show: true,
+        removeOnClose: true,
+    });
+    modal.destroy();
+};
+
+/**
+ * Process.
+ *
+ * @param {String} component
+ * @param {String} paymentArea
+ * @param {String} itemId
+ * @param {String} description
+ * @returns {Promise<>}
+ */
+export const process = (component, paymentArea, itemId, description) => {
+    return showModalWithPlaceholder()
+        .then(() => {
+            location.href = M.cfg.wwwroot + '/payment/gateway/payu/method.php?' +
+                'sesskey=' + M.cfg.sesskey +
+                '&component=' + component +
+                '&paymentarea=' + paymentArea +
+                '&itemid=' + itemId +
+                '&description=' + description;
+            return new Promise(() => null);
         });
-        
-        setTimeout(function() {
-            modal.destroy();
-        }, 100);
-        
-        return Promise.resolve();
-    };
-    
-    return {
-        process: process
-    };
-});
+};

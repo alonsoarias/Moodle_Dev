@@ -15,17 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Settings for the PayU payment gateway
+ * Fee enrolment plugin version specification.
  *
- * @package     paygw_payu
- * @copyright   2024 Your Organization
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   enrol_yafee
+ * @copyright 2024 Alex Orlov <snickser@gmail.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_heading('paygw_payu_settings', '', get_string('pluginname_desc', 'paygw_payu')));
-
-    \core_payment\helper::add_common_gateway_settings($settings, 'paygw_payu');
-}
+$plugin->version   = 2025052300;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2023100400;        // Requires this Moodle version.
+$plugin->component = 'enrol_yafee';     // Full name of the plugin (used for diagnostics).
+$plugin->release   = '2.2';
+$plugin->maturity  = MATURITY_STABLE;
