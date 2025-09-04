@@ -29,9 +29,16 @@ function local_rolestyles_hook_before_http_headers($hook = null): void {
 }
 
 /**
- * Early hook to register the custom renderer factory.
+ * Register the custom renderer factory after login is complete.
+ *
+ * @param mixed $courseorid Unused course identifier.
+ * @param mixed $autologinguest Unused guest flag.
+ * @param mixed $cm Unused course module.
+ * @param mixed $setwantsurltome Unused flag.
+ * @param mixed $preventredirect Unused flag.
  */
-function local_rolestyles_after_config(): void {
+function local_rolestyles_after_require_login($courseorid = null, $autologinguest = null, $cm = null,
+        $setwantsurltome = null, $preventredirect = null): void {
     global $PAGE, $CFG;
 
     if (!get_config('local_rolestyles', 'enabled')) {
