@@ -16,6 +16,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/lib.php');
 if ($hassiteconfig) {
     $settings = new admin_settingpage('local_rolestyles', get_string('pluginname', 'local_rolestyles'));
 
