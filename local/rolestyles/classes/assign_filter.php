@@ -56,7 +56,7 @@ class assign_filter {
     }
 
     /**
-     * Filter rows without submissions.
+     * Filter rows to only include participants with submitted work.
      *
      * @param assign_grading_table $table
      * @return array [filtered rows, total rows]
@@ -69,7 +69,7 @@ class assign_filter {
         $total = count($rows);
         $filtered = array_filter($rows, static function($row) {
             $status = $row->status ?? '';
-            return $status !== '' && $status !== ASSIGN_SUBMISSION_STATUS_NEW;
+            return $status === ASSIGN_SUBMISSION_STATUS_SUBMITTED;
         });
         return [array_values($filtered), $total];
     }
