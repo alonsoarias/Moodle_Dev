@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="payment/gateway/payu/db" VERSION="20240502" COMMENT="XMLDB file for Moodle payment/gateway/payu"
+<XMLDB PATH="payment/gateway/payu/db" VERSION="20250101" COMMENT="XMLDB file for Moodle payment/gateway/payu"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="paygw_payu" COMMENT="List of successful PayU transactions.">
+    <TABLE NAME="paygw_payu" COMMENT="PayU transaction records for multiple countries">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="paymentid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="paymentid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Reference to payments table"/>
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="groupnames" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="success" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="groupnames" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Group names if applicable"/>
+        <FIELD NAME="transactionid" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="PayU transaction ID"/>
+        <FIELD NAME="referencecode" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="PayU reference code"/>
+        <FIELD NAME="orderId" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="PayU order ID"/>
+        <FIELD NAME="country" TYPE="char" LENGTH="2" NOTNULL="false" SEQUENCE="false" COMMENT="Country code (AR, BR, CL, CO, MX, PA, PE)"/>
+        <FIELD NAME="currency" TYPE="char" LENGTH="3" NOTNULL="false" SEQUENCE="false" COMMENT="Currency code"/>
+        <FIELD NAME="amount" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="false" SEQUENCE="false" COMMENT="Transaction amount"/>
+        <FIELD NAME="state" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Transaction state from PayU"/>
+        <FIELD NAME="success" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0=pending, 1=success, 2=bypass, 3=test, 4=failed"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="paymentid" TYPE="foreign-unique" FIELDS="paymentid" REFTABLE="payments" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="country" UNIQUE="false" FIELDS="country"/>
+        <INDEX NAME="transactionid" UNIQUE="false" FIELDS="transactionid"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>

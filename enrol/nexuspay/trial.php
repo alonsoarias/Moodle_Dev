@@ -18,7 +18,7 @@
  * Free trial enrollment handler for NexusPay.
  *
  * @package    enrol_nexuspay
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

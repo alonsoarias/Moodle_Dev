@@ -18,7 +18,7 @@
  * NexusPay enrolment plugin implementation.
  *
  * @package    enrol_nexuspay
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
  * NexusPay enrolment plugin implementation class.
  *
  * @package    enrol_nexuspay
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_nexuspay_plugin extends enrol_plugin {
