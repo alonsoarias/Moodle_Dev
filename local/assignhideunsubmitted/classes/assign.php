@@ -24,6 +24,8 @@
 
 namespace local_assignhideunsubmitted;
 
+defined('MOODLE_INTERNAL') || die();
+
 class assign extends \assign {
     /**
      * Load a list of users enrolled in the current course with the specified permission and group.
