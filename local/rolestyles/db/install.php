@@ -7,54 +7,28 @@
 // (at your option) any later version.
 
 /**
- * Role Styles Plugin - Installation script
+ * Installation script for the Role Styles plugin.
  *
  * @package    local_rolestyles
- * @copyright  2024 Alonso Arias <soporte@ingeweb.co> - aulatecnos.es - tecnoszubia.es
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
- * Function executed during plugin installation
- * 
+ * Set default configuration values on install.
+ *
  * @return bool
  */
 function xmldb_local_rolestyles_install() {
-    global $CFG;
-    
-    // Configuración por defecto del plugin
-    $default_settings = array(
-        'enabled' => 1,
-        'selected_roles' => '', // No roles seleccionados por defecto
-        'custom_css' => '/* Ejemplo de CSS para empezar - Aplicación Global */
-.role-teacher .main-content {
-    background-color: rgba(40, 167, 69, 0.05);
-    border-left: 4px solid #28a745;
-    padding: 15px;
-}
+    $defaults = [
+        'enabled' => 0,
+        'selected_roles' => '',
+        'custom_css' => '',
+    ];
 
-.role-student .main-content {
-    background-color: rgba(0, 123, 255, 0.05);
-    border-left: 4px solid #007bff;
-    padding: 15px;
-}
-
-/* Los estilos se aplicarán globalmente en toda la plataforma */
-.role-manager .navbar {
-    background-color: #dc3545 !important;
-}
-
-/* Agregar más estilos aquí */',
-        'course_categories' => ''
-    );
-    
-    // Establecer configuraciones por defecto solo si no existen
-    foreach ($default_settings as $name => $value) {
-        $current_value = get_config('local_rolestyles', $name);
-        if ($current_value === false) {
+    foreach ($defaults as $name => $value) {
+        if (get_config('local_rolestyles', $name) === false) {
             set_config($name, $value, 'local_rolestyles');
         }
     }
-    
+
     return true;
 }
