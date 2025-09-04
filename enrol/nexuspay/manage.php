@@ -15,38 +15,36 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Manual user enrolment UI.
+ * Manual user enrolment UI for NexusPay.
  *
  * @package    enrol_nexuspay
- * @copyright 2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author    Alonso Arias
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2025 NexusPay Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require('../../config.php');
 require_once($CFG->dirroot . '/enrol/manual/locallib.php');
 
+// Get parameters.
 $enrolid      = required_param('enrolid', PARAM_INT);
 $roleid       = optional_param('roleid', -1, PARAM_INT);
 $extendperiod = optional_param('extendperiod', 0, PARAM_INT);
 $extendbase   = optional_param('extendbase', 6, PARAM_INT);
 $timeend      = optional_param_array('timeend', [], PARAM_INT);
-$groupid      = optional_param('groupid', false, PARAM_INT);
+$groupid      = optional_param('groupid', 0, PARAM_INT);
 
+// Get enrollment instance and course.
 $instance = $DB->get_record('enrol', ['id' => $enrolid, 'enrol' => 'nexuspay'], '*', MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $instance->courseid], '*', MUST_EXIST);
 $context = context_course::instance($course->id, MUST_EXIST);
 
 require_login($course);
 
+// Check capabilities.
 $canenrol = has_capability('enrol/nexuspay:enrol', $context);
 $canunenrol = has_capability('enrol/nexuspay:unenrol', $context);
 
-// Note: manage capability not used here because it is used for editing
-// of existing enrolments which is not possible here.
-
-if (!$canenrol || !$canunenrol) {
-    // No need to invent new error strings here...
+if (!$canenrol && !$canunenrol) {
     require_capability('enrol/nexuspay:enrol', $context);
     require_capability('enrol/nexuspay:unenrol', $context);
 }
@@ -54,20 +52,24 @@ if (!$canenrol || !$canunenrol) {
 if ($roleid < 0) {
     $roleid = $instance->roleid;
 }
+
+// Get available roles.
 $roles = get_assignable_roles($context);
 $roles = ['0' => get_string('none')] + $roles;
 
 if (!isset($roles[$roleid])) {
-    // Weird - security always first!
     $roleid = 0;
 }
 
-if (!$enrolnexuspay = enrol_get_plugin('nexuspay')) {
-    throw new coding_exception('Can not instantiate enrol_nexuspay');
+// Get enrollment plugin.
+$enrolnexuspay = enrol_get_plugin('nexuspay');
+if (!$enrolnexuspay) {
+    throw new coding_exception('Cannot instantiate enrol_nexuspay');
 }
 
+// Set up page.
 $url = new moodle_url('/enrol/nexuspay/manage.php', ['enrolid' => $instance->id]);
-$title = get_string('managemanualenrolements', 'enrol_nexuspay');
+$title = get_string('manageenrolements', 'enrol_nexuspay');
 
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('admin');
@@ -76,33 +78,25 @@ $PAGE->set_heading($course->fullname);
 navigation_node::override_active_url(new moodle_url('/enrol/instances.php', ['id' => $course->id]));
 $PAGE->navbar->add($title, $url);
 
-// Create the user selector objects.
+// Create user selector objects.
 $options = ['enrolid' => $enrolid, 'accesscontext' => $context];
-
 $potentialuserselector = new enrol_manual_potential_participant('addselect', $options);
 $currentuserselector = new enrol_manual_current_participant('removeselect', $options);
 
-// Build the list of options for the starting from dropdown.
+// Build time options for enrollment start.
 $now = time();
 $today = make_timestamp(date('Y', $now), date('m', $now), date('d', $now), 0, 0, 0);
 $thismonth = make_timestamp(date('Y', $now), date('m', $now), 1, 0, 0, 0);
 $thisyear = make_timestamp(date('Y', $now), 1, 1, 0, 0, 0);
 
-$once = strtotime('this week');
-$thisweek = make_timestamp(date('Y', $once), date('m', $once), date('d', $once), 0, 0, 0);
+$thisweek = strtotime('monday this week');
+$tomorrow = strtotime('tomorrow');
+$nextweek = strtotime('monday next week');
+$nextmonth = strtotime('first day of next month');
 
-$once = strtotime('tomorrow');
-$tomorrow = make_timestamp(date('Y', $once), date('m', $once), date('d', $once), 0, 0, 0);
+$dateformat = get_string('strftimedatefullshort');
 
-$once = strtotime('next week');
-$nextweek = make_timestamp(date('Y', $once), date('m', $once), date('d', $once), 0, 0, 0);
-
-$once = strtotime('next month');
-$nextmonth = make_timestamp(date('Y', $once), date('m', $once), 1, 0, 0, 0);
-
-$dateformat = '%d %b %Y';
-
-// Enrolment start.
+// Build base menu for enrollment start time.
 $basemenu = [];
 if ($course->startdate > 0) {
     $basemenu[2] = get_string('coursestart') . ' (' . userdate($course->startdate, $dateformat) . ')';
@@ -116,160 +110,171 @@ $basemenu[8] = get_string('tomorrow', 'calendar') . ' (' . userdate($tomorrow, $
 $basemenu[9] = get_string('weeknext', 'calendar') . ' (' . userdate($nextweek, $dateformat) . ')';
 $basemenu[10] = get_string('monthnext', 'calendar') . ' (' . userdate($nextmonth, $dateformat) . ')';
 
-// Set start time.
-$startoptions = [];
-if ($course->startdate > 0 && $course->startdate > $now) {
-    $startoptions[2] = get_string('coursestart') . ' (' . userdate($course->startdate, $dateformat) . ')';
-}
-$startoptions[3] = get_string('today') . ' (' . userdate($today, $dateformat) . ')';
-$startoptions[6] = get_string('now', 'enrol_manual') . ' (' . userdate($now, get_string('strftimedatetimeshort')) . ')';
-
-// Build the list of options for the expiration dropdown.
-$endmenu = [];
-$endmenu[0] = get_string('never');
-$endmenu[1] = get_string('duration');
-
-// Build the list of options for groups.
-require_once($CFG->dirroot . '/group/lib.php');
-$groups = ['0' => get_string('nogroup', 'enrol')];
-if (has_capability('moodle/course:managegroups', $context)) {
-    $groups['-1'] = get_string('creategroup', 'enrol');
-}
-foreach (groups_get_all_groups($course->id) as $group) {
-    $groups[$group->id] = format_string($group->name, true, ['context' => $context]);
+// Set start time based on selection.
+$timestart = $today; // Default to today.
+switch ($extendbase) {
+    case 2: $timestart = $course->startdate; break;
+    case 3: $timestart = $thisyear; break;
+    case 4: $timestart = $thismonth; break;
+    case 5: $timestart = $thisweek; break;
+    case 7: $timestart = $now; break;
+    case 8: $timestart = $tomorrow; break;
+    case 9: $timestart = $nextweek; break;
+    case 10: $timestart = $nextmonth; break;
 }
 
-// Process add and removes.
-if (optional_param('add', false, PARAM_BOOL) && confirm_sesskey()) {
+// Build period menu.
+$unlimitedperiod = get_string('unlimited');
+$periodmenu = [];
+
+// Handle special period types (month/year).
+if ($instance->customchar1 == 'month' && $instance->customint7 > 0) {
+    $period = strtotime('+' . $instance->customint7 . ' month', $timestart) - $timestart;
+    $periodmenu[$period] = $instance->customint7 . ' ' . get_string('months');
+} else if ($instance->customchar1 == 'year' && $instance->customint7 > 0) {
+    $period = strtotime('+' . $instance->customint7 . ' year', $timestart) - $timestart;
+    $periodmenu[$period] = $instance->customint7 . ' ' . get_string('years');
+} else if ($instance->enrolperiod > 0) {
+    $periodmenu[$instance->enrolperiod] = format_time($instance->enrolperiod);
+}
+
+// Add double period option.
+if ($instance->enrolperiod >= 86400 * 7) {
+    $periodmenu[$instance->enrolperiod * 2] = get_string('numweeks', '', round($instance->enrolperiod * 2 / (86400 * 7)));
+} else if ($instance->enrolperiod >= 86400) {
+    $periodmenu[$instance->enrolperiod * 2] = get_string('numdays', '', round($instance->enrolperiod * 2 / 86400));
+} else if ($instance->enrolperiod >= 3600) {
+    $periodmenu[$instance->enrolperiod * 2] = get_string('numhours', '', round($instance->enrolperiod * 2 / 3600));
+}
+
+// Set default period.
+$defaultperiod = $extendperiod ?: $instance->enrolperiod;
+
+// Get groups for group assignment.
+$groups = [0 => get_string('none')];
+$coursegroups = groups_get_all_groups($course->id);
+foreach ($coursegroups as $group) {
+    $groups[$group->id] = $group->name;
+}
+
+// Process add/remove actions.
+if ($canenrol && optional_param('add', false, PARAM_BOOL) && confirm_sesskey()) {
     $userstoassign = $potentialuserselector->get_selected_users();
     if (!empty($userstoassign)) {
         foreach ($userstoassign as $adduser) {
-            $timestart = 0;
-            $timeend = 0;
-            $duration = 0;
-            if ($extendperiod <= 0) {
-                if ($instance->enrolperiod > 0) {
-                    $timestart = $today;
-                    $duration = $instance->enrolperiod;
-                }
-            } else if ($extendperiod > 0 && $extendbase < 3) {
-                $duration = $extendperiod;
-                switch ($extendbase) {
-                    case 2:
-                        $timestart = $course->startdate;
-                        break;
-                    case 6:
-                    default:
-                        $timestart = $today;
-                        break;
-                }
+            // Calculate end time.
+            if ($timeend) {
+                $timeend = make_timestamp(
+                    $timeend['year'],
+                    $timeend['month'],
+                    $timeend['day'],
+                    $timeend['hour'],
+                    $timeend['minute']
+                );
+            } else if ($extendperiod <= 0) {
+                $timeend = 0;
+            } else {
+                $timeend = $timestart + $extendperiod;
             }
 
-            if ($duration > 0) {
-                $timeend = $timestart + $duration;
-            }
-
+            // Enroll user.
             $enrolnexuspay->enrol_user($instance, $adduser->id, $roleid, $timestart, $timeend);
 
-            if ($groupid > 0) {
+            // Add to group if specified.
+            if ($groupid) {
                 groups_add_member($groupid, $adduser->id);
-            } else if ($groupid == -1) {
-                $newgroupname = trim(optional_param('newgroupname', '', PARAM_TEXT));
-                if (!empty($newgroupname)) {
-                    $newgroup = new stdClass();
-                    $newgroup->name = $newgroupname;
-                    $newgroup->courseid = $course->id;
-                    $newgroup->description = '';
-                    $newgroup->descriptionformat = FORMAT_HTML;
-                    $newgroup->timecreated = time();
-                    $newgroup->timemodified = time();
-                    $newgroupid = groups_create_group($newgroup);
-                    groups_add_member($newgroupid, $adduser->id);
-                }
             }
         }
-        $potentialuserselector->invalidate_selected_users();
-    }
-}
 
-// Process removes.
-if (optional_param('remove', false, PARAM_BOOL) && confirm_sesskey()) {
-    $userstoremove = $currentuserselector->get_selected_users();
-    if (!empty($userstoremove)) {
-        foreach ($userstoremove as $removeuser) {
-            $enrolnexuspay->unenrol_user($instance, $removeuser->id);
-        }
+        $potentialuserselector->invalidate_selected_users();
         $currentuserselector->invalidate_selected_users();
     }
 }
 
-// Process time changes.
-if (optional_param('timeextend', false, PARAM_BOOL) && confirm_sesskey()) {
-    foreach ($timeend as $userid => $value) {
-        $user = $DB->get_record('user_enrolments', ['userid' => $userid, 'enrolid' => $enrolid]);
-        if ($user && $value !== false) {
-            if ($value > 0) {
-                $enrolnexuspay->update_user_enrol($instance, $userid, ENROL_USER_ACTIVE, $user->timestart, $value);
-            } else {
-                $enrolnexuspay->update_user_enrol($instance, $userid, ENROL_USER_ACTIVE, $user->timestart, 0);
-            }
+// Process unenrollments.
+if ($canunenrol && optional_param('remove', false, PARAM_BOOL) && confirm_sesskey()) {
+    $userstounassign = $currentuserselector->get_selected_users();
+    if (!empty($userstounassign)) {
+        foreach ($userstounassign as $removeuser) {
+            $enrolnexuspay->unenrol_user($instance, $removeuser->id);
         }
+
+        $potentialuserselector->invalidate_selected_users();
+        $currentuserselector->invalidate_selected_users();
     }
 }
 
+// Display the page.
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title);
 
 $addenabled = $canenrol ? '' : 'disabled="disabled"';
-$removeeabled = $canunenrol ? '' : 'disabled="disabled"';
-
-// HTML for the user selectors and control buttons.
+$removeenabled = $canunenrol ? '' : 'disabled="disabled"';
 ?>
-<form id="assignform" method="post" action="<?php echo $PAGE->url ?>"><div>
-<input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
 
-<table summary="" class="roleassigntable generaltable generalbox boxaligncenter" cellspacing="0">
-<tr>
-    <td id="existingcell">
-        <p><label for="removeselect"><?php print_string('enrolledusers', 'enrol'); ?></label></p>
-        <?php $currentuserselector->display() ?>
-    </td>
-    <td id="buttonscell">
-      <div id="addcontrols">
-          <input name="add" <?php echo $addenabled; ?> id="add" type="submit"
-                       value="<?php echo $OUTPUT->larrow() . '&nbsp;' . get_string('add'); ?>"
-                       title="<?php print_string('add'); ?>" /><br />
+<form id="assignform" method="post" action="<?php echo $PAGE->url ?>">
+<div>
+    <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>"/>
+    
+    <table class="roleassigntable generaltable generalbox boxaligncenter" cellspacing="0">
+        <tr>
+            <td id="existingcell">
+                <p><label for="removeselect"><?php print_string('enrolledusers', 'enrol'); ?></label></p>
+                <?php $currentuserselector->display() ?>
+            </td>
+            
+            <td id="buttonscell">
+                <div id="addcontrols" style="margin-top: 3rem;">
+                    <input class="btn btn-secondary" 
+                           name="add" 
+                           <?php echo $addenabled; ?> 
+                           id="add" 
+                           type="submit"
+                           value="<?php echo $OUTPUT->larrow() . '&nbsp;' . get_string('add'); ?>" 
+                           title="<?php print_string('add'); ?>" />
+                    
+                    <div class="enroloptions mt-3">
+                        <p>
+                            <label for="menuroleid"><?php print_string('assignrole', 'enrol_nexuspay') ?></label><br />
+                            <?php echo html_writer::select($roles, 'roleid', $roleid, false); ?>
+                        </p>
+                        
+                        <p>
+                            <label for="menugroupid"><?php print_string('addgroup', 'enrol_cohort') ?></label><br />
+                            <?php echo html_writer::select($groups, 'groupid', $groupid, false); ?>
+                        </p>
+                        
+                        <p>
+                            <label for="menuextendperiod"><?php print_string('enrolperiod', 'enrol') ?></label><br />
+                            <?php echo html_writer::select($periodmenu, 'extendperiod', $defaultperiod, $unlimitedperiod); ?>
+                        </p>
+                        
+                        <p>
+                            <label for="menuextendbase"><?php print_string('startingfrom') ?></label><br />
+                            <?php echo html_writer::select($basemenu, 'extendbase', $extendbase, false); ?>
+                        </p>
+                    </div>
+                </div>
+                
+                <div id="removecontrols" class="mt-3">
+                    <input class="btn btn-secondary" 
+                           name="remove" 
+                           id="remove" 
+                           <?php echo $removeenabled; ?> 
+                           type="submit"
+                           value="<?php echo get_string('remove') . '&nbsp;' . $OUTPUT->rarrow(); ?>" 
+                           title="<?php print_string('remove'); ?>" />
+                </div>
+            </td>
+            
+            <td id="potentialcell">
+                <p><label for="addselect"><?php print_string('enrolcandidates', 'enrol'); ?></label></p>
+                <?php $potentialuserselector->display() ?>
+            </td>
+        </tr>
+    </table>
+</div>
+</form>
 
-      <div class="enroloptions">
-
-      <p><label for="menuroleid"><?php print_string('assignrole', 'enrol_manual') ?></label><br />
-      <?php echo html_writer::select($roles, 'roleid', $roleid, false); ?></p>
-      <p><label for="menugroups"><?php print_string('addgroup', 'enrol_cohort') ?></label><br />
-      <?php echo html_writer::select($groups, 'groupid', $groupid, false); ?></p>
-      <p><label for="menuextendperiod"><?php print_string('enrolperiod', 'enrol') ?></label><br />
-      <?php
-      $options = [0 => get_string('no')] + $basemenu;
-      echo html_writer::select($options, 'extendperiod', $extendperiod, false);
-      ?>
-      </p>
-      <p><label for="menuextendbase"><?php print_string('startingfrom') ?></label><br />
-      <?php echo html_writer::select($startoptions, 'extendbase', $extendbase, false); ?></p>
-
-      </div>
-      </div>
-
-      <div id="removecontrols">
-          <input name="remove" <?php echo $removeeabled; ?> id="remove" type="submit"
-                       value="<?php echo get_string('remove') . '&nbsp;' . $OUTPUT->rarrow(); ?>"
-                       title="<?php print_string('remove'); ?>" />
-      </div>
-    </td>
-    <td id="potentialcell">
-        <p><label for="addselect"><?php print_string('enrolcandidates', 'enrol'); ?></label></p>
-        <?php $potentialuserselector->display() ?>
-    </td>
-</tr>
-</table>
-</div></form>
 <?php
 echo $OUTPUT->footer();

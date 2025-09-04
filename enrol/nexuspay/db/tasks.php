@@ -16,15 +16,16 @@
 
 /**
  * Task definition for enrol_nexuspay.
- * @package   enrol_nexuspay
- * @copyright 2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author    Alonso Arias
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * 
+ * @package    enrol_nexuspay
+ * @copyright  2025 NexusPay Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $tasks = [
+    // Synchronize enrollments task.
     [
         'classname' => '\enrol_nexuspay\task\sync_enrolments',
         'blocking' => 0,
@@ -33,8 +34,9 @@ $tasks = [
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*',
-        'disabled' => 1,
+        'disabled' => 0, // Enabled by default
     ],
+    // Send expiry notifications task.
     [
         'classname' => '\enrol_nexuspay\task\send_expiry_notifications',
         'blocking' => 0,
@@ -43,6 +45,6 @@ $tasks = [
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*',
-        'disabled' => 0,
+        'disabled' => 0, // Enabled by default
     ],
 ];

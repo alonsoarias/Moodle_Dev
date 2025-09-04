@@ -19,9 +19,8 @@
  *
  * @package    enrol_nexuspay
  * @category   payment
- * @copyright 2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author    Alonso Arias
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2025 NexusPay Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace enrol_nexuspay\payment;
@@ -31,116 +30,115 @@ use core_payment\helper;
 /**
  * Payment subsystem callback implementation for enrol_nexuspay.
  *
- * @copyright 2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author    Alonso Arias
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2025 NexusPay Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class service_provider implements \core_payment\local\callback\service_provider {
+
     /**
-     * Calculate enrolment cost
+     * Calculate enrollment cost considering uninterrupted periods and trials.
      *
-     * @param stdClass $instance The enrolment instance
+     * @param stdClass $instance The enrollment instance
      * @return float
      */
     public static function get_uninterrupted_cost($instance): float {
         global $DB, $USER;
 
+        // Get base cost.
         if ((float) $instance->cost <= 0) {
             $cost = (float) get_config('enrol_nexuspay', 'cost');
         } else {
             $cost = (float) $instance->cost;
         }
 
-        if ($data = $DB->get_record('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instance->id])) {
-            if ($data->status) {
-                return $cost;
-            }
+        // Check if user has existing enrollment.
+        $data = $DB->get_record('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instance->id]);
+        
+        // If user is suspended, return full cost.
+        if ($data && $data->status != ENROL_USER_ACTIVE) {
+            return $cost;
         }
 
         $freetrial = false;
+        
+        // Check for free trial eligibility.
         if ($instance->customint6 || $instance->customint7) {
-            // Check first time trial.
-            if (
-                $instance->customint6 && !$DB->record_exists('enrol_nexuspay', ['courseid' => $instance->courseid,
-                    'userid' => $USER->id])
-            ) {
-                    $freetrial = true;
+            // Check if first time enrollment (no previous payment record).
+            if ($instance->customint6 && 
+                !$DB->record_exists('enrol_nexuspay', ['courseid' => $instance->courseid, 'userid' => $USER->id])) {
+                $freetrial = true;
             }
 
-            // Prepare month and year.
+            // Handle monthly/yearly subscriptions.
             $timeend = time();
             if (isset($data->timeend)) {
                 $timeend = $data->timeend;
             }
-            $t1 = getdate($timeend);
-            $t2 = getdate(time());
+            $currentdate = getdate(time());
+            $enddate = getdate($timeend);
 
-            // Check month and year.
-            $counter = 0;
-            if ($t2['year'] > $t1['year']) {
-                $ydiff = $t2['year'] - $t1['year'];
-                if ($ydiff > 1) {
-                    $counter += 12 * ($ydiff - 1);
+            // Calculate cost for monthly subscriptions.
+            if ($instance->customchar1 == 'month' && $instance->customint7 > 0 && !$freetrial) {
+                if ($instance->customint5 && $data) { // Uninterrupted payment enabled.
+                    // Calculate months elapsed.
+                    $monthsdiff = ($currentdate['year'] - $enddate['year']) * 12 + 
+                                  $currentdate['mon'] - $enddate['mon'] + 1;
+                    $cost = $monthsdiff * $cost;
                 }
-                if ($t2['mon'] >= $t1['mon']) {
-                    $counter += 12 + $t2['mon'] - $t1['mon'];
-                } else {
-                    $counter += 12 - ($t1['mon'] - $t2['mon']);
+            } else if ($instance->customchar1 == 'year' && $instance->customint7 > 0 && !$freetrial) {
+                if ($instance->customint5 && $data) { // Uninterrupted payment enabled.
+                    // Calculate years elapsed.
+                    $yearsdiff = $currentdate['year'] - $enddate['year'] + 1;
+                    $cost = $yearsdiff * $cost;
                 }
-            } else {
-                $counter += $t2['mon'] - $t1['mon'];
             }
-            if ($counter > 0 && $freetrial && ($counter >= $instance->customint6)) {
-                $counter = $counter - $instance->customint6;
-                $freetrial = false;
-            } else if ($counter > 0 && $freetrial) {
-                $freetrial = false;
-                $counter = 0;
-            }
-            // Check day.
-            if ($t2['mday'] < $t1['mday'] && $counter > 0) {
-                $counter -= 1;
-            }
-            $cost = $cost * $counter;
         }
-        if ($freetrial) {
-            $cost = 0;
+
+        // Handle standard period uninterrupted payments.
+        if (isset($data) && $instance->customint5 && $instance->enrolperiod > 0) {
+            if ($data->timeend < time() && $data->timestart) {
+                // Calculate cost for missed periods.
+                $priceperperiod = $cost / $instance->enrolperiod;
+                $elapsedtime = time() - $data->timestart;
+                $periodsneeded = ceil($elapsedtime / $instance->enrolperiod);
+                $periodscovered = ($data->timeend - $data->timestart) / $instance->enrolperiod;
+                $missedperiods = $periodsneeded - $periodscovered;
+                
+                if ($missedperiods > 0) {
+                    $cost = $missedperiods * $instance->enrolperiod * $priceperperiod;
+                }
+            }
         }
 
         return $cost;
     }
 
     /**
-     * Callback function that returns the enrolment cost and the accountid
-     * for the course that $instanceid enrolment instance belongs to.
+     * Callback function that returns the enrollment cost and the account id
+     * for the course that $instanceid enrollment instance belongs to.
      *
-     * @param string $paymentarea Payment area
-     * @param int $instanceid The enrolment instance id
+     * @param string $paymentarea Payment area (should be 'fee')
+     * @param int $instanceid The enrollment instance id
      * @return \core_payment\local\entities\payable
      */
     public static function get_payable(string $paymentarea, int $instanceid): \core_payment\local\entities\payable {
         global $DB;
 
         $instance = $DB->get_record('enrol', ['enrol' => 'nexuspay', 'id' => $instanceid], '*', MUST_EXIST);
-
-        $zero = new \core_payment\local\entities\payable(0, $instance->currency, $instance->customint1);
-        if ($instance->cost == 0 || $instance->currency == '') {
-            return $zero;
-        }
-
+        
         $cost = self::get_uninterrupted_cost($instance);
-        if ($cost == 0) {
-            return $zero;
-        }
+        $currency = $instance->currency ?: 'COP'; // Default to Colombian Peso.
+        $account = $instance->customint1;
 
-        return new \core_payment\local\entities\payable($cost, $instance->currency, $instance->customint1);
+        return new \core_payment\local\entities\payable($cost, $currency, $account);
     }
 
     /**
-     * Callback function that returns the URL of the page the user should be redirected to in the case of a successful payment.
+     * Callback function that returns the URL of the page the user should be 
+     * redirected to in the case of a successful payment.
      *
      * @param string $paymentarea Payment area
-     * @param int $instanceid The enrolment instance id
+     * @param int $instanceid The enrollment instance id
      * @return \moodle_url
      */
     public static function get_success_url(string $paymentarea, int $instanceid): \moodle_url {
@@ -155,88 +153,151 @@ class service_provider implements \core_payment\local\callback\service_provider 
      * Callback function that delivers what the user paid for to them.
      *
      * @param string $paymentarea
-     * @param int $instanceid The enrolment instance id
-     * @param int $paymentid payment id as inserted into the 'payments' table, if needed for reference
+     * @param int $instanceid The enrollment instance id
+     * @param int $paymentid payment id as inserted into the 'payments' table
      * @param int $userid The userid the order is going to deliver to
      * @return bool Whether successful or not
      */
     public static function deliver_order(string $paymentarea, int $instanceid, int $paymentid, int $userid): bool {
-        global $DB;
+        global $DB, $CFG;
+        
+        require_once($CFG->dirroot . '/group/lib.php');
 
         $instance = $DB->get_record('enrol', ['enrol' => 'nexuspay', 'id' => $instanceid], '*', MUST_EXIST);
-
         $plugin = enrol_get_plugin('nexuspay');
 
-        if ($instance->enrolperiod) {
-            $timestart = time();
-            $timeend   = $timestart + $instance->enrolperiod;
-        } else if ($instance->customint7 && $instance->customchar1) {
-            $timestart = time();
-            $timeend   = $timestart;
-            $delta = 0;
-            if ($instance->customchar1 == 'month') {
-                $timeend = strtotime('+' . $instance->customint7 . 'month', $timeend);
-            } else if ($instance->customchar1 == 'minute') {
-                $timeend = strtotime('+' . $instance->customint7 . 'minute', $timeend);
-            } else if ($instance->customchar1 == 'hour') {
-                $timeend = strtotime('+' . $instance->customint7 . 'hour', $timeend);
-            } else if ($instance->customchar1 == 'day') {
-                $timeend = strtotime('+' . $instance->customint7 . 'day', $timeend);
-            } else if ($instance->customchar1 == 'week') {
-                $timeend = strtotime('+' . $instance->customint7 . 'week', $timeend);
-            } else if ($instance->customchar1 == 'year') {
-                $data = $DB->get_record('user_enrolments', ['userid' => $userid, 'enrolid' => $instance->id]);
-                $ctime = time();
-                $t1 = getdate($ctime);
-                if (isset($data->timeend)) {
-                    $t2 = getdate($data->timeend);
-                    $delta = 12 * ($t1['year'] - $t2['year']) + ($t1['mon'] - $t2['mon']);
-                    if ($t1['mday'] < $t2['mday']) {
-                        $delta -= 1;
+        $timestart = time();
+        $timeend = $timestart;
+
+        // Calculate surcharge if applicable.
+        $surcharge = 0;
+        if ($payment = $DB->get_record('payments', ['id' => $paymentid])) {
+            $surcharge = helper::get_gateway_surcharge($payment->gateway);
+        }
+
+        // Get existing enrollment data if any.
+        $existingenrollment = $DB->get_record('user_enrolments', ['userid' => $userid, 'enrolid' => $instance->id]);
+        
+        if ($existingenrollment) {
+            // Keep original start time if exists.
+            if ($existingenrollment->timestart) {
+                $timestart = $existingenrollment->timestart;
+            }
+            // Extend from current end time if not expired.
+            if ($existingenrollment->timeend > time()) {
+                $timeend = $existingenrollment->timeend;
+            }
+        }
+
+        // Check for free trial eligibility.
+        $isfirstenrollment = !$DB->record_exists('enrol_nexuspay', ['courseid' => $instance->courseid, 'userid' => $userid]);
+        
+        if ($isfirstenrollment && $instance->customint6) {
+            // Apply trial period.
+            $timestart = 0;
+            $timeend += $instance->customint6;
+        } else if ($instance->enrolperiod && $instance->customint5) {
+            // Uninterrupted period handling.
+            if (isset($existingenrollment->timestart) && $existingenrollment->timestart) {
+                if ($existingenrollment->timeend < time()) {
+                    // Calculate periods needed to cover gap.
+                    $elapsedperiods = ceil((time() - $existingenrollment->timestart) / $instance->enrolperiod);
+                    
+                    // Calculate paid periods based on payment amount.
+                    $paidperiods = 0;
+                    if ($payment->amount > 0 && $instance->cost > 0) {
+                        $netamount = round($payment->amount / (1 + $surcharge / 100), 2);
+                        $paidperiods = $netamount / $instance->cost;
                     }
-                }
-                if ($delta > 0) {
-                    $timeend = strtotime('+' . $delta . 'year', $timeend);
+                    
+                    // Calculate unpaid periods.
+                    $unpaidperiods = ceil((time() - $existingenrollment->timeend) / $instance->enrolperiod) - $paidperiods;
+                    $unpaidperiods = max(0, $unpaidperiods);
+                    
+                    // Set new end time.
+                    $timeend = $existingenrollment->timestart + ($elapsedperiods - $unpaidperiods) * $instance->enrolperiod;
                 } else {
-                    $timeend = strtotime('+' . $instance->customint7 . 'year', $timeend);
+                    // Simply extend by enrollment period.
+                    $timeend += $instance->enrolperiod;
                 }
             } else {
-                $timeend = strtotime('+' . $instance->customint7 . 'year', $timeend);
+                // New enrollment with standard period.
+                $timeend += $instance->enrolperiod;
+            }
+        } else if ($instance->enrolperiod) {
+            // Standard period without uninterrupted payment.
+            $timeend += $instance->enrolperiod;
+        } else if ($instance->customchar1 == 'month' && $instance->customint7 > 0) {
+            // Monthly subscription.
+            if (isset($existingenrollment->timeend)) {
+                $timeend = $existingenrollment->timeend;
+            }
+            
+            if ($instance->customint5 && $timeend < time()) {
+                // Uninterrupted monthly payment.
+                $currentdate = getdate(time());
+                $enddate = getdate($timeend);
+                $monthsdiff = ($currentdate['year'] - $enddate['year']) * 12 + 
+                              $currentdate['mon'] - $enddate['mon'] + 1;
+                $timeend = strtotime('+' . $monthsdiff . ' month', $timeend);
+            } else {
+                // Regular monthly extension.
+                $timeend = strtotime('+' . $instance->customint7 . ' month', $timeend);
+            }
+        } else if ($instance->customchar1 == 'year' && $instance->customint7 > 0) {
+            // Yearly subscription.
+            if (isset($existingenrollment->timeend)) {
+                $timeend = $existingenrollment->timeend;
+            }
+            
+            if ($instance->customint5 && $timeend < time()) {
+                // Uninterrupted yearly payment.
+                $currentdate = getdate(time());
+                $enddate = getdate($timeend);
+                $yearsdiff = $currentdate['year'] - $enddate['year'] + 1;
+                $timeend = strtotime('+' . $yearsdiff . ' year', $timeend);
+            } else {
+                // Regular yearly extension.
+                $timeend = strtotime('+' . $instance->customint7 . ' year', $timeend);
             }
         } else {
+            // Unlimited enrollment.
             $timestart = 0;
-            $timeend   = 0;
+            $timeend = 0;
         }
 
+        // Enroll or update enrollment.
         $plugin->enrol_user($instance, $userid, $instance->roleid, $timestart, $timeend);
 
-        $data = new \stdClass();
-        $data->paymentid = $paymentid;
-        $data->courseid = $instance->courseid;
-        $data->timecreated = time();
-        $data->userid = $userid;
-        $DB->insert_record('enrol_nexuspay', $data);
+        // Record payment transaction.
+        $transaction = new \stdClass();
+        $transaction->paymentid = $paymentid;
+        $transaction->courseid = $instance->courseid;
+        $transaction->userid = $userid;
+        $transaction->timecreated = time();
+        $DB->insert_record('enrol_nexuspay', $transaction);
 
-        // Add user to group.
-        $ext = $DB->get_records(
-            'enrol_nexuspay_ext',
-            ['userid' => $userid, 'courseid' => $instance->courseid],
-            'id DESC',
-            'ingroupid',
-            0,
-            1,
-        );
-        $ext = reset($ext);
-        if (isset($ext->ingroupid) && $ext->ingroupid) {
-            global $CFG;
-            require_once($CFG->dirroot . '/group/lib.php');
-            groups_add_member($ext->ingroupid, $userid);
-        } else if (isset($instance->customtext1) && (int)$instance->customtext1 > 0) {
-            global $CFG;
-            require_once($CFG->dirroot . '/group/lib.php');
+        // Handle group assignment if configured.
+        if (!empty($instance->customtext1) && (int)$instance->customtext1 > 0) {
             groups_add_member((int)$instance->customtext1, $userid);
         }
-        $DB->delete_records('enrol_nexuspay_ext', ['userid' => $userid, 'courseid' => $instance->courseid]);
+        
+        // Check for pending group assignment.
+        $pendinggroup = $DB->get_record('enrol_nexuspay_groups', [
+            'userid' => $userid,
+            'courseid' => $instance->courseid,
+            'instanceid' => $instance->id
+        ], 'groupid', IGNORE_MULTIPLE);
+        
+        if ($pendinggroup && $pendinggroup->groupid) {
+            groups_add_member($pendinggroup->groupid, $userid);
+            // Clean up pending group assignment.
+            $DB->delete_records('enrol_nexuspay_groups', [
+                'userid' => $userid,
+                'courseid' => $instance->courseid,
+                'instanceid' => $instance->id
+            ]);
+        }
 
         return true;
     }

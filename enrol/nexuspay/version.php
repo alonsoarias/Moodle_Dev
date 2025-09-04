@@ -15,21 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Fee enrolment plugin version specification.
+ * NexusPay enrolment plugin version specification.
  *
- * @package   enrol_nexuspay
- * @copyright 2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author    Alonso Arias
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    enrol_nexuspay
+ * @copyright  2025 NexusPay Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025052300;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2023100400;        // Requires this Moodle version.
-$plugin->component = 'enrol_nexuspay';     // Full name of the plugin (used for diagnostics).
-$plugin->release   = '2.2';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->author = 'Alonso Arias';
-$plugin->maintainer = 'soporte@nexuslabs.com.co';
-$plugin->organization = 'NexusLabs';
+$plugin->version   = 2025010100;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2022112800;        // Requires Moodle 4.1 LTS minimum.
+$plugin->component = 'enrol_nexuspay';  // Full name of the plugin.
+$plugin->release   = '1.0.0';           // Human-friendly version number.
+$plugin->maturity  = MATURITY_STABLE;   // This version's maturity level.
+$plugin->cron      = 0;                 // Period for cron to run (0 means disabled).

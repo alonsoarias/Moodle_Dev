@@ -15,26 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capabilities for nexuspay enrolment plugin.
+ * Capabilities for NexusPay enrolment plugin.
  *
  * @package    enrol_nexuspay
- * @copyright 2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author    Alonso Arias
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2025 NexusPay Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
 
+    // Configure NexusPay enrollment instances.
     'enrol/nexuspay:config' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
         ],
     ],
 
+    // Enroll other users.
     'enrol/nexuspay:enrol' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -44,6 +46,7 @@ $capabilities = [
         ],
     ],
 
+    // Manage enrolled users.
     'enrol/nexuspay:manage' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -53,18 +56,22 @@ $capabilities = [
         ],
     ],
 
+    // Unenroll users from course.
     'enrol/nexuspay:unenrol' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
         ],
     ],
 
+    // Unenroll self from course.
     'enrol/nexuspay:unenrolself' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
+            'student' => CAP_ALLOW,
         ],
     ],
 

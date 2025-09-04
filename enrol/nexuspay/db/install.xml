@@ -1,33 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="enrol/nexuspay/db" VERSION="20250328" COMMENT="XMLDB file for Moodle enrol_nexuspay"
+<XMLDB PATH="enrol/nexuspay/db" VERSION="20250101" COMMENT="XMLDB file for Moodle enrol_nexuspay"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="enrol_nexuspay" COMMENT="NexusPay main info">
+    <TABLE NAME="enrol_nexuspay" COMMENT="NexusPay enrollment main information">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="paymentid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="paymentid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Reference to payment ID in payments table"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course ID where payment was made"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User ID who made the payment"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Timestamp when record was created"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="paymentid" TYPE="foreign-unique" FIELDS="paymentid" REFTABLE="payments" REFFIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_userid" UNIQUE="false" FIELDS="courseid, userid" COMMENT="Index for finding user enrollments in a course"/>
+        <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated" COMMENT="Index for time-based queries"/>
+      </INDEXES>
     </TABLE>
-    <TABLE NAME="enrol_nexuspay_ext" COMMENT="NexusPay groupkey support">
+    <TABLE NAME="enrol_nexuspay_groups" COMMENT="NexusPay group enrollment support">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="ingroupid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course ID"/>
+        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Enrollment instance ID"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User ID"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Group ID to assign user to"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Timestamp when record was created"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="instanceid" TYPE="foreign" FIELDS="instanceid" REFTABLE="enrol" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="groupid" TYPE="foreign" FIELDS="groupid" REFTABLE="groups" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid_userid_instanceid" UNIQUE="false" FIELDS="courseid, userid, instanceid" COMMENT="Composite index for queries"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>
