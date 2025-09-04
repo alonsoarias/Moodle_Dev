@@ -7,298 +7,119 @@
 // (at your option) any later version.
 
 /**
- * Role Styles Plugin - Main library functions
+ * Library functions for the Role Styles plugin.
  *
  * @package    local_rolestyles
- * @copyright  2024 Alonso Arias <soporte@ingeweb.co> - aulatecnos.es - tecnoszubia.es
+ * @copyright  2024 Alonso Arias
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Hook implementation for Moodle 4.0+
+ * Hook executed before HTTP headers are sent.
+ * Injects CSS and body classes for users holding configured roles.
  */
 function local_rolestyles_hook_before_http_headers($hook = null): void {
-    global $PAGE, $CFG;
+    if (!local_rolestyles_user_has_role()) {
+        return;
+    }
+
     local_rolestyles_inject_css();
-    if (local_rolestyles_has_selected_role()) {
-        require_once($CFG->dirroot . '/local/rolestyles/classes/assign_renderer_factory.php');
-        // Register custom renderer factory for this request when a role is active.
-        $PAGE->theme->rendererfactory = \local_rolestyles\assign_renderer_factory::class;
-    }
 }
 
 /**
- * Main function to inject CSS based on user roles
+ * Early hook to register the custom renderer factory.
  */
-function local_rolestyles_inject_css() {
-    global $USER, $PAGE, $CFG, $COURSE;
-    
-    // Check if plugin is enabled
-    $enabled = get_config('local_rolestyles', 'enabled');
-    if (!$enabled) {
-        return;
-    }
-    
-    // Check if user is logged in
-    if (!isloggedin() || isguestuser()) {
-        return;
-    }
-    
-    try {
-        // Determine appropriate context
-        $context = local_rolestyles_get_context();
-        if (!$context) {
-            return;
-        }
-        
-        // Get user roles in context
-        $userroles = get_user_roles($context, $USER->id, true);
-        if (empty($userroles)) {
-            return;
-        }
-        
-        // Get selected roles configuration
-        $selected_roles = get_config('local_rolestyles', 'selected_roles');
-        if (empty($selected_roles)) {
-            return;
-        }
-        
-        // Check if user has any selected roles
-        $selected_roles_array = explode(',', $selected_roles);
-        $role_classes = array();
-        $user_role_names = array();
-        
-        foreach ($userroles as $role) {
-            if (in_array($role->roleid, $selected_roles_array)) {
-                $role_classes[] = 'role-' . $role->shortname;
-                $role_classes[] = 'roleid-' . $role->roleid;
-                $user_role_names[] = $role->shortname;
-            }
-        }
-        
-        if (empty($role_classes)) {
-            return;
-        }
-        
-        // Add CSS classes to body
-        foreach ($role_classes as $class) {
-            $PAGE->add_body_class($class);
-        }
+function local_rolestyles_after_config(): void {
+    global $PAGE, $CFG;
 
-        // Get custom CSS
-        $custom_css = get_config('local_rolestyles', 'custom_css');
-        if (!empty($custom_css)) {
-            // Try renderer factory method
-            try {
-                require_once($CFG->dirroot . '/local/rolestyles/classes/renderer_factory.php');
-                \local_rolestyles\renderer_factory::create_theme_renderer($PAGE->theme->name);
-            } catch (Exception $e) {
-                // Continue with fallback method
-            }
-            
-            // Fallback: Direct CSS injection
-            local_rolestyles_inject_css_direct($custom_css, $user_role_names);
-        }
-        
-    } catch (Exception $e) {
-        // Fail silently to avoid breaking the page
+    if (!get_config('local_rolestyles', 'enabled')) {
         return;
     }
+
+    require_once($CFG->dirroot . '/local/rolestyles/classes/assign_renderer_factory.php');
+    $PAGE->theme->rendererfactory = \local_rolestyles\assign_renderer_factory::class;
 }
 
 /**
- * Get appropriate context for role checking
- * @return context|null
+ * Determine if the current user has any of the configured roles.
+ *
+ * @return bool
  */
-function local_rolestyles_get_context() {
-    global $COURSE, $PAGE;
-    
-    // Priority 1: Course context if in a course
-    if (!empty($COURSE->id) && $COURSE->id > 1) {
-        return context_course::instance($COURSE->id);
+function local_rolestyles_user_has_role(): bool {
+    global $USER;
+
+    if (!get_config('local_rolestyles', 'enabled') || !isloggedin() || isguestuser()) {
+        return false;
     }
-    
-    // Priority 2: Page context if available
-    if (!empty($PAGE->context) && $PAGE->context->contextlevel >= CONTEXT_COURSE) {
+
+    $configured = explode(',', (string) get_config('local_rolestyles', 'selected_roles'));
+    $configured = array_filter(array_map('intval', $configured));
+    if (empty($configured)) {
+        return false;
+    }
+
+    $context = local_rolestyles_get_context();
+    $roles = get_user_roles($context, $USER->id, true);
+    foreach ($roles as $role) {
+        if (in_array((int) $role->roleid, $configured, true)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Get context for the current request.
+ *
+ * @return context
+ */
+function local_rolestyles_get_context(): context {
+    global $PAGE, $COURSE;
+
+    if (!empty($PAGE->context)) {
         return $PAGE->context;
     }
-    
-    // Fallback: System context
+    if (!empty($COURSE->id)) {
+        return context_course::instance($COURSE->id);
+    }
     return context_system::instance();
 }
 
 /**
- * Determine if the current user has one of the selected roles.
- *
- * @return bool True if a selected role is active
+ * Inject CSS and body classes for active roles.
  */
-function local_rolestyles_has_selected_role(): bool {
-    global $USER;
-
-    // Basic caching to avoid repeated role lookups during a single request.
-    static $cached = null;
-    if ($cached !== null) {
-        return $cached;
-    }
-
-    $enabled = get_config('local_rolestyles', 'enabled');
-    if (!$enabled || !isloggedin() || isguestuser()) {
-        $cached = false;
-        return $cached;
-    }
-
-    $context = local_rolestyles_get_context();
-    if (!$context) {
-        $cached = false;
-        return $cached;
-    }
-
-    $selected = get_config('local_rolestyles', 'selected_roles');
-    if (empty($selected)) {
-        $cached = false;
-        return $cached;
-    }
-
-    $selected = explode(',', $selected);
-    $userroles = get_user_roles($context, $USER->id, true);
-    foreach ($userroles as $role) {
-        if (in_array($role->roleid, $selected)) {
-            $cached = true;
-            return $cached;
-        }
-    }
-    $cached = false;
-    return $cached;
-}
-
-/**
- * Build a summary string for the current filter state.
- *
- * @param int $total Total number of participants.
- * @param int $visible Number of participants visible after filtering.
- * @return string Localised summary message.
- */
-function local_rolestyles_get_filter_summary(int $total, int $visible): string {
-    $hidden = max($total - $visible, 0);
-    $data = (object) [
-        'visible' => $visible,
-        'total' => $total,
-        'hidden' => $hidden,
-    ];
-    return get_string('filtersummary', 'local_rolestyles', $data);
-}
-
-/**
- * Filter assignment grading table rows to include only submitted and ungraded participants.
- *
- * This helper centralises the logic used by the custom assign renderer and provides
- * a basic in-memory cache to avoid repeating the same database query within a request.
- *
- * @param assign_grading_table $table The grading table instance.
- * @param int $pagesize Number of rows per page.
- * @return array Array containing the filtered rows and the total rows count.
- */
-function local_rolestyles_filter_assign_grading(assign_grading_table $table): array {
-    $assignid = $table->assignment->get_instance()->id ?? 0;
-    $page = property_exists($table, 'currpage') ? $table->currpage : 0;
-    static $cache = [];
-    $cachekey = $assignid . ':' . $page;
-
-    if (!isset($cache[$cachekey])) {
-        $rows = $table->rawdata ?? [];
-        if ($rows instanceof \Traversable) {
-            $rows = iterator_to_array($rows);
-        }
-        $filtered = array_filter($rows, static function($row) {
-            return isset($row->status) &&
-                $row->status === ASSIGN_SUBMISSION_STATUS_SUBMITTED &&
-                $row->grade === null;
-        });
-        $cache[$cachekey] = [
-            'rows' => array_values($filtered),
-            'total' => is_array($rows) ? count($rows) : 0
-        ];
-    }
-
-    return [$cache[$cachekey]['rows'], $cache[$cachekey]['total']];
-}
-
-/**
- * Direct CSS injection method
- */
-function local_rolestyles_inject_css_direct($css, $role_names) {
+function local_rolestyles_inject_css(): void {
     global $PAGE;
-    
-    $clean_css = preg_replace('/\s+/', ' ', trim($css));
-    $escaped_css = addslashes($clean_css);
-    $roles_info = implode(', ', $role_names);
-    
-    $js_code = "
-    (function() {
-        function injectRoleStyles() {
-            var existingStyle = document.getElementById('local-rolestyles-css');
-            if (existingStyle) {
-                existingStyle.remove();
-            }
-            
-            var style = document.createElement('style');
-            style.id = 'local-rolestyles-css';
-            style.type = 'text/css';
-            style.innerHTML = '/* Role Styles Plugin - Roles: {$roles_info} */\\n{$escaped_css}';
-            
-            document.head.appendChild(style);
-        }
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', injectRoleStyles);
-        } else {
-            injectRoleStyles();
-        }
-    })();
-    ";
-    
-    $PAGE->requires->js_init_code($js_code);
+
+    $roleids = \local_rolestyles\assign_filter::active_roleids();
+    foreach ($roleids as $roleid) {
+        $PAGE->add_body_class('roleid-' . $roleid);
+    }
+
+    $css = trim((string) get_config('local_rolestyles', 'custom_css'));
+    if ($css === '') {
+        return;
+    }
+
+    $escaped = addslashes($css);
+    $js = "(function(){var s=document.getElementById('local-rolestyles-css');" .
+        "if(s){s.remove();}s=document.createElement('style');s.id='local-rolestyles-css';" .
+        "s.innerHTML='{$escaped}';document.head.appendChild(s);})();";
+    $PAGE->requires->js_init_code($js);
 }
 
 /**
- * Get all system roles for settings
+ * Retrieve system roles for the settings page.
+ *
  * @return array
  */
-function local_rolestyles_get_all_roles() {
-    global $CFG;
-    require_once($CFG->libdir . '/accesslib.php');
-    
+function local_rolestyles_get_all_roles(): array {
     $roles = role_get_names(null, ROLENAME_ORIGINAL);
-    $roles_array = array();
-    
+    $result = [];
     foreach ($roles as $role) {
-        $roles_array[$role->id] = $role->localname . ' (' . $role->shortname . ')';
+        $result[$role->id] = $role->localname . ' (' . $role->shortname . ')';
     }
-    
-    return $roles_array;
-}
-
-/**
- * Basic CSS validation
- * @param string $css
- * @return bool
- */
-function local_rolestyles_validate_css($css) {
-    if (empty($css)) {
-        return true;
-    }
-    
-    $dangerous_patterns = array(
-        '@import', 'expression(', 'javascript:', 'vbscript:', 'data:', '<script', '</script'
-    );
-    
-    foreach ($dangerous_patterns as $pattern) {
-        if (stripos($css, $pattern) !== false) {
-            return false;
-        }
-    }
-    
-    return true;
+    return $result;
 }
