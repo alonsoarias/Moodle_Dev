@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details for assignhideunsubmitted plugin.
+ * Library functions for local_assignhideunsubmitted
  *
  * @package   local_assignhideunsubmitted
  * @copyright 2024 Your Organization
@@ -24,8 +24,23 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_assignhideunsubmitted';
-$plugin->version   = 2024110101;
-$plugin->requires  = 2022041900;  // Requires Moodle 4.0+
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.1';
+/**
+ * Extend navigation - used for debugging
+ */
+function local_assignhideunsubmitted_extend_navigation(global_navigation $navigation) {
+    global $CFG, $PAGE;
+    
+    // Only in debug mode
+    if ($CFG->debug >= DEBUG_DEVELOPER && $PAGE->cm && $PAGE->cm->modname === 'assign') {
+        // Check if our override is active
+        if (class_exists('\assign')) {
+            $reflection = new ReflectionClass('\assign');
+            $filename = $reflection->getFileName();
+            if (strpos($filename, 'local_assignhideunsubmitted') !== false) {
+                debugging('Assignment Hide Unsubmitted: Class override is ACTIVE', DEBUG_DEVELOPER);
+            } else {
+                debugging('Assignment Hide Unsubmitted: Class override is NOT active - using patch method', DEBUG_DEVELOPER);
+            }
+        }
+    }
+}

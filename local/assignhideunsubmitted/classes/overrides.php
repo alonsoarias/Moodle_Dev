@@ -18,12 +18,15 @@
  * Class overrides for the assignhideunsubmitted plugin.
  *
  * @package   local_assignhideunsubmitted
- * @copyright 2024
+ * @copyright 2024 Your Organization
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-return [
-    'assign' => 'local_assignhideunsubmitted\\assign'
+// Map of core classes to override
+$overrides = [
+    'assign' => 'local_assignhideunsubmitted\assign',
 ];
+
+return $overrides;

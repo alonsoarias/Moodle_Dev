@@ -18,7 +18,7 @@
  * Override of assign class to hide participants without submissions.
  *
  * @package   local_assignhideunsubmitted
- * @copyright 2024
+ * @copyright 2024 Your Organization
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,161 +26,112 @@ namespace local_assignhideunsubmitted;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/mod/assign/locallib.php');
+
+/**
+ * Extended assign class that filters out unsubmitted participants
+ */
 class assign extends \assign {
+    
+    /** @var array Cache for filtered participants */
+    protected static $filtercache = [];
+    
     /**
-     * Load a list of users enrolled in the current course with the specified permission and group.
-     * Participants without a submitted attempt are excluded for selected roles.
-     *
-     * @param int $currentgroup
-     * @param bool $idsonly
-     * @param bool $tablesort
-     * @return array
+     * Override list_participants to filter unsubmitted students
      */
     public function list_participants($currentgroup, $idsonly, $tablesort = false) {
-        global $USER;
-
-        $roleid = (int)get_config('local_assignhideunsubmitted', 'hiderole');
-        if ($roleid && $this->user_has_role($USER->id, $roleid)) {
-            // Get full participant records from core implementation.
-            $participants = parent::list_participants($currentgroup, false, $tablesort);
-            $participants = $this->load_submission_info($participants);
-
-            // Remove users that have not submitted anything.
-            foreach ($participants as $userid => $participant) {
-                $submitted = !empty($participant->submitted) && $participant->submitted === true;
-                if (!$submitted) {
-                    unset($participants[$userid]);
-                }
-            }
-
-            if ($idsonly) {
-                $ids = [];
-                foreach ($participants as $userid => $unused) {
-                    $ids[$userid] = (object)['id' => $userid];
-                }
-                return $ids;
-            }
-
-            return $participants;
+        global $USER, $DB, $CFG;
+        
+        // Check if filtering is enabled
+        if (!get_config('local_assignhideunsubmitted', 'enabled')) {
+            return parent::list_participants($currentgroup, $idsonly, $tablesort);
         }
-
-        // Fallback to core behaviour if filtering is not required.
-        return parent::list_participants($currentgroup, $idsonly, $tablesort);
+        
+        // Check role
+        $roleid = (int)get_config('local_assignhideunsubmitted', 'hiderole');
+        if (!$roleid || !$this->user_has_role($USER->id, $roleid)) {
+            return parent::list_participants($currentgroup, $idsonly, $tablesort);
+        }
+        
+        // Get all participants
+        $allparticipants = parent::list_participants($currentgroup, false, $tablesort);
+        
+        if (empty($allparticipants)) {
+            return $allparticipants;
+        }
+        
+        // Filter by submission status
+        $filtered = $this->filter_submitted_participants($allparticipants);
+        
+        // Convert to IDs only if requested
+        if ($idsonly) {
+            $ids = [];
+            foreach ($filtered as $userid => $participant) {
+                $ids[$userid] = (object)['id' => $userid];
+            }
+            return $ids;
+        }
+        
+        return $filtered;
     }
-
+    
     /**
-     * Determine whether a user has the configured role in this context.
-     *
-     * @param int $userid
-     * @param int $roleid
-     * @return bool
+     * Filter participants to only show those who have submitted
      */
-    protected function user_has_role(int $userid, int $roleid): bool {
+    protected function filter_submitted_participants($participants) {
+        global $DB;
+        
+        if (empty($participants)) {
+            return [];
+        }
+        
+        $participantids = array_keys($participants);
+        list($insql, $params) = $DB->get_in_or_equal($participantids, SQL_PARAMS_NAMED);
+        
+        $params['assignid'] = $this->get_instance()->id;
+        $params['submitted'] = ASSIGN_SUBMISSION_STATUS_SUBMITTED;
+        
+        // Query for submitted users
+        $sql = "SELECT DISTINCT s.userid
+                FROM {assign_submission} s
+                WHERE s.assignment = :assignid
+                  AND s.latest = 1
+                  AND s.status = :submitted
+                  AND s.userid $insql";
+        
+        $submittedusers = $DB->get_records_sql($sql, $params);
+        
+        $filtered = [];
+        foreach ($submittedusers as $record) {
+            if (isset($participants[$record->userid])) {
+                $filtered[$record->userid] = $participants[$record->userid];
+            }
+        }
+        
+        return $filtered;
+    }
+    
+    /**
+     * Check if user has the configured role
+     */
+    protected function user_has_role($userid, $roleid) {
         $context = $this->get_context();
         $roles = get_user_roles($context, $userid, true);
+        
         foreach ($roles as $role) {
             if ((int)$role->roleid === $roleid) {
                 return true;
             }
         }
+        
         return false;
     }
-
+    
     /**
-     * Copy of core get_submission_info_for_participants() to attach submission data.
-     *
-     * @param array $participants
-     * @return array
+     * Override count_participants to use filtered list
      */
-    protected function load_submission_info(array $participants) {
-        global $DB;
-
-        if (empty($participants)) {
-            return $participants;
-        }
-
-        list($insql, $params) = $DB->get_in_or_equal(array_keys($participants), SQL_PARAMS_NAMED);
-
-        $assignid = $this->get_instance()->id;
-        $params['assignmentid1'] = $assignid;
-        $params['assignmentid2'] = $assignid;
-        $params['assignmentid3'] = $assignid;
-
-        $fields = 'SELECT u.id, s.status, s.timemodified AS stime, g.timemodified AS gtime, g.grade, uf.extensionduedate';
-        $from = ' FROM {user} u
-                         LEFT JOIN {assign_submission} s
-                                ON u.id = s.userid
-                               AND s.assignment = :assignmentid1
-                               AND s.latest = 1
-                         LEFT JOIN {assign_grades} g
-                                ON u.id = g.userid
-                               AND g.assignment = :assignmentid2
-                               AND g.attemptnumber = s.attemptnumber
-                         LEFT JOIN {assign_user_flags} uf
-                                ON u.id = uf.userid
-                               AND uf.assignment = :assignmentid3
-            ';
-        $where = ' WHERE u.id ' . $insql;
-
-        if (!empty($this->get_instance()->blindmarking)) {
-            $from .= 'LEFT JOIN {assign_user_mapping} um
-                             ON u.id = um.userid
-                            AND um.assignment = :assignmentid4 ';
-            $params['assignmentid4'] = $assignid;
-            $fields .= ', um.id as recordid ';
-        }
-
-        $sql = "$fields $from $where";
-
-        $records = $DB->get_records_sql($sql, $params);
-
-        if ($this->get_instance()->teamsubmission) {
-            // Get all groups.
-            $allgroups = groups_get_all_groups($this->get_course()->id,
-                                               array_keys($participants),
-                                               $this->get_instance()->teamsubmissiongroupingid,
-                                               'DISTINCT g.id, g.name');
-        }
-        foreach ($participants as $userid => $participant) {
-            $participants[$userid]->fullname = $this->fullname($participant);
-            $participants[$userid]->submitted = false;
-            $participants[$userid]->requiregrading = false;
-            $participants[$userid]->grantedextension = false;
-            $participants[$userid]->submissionstatus = '';
-        }
-
-        foreach ($records as $userid => $submissioninfo) {
-            $submitted = false;
-            $requiregrading = false;
-            $grantedextension = false;
-            $submissionstatus = !empty($submissioninfo->status) ? $submissioninfo->status : '';
-
-            if (!empty($submissioninfo->stime) && $submissioninfo->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
-                $submitted = true;
-            }
-
-            if ($submitted && ($submissioninfo->stime >= $submissioninfo->gtime ||
-                    empty($submissioninfo->gtime) ||
-                    $submissioninfo->grade === null)) {
-                $requiregrading = true;
-            }
-
-            if (!empty($submissioninfo->extensionduedate)) {
-                $grantedextension = true;
-            }
-
-            $participants[$userid]->submitted = $submitted;
-            $participants[$userid]->requiregrading = $requiregrading;
-            $participants[$userid]->grantedextension = $grantedextension;
-            $participants[$userid]->submissionstatus = $submissionstatus;
-            if ($this->get_instance()->teamsubmission) {
-                $group = $this->get_submission_group($userid);
-                if ($group) {
-                    $participants[$userid]->groupid = $group->id;
-                    $participants[$userid]->groupname = $group->name;
-                }
-            }
-        }
-        return $participants;
+    public function count_participants($currentgroup) {
+        $participants = $this->list_participants($currentgroup, true);
+        return count($participants);
     }
 }

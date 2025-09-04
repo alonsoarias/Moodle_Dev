@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details for assignhideunsubmitted plugin.
+ * Plugin capabilities
  *
  * @package   local_assignhideunsubmitted
  * @copyright 2024 Your Organization
@@ -24,8 +24,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_assignhideunsubmitted';
-$plugin->version   = 2024110101;
-$plugin->requires  = 2022041900;  // Requires Moodle 4.0+
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.1';
+$capabilities = [
+    'local/assignhideunsubmitted:config' => [
+        'riskbitmask' => RISK_CONFIG,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW
+        ]
+    ]
+];
