@@ -2288,6 +2288,12 @@ class assign {
             list($ssql, $sparams) = $this->get_submitted_sql($currentgroup);
             $params += $sparams;
 
+            // Only show participants with submissions when viewer has role ID 10.
+            $joinsql = "$esql UNION $ssql";
+            if (user_has_role_assignment($USER->id, 10, $this->context->id)) {
+                $joinsql = $ssql;
+            }
+
             $fields = 'u.*';
             $orderby = 'u.lastname, u.firstname, u.id';
 
@@ -2351,7 +2357,7 @@ class assign {
 
             $sql = "SELECT $fields
                       FROM {user} u
-                      JOIN ($esql UNION $ssql) je ON je.id = u.id
+                      JOIN ($joinsql) je ON je.id = u.id
                            $additionaljoins
                      WHERE u.deleted = 0
                            $additionalfilters
