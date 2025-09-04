@@ -1,0 +1,255 @@
+/**
+ * PayU Payment Gateway Styles
+ *
+ * @package    paygw_payu
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Gateway modal icon */
+.core_payment_gateways_modal .payu .icon {
+    height: 24px;
+    width: auto;
+    max-width: none;
+    vertical-align: middle;
+}
+
+/* Payment method container */
+.payu-payment-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.payu-payment-container .card {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border: none;
+}
+
+.payu-payment-container .card-body {
+    padding: 30px;
+}
+
+/* Logo and branding */
+.payu-payment-container img {
+    max-height: 60px;
+    width: auto;
+}
+
+/* Amount input */
+.payu-payment-container .payment-amount-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.payu-payment-container .input-group-lg {
+    font-size: 1.25rem;
+}
+
+.payu-payment-container .input-group-text {
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+}
+
+/* Buttons */
+.payu-payment-container .btn-primary {
+    min-width: 200px;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.payu-payment-container .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.payu-payment-container .btn-secondary {
+    min-width: 150px;
+}
+
+/* Country badges */
+.country-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.country-badge.co { background: #FCD116; color: #003893; }
+.country-badge.mx { background: #006847; color: white; }
+.country-badge.br { background: #009739; color: #FFCC00; }
+.country-badge.ar { background: #74ACDF; color: white; }
+.country-badge.cl { background: #D52B1E; color: white; }
+.country-badge.pe { background: #D91023; color: white; }
+.country-badge.pa { background: #072357; color: white; }
+
+/* Loading states */
+.payu-loading-container {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.payu-spinner {
+    margin: 20px 0;
+}
+
+.skeleton-button,
+.skeleton-text {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 5px;
+}
+
+.skeleton-button {
+    height: 45px;
+    margin-bottom: 14px;
+}
+
+.skeleton-text {
+    width: 110px;
+    height: 16px;
+    margin: 10px auto;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Alert customizations */
+.payu-payment-container .alert-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.payu-payment-container .alert-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+}
+
+/* Enrollment info */
+.enrollment-info,
+.group-info {
+    background: #e3f2fd;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border-left: 4px solid #2196f3;
+}
+
+/* Password mode section */
+details {
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+details summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+}
+
+details summary:hover {
+    color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .payu-payment-container {
+        padding: 10px;
+    }
+    
+    .payu-payment-container .card-body {
+        padding: 20px;
+    }
+    
+    .payu-payment-container .btn-primary {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* Gateway selection list */
+.payment-gateway-list .payu {
+    border-left: 4px solid #667eea;
+}
+
+.payment-gateway-list .payu:hover {
+    background: #f8f9fa;
+}
+
+/* Transaction states */
+.payu-status {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.payu-status.approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.payu-status.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.payu-status.declined {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Configuration page */
+.paygw_payu_config .alert {
+    margin-bottom: 20px;
+}
+
+.paygw_payu_config code {
+    background: #f4f4f4;
+    padding: 10px;
+    border-radius: 4px;
+    display: block;
+    margin: 5px 0;
+    word-break: break-all;
+}
+
+/* Test mode indicator */
+.payu-test-mode {
+    background: #ff9800;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+/* Currency symbols */
+.currency-symbol {
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Print styles */
+@media print {
+    .payu-payment-container .btn,
+    .payu-payment-container details {
+        display: none;
+    }
+}

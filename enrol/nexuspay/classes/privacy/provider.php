@@ -19,7 +19,7 @@
  *
  * @package    enrol_nexuspay
  * @category   privacy
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -38,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Privacy Subsystem for enrol_nexuspay implementing required providers.
  *
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements 

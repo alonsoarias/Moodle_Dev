@@ -15,18 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * NexusPay enrolment plugin version specification.
+ * Defines message providers for PayU payment gateway.
  *
- * @package    enrol_nexuspay
+ * @package    paygw_payu
  * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025010100;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022112800;        // Requires Moodle 4.1 LTS minimum.
-$plugin->component = 'enrol_nexuspay';  // Full name of the plugin.
-$plugin->release   = '1.0.0';           // Human-friendly version number.
-$plugin->maturity  = MATURITY_STABLE;   // This version's maturity level.
-$plugin->cron      = 0;                 // Period for cron to run (0 means disabled).
+$messageproviders = [
+    'payment_receipt' => [
+        'capability' => null,
+        'defaults' => [
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN + MESSAGE_DEFAULT_LOGGEDOFF,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN + MESSAGE_DEFAULT_LOGGEDOFF,
+        ],
+    ],
+];

@@ -15,11 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Contains class for PayU payment gateway.
+ * Contains class for PayU payment gateway for Latin America.
  *
  * @package    paygw_payu
- * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author     Alonso Arias
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,255 +31,170 @@ namespace paygw_payu;
  */
 class gateway extends \core_payment\gateway {
     /**
-     * Configuration form for currency
+     * Countries supported by PayU Latin America
+     */
+    const SUPPORTED_COUNTRIES = [
+        'AR' => 'Argentina',
+        'BR' => 'Brasil', 
+        'CL' => 'Chile',
+        'CO' => 'Colombia',
+        'MX' => 'México',
+        'PA' => 'Panamá',
+        'PE' => 'Perú'
+    ];
+
+    /**
+     * Currencies supported by each country
+     */
+    const COUNTRY_CURRENCIES = [
+        'AR' => ['ARS', 'USD'],
+        'BR' => ['BRL', 'USD'],
+        'CL' => ['CLP', 'USD'],
+        'CO' => ['COP', 'USD'],
+        'MX' => ['MXN', 'USD'],
+        'PA' => ['USD', 'PAB'],
+        'PE' => ['PEN', 'USD']
+    ];
+
+    /**
+     * PayU account IDs for testing (sandbox)
+     */
+    const TEST_ACCOUNT_IDS = [
+        'AR' => '512322',
+        'BR' => '512327',
+        'CL' => '512325',
+        'CO' => '512321',
+        'MX' => '512324',
+        'PA' => '512326',
+        'PE' => '512323'
+    ];
+
+    /**
+     * Configuration form for supported currencies based on selected country
      */
     public static function get_supported_currencies(): array {
-        // 3-character ISO-4217: https://en.wikipedia.org/wiki/ISO_4217#Active_codes.
-        return [
-            'COP', 'USD', 'EUR', 'MXN', 'ARS', 'BRL', 'CLP', 'PEN'
-        ];
+        // Return all possible currencies that PayU supports
+        $currencies = [];
+        foreach (self::COUNTRY_CURRENCIES as $country => $countryCurrencies) {
+            foreach ($countryCurrencies as $currency) {
+                $currencies[$currency] = $currency;
+            }
+        }
+        return array_unique($currencies);
     }
 
     /**
      * Configuration form for the gateway instance
-     *
-     * Use $form->get_mform() to access the \MoodleQuickForm instance
      *
      * @param \core_payment\form\account_gateway $form
      */
     public static function add_configuration_to_gateway_form(\core_payment\form\account_gateway $form): void {
         $mform = $form->get_mform();
 
-        // Test mode checkbox - MUST BE FIRST
-        $mform->addElement('advcheckbox', 'testmode', get_string('testmode', 'paygw_payu'), get_string('testmode_help', 'paygw_payu'));
-        $mform->setType('testmode', PARAM_INT);
-        $mform->addHelpButton('testmode', 'testmode', 'paygw_payu');
+        // Country selection
+        $countries = [];
+        foreach (self::SUPPORTED_COUNTRIES as $code => $name) {
+            $countries[$code] = get_string('country_' . strtolower($code), 'paygw_payu', $name);
+        }
+        $mform->addElement('select', 'country', get_string('country', 'paygw_payu'), $countries);
+        $mform->setType('country', PARAM_TEXT);
+        $mform->setDefault('country', 'CO');
+        $mform->addRule('country', get_string('required'), 'required', null, 'client');
 
-        // Merchant ID field
+        // Environment selection
+        $environments = [
+            'sandbox' => get_string('environment_sandbox', 'paygw_payu'),
+            'production' => get_string('environment_production', 'paygw_payu')
+        ];
+        $mform->addElement('select', 'environment', get_string('environment', 'paygw_payu'), $environments);
+        $mform->setType('environment', PARAM_TEXT);
+        $mform->setDefault('environment', 'sandbox');
+
+        // Merchant ID
         $mform->addElement('text', 'merchantid', get_string('merchantid', 'paygw_payu'));
         $mform->setType('merchantid', PARAM_TEXT);
-        $mform->addRule('merchantid', get_string('required'), 'required', null, 'client');
-        $mform->setDefault('merchantid', '');
+        $mform->addHelpButton('merchantid', 'merchantid', 'paygw_payu');
+        $mform->disabledIf('merchantid', 'environment', 'eq', 'sandbox');
 
-        // Account ID field
+        // Account ID  
         $mform->addElement('text', 'accountid', get_string('accountid', 'paygw_payu'));
         $mform->setType('accountid', PARAM_TEXT);
-        $mform->addRule('accountid', get_string('required'), 'required', null, 'client');
-        $mform->setDefault('accountid', '');
+        $mform->addHelpButton('accountid', 'accountid', 'paygw_payu');
+        $mform->disabledIf('accountid', 'environment', 'eq', 'sandbox');
 
-        // API Key field
+        // API Key
         $mform->addElement('passwordunmask', 'apikey', get_string('apikey', 'paygw_payu'));
         $mform->setType('apikey', PARAM_TEXT);
-        $mform->addRule('apikey', get_string('required'), 'required', null, 'client');
-        $mform->setDefault('apikey', '');
+        $mform->addHelpButton('apikey', 'apikey', 'paygw_payu');
+        $mform->disabledIf('apikey', 'environment', 'eq', 'sandbox');
 
-        // API Login field (for API integrations)
+        // API Login
         $mform->addElement('text', 'apilogin', get_string('apilogin', 'paygw_payu'));
         $mform->setType('apilogin', PARAM_TEXT);
-        $mform->setDefault('apilogin', '');
         $mform->addHelpButton('apilogin', 'apilogin', 'paygw_payu');
+        $mform->disabledIf('apilogin', 'environment', 'eq', 'sandbox');
 
-        // Public Key field (for tokenization)
+        // Public Key (for tokenization)
         $mform->addElement('text', 'publickey', get_string('publickey', 'paygw_payu'));
         $mform->setType('publickey', PARAM_TEXT);
-        $mform->setDefault('publickey', '');
         $mform->addHelpButton('publickey', 'publickey', 'paygw_payu');
+        $mform->disabledIf('publickey', 'environment', 'eq', 'sandbox');
 
-        // Fixed description
-        $mform->addElement('text', 'fixdesc', get_string('fixdesc', 'paygw_payu'), ['size' => 50]);
-        $mform->setType('fixdesc', PARAM_TEXT);
-        $mform->addHelpButton('fixdesc', 'fixdesc', 'paygw_payu');
+        // Payment page language
+        $languages = [
+            'es' => get_string('language_es', 'paygw_payu'),
+            'en' => get_string('language_en', 'paygw_payu'),
+            'pt' => get_string('language_pt', 'paygw_payu')
+        ];
+        $mform->addElement('select', 'language', get_string('language', 'paygw_payu'), $languages);
+        $mform->setType('language', PARAM_TEXT);
+        $mform->setDefault('language', 'es');
 
-        // Skip mode
-        $mform->addElement('advcheckbox', 'skipmode', get_string('skipmode', 'paygw_payu'), '0');
-        $mform->setType('skipmode', PARAM_TEXT);
+        // Advanced settings
+        $mform->addElement('advcheckbox', 'autofilltest', get_string('autofilltest', 'paygw_payu'));
+        $mform->setType('autofilltest', PARAM_INT);
+        $mform->addHelpButton('autofilltest', 'autofilltest', 'paygw_payu');
+
+        $mform->addElement('advcheckbox', 'skipmode', get_string('skipmode', 'paygw_payu'));
+        $mform->setType('skipmode', PARAM_INT);
         $mform->addHelpButton('skipmode', 'skipmode', 'paygw_payu');
 
-        // Password mode
-        $mform->addElement('advcheckbox', 'passwordmode', get_string('passwordmode', 'paygw_payu'), '0');
-        $mform->setType('passwordmode', PARAM_TEXT);
-        $mform->disabledIf('passwordmode', 'skipmode', "neq", 0);
+        $mform->addElement('advcheckbox', 'passwordmode', get_string('passwordmode', 'paygw_payu'));
+        $mform->setType('passwordmode', PARAM_INT);
+        $mform->disabledIf('passwordmode', 'skipmode', 'neq', 0);
 
-        // Password field
         $mform->addElement('passwordunmask', 'password', get_string('password', 'paygw_payu'));
         $mform->setType('password', PARAM_TEXT);
         $mform->addHelpButton('password', 'password', 'paygw_payu');
+        $mform->disabledIf('password', 'passwordmode', 'eq', 0);
 
-        // Use details
-        $mform->addElement(
-            'advcheckbox',
-            'usedetails',
-            get_string('usedetails', 'paygw_payu')
-        );
-        $mform->setType('usedetails', PARAM_INT);
-        $mform->addHelpButton('usedetails', 'usedetails', 'paygw_payu');
-
-        // Show duration
-        $mform->addElement(
-            'advcheckbox',
-            'showduration',
-            get_string('showduration', 'paygw_payu')
-        );
-        $mform->setType('showduration', PARAM_INT);
-
-        // Fixed cost mode
-        $mform->addElement(
-            'advcheckbox',
-            'fixcost',
-            get_string('fixcost', 'paygw_payu')
-        );
+        // Pricing options
+        $mform->addElement('advcheckbox', 'fixcost', get_string('fixcost', 'paygw_payu'));
         $mform->setType('fixcost', PARAM_INT);
         $mform->addHelpButton('fixcost', 'fixcost', 'paygw_payu');
 
-        // Suggested cost
         $mform->addElement('float', 'suggest', get_string('suggest', 'paygw_payu'), ['size' => 10]);
         $mform->setType('suggest', PARAM_FLOAT);
-        $mform->disabledIf('suggest', 'fixcost', "neq", 0);
+        $mform->disabledIf('suggest', 'fixcost', 'neq', 0);
 
-        // Maximum cost
         $mform->addElement('float', 'maxcost', get_string('maxcost', 'paygw_payu'), ['size' => 10]);
         $mform->setType('maxcost', PARAM_FLOAT);
-        $mform->disabledIf('maxcost', 'fixcost', "neq", 0);
+        $mform->disabledIf('maxcost', 'fixcost', 'neq', 0);
 
-        // Callback URL information
+        // Callback URLs display
         global $CFG;
-        $mform->addElement('html', '<div class="label-callback" style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0;">' .
-                                    '<strong>' . get_string('callback', 'paygw_payu') . '</strong><br>');
-        $mform->addElement('html', '<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">' . 
-                                    $CFG->wwwroot . '/payment/gateway/payu/callback.php</code><br>');
-        $mform->addElement('html', '<small>' . get_string('callback_help', 'paygw_payu') . '</small></div>');
+        $mform->addElement('html', '<div class="alert alert-info">');
+        $mform->addElement('html', '<strong>' . get_string('callback_urls', 'paygw_payu') . '</strong><br>');
+        $mform->addElement('html', get_string('confirmation_url', 'paygw_payu') . ':<br>');
+        $mform->addElement('html', '<code>' . $CFG->wwwroot . '/payment/gateway/payu/callback.php</code><br><br>');
+        $mform->addElement('html', get_string('response_url', 'paygw_payu') . ':<br>');
+        $mform->addElement('html', '<code>' . $CFG->wwwroot . '/payment/gateway/payu/return.php</code><br>');
+        $mform->addElement('html', '</div>');
 
-        // Plugin information
-        $plugininfo = \core_plugin_manager::instance()->get_plugin_info('paygw_payu');
-        $donate = get_string('donate', 'paygw_payu', $plugininfo);
-        $mform->addElement('html', $donate);
-
-        // Add JavaScript for auto-fill functionality
-        $mform->addElement('html', '
-        <script type="text/javascript">
-        (function() {
-            // PayU Colombia Sandbox Credentials
-            const SANDBOX_CREDENTIALS = {
-                merchantid: "508029",
-                accountid: "512321",
-                apikey: "4Vj8eK4rloUd272L48hsrarnUA",
-                apilogin: "pRRXKOl8ikMmt9u",
-                publickey: "PKaC6H4cEDJD919n705L544kSU"
-            };
-            
-            // Production fields placeholder
-            const PRODUCTION_PLACEHOLDERS = {
-                merchantid: "",
-                accountid: "",
-                apikey: "",
-                apilogin: "",
-                publickey: ""
-            };
-            
-            // Store original values
-            let originalValues = {};
-            let isTestMode = false;
-            
-            function initializeTestMode() {
-                const testModeCheckbox = document.querySelector(\'input[name="testmode"]\');
-                if (!testModeCheckbox) return;
-                
-                // Get all credential fields
-                const fields = {
-                    merchantid: document.querySelector(\'input[name="merchantid"]\'),
-                    accountid: document.querySelector(\'input[name="accountid"]\'),
-                    apikey: document.querySelector(\'input[name="apikey"]\'),
-                    apilogin: document.querySelector(\'input[name="apilogin"]\'),
-                    publickey: document.querySelector(\'input[name="publickey"]\')
-                };
-                
-                // Check initial state
-                isTestMode = testModeCheckbox.checked;
-                
-                // Store original values on page load
-                Object.keys(fields).forEach(key => {
-                    if (fields[key]) {
-                        originalValues[key] = fields[key].value;
-                    }
-                });
-                
-                // Function to update fields
-                function updateFields(useTestCredentials) {
-                    const credentials = useTestCredentials ? SANDBOX_CREDENTIALS : originalValues;
-                    
-                    Object.keys(fields).forEach(key => {
-                        if (fields[key]) {
-                            if (useTestCredentials) {
-                                // Store current value before changing
-                                if (!isTestMode) {
-                                    originalValues[key] = fields[key].value || "";
-                                }
-                                // Set test credential
-                                fields[key].value = credentials[key] || "";
-                                // Add visual indicator
-                                fields[key].style.backgroundColor = "#fffde7";
-                                fields[key].setAttribute("readonly", "readonly");
-                                
-                                // Add helper text if not exists
-                                let helperText = fields[key].parentElement.querySelector(".payu-test-helper");
-                                if (!helperText) {
-                                    helperText = document.createElement("div");
-                                    helperText.className = "payu-test-helper";
-                                    helperText.style.cssText = "color: #f57c00; font-size: 0.9em; margin-top: 5px;";
-                                    helperText.textContent = "' . get_string('testcredential_auto', 'paygw_payu') . '";
-                                    fields[key].parentElement.appendChild(helperText);
-                                }
-                            } else {
-                                // Restore original value
-                                fields[key].value = credentials[key] || "";
-                                // Remove visual indicator
-                                fields[key].style.backgroundColor = "";
-                                fields[key].removeAttribute("readonly");
-                                
-                                // Remove helper text
-                                let helperText = fields[key].parentElement.querySelector(".payu-test-helper");
-                                if (helperText) {
-                                    helperText.remove();
-                                }
-                            }
-                        }
-                    });
-                    
-                    isTestMode = useTestCredentials;
-                }
-                
-                // Add event listener to checkbox
-                testModeCheckbox.addEventListener("change", function() {
-                    updateFields(this.checked);
-                    
-                    // Show/hide information message
-                    let infoMessage = document.querySelector(".payu-test-info");
-                    if (!infoMessage) {
-                        infoMessage = document.createElement("div");
-                        infoMessage.className = "payu-test-info alert alert-info";
-                        infoMessage.style.cssText = "margin-top: 10px; padding: 10px;";
-                        infoMessage.innerHTML = \'<strong>' . get_string('testmode_active', 'paygw_payu') . '</strong><br>\' + 
-                                               \'' . get_string('testmode_description', 'paygw_payu') . '\';
-                        testModeCheckbox.parentElement.parentElement.appendChild(infoMessage);
-                    }
-                    infoMessage.style.display = this.checked ? "block" : "none";
-                });
-                
-                // Initialize on page load if test mode is already checked
-                if (isTestMode) {
-                    updateFields(true);
-                }
-            }
-            
-            // Wait for DOM to be ready
-            if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", initializeTestMode);
-            } else {
-                initializeTestMode();
-            }
-        })();
-        </script>
-        ');
+        // Display note about test credentials
+        $mform->addElement('html', '<div class="alert alert-warning">');
+        $mform->addElement('html', get_string('sandbox_note', 'paygw_payu'));
+        $mform->addElement('html', '</div>');
     }
 
     /**
@@ -297,21 +211,40 @@ class gateway extends \core_payment\gateway {
         array $files,
         array &$errors
     ): void {
-        // No validation needed in test mode as credentials are auto-filled
-        if (!empty($data->testmode)) {
-            return;
+        // For production environment, all fields are required
+        if ($data->environment === 'production') {
+            if (empty($data->merchantid) || empty($data->accountid) || 
+                empty($data->apikey) || empty($data->apilogin)) {
+                $errors['environment'] = get_string('production_fields_required', 'paygw_payu');
+            }
         }
-        
-        // Validate production credentials
-        if (
-            $data->enabled &&
-                (empty($data->merchantid) || empty($data->accountid) || empty($data->apikey))
-        ) {
-            $errors['enabled'] = get_string('gatewaycannotbeenabled', 'payment');
+
+        // Validate max cost is greater than suggested cost
+        if (!empty($data->maxcost) && !empty($data->suggest)) {
+            if ($data->maxcost < $data->suggest) {
+                $errors['maxcost'] = get_string('maxcosterror', 'paygw_payu');
+            }
         }
-        
-        if ($data->maxcost && $data->maxcost < $data->suggest) {
-            $errors['maxcost'] = get_string('maxcosterror', 'paygw_payu');
+
+        // If password mode is enabled, password is required
+        if (!empty($data->passwordmode) && empty($data->password)) {
+            $errors['password'] = get_string('password_required', 'paygw_payu');
         }
+    }
+
+    /**
+     * Get PayU test credentials based on environment and country
+     *
+     * @param string $country
+     * @return array
+     */
+    public static function get_test_credentials($country = 'CO'): array {
+        return [
+            'merchantid' => '508029',
+            'accountid' => self::TEST_ACCOUNT_IDS[$country] ?? '512321',
+            'apikey' => '4Vj8eK4rloUd272L48hsrarnUA',
+            'apilogin' => 'pRRXKOl8ikMmt9u',
+            'publickey' => 'PKaC6H4cEDJD919n705L544kSU'
+        ];
     }
 }
