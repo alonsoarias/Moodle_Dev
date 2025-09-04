@@ -19,7 +19,7 @@
  *
  * @package    enrol_nexuspay
  * @category   payment
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ use core_payment\helper;
 /**
  * Payment subsystem callback implementation for enrol_nexuspay.
  *
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class service_provider implements \core_payment\local\callback\service_provider {

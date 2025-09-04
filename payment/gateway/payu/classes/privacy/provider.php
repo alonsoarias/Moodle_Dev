@@ -19,8 +19,7 @@
  *
  * @package    paygw_payu
  * @category   privacy
- * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author     Alonso Arias
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,11 +32,14 @@ use core_privacy\local\request\writer;
 /**
  * Privacy Subsystem implementation for paygw_payu.
  *
- * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author     Alonso Arias
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\request\data_provider, paygw_provider, \core_privacy\local\metadata\provider {
+class provider implements 
+    \core_privacy\local\request\data_provider,
+    paygw_provider,
+    \core_privacy\local\metadata\provider {
+    
     /**
      * Returns meta data about this system.
      *
@@ -46,60 +48,77 @@ class provider implements \core_privacy\local\request\data_provider, paygw_provi
      */
     public static function get_metadata(collection $collection): collection {
 
-        // Data may be exported to an external location.
+        // Data may be exported to an external location (PayU).
         $collection->add_external_location_link(
-            'payu.latam',
+            'payu.com',
             [
-                'email'    => 'privacy:metadata:paygw_payu:email',
+                'fullname'    => 'privacy:metadata:paygw_payu:fullname',
+                'email'       => 'privacy:metadata:paygw_payu:email',
+                'phone'       => 'privacy:metadata:paygw_payu:phone',
+                'amount'      => 'privacy:metadata:paygw_payu:amount',
+                'currency'    => 'privacy:metadata:paygw_payu:currency',
             ],
-            'privacy:metadata:paygw_payu:payu_latam'
+            'privacy:metadata:paygw_payu:payu_com'
         );
 
-        // The paygw_payu has a database table that contains user data.
+        // The paygw_payu table stores transaction data.
         $collection->add_database_table(
             'paygw_payu',
             [
-                'courseid'   => 'privacy:metadata:paygw_payu:courseid',
-                'groupnames' => 'privacy:metadata:paygw_payu:groupnames',
-                'success'    => 'privacy:metadata:paygw_payu:success',
+                'userid'         => 'privacy:metadata:paygw_payu:userid',
+                'courseid'       => 'privacy:metadata:paygw_payu:courseid',
+                'groupnames'     => 'privacy:metadata:paygw_payu:groupnames',
+                'country'        => 'privacy:metadata:paygw_payu:country',
+                'transactionid'  => 'privacy:metadata:paygw_payu:transactionid',
+                'referencecode'  => 'privacy:metadata:paygw_payu:referencecode',
+                'amount'         => 'privacy:metadata:paygw_payu:amount',
+                'currency'       => 'privacy:metadata:paygw_payu:currency',
+                'state'          => 'privacy:metadata:paygw_payu:state',
+                'timecreated'    => 'privacy:metadata:paygw_payu:timecreated',
+                'timemodified'   => 'privacy:metadata:paygw_payu:timemodified',
             ],
             'privacy:metadata:paygw_payu:paygw_payu'
         );
+        
         return $collection;
     }
-
 
     /**
      * Export all user data for the specified payment record, and the given context.
      *
      * @param \context $context Context
      * @param array $subcontext The location within the current context that the payment data belongs
-     * @param int $paymentid The payment ID
+     * @param \stdClass $payment The payment record
      */
-    public static function export_payment_data(\context $context, array $subcontext, int $paymentid) {
+    public static function export_payment_data(\context $context, array $subcontext, \stdClass $payment) {
         global $DB;
 
         $subcontext[] = get_string('gatewayname', 'paygw_payu');
-        $record = $DB->get_record('paygw_payu', ['paymentid' => $paymentid]);
+        $record = $DB->get_record('paygw_payu', ['paymentid' => $payment->id]);
 
-        $data = (object) [
-            'courseid' => $record->courseid,
-            'groupnames' => $record->groupnames,
-            'success' => $record->success,
-        ];
-        writer::with_context($context)->export_data(
-            $subcontext,
-            $data
-        );
+        if ($record) {
+            $data = (object) [
+                'transactionid' => $record->transactionid,
+                'referencecode' => $record->referencecode,
+                'country'       => $record->country,
+                'amount'        => $record->amount,
+                'currency'      => $record->currency,
+                'state'         => $record->state,
+                'timecreated'   => transform::datetime($record->timecreated),
+                'timemodified'  => transform::datetime($record->timemodified),
+            ];
+            
+            writer::with_context($context)->export_data($subcontext, $data);
+        }
     }
 
     /**
      * Delete all user data related to the given payments.
      *
-     * @param string $paymentsql SQL query that selects payment.id values
+     * @param string $paymentsql SQL query that selects payment.id field for the payments
      * @param array $paymentparams Array of parameters for $paymentsql
      */
-    public static function delete_data(string $paymentsql, array $paymentparams) {
+    public static function delete_data_for_payment_sql(string $paymentsql, array $paymentparams) {
         global $DB;
 
         $DB->delete_records_select('paygw_payu', "paymentid IN ({$paymentsql})", $paymentparams);

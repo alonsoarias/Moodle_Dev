@@ -18,91 +18,123 @@
  * Strings for component 'paygw_payu', language 'en'
  *
  * @package     paygw_payu
- * @copyright   2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author      Alonso Arias
+ * @copyright   2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['abouttopay'] = 'You are about to pay for';
-$string['accountid'] = 'PayU Account ID';
-$string['apikey'] = 'API Key';
-$string['apilogin'] = 'API Login';
-$string['apilogin_help'] = 'API Login for PayU integrations (optional for web checkout)';
-$string['callback'] = 'Confirmation URL:';
-$string['callback_help'] = 'Copy this URL and configure it in your PayU account as the confirmation URL.';
-$string['cost'] = 'Enrollment cost';
-$string['currency'] = 'Currency';
-$string['donate'] = '<div>Plugin version: {$a->release} ({$a->versiondisk})<br>
-For support and updates, contact <a href="mailto:soporte@nexuslabs.com.co">NexusLabs</a><br>
-Documentation: <a href="https://developers.payulatam.com">PayU Developer Portal</a></div>';
-$string['error_notvalidpayment'] = 'FAIL. Not a valid payment';
-$string['error_notvalidtxid'] = 'FAIL. Not a valid transaction id';
-$string['error_txdatabase'] = 'Error writing transaction data to database';
-$string['fixcost'] = 'Fixed price mode';
-$string['fixcost_help'] = 'Disables the ability for students to pay with an arbitrary amount.';
-$string['fixdesc'] = 'Fixed payment description';
-$string['fixdesc_help'] = 'This setting sets a fixed description for all payments.';
-$string['gatewaydescription'] = 'PayU is an authorized payment gateway provider for processing credit card transactions in Latin America.';
+// Plugin name and description
+$string['pluginname'] = 'PayU Latin America';
+$string['pluginname_desc'] = 'The PayU plugin allows you to receive payments via PayU platform for Latin American countries.';
 $string['gatewayname'] = 'PayU';
-$string['internalerror'] = 'An internal error has occurred. Please contact us.';
-$string['maxcost'] = 'Maximum cost';
-$string['maxcosterror'] = 'The maximum price must be higher than the recommended price';
+$string['gatewaydescription'] = 'PayU is an authorized payment gateway provider for processing credit card transactions in Latin America.';
+
+// Countries
+$string['country'] = 'Country of operation';
+$string['country_ar'] = 'Argentina';
+$string['country_br'] = 'Brazil';
+$string['country_cl'] = 'Chile';
+$string['country_co'] = 'Colombia';
+$string['country_mx'] = 'Mexico';
+$string['country_pa'] = 'Panama';
+$string['country_pe'] = 'Peru';
+
+// Environment settings
+$string['environment'] = 'Environment';
+$string['environment_sandbox'] = 'Sandbox (Testing)';
+$string['environment_production'] = 'Production (Real payments)';
+
+// Credentials
 $string['merchantid'] = 'Merchant ID';
-$string['message'] = 'Message';
-$string['message_invoice_created'] = 'Hello {$a->firstname}!
-Your payment link {$a->orderid} to {$a->fee} {$a->currency} has been successfully created.
-You can pay it within an hour.';
-$string['message_success_completed'] = 'Hello {$a->firstname},
-Your transaction of payment id {$a->orderid} with cost of {$a->fee} {$a->currency} is successfully completed.
-If the item is not accessible please contact the administrator.';
-$string['messageprovider:payment_receipt'] = 'Payment receipt';
-$string['messagesubject'] = 'Payment notification';
-$string['password'] = 'Password';
-$string['password_error'] = 'Invalid payment password';
-$string['password_help'] = 'Using this password you can bypass the payment process. It can be useful when payment is not possible.';
-$string['password_success'] = 'Payment password accepted';
-$string['password_text'] = 'If you are unable to make a payment, then ask your administrator for a password and enter it.';
-$string['passwordmode'] = 'Password mode';
-$string['payment'] = 'Payment';
-$string['payment_error'] = 'Payment Error';
-$string['payment_success'] = 'Payment Successful';
-$string['paymentdeclined'] = 'Your payment was declined by the payment processor.';
-$string['paymentexpired'] = 'Payment Expired';
-$string['paymentexpireddesc'] = 'Your payment session has expired. Please try again.';
-$string['paymentpending'] = 'Payment Pending';
-$string['paymentpendingdesc'] = 'Your payment is being processed. You will receive a confirmation once it is complete.';
-$string['paymentresponse'] = 'Payment Response';
-$string['paymentserver'] = 'Payment server URL';
-$string['paymentsuccessful'] = 'Your payment has been successfully processed.';
-$string['paymore'] = 'If you want to pay more, simply enter your amount instead of the indicated amount.';
-$string['pluginname'] = 'PayU payment';
-$string['pluginname_desc'] = 'The PayU plugin allows you to receive payments via PayU for Latin America.';
-$string['privacy:metadata'] = 'The PayU plugin stores some personal data.';
-$string['privacy:metadata:paygw_payu:courseid'] = 'Course id';
-$string['privacy:metadata:paygw_payu:email'] = 'Email';
-$string['privacy:metadata:paygw_payu:groupnames'] = 'Group names';
-$string['privacy:metadata:paygw_payu:paygw_payu'] = 'Store some data';
-$string['privacy:metadata:paygw_payu:payu_latam'] = 'Send payment data to PayU';
-$string['privacy:metadata:paygw_payu:success'] = 'Status';
+$string['merchantid_help'] = 'Your PayU Merchant ID. Required for production environment.';
+$string['accountid'] = 'Account ID';
+$string['accountid_help'] = 'Your PayU Account ID for the selected country. Required for production environment.';
+$string['apikey'] = 'API Key';
+$string['apikey_help'] = 'Your PayU API Key. Keep this secure! Required for production environment.';
+$string['apilogin'] = 'API Login';
+$string['apilogin_help'] = 'Your PayU API Login. Required for production environment.';
 $string['publickey'] = 'Public Key';
-$string['publickey_help'] = 'Public key for tokenization (optional for web checkout)';
-$string['referencecode'] = 'Reference Code';
+$string['publickey_help'] = 'Your PayU Public Key for tokenization (optional).';
+
+// Language settings
+$string['language'] = 'Payment page language';
+$string['language_es'] = 'Spanish';
+$string['language_en'] = 'English';
+$string['language_pt'] = 'Portuguese';
+
+// Payment settings
+$string['abouttopay'] = 'You are about to pay for';
+$string['payment'] = 'Payment';
 $string['sendpaymentbutton'] = 'Pay with PayU';
-$string['showduration'] = 'Show duration of training';
-$string['skipmode'] = 'Can skip payment';
-$string['skipmode_help'] = 'This setting allows a payment bypass button, which can be useful in public courses with optional payment.';
-$string['skipmode_text'] = 'If you are not able to make a payment through the payment system, you can click on this button.';
-$string['skippaymentbutton'] = 'Skip payment :(';
-$string['suggest'] = 'Suggested cost';
-$string['testcredential_auto'] = 'Test credential (auto-filled)';
-$string['testmode'] = 'Test mode';
-$string['testmode_active'] = 'Test Mode Active';
-$string['testmode_description'] = 'Using PayU Colombia sandbox credentials. Transactions will not be real.';
-$string['testmode_help'] = 'Enable test mode to use PayU sandbox credentials automatically';
-$string['transactionid'] = 'Transaction ID';
-$string['uninterrupted_desc'] = 'The price for the course is formed taking into account the missed time of the period you have not paid for.';
-$string['unknownstate'] = 'Unknown transaction state';
-$string['usedetails'] = 'Make it collapsible';
-$string['usedetails_help'] = 'Display a button or password in a collapsed block.';
-$string['usedetails_text'] = 'Click here if you are unable to pay.';
-$string['validationerror'] = 'Validation error';
+$string['redirecting'] = 'Redirecting to PayU...';
+$string['redirecting_message'] = 'You are being redirected to PayU secure payment page. Please wait...';
+
+// Status messages
+$string['payment_success'] = 'Payment successful!';
+$string['payment_error'] = 'Payment error';
+$string['payment_declined'] = 'Payment was declined';
+$string['payment_pending'] = 'Payment is pending approval';
+$string['payment_expired'] = 'Payment expired';
+$string['payment_unknown'] = 'Unknown payment status';
+$string['signature_invalid'] = '(Warning: Invalid signature)';
+
+// Test mode
+$string['autofilltest'] = 'Auto-fill test data';
+$string['autofilltest_help'] = 'Automatically fills test card data in sandbox mode for easier testing.';
+$string['sandbox_note'] = '<strong>Note:</strong> When using Sandbox environment, test credentials will be used automatically. You don\'t need to enter production credentials.';
+
+// Optional payment modes
+$string['skipmode'] = 'Allow payment skip';
+$string['skipmode_help'] = 'Shows a button to skip payment. Useful for optional payments in public courses.';
+$string['skipmode_text'] = 'If you cannot make a payment through the payment system, you can click this button.';
+$string['skippaymentbutton'] = 'Skip payment';
+
+$string['passwordmode'] = 'Enable password bypass';
+$string['password'] = 'Bypass password';
+$string['password_help'] = 'Users can bypass payment using this password. Useful when payment system is unavailable.';
+$string['password_text'] = 'If you cannot make a payment, ask your administrator for the password and enter it here.';
+$string['password_error'] = 'Invalid payment password';
+$string['password_success'] = 'Payment password accepted';
+$string['password_required'] = 'Password is required when password mode is enabled';
+
+// Cost settings
+$string['fixcost'] = 'Fixed price mode';
+$string['fixcost_help'] = 'Disables the ability for students to pay with a custom amount.';
+$string['suggest'] = 'Suggested price';
+$string['maxcost'] = 'Maximum cost';
+$string['maxcosterror'] = 'The maximum price must be higher than the suggested price';
+$string['paymore'] = 'If you want to pay more, simply enter your amount instead of the suggested amount.';
+
+// URLs
+$string['callback_urls'] = 'Configuration URLs';
+$string['confirmation_url'] = 'Confirmation URL';
+$string['response_url'] = 'Response URL';
+
+// Errors
+$string['error_txdatabase'] = 'Error writing transaction to database';
+$string['error_notvalidtxid'] = 'Invalid transaction ID';
+$string['error_notvalidpayment'] = 'Invalid payment';
+$string['error_notvalidpaymentid'] = 'Invalid payment ID';
+$string['production_fields_required'] = 'All credentials are required for production environment';
+
+// Privacy
+$string['privacy:metadata'] = 'The PayU plugin stores personal data to process payments.';
+$string['privacy:metadata:paygw_payu:paygw_payu'] = 'Store payment transaction data';
+$string['privacy:metadata:paygw_payu:userid'] = 'User ID';
+$string['privacy:metadata:paygw_payu:courseid'] = 'Course ID';
+$string['privacy:metadata:paygw_payu:groupnames'] = 'Group names';
+$string['privacy:metadata:paygw_payu:country'] = 'Country of transaction';
+$string['privacy:metadata:paygw_payu:transactionid'] = 'PayU transaction ID';
+$string['privacy:metadata:paygw_payu:referencecode'] = 'Reference code';
+$string['privacy:metadata:paygw_payu:amount'] = 'Payment amount';
+$string['privacy:metadata:paygw_payu:currency'] = 'Currency';
+$string['privacy:metadata:paygw_payu:state'] = 'Transaction state';
+
+// Notifications
+$string['messagesubject'] = 'Payment notification';
+$string['messageprovider:payment_receipt'] = 'Payment receipt';
+$string['message_payment_completed'] = 'Hello {$a->firstname},
+Your payment of {$a->fee} {$a->currency} (ID: {$a->orderid}) has been successfully completed.
+If you cannot access the course, please contact the administrator.';
+$string['message_payment_pending'] = 'Hello {$a->firstname},
+Your payment of {$a->fee} {$a->currency} (ID: {$a->orderid}) is pending approval.
+We will notify you once the payment is confirmed.';

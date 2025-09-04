@@ -17,8 +17,7 @@
  * This module is responsible for PayU content in the gateways modal.
  *
  * @module     paygw_payu/gateways_modal
- * @copyright  2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author     Alonso Arias
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,7 +25,7 @@ import Templates from 'core/templates';
 import Modal from 'core/modal';
 
 /**
- * Show modal with the PayU placeholder.
+ * Show modal with the PayU payment placeholder.
  *
  * @returns {Promise}
  */
@@ -40,7 +39,7 @@ const showModalWithPlaceholder = async() => {
 };
 
 /**
- * Process.
+ * Process the payment request.
  *
  * @param {String} component
  * @param {String} paymentArea

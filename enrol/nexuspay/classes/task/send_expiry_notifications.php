@@ -18,7 +18,7 @@
  * Send expiry notifications task.
  *
  * @package    enrol_nexuspay
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * Send expiry notifications task class.
  *
  * @package    enrol_nexuspay
- * @copyright  2025 NexusPay Development Team
+ * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_expiry_notifications extends \core\task\scheduled_task {

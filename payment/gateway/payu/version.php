@@ -18,18 +18,15 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     paygw_payu
- * @copyright   2024 Alonso Arias <soporte@nexuslabs.com.co>
- * @author      Alonso Arias
+ * @copyright   2025 Alonso Arias <soporte@nexuslabs.com.co>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025040101;
-$plugin->requires  = 2023100900;
-$plugin->component = 'paygw_payu';
-$plugin->release   = '1.6';
+$plugin->version   = 2025010100;  // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2022041900;  // Requires Moodle 4.1+ LTS.
+$plugin->component = 'paygw_payu'; 
+$plugin->release   = '1.0.0';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->author    = 'Alonso Arias';
-$plugin->maintainer = 'soporte@nexuslabs.com.co';
-$plugin->organization = 'NexusLabs';
+$plugin->dependencies = [];

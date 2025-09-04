@@ -1,0 +1,157 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template paygw_payu/method
+
+    PayU payment method display template
+
+    Context variables required for this template:
+    * fee - the amount to pay
+    * currency - the currency of this payment
+    * description - what the user paying for
+    * country_name - the selected country
+    * Additional configuration parameters
+}}
+<div class="payu-payment-container">
+    <form id="payu-method-form" action="{{config.wwwroot}}/payment/gateway/payu/pay.php" method="post">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img src="{{{image}}}" alt="PayU" height="60" class="mb-3">
+                    <p class="text-muted">{{# str }} gatewaydescription, paygw_payu {{/ str}}</p>
+                    <p class="small text-info">{{# str }} country, paygw_payu {{/ str}}: <strong>{{country_name}}</strong></p>
+                </div>
+
+                {{^fixdesc}}
+                <div class="alert alert-info">
+                    <p class="mb-0">{{# str }} abouttopay, paygw_payu {{/ str}} <strong>"{{description}}"</strong></p>
+                </div>
+                {{/fixdesc}}
+
+                {{#uninterrupted}}
+                <div class="alert alert-warning">
+                    <p class="mb-0"><i class="fa fa-info-circle"></i> {{# str }} uninterrupted_desc, paygw_payu {{/ str}}</p>
+                </div>
+                {{/uninterrupted}}
+
+                <div class="payment-amount-section text-center my-4">
+                    <h4>{{# str }} cost {{/ str}}:</h4>
+                    {{^fixcost}}
+                    <div class="form-group">
+                        <p class="text-muted small">{{# str }} paymore, paygw_payu {{/ str}}</p>
+                        <div class="input-group input-group-lg" style="max-width: 300px; margin: 0 auto;">
+                            <input type="number" 
+                                   id="costself" 
+                                   name="costself"
+                                   class="form-control text-center"
+                                   value="{{#suggest}}{{suggest}}{{/suggest}}{{^suggest}}{{fee}}{{/suggest}}"
+                                   min="{{fee}}" 
+                                   {{#maxcost}}max="{{maxcost}}"{{/maxcost}} 
+                                   step="0.01"
+                                   required>
+                            <div class="input-group-append">
+                                <span class="input-group-text">{{currency}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {{/fixcost}}
+                    {{#fixcost}}
+                    <h3 class="text-primary">{{localizedcost}}</h3>
+                    {{/fixcost}}
+                </div>
+
+                {{#showenrolperiod}}
+                <div class="enrollment-info text-center mb-3">
+                    <p class="text-muted">
+                        <i class="fa fa-calendar"></i> 
+                        {{# str }} enrolperiod, enrol {{/ str}}: <strong>{{enrolperiod_desc}}</strong>
+                    </p>
+                </div>
+                {{/showenrolperiod}}
+
+                {{#groupnames}}
+                <div class="group-info text-center mb-3">
+                    <p class="text-muted">
+                        <i class="fa fa-users"></i> 
+                        Group: <strong>{{groupnames}}</strong>
+                    </p>
+                </div>
+                {{/groupnames}}
+
+                <div class="payment-actions text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fa fa-credit-card"></i> {{# str }} sendpaymentbutton, paygw_payu {{/ str }}
+                    </button>
+
+                    {{#skipmode}}
+                    <div class="mt-3">
+                        <p class="text-muted">{{# str }} skipmode_text, paygw_payu {{/ str}}</p>
+                        <button type="submit" name="skipmode" value="1" class="btn btn-secondary">
+                            {{# str }} skippaymentbutton, paygw_payu {{/ str }}
+                        </button>
+                    </div>
+                    {{/skipmode}}
+
+                    {{^skipmode}}
+                    {{#passwordmode}}
+                    <div class="mt-4">
+                        <hr>
+                        <details>
+                            <summary class="text-muted">{{# str }} password_text, paygw_payu {{/ str}}</summary>
+                            <div class="mt-2">
+                                <div class="form-group">
+                                    <input type="password" 
+                                           id="password" 
+                                           name="password" 
+                                           class="form-control" 
+                                           placeholder="{{# str }} password, paygw_payu {{/ str}}"
+                                           style="max-width: 300px; margin: 0 auto;">
+                                </div>
+                                <button type="submit" class="btn btn-secondary">
+                                    {{# str }} submit {{/ str }}
+                                </button>
+                            </div>
+                        </details>
+                    </div>
+                    {{/passwordmode}}
+                    {{/skipmode}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden inputs -->
+        <input type="hidden" name="component" value="{{component}}">
+        <input type="hidden" name="paymentarea" value="{{paymentarea}}">
+        <input type="hidden" name="itemid" value="{{itemid}}">
+        <input type="hidden" name="description" value="{{description}}">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+    </form>
+</div>
+
+<style>
+.payu-payment-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+.payu-payment-container .card {
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+.payu-payment-container .btn-primary {
+    min-width: 200px;
+}
+</style>
