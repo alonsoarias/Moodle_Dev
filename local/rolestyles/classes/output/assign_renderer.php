@@ -5,53 +5,44 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace local_rolestyles\output;
 
 use assign_grading_table;
-use mod_assign\output\renderer as assign_renderer_base;
+use mod_assign\output\renderer as base_renderer;
 
 /**
- * Renderer extension for mod_assign to filter out students without submissions.
+ * Custom renderer for mod_assign that filters out students without submissions.
  *
  * @package    local_rolestyles
  */
-class assign_renderer extends assign_renderer_base {
+class assign_renderer extends base_renderer {
     /**
-     * Render the grading table filtering out users without submissions when role filtering is active.
+     * Render the grading table, removing users without submissions when active.
      *
-     * @param assign_grading_table $table Grading table
-     * @return string HTML
+     * @param assign_grading_table $table
+     * @return string
      */
     public function render_assign_grading_table(assign_grading_table $table) {
-        if (\local_rolestyles_has_selected_role()) {
+        if (\local_rolestyles\assign_filter::is_active()) {
             $table->setup();
             $table->query_db($table->get_rows_per_page(), false);
-            [$filtered, $total] = \local_rolestyles_filter_assign_grading($table);
-            $visible = count($filtered);
+            [$rows, $total] = \local_rolestyles\assign_filter::apply($table);
+            $table->rawdata = $rows;
 
-            $table->rawdata = $filtered;
             ob_start();
             $table->build_table();
             $table->close_recordset();
             $table->finish_output();
-            $tablehtml = ob_get_clean();
+            $html = ob_get_clean();
 
-            $summary = \local_rolestyles_get_filter_summary($total, $visible);
-            $o = $this->output->notification($summary, 'info');
-            $o .= $this->output->box_start('boxaligncenter gradingtable position-relative');
+            $summary = \local_rolestyles\assign_filter::summary($total, count($rows));
+            $out = $this->output->notification($summary, 'info');
+            $out .= $this->output->box_start('boxaligncenter gradingtable position-relative');
             $this->page->requires->js_init_call('M.mod_assign.init_grading_table', []);
-            $o .= $tablehtml;
-            $o .= $this->output->box_end();
-            return $o;
+            $out .= $html;
+            $out .= $this->output->box_end();
+            return $out;
         }
         return parent::render_assign_grading_table($table);
     }
