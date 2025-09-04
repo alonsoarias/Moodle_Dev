@@ -16,6 +16,11 @@ defined('MOODLE_INTERNAL') || die();
 
 $hooks = [
     [
+        'hookname' => 'core\\hook\\after_config',
+        'callback' => 'local_rolestyles_after_config',
+        'priority' => 100,
+    ],
+    [
         'hookname' => 'core\\hook\\output\\before_http_headers',
         'callback' => 'local_rolestyles_hook_before_http_headers',
         'priority' => 100,

@@ -18,16 +18,25 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Hook executed before HTTP headers are sent.
- * Registers the assignment renderer and injects custom CSS when active.
+ * Injects CSS and body classes for users holding configured roles.
  */
 function local_rolestyles_hook_before_http_headers($hook = null): void {
-    global $PAGE, $CFG;
-
     if (!local_rolestyles_user_has_role()) {
         return;
     }
 
     local_rolestyles_inject_css();
+}
+
+/**
+ * Early hook to register the custom renderer factory.
+ */
+function local_rolestyles_after_config(): void {
+    global $PAGE, $CFG;
+
+    if (!get_config('local_rolestyles', 'enabled')) {
+        return;
+    }
 
     require_once($CFG->dirroot . '/local/rolestyles/classes/assign_renderer_factory.php');
     $PAGE->theme->rendererfactory = \local_rolestyles\assign_renderer_factory::class;

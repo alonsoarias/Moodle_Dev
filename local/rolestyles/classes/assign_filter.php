@@ -68,7 +68,8 @@ class assign_filter {
         }
         $total = count($rows);
         $filtered = array_filter($rows, static function($row) {
-            return isset($row->status) && $row->status === ASSIGN_SUBMISSION_STATUS_SUBMITTED;
+            $status = $row->status ?? '';
+            return $status !== '' && $status !== ASSIGN_SUBMISSION_STATUS_NEW;
         });
         return [array_values($filtered), $total];
     }
