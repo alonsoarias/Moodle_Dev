@@ -26,6 +26,8 @@ namespace local_assign_no_submission_filter;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/../lib.php');
+
 /**
  * Hook callbacks class
  */
@@ -44,9 +46,13 @@ class hook_callbacks {
             return;
         }
         
-        // Apply filtering preference
+        if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
+            return;
+        }
+
+        // Ensure default filter is used so only "no submission" rows are removed.
         if (get_config('local_assign_no_submission_filter', 'autoapply')) {
-            set_user_preference('assign_filter', 'submitted', $USER);
+            set_user_preference('assign_filter', ASSIGN_FILTER_NONE, $USER);
         }
     }
     
@@ -63,6 +69,10 @@ class hook_callbacks {
             return;
         }
         
+        if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
+            return;
+        }
+
         // Apply our grading table override
         self::override_grading_table_class();
         
@@ -100,7 +110,11 @@ class hook_callbacks {
         if (!get_config('local_assign_no_submission_filter', 'enabled')) {
             return;
         }
-        
+
+        if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
+            return;
+        }
+
         // Add filter control UI
         $html = self::get_filter_controls_html();
         $hook->add_html($html);

@@ -26,6 +26,8 @@ namespace local_assign_no_submission_filter;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/../lib.php');
+
 /**
  * Event observer class
  */
@@ -44,12 +46,13 @@ class observer {
         $SESSION->assign_grading_assignid = $event->objectid;
         
         // Log filter usage
-        if (get_config('local_assign_no_submission_filter', 'enabled')) {
+        if (get_config('local_assign_no_submission_filter', 'enabled') &&
+            local_assign_no_submission_filter_user_has_role(\context::instance_by_id($event->contextid))) {
             self::log_filter_usage($event);
         }
-        
+
         // Apply filter preference
-        self::apply_filter_preference();
+        self::apply_filter_preference($event->contextid);
     }
     
     /**
@@ -75,14 +78,20 @@ class observer {
     /**
      * Apply filter preference for current user
      */
-    protected static function apply_filter_preference() {
+    protected static function apply_filter_preference(int $contextid) {
         global $USER, $SESSION;
-        
-        // Check if we should auto-apply filter
-        if (get_config('local_assign_no_submission_filter', 'autoapply')) {
-            set_user_preference('assign_filter', 'submitted', $USER);
-            $SESSION->assign_filter_applied = true;
+
+        if (!get_config('local_assign_no_submission_filter', 'autoapply')) {
+            return;
         }
+
+        $context = \context::instance_by_id($contextid);
+        if (!local_assign_no_submission_filter_user_has_role($context)) {
+            return;
+        }
+
+        set_user_preference('assign_filter', ASSIGN_FILTER_NONE, $USER);
+        $SESSION->assign_filter_applied = true;
     }
     
     /**

@@ -51,14 +51,18 @@ class filter_service {
      */
     public function user_has_submission($userid, $assignmentid) {
         return $this->db->record_exists_sql(
-            "SELECT 1 
-             FROM {assign_submission} 
-             WHERE userid = :userid 
-             AND assignment = :assignmentid 
-             AND latest = 1 
-             AND status = 'submitted'
+            "SELECT 1
+             FROM {assign_submission}
+             WHERE userid = :userid
+             AND assignment = :assignmentid
+             AND latest = 1
+             AND status <> :status_new
              AND timemodified IS NOT NULL",
-            ['userid' => $userid, 'assignmentid' => $assignmentid]
+            [
+                'userid' => $userid,
+                'assignmentid' => $assignmentid,
+                'status_new' => ASSIGN_SUBMISSION_STATUS_NEW,
+            ]
         );
     }
     
@@ -69,14 +73,17 @@ class filter_service {
      * @return array
      */
     public function get_users_with_submissions($assignmentid) {
-        $sql = "SELECT DISTINCT userid 
-                FROM {assign_submission} 
-                WHERE assignment = :assignmentid 
-                AND latest = 1 
-                AND status = 'submitted'
+        $sql = "SELECT DISTINCT userid
+                FROM {assign_submission}
+                WHERE assignment = :assignmentid
+                AND latest = 1
+                AND status <> :status_new
                 AND timemodified IS NOT NULL";
-        
-        return $this->db->get_fieldset_sql($sql, ['assignmentid' => $assignmentid]);
+
+        return $this->db->get_fieldset_sql($sql, [
+            'assignmentid' => $assignmentid,
+            'status_new' => ASSIGN_SUBMISSION_STATUS_NEW,
+        ]);
     }
     
     /**
