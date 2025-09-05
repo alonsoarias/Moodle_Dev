@@ -15,22 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin capabilities
+ * Version details for local_assign_no_submission_filter
  *
- * @package   local_assignhideunsubmitted
- * @copyright 2024 Your Organization
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_assign_no_submission_filter
+ * @copyright  2024 Your Organization
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = [
-    'local/assignhideunsubmitted:config' => [
-        'riskbitmask' => RISK_CONFIG,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => [
-            'manager' => CAP_ALLOW
-        ]
-    ]
-];
+$plugin->component = 'local_assign_no_submission_filter';
+$plugin->version   = 2024110900;
+$plugin->requires  = 2023100900; // Requires Moodle 4.3+
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '2.0.0';
