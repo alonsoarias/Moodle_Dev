@@ -38,11 +38,11 @@ if (class_exists('\assign_grading_table')) {
          * Constructor - applies filtering
          */
         public function __construct($assignment, $perpage, $filter, $rowoffset, $quickgrading, $downloadfilename = null) {
-            // Force filter to 'submitted' if auto-apply is enabled
+            // Reset to default filter so drafts remain visible when auto-apply is enabled.
             if (get_config('local_assign_no_submission_filter', 'autoapply')) {
-                $filter = ASSIGN_FILTER_SUBMITTED;
+                $filter = ASSIGN_FILTER_NONE;
             }
-            
+
             parent::__construct($assignment, $perpage, $filter, $rowoffset, $quickgrading, $downloadfilename);
         }
         
@@ -71,12 +71,12 @@ if (class_exists('\assign_grading_table')) {
             
             // Add condition to only show users with submissions
             $submissionexists = "EXISTS (
-                SELECT 1 
-                FROM {assign_submission} s 
-                WHERE s.userid = u.id 
-                AND s.assignment = :assignid_filter_nsf 
-                AND s.latest = 1 
-                AND s.status = 'submitted'
+                SELECT 1
+                FROM {assign_submission} s
+                WHERE s.userid = u.id
+                AND s.assignment = :assignid_filter_nsf
+                AND s.latest = 1
+                AND s.status <> :status_new
             )";
             
             // Add to existing WHERE clause
@@ -91,6 +91,7 @@ if (class_exists('\assign_grading_table')) {
                 $this->sql->params = [];
             }
             $this->sql->params['assignid_filter_nsf'] = $assignid;
+            $this->sql->params['status_new'] = ASSIGN_SUBMISSION_STATUS_NEW;
         }
     }
     

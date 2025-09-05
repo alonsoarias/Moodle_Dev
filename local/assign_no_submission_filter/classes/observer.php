@@ -89,8 +89,7 @@ class observer {
         if (!local_assign_no_submission_filter_user_has_role($context)) {
             return;
         }
-
-        set_user_preference('assign_filter', 'submitted', $USER);
+        set_user_preference('assign_filter', ASSIGN_FILTER_NONE, $USER);
         $SESSION->assign_filter_applied = true;
     }
     

@@ -49,10 +49,8 @@ class hook_callbacks {
         if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
             return;
         }
-
-        // Apply filtering preference
         if (get_config('local_assign_no_submission_filter', 'autoapply')) {
-            set_user_preference('assign_filter', 'submitted', $USER);
+            set_user_preference('assign_filter', ASSIGN_FILTER_NONE, $USER);
         }
     }
     
