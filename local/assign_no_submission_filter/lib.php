@@ -44,13 +44,41 @@ function local_assign_no_submission_filter_get_submitted_users($assignid) {
 }
 
 /**
+ * Check if current user has one of the configured roles in a context.
+ *
+ * @param \context $context Context to check roles in.
+ * @return bool
+ */
+function local_assign_no_submission_filter_user_has_role(\context $context): bool {
+    global $USER;
+
+    $rolesconfig = get_config('local_assign_no_submission_filter', 'roles');
+    if (empty($rolesconfig)) {
+        return false;
+    }
+
+    $roleids = array_map('intval', explode(',', $rolesconfig));
+    foreach ($roleids as $roleid) {
+        if (user_has_role_assignment($USER->id, $roleid, $context->id)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * Override the grading table class
  */
 function local_assign_no_submission_filter_override_grading_table() {
-    global $CFG;
+    global $CFG, $PAGE;
     
     // Check if we should override
     if (!get_config('local_assign_no_submission_filter', 'enabled')) {
+        return;
+    }
+
+    if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
         return;
     }
     
