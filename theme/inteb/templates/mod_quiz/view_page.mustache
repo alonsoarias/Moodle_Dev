@@ -1,0 +1,18 @@
+{{!
+    Template to render the quiz view page with centred description and start button.
+    This overrides the default layout to ensure elements are centred.
+}}
+<div class="mod-quiz-view">
+    {{#intro}}
+    <div id="intro" class="generalbox quiz-intro text-center">
+        {{{intro}}}
+    </div>
+    {{/intro}}
+    {{#buttontext}}
+    <div class="quiz-start text-center">
+        <form action="{{startattempturl}}" method="get" class="quizstartbuttondiv">
+            <button type="submit" class="btn btn-primary">{{buttontext}}</button>
+        </form>
+    </div>
+    {{/buttontext}}
+</div>
