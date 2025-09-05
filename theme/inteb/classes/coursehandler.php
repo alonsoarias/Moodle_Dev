@@ -99,7 +99,6 @@ class theme_inteb_coursehandler extends theme_remui_coursehandler {
 
         foreach ($coursesarray as &$course) {
             $context = \context_course::instance($course['courseid']);
-            // Fetch users with both editingteacher and teacher roles.
             $roles = $DB->get_records_list('role', 'shortname', ['editingteacher', 'teacher'], '', 'id');
             $instructors = [];
             foreach ($roles as $role) {
@@ -107,8 +106,7 @@ class theme_inteb_coursehandler extends theme_remui_coursehandler {
                 foreach ($users as $user) {
                     $instructors[$user->id] = $user; // Ensure uniqueness.
                 }
-            }
-
+              }
             if ($instructors) {
                 $users = array_values($instructors);
                 $maxshown = 4;
