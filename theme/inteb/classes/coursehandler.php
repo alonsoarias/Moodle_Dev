@@ -106,20 +106,35 @@ class theme_inteb_coursehandler extends theme_remui_coursehandler {
                 foreach ($users as $user) {
                     $instructors[$user->id] = $user; // Ensure uniqueness.
                 }
-            }
+              }
             if ($instructors) {
                 $users = array_values($instructors);
-                $first = array_shift($users);
-                $course['instructor'] = [
-                    'name' => fullname($first, true),
-                    'url' => $CFG->wwwroot . '/user/profile.php?id=' . $first->id,
-                    'picture' => utility::get_user_picture($first),
-                    'imgStyle' => ''
-                ];
-                $course['instructorcount'] = count($users) ? count($users) : '';
+                $maxshown = 4;
+                $shown = [];
+                foreach (array_slice($users, 0, $maxshown) as $user) {
+                    $shown[] = [
+                        'name' => fullname($user, true),
+                        'url' => $CFG->wwwroot . '/user/profile.php?id=' . $user->id,
+                        'picture' => utility::get_user_picture($user),
+                        'imgStyle' => ''
+                    ];
+                }
+                $course['instructors'] = $shown;
+                $remaining = count($users) - count($shown);
+                $course['instructorcount'] = $remaining > 0 ? $remaining : '';
             } else {
-                $course['instructor'] = false;
+                $course['instructors'] = [];
                 $course['instructorcount'] = '';
+            }
+
+            // Inject remui custom field course image if available.
+            $handler = \core_customfield\handler::get_handler('core_course', 'course');
+            $fields = $handler->get_instance_fields($course['courseid']);
+            foreach ($fields as $data) {
+                if ($data->get_field()->get('shortname') === 'remuicourseimage') {
+                    $course['remuicourseimage'] = $data->export_value();
+                    break;
+                }
             }
         }
         unset($course);

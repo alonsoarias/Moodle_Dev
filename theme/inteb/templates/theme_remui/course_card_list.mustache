@@ -50,20 +50,17 @@
                     </div>
                 </div>
             </div>
-            {{#instructor}}
             <div class="d-flex flex-row flex-gap-0d5">
+                {{#instructors}}
                 <div class="d-flex flex-row instructor-info-wrapper">
-                    <a href="{{ url }}" class="d-flex align-items-center flex-gap-d5 instructor-img {{ imgStyle }}"
-                        aria-label="Instructor for {{coursename}} is - {{name}}" title="{{{name}}}">
+                    <a href="{{ url }}" class="d-flex align-items-center flex-gap-d5 instructor-img {{ imgStyle }}" aria-label="Instructor for {{coursename}} is - {{name}}" title="{{{name}}}">
                         <img src="{{ picture }}" class="rounded-circle" alt="{{ name }}" loading="lazy"/>
                         <h6 class="h-regular-6 course-instructors m-0 break-word ellipsis ellipsis-2" title="{{{name}}}">{{{name}}}</h6>
                     </a>
                 </div>
-                {{#instructorcount}}<span
-                    class="small-info-semibold instructorscount d-flex align-items-center justify-content-center" title="{{#str}}instructorcounttitle,theme_remui{{/str}}">+{{instructorcount}}</span>{{/instructorcount}}
+                {{/instructors}}
+                {{#instructorcount}}<span class="small-info-semibold instructorscount d-flex align-items-center justify-content-center" title="{{#str}}instructorcounttitle,theme_remui{{/str}}">+{{instructorcount}}</span>{{/instructorcount}}
             </div>
-            {{/instructor}}
-
             {{#coursesummary}}
             <p class="coursesummary ellipsis ellipsis-2 para-regular-3 m-0">{{{coursesummary}}}</p>
             {{/coursesummary}}
