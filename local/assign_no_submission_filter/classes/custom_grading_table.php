@@ -26,77 +26,63 @@ namespace local_assign_no_submission_filter;
 
 defined('MOODLE_INTERNAL') || die();
 
-// The original class is already loaded, we just need to extend it
 if (class_exists('\assign_grading_table')) {
-    
     /**
-     * Extended grading table with submission filtering
+     * Extended grading table with submission filtering.
      */
     class custom_grading_table extends \assign_grading_table {
-        
         /**
-         * Constructor - applies filtering
+         * Constructor - apply filtering configuration and inject SQL restriction.
+         *
+         * @param \assign $assignment Assignment instance
+         * @param int $perpage Rows per page
+         * @param int $filter Current filter
+         * @param int $rowoffset Row offset
+         * @param bool $quickgrading Quick grading flag
+         * @param string|null $downloadfilename Download filename
          */
         public function __construct($assignment, $perpage, $filter, $rowoffset, $quickgrading, $downloadfilename = null) {
-            // Reset to default filter so drafts remain visible when auto-apply is enabled.
             if (get_config('local_assign_no_submission_filter', 'autoapply')) {
                 $filter = ASSIGN_FILTER_NONE;
             }
 
             parent::__construct($assignment, $perpage, $filter, $rowoffset, $quickgrading, $downloadfilename);
-        }
-        
-        /**
-         * Setup the table - add our filtering
-         */
-        public function setup() {
-            parent::setup();
-            
-            // Only apply if enabled
-            if (!get_config('local_assign_no_submission_filter', 'enabled')) {
-                return;
+
+            if (get_config('local_assign_no_submission_filter', 'enabled')) {
+                $this->add_submission_filter();
             }
-            
-            // Modify the WHERE clause to exclude students without submissions
-            $this->add_submission_filter();
         }
-        
+
         /**
-         * Add submission filter to SQL
+         * Restrict results to users who have submitted at least once.
          */
         protected function add_submission_filter() {
             global $DB;
-            
+
             $assignid = $this->assignment->get_instance()->id;
-            
-            // Add condition to only show users with submissions
-            $submissionexists = "EXISTS (
-                SELECT 1
-                FROM {assign_submission} s
-                WHERE s.userid = u.id
-                AND s.assignment = :assignid_filter_nsf
-                AND s.latest = 1
-                AND s.status <> :status_new
-            )";
-            
-            // Add to existing WHERE clause
-            if (empty($this->sql->where)) {
-                $this->sql->where = $submissionexists;
-            } else {
-                $this->sql->where .= " AND " . $submissionexists;
+            $submitted = \local_assign_no_submission_filter_get_submitted_users($assignid);
+            if (empty($submitted)) {
+                $submitted = [-1];
             }
-            
-            // Add parameter
+
+            list($insql, $inparams) = $DB->get_in_or_equal($submitted, SQL_PARAMS_NAMED, 'nosub');
+
+            if (empty($this->sql->where)) {
+                $this->sql->where = 'u.id ' . $insql;
+            } else {
+                $this->sql->where = 'u.id ' . $insql . ' AND ' . $this->sql->where;
+            }
+
             if (!isset($this->sql->params)) {
                 $this->sql->params = [];
             }
-            $this->sql->params['assignid_filter_nsf'] = $assignid;
-            $this->sql->params['status_new'] = ASSIGN_SUBMISSION_STATUS_NEW;
+            $this->sql->params = array_merge($this->sql->params, $inparams);
         }
     }
-    
 } else {
-    // Fallback if the parent class is not available
+    /**
+     * Fallback when parent class is unavailable.
+     */
     class custom_grading_table {
         public function __construct() {
             debugging('Parent class assign_grading_table not available', DEBUG_DEVELOPER);

@@ -71,30 +71,6 @@ function local_assign_no_submission_filter_user_has_role(\context $context): boo
 }
 
 /**
- * Check if current user has one of the configured roles in a context.
- *
- * @param \context $context Context to check roles in.
- * @return bool
- */
-function local_assign_no_submission_filter_user_has_role(\context $context): bool {
-    global $USER;
-
-    $rolesconfig = get_config('local_assign_no_submission_filter', 'roles');
-    if (empty($rolesconfig)) {
-        return false;
-    }
-
-    $roleids = array_map('intval', explode(',', $rolesconfig));
-    foreach ($roleids as $roleid) {
-        if (user_has_role_assignment($USER->id, $roleid, $context->id)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
  * Override the grading table class
  */
 function local_assign_no_submission_filter_override_grading_table() {
@@ -125,4 +101,45 @@ function local_assign_no_submission_filter_override_grading_table() {
             return false;
         }, true, true);
     }
+}
+
+/**
+ * Ensure the grading table override is registered early in the request.
+ *
+ * This callback runs immediately after {@link require_login()} and
+ * guarantees our autoload alias for {@code assign_grading_table} is in place
+ * before the assignment grading page builds the table of participants.
+ *
+ * @param mixed $courseorid Unused course identifier.
+ * @param mixed $autologinguest Unused guest flag.
+ * @param mixed $cm Course module record.
+ * @param mixed $setwantsurltome Unused flag.
+ * @param mixed $preventredirect Unused flag.
+ */
+function local_assign_no_submission_filter_after_require_login($courseorid = null,
+        $autologinguest = null, $cm = null, $setwantsurltome = null, $preventredirect = null) {
+    global $PAGE;
+
+    // Check plugin configuration.
+    if (!get_config('local_assign_no_submission_filter', 'enabled')) {
+        return;
+    }
+
+    // Only apply within assignment modules.
+    if (empty($PAGE->cm) || $PAGE->cm->modname !== 'assign') {
+        return;
+    }
+
+    // Only affect the grading views.
+    $action = optional_param('action', '', PARAM_ALPHA);
+    if ($action !== 'grading' && $action !== 'grader') {
+        return;
+    }
+
+    if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
+        return;
+    }
+
+    // Register the custom grading table class.
+    local_assign_no_submission_filter_override_grading_table();
 }
