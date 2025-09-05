@@ -84,7 +84,7 @@ if (!$courseindex) {
 $extraclasses[] = \theme_remui\utility::get_main_bg_class();
 
 // Focus data.
-$coursehandler = new \theme_remui_coursehandler();
+$coursehandler = new \theme_inteb_coursehandler();
 $focusdata = $coursehandler->get_focus_context_data();
 if (isset($focusdata['on']) && $focusdata['on']) {
     $extraclasses[] = 'focusmode';

@@ -20,7 +20,7 @@
 
 <div class="course_card-0 card-wrapper card dashboard-card edwanimate-{{animation}} h-100 d-inline-flex" data-course-id="{{id}}">
     <div tabindex="-1">
-        <div class="card-img dashboard-card-img p-p-4 edw-course-img-wrapper" style='background-image: url("{{{courseimage}}}");'>
+        <div class="card-img dashboard-card-img p-p-4 edw-course-img-wrapper" style='background-image: url("{{#remuicourseimage}}{{remuicourseimage}}{{/remuicourseimage}}{{^remuicourseimage}}{{{courseimage}}}{{/remuicourseimage}}");'>
             <a href="{{ courseurl }} " class="view-course-url"></a>
         </div>
     </div>
@@ -37,7 +37,7 @@
                             href="{{courseurl}}"  title="{{{ coursename }}}">{{{coursename}}}</a>
                     </div>
                 </div>
-                {{#instructors}}
+                {{#instructor}}
                     <div class="d-flex flex-row flex-gap-d5">
                         <div class="d-flex flex-row instructor-info-wrapper">
                             <a href="{{ url }}" class="d-flex align-items-center flex-gap-d5 instructor-img {{ imgStyle }}"
@@ -46,14 +46,14 @@
                                 <h6 class="h-regular-6 course-instructors m-0 break-word ellipsis ellipsis-2" title="{{{name}}}">{{{name}}}</h6>
                             </a>
                         </div>
-                                
+
                         {{#instructorcount}}
                             <span class="small-info-semibold instructorscount d-flex align-items-center justify-content-center" title="{{#str}}instructorcounttitle,theme_remui{{/str}}">
                                 +{{instructorcount}}
                             </span>
                         {{/instructorcount}}
                     </div>
-                {{/instructors}}
+                {{/instructor}}
 
                 {{#coursesummary}}
                     <p class="coursesummary ellipsis ellipsis-2 para-regular-2 m-0">{{{coursesummary}}}</p>

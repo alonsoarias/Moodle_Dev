@@ -605,6 +605,15 @@ a.nav-link {
     background-color: $color-primary;
     border-radius: 0;
     justify-content: space-between;
+
+    a {
+        color: #ffffff;
+
+        &:hover,
+        &:focus {
+            color: #ffffff;
+        }
+    }
 }
 #theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .edw-icon, #theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .fa-lock {
     font-size: 24px;
@@ -775,3 +784,72 @@ button.btn.btn-primary.icon-no-margin.p-0 {
 /* Para los teléfonos más pequeños */
 @media (max-width: 479px) {
 }
+
+/* Course index collapsed by default */
+#page-course-view .courseindex .courseindex-item-content {
+    display: none;
+}
+
+/* Centre quiz intro and start attempt button */
+#page-mod-quiz-view #intro,
+#page-mod-quiz-view .activity-description,
+#page-mod-quiz-view .quiz-info {
+    text-align: center;
+}
+
+#page-mod-quiz-view .tertiary-navigation .row {
+    justify-content: center;
+}
+
+#page-mod-quiz-view .quizstartbuttondiv {
+    text-align: center;
+}
+
+/* Course index item styling */
+/* Ensure text and icons remain visible on dark backgrounds */
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-item-content .courseindex-sectioncontent .courseindex-item,
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-sectioncontent > .courseindex-item {
+    padding: 4px 24px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    border-radius: unset;
+    background-color: transparent;
+
+    .courseindex-link {
+        color: #fff;
+
+        &:hover,
+        &:focus {
+            color: #fff;
+        }
+    }
+
+    .edw-icon,
+    .fa-lock {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+        color: #fff;
+    }
+
+    &:hover,
+    &:focus-within,
+    &[aria-selected="true"] {
+        background-color: $color-primary;
+        color: #fff;
+
+        .courseindex-link,
+        .edw-icon,
+        .fa-lock {
+            color: #fff;
+        }
+    }
+}
+
+/* Highlight selected course category */
+#course-category-listings .listitem[data-selected="1"] {
+    border-left: calc(1px + 5px) solid $color-primary;
+    padding-left: calc(1.25rem - 5px);
+}
+

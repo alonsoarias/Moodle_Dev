@@ -29,7 +29,7 @@
 <div class="course_card-0 card-wrapper card dashboard-card edwanimate-{{animation}} h-100 d-flex flex-column"  data-course-id="{{id}}">
     <div tabindex="-1">
         <div class="card-img dashboard-card-img p-p-4 edw-course-img-wrapper"
-            style='background-image: url("{{{courseimage}}}");'>
+            style='background-image: url("{{#remuicourseimage}}{{remuicourseimage}}{{/remuicourseimage}}{{^remuicourseimage}}{{{courseimage}}}{{/remuicourseimage}}");'>
             <a href="{{ courseurl }} " class="view-course-url"></a>
         </div>
     </div>
@@ -46,7 +46,7 @@
                         </a>
                     </div>
                 </div>
-                {{#instructors}}
+                {{#instructor}}
                     <div class="d-flex flex-row flex-gap-0d5">
                         <div class="d-flex flex-row instructor-info-wrapper">
                             <a href="{{ url }}" class="d-flex align-items-center flex-gap-d5 instructor-img {{ imgStyle }}"
@@ -63,7 +63,7 @@
                             </span>
                         {{/instructorcount}}
                     </div>
-                {{/instructors}}
+                {{/instructor}}
 
                 {{#coursesummary}}
                     <p class="coursesummary ellipsis ellipsis-2 para-regular-3 m-0">{{{coursesummary}}}</p>

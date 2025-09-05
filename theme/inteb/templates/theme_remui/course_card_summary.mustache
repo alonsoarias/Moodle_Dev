@@ -23,7 +23,7 @@
 
 <li class="list-group-item course-listitem  d-flex edw-course-list edwanimate-{{animation}}"  data-animate="{{animation}}" data-course-id="{{id}}">
     <div class="edw-course-img-wrapper">
-        <div class="summaryimage card-img dashboard-list-img  p-p-4" style='background-image: url("{{{courseimage}}}");'>
+        <div class="summaryimage card-img dashboard-list-img  p-p-4" style='background-image: url("{{#remuicourseimage}}{{remuicourseimage}}{{/remuicourseimage}}{{^remuicourseimage}}{{{courseimage}}}{{/remuicourseimage}}");'>
             <a href="{{ courseurl }} " class="view-course-url"></a>
             <div class="card-img-icons-wrapper d-flex align-items-center flex-gap-2 ml-auto">
                 {{^visible}}
@@ -51,22 +51,22 @@
                     </div>
                 </div>
             </div>
-            {{#instructors}}
-            <div class="d-flex flex-row flex-gap-0d5">
-                <div class="d-flex flex-row instructor-info-wrapper">
-                    <a href="{{ url }}" class="d-flex align-items-center flex-gap-d5 instructor-img {{ imgStyle }}"
-                        aria-label="Instructor for {{coursename}} is - {{name}}" title="{{{name}}}">
-                        <img src="{{ picture }}" class="rounded-circle" alt="{{ name }}" loading="lazy"/>
-                        <h6 class="h-regular-6 course-instructors m-0 break-word ellipsis ellipsis-2" title="{{{name}}}">{{{name}}}</h6>
-                    </a>
+            {{#instructor}}
+                <div class="d-flex flex-row flex-gap-0d5">
+                    <div class="d-flex flex-row instructor-info-wrapper">
+                        <a href="{{ url }}" class="d-flex align-items-center flex-gap-d5 instructor-img {{ imgStyle }}"
+                            aria-label="Instructor for {{coursename}} is - {{name}}" title="{{{name}}}">
+                            <img src="{{ picture }}" class="rounded-circle" alt="{{ name }}" loading="lazy"/>
+                            <h6 class="h-regular-6 course-instructors m-0 break-word ellipsis ellipsis-2" title="{{{name}}}">{{{name}}}</h6>
+                        </a>
+                    </div>
+                    {{#instructorcount}}
+                        <span class="small-info-semibold instructorscount d-flex align-items-center justify-content-center" title="{{#str}}instructorcounttitle,theme_remui{{/str}}">
+                        +{{instructorcount}}
+                        </span>
+                    {{/instructorcount}}
                 </div>
-                {{#instructorcount}}
-                    <span class="small-info-semibold instructorscount d-flex align-items-center justify-content-center" title="{{#str}}instructorcounttitle,theme_remui{{/str}}">
-                    +{{instructorcount}}
-                    </span>
-                {{/instructorcount}}
-            </div>
-            {{/instructors}}
+            {{/instructor}}
         </div>
         <div class="edw-card-design-ft d-flex flex-gap-3">
             <div class="d-flex text-nowrap ernr-lesson-wrapper flex-wrap">
