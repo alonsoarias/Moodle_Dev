@@ -1,0 +1,777 @@
+/*******************
+Headings
+*******************/
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+.h5,
+.h5,
+h6,
+.h6 {
+    color: $color-primary;
+    font-family: $headings-font-family;
+    font-weight: $headings-font-weight;
+}
+
+h1 {
+    color: $color-primary;
+}
+h1.h2.header-heading {
+    font-weight: bold !important;
+}
+a {
+    color: $color-primary;
+}
+a:hover {
+    color: $color-secondary;
+}
+#top-footer h3 {
+    color: white;
+}
+
+.nav-pills {
+    .nav-link.active,
+    .show > .nav-link {
+        color: #ffffff; // Uso de blanco directo
+        background-color: $color-primary; // Azul oscuro para el fondo activo
+    }
+}
+
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link.active,
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link:hover,
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link:focus {
+    color: $color-primary; // Reemplazado #3972b5 con $color-primary
+}
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link.active::before {
+    border-bottom: 3px solid $color-primary;
+}
+
+.event h3.name,
+.calendar_event_course {
+    color: white;
+    text-shadow: 1px 1px 1px #000;
+}
+
+.event a.card-link {
+    font-weight: bold;
+    border-bottom: 2px dotted;
+    font-size: 107%;
+}
+
+/* Personalizaciones Próximos Eventos */
+.block_calendar_upcoming .event {
+    border-left: 2px solid #ccc;
+    padding-left: 5px;
+}
+
+.block-myoverview [data-region="filter"] .nav-grouping-selector .nav {
+    margin: 10px 17px 16px 17px;
+}
+.block-myoverview
+    [data-region="filter"]
+    .all-filter-wrapper
+    .nav-display-selector-wrapper
+    .nav-display-selector
+    .nav
+    .nav-item
+    .nav-link
+    [aria-current="true"] {
+    color: $color-primary;
+}
+
+.block-myoverview [data-region="filter"] .nav-grouping-selector .nav li.nav-item [aria-current="true"]::after {
+    border-bottom: 3px solid $color-primary;
+}
+.block_calendar_upcoming .event.my-event-urgent {
+    border-color: #f51f25;
+}
+
+.block_calendar_upcoming .event.my-event-priority {
+    border-color: #f89406;
+}
+
+.badge.badge-danger {
+    background-color: #f51f25;
+}
+
+/* END Personalizaciones Próximos Eventos */
+
+.que .formulation {
+    background-color: white;
+    border: 1px solid;
+    border-color: #badae4;
+}
+
+.que.informationitem .formulation {
+    background-color: #def2f8;
+    border-color: #badae4;
+}
+
+.que.informationitem .info {
+    margin-bottom: 5px;
+}
+
+.activityinstance a {
+    text-transform: none;
+}
+
+.inteb-block-header {
+    color: $color-primary;
+}
+
+.block .block-cards .multiline {
+    color: $color-primary;
+    font-size: 20px;
+}
+
+.block button.dropdown-toggle {
+    box-shadow: none;
+    border-color: $color-secondary;
+    border: 1px solid $color-secondary;
+}
+
+.block button.dropdown-toggle:hover {
+    background-color: $color-secondary-dimmed;
+    color: white;
+    box-shadow: none;
+    border-color: $color-secondary;
+    border: 1px solid $color-secondary;
+}
+
+.block {
+    margin: 1px;
+}
+
+section.node-category {
+    margin: 2px;
+}
+
+.block .show > .btn-outline-secondary.dropdown-toggle:focus {
+    border-color: $color-secondary-dimmed;
+    background-color: $color-secondary-dimmed;
+    outline: none !important;
+    outline-width: 0 !important;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+.block .show > .btn-outline-secondary.dropdown-toggle {
+    background-color: $color-secondary-dimmed;
+    color: white;
+    border-color: $color-secondary-dimmed;
+    border: 1px solid $color-secondary-dimmed;
+    outline: none !important;
+    outline-width: 0 !important;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+.block .dropdown-item:focus {
+    background-color: $my-oscuro;
+    color: white;
+}
+
+#block-region-side-pre > section > .card-header > h5.card-title {
+    color: white;
+}
+
+#sidepreopen-control {
+    background-color: $color-secondary;
+}
+
+#sidepreopen-control:hover {
+    box-shadow: 0 0 6px $color-secondary-dimmed;
+    background-color: $color-secondary-dimmed;
+}
+
+.block h5.card-title:before {
+    font-family: "Font Awesome 6 Free"; // Actualizado para Font Awesome 6
+    font-weight: 900; // Asegura el estilo sólido
+    margin-right: 8px; // Espacio entre el ícono y el texto
+}
+
+/* Iconos para diferentes bloques */
+.block.block_accessreview h5.card-title:before {
+    content: "\f013"; /* Icono de configuración */
+}
+
+.block.block_activity_modules h5.card-title:before {
+    content: "\f24d"; /* Icono de libro */
+}
+
+.block.block_activity_results h5.card-title:before {
+    content: "\f080"; /* Icono de gráfico de barras */
+}
+
+.block.block_admin_bookmarks h5.card-title:before {
+    content: "\f02e"; /* Icono de marcador */
+}
+
+.block.block_badges h5.card-title:before {
+    content: "\f02b"; /* Icono de insignia */
+}
+
+.block.block_blog_menu h5.card-title:before {
+    content: "\f0e6"; /* Icono de blog */
+}
+
+.block.block_blog_recent h5.card-title:before {
+    content: "\f1ea"; /* Icono de historial */
+}
+
+.block.block_blog_tags h5.card-title:before {
+    content: "\f02c"; /* Icono de etiquetas */
+}
+
+.block.block_calendar_month h5.card-title:before {
+    content: "\f073"; /* Icono de calendario */
+}
+
+.block.block_calendar_upcoming h5.card-title:before {
+    content: "\f017"; /* Icono de calendario para eventos próximos */
+}
+
+.block.block_checklist h5.card-title:before {
+    content: "\f00c"; /* Icono de verificación */
+}
+
+.block.block_comments h5.card-title:before {
+    content: "\f086"; /* Icono de comentarios */
+}
+
+.block.block_completion_progress h5.card-title:before {
+    content: "\f05d"; /* Icono de progreso */
+}
+
+.block.block_completionstatus h5.card-title:before {
+    content: "\f058"; /* Icono de check-circle */
+}
+
+.block.block_configurable_reports h5.card-title:before {
+    content: "\f080"; /* Icono de pie chart */
+}
+
+.block.block_dedication h5.card-title:before {
+    content: "\f004"; /* Icono de corazón */
+}
+
+.block.block_feedback h5.card-title:before {
+    content: "\f0e5"; /* Icono de comentarios */
+}
+
+.block.block_globalsearch h5.card-title:before {
+    content: "\f002"; /* Icono de búsqueda */
+}
+
+.block.block_glossary_random h5.card-title:before {
+    content: "\f02d"; /* Icono de libro abierto */
+}
+
+.block.block_grade_me h5.card-title:before {
+    content: "\f046"; /* Icono de gráfico */
+}
+
+.block.block_grade_overview h5.card-title:before {
+    content: "\f06a"; /* Icono de ojo */
+}
+
+.block.block_html h5.card-title:before {
+    content: "\f097"; /* Icono de código */
+}
+
+.block.block_mentees h5.card-title:before {
+    content: "\f501"; /* Icono de user-friends */
+}
+
+.block.block_messageteacher h5.card-title:before {
+    content: "\f27b"; /* Icono de sobre */
+}
+
+.block.block_mnet_hosts h5.card-title:before {
+    content: "\f0c2"; /* Icono de globo */
+}
+
+.block.block_multiblock h5.card-title:before {
+    content: "\f022"; /* Icono de clon */
+}
+
+.block.block_mycertificates h5.card-title:before {
+    content: "\f0a3"; /* Icono de certificado */
+}
+
+.block.block_myoverview h5.card-title:before {
+    content: "\f200"; /* Icono de dashboard */
+}
+
+.block.block_myprofile h5.card-title:before {
+    content: "\f007"; /* Icono de usuario */
+}
+
+.block.block_navigation h5.card-title:before {
+    content: "\f0e8"; /* Icono de navegación */
+}
+
+.block.block_news_items h5.card-title:before {
+    content: "\f1ea"; /* Icono de periódico */
+}
+
+.block.block_online_users h5.card-title:before {
+    content: "\f0c0"; /* Icono de usuarios */
+}
+
+.block.block_private_files h5.card-title:before {
+    content: "\f07c"; /* Icono de carpeta abierta */
+}
+
+.block.block_quiz_results h5.card-title:before {
+    content: "\f080"; /* Icono de gráfico de barras */
+}
+
+.block.block_recent_activity h5.card-title:before {
+    content: "\f073"; /* Icono de historial */
+}
+
+.block.block_recentlyaccesseditems h5.card-title:before {
+    content: "\f0ca"; /* Icono de lista */
+}
+
+.block.block_remuiblck h5.card-title:before {
+    content: "\f2c9"; /* Icono de layer-group */
+}
+
+.block.block_rss_client h5.card-title:before {
+    content: "\f09e"; /* Icono de RSS */
+}
+
+.block.block_search_forums h5.card-title:before {
+    content: "\f002"; /* Icono de búsqueda */
+}
+
+.block.block_section_links h5.card-title:before {
+    content: "\f0cb"; /* Icono de lista numerada */
+}
+
+.block.block_selfcompletion h5.card-title:before {
+    content: "\f058"; /* Icono de check-circle */
+}
+
+.block.block_settings h5.card-title:before {
+    content: "\f013"; /* Icono de engranaje */
+}
+
+.block.block_site_main_menu h5.card-title:before {
+    content: "\f0c9"; /* Icono de barras */
+}
+
+.block.block_social_activities h5.card-title:before {
+    content: "\f234"; /* Icono de usuarios */
+}
+
+.block.block_tag_flickr h5.card-title:before {
+    content: "\f16e"; /* Icono de Flickr */
+}
+
+.block.block_tag_youtube h5.card-title:before {
+    content: "\f167"; /* Icono de YouTube */
+}
+
+.block.block_tags h5.card-title:before {
+    content: "\f02c"; /* Icono de etiquetas */
+}
+
+.block.block_xp h5.card-title:before {
+    content: "\f091"; /* Icono de trofeo */
+}
+
+.block.block_myprogress h5.card-title:before {
+    content: "\f201"; /* Icono de línea de gráfico */
+}
+
+#block-region-side-pre > section:nth-of-type(7n) > .card-header {
+    background-color: $block-region-side-pre-7;
+    border-radius: 0px;
+}
+#block-region-side-pre > section:nth-of-type(7n) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 1) > .card-header {
+    background-color: $block-region-side-pre-1;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 1) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 2) > .card-header {
+    background-color: $block-region-side-pre-2;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 2) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 3) > .card-header {
+    background-color: $block-region-side-pre-3;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 3) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 4) > .card-header {
+    background-color: $block-region-side-pre-4;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 4) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 5) > .card-header {
+    background-color: $block-region-side-pre-5;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 5) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 6) > .card-header {
+    background-color: $block-region-side-pre-6;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 6) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre .block {
+    border-bottom: 0px;
+}
+
+.card-header.idigital-block-header {
+    background-color: #e8e8e8;
+    border-radius: 24px 24px 0px 0px;
+}
+.block .card-title {
+    color: #696969;
+}
+.block .card-body {
+    background-color: white;
+    border-radius: 0px 0px 24px 24px;
+}
+
+.block_timeline .block-timeline [data-region="day-filter"] .dropdown-toggle,
+.block_timeline .block-timeline [data-region="view-selector"] .dropdown-toggle {
+    border: 1px solid #d5ddea;
+    color: #1c3d77;
+}
+.block_timeline .block-timeline [data-region="timeline-view"] {
+    box-shadow: none;
+}
+.block button.dropdown-toggle:hover {
+    background-color: #bdbdbc;
+    color: white;
+}
+
+.license-notice {
+    display: none;
+}
+
+.navbar #usernavigation .userinitials {
+    background-color: $my-blue; // Reemplazado con $my-blue
+    color: #ffffff;
+}
+
+/* Mejorando tamaño de tipografías para lectura */
+.description .course-description-item,
+#page-content {
+    font-size: 0.9775rem;
+    font-weight: 400;
+    line-height: 1.52;
+}
+
+/* Mejora en revisión de intentos de cuestionarios
+/TODO::: Traducir a SCSS */
+.que.correct .outcome,
+.que.correct .comment {
+    background-color: #dffae7;
+    border-color: #c7e9d1;
+    color: #0a1f22;
+}
+
+nav.moremenu.navigation.observed {
+    font-size: 0.9775rem;
+}
+
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link {
+    font-size: 0.9775rem;
+}
+li.breadcrumb-item {
+    font-size: 0.8775rem;
+}
+a.nav-link {
+    font-weight: bold;
+}
+.navbar-brand {
+    background-color: transparent;
+}
+.navbar .primary-navigation .nav-link,
+.navbar .primary-navigation .more-nav > .dropdown > .dropdown-toggle,
+.navbar #usernavigation .nav-link,
+.navbar #usernavigation .more-nav > .dropdown > .dropdown-toggle {
+    color: $color-primary;
+}
+.navbar .primary-navigation .nav-link.active {
+    color: $color-primary; // Reemplazado #366daf con $color-primary
+}
+
+.navbar .primary-navigation .nav-link.active::before {
+    border-bottom-color: $color-primary; // Reemplazado #3972b5 con $color-primary
+}
+
+.navbar .primary-navigation .nav-link:hover,
+.navbar .primary-navigation .more-nav > .dropdown > .dropdown-toggle:hover,
+.navbar #usernavigation .nav-link:hover,
+.navbar #usernavigation .more-nav > .dropdown > .dropdown-toggle:hover {
+    color: $color-primary; // Reemplazado #3972b5 con $color-primary
+}
+
+.navbar {
+    border-bottom: 5px solid $color-primary; /* Borde sólido azul en la parte inferior */
+    box-shadow: 0px 2px 3px rgba(255, 255, 255, 0.5); /* Sombra blanca suave para crear el efecto de filo */
+}
+.navbar .primary-navigation .nav-link.active::before,
+.navbar .primary-navigation .dropdown-toggle.active::before,
+.navbar #usernavigation .nav-link.active::before,
+.navbar #usernavigation .dropdown-toggle.active::before {
+    top: 58px;
+    border-bottom: 3px solid $color-primary; // Reemplazado #3972b5 con $color-primary
+}
+
+/* Footer */
+#page-footer {
+    background-color: $color-secondary; /* Reemplazado con $color-secondary */
+}
+
+/* Top Footer */
+#top-footer {
+    background-color: $color-primary; /* Azul oscuro */
+    color: $color-white;
+    margin: 0 -15px;
+}
+
+/* Vista Categorias */
+.dashboard-card .course-info-container .edw-card-design-hd span.categoryname.small-info-semibold,
+.dashboard-card .course-info-container .edw-card-design-hd .popover-region .content-item-container.notification span.categoryname.content-item-footer,
+.popover-region .content-item-container.notification .dashboard-card .course-info-container .edw-card-design-hd span.categoryname.content-item-footer,
+.dashboard-card .course-info-container .edw-card-design-hd #block-region-side-pre .block-content-area .table-wrapper .calendartable.calendarmonth th span.categoryname.h-semibold-5,
+#block-region-side-pre .block-content-area .table-wrapper .calendartable.calendarmonth th .dashboard-card .course-info-container .edw-card-design-hd span.categoryname.h-semibold-5,
+.dashboard-card .course-info-container .edw-card-design-hd span.categoryname.edw-msg-panel-badge {
+    color: #fff;
+    background-color: $color-secondary; /* Rojo */
+    font-size: .8em;
+}
+
+/* Asegurar que las clases categoryname, text-truncate, small-info-semibold se vean bien */
+.categoryname.text-truncate.small-info-semibold {
+    color: #fff;
+    background-color: $color-secondary; /* Rojo */
+    font-size: 0.8em;
+}
+
+/* Nueva regla para courseindex-section-title con clases adicionales */
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title {
+    padding: 10px 24px;
+    color: #ffffff;
+    background-color: $color-primary;
+    border-radius: 0;
+    justify-content: space-between;
+}
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .edw-icon, #theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .fa-lock {
+    font-size: 24px;
+    height: 24px;
+    width: 24px;
+    color: #ffffff;
+}
+
+/* Botones */
+
+/* Primary button styling */
+.btn-primary {
+    background-color: $color-secondary; // Rojo para el fondo
+    border-color: $color-secondary; // Rojo para el borde
+    color: #ffffff; // Blanco para el texto
+
+    .fa,
+    .edw-icon {
+        color: #ffffff; // Blanco para los iconos
+    }
+
+    &:hover {
+        background-color: $color-primary; // Azul oscuro en hover
+        border-color: $color-primary; // Azul oscuro para el borde en hover
+        color: #ffffff; // Blanco para el texto en hover
+    }
+
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: $color-secondary; // Rojo en activo
+        border-color: $color-secondary; // Rojo en activo
+        color: #ffffff; // Blanco en activo
+    }
+
+    &:not(:disabled):not(.disabled):focus,
+    &:not(:disabled):not(.disabled).focus {
+        background-color: $color-primary; // Azul oscuro en foco
+        border-color: $color-primary; // Azul oscuro en foco
+        color: #ffffff; // Blanco en foco
+    }
+}
+
+/* Secondary button styling */
+.btn-secondary {
+    background-color: $color-primary; // Azul oscuro para el fondo
+    border-color: $color-primary; // Azul oscuro para el borde
+    color: #ffffff; // Blanco para el texto
+
+    .fa,
+    .edw-icon {
+        color: #ffffff; // Blanco para los iconos
+    }
+
+    &:hover {
+        background-color: $color-secondary; // Rojo en hover
+        border-color: $color-secondary; // Rojo en hover
+        color: #ffffff; // Blanco para el texto en hover
+    }
+
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: $color-primary; // Azul oscuro en activo
+        border-color: $color-primary; // Azul oscuro en activo
+        color: #ffffff; // Blanco en activo
+    }
+
+    &:not(:disabled):not(.disabled):focus,
+    &:not(:disabled):not(.disabled).focus {
+        background-color: $color-secondary; // Rojo en foco
+        border-color: $color-secondary; // Rojo en foco
+        color: #ffffff; // Blanco en foco
+    }
+}
+
+/* Botones Específicos */
+button.btn.btn-primary.icon-no-margin.p-0 {
+    background-color: $color-secondary; // Rojo para el fondo
+    border-color: white; // Color blanco para el borde
+    color: white; // Color del texto
+
+    &:hover {
+        background-color: $color-secondary; // Rojo para el fondo en hover
+        border-color: white; // Mantiene el borde blanco en hover
+        color: white !important; // Color del texto en hover
+    }
+
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: darken($color-secondary, 10%); // Oscurece el color secundario para el estado activo
+        border-color: white; // Mantiene el borde blanco para el estado activo
+        color: white; // Mantiene el texto blanco para mejor visibilidad
+
+        .fa,
+        .edw-icon {
+            color: white; // Mantiene el color de los íconos en blanco
+        }
+    }
+}
+
+.btn-floating {
+    border-color: white;
+}
+
+.btn-primary .fa,
+.btn-primary .edw-icon {
+    color: white !important;
+}
+
+/* Personalizaciones Próximos Eventos */
+
+.block_calendar_upcoming .event {
+    border-left: 2px solid #ccc;
+    padding-left: 5px;
+}
+
+.block_calendar_upcoming .event.my-event-urgent {
+    border-color: #f51f25;
+}
+
+.block_calendar_upcoming .event.my-event-priority {
+    border-color: #f89406;
+}
+
+/* END Personalizaciones Próximos Eventos */
+
+/* Responsive rules */
+
+/* Para tablets y desktops pequeños */
+@media (min-width: 768px) {
+}
+
+/* Para pantallas un poco más grandes que tablets */
+@media (min-width: 800px) {
+}
+
+/* Para desktops grandes */
+@media (min-width: 1200px) {
+}
+
+/* Estilos para dispositivos con un ancho máximo de 993px y una altura mínima de 640px */
+@media (max-width: 993px) {
+    @media (min-height: 640px) {
+    }
+}
+
+/* Para dispositivos móviles (tablets y teléfonos en posición horizontal) */
+@media (max-width: 767px) {
+}
+
+/* Para pantallas pequeñas */
+@media (max-width: 639px) {
+}
+
+/* Para dispositivos aún más pequeños */
+@media (max-width: 576px) {
+}
+
+/* Para teléfonos muy pequeños */
+@media (max-width: 500px) {
+}
+
+/* Para los teléfonos más pequeños */
+@media (max-width: 479px) {
+}

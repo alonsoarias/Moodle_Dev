@@ -1,0 +1,135 @@
+{{!
+    Este archivo es parte de Moodle - http://moodle.org/
+    ...
+}}
+
+{{> theme_inteb/head }}
+
+<style>
+/* Estilos para hacer fija la columna del carrusel y desplazar la columna del login. */
+@media (min-width: 768px) {
+    .fixed-carousel-col {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 66.6667%;
+        height: 100vh;
+        overflow: hidden; /* Evita scroll interno */
+    }
+    .login-col {
+        margin-left: 66.6667%;
+        min-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}
+</style>
+
+<body {{{ bodyattributes }}} style="{{loginbackground}}">
+    {{> core/local/toast/wrapper}}
+    {{{ output.standard_top_of_body_html }}}
+
+    <section class="d-flex flex-column">
+        <div class="row no-gutters">
+            <!-- Carrusel (Columna Izquierda) -->
+            <div class="col-12 col-md-8 px-0 d-none d-md-block fixed-carousel-col" id="loginCarouselColumn">
+                <div id="loginCarousel"
+                     class="carousel slide"
+                     data-ride="carousel"
+                     data-interval="{{carouselinterval}}"
+                     aria-label="{{#str}}carousel, theme_inteb{{/str}}">
+
+                    <!-- Indicadores (puntos) -->
+                    <ol class="carousel-indicators">
+                        {{#carouselimages}}
+                        <li data-target="#loginCarousel"
+                            data-slide-to="{{index}}"
+                            class="{{#first}}active{{/first}}">
+                        </li>
+                        {{/carouselimages}}
+                    </ol>
+
+                    <!-- Diapositivas -->
+                    <div class="carousel-inner">
+                        {{#carouselimages}}
+                        <div class="carousel-item {{#first}}active{{/first}}" aria-label="{{title}}">
+                            <a href="{{link}}" target="_blank">
+                                <img src="{{url}}" alt="{{title}}"
+                                     class="d-block vh-100"
+                                     style="object-fit: cover; border-radius: 0;">
+                                <div class="carousel-caption d-none d-md-block">
+                                    <h5>{{title}}</h5>
+                                    <p>{{description}}</p>
+                                </div>
+                            </a>
+                        </div>
+                        {{/carouselimages}}
+                    </div>
+
+                    <!-- Controles Prev/Next -->
+                    <a class="carousel-control-prev"
+                       href="#loginCarousel"
+                       role="button"
+                       data-slide="prev"
+                       aria-label="{{#str}}previous, theme_inteb{{/str}}">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">{{#str}}previous, theme_inteb{{/str}}</span>
+                    </a>
+                    <a class="carousel-control-next"
+                       href="#loginCarousel"
+                       role="button"
+                       data-slide="next"
+                       aria-label="{{#str}}next, theme_inteb{{/str}}">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">{{#str}}next, theme_inteb{{/str}}</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Columna de Login (Derecha) -->
+            <div class="col-12 col-md-4 d-flex flex-column justify-content-center align-items-center login-col">
+                <div class="login-wrapper">
+                    <div class="d-flex flex-column justify-content-center align-items-center">
+                        {{{ output.main_content }}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="row justify-content-center my-footer-wrapper">
+            <div class="my-footer panel col-12">
+                <div class="card my-footer panel fixed-bottom">
+                    <div class="card-block">
+                        <div class="copyright">
+                            <div class="row justify-content-center my-credit-footer-wrapper">
+                                <div class="col-12 col-md-12 col-lg-8 col-xlg-6">
+                                    <div class="panel text-center my-credit">
+                                        <small class="text-muted-footer" id="my-credit">{{{my_credit}}}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts Bootstrap (ej. 4.5.2) y jQuery si no se cargan en otro sitio -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Inicializar el carrusel con el intervalo configurado
+                $('#loginCarousel').carousel({
+                    interval: {{carouselinterval}}
+                });
+            });
+        </script>
+
+        <div class="d-none">
+            {{{ output.standard_footer_html }}}
+            {{{ output.standard_end_of_body_html }}}
+        </div>
+    </section>
+</body>

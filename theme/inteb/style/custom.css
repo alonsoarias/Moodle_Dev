@@ -1,0 +1,608 @@
+/* Footer Styles */
+.my-credit-footer-wrapper {
+    background-color: $color-lightgray;
+    color: $color-primary;
+    font-size: 15px;
+}
+
+a.my-credit-link,
+a.my-credit-link:hover {
+    color: $color-primary;
+}
+
+#page-header.hasbackground.design-1 .header-main-section .category .badge {
+    color: white;
+    background-color: $green;
+}
+
+.position-absolute.w-100.h-100 {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.0) -5%, transparent 120%) !important;
+}
+
+#page-header.hasbackground.design-1 {
+    min-height: 270px !important;
+}
+
+#format_menutopic_menu .navbar-brand {
+    display: none !important;
+}
+
+div#navbarmenutopic {
+    padding: 0 16px !important;
+    height: 80px !important;
+}
+
+#page-footer .copyright {
+    background-color: $my-gris; /* Reemplazado con $my-gris */
+    color: $color-primary;
+    text-align: center;
+    min-height: inherit;
+    margin-bottom: 0;
+}
+
+#top-footer {
+    background-color: $color-primary; /* Azul oscuro */
+    color: $color-white;
+    margin: 0 -15px;
+}
+
+#top-footer .my-about,
+#top-footer h3 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#top-footer h3 {
+    margin-bottom: 15px;
+    /* Espacio debajo del título */
+}
+
+/* Button Styles */
+.btn-link,
+.btn-link:hover,
+.btn-outline-primary,
+.btn-outline-primary:hover {
+    background-color: #fff;
+}
+
+.btn-link {
+    color: $color-secondary; /* Azul oscuro */
+    border-color: $color-primary;
+}
+
+.btn-link:hover {
+    color: $color-primary; /* Rojo */
+    border-color: $color-secondary;
+}
+
+.btn-outline-primary {
+    color: $color-secondary;
+    border-color: $color-secondary;
+}
+
+.btn-outline-primary:hover {
+    color: $color-white;
+    background-color: darken($color-secondary, 10%);
+    border-color: darken($color-secondary, 10%);
+}
+
+/* Badge Styles */
+.badge-info,
+.badge-info:hover,
+.badge-success,
+.badge-succes:hover {
+    color: $color-primary;
+    transition: background-color 0.3s;
+}
+
+.badge-info {
+    background-color: $purple;
+}
+
+.badge-info:hover {
+    background-color: $color-primary;
+    color: $color-white;
+}
+
+.badge-success {
+    background-color: $green;
+}
+
+.badge-succes:hover {
+    background-color: darken($green, 10%);
+}
+
+/* List and Link Styles */
+/* Eliminado: #course-category-listings .listitem[data-selected="1"] { ... } */
+
+.text-info,
+.users-list-name,
+#page-header #page-navbar nav ol.breadcrumb .breadcrumb-item a {
+    color: $color-primary !important;
+}
+
+/* Calendar Styles */
+.maincalendar .calendarmonth td.today .day-number-circle {
+    color: $color-white;
+    background-color: $color-primary;
+}
+
+/* Miscellaneous Styles */
+#page-footer .footer-container hr,
+.progress-bar {
+    background-color: $color-primary;
+    border-top: 1px solid $color-white;
+}
+
+.about-text-content {
+    text-align: justify;
+    padding: 0 15px;
+}
+
+@media (max-width: 768px) {
+    .about-text-content {
+        padding: 0 10px;
+        /* Menor padding en dispositivos más pequeños */
+    }
+}
+
+/* Autocomplete Styles */
+.form-autocomplete-suggestions li:hover,
+.form-autocomplete-suggestions li:focus,
+.form-autocomplete-suggestions li[aria-selected="true"] {
+    padding-left: 12px;
+}
+
+.form-autocomplete-suggestions li:hover {
+    background-color: $color-primary; /* Cambiado a $color-primary según botón */
+    color: $color-white;
+    border-left: 4px solid $color-primary;
+}
+
+.form-autocomplete-suggestions li:focus {
+    background-color: $color-lightgray-dimmed; /* Definir o ajustar según necesidad */
+    color: $color-primary;
+    border-left: 4px solid $color-secondary-dark;
+}
+
+.form-autocomplete-suggestions li[aria-selected="true"] {
+    background-color: $color-primary;
+    color: $color-white;
+    border-left: 4px solid $color-secondary;
+}
+
+/* Navigation Styles */
+.nav-pills-custom .nav-link {
+    position: relative;
+}
+
+@media (min-width: 992px) {
+    .nav-pills-custom .nav-link::before {
+        content: '';
+        display: block;
+        border-top: 8px solid transparent;
+        border-left: 10px solid $color-primary; /* Reemplazado con $color-primary */
+        border-bottom: 8px solid transparent;
+        position: absolute;
+        top: 50%;
+        right: -10px;
+        transform: translateY(-50%);
+        opacity: 0;
+    }
+}
+
+.nav-pills-custom .nav-link.active::before {
+    opacity: 1;
+}
+
+/* Collapsible Link Styles */
+.collapsible-link,
+.collapsible-link::before,
+.collapsible-link[aria-expanded='true']::before {
+    position: relative;
+    display: block;
+    text-align: left;
+}
+
+.collapsible-link::before {
+    content: '\f107';
+    top: 50%;
+    right: 0.8rem;
+    transform: translateY(-50%);
+    font-family: 'FontAwesome';
+    font-size: 1.1rem;
+}
+
+.collapsible-link[aria-expanded='true']::before {
+    content: '\f106';
+}
+
+/* Pagination Styles */
+.page-link,
+.page-link:hover,
+.page-item.active .page-link {
+    color: $color-primary;
+    text-decoration: none;
+}
+
+.page-link:hover {
+    z-index: 2;
+    color: darken($color-primary, 10%);
+    background-color: #e9ecef;
+    border-color: #d5ddea;
+}
+
+.page-item.active .page-link {
+    color: $color-white;
+    background-color: $color-primary;
+    border-color: $color-primary;
+}
+
+/* Floating Buttons */
+.floating-buttons-wrapper {
+    position: fixed;
+    bottom: 80px;
+    right: auto;
+    left: 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+/*20240926*/
+.floating-buttons-wrapper > .btn-floating {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 48px;
+    margin-left: inherit;
+    transition: max-width 0.5s ease-in-out;
+    border-color: white;
+}
+
+/* Nueva regla para courseindex-section-title con clases adicionales */
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title.courseindex-item.d-flex.align-items-center.dropready {
+    padding: 10px 24px;
+    color: #ffffff;
+    background-color: $color-primary; /* Aplicado $color-primary */
+    border-radius: 0;
+    justify-content: space-between;
+}
+
+/* Botones */
+
+/* Primary button styling */
+.btn-primary {
+    background-color: $color-secondary; // Rojo para el fondo
+    border-color: $color-secondary; // Rojo para el borde
+    color: #ffffff; // Blanco para el texto
+
+    .fa,
+    .edw-icon {
+        color: #ffffff; // Blanco para los iconos
+    }
+
+    &:hover {
+        background-color: $color-primary; // Azul oscuro en hover
+        border-color: $color-primary; // Azul oscuro para el borde en hover
+        color: #ffffff; // Blanco para el texto en hover
+    }
+
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: $color-secondary; // Rojo en activo
+        border-color: $color-secondary; // Rojo en activo
+        color: #ffffff; // Blanco en activo
+    }
+
+    &:not(:disabled):not(.disabled):focus,
+    &:not(:disabled):not(.disabled).focus {
+        background-color: $color-primary; // Azul oscuro en foco
+        border-color: $color-primary; // Azul oscuro en foco
+        color: #ffffff; // Blanco en foco
+    }
+}
+
+/* Secondary button styling */
+.btn-secondary {
+    background-color: $color-primary; // Azul oscuro para el fondo
+    border-color: $color-primary; // Azul oscuro para el borde
+    color: #ffffff; // Blanco para el texto
+
+    .fa,
+    .edw-icon {
+        color: #ffffff; // Blanco para los iconos
+    }
+
+    &:hover {
+        background-color: $color-secondary; // Rojo en hover
+        border-color: $color-secondary; // Rojo en hover
+        color: #ffffff; // Blanco para el texto en hover
+    }
+
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: $color-primary; // Azul oscuro en activo
+        border-color: $color-primary; // Azul oscuro en activo
+        color: #ffffff; // Blanco en activo
+    }
+
+    &:not(:disabled):not(.disabled):focus,
+    &:not(:disabled):not(.disabled).focus {
+        background-color: $color-secondary; // Rojo en foco
+        border-color: $color-secondary; // Rojo en foco
+        color: #ffffff; // Blanco en foco
+    }
+}
+
+/* Botones Específicos */
+button.btn.btn-primary.icon-no-margin.p-0 {
+    background-color: $color-secondary; // Rojo para el fondo
+    border-color: white; // Color blanco para el borde
+    color: white; // Color del texto
+
+    &:hover {
+        background-color: $color-secondary; // Rojo para el fondo en hover
+        border-color: white; // Mantiene el borde blanco en hover
+        color: white !important; // Color del texto en hover
+    }
+
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: darken($color-secondary, 10%); // Oscurece el color secundario para el estado activo
+        border-color: white; // Mantiene el borde blanco para el estado activo
+        color: white; // Mantiene el texto blanco para mejor visibilidad
+
+        .fa,
+        .edw-icon {
+            color: white; // Mantiene el color de los íconos en blanco
+        }
+    }
+}
+
+.btn-floating {
+    border-color: white;
+}
+
+.btn-primary .fa,
+.btn-primary .edw-icon {
+    color: white !important;
+}
+
+.navbar .edw-icon{
+    color: $color-primary;
+}
+/* Personalizaciones Próximos Eventos */
+
+.block_calendar_upcoming .event {
+    border-left: 2px solid #ccc;
+    padding-left: 5px;
+}
+
+.block_calendar_upcoming .event.my-event-urgent {
+    border-color: #f51f25;
+}
+
+.block_calendar_upcoming .event.my-event-priority {
+    border-color: #f89406;
+}
+
+/* END Personalizaciones Próximos Eventos */
+
+/* Responsive rules */
+
+/* Para tablets y desktops pequeños */
+@media (min-width: 768px) {
+}
+
+/* Para pantallas un poco más grandes que tablets */
+@media (min-width: 800px) {
+}
+
+/* Para desktops grandes */
+@media (min-width: 1200px) {
+}
+
+/* Estilos para dispositivos con un ancho máximo de 993px y una altura mínima de 640px */
+@media (max-width: 993px) {
+    @media (min-height: 640px) {
+    }
+}
+
+/* Para dispositivos móviles (tablets y teléfonos en posición horizontal) */
+@media (max-width: 767px) {
+}
+
+/* Para pantallas pequeñas */
+@media (max-width: 639px) {
+}
+
+/* Para dispositivos aún más pequeños */
+@media (max-width: 576px) {
+}
+
+/* Para teléfonos muy pequeños */
+@media (max-width: 500px) {
+}
+
+/* Para los teléfonos más pequeños */
+@media (max-width: 479px) {
+}
+
+
+/* Estilos base para la página de login */
+.login-page {
+    min-height: 100vh;
+    background-color: var(--color-bg-page);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    /* Contenedor principal */
+    .login-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        /* Grid layout */
+        .row {
+            margin: 0;
+            min-height: 100vh;
+        }
+    }
+}
+
+/* Estilos del formulario de login */
+.loginform {
+    display: flex;
+    flex-direction: column;
+    max-width: var(--max-width-form);
+    animation: fadeIn 0.8s ease-out;
+
+    /* Mensaje de bienvenida */
+    .login-welcome-wrapper {
+        text-align: center;
+        margin-bottom: 2rem;
+
+        h2 {
+            font-size: 1.25rem;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+        }
+    }
+
+}
+
+.login-wrapper{
+    margin: 10%;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Footer */
+.footer {
+    background-color: var(--color-footer-bg);
+    padding: 1rem 0;
+    text-align: center;
+
+    .my-credit {
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+    }
+}
+
+/* Media queries para responsividad */
+@media (max-width: 991.98px) {
+    .loginform {
+        margin: 5%;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .loginform {
+        .login-welcome-wrapper h2 {
+            font-size: 1.25rem;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .loginform {
+        margin: 1rem;
+        padding: 1rem;
+
+        .login-logo img {
+            max-width: 150px;
+        }
+    }
+}
+
+
+.carousel-item img {
+    object-fit: cover; /* Ya está en tu código */
+    width: 100%;
+    height: 100vh;
+    max-height: 1080px; /* Para evitar estiramiento excesivo en pantallas muy altas */
+}
+
+.primary-navigation .nav.more-nav {
+    display: flex;
+    /* Asegúrate de que el contenedor use flexbox */
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="coursecat"] {
+    order: 1;
+    /* Cursos */
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="myhome"] {
+    order: 2;
+    /* Área personal */
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="mycourses"] {
+    order: 3;
+    /* Mis cursos */
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="home"] {
+    order: 4;
+    /* Página principal */
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="siteadminnode"] {
+    order: 5;
+    /* Administración del sitio, opcional si quieres cambiar su posición */
+}
+
+.primary-navigation .nav.more-nav .dropdownmoremenu {
+    order: 6;
+}
+
+.navbar [data-key="recentcourses"] {
+    display: none;
+}
+
+span.badge.badge-info {
+    color: white;
+}
+span.badge.rounded-pill.bg-secondary.text-dark {
+    color: white !important;
+}
+span.badge.bg-secondary.text-dark {
+    color: white !important;
+}
+.about-text-content h4.data {
+    color: #ffffff;
+}
+.about-text-content a.link-1 {
+    color: #ffffff;
+}
+.login-logo img.mb-3.img-fluid {
+    width: 50%;
+}

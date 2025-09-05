@@ -1,0 +1,38 @@
+.path-mod-assign {
+    [data-region="user-selector"] {
+        .alignment {
+            width: auto;
+            margin: 0;
+            .form-autocomplete-downarrow {
+                top: 50%;
+            }
+        }
+    }
+    [data-region=grade-actions] {
+        padding: 5px;
+        height: 100%;
+    }
+    [data-region="grade-panel"] {
+        .fitem {
+            &> .col-md-4,
+            &> .col-md-8 {
+                width: 100%;
+                padding: 0;
+                max-width: 100%;
+                flex: none;
+            }
+        }
+    }
+    [data-region="grading-navigation"] {
+        padding: 2px;
+    }
+}
+
+body#page-mod-quiz-edit {
+    .page_split_join_wrapper {
+        img.icon {
+            width: 20px;
+            height: 16px;
+        }
+    }
+}

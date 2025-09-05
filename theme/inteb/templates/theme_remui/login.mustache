@@ -1,0 +1,117 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Edwiser RemUI
+    @package theme_remui
+    @copyright (c) 2023 WisdmLabs (https://wisdmlabs.com/)
+    @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+{{!
+    @template theme_remui/login
+
+    Login page template
+
+    Example context (json):
+    {
+        "output": {
+            "doctype": "<!DOCTYPE html>",
+            "page_title": "Login page",
+            "favicon": "favicon.ico",
+            "main_content": "<h1>Headers keep HTML validators happy</h1>"
+        }
+    }
+}}
+{{> theme_remui/head }}
+
+<body {{{ bodyattributes }}}>
+{{> core/local/toast/wrapper}}
+
+<div id="page-wrapper">
+
+    {{{ output.standard_top_of_body_html }}}
+
+
+               
+                        {{#logocontext}}
+                        {{#incontainer}}
+                        <div class="logo-area r-mb-16">
+                                {{#logourl}}
+                                    <img src="{{ logourl }}" class="navbar-brand-logo logo">
+                                {{/logourl}}
+
+                                {{#logominiurl}}
+                                    <img src="{{ logominiurl }}" class="navbar-brand-logo logomini">
+                                {{/logominiurl}}
+
+                                {{#icononly}}
+                                    <span class="navbar-brand-logo icononly" style="color: {{color}};"><i class="fa fa-{{siteicon}}"></i></span>
+                                {{/icononly}}
+
+                                {{#iconwithsitename}}
+                                    <span class="navbar-brand-logo font-weight-bold iconsitename" style="color: {{color}};">
+                                        <i class="fa fa-{{siteicon}}"></i>&nbsp;
+                                        {{{ sitename }}}
+                                    </span>
+                                {{/iconwithsitename}}
+                        </div>
+                        {{/incontainer}}
+                        {{/logocontext}}
+                        {{{ output.main_content }}}
+                    {{#canshowdesc}}
+                    <div class="login-description-container">
+                        {{#logocontext}}
+                            {{^incontainer}}
+                            <div class="logo-area r-mb-4 bg-transparent">
+                                {{#logourl}}
+                                    <img src="{{ logourl }}" class="navbar-brand-logo logo">
+                                {{/logourl}}
+
+                                {{#logominiurl}}
+                                    <img src="{{ logominiurl }}" class="navbar-brand-logo logomini">
+                                {{/logominiurl}}
+
+                                {{#icononly}}
+                                    <span class="navbar-brand-logo icononly" style="color: {{color}};"><i class="fa fa-{{siteicon}}"></i></span>
+                                {{/icononly}}
+
+                                {{#iconwithsitename}}
+                                    <span class="navbar-brand-logo font-weight-bold iconsitename" style="color: {{color}};">
+                                        <i class="fa fa-{{siteicon}}"></i>&nbsp;
+                                        {{{ sitename }}}
+                                    </span>
+                                {{/iconwithsitename}}
+                            </div>
+                            {{/incontainer}}
+                        {{/logocontext}}
+                        {{#brandlogotext}}
+                        <div class="login-description" style="color: {{signuptextcolor}};">
+                            {{{brandlogotext}}}
+                        </div>
+                        {{/brandlogotext}}
+                    </div>
+                    {{/canshowdesc}}
+            </div>
+
+
+
+</body>
+</html>
+{{#js}}
+M.util.js_pending('theme_remui/loader');
+require(['theme_remui/loader'], function() {
+  M.util.js_complete('theme_remui/loader');
+});
+{{/js}}

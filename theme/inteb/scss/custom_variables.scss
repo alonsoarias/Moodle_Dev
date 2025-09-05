@@ -1,0 +1,58 @@
+$body-bg: #FFFFFF;
+$navbar-height: 80px;
+
+// Colores principales
+$my-rojo: #bf1724; // Color secundario principal
+$my-rojo-claro: #d91e41; // Color secundario atenuado
+$my-amarillo: #F9B214;
+
+$my-orange: #f98012;
+$my-oscuro: #003049;
+$my-gris: #e8e8e8;
+$my-gris2: #B8B9BE;
+$my-negro: #3D3D3D;
+$my-blue: #407bae; // Azul intermedio
+$my-blue2: #27548c; // Azul oscuro - Color primario
+$color-white:#FFFFFF;
+
+$font-family-sans-serif: 'Open Sans', sans-serif;
+$font-family-aux: 'Open Sans', sans-serif;
+
+$headings-font-family: "Open Sans", $font-family-sans-serif !default;
+
+// Asignación de colores primarios y secundarios
+$color-primary: $my-blue2; // #27548c
+$color-primary-dimmed: #f5f8ff;
+$color-primary-dark: $my-blue2; // #27548c
+
+$color-secondary: $my-rojo; // #bf1724
+$color-secondary-dimmed: $my-rojo-claro; // #d91e41
+$color-secondary-dark: #001b29; // Mantener o ajustar según necesidad
+
+$color-terciary: $my-amarillo; // #F9B214
+$color-terciary-dimmed: #fac34c;
+$color-terciary-dark: #efa506;
+
+$brand-primary: $my-blue2; // #27548c
+$navbar-header-color: $color-secondary; // #bf1724
+
+$color-blue: #06BEE1;
+
+$headings-color: $my-gris; // #e8e8e8
+
+$nav-drawer-color: $color-primary; // #27548c
+
+// Otros colores que no forman parte de la nueva paleta se mantienen
+$blue:    #2C8C99 ;
+$indigo:  #003049 ;
+$purple:  #2a3562 ;
+$pink:    #F5A6E6 ;
+$red:     #E41740 ;
+$orange:  #d9651a ;
+$yellow:  #EAAB00 ;
+$green:   #7AAA18 ;
+$teal:    #80DEEC ;
+$cyan:    #06BEE1 ;
+
+/* extra variables */
+$my-loginfooterheight: 80px;

@@ -1,0 +1,103 @@
+$font-family-sans-serif: 'Open Sans',sans-serif !default;
+$font-family-aux: 'Open Sans',sans-serif !default;
+
+$headings-font-family: 'Open Sans',sans-serif, $font-family-sans-serif !default;
+$headings-font-weight: 400 !default;
+
+$color-blue: #5AA9E6;
+$color-blue-dimmed: #7FC8F8;
+$color-blue-dark: #529AD1;
+$color-blue-secondary: #7FC8F8;
+$color-blue-secondary-dimmed: #9ed5fa;
+$color-blue-secondary-dark: #64bcf7;
+$color-blue-terciary: #3A6A92;
+$color-blue-terciary-dimmed: #4075A0;
+$color-blue-terciary-dark: #346083;
+$color-orange: #EF8354;
+$color-orange-dimmed: #f1926a;
+$color-orange-dark: #ee7744;
+$color-lightgray: #e8e8e8;
+$color-lightgray-dimmed: #ececec;
+$color-lightgray-dark: #d0d0d0;
+$color-yellow: #FFE45E;
+$color-yellow-dimmed: #FCEFAC;
+$color-yellow-dark: #ffda1f;
+$color-fuchsia: #FF6392;
+$color-fuchsia-dimmed: #ff85a9;
+$color-fuchsia-dark: #ff477e;
+$color-lime: #7aaa18;
+$color-lime-dimmed: #8dc41d;
+$color-lime-dark: #a5b90a;
+$color-aquamarine: #00B2A9;
+$color-aquamarine-dimmed: #00b2a9e8;
+$color-aquamarine-dark: #06a099;
+$color-purple: #6E2585;
+$color-purple-dimmed: #6e2585e0;
+$color-purple-dark: #5b1b6f;
+$color-white: #ffffff;
+$color-black: #1C110A;
+
+$color-primary: $color-blue !default;
+$color-primary-dimmed: $color-blue-dimmed !default;
+$color-primary-dark: $color-blue-dark !default;
+$color-secondary: $color-blue-secondary !default;
+$color-secondary-dimmed: $color-blue-secondary-dimmed !default; 
+$color-secondary-dark: $color-blue-secondary-dark !default; 
+$color-terciary: $color-blue-terciary !default;
+$color-terciary-dimmed: $color-blue-terciary-dimmed !default; 
+$color-terciary-dark: $color-blue-terciary-dark !default; 
+
+$headings-color: #455a64 !default;
+$nav-drawer-color: $color-primary !default;
+
+$blue:    $color-blue-terciary !default;
+$indigo:  #31335e !default;
+$purple:  #6E2585 !default;
+$pink:    #FF6392 !default;
+$red:     #a60202 !default;
+$orange:  #EF8354 !default;
+$yellow:  #FFE45E !default;
+$green:   #87e187 !default;
+$teal:    #7FC8F8 !default;
+$cyan:    #1d84f3 !default;
+
+$body-bg: #F9F9F9 !default;
+
+$card-border-radius: 0 !default;
+$card-border-color: $color-lightgray !default;
+
+$navbar-height: 80px !default;
+$navbar-bg: #688017 !default;
+$navbar-bg-hover: $cyan !default;
+$navbar-separator: $color-blue-terciary-dark !default;
+$light-links-color: $color-blue-terciary;
+$light-border-color: $body-bg;
+
+$calendarEventCategoryColor: #7aaa18 !default;
+$calendarEventCourseColor: #31335e !default;
+$calendarEventGlobalColor: $color-blue !default;
+$calendarEventGroupColor: #d9651a !default;
+$calendarEventUserColor: #1d84f3 !default;
+
+$m-login-padding: 10px;
+$m-login-boxheight: 350px;
+$m-card-padding: 1.25rem;
+$m-moodle-color: $color-orange !default;
+$m-facebook-color: $color-blue !default;
+$m-twitter-color: $color-blue-secondary !default;
+$m-youtube-color: $red !default;
+$m-googleplus-color: #d34836 !default;
+$m-linkedin-color: #007bb5 !default;
+$m-instagram-color: $color-purple !default;
+
+$carousel-control-color: #fff !default;
+$carousel-control-prev-icon-bg: "data:image/svg+xml;charset=utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'#fff\' viewBox=\'0 0 8 8\'%3E%3Cpath d=\'M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z\'/%3E%3C/svg%3E" !default;
+$carousel-control-next-icon-bg: "data:image/svg+xml;charset=utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'#fff\' viewBox=\'0 0 8 8\'%3E%3Cpath d=\'M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z\'/%3E%3C/svg%3E" !default;
+
+$block-region-side-pre-1: #D9651A !default;
+$block-region-side-pre-2: #7AAA18 !default;
+$block-region-side-pre-3: #00BCD4 !default;
+$block-region-side-pre-4: #0268FB !default;
+$block-region-side-pre-5: #31335E !default;
+$block-region-side-pre-6: $color-orange !default;
+$block-region-side-pre-7: #777!default;

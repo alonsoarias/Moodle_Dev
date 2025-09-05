@@ -1,0 +1,53 @@
+/* core.scss mixins default defination added by Edwiser */
+
+@mixin optional-animation($animation) {
+    animation: $animation;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+
+    body.behat-site & {
+        animation: none;
+    }
+}
+
+
+// Thin scrollbars.
+@mixin thin-scrolls($bg-track) {
+
+    // Firefox.
+    scrollbar-width: thin;
+    scrollbar-color: $thin-scroll-bg-thumb $bg-track;
+
+    // Chrome, Edge and Safari.
+    &::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $bg-track;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: $thin-scroll-bg-thumb;
+        border-radius: 20px;
+        border: 3px solid $bg-track;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: $thin-scroll-bg-hover;
+    }
+}
+
+// Add top/bottom shadow to scrolling area.
+@mixin scroll-shadow($background-colour: $white, $shadow-colour: $black, $shadow-size: 1rem) {
+    background:
+        linear-gradient($background-colour 30%, rgba($background-colour, 0)) center top,
+        linear-gradient(rgba($background-colour, 0), $background-colour 70%) center bottom,
+        radial-gradient(farthest-side at 50% 0, rgba($shadow-colour, 0.2), rgba($shadow-colour, 0)) center top,
+        radial-gradient(farthest-side at 50% 100%, rgba($shadow-colour, 0.2), rgba($shadow-colour, 0)) center bottom;
+    background-repeat: no-repeat;
+    background-size: 100% $shadow-size, 100% $shadow-size, 100% calc(#{$shadow-size} / 2), 100% calc(#{$shadow-size} / 2);
+    background-attachment: local, local, scroll, scroll;
+}

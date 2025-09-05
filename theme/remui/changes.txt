@@ -1,0 +1,141 @@
+Release
+=======
+
+Version 4.5.9
+===========
+Tweak - Further UI/UX improvements.
+Tweak - Minor changes in feedback collection flow.
+Tweak - Minor improvements in setup wizard.
+Tweak - Hide empty fields on profile page.
+Tweak - Renamed the "Settings" tab in profile settings to "More Details".
+Fix - Cancel icons not appearing on quiz question pages in Moodle 4.5.
+
+Version 4.5.8
+=============
+Tweak - Minor improvements in left sidebar.
+Tweak - Css support added for Edwiser video format plugin
+
+
+Version 4.5.7
+=============
+Tweak - Improved alert messaging on the settings page.
+
+Version 4.5.6
+=============
+Feature – Separate logo settings added for dark mode.
+Tweak– Improved Focus Mode: multiple control options added in Course Settings and Site Administration pages.
+Tweak– Design improvements to the "Hidden for students" badge.
+Tweak– Additional UI/UX enhancements.
+
+Version 4.5.5
+=============
+Feature – Accessibility widgets and its settings have been added. The following accessibility widgets are now available:
+            - Content adjustment widgets
+            - Color adjustment widgets
+            - Reading guide tool
+            - Stop animation tool
+            - Big cursor tool
+Tweak – Added a default sorting option in  course archive page filters .
+Tweak – Minor improvements in the setup wizard.
+Version 4.5.4
+=============
+Feature - WhatsApp and Telegram social media fields have been added to the footer settings.
+Tweak - UI improvements have been made on the Login page and Course page.
+Tweak - Subsections have been integrated into Focus mode, along with other UI enhancements.
+
+Version 4.5.3
+=============
+Tweak - New tab added for the Site Sync plugin.
+
+Version 4.5.2
+=============
+Tweak - Excluded the Night mode icon and edit mode toggle switch customization from the visual personalizer color settings.
+Tweak - Minor UI/UX improvements.
+Fix -  Resolved the issue with the AI summary not working.
+Fix -  Course instructors list is now visible on the enrollment page.
+
+Version 4.5.1
+=============
+Feature - A setup wizard has been added to configure new sites. It will configure Edwiser plugins and other necessary settings according to your license bundle.
+Feature - A feedback form has been added to collect user feedback on their experience with Edwiser.
+Fix - Exception - Cannot access offset of type string on string on Edwiser RemUI settings page.
+Version 4.5.0
+=============
+Feature - Compatibility with Moodle 4.5.
+Tweak   - Further UI/UX improvements done
+Version 4.4.6
+==============
+Tweak - Edwiser RemUI theme versions 4.2 and above have now been merged into a single version.
+Tweak - Minor UI/UX improvements.
+Fix   - Deprecated warnings in PHP 8.2 and 8.3 have been resolved.
+Fix   - Added multi-language support on the profile page for departments.
+Fix   - Weekly format issue where clicking on any week doesn’t redirect to that week's activities resolved.
+Version 4.4.5
+==============
+Feature - Added course filters to the archive page, including four types of filters:
+        - Price
+        - Ratings
+        - Level
+        - Language
+Feature - Extended the sorting filters by adding two additional options:
+        - Date
+        - Ratings
+Feature - Added a dropdown to select the number of courses displayed per row on the course archive page in grid view.
+Feature - The level tag has been added to course cards on both the course archive and enrollment pages.
+Tweak - Repositioned the existing filter menus.
+
+Version 4.4.4
+==============
+Feature - Added a custom pricing field for third-party payment gateways on the enrollment page.
+Feature - Added a setting to enable or disable the site loader.
+Tweak - UI/UX Improvements:
+        - Resolved the margin issue on help icons.
+        - Removed extra space from the homepage when the site announcement is enabled.
+        - Removed extra space at the bottom of the homepage when a layout is added and everything is hidden.
+        - Hide the visual personalizer button in the quick menu on mobile view.
+        - Resolved the right drawer close button position issue.
+        - Other minor UI/UX improvements.
+Tweak   - SCSS improvement and optimization.
+Tweak - Added Multilanguage support to the header in focus mode.
+Tweak - Improved course stats and dashboard stats.
+Tweak - Code improvements on the course archive page and course fetching logic.
+Tweak - Removed deprecation warnings and information previously added for the remuihomepage plugin.
+Tweak - The default site loader image has been changed.
+Fix   - Resolved the issue where the transparent header was not working.
+Fix   - Resolved the issue where link color customizer settings were not working in preview mode.
+
+
+Version 4.4.3
+==============
+Feature - Added language translation files for:
+        - Arabic(ar)
+        - Spanish (Mexico)(es_mx)
+Feature - Teachers of the same group are visible in the course header when the separate group setting is selected
+Tweak   - The message typing area in the chat has been increased.
+Tweak   - 'View enrollment' CTA added on participants and settings tabs on the course page.
+Tweak   - On the login page, the site description will now be visible on mobile devices as well.
+Tweak   - Added missing translated strings in lang files.
+Tweak   - Minor UI/UX improvements.
+Fix     - Users with the capability 'viewhiddencategories' can now see hidden categories in the Category Dropdown.
+Fix     - Multilang filters will now work in RemUI custom fields.
+Fix     - Keyboard accessibility added to radio buttons and checkboxes.
+
+Version 4.4.2
+==============
+Tweak - UI/UX Improvements on
+        - Grade pages
+        - Report pages
+        - Participants page
+        - Enroll methods page
+
+Version 4.4.1
+==============
+Tweak - UI/UX Improvement in add a block modal UI.
+Tweak - Minor UI/UX improvements.
+Fix   - Error on customizer reset issue resolved.
+
+Version 4.4.0
+=============
+Feature - Compatibility with Moodle 4.4.
+Tweak   - Further UI/UX improvements done
+
