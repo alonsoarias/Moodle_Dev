@@ -49,8 +49,6 @@ class hook_callbacks {
         if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
             return;
         }
-
-        // Ensure default filter is used so only "no submission" rows are removed.
         if (get_config('local_assign_no_submission_filter', 'autoapply')) {
             set_user_preference('assign_filter', ASSIGN_FILTER_NONE, $USER);
         }
