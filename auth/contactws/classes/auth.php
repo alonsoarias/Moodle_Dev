@@ -156,9 +156,36 @@ class auth extends \auth_plugin_base
                 debugging('[auth_contactws][auth] Autenticación exitosa, guardando datos en caché', DEBUG_DEVELOPER);
                 $this->set_static_user_info($userdata);
 
-                // Actualizar datos del usuario si ya existe
+                // NUEVA LÓGICA: Verificar si el usuario está suspendido pero pendiente de activación
                 $user = $DB->get_record('user', ['username' => $username, 'deleted' => 0]);
                 if ($user) {
+                    if ($user->suspended) {
+                        // Verificar si tiene la marca de activación pendiente
+                        $pending_activation = get_user_preferences('auth_contactws_pending_activation', 0, $user->id);
+                        if ($pending_activation) {
+                            // Activar el usuario ya que se autenticó exitosamente y está activo en SARH
+                            debugging('[auth_contactws][auth] Usuario suspendido con activación pendiente, reactivando...', DEBUG_DEVELOPER);
+                            
+                            $updateuser = new stdClass();
+                            $updateuser->id = $user->id;
+                            $updateuser->suspended = 0;
+                            $updateuser->timemodified = time();
+                            
+                            require_once($GLOBALS['CFG']->dirroot . '/user/lib.php');
+                            user_update_user($updateuser, false);
+                            
+                            // Limpiar la preferencia de activación pendiente
+                            unset_user_preference('auth_contactws_pending_activation', $user->id);
+                            
+                            debugging('[auth_contactws][auth] Usuario reactivado exitosamente durante login: ' . $username, DEBUG_DEVELOPER);
+                        } else {
+                            // Usuario suspendido sin marca de activación pendiente - no permitir login
+                            debugging('[auth_contactws][auth] Usuario suspendido sin activación pendiente, denegando acceso', DEBUG_DEVELOPER);
+                            return false;
+                        }
+                    }
+                    
+                    // Actualizar datos del usuario existente
                     debugging('[auth_contactws][auth] Usuario existente, actualizando datos', DEBUG_DEVELOPER);
                     $this->update_existing_user($user, $userdata);
                 }
@@ -362,6 +389,24 @@ class auth extends \auth_plugin_base
             }
         } else {
             debugging('[auth_contactws][auth] Usuario existe, actualizando información', DEBUG_DEVELOPER);
+
+            // NUEVA LÓGICA: Verificar si el usuario está suspendido
+            if ($user->suspended) {
+                // Verificar si tiene activación pendiente
+                $pending_activation = get_user_preferences('auth_contactws_pending_activation', 0, $user->id);
+                if ($pending_activation) {
+                    // Reactivar usuario
+                    $user->suspended = 0;
+                    $DB->update_record('user', $user);
+                    
+                    // Limpiar preferencia
+                    unset_user_preference('auth_contactws_pending_activation', $user->id);
+                    
+                    debugging('[auth_contactws][auth] Usuario reactivado durante complete_login', DEBUG_DEVELOPER);
+                } else {
+                    throw new moodle_exception('suspended', 'auth_contactws');
+                }
+            }
 
             // Actualizar campos estándar
             $updateuser = new stdClass();

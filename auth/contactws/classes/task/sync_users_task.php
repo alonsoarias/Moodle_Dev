@@ -61,7 +61,7 @@ class sync_users_task extends scheduled_task {
         // Get the auth plugin instance
         $authplugin = new auth();
         
-        // Get active users from API
+        // Get active users from API PRIMERO (necesario para la migración)
         $token = $this->get_api_token($config);
         if (!$token) {
             mtrace('Failed to get API token. Skipping task.');
@@ -74,14 +74,120 @@ class sync_users_task extends scheduled_task {
             return;
         }
         
-        // Process users
-        $this->process_users($apiusers);
+        // NUEVA FUNCIONALIDAD: Migrar usuarios que están en SARH a auth_contactws
+        $this->migrate_sarh_users_to_contactws($apiusers);
+        
+        // Process users con nueva lógica
+        $this->process_users_with_new_logic($apiusers);
         
         // Calcular el tiempo de ejecución
         $executionTime = microtime(true) - $startTime;
         set_config('sync_execution_time', $executionTime, 'auth_contactws');
         
         mtrace('SARH user synchronization completed in ' . round($executionTime, 2) . ' seconds.');
+    }
+    
+    /**
+     * NUEVA FUNCIÓN: Migrar usuarios que están en SARH a auth_contactws
+     * Solo migra usuarios que existen tanto en Moodle como en SARH
+     * 
+     * @param array $apiusers Lista de usuarios desde SARH API
+     */
+    private function migrate_sarh_users_to_contactws($apiusers) {
+        global $DB;
+        
+        mtrace('Starting migration of SARH users to auth_contactws...');
+        
+        // Crear un mapa de documentos de SARH para búsqueda rápida
+        $sarh_documents = [];
+        foreach ($apiusers as $apiuser) {
+            $docnumber = $apiuser['NumeroDocumento'];
+            if (!empty($docnumber)) {
+                $sarh_documents[$docnumber] = [
+                    'Estado' => $apiuser['Estado'],
+                    'NEstado' => $apiuser['NEstado'] ?? '',
+                    'Usuario' => $apiuser['Usuario'] ?? ''
+                ];
+            }
+        }
+        
+        if (empty($sarh_documents)) {
+            mtrace('No valid document numbers found in SARH API response.');
+            return;
+        }
+        
+        mtrace('Found ' . count($sarh_documents) . ' users in SARH API.');
+        
+        // Obtener usuarios de Moodle que:
+        // 1. NO están en auth_contactws
+        // 2. Tienen un idnumber (documento)
+        // 3. Están activos (no suspendidos ni eliminados)
+        // 4. No son usuarios del sistema (guest, admin)
+        $sql = "SELECT id, username, auth, idnumber, email, firstname, lastname
+                FROM {user} 
+                WHERE deleted = 0 
+                AND suspended = 0 
+                AND auth != 'contactws' 
+                AND auth != 'nologin'
+                AND idnumber IS NOT NULL
+                AND idnumber != ''
+                AND id > 2"; // Excluir guest (id=1) y admin (id=2)
+        
+        $moodle_users = $DB->get_records_sql($sql);
+        
+        if (empty($moodle_users)) {
+            mtrace('No eligible users found in Moodle for migration.');
+            return;
+        }
+        
+        $migrated_count = 0;
+        $skipped_count = 0;
+        $failed_count = 0;
+        
+        foreach ($moodle_users as $user) {
+            try {
+                // Verificar si el usuario existe en SARH
+                if (!isset($sarh_documents[$user->idnumber])) {
+                    mtrace("User {$user->username} (ID: {$user->id}, Doc: {$user->idnumber}) not found in SARH, skipping migration.");
+                    $skipped_count++;
+                    continue;
+                }
+                
+                // El usuario existe en SARH, proceder con la migración
+                $sarh_info = $sarh_documents[$user->idnumber];
+                mtrace("User {$user->username} found in SARH with status: {$sarh_info['NEstado']} ({$sarh_info['Estado']})");
+                
+                // Actualizar el método de autenticación a contactws
+                $updateuser = new \stdClass();
+                $updateuser->id = $user->id;
+                $updateuser->auth = 'contactws';
+                $updateuser->timemodified = time();
+                
+                if ($DB->update_record('user', $updateuser)) {
+                    mtrace("✓ Migrated user {$user->username} (ID: {$user->id}) from '{$user->auth}' to 'contactws'");
+                    $migrated_count++;
+                } else {
+                    mtrace("✗ Failed to migrate user {$user->username} (ID: {$user->id})");
+                    $failed_count++;
+                }
+                
+            } catch (\Exception $e) {
+                mtrace("✗ Error migrating user {$user->username}: " . $e->getMessage());
+                $failed_count++;
+            }
+        }
+        
+        mtrace("=====================================");
+        mtrace("Migration Summary:");
+        mtrace("  - Users migrated: {$migrated_count}");
+        mtrace("  - Users skipped (not in SARH): {$skipped_count}");
+        mtrace("  - Failed migrations: {$failed_count}");
+        mtrace("=====================================");
+        
+        // Guardar estadísticas de migración
+        set_config('last_migration_count', $migrated_count, 'auth_contactws');
+        set_config('last_migration_skipped', $skipped_count, 'auth_contactws');
+        set_config('last_migration_time', time(), 'auth_contactws');
     }
     
     /**
@@ -191,15 +297,17 @@ class sync_users_task extends scheduled_task {
     }
     
     /**
-     * Process users from the API response.
+     * FUNCIÓN MODIFICADA: Process users from the API response con nueva lógica.
+     * NO reactiva usuarios suspendidos automáticamente
+     * Solo procesa usuarios que tienen auth='contactws'
      *
      * @param array $apiusers List of users from API
      */
-    private function process_users($apiusers) {
+    private function process_users_with_new_logic($apiusers) {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/user/lib.php');
         
-        mtrace('Processing ' . count($apiusers) . ' users...');
+        mtrace('Processing ' . count($apiusers) . ' users with new logic...');
         
         // Define which estados are considered "active"
         $activestatuses = [1, 3, 5];
@@ -220,9 +328,9 @@ class sync_users_task extends scheduled_task {
         $totalMissingUsers = 0;
         $totalProcessedUsers = 0;
         $startTime = microtime(true);
-        $maxProcessingTime = 240; // 4 minutos (ajustar según necesidad)
+        $maxProcessingTime = 240; // 4 minutos
         
-        // Optimización: Procesar API en un solo bucle, sin consultas redundantes
+        // Procesar usuarios de la API
         foreach ($apiusers as $apiuser) {
             // Si llevamos más del tiempo máximo, parar el procesamiento
             if ((microtime(true) - $startTime) > $maxProcessingTime) {
@@ -251,20 +359,29 @@ class sync_users_task extends scheduled_task {
                 $activedocuments[$docnumber] = $status;
             }
             
-            // Check if user exists in Moodle - optimizado para una sola consulta
-            if ($shouldbeactive && !$DB->record_exists('user', ['idnumber' => $docnumber, 'deleted' => 0])) {
-                $missingusers[] = [
-                    'docnumber' => $docnumber,
-                    'status' => $status,
-                    'statusname' => $statusName
-                ];
-                $totalMissingUsers++;
+            // Check if user exists in Moodle with auth='contactws'
+            if ($shouldbeactive) {
+                $sql = "SELECT id FROM {user} 
+                        WHERE idnumber = :idnumber 
+                        AND deleted = 0 
+                        AND auth = 'contactws'";
                 
-                // Update missing count by status
-                if (isset($statusStats[$status])) {
-                    $statusStats[$status]['missing']++;
-                } else {
-                    $statusStats['other']['missing']++;
+                if (!$DB->record_exists_sql($sql, ['idnumber' => $docnumber])) {
+                    // Solo contar como faltante si el usuario no existe CON auth='contactws'
+                    // Podría existir con otro método de auth pero eso no es relevante aquí
+                    $missingusers[] = [
+                        'docnumber' => $docnumber,
+                        'status' => $status,
+                        'statusname' => $statusName
+                    ];
+                    $totalMissingUsers++;
+                    
+                    // Update missing count by status
+                    if (isset($statusStats[$status])) {
+                        $statusStats[$status]['missing']++;
+                    } else {
+                        $statusStats['other']['missing']++;
+                    }
                 }
             }
         }
@@ -279,7 +396,7 @@ class sync_users_task extends scheduled_task {
         }
         
         mtrace(count($activedocuments) . ' users should be active based on API data.');
-        mtrace($totalMissingUsers . ' active users from API are missing in Moodle.');
+        mtrace($totalMissingUsers . ' active users from API are missing in Moodle with auth=contactws.');
         
         // Store missing users for notification
         set_config('missing_users', json_encode($missingusers), 'auth_contactws');
@@ -291,7 +408,7 @@ class sync_users_task extends scheduled_task {
         set_config('total_unprocessed_users', $totalUnprocessedUsers, 'auth_contactws');
         set_config('total_processed_users', $totalProcessedUsers, 'auth_contactws');
         
-        // Optimización: Obtener usuarios y datos de actividad en una sola consulta
+        // IMPORTANTE: Solo procesar usuarios con auth='contactws'
         $sql = "SELECT id, idnumber, username, suspended, timecreated, lastaccess, lastlogin, auth
                 FROM {user} 
                 WHERE auth = 'contactws' AND deleted = 0";
@@ -305,7 +422,7 @@ class sync_users_task extends scheduled_task {
             $usersbyidnumber = [];
             $duplicateIdnumbers = [];
             
-            // Optimización: Mapear usuarios por idnumber en un solo paso
+            // Mapear usuarios por idnumber
             foreach ($moodleusers as $user) {
                 if (!empty($user->idnumber)) {
                     if (!isset($usersbyidnumber[$user->idnumber])) {
@@ -322,9 +439,9 @@ class sync_users_task extends scheduled_task {
             
             mtrace("Found " . count($duplicateIdnumbers) . " duplicate idnumbers.");
             
-            // Usuarios para suspender y reactivar
+            // Usuarios para suspender (NO reactivar automáticamente)
             $userstosuspend = [];
-            $userstounsuspend = [];
+            $users_pending_activation = []; // Usuarios pendientes de activación
             
             // Procesar primero todos los duplicados
             foreach ($duplicateIdnumbers as $docnumber) {
@@ -360,12 +477,17 @@ class sync_users_task extends scheduled_task {
                     // Procesar cada usuario duplicado
                     foreach ($users as $user) {
                         if ($user->id === $mostActiveUser->id) {
-                            // Asegurar que el usuario más activo esté activo
+                            // NO reactivar automáticamente usuarios suspendidos
                             if ($user->suspended) {
-                                $userstounsuspend[$user->id] = $user;
+                                // Marcar como pendiente de activación pero NO activar
+                                $users_pending_activation[$user->id] = $user;
+                                mtrace("User {$user->username} is suspended but active in API - marked for manual activation only");
+                                
+                                // Guardar estado para activación posterior durante login
+                                set_user_preference('auth_contactws_pending_activation', 1, $user->id);
                             }
                         } else {
-                            // Suspender a todos los demás
+                            // Suspender a todos los demás duplicados
                             if (!$user->suspended) {
                                 $userstosuspend[$user->id] = $user;
                             }
@@ -383,8 +505,8 @@ class sync_users_task extends scheduled_task {
             
             // Procesar usuarios no duplicados
             foreach ($moodleusers as $user) {
-                // Saltar usuarios ya marcados para suspensión o reactivación
-                if (isset($userstosuspend[$user->id]) || isset($userstounsuspend[$user->id])) {
+                // Saltar usuarios ya marcados
+                if (isset($userstosuspend[$user->id]) || isset($users_pending_activation[$user->id])) {
                     continue;
                 }
                 
@@ -393,15 +515,21 @@ class sync_users_task extends scheduled_task {
                     continue;
                 }
                 
-                // Verificar si debe estar activo
+                // Verificar si debe estar activo según SARH
                 $shouldbeactive = !empty($user->idnumber) && isset($activedocuments[$user->idnumber]);
                 
                 if (!$shouldbeactive && !$user->suspended) {
-                    // Debe ser suspendido
+                    // Usuario no está en SARH o no está activo - debe ser suspendido
                     $userstosuspend[$user->id] = $user;
+                    mtrace("User {$user->username} not active in SARH - marking for suspension");
                 } else if ($shouldbeactive && $user->suspended) {
-                    // Debe ser reactivado
-                    $userstounsuspend[$user->id] = $user;
+                    // Usuario está activo en SARH pero suspendido en Moodle
+                    // NO reactivar automáticamente - solo marcar para activación manual
+                    $users_pending_activation[$user->id] = $user;
+                    mtrace("User {$user->username} is suspended but active in API - marked for manual activation only");
+                    
+                    // Guardar estado para activación posterior durante login
+                    set_user_preference('auth_contactws_pending_activation', 1, $user->id);
                 }
             }
             
@@ -410,9 +538,11 @@ class sync_users_task extends scheduled_task {
             mtrace(count($userstosuspend) . ' users to suspend.');
             $this->update_users_batch($userstosuspend, 1);
             
-            // Reactivar usuarios
-            mtrace(count($userstounsuspend) . ' users to unsuspend.');
-            $this->update_users_batch($userstounsuspend, 0);
+            // NO reactivamos usuarios automáticamente
+            mtrace(count($users_pending_activation) . ' users marked for manual activation (will activate on next login).');
+            
+            // Guardar estadística de usuarios pendientes de activación
+            set_config('pending_activation_count', count($users_pending_activation), 'auth_contactws');
             
         } else {
             mtrace('Skipped Moodle user processing due to time constraints.');
