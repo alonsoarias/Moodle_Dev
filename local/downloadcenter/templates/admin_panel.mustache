@@ -1,0 +1,78 @@
+{{!
+    Admin panel template for download center.
+
+    @package    local_downloadcenter
+    @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="downloadcenter-admin-panel card mt-3">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+            {{#str}}selectedcourses, local_downloadcenter{{/str}}: {{coursecount}}
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="selected-courses mb-3">
+            {{#courses}}
+            <div class="selected-course mb-2 p-2 border rounded">
+                <span class="badge badge-secondary mr-2">{{shortname}}</span>
+                <span class="font-weight-bold">{{fullname}}</span>
+                {{#categoryname}}
+                    <span class="text-muted ml-2">({{categoryname}})</span>
+                {{/categoryname}}
+                {{^visible}}
+                    <span class="badge badge-warning ml-2">{{#str}}hidden{{/str}}</span>
+                {{/visible}}
+            </div>
+            {{/courses}}
+        </div>
+        
+        <div id="downloadoptions" class="download-options border rounded p-3 mb-3">
+            <h5>{{#str}}downloadoptions, local_downloadcenter{{/str}}</h5>
+            
+            <div class="form-check">
+                <input class="form-check-input" 
+                       type="checkbox" 
+                       id="option-excludestudent" 
+                       {{#options.excludestudent}}checked{{/options.excludestudent}}>
+                <label class="form-check-label" for="option-excludestudent">
+                    {{#str}}excludestudentcontent, local_downloadcenter{{/str}}
+                    {{#help}}excludestudentcontent, local_downloadcenter{{/help}}
+                </label>
+            </div>
+            
+            <div class="form-check">
+                <input class="form-check-input" 
+                       type="checkbox" 
+                       id="option-filesrealnames" 
+                       {{#options.filesrealnames}}checked{{/options.filesrealnames}}>
+                <label class="form-check-label" for="option-filesrealnames">
+                    {{#str}}downloadoptions:filesrealnames, local_downloadcenter{{/str}}
+                </label>
+            </div>
+            
+            <div class="form-check">
+                <input class="form-check-input" 
+                       type="checkbox" 
+                       id="option-addnumbering" 
+                       {{#options.addnumbering}}checked{{/options.addnumbering}}>
+                <label class="form-check-label" for="option-addnumbering">
+                    {{#str}}downloadoptions:addnumbering, local_downloadcenter{{/str}}
+                </label>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{{{downloadurl}}}" 
+               class="btn btn-success btn-lg">
+                {{#pix}}i/download, core{{/pix}}
+                {{#str}}downloadselection, local_downloadcenter{{/str}}
+            </a>
+            <a href="{{{clearurl}}}" 
+               class="btn btn-danger">
+                {{#pix}}i/delete, core{{/pix}}
+                {{#str}}clearselection, local_downloadcenter{{/str}}
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Search box template for download center.
+
+    @package    local_downloadcenter
+    @copyright  2025 Original: Academic Moodle Cooperation
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="downloadcenter-search mb-3">
+    <div class="input-group">
+        <input type="text" 
+               id="downloadcenter-search-input" 
+               class="form-control" 
+               placeholder="{{#str}}search:hint, local_downloadcenter{{/str}}" 
+               aria-label="{{#str}}search:hint, local_downloadcenter{{/str}}">
+        <a href="#" 
+           class="btn border-0 d-none" 
+           id="downloadcenter-search-clear">
+            {{#pix}}i/window_close, core{{/pix}}
+        </a>
+        <div class="input-group-append">
+            <span class="input-group-text">{{#pix}}i/search, core{{/pix}}</span>
+        </div>
+    </div>
+    <div class="d-none ml-1 mt-2" id="downloadcenter-search-results">
+        <strong>{{#str}}search:results, local_downloadcenter{{/str}}: 
+            <span id="downloadcenter-search-results-count"></span>
+        </strong>
+    </div>
+</div>
