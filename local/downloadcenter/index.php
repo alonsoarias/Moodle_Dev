@@ -156,12 +156,26 @@ if ($mode === 'admin' && $isadmin) {
         'filesrealnames' => optional_param('filesrealnames', $defaultoptions['filesrealnames'], PARAM_BOOL),
         'addnumbering' => optional_param('addnumbering', $defaultoptions['addnumbering'], PARAM_BOOL),
     ];
-
-    $coursedata = optional_param_array('coursedata', null, PARAM_RAW);
-    if ($coursedata === null && isset($_POST['coursedata'])) {
-        $coursedata = $_POST['coursedata'];
+    try {
+        $coursedata = optional_param_array('coursedata', null, PARAM_RAW);
+    } catch (\coding_exception $exception) {
+        if (strpos($exception->getMessage(), 'clean() can not process arrays') === false) {
+            throw $exception;
+        }
+        $coursedata = null;
     }
-    if (!is_array($coursedata)) {
+
+    if ($coursedata === null) {
+        if (isset($_POST['coursedata'])) {
+            $coursedata = $_POST['coursedata'];
+        } else if (isset($_GET['coursedata'])) {
+            $coursedata = $_GET['coursedata'];
+        }
+    }
+
+    if (is_array($coursedata)) {
+        $coursedata = clean_param_array($coursedata, PARAM_RAW, true);
+    } else {
         $coursedata = [];
     }
 
