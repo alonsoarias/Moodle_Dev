@@ -32,76 +32,76 @@ defined('MOODLE_INTERNAL') || die();
 class admin_manager {
     
     /**
-     * Download multiple courses as single ZIP.
+     * Download multiple courses with individually selected resources.
      *
-     * @param array $courseids Array of course IDs
+     * @param array $courseselections Array keyed by course ID containing selected resource keys
      * @param array $options Download options
+     * @param bool $allowrestricted Allow processing courses even when the user cannot access them directly
      * @return void Outputs ZIP and exits
      */
-    public function download_multiple_courses($courseids, $options = []) {
+    public function download_multiple_courses(array $courseselections, array $options = [],
+            bool $allowrestricted = false) {
         global $USER, $DB, $CFG;
-        
+
         require_once($CFG->libdir . '/filelib.php');
-        
-        // Set default options.
+        require_capability('local/downloadcenter:downloadmultiple', \context_system::instance());
+
         $options = array_merge([
             'excludestudent' => false,
             'filesrealnames' => false,
-            'addnumbering' => false
+            'addnumbering' => false,
         ], $options);
-        
-        // Validate and get courses.
+
         $courses = [];
-        foreach ($courseids as $courseid) {
+        foreach ($courseselections as $courseid => $selection) {
+            $courseid = clean_param($courseid, PARAM_INT);
+            if (empty($courseid) || empty($selection)) {
+                continue;
+            }
+
             $course = $DB->get_record('course', ['id' => $courseid]);
-            if ($course && can_access_course($course)) {
-                $courses[] = $course;
+            if ($course && ($allowrestricted || can_access_course($course))) {
+                $courses[$courseid] = $course;
             }
         }
-        
+
         if (empty($courses)) {
             throw new \moodle_exception('nocourseaccess', 'local_downloadcenter');
         }
-        
-        // Set limits.
+
         $memorylimit = get_config('local_downloadcenter', 'memorylimit') ?: '512M';
         $timelimit = get_config('local_downloadcenter', 'timelimit') ?: 300;
-        
+
         raise_memory_limit($memorylimit);
-        core_php_time_limit::raise($timelimit);
-        
-        // Create filename.
-        $filename = sprintf('courses_%d_%s.zip', 
-            count($courses), 
+        \core_php_time_limit::raise($timelimit);
+
+        $filename = sprintf('courses_%d_%s.zip',
+            count($courses),
             userdate(time(), '%Y%m%d_%H%M')
         );
-        
-        // Close session for performance.
+
         \core\session\manager::write_close();
-        
+
         try {
-            // Create ZIP writer.
             $zipwriter = \core_files\archive_writer::get_stream_writer(
-                $filename, 
+                $filename,
                 \core_files\archive_writer::ZIP_WRITER
             );
-            
-            // Add each course to ZIP.
-            foreach ($courses as $course) {
-                $this->add_course_to_zip($course, $zipwriter, $options);
-                
-                // Log event.
+
+            foreach ($courses as $courseid => $course) {
+                $selection = $courseselections[$courseid];
+                $this->add_course_to_zip($course, $selection, $zipwriter, $options, $allowrestricted);
+
                 $event = \local_downloadcenter\event\zip_downloaded::create([
                     'objectid' => $course->id,
                     'context' => \context_course::instance($course->id),
                 ]);
                 $event->trigger();
             }
-            
-            // Finish and output ZIP.
+
             $zipwriter->finish();
             exit;
-            
+
         } catch (\Exception $e) {
             debugging('Error creating multi-course zip: ' . $e->getMessage(), DEBUG_DEVELOPER);
             throw new \moodle_exception('zipfailed', 'local_downloadcenter');
@@ -109,52 +109,60 @@ class admin_manager {
     }
     
     /**
-     * Add a single course to ZIP archive.
+     * Add a single course selection to the archive.
      *
      * @param \stdClass $course Course object
+     * @param array $selection Selected resource keys for this course
      * @param \core_files\archive_writer $zipwriter ZIP writer instance
      * @param array $options Download options
+     * @param bool $allowrestricted Allow processing courses even when the user cannot access them directly
      * @return void
      */
-    protected function add_course_to_zip($course, $zipwriter, $options) {
+    protected function add_course_to_zip($course, array $selection, $zipwriter, array $options,
+            bool $allowrestricted = false) {
         global $USER;
-        
-        // Create factory for this course.
-        $factory = new \local_downloadcenter\factory($course, $USER);
-        
-        // Set download options.
-        $factory->set_download_options($options);
-        
-        // Get all resources.
-        $resources = $factory->get_resources_for_user();
-        
-        // Create selection for all resources.
-        $selection = [];
-        foreach ($resources as $sectionid => $section) {
-            $selection['item_topic_' . $sectionid] = 1;
-            foreach ($section->res as $res) {
-                // Skip student content if option is set.
-                if ($options['excludestudent'] && $this->is_student_content($res)) {
-                    continue;
-                }
-                $selection['item_' . $res->modname . '_' . $res->instanceid] = 1;
-            }
+
+        if (!$allowrestricted && !can_access_course($course)) {
+            return;
         }
-        
-        // Parse selection.
-        $factory->parse_form_data((object)$selection);
-        
-        // Build file list with course prefix.
-        $courseprefix = $this->clean_filename($course->shortname) . '/';
+
+        $fullcourseselected = !empty($selection['__fullcourse']);
+        if ($fullcourseselected) {
+            unset($selection['__fullcourse']);
+        }
+
+        if (empty($selection) && !$fullcourseselected) {
+            return;
+        }
+
+        $factory = new \local_downloadcenter\factory($course, $USER);
+        $factory->set_download_options($options);
+
+        if ($fullcourseselected && empty($selection)) {
+            $selection = $this->build_full_course_selection($factory);
+        }
+
+        if (empty($selection)) {
+            return;
+        }
+
+        try {
+            $factory->parse_form_data((object)$selection);
+        } catch (\moodle_exception $exception) {
+            debugging('Skipping course ' . $course->id . ' due to form parsing error: ' . $exception->getMessage(),
+                DEBUG_DEVELOPER);
+            return;
+        }
+        $factory->set_download_options($options);
+
+        $courseprefix = $this->build_course_prefix($course);
         $filelist = $factory->build_filelist($courseprefix);
-        
-        // Add files to ZIP.
+
         foreach ($filelist as $path => $file) {
             if ($file === null) {
-                // Directory placeholder.
                 continue;
             }
-            
+
             if ($file instanceof \stored_file) {
                 $zipwriter->add_file_from_stored_file($path, $file);
             } else if (is_array($file)) {
@@ -165,26 +173,90 @@ class admin_manager {
             }
         }
     }
-    
+
     /**
-     * Check if resource contains student content.
+     * Build a full selection for the given course.
      *
-     * @param \stdClass $res Resource object
-     * @return bool True if student content
+     * @param \local_downloadcenter\factory $factory Course factory instance
+     * @return array Selection including every available resource
      */
-    protected function is_student_content($res) {
-        // These modules typically contain student submissions.
-        $studentmodules = ['assign', 'forum', 'workshop', 'data', 'wiki', 'publication'];
-        
-        // For assignments, we still want to include the description.
-        if ($res->modname === 'assign') {
-            // We'll handle this specially in the factory to only exclude submissions.
-            return false;
+    protected function build_full_course_selection(\local_downloadcenter\factory $factory) {
+        $selection = [];
+        try {
+            $resources = $factory->get_resources_for_user();
+        } catch (\moodle_exception $exception) {
+            debugging('Unable to build full course selection: ' . $exception->getMessage(), DEBUG_DEVELOPER);
+            return $selection;
         }
-        
-        return in_array($res->modname, $studentmodules);
+
+        foreach ($resources as $sectionid => $section) {
+            $selection['item_topic_' . $sectionid] = 1;
+            foreach ($section->res as $res) {
+                $selection['item_' . $res->modname . '_' . $res->instanceid] = 1;
+            }
+        }
+
+        return $selection;
     }
-    
+
+    /**
+     * Build the archive path for the course including its category hierarchy.
+     *
+     * @param \stdClass $course Course record
+     * @return string Directory prefix for the course content
+     */
+    protected function build_course_prefix($course) {
+        $parts = [];
+
+        if (!empty($course->category)) {
+            try {
+                $category = \core_course_category::get($course->category, IGNORE_MISSING, true);
+            } catch (\moodle_exception $e) {
+                $category = null;
+            }
+
+            if ($category) {
+                $categoryids = $category->get_parents();
+                $categoryids[] = $category->id;
+
+                foreach ($categoryids as $catid) {
+                    if (empty($catid)) {
+                        continue;
+                    }
+                    try {
+                        $cat = \core_course_category::get($catid, IGNORE_MISSING, true);
+                    } catch (\moodle_exception $e) {
+                        $cat = null;
+                    }
+                    if (!$cat) {
+                        continue;
+                    }
+
+                    $catcontext = \context_coursecat::instance($catid);
+                    $catname = \format_string($cat->name, true, ['context' => $catcontext]);
+                    $sanitised = $this->clean_filename($catname);
+                    if ($sanitised === '') {
+                        $sanitised = 'category_' . $catid;
+                    }
+                    $parts[] = $sanitised;
+                }
+            }
+        }
+
+        $coursecontext = \context_course::instance($course->id);
+        $coursename = $course->shortname ?: $course->fullname;
+        $coursename = $coursename !== '' ? $coursename : 'course_' . $course->id;
+        $formatted = \format_string($coursename, true, ['context' => $coursecontext]);
+        $coursecomponent = $this->clean_filename($formatted);
+        if ($coursecomponent === '') {
+            $coursecomponent = 'course_' . $course->id;
+        }
+
+        $parts[] = $coursecomponent;
+
+        return implode('/', $parts) . '/';
+    }
+
     /**
      * Clean filename for use in ZIP.
      *
