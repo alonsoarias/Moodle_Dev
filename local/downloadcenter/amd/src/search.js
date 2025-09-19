@@ -20,7 +20,8 @@
  * @copyright  2025 Original: Academic Moodle Cooperation
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+define([], function() {
+    'use strict';
 
     const IDENTIFIERS = {
         SEARCHINPUT: 'downloadcenter-search-input',

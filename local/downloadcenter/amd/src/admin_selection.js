@@ -20,8 +20,9 @@
  * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/ajax', 'core/notification', 'core/str'], 
-    function($, Ajax, Notification, Str) {
+define(['core/ajax', 'core/notification', 'core/str'], 
+    function(Ajax, Notification, Str) {
+    'use strict';
     
     const AdminSelection = function() {
         this.init();
@@ -31,105 +32,162 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'],
         const self = this;
         
         // Handle course checkbox changes.
-        $(document).on('change', '.course-selector input[type="checkbox"]', function() {
-            const courseid = $(this).data('courseid');
-            const selected = $(this).is(':checked');
-            self.toggleCourse(courseid, selected);
+        document.addEventListener('change', function(e) {
+            if (e.target.matches('.course-selector input[type="checkbox"]')) {
+                const courseid = e.target.dataset.courseid;
+                const selected = e.target.checked;
+                self.toggleCourse(courseid, selected);
+            }
         });
         
         // Handle download options changes.
-        $(document).on('change', '#downloadoptions input[type="checkbox"]', function() {
-            self.saveOptions();
+        document.addEventListener('change', function(e) {
+            if (e.target.matches('#downloadoptions input[type="checkbox"]')) {
+                self.saveOptions();
+            }
         });
         
         // Category collapse/expand.
-        $(document).on('click', '.category-header', function() {
-            const $category = $(this).closest('.category-container');
-            $category.find('.category-courses').slideToggle();
-            $(this).find('.fa').toggleClass('fa-chevron-down fa-chevron-up');
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.category-header')) {
+                const categoryHeader = e.target.closest('.category-header');
+                const categoryContainer = categoryHeader.closest('.category-container');
+                const categoryCoursesDiv = categoryContainer.querySelector('.category-courses');
+                const chevronIcon = categoryHeader.querySelector('.fa');
+                
+                if (categoryCoursesDiv) {
+                    // Toggle display
+                    if (categoryCoursesDiv.style.display === 'none' || !categoryCoursesDiv.style.display) {
+                        categoryCoursesDiv.style.display = 'block';
+                    } else {
+                        categoryCoursesDiv.style.display = 'none';
+                    }
+                    
+                    // Toggle chevron
+                    if (chevronIcon) {
+                        chevronIcon.classList.toggle('fa-chevron-down');
+                        chevronIcon.classList.toggle('fa-chevron-up');
+                    }
+                }
+            }
         });
         
         // Update selection count.
         this.updateSelectionCount();
-        
-        // Initialize tooltips.
-        $('[data-toggle="tooltip"]').tooltip();
     };
     
     AdminSelection.prototype.toggleCourse = function(courseid, selected) {
         const self = this;
         
-        $.ajax({
-            url: M.cfg.wwwroot + '/local/downloadcenter/index.php',
-            type: 'POST',
-            data: {
-                action: 'togglecourse',
-                courseid: courseid,
-                selected: selected ? 1 : 0,
-                sesskey: M.cfg.sesskey
-            },
-            success: function(response) {
+        // Create XMLHttpRequest
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', M.cfg.wwwroot + '/local/downloadcenter/index.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
                 self.updateSelectionCount();
                 
                 // Update visual feedback.
-                const $checkbox = $('input[data-courseid="' + courseid + '"]');
-                const $label = $checkbox.closest('label');
+                const checkbox = document.querySelector('input[data-courseid="' + courseid + '"]');
+                const label = checkbox ? checkbox.closest('label') : null;
                 
-                if (selected) {
-                    $label.addClass('selected');
-                } else {
-                    $label.removeClass('selected');
+                if (label) {
+                    if (selected) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
                 }
-            },
-            error: function() {
+            } else {
                 Notification.exception(new Error('Failed to update selection'));
             }
-        });
+        };
+        
+        xhr.onerror = function() {
+            Notification.exception(new Error('Failed to update selection'));
+        };
+        
+        // Send request
+        const params = 'action=togglecourse&courseid=' + courseid + 
+                      '&selected=' + (selected ? 1 : 0) + 
+                      '&sesskey=' + M.cfg.sesskey;
+        xhr.send(params);
     };
     
     AdminSelection.prototype.saveOptions = function() {
+        const excludeStudentCheckbox = document.getElementById('id_excludestudent');
+        const includeFilesCheckbox = document.getElementById('id_includefiles');
+        const filesRealNamesCheckbox = document.getElementById('id_filesrealnames');
+        const addNumberingCheckbox = document.getElementById('id_addnumbering');
+        
         const options = {
-            excludestudent: $('#id_excludestudent').is(':checked') ? 1 : 0,
-            includefiles: $('#id_includefiles').is(':checked') ? 1 : 0,
-            filesrealnames: $('#id_filesrealnames').is(':checked') ? 1 : 0,
-            addnumbering: $('#id_addnumbering').is(':checked') ? 1 : 0
+            excludestudent: excludeStudentCheckbox && excludeStudentCheckbox.checked ? 1 : 0,
+            includefiles: includeFilesCheckbox && includeFilesCheckbox.checked ? 1 : 0,
+            filesrealnames: filesRealNamesCheckbox && filesRealNamesCheckbox.checked ? 1 : 0,
+            addnumbering: addNumberingCheckbox && addNumberingCheckbox.checked ? 1 : 0
         };
         
-        $.ajax({
-            url: M.cfg.wwwroot + '/local/downloadcenter/index.php',
-            type: 'POST',
-            data: Object.assign({
-                action: 'updateoptions',
-                sesskey: M.cfg.sesskey
-            }, options),
-            success: function() {
+        // Create XMLHttpRequest
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', M.cfg.wwwroot + '/local/downloadcenter/index.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
                 // Show temporary success message.
-                const $feedback = $('#options-feedback');
-                if ($feedback.length === 0) {
-                    $('<div id="options-feedback" class="alert alert-success">' +
-                      'Options saved' + '</div>')
-                      .insertAfter('#downloadoptions')
-                      .delay(2000)
-                      .fadeOut();
+                let feedback = document.getElementById('options-feedback');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.id = 'options-feedback';
+                    feedback.className = 'alert alert-success';
+                    feedback.textContent = 'Options saved';
+                    
+                    const downloadOptions = document.getElementById('downloadoptions');
+                    if (downloadOptions && downloadOptions.parentNode) {
+                        downloadOptions.parentNode.insertBefore(feedback, downloadOptions.nextSibling);
+                    }
                 } else {
-                    $feedback.show().delay(2000).fadeOut();
+                    feedback.style.display = 'block';
                 }
-            },
-            error: function() {
+                
+                // Hide after 2 seconds
+                setTimeout(function() {
+                    if (feedback) {
+                        feedback.style.display = 'none';
+                    }
+                }, 2000);
+            } else {
                 Notification.exception(new Error('Failed to save options'));
             }
+        };
+        
+        xhr.onerror = function() {
+            Notification.exception(new Error('Failed to save options'));
+        };
+        
+        // Build params
+        let params = 'action=updateoptions&sesskey=' + M.cfg.sesskey;
+        Object.keys(options).forEach(function(key) {
+            params += '&' + key + '=' + options[key];
         });
+        
+        xhr.send(params);
     };
     
     AdminSelection.prototype.updateSelectionCount = function() {
-        const count = $('.course-selector input[type="checkbox"]:checked').length;
-        $('.selection-count').text(count);
+        const checkboxes = document.querySelectorAll('.course-selector input[type="checkbox"]:checked');
+        const count = checkboxes.length;
+        
+        const selectionCountElements = document.querySelectorAll('.selection-count');
+        selectionCountElements.forEach(function(elem) {
+            elem.textContent = count;
+        });
         
         // Enable/disable download button.
-        if (count > 0) {
-            $('#download-selection').prop('disabled', false);
-        } else {
-            $('#download-selection').prop('disabled', true);
+        const downloadButton = document.getElementById('download-selection');
+        if (downloadButton) {
+            downloadButton.disabled = (count === 0);
         }
     };
     

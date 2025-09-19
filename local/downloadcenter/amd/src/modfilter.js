@@ -20,7 +20,8 @@
  * @copyright  2025 Original: Academic Moodle Cooperation
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/str', 'core/url'], function($, Str, Url) {
+define(['core/str', 'core/url'], function(Str, Url) {
+    'use strict';
 
     const ModFilter = function(modnames) {
         const instance = this;
@@ -50,31 +51,31 @@ define(['jquery', 'core/str', 'core/url'], function($, Str, Url) {
 
     ModFilter.prototype.init = function() {
         const instance = this;
-        const firstsection = $('div[role="main"] > form .card.block').first();
+        const firstsection = document.querySelector('div[role="main"] > form .card.block');
         
-        if (firstsection.length === 0) {
+        if (!firstsection) {
             return;
         }
         
-        instance.formid = firstsection.closest('form').prop('id');
+        instance.formid = firstsection.closest('form').id;
 
         // Add global select all/none options.
         const showTypeOptionsLink = '<span class="font-weight-bold ml-3 text-nowrap">' +
             '(<a id="downloadcenter-bytype" href="#">' + instance.strings.showtypes + '</a>)</span>';
         
         let html = instance.htmlGenerator('included', instance.strings.select);
-        let links = $(document.createElement('div'));
-        links.addClass('grouped_settings section_level block card');
-        links.html(html);
-        links.find('.downloadcenter_selector .col-md-9').append(showTypeOptionsLink);
-        links.insertBefore(firstsection);
+        let links = document.createElement('div');
+        links.className = 'grouped_settings section_level block card';
+        links.innerHTML = html;
+        links.querySelector('.downloadcenter_selector .col-md-9').insertAdjacentHTML('beforeend', showTypeOptionsLink);
+        firstsection.parentNode.insertBefore(links, firstsection);
 
         // For each module type, add hidden select all/none options.
-        instance.modlist = $(document.createElement('div'));
-        instance.modlist.prop('id', 'mod_select_links');
-        instance.modlist.prop('class', 'm-l-2');
-        instance.modlist.appendTo(links);
-        instance.modlist.hide();
+        instance.modlist = document.createElement('div');
+        instance.modlist.id = 'mod_select_links';
+        instance.modlist.className = 'm-l-2';
+        instance.modlist.style.display = 'none';
+        links.appendChild(instance.modlist);
 
         for (let mod in instance.modnames) {
             if (!instance.modnames.hasOwnProperty(mod)) {
@@ -83,51 +84,64 @@ define(['jquery', 'core/str', 'core/url'], function($, Str, Url) {
 
             const img = '<img src="' + Url.imageUrl('icon', 'mod_' + mod) + '" class="activityicon" />';
             html = instance.htmlGenerator('mod_' + mod, img + instance.modnames[mod]);
-            const modlinks = $(document.createElement('div'));
-            modlinks.addClass('grouped_settings section_level');
-            modlinks.html(html);
-            modlinks.appendTo(instance.modlist);
+            const modlinks = document.createElement('div');
+            modlinks.className = 'grouped_settings section_level';
+            modlinks.innerHTML = html;
+            instance.modlist.appendChild(modlinks);
             instance.initlinks(modlinks, mod);
         }
 
         // Attach events.
-        $('#downloadcenter-all-included').click(function(e) {
-            instance.helper(e, true, 'item_');
-        });
+        const allIncluded = document.getElementById('downloadcenter-all-included');
+        if (allIncluded) {
+            allIncluded.addEventListener('click', function(e) {
+                instance.helper(e, true, 'item_');
+            });
+        }
         
-        $('#downloadcenter-none-included').click(function(e) {
-            instance.helper(e, false, 'item_');
-        });
+        const noneIncluded = document.getElementById('downloadcenter-none-included');
+        if (noneIncluded) {
+            noneIncluded.addEventListener('click', function(e) {
+                instance.helper(e, false, 'item_');
+            });
+        }
         
-        $('#downloadcenter-bytype').click(function(e) {
-            e.preventDefault();
-            instance.toggletypes();
-        });
+        const byType = document.getElementById('downloadcenter-bytype');
+        if (byType) {
+            byType.addEventListener('click', function(e) {
+                e.preventDefault();
+                instance.toggletypes();
+            });
+        }
         
         // Attach event to checkboxes.
-        $('input.form-check-input').click(function() {
-            instance.checkboxhandler($(this));
-            instance.updateFormState();
+        document.querySelectorAll('input.form-check-input').forEach(function(checkbox) {
+            checkbox.addEventListener('click', function() {
+                instance.checkboxhandler(this);
+                instance.updateFormState();
+            });
         });
     };
 
-    ModFilter.prototype.checkboxhandler = function($checkbox) {
+    ModFilter.prototype.checkboxhandler = function(checkbox) {
         const prefix = 'item_topic';
         const shortprefix = 'item_';
-        const name = $checkbox.prop('name');
-        const checked = $checkbox.prop('checked');
+        const name = checkbox.name;
+        const checked = checkbox.checked;
         
         if (name.substring(0, shortprefix.length) === shortprefix) {
-            let $parent = $checkbox.parentsUntil('form', '.card');
-            if ($parent.length > 1) {
-                $parent = $parent.first();
-            }
+            let parent = checkbox.closest('.card');
             
             if (name.substring(0, prefix.length) === prefix) {
-                $parent.find('input.form-check-input').prop('checked', checked);
+                parent.querySelectorAll('input.form-check-input').forEach(function(input) {
+                    input.checked = checked;
+                });
             } else {
                 if (checked) {
-                    $parent.find('input.form-check-input[name^="item_topic"]').prop('checked', true);
+                    const topicCheckbox = parent.querySelector('input.form-check-input[name^="item_topic"]');
+                    if (topicCheckbox) {
+                        topicCheckbox.checked = true;
+                    }
                 }
             }
         }
@@ -140,24 +154,32 @@ define(['jquery', 'core/str', 'core/url'], function($, Str, Url) {
     };
 
     ModFilter.prototype.toggletypes = function() {
-        const link = $('#downloadcenter-bytype');
+        const link = document.getElementById('downloadcenter-bytype');
         if (this.currentlyshown) {
-            link.text(this.strings.showtypes);
+            link.textContent = this.strings.showtypes;
+            this.modlist.style.display = 'none';
         } else {
-            link.text(this.strings.hidetypes);
+            link.textContent = this.strings.hidetypes;
+            this.modlist.style.display = 'block';
         }
-        this.modlist.animate({height: 'toggle'}, 500, 'swing');
         this.currentlyshown = !this.currentlyshown;
     };
 
     ModFilter.prototype.initlinks = function(links, mod) {
         const instance = this;
-        $('#downloadcenter-all-mod_' + mod).click(function(e) {
-            instance.helper(e, true, 'item_', mod);
-        });
-        $('#downloadcenter-none-mod_' + mod).click(function(e) {
-            instance.helper(e, false, 'item_', mod);
-        });
+        const allModLink = document.getElementById('downloadcenter-all-mod_' + mod);
+        if (allModLink) {
+            allModLink.addEventListener('click', function(e) {
+                instance.helper(e, true, 'item_', mod);
+            });
+        }
+        
+        const noneModLink = document.getElementById('downloadcenter-none-mod_' + mod);
+        if (noneModLink) {
+            noneModLink.addEventListener('click', function(e) {
+                instance.helper(e, false, 'item_', mod);
+            });
+        }
     };
 
     ModFilter.prototype.helper = function(e, check, type, mod) {
@@ -169,18 +191,20 @@ define(['jquery', 'core/str', 'core/url'], function($, Str, Url) {
 
         const len = type.length;
 
-        $('input[type="checkbox"]').each(function() {
-            const checkbox = $(this);
-            const name = checkbox.prop('name');
+        document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+            const name = checkbox.name;
 
             if (prefix && name.substring(0, prefix.length) !== prefix) {
                 return;
             }
             if (name.substring(0, len) === type) {
-                checkbox.prop('checked', check);
+                checkbox.checked = check;
             }
             if (check) {
-                checkbox.closest('.card.block').find('.fitem:first-child input[type="checkbox"]').prop('checked', check);
+                const firstCheckbox = checkbox.closest('.card.block').querySelector('.fitem:first-child input[type="checkbox"]');
+                if (firstCheckbox) {
+                    firstCheckbox.checked = check;
+                }
             }
         });
 

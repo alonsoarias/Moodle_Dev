@@ -20,8 +20,9 @@
  * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/ajax', 'core/templates', 'core/notification'], 
-    function($, Ajax, Templates, Notification) {
+define(['core/ajax', 'core/templates', 'core/notification'], 
+    function(Ajax, Templates, Notification) {
+    'use strict';
     
     const CategoryTree = function() {
         this.init();
@@ -31,46 +32,76 @@ define(['jquery', 'core/ajax', 'core/templates', 'core/notification'],
         const self = this;
         
         // Handle category expansion.
-        $('.category-expand').on('click', function(e) {
-            e.preventDefault();
-            const $this = $(this);
-            const categoryid = $this.data('categoryid');
-            const $container = $this.closest('.category-node').find('.category-courses').first();
-            
-            if ($container.hasClass('loaded')) {
-                $container.slideToggle();
-            } else {
-                self.loadCategoryCourses(categoryid, $container);
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('category-expand')) {
+                e.preventDefault();
+                const expandBtn = e.target;
+                const categoryid = expandBtn.dataset.categoryid;
+                const categoryNode = expandBtn.closest('.category-node');
+                const container = categoryNode.querySelector('.category-courses');
+                
+                if (container) {
+                    if (container.classList.contains('loaded')) {
+                        // Toggle display
+                        if (container.style.display === 'none' || !container.style.display) {
+                            container.style.display = 'block';
+                        } else {
+                            container.style.display = 'none';
+                        }
+                    } else {
+                        self.loadCategoryCourses(categoryid, container);
+                    }
+                    
+                    // Toggle icon
+                    const icon = expandBtn.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('fa-plus');
+                        icon.classList.toggle('fa-minus');
+                    }
+                }
             }
-            
-            $this.find('i').toggleClass('fa-plus fa-minus');
         });
         
         // Handle category checkbox (select all courses).
-        $('.category-checkbox').on('change', function() {
-            const $this = $(this);
-            const checked = $this.is(':checked');
-            const $container = $this.closest('.category-node');
-            
-            // Update all course checkboxes in this category.
-            $container.find('.course-checkbox').prop('checked', checked).trigger('change');
-            
-            // Update subcategory checkboxes.
-            $container.find('.category-checkbox').not(this).prop('checked', checked);
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('category-checkbox')) {
+                const checkbox = e.target;
+                const checked = checkbox.checked;
+                const categoryNode = checkbox.closest('.category-node');
+                
+                if (categoryNode) {
+                    // Update all course checkboxes in this category.
+                    categoryNode.querySelectorAll('.course-checkbox').forEach(function(cb) {
+                        cb.checked = checked;
+                        // Trigger change event
+                        const event = new Event('change', { bubbles: true });
+                        cb.dispatchEvent(event);
+                    });
+                    
+                    // Update subcategory checkboxes.
+                    categoryNode.querySelectorAll('.category-checkbox').forEach(function(cb) {
+                        if (cb !== checkbox) {
+                            cb.checked = checked;
+                        }
+                    });
+                }
+            }
         });
         
         // Initialize tri-state checkboxes.
         this.updateTriStateCheckboxes();
     };
     
-    CategoryTree.prototype.loadCategoryCourses = function(categoryid, $container) {
+    CategoryTree.prototype.loadCategoryCourses = function(categoryid, container) {
         Ajax.call([{
             methodname: 'local_downloadcenter_get_category_courses',
             args: {categoryid: categoryid},
             done: function(response) {
                 Templates.render('local_downloadcenter/course_list', response)
                     .then(function(html) {
-                        $container.html(html).addClass('loaded').slideDown();
+                        container.innerHTML = html;
+                        container.classList.add('loaded');
+                        container.style.display = 'block';
                     });
             },
             fail: function(error) {
@@ -80,27 +111,36 @@ define(['jquery', 'core/ajax', 'core/templates', 'core/notification'],
     };
     
     CategoryTree.prototype.updateTriStateCheckboxes = function() {
-        $('.category-node').each(function() {
-            const $node = $(this);
-            const $checkbox = $node.find('.category-checkbox').first();
-            const $courses = $node.find('.course-checkbox');
-            
-            if ($courses.length === 0) {
+        document.querySelectorAll('.category-node').forEach(function(node) {
+            const checkbox = node.querySelector('.category-checkbox');
+            if (!checkbox) {
                 return;
             }
             
-            const total = $courses.length;
-            const checked = $courses.filter(':checked').length;
+            const courses = node.querySelectorAll('.course-checkbox');
+            
+            if (courses.length === 0) {
+                return;
+            }
+            
+            const total = courses.length;
+            let checked = 0;
+            
+            courses.forEach(function(cb) {
+                if (cb.checked) {
+                    checked++;
+                }
+            });
             
             if (checked === 0) {
-                $checkbox.prop('checked', false);
-                $checkbox.prop('indeterminate', false);
+                checkbox.checked = false;
+                checkbox.indeterminate = false;
             } else if (checked === total) {
-                $checkbox.prop('checked', true);
-                $checkbox.prop('indeterminate', false);
+                checkbox.checked = true;
+                checkbox.indeterminate = false;
             } else {
-                $checkbox.prop('checked', false);
-                $checkbox.prop('indeterminate', true);
+                checkbox.checked = false;
+                checkbox.indeterminate = true;
             }
         });
     };
