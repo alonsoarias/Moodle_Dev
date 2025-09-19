@@ -279,7 +279,6 @@ if ($mode === 'admin' && $isadmin) {
             return;
         }
         if (!resourceCheckboxes.length) {
-            courseCheckbox.checked = false;
             courseCheckbox.indeterminate = false;
             return;
         }
@@ -488,56 +487,81 @@ function local_downloadcenter_render_admin_course(\core_course_list_element $cou
 
     $factory = new \local_downloadcenter\factory($courserecord, $USER);
     $resources = $factory->get_resources_for_user();
-    if (empty($resources)) {
-        return ['html' => '', 'selected' => false];
-    }
-
     $courseitems = $selectedcoursedata[$courseid] ?? [];
     if (!is_array($courseitems)) {
         $courseitems = [];
     }
+    $fullcourseselected = !empty($courseitems['__fullcourse']);
+    unset($courseitems['__fullcourse']);
 
-    $hasselected = false;
+    $hasselected = $fullcourseselected;
     $resourceoutput = '';
     $sectionindex = 0;
-    foreach ($resources as $sectionid => $section) {
-        $sectionclasses = 'downloadcenter-section-title font-weight-bold';
-        if ($sectionindex++ > 0) {
-            $sectionclasses .= ' mt-3';
+
+    if (empty($resources)) {
+        $fallbackattrs = [
+            'type' => 'checkbox',
+            'class' => 'form-check-input resource-checkbox course-fullcourse-checkbox',
+            'name' => 'coursedata[' . $courseid . '][__fullcourse]',
+            'value' => 1,
+            'id' => 'resource-' . $courseid . '-fullcourse',
+            'data-fullcourse' => 1,
+        ];
+        if ($fullcourseselected) {
+            $fallbackattrs['checked'] = 'checked';
         }
-        $resourceoutput .= html_writer::div(format_string($section->title), $sectionclasses);
 
-        foreach ($section->res as $res) {
-            $reskey = 'item_' . $res->modname . '_' . $res->instanceid;
-            $checked = !empty($courseitems[$reskey]);
-            if ($checked) {
-                $hasselected = true;
+        $resourceoutput .= html_writer::div(
+            html_writer::empty_tag('input', $fallbackattrs) .
+            html_writer::tag('label', get_string('adminfullcourselabel', 'local_downloadcenter'), [
+                'for' => 'resource-' . $courseid . '-fullcourse',
+                'class' => 'form-check-label d-flex align-items-center',
+            ]) .
+            html_writer::tag('div', get_string('adminfullcoursehint', 'local_downloadcenter'), [
+                'class' => 'text-muted small mt-1',
+            ]),
+            'form-check resource-item'
+        );
+    } else {
+        foreach ($resources as $sectionid => $section) {
+            $sectionclasses = 'downloadcenter-section-title font-weight-bold';
+            if ($sectionindex++ > 0) {
+                $sectionclasses .= ' mt-3';
             }
+            $resourceoutput .= html_writer::div(format_string($section->title), $sectionclasses);
 
-            $inputattrs = [
-                'type' => 'checkbox',
-                'class' => 'form-check-input resource-checkbox',
-                'name' => 'coursedata[' . $courseid . '][' . $reskey . ']',
-                'value' => 1,
-                'id' => 'resource-' . $courseid . '-' . $res->cmid,
-            ];
-            if ($checked) {
-                $inputattrs['checked'] = 'checked';
+            foreach ($section->res as $res) {
+                $reskey = 'item_' . $res->modname . '_' . $res->instanceid;
+                $checked = $fullcourseselected || !empty($courseitems[$reskey]);
+                if ($checked) {
+                    $hasselected = true;
+                }
+
+                $inputattrs = [
+                    'type' => 'checkbox',
+                    'class' => 'form-check-input resource-checkbox',
+                    'name' => 'coursedata[' . $courseid . '][' . $reskey . ']',
+                    'value' => 1,
+                    'id' => 'resource-' . $courseid . '-' . $res->cmid,
+                ];
+                if ($checked) {
+                    $inputattrs['checked'] = 'checked';
+                }
+
+                $labeltext = $res->icon . format_string($res->name);
+                if (!$res->visible || !empty($res->isstealth)) {
+                    $labeltext .= html_writer::span(get_string('hidden'), 'badge badge-warning ml-2');
+                }
+
+                $resourceoutput .= html_writer::div(
+                    html_writer::empty_tag('input', $inputattrs) .
+                    html_writer::tag('label', $labeltext, [
+                        'for' => 'resource-' . $courseid . '-' . $res->cmid,
+                        'class' => 'form-check-label d-flex align-items-center',
+                    ]),
+                    'form-check resource-item'
+                );
             }
-
-            $labeltext = $res->icon . format_string($res->name);
-            if (!$res->visible || !empty($res->isstealth)) {
-                $labeltext .= html_writer::span(get_string('hidden'), 'badge badge-warning ml-2');
-            }
-
-            $resourceoutput .= html_writer::div(
-                html_writer::empty_tag('input', $inputattrs) .
-                html_writer::tag('label', $labeltext, [
-                    'for' => 'resource-' . $courseid . '-' . $res->cmid,
-                    'class' => 'form-check-label d-flex align-items-center',
-                ]),
-                'form-check resource-item'
-            );
         }
     }
 
@@ -610,8 +634,13 @@ function local_downloadcenter_prepare_admin_selections(array $coursedata, array 
         }
 
         $requested = [];
+        $fullcourseselected = false;
         foreach ($items as $itemkey => $value) {
             if (empty($value) || !is_string($itemkey)) {
+                continue;
+            }
+            if ($itemkey === '__fullcourse') {
+                $fullcourseselected = true;
                 continue;
             }
             if (!preg_match('/^item_[a-z][a-z0-9]*_\d+$/i', $itemkey)) {
@@ -620,7 +649,7 @@ function local_downloadcenter_prepare_admin_selections(array $coursedata, array 
             $requested[$itemkey] = true;
         }
 
-        if (empty($requested)) {
+        if (empty($requested) && !$fullcourseselected) {
             continue;
         }
 
@@ -637,7 +666,7 @@ function local_downloadcenter_prepare_admin_selections(array $coursedata, array 
         foreach ($resources as $sectionid => $section) {
             foreach ($section->res as $res) {
                 $reskey = 'item_' . $res->modname . '_' . $res->instanceid;
-                if (isset($requested[$reskey])) {
+                if ($fullcourseselected || isset($requested[$reskey])) {
                     $selection[$reskey] = 1;
                     $selection['item_topic_' . $sectionid] = 1;
                 }
