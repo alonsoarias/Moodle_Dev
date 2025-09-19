@@ -45,7 +45,6 @@ class admin_manager {
 
         require_once($CFG->libdir . '/filelib.php');
         require_capability('local/downloadcenter:downloadmultiple', \context_system::instance());
-
         $options = array_merge([
             'excludestudent' => false,
             'filesrealnames' => false,
@@ -91,7 +90,6 @@ class admin_manager {
             foreach ($courses as $courseid => $course) {
                 $selection = $courseselections[$courseid];
                 $this->add_course_to_zip($course, $selection, $zipwriter, $options, $allowrestricted);
-
                 $event = \local_downloadcenter\event\zip_downloaded::create([
                     'objectid' => $course->id,
                     'context' => \context_course::instance($course->id),
@@ -121,31 +119,25 @@ class admin_manager {
     protected function add_course_to_zip($course, array $selection, $zipwriter, array $options,
             bool $allowrestricted = false) {
         global $USER;
-
         if (!$allowrestricted && !can_access_course($course)) {
             return;
         }
-
         $fullcourseselected = !empty($selection['__fullcourse']);
         if ($fullcourseselected) {
             unset($selection['__fullcourse']);
         }
-
         if (empty($selection) && !$fullcourseselected) {
             return;
         }
 
         $factory = new \local_downloadcenter\factory($course, $USER);
         $factory->set_download_options($options);
-
         if ($fullcourseselected && empty($selection)) {
             $selection = $this->build_full_course_selection($factory);
         }
-
         if (empty($selection)) {
             return;
         }
-
         try {
             $factory->parse_form_data((object)$selection);
         } catch (\moodle_exception $exception) {
@@ -154,7 +146,6 @@ class admin_manager {
             return;
         }
         $factory->set_download_options($options);
-
         $courseprefix = $this->build_course_prefix($course);
         $filelist = $factory->build_filelist($courseprefix);
 

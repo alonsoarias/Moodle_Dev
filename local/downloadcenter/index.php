@@ -293,6 +293,150 @@ if ($mode === 'admin' && $isadmin) {
 
     echo html_writer::end_tag('form');
 
+    $js = <<<'JS'
+(function() {
+    function updateFullCourseFlag(courseNode, enabled) {
+        const fullCourseInput = courseNode.querySelector('.course-fullcourse-flag');
+        if (fullCourseInput) {
+            fullCourseInput.disabled = !enabled;
+        }
+    }
+
+    function updateCourseState(courseNode) {
+        const courseCheckbox = courseNode.querySelector('summary .course-checkbox');
+        if (!courseCheckbox) {
+            return;
+        }
+
+        const resourceCheckboxes = Array.from(courseNode.querySelectorAll('.resource-checkbox:not([data-fullcourse])'));
+        const fallbackCheckbox = courseNode.querySelector('.resource-checkbox[data-fullcourse]');
+        const hasResources = resourceCheckboxes.length > 0;
+
+        if (!hasResources) {
+            if (fallbackCheckbox) {
+                courseCheckbox.checked = fallbackCheckbox.checked;
+                courseCheckbox.indeterminate = false;
+                updateFullCourseFlag(courseNode, fallbackCheckbox.checked);
+            } else {
+                courseCheckbox.checked = false;
+                courseCheckbox.indeterminate = false;
+                updateFullCourseFlag(courseNode, false);
+            }
+            return;
+        }
+
+        let checkedCount = 0;
+        resourceCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                checkedCount++;
+            }
+        });
+
+        if (checkedCount === 0) {
+            courseCheckbox.checked = false;
+            courseCheckbox.indeterminate = false;
+            updateFullCourseFlag(courseNode, false);
+        } else if (checkedCount === resourceCheckboxes.length) {
+            courseCheckbox.checked = true;
+            courseCheckbox.indeterminate = false;
+            updateFullCourseFlag(courseNode, true);
+        } else {
+            courseCheckbox.checked = true;
+            courseCheckbox.indeterminate = true;
+            updateFullCourseFlag(courseNode, false);
+        }
+    }
+
+    function updateCategoryState(categoryNode) {
+        const categoryCheckbox = categoryNode.querySelector('summary .category-checkbox');
+        if (!categoryCheckbox) {
+            return;
+        }
+        const resourceCheckboxes = categoryNode.querySelectorAll('.resource-checkbox');
+        if (!resourceCheckboxes.length) {
+            categoryCheckbox.checked = false;
+            categoryCheckbox.indeterminate = false;
+            return;
+        }
+        let checkedCount = 0;
+        resourceCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                checkedCount++;
+            }
+        });
+        if (checkedCount === 0) {
+            categoryCheckbox.checked = false;
+            categoryCheckbox.indeterminate = false;
+        } else if (checkedCount === resourceCheckboxes.length) {
+            categoryCheckbox.checked = true;
+            categoryCheckbox.indeterminate = false;
+        } else {
+            categoryCheckbox.checked = true;
+            categoryCheckbox.indeterminate = true;
+        }
+    }
+    function updateCategoryAncestors(categoryNode) {
+        let parent = categoryNode.parentElement ? categoryNode.parentElement.closest('.downloadcenter-category') : null;
+        while (parent) {
+            updateCategoryState(parent);
+            parent = parent.parentElement ? parent.parentElement.closest('.downloadcenter-category') : null;
+        }
+    }
+
+    document.querySelectorAll('.downloadcenter-course').forEach(courseNode => {
+        const courseCheckbox = courseNode.querySelector('summary .course-checkbox');
+        const resourceCheckboxes = courseNode.querySelectorAll('.resource-checkbox');
+
+        if (courseCheckbox) {
+            courseCheckbox.addEventListener('change', () => {
+                resourceCheckboxes.forEach(cb => {
+                    cb.checked = courseCheckbox.checked;
+                    cb.dispatchEvent(new Event('change', {bubbles: false}));
+                });
+                updateCourseState(courseNode);
+                const categoryNode = courseNode.closest('.downloadcenter-category');
+                if (categoryNode) {
+                    updateCategoryState(categoryNode);
+                    updateCategoryAncestors(categoryNode);
+                }
+            });
+        }
+
+        resourceCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                updateCourseState(courseNode);
+                const categoryNode = courseNode.closest('.downloadcenter-category');
+                if (categoryNode) {
+                    updateCategoryState(categoryNode);
+                    updateCategoryAncestors(categoryNode);
+                }
+            });
+        });
+
+        updateCourseState(courseNode);
+    });
+
+    document.querySelectorAll('.downloadcenter-category').forEach(categoryNode => {
+        const categoryCheckbox = categoryNode.querySelector('summary .category-checkbox');
+        if (categoryCheckbox) {
+            categoryCheckbox.addEventListener('change', () => {
+                const container = categoryNode.querySelector('.category-children');
+                if (container) {
+                    container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                        cb.checked = categoryCheckbox.checked;
+                        cb.dispatchEvent(new Event('change', {bubbles: false}));
+                    });
+                }
+                updateCategoryState(categoryNode);
+                updateCategoryAncestors(categoryNode);
+            });
+        }
+        updateCategoryState(categoryNode);
+    });
+})();
+JS;
+    echo html_writer::script($js);
+
     echo $OUTPUT->footer();
     exit;
 }
