@@ -487,7 +487,6 @@ function local_downloadcenter_render_admin_course(\core_course_list_element $cou
 
     $factory = new \local_downloadcenter\factory($courserecord, $USER);
     $resources = $factory->get_resources_for_user();
-
     $courseitems = $selectedcoursedata[$courseid] ?? [];
     if (!is_array($courseitems)) {
         $courseitems = [];
