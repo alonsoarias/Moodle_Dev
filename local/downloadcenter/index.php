@@ -156,7 +156,6 @@ if ($mode === 'admin' && $isadmin) {
         'filesrealnames' => optional_param('filesrealnames', $defaultoptions['filesrealnames'], PARAM_BOOL),
         'addnumbering' => optional_param('addnumbering', $defaultoptions['addnumbering'], PARAM_BOOL),
     ];
-
     try {
         $coursedata = optional_param_array('coursedata', null, PARAM_RAW);
     } catch (\coding_exception $exception) {
@@ -502,7 +501,6 @@ function local_downloadcenter_render_admin_course(\core_course_list_element $cou
 
     $factory = new \local_downloadcenter\factory($courserecord, $USER);
     $resources = $factory->get_resources_for_user();
-
     $courseitems = $selectedcoursedata[$courseid] ?? [];
     if (!is_array($courseitems)) {
         $courseitems = [];
