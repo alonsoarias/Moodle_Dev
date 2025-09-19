@@ -20,7 +20,7 @@
  * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([], function() {
+define(['jquery'], function($) {
     const triggerChange = function(element) {
         if (typeof window.Event === 'function') {
             element.dispatchEvent(new Event('change', {bubbles: false}));
@@ -176,12 +176,15 @@ define([], function() {
     };
 
     const init = function() {
-        document.querySelectorAll('.downloadcenter-course').forEach(function(courseNode) {
-            initCourseNode(courseNode);
-        });
+        // Use jQuery to ensure DOM is ready
+        $(document).ready(function() {
+            document.querySelectorAll('.downloadcenter-course').forEach(function(courseNode) {
+                initCourseNode(courseNode);
+            });
 
-        document.querySelectorAll('.downloadcenter-category').forEach(function(categoryNode) {
-            initCategoryNode(categoryNode);
+            document.querySelectorAll('.downloadcenter-category').forEach(function(categoryNode) {
+                initCategoryNode(categoryNode);
+            });
         });
     };
 

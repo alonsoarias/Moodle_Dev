@@ -20,7 +20,8 @@
  * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
+define(['jquery', 'core/ajax', 'core/templates', 'core/notification'], 
+    function($, Ajax, Templates, Notification) {
     
     const CategoryTree = function() {
         this.init();
