@@ -39,6 +39,7 @@ $string['download'] = 'Download';
 $string['downloadoptions'] = 'Download options';
 $string['selectcategory'] = 'Select category';
 $string['selectcourses'] = 'Select courses';
+$string['adminmultiselectinstructions'] = 'Select one or more categories to reveal their courses, then pick the courses and resources you wish to include in the administrator download.';
 $string['loadcourses'] = 'Load courses';
 $string['saveandcontinue'] = 'Save and continue';
 $string['clearselection'] = 'Clear selection';
