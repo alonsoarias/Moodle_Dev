@@ -136,6 +136,7 @@ if ($mode === 'course' && $courseid > 0) {
 if ($mode === 'admin' && $isadmin) {
     require_login();
     require_capability('moodle/site:config', $systemcontext);
+    require_capability('local/downloadcenter:downloadmultiple', $systemcontext);
 
     require_once(__DIR__ . '/classes/admin_manager.php');
     require_once(__DIR__ . '/classes/factory.php');
@@ -156,6 +157,9 @@ if ($mode === 'admin' && $isadmin) {
         'filesrealnames' => optional_param('filesrealnames', $defaultoptions['filesrealnames'], PARAM_BOOL),
         'addnumbering' => optional_param('addnumbering', $defaultoptions['addnumbering'], PARAM_BOOL),
     ];
+
+    $allowrestrictedcourses = has_capability('local/downloadcenter:downloadmultiple', $systemcontext);
+
     try {
         $coursedata = optional_param_array('coursedata', null, PARAM_RAW);
     } catch (\coding_exception $exception) {
@@ -182,7 +186,11 @@ if ($mode === 'admin' && $isadmin) {
     if ($action === 'download') {
         require_sesskey();
 
-        $courseselections = local_downloadcenter_prepare_admin_selections($coursedata, $downloadoptions);
+        $courseselections = local_downloadcenter_prepare_admin_selections(
+            $coursedata,
+            $downloadoptions,
+            $allowrestrictedcourses
+        );
 
         if (empty($courseselections)) {
             redirect($PAGE->url, get_string('noselectederror', 'local_downloadcenter'),
@@ -190,13 +198,14 @@ if ($mode === 'admin' && $isadmin) {
         }
 
         $adminmanager = new \local_downloadcenter\admin_manager();
-        $adminmanager->download_multiple_courses($courseselections, $downloadoptions);
+        $adminmanager->download_multiple_courses($courseselections, $downloadoptions, $allowrestrictedcourses);
         exit;
     }
 
     $PAGE->set_title(get_string('admindownloadcenter', 'local_downloadcenter'));
     $PAGE->set_heading(get_string('admindownloadcenter', 'local_downloadcenter'));
     $PAGE->requires->css('/local/downloadcenter/styles.css');
+    $PAGE->requires->js_call_amd('local_downloadcenter/admin_tree', 'init');
 
     $categories = \core_course_category::get_all();
     $treehtml = '';
@@ -204,7 +213,7 @@ if ($mode === 'admin' && $isadmin) {
         if ($category->parent != 0) {
             continue;
         }
-        $rendered = local_downloadcenter_render_admin_category($category, $coursedata);
+        $rendered = local_downloadcenter_render_admin_category($category, $coursedata, $allowrestrictedcourses);
         if (!empty($rendered['html'])) {
             $treehtml .= $rendered['html'];
         }
@@ -441,9 +450,11 @@ redirect(new moodle_url('/course/index.php'));
  *
  * @param \core_course_category $category Category object
  * @param array $selectedcoursedata Posted course/resource selections
+ * @param bool $allowrestricted True when course access checks should be bypassed
  * @return array{html:string, selected:bool} Rendered HTML and selection state
  */
-function local_downloadcenter_render_admin_category(\core_course_category $category, array $selectedcoursedata) {
+function local_downloadcenter_render_admin_category(\core_course_category $category,
+        array $selectedcoursedata, bool $allowrestricted = false) {
     $courses = $category->get_courses(['recursive' => false, 'sort' => ['fullname' => 1]]);
     $children = $category->get_children();
 
@@ -454,11 +465,11 @@ function local_downloadcenter_render_admin_category(\core_course_category $categ
         if (!$course instanceof \core_course_list_element) {
             $course = new \core_course_list_element($course);
         }
-        if (!$course->can_access()) {
+        if (!$allowrestricted && !$course->can_access()) {
             continue;
         }
 
-        $rendered = local_downloadcenter_render_admin_course($course, $selectedcoursedata);
+        $rendered = local_downloadcenter_render_admin_course($course, $selectedcoursedata, $allowrestricted);
         if (!empty($rendered['html'])) {
             $content .= $rendered['html'];
             $hasselected = $hasselected || $rendered['selected'];
@@ -466,7 +477,7 @@ function local_downloadcenter_render_admin_category(\core_course_category $categ
     }
 
     foreach ($children as $child) {
-        $childrendered = local_downloadcenter_render_admin_category($child, $selectedcoursedata);
+        $childrendered = local_downloadcenter_render_admin_category($child, $selectedcoursedata, $allowrestricted);
         if (!empty($childrendered['html'])) {
             $content .= $childrendered['html'];
             $hasselected = $hasselected || $childrendered['selected'];
@@ -523,9 +534,11 @@ function local_downloadcenter_render_admin_category(\core_course_category $categ
  *
  * @param \core_course_list_element $course Course element
  * @param array $selectedcoursedata Posted course/resource selections
+ * @param bool $allowrestricted True when course access checks should be bypassed
  * @return array{html:string, selected:bool} Rendered HTML and selection state
  */
-function local_downloadcenter_render_admin_course(\core_course_list_element $course, array $selectedcoursedata) {
+function local_downloadcenter_render_admin_course(\core_course_list_element $course,
+        array $selectedcoursedata, bool $allowrestricted = false) {
     global $DB, $USER;
 
     $courseid = $course->id;
@@ -535,7 +548,14 @@ function local_downloadcenter_render_admin_course(\core_course_list_element $cou
     }
 
     $factory = new \local_downloadcenter\factory($courserecord, $USER);
-    $resources = $factory->get_resources_for_user();
+    try {
+        $resources = $factory->get_resources_for_user();
+    } catch (\moodle_exception $exception) {
+        debugging('Unable to enumerate resources for course ' . $courseid . ': ' . $exception->getMessage(),
+            DEBUG_DEVELOPER);
+        $resources = [];
+    }
+
     $courseitems = $selectedcoursedata[$courseid] ?? [];
     if (!is_array($courseitems)) {
         $courseitems = [];
@@ -685,9 +705,11 @@ function local_downloadcenter_render_admin_course(\core_course_list_element $cou
  *
  * @param array $coursedata Raw form data grouped by course
  * @param array $options Download options
+ * @param bool $allowrestricted True when course access checks should be bypassed
  * @return array Prepared selections
  */
-function local_downloadcenter_prepare_admin_selections(array $coursedata, array $options) {
+function local_downloadcenter_prepare_admin_selections(array $coursedata, array $options,
+        bool $allowrestricted = false) {
     global $DB, $USER;
 
     $prepared = [];
@@ -719,13 +741,19 @@ function local_downloadcenter_prepare_admin_selections(array $coursedata, array 
         }
 
         $course = $DB->get_record('course', ['id' => $courseid]);
-        if (!$course || !can_access_course($course)) {
+        if (!$course || (!$allowrestricted && !can_access_course($course))) {
             continue;
         }
 
         $factory = new \local_downloadcenter\factory($course, $USER);
         $factory->set_download_options($options);
-        $resources = $factory->get_resources_for_user();
+        try {
+            $resources = $factory->get_resources_for_user();
+        } catch (\moodle_exception $exception) {
+            debugging('Unable to load resources for course ' . $courseid . ': ' . $exception->getMessage(),
+                DEBUG_DEVELOPER);
+            $resources = [];
+        }
 
         $selection = [];
         foreach ($resources as $sectionid => $section) {
@@ -736,6 +764,10 @@ function local_downloadcenter_prepare_admin_selections(array $coursedata, array 
                     $selection['item_topic_' . $sectionid] = 1;
                 }
             }
+        }
+
+        if ($fullcourseselected) {
+            $selection['__fullcourse'] = 1;
         }
 
         if (!empty($selection)) {
