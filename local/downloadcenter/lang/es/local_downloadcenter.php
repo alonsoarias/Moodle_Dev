@@ -39,6 +39,7 @@ $string['download'] = 'Descargar';
 $string['downloadoptions'] = 'Opciones de descarga';
 $string['selectcategory'] = 'Seleccionar categoría';
 $string['selectcourses'] = 'Seleccionar cursos';
+$string['adminmultiselectinstructions'] = 'Seleccione una o varias categorías para ver sus cursos y elija los cursos y recursos que desea incluir en la descarga administrativa.';
 $string['loadcourses'] = 'Cargar cursos';
 $string['saveandcontinue'] = 'Guardar y continuar';
 $string['clearselection'] = 'Limpiar selección';

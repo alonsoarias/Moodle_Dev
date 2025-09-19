@@ -26,7 +26,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
 // Raise limits for large downloads.
-core_php_time_limit::raise();
+\core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 
 // Get parameters.
@@ -136,272 +136,250 @@ if ($mode === 'course' && $courseid > 0) {
 if ($mode === 'admin' && $isadmin) {
     require_login();
     require_capability('moodle/site:config', $systemcontext);
-    
+
+    require_once(__DIR__ . '/classes/admin_manager.php');
+    require_once(__DIR__ . '/classes/factory.php');
+
     $PAGE->set_context($systemcontext);
     $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php', ['mode' => 'admin']));
     $PAGE->set_pagelayout('admin');
-    
-    // Load necessary classes.
-    require_once(__DIR__ . '/classes/admin_manager.php');
-    require_once(__DIR__ . '/classes/factory.php');
-    
-    // Handle actions.
-    if ($action === 'togglecourse') {
-        $cid = required_param('cid', PARAM_INT);
-        
-        if (isset($SESSION->downloadcenter_selection[$cid])) {
-            unset($SESSION->downloadcenter_selection[$cid]);
-            $selected = false;
-        } else {
-            $SESSION->downloadcenter_selection[$cid] = true;
-            $selected = true;
-        }
-        
-        // Return JSON response for AJAX.
-        if (optional_param('ajax', 0, PARAM_BOOL)) {
-            echo json_encode(['success' => true, 'selected' => $selected]);
-            exit;
-        }
-        
-        redirect($PAGE->url);
+    $PAGE->add_body_class('path-local-downloadcenter-admin');
+
+    $defaultoptions = [
+        'excludestudent' => (int)(get_config('local_downloadcenter', 'excludestudentdefault') ?? 0),
+        'filesrealnames' => 0,
+        'addnumbering' => 0,
+    ];
+
+    $downloadoptions = [
+        'excludestudent' => optional_param('excludestudent', $defaultoptions['excludestudent'], PARAM_BOOL),
+        'filesrealnames' => optional_param('filesrealnames', $defaultoptions['filesrealnames'], PARAM_BOOL),
+        'addnumbering' => optional_param('addnumbering', $defaultoptions['addnumbering'], PARAM_BOOL),
+    ];
+
+    $coursedata = optional_param_array('coursedata', null, PARAM_RAW);
+    if ($coursedata === null && isset($_POST['coursedata'])) {
+        $coursedata = $_POST['coursedata'];
     }
-    
-    if ($action === 'clear') {
-        require_sesskey();
-        $SESSION->downloadcenter_selection = [];
-        redirect($PAGE->url, get_string('selectioncleared', 'local_downloadcenter'));
+    if (!is_array($coursedata)) {
+        $coursedata = [];
     }
-    
-    if ($action === 'updateoptions') {
-        require_sesskey();
-        $SESSION->downloadcenter_options = [
-            'excludestudent' => optional_param('excludestudent', 0, PARAM_BOOL),
-            'filesrealnames' => optional_param('filesrealnames', 0, PARAM_BOOL),
-            'addnumbering' => optional_param('addnumbering', 0, PARAM_BOOL)
-        ];
-        redirect($PAGE->url, get_string('optionssaved', 'local_downloadcenter'));
-    }
-    
+
     if ($action === 'download') {
         require_sesskey();
-        
-        if (empty($SESSION->downloadcenter_selection)) {
-            redirect($PAGE->url, get_string('nocoursesselected', 'local_downloadcenter'), 
-                    null, \core\output\notification::NOTIFY_WARNING);
+
+        $courseselections = local_downloadcenter_prepare_admin_selections($coursedata, $downloadoptions);
+
+        if (empty($courseselections)) {
+            redirect($PAGE->url, get_string('noselectederror', 'local_downloadcenter'),
+                null, \core\output\notification::NOTIFY_WARNING);
         }
-        
+
         $adminmanager = new \local_downloadcenter\admin_manager();
-        $options = $SESSION->downloadcenter_options;
-        
-        // Download selected courses.
-        $adminmanager->download_multiple_courses(
-            array_keys($SESSION->downloadcenter_selection),
-            $options
-        );
+        $adminmanager->download_multiple_courses($courseselections, $downloadoptions);
         exit;
     }
-    
-    // Setup page.
+
     $PAGE->set_title(get_string('admindownloadcenter', 'local_downloadcenter'));
     $PAGE->set_heading(get_string('admindownloadcenter', 'local_downloadcenter'));
-    
-    // Add CSS.
     $PAGE->requires->css('/local/downloadcenter/styles.css');
-    
-    // Display interface.
+
+    $categories = \core_course_category::get_all();
+    $treehtml = '';
+    foreach ($categories as $category) {
+        if ($category->parent != 0) {
+            continue;
+        }
+        $rendered = local_downloadcenter_render_admin_category($category, $coursedata);
+        if (!empty($rendered['html'])) {
+            $treehtml .= $rendered['html'];
+        }
+    }
+
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('admindownloadcenter', 'local_downloadcenter'));
-    
-    // Get all categories and courses.
-    $categories = \core_course_category::get_all();
-    $selectedcourses = $SESSION->downloadcenter_selection;
-    $options = $SESSION->downloadcenter_options;
-    
-    // Display selection interface.
-    echo html_writer::start_div('downloadcenter-admin-container');
-    
-    // Left panel - Category and course tree.
+
+    echo html_writer::start_tag('form', [
+        'method' => 'post',
+        'action' => $PAGE->url->out(false),
+        'class' => 'downloadcenter-admin-form',
+    ]);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => 'download']);
+
     echo html_writer::start_div('row');
-    echo html_writer::start_div('col-md-8');
-    
+
+    echo html_writer::start_div('col-lg-8 downloadcenter-tree-column');
     echo html_writer::tag('h3', get_string('selectcourses', 'local_downloadcenter'));
-    
-    // Category tree.
-    echo html_writer::start_div('category-tree card');
-    echo html_writer::start_div('card-body');
-    
-    // Display root categories.
-    foreach ($categories as $category) {
-        if ($category->parent == 0) {
-            echo render_category_tree($category, $selectedcourses, $PAGE->url);
-        }
-    }
-    
-    echo html_writer::end_div(); // card-body.
-    echo html_writer::end_div(); // category-tree.
-    
-    echo html_writer::end_div(); // col-md-8.
-    
-    // Right panel - Selection summary and options.
-    echo html_writer::start_div('col-md-4');
-    
-    echo html_writer::start_div('selection-panel card sticky-top');
-    echo html_writer::start_div('card-header bg-primary text-white');
-    echo html_writer::tag('h4', get_string('currentselection', 'local_downloadcenter') . 
-                          ' (' . count($selectedcourses) . ')', ['class' => 'mb-0']);
-    echo html_writer::end_div();
-    
-    echo html_writer::start_div('card-body');
-    
-    // List selected courses.
-    if (!empty($selectedcourses)) {
-        echo html_writer::start_tag('div', ['class' => 'selected-courses-list mb-3', 
-                                            'style' => 'max-height: 300px; overflow-y: auto;']);
-        
-        foreach ($selectedcourses as $cid => $selected) {
-            if ($course = $DB->get_record('course', ['id' => $cid])) {
-                echo html_writer::start_div('selected-course mb-2 p-2 border rounded');
-                echo html_writer::tag('strong', $course->fullname);
-                echo html_writer::tag('span', ' (' . $course->shortname . ')', ['class' => 'text-muted']);
-                echo html_writer::end_div();
-            }
-        }
-        
-        echo html_writer::end_tag('div');
-        
-        // Download options form.
-        echo html_writer::start_tag('form', ['method' => 'post', 'action' => $PAGE->url->out(false)]);
-        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => 'updateoptions']);
-        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
-        
-        echo html_writer::tag('h5', get_string('downloadoptions', 'local_downloadcenter'), ['class' => 'mb-3']);
-        
-        // Exclude student content option.
-        echo html_writer::start_div('form-check mb-2');
-        echo html_writer::empty_tag('input', [
-            'type' => 'checkbox',
-            'class' => 'form-check-input',
-            'id' => 'excludestudent',
-            'name' => 'excludestudent',
-            'value' => '1',
-            'checked' => !empty($options['excludestudent'])
-        ]);
-        echo html_writer::tag('label', get_string('excludestudentcontent', 'local_downloadcenter'), 
-                             ['class' => 'form-check-label', 'for' => 'excludestudent']);
-        echo html_writer::end_div();
-        
-        // Real filenames option.
-        echo html_writer::start_div('form-check mb-2');
-        echo html_writer::empty_tag('input', [
-            'type' => 'checkbox',
-            'class' => 'form-check-input',
-            'id' => 'filesrealnames',
-            'name' => 'filesrealnames',
-            'value' => '1',
-            'checked' => !empty($options['filesrealnames'])
-        ]);
-        echo html_writer::tag('label', get_string('downloadoptions:filesrealnames', 'local_downloadcenter'), 
-                             ['class' => 'form-check-label', 'for' => 'filesrealnames']);
-        echo html_writer::end_div();
-        
-        // Add numbering option.
-        echo html_writer::start_div('form-check mb-3');
-        echo html_writer::empty_tag('input', [
-            'type' => 'checkbox',
-            'class' => 'form-check-input',
-            'id' => 'addnumbering',
-            'name' => 'addnumbering',
-            'value' => '1',
-            'checked' => !empty($options['addnumbering'])
-        ]);
-        echo html_writer::tag('label', get_string('downloadoptions:addnumbering', 'local_downloadcenter'), 
-                             ['class' => 'form-check-label', 'for' => 'addnumbering']);
-        echo html_writer::end_div();
-        
-        echo html_writer::tag('button', get_string('saveoptions', 'local_downloadcenter'), 
-                             ['type' => 'submit', 'class' => 'btn btn-sm btn-secondary mb-3']);
-        
-        echo html_writer::end_tag('form');
-        
-        // Action buttons.
-        echo html_writer::start_div('action-buttons');
-        
-        // Download button.
-        $downloadurl = new moodle_url('/local/downloadcenter/index.php', [
-            'mode' => 'admin',
-            'action' => 'download',
-            'sesskey' => sesskey()
-        ]);
-        echo html_writer::link($downloadurl, 
-                               get_string('downloadselection', 'local_downloadcenter'), 
-                               ['class' => 'btn btn-success btn-block mb-2']);
-        
-        // Clear button.
-        $clearurl = new moodle_url('/local/downloadcenter/index.php', [
-            'mode' => 'admin',
-            'action' => 'clear',
-            'sesskey' => sesskey()
-        ]);
-        echo html_writer::link($clearurl, 
-                               get_string('clearselection', 'local_downloadcenter'), 
-                               ['class' => 'btn btn-danger btn-block']);
-        
-        echo html_writer::end_div(); // action-buttons.
-        
+    echo html_writer::tag('p', get_string('adminmultiselectinstructions', 'local_downloadcenter'), ['class' => 'text-muted']);
+    if (!empty($treehtml)) {
+        echo html_writer::div($treehtml, 'downloadcenter-category-tree');
     } else {
-        echo html_writer::tag('p', get_string('nocoursesselected', 'local_downloadcenter'), 
-                             ['class' => 'text-muted']);
+        echo html_writer::div(get_string('nocoursesfound', 'local_downloadcenter'), 'alert alert-info');
     }
-    
-    echo html_writer::end_div(); // card-body.
-    echo html_writer::end_div(); // selection-panel.
-    
-    echo html_writer::end_div(); // col-md-4.
-    echo html_writer::end_div(); // row.
-    
-    echo html_writer::end_div(); // downloadcenter-admin-container.
-    
-    // Add JavaScript for interactivity.
-    echo html_writer::script('
-        document.querySelectorAll(".category-toggle").forEach(function(toggle) {
-            toggle.addEventListener("click", function(e) {
-                e.preventDefault();
-                var categoryId = this.getAttribute("data-category");
-                var contentDiv = document.getElementById("category-content-" + categoryId);
-                var icon = this.querySelector("i");
-                
-                if (contentDiv.style.display === "none") {
-                    contentDiv.style.display = "block";
-                    icon.classList.remove("fa-plus");
-                    icon.classList.add("fa-minus");
-                } else {
-                    contentDiv.style.display = "none";
-                    icon.classList.remove("fa-minus");
-                    icon.classList.add("fa-plus");
+    echo html_writer::end_div();
+
+    echo html_writer::start_div('col-lg-4 downloadcenter-options-column');
+    echo html_writer::tag('h3', get_string('downloadoptions', 'local_downloadcenter'));
+
+    echo html_writer::start_div('form-check mb-2');
+    echo html_writer::empty_tag('input', [
+        'type' => 'checkbox',
+        'class' => 'form-check-input',
+        'id' => 'excludestudent',
+        'name' => 'excludestudent',
+        'value' => 1,
+        'checked' => !empty($downloadoptions['excludestudent']) ? 'checked' : null,
+    ]);
+    echo html_writer::tag('label', get_string('excludestudentcontent', 'local_downloadcenter'),
+        ['class' => 'form-check-label', 'for' => 'excludestudent']);
+    echo html_writer::end_div();
+
+    echo html_writer::start_div('form-check mb-2');
+    echo html_writer::empty_tag('input', [
+        'type' => 'checkbox',
+        'class' => 'form-check-input',
+        'id' => 'filesrealnames',
+        'name' => 'filesrealnames',
+        'value' => 1,
+        'checked' => !empty($downloadoptions['filesrealnames']) ? 'checked' : null,
+    ]);
+    echo html_writer::tag('label', get_string('downloadoptions:filesrealnames', 'local_downloadcenter'),
+        ['class' => 'form-check-label', 'for' => 'filesrealnames']);
+    echo html_writer::end_div();
+
+    echo html_writer::start_div('form-check mb-3');
+    echo html_writer::empty_tag('input', [
+        'type' => 'checkbox',
+        'class' => 'form-check-input',
+        'id' => 'addnumbering',
+        'name' => 'addnumbering',
+        'value' => 1,
+        'checked' => !empty($downloadoptions['addnumbering']) ? 'checked' : null,
+    ]);
+    echo html_writer::tag('label', get_string('downloadoptions:addnumbering', 'local_downloadcenter'),
+        ['class' => 'form-check-label', 'for' => 'addnumbering']);
+    echo html_writer::end_div();
+
+    echo html_writer::tag('button', get_string('downloadselection', 'local_downloadcenter'),
+        ['type' => 'submit', 'class' => 'btn btn-primary btn-block mt-3']);
+
+    echo html_writer::end_div();
+
+    echo html_writer::end_div();
+
+    echo html_writer::end_tag('form');
+
+    $js = <<<'JS'
+(function() {
+    function updateCourseState(courseNode) {
+        const courseCheckbox = courseNode.querySelector('summary .course-checkbox');
+        const resourceCheckboxes = courseNode.querySelectorAll('.resource-checkbox');
+        if (!courseCheckbox) {
+            return;
+        }
+        if (!resourceCheckboxes.length) {
+            courseCheckbox.checked = false;
+            courseCheckbox.indeterminate = false;
+            return;
+        }
+        let checkedCount = 0;
+        resourceCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                checkedCount++;
+            }
+        });
+        if (checkedCount === 0) {
+            courseCheckbox.checked = false;
+            courseCheckbox.indeterminate = false;
+        } else if (checkedCount === resourceCheckboxes.length) {
+            courseCheckbox.checked = true;
+            courseCheckbox.indeterminate = false;
+        } else {
+            courseCheckbox.checked = true;
+            courseCheckbox.indeterminate = true;
+        }
+    }
+
+    function updateCategoryState(categoryNode) {
+        const categoryCheckbox = categoryNode.querySelector('summary .category-checkbox');
+        if (!categoryCheckbox) {
+            return;
+        }
+        const resourceCheckboxes = categoryNode.querySelectorAll('.resource-checkbox');
+        if (!resourceCheckboxes.length) {
+            categoryCheckbox.checked = false;
+            categoryCheckbox.indeterminate = false;
+            return;
+        }
+        let checkedCount = 0;
+        resourceCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                checkedCount++;
+            }
+        });
+        if (checkedCount === 0) {
+            categoryCheckbox.checked = false;
+            categoryCheckbox.indeterminate = false;
+        } else if (checkedCount === resourceCheckboxes.length) {
+            categoryCheckbox.checked = true;
+            categoryCheckbox.indeterminate = false;
+        } else {
+            categoryCheckbox.checked = true;
+            categoryCheckbox.indeterminate = true;
+        }
+    }
+
+    document.querySelectorAll('.downloadcenter-course').forEach(courseNode => {
+        const courseCheckbox = courseNode.querySelector('summary .course-checkbox');
+        const resourceCheckboxes = courseNode.querySelectorAll('.resource-checkbox');
+        if (!courseCheckbox) {
+            return;
+        }
+
+        courseCheckbox.addEventListener('change', () => {
+            resourceCheckboxes.forEach(cb => {
+                cb.checked = courseCheckbox.checked;
+                cb.dispatchEvent(new Event('change'));
+            });
+        });
+
+        resourceCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                updateCourseState(courseNode);
+                const categoryNode = courseNode.closest('.downloadcenter-category');
+                if (categoryNode) {
+                    updateCategoryState(categoryNode);
                 }
             });
         });
-        
-        // Handle course selection.
-        document.querySelectorAll(".course-checkbox").forEach(function(checkbox) {
-            checkbox.addEventListener("change", function() {
-                var courseId = this.getAttribute("data-courseid");
-                var isChecked = this.checked;
-                
-                // Update via AJAX.
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", "' . $PAGE->url->out(false) . '&action=togglecourse&cid=" + courseId + "&ajax=1", true);
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        // Reload page to update selection display.
-                        window.location.reload();
-                    }
-                };
-                xhr.send();
+
+        updateCourseState(courseNode);
+    });
+
+    document.querySelectorAll('.downloadcenter-category').forEach(categoryNode => {
+        const categoryCheckbox = categoryNode.querySelector('summary .category-checkbox');
+        if (!categoryCheckbox) {
+            return;
+        }
+
+        categoryCheckbox.addEventListener('change', () => {
+            const container = categoryNode.querySelector('.category-children');
+            if (!container) {
+                return;
+            }
+            container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = categoryCheckbox.checked;
+                cb.dispatchEvent(new Event('change'));
             });
         });
-    ');
-    
+
+        updateCategoryState(categoryNode);
+    });
+})();
+JS;
+    echo html_writer::script($js);
+
     echo $OUTPUT->footer();
     exit;
 }
@@ -411,94 +389,265 @@ require_login();
 redirect(new moodle_url('/course/index.php'));
 
 /**
- * Render category tree recursively.
+ * Render a category node for the admin multi-course selector.
  *
  * @param \core_course_category $category Category object
- * @param array $selectedcourses Selected course IDs
- * @param \moodle_url $baseurl Base URL
- * @return string HTML output
+ * @param array $selectedcoursedata Posted course/resource selections
+ * @return array{html:string, selected:bool} Rendered HTML and selection state
  */
-function render_category_tree($category, $selectedcourses, $baseurl) {
-    global $OUTPUT;
-    
-    $output = '';
-    
-    // Get courses in this category.
+function local_downloadcenter_render_admin_category(\core_course_category $category, array $selectedcoursedata) {
     $courses = $category->get_courses(['recursive' => false, 'sort' => ['fullname' => 1]]);
-    
-    // Get child categories.
     $children = $category->get_children();
-    
-    // Only show if has courses or children.
-    if (empty($courses) && empty($children)) {
-        return '';
+
+    $content = '';
+    $hasselected = false;
+
+    foreach ($courses as $course) {
+        if (!$course instanceof \core_course_list_element) {
+            $course = new \core_course_list_element($course);
+        }
+        if (!$course->can_access()) {
+            continue;
+        }
+
+        $rendered = local_downloadcenter_render_admin_course($course, $selectedcoursedata);
+        if (!empty($rendered['html'])) {
+            $content .= $rendered['html'];
+            $hasselected = $hasselected || $rendered['selected'];
+        }
     }
-    
-    $output .= html_writer::start_div('category-item mb-2');
-    
-    // Category header.
-    $output .= html_writer::start_div('category-header p-2 bg-light border rounded');
-    
-    $toggleicon = html_writer::tag('i', '', ['class' => 'fas fa-plus mr-2']);
-    $output .= html_writer::link('#', 
-                                 $toggleicon . format_string($category->name) . 
-                                 ' (' . count($courses) . ' ' . get_string('courses') . ')',
-                                 ['class' => 'category-toggle text-decoration-none text-dark', 
-                                  'data-category' => $category->id]);
-    
-    $output .= html_writer::end_div();
-    
-    // Category content (initially hidden).
-    $output .= html_writer::start_div('category-content ml-3', 
-                                      ['id' => 'category-content-' . $category->id, 
-                                       'style' => 'display: none;']);
-    
-    // Display courses.
-    if (!empty($courses)) {
-        $output .= html_writer::start_div('courses-list mb-2');
-        
-        foreach ($courses as $course) {
-            if (!can_access_course($course)) {
+
+    foreach ($children as $child) {
+        $childrendered = local_downloadcenter_render_admin_category($child, $selectedcoursedata);
+        if (!empty($childrendered['html'])) {
+            $content .= $childrendered['html'];
+            $hasselected = $hasselected || $childrendered['selected'];
+        }
+    }
+
+    if ($content === '') {
+        return ['html' => '', 'selected' => false];
+    }
+
+    $categoryid = $category->id;
+    $checkboxattrs = [
+        'type' => 'checkbox',
+        'class' => 'form-check-input category-checkbox',
+        'data-categoryid' => $categoryid,
+        'id' => 'category-' . $categoryid,
+    ];
+    if ($hasselected) {
+        $checkboxattrs['checked'] = 'checked';
+    }
+
+    $labeltext = format_string($category->name);
+    $coursecount = count($courses);
+    if ($coursecount) {
+        $labeltext .= ' (' . $coursecount . ' ' . get_string('courses') . ')';
+    }
+
+    $checkbox = html_writer::empty_tag('input', $checkboxattrs);
+    $label = html_writer::tag('label', $labeltext, [
+        'for' => 'category-' . $categoryid,
+        'class' => 'mb-0 ml-2 font-weight-bold',
+    ]);
+
+    $summary = html_writer::tag('summary', $checkbox . $label, ['class' => 'd-flex align-items-center']);
+
+    $detailsattrs = [
+        'class' => 'downloadcenter-category mb-3',
+        'data-categoryid' => $categoryid,
+    ];
+    if ($hasselected) {
+        $detailsattrs['open'] = 'open';
+    }
+
+    $body = html_writer::div($content, 'category-children pl-3', ['id' => 'category-node-' . $categoryid]);
+
+    return [
+        'html' => html_writer::tag('details', $summary . $body, $detailsattrs),
+        'selected' => $hasselected,
+    ];
+}
+
+/**
+ * Render a single course node with its resources for admin selection.
+ *
+ * @param \core_course_list_element $course Course element
+ * @param array $selectedcoursedata Posted course/resource selections
+ * @return array{html:string, selected:bool} Rendered HTML and selection state
+ */
+function local_downloadcenter_render_admin_course(\core_course_list_element $course, array $selectedcoursedata) {
+    global $DB, $USER;
+
+    $courseid = $course->id;
+    $courserecord = $DB->get_record('course', ['id' => $courseid]);
+    if (!$courserecord) {
+        return ['html' => '', 'selected' => false];
+    }
+
+    $factory = new \local_downloadcenter\factory($courserecord, $USER);
+    $resources = $factory->get_resources_for_user();
+    if (empty($resources)) {
+        return ['html' => '', 'selected' => false];
+    }
+
+    $courseitems = $selectedcoursedata[$courseid] ?? [];
+    if (!is_array($courseitems)) {
+        $courseitems = [];
+    }
+
+    $hasselected = false;
+    $resourceoutput = '';
+    $sectionindex = 0;
+    foreach ($resources as $sectionid => $section) {
+        $sectionclasses = 'downloadcenter-section-title font-weight-bold';
+        if ($sectionindex++ > 0) {
+            $sectionclasses .= ' mt-3';
+        }
+        $resourceoutput .= html_writer::div(format_string($section->title), $sectionclasses);
+
+        foreach ($section->res as $res) {
+            $reskey = 'item_' . $res->modname . '_' . $res->instanceid;
+            $checked = !empty($courseitems[$reskey]);
+            if ($checked) {
+                $hasselected = true;
+            }
+
+            $inputattrs = [
+                'type' => 'checkbox',
+                'class' => 'form-check-input resource-checkbox',
+                'name' => 'coursedata[' . $courseid . '][' . $reskey . ']',
+                'value' => 1,
+                'id' => 'resource-' . $courseid . '-' . $res->cmid,
+            ];
+            if ($checked) {
+                $inputattrs['checked'] = 'checked';
+            }
+
+            $labeltext = $res->icon . format_string($res->name);
+            if (!$res->visible || !empty($res->isstealth)) {
+                $labeltext .= html_writer::span(get_string('hidden'), 'badge badge-warning ml-2');
+            }
+
+            $resourceoutput .= html_writer::div(
+                html_writer::empty_tag('input', $inputattrs) .
+                html_writer::tag('label', $labeltext, [
+                    'for' => 'resource-' . $courseid . '-' . $res->cmid,
+                    'class' => 'form-check-label d-flex align-items-center',
+                ]),
+                'form-check resource-item'
+            );
+        }
+    }
+
+    $coursecheckboxattrs = [
+        'type' => 'checkbox',
+        'class' => 'form-check-input course-checkbox',
+        'data-courseid' => $courseid,
+        'id' => 'course-' . $courseid,
+    ];
+    if ($hasselected) {
+        $coursecheckboxattrs['checked'] = 'checked';
+    }
+
+    $coursebadge = '';
+    if (!$course->visible) {
+        $coursebadge = html_writer::span(get_string('hidden'), 'badge badge-warning ml-2');
+    }
+
+    $coursecontext = \context_course::instance($courseid);
+    $coursename = method_exists($course, 'get_formatted_name') ? $course->get_formatted_name()
+        : format_string($course->fullname, true, ['context' => $coursecontext]);
+    $courseshortname = format_string($course->shortname, true, ['context' => $coursecontext]);
+
+    $summarylabel = html_writer::tag('label',
+        $coursename . ' (' . $courseshortname . ')' . $coursebadge,
+        [
+            'for' => 'course-' . $courseid,
+            'class' => 'mb-0 ml-2 d-inline-flex align-items-center',
+        ]
+    );
+
+    $summary = html_writer::tag(
+        'summary',
+        html_writer::empty_tag('input', $coursecheckboxattrs) . $summarylabel,
+        ['class' => 'd-flex align-items-center']
+    );
+
+    $detailsattrs = [
+        'class' => 'downloadcenter-course mb-2',
+        'data-courseid' => $courseid,
+    ];
+    if ($hasselected) {
+        $detailsattrs['open'] = 'open';
+    }
+
+    $body = html_writer::div($resourceoutput, 'course-resources pl-4', ['id' => 'course-node-' . $courseid]);
+
+    return [
+        'html' => html_writer::tag('details', $summary . $body, $detailsattrs),
+        'selected' => $hasselected,
+    ];
+}
+
+/**
+ * Build the per-course selection array expected by the admin manager.
+ *
+ * @param array $coursedata Raw form data grouped by course
+ * @param array $options Download options
+ * @return array Prepared selections
+ */
+function local_downloadcenter_prepare_admin_selections(array $coursedata, array $options) {
+    global $DB, $USER;
+
+    $prepared = [];
+
+    foreach ($coursedata as $courseid => $items) {
+        $courseid = clean_param($courseid, PARAM_INT);
+        if (empty($courseid) || !is_array($items)) {
+            continue;
+        }
+
+        $requested = [];
+        foreach ($items as $itemkey => $value) {
+            if (empty($value) || !is_string($itemkey)) {
                 continue;
             }
-            
-            $checked = isset($selectedcourses[$course->id]);
-            
-            $output .= html_writer::start_div('form-check mb-1');
-            
-            $output .= html_writer::empty_tag('input', [
-                'type' => 'checkbox',
-                'class' => 'form-check-input course-checkbox',
-                'id' => 'course-' . $course->id,
-                'data-courseid' => $course->id,
-                'checked' => $checked
-            ]);
-            
-            $courselabel = format_string($course->fullname) . ' (' . format_string($course->shortname) . ')';
-            if (!$course->visible) {
-                $courselabel .= ' ' . html_writer::tag('span', get_string('hidden'), 
-                                                       ['class' => 'badge badge-warning']);
+            if (!preg_match('/^item_[a-z][a-z0-9]*_\d+$/i', $itemkey)) {
+                continue;
             }
-            
-            $output .= html_writer::tag('label', $courselabel, 
-                                       ['class' => 'form-check-label', 
-                                        'for' => 'course-' . $course->id]);
-            
-            $output .= html_writer::end_div();
+            $requested[$itemkey] = true;
         }
-        
-        $output .= html_writer::end_div();
-    }
-    
-    // Display child categories.
-    if (!empty($children)) {
-        foreach ($children as $child) {
-            $output .= render_category_tree($child, $selectedcourses, $baseurl);
+
+        if (empty($requested)) {
+            continue;
+        }
+
+        $course = $DB->get_record('course', ['id' => $courseid]);
+        if (!$course || !can_access_course($course)) {
+            continue;
+        }
+
+        $factory = new \local_downloadcenter\factory($course, $USER);
+        $factory->set_download_options($options);
+        $resources = $factory->get_resources_for_user();
+
+        $selection = [];
+        foreach ($resources as $sectionid => $section) {
+            foreach ($section->res as $res) {
+                $reskey = 'item_' . $res->modname . '_' . $res->instanceid;
+                if (isset($requested[$reskey])) {
+                    $selection[$reskey] = 1;
+                    $selection['item_topic_' . $sectionid] = 1;
+                }
+            }
+        }
+
+        if (!empty($selection)) {
+            $prepared[$courseid] = $selection;
         }
     }
-    
-    $output .= html_writer::end_div(); // category-content.
-    $output .= html_writer::end_div(); // category-item.
-    
-    return $output;
+
+    return $prepared;
 }
