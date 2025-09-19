@@ -295,7 +295,7 @@ class factory {
             raise_memory_limit($memorylimit);
         }
         if ($timelimit) {
-            core_php_time_limit::raise($timelimit);
+            \core_php_time_limit::raise($timelimit);
         }
         
         // Close session for performance.
