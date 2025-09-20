@@ -48,6 +48,17 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
      */
     const init = function(initialConfig) {
         config = initialConfig || {};
+        config.services = config.services || {};
+        const hasAjaxServices = Boolean(
+            config.services.categoryChildren &&
+            config.services.courseResources
+        );
+        if (typeof config.ajaxEnabled !== 'boolean') {
+            config.ajaxEnabled = hasAjaxServices;
+        } else if (config.ajaxEnabled && !hasAjaxServices) {
+            // Prevent inconsistent configuration when services are missing.
+            config.ajaxEnabled = false;
+        }
 
         document.querySelectorAll(SELECTORS.category).forEach(initialiseCategoryNode);
         document.querySelectorAll(SELECTORS.course).forEach(initialiseCourseNode);
@@ -111,6 +122,10 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
      * @return {Promise}
      */
     const ensureCategoryChildrenLoaded = function(categoryNode) {
+        if (!config.ajaxEnabled || !config.services.categoryChildren) {
+            return Promise.resolve();
+        }
+
         if (parseInt(categoryNode.dataset.loaded, 10) === 1) {
             return Promise.resolve();
         }
@@ -129,15 +144,18 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             const container = categoryNode.querySelector(SELECTORS.categoryChildren);
             container.innerHTML = response.html;
             categoryNode.dataset.loaded = 1;
-            delete categoryNode._loadingPromise;
 
             container.querySelectorAll(SELECTORS.category).forEach(initialiseCategoryNode);
             container.querySelectorAll(SELECTORS.course).forEach(initialiseCourseNode);
             container.querySelectorAll(SELECTORS.sectionCheckbox).forEach(registerSectionCheckbox);
             container.querySelectorAll(SELECTORS.resourceCheckbox).forEach(registerResourceCheckbox);
             updateSelectionCount(response.selectioncount);
-        }).catch(Notification.exception).finally(() => {
-            delete categoryNode._loadingPromise;
+        }).catch((error) => {
+            Notification.exception(error);
+        }).then(() => {
+            if (categoryNode._loadingPromise === request) {
+                delete categoryNode._loadingPromise;
+            }
         });
 
         return request;
@@ -150,6 +168,10 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
      * @return {Promise}
      */
     const ensureCourseResourcesLoaded = function(courseNode) {
+        if (!config.ajaxEnabled || !config.services.courseResources) {
+            return Promise.resolve();
+        }
+
         if (parseInt(courseNode.dataset.loaded, 10) === 1) {
             return Promise.resolve();
         }
@@ -168,13 +190,16 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             const container = courseNode.querySelector(SELECTORS.resourceContainer);
             container.innerHTML = response.html;
             courseNode.dataset.loaded = 1;
-            delete courseNode._loadingPromise;
 
             container.querySelectorAll(SELECTORS.sectionCheckbox).forEach(registerSectionCheckbox);
             container.querySelectorAll(SELECTORS.resourceCheckbox).forEach(registerResourceCheckbox);
             updateCourseState(courseNode);
-        }).catch(Notification.exception).finally(() => {
-            delete courseNode._loadingPromise;
+        }).catch((error) => {
+            Notification.exception(error);
+        }).then(() => {
+            if (courseNode._loadingPromise === request) {
+                delete courseNode._loadingPromise;
+            }
         });
 
         return request;
@@ -401,6 +426,11 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             pendingRequests[courseid].abort();
         }
 
+        if (!config.ajaxEnabled || !config.services.setSelection) {
+            updateSelectionCount(countSelectedCourses());
+            return;
+        }
+
         const request = Ajax.call([{
             methodname: config.services.setSelection,
             args: {
@@ -412,8 +442,12 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         pendingRequests[courseid] = request;
         request.then((response) => {
             updateSelectionCount(response.selectioncount);
-        }).catch(Notification.exception).finally(() => {
-            delete pendingRequests[courseid];
+        }).catch((error) => {
+            Notification.exception(error);
+        }).then(() => {
+            if (pendingRequests[courseid] === request) {
+                delete pendingRequests[courseid];
+            }
         });
     };
 
@@ -522,10 +556,31 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             options[checkbox.dataset.option] = checkbox.checked ? 1 : 0;
         });
 
+        if (!config.ajaxEnabled || !config.services.setOptions) {
+            return;
+        }
+
         Ajax.call([{
             methodname: config.services.setOptions,
             args: {options: JSON.stringify(options)}
-        }])[0].catch(Notification.exception);
+        }])[0].catch((error) => {
+            Notification.exception(error);
+        });
+    };
+
+    /**
+     * Count currently selected courses in the tree.
+     *
+     * @return {Number}
+     */
+    const countSelectedCourses = function() {
+        let count = 0;
+        document.querySelectorAll(SELECTORS.courseCheckbox).forEach((checkbox) => {
+            if (checkbox.checked) {
+                count++;
+            }
+        });
+        return count;
     };
 
     return {

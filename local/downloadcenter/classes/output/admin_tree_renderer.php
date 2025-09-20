@@ -56,13 +56,15 @@ class admin_tree_renderer {
     /**
      * Render the list of root categories.
      *
+     * @param bool $lazy Whether child nodes should be lazy loaded via AJAX
      * @return string
      */
-    public function render_root_categories(): string {
+    public function render_root_categories(bool $lazy = true): string {
         $output = '';
+
         $rootcategory = core_course_category::top();
         foreach ($rootcategory->get_children() as $category) {
-            $output .= $this->render_category_node($category, true);
+            $output .= $this->render_category_node($category, $lazy);
         }
 
         return $output;

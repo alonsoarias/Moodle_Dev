@@ -216,19 +216,33 @@ if ($mode === 'admin' && $isadmin) {
     }
 
     $treerenderer = new \local_downloadcenter\output\admin_tree_renderer($selectionmanager, $allowrestrictedcourses);
-    $treehtml = $treerenderer->render_root_categories();
+
+    $services = [
+        'categoryChildren' => 'local_downloadcenter_get_category_children',
+        'courseResources' => 'local_downloadcenter_get_course_resources',
+        'setSelection' => 'local_downloadcenter_set_course_selection',
+        'setOptions' => 'local_downloadcenter_set_download_options',
+    ];
+
+    $ajaxenabled = true;
+    foreach ($services as $servicename) {
+        try {
+            \core_external\external_api::external_function_info($servicename);
+        } catch (\Throwable $exception) {
+            $ajaxenabled = false;
+            break;
+        }
+    }
+
+    $treehtml = $treerenderer->render_root_categories($ajaxenabled);
 
     $initialconfig = [
         'sesskey' => sesskey(),
         'options' => $downloadoptions,
         'selection' => $selectionmanager->get_course_selections(),
         'allowRestricted' => $allowrestrictedcourses,
-        'services' => [
-            'categoryChildren' => 'local_downloadcenter_get_category_children',
-            'courseResources' => 'local_downloadcenter_get_course_resources',
-            'setSelection' => 'local_downloadcenter_set_course_selection',
-            'setOptions' => 'local_downloadcenter_set_download_options',
-        ],
+        'services' => $ajaxenabled ? $services : new stdClass(),
+        'ajaxEnabled' => $ajaxenabled,
         'strings' => [
             'loading' => get_string('loading', 'local_downloadcenter'),
             'nocontent' => get_string('nocontentavailable', 'local_downloadcenter'),
@@ -240,6 +254,7 @@ if ($mode === 'admin' && $isadmin) {
     $PAGE->set_heading(get_string('admindownloadcenter', 'local_downloadcenter'));
     $PAGE->requires->css('/local/downloadcenter/styles.css');
     $PAGE->requires->js_call_amd('local_downloadcenter/admin_tree', 'init', [$initialconfig]);
+
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('admindownloadcenter', 'local_downloadcenter'));
 
