@@ -240,7 +240,6 @@ if ($mode === 'admin' && $isadmin) {
     $PAGE->set_heading(get_string('admindownloadcenter', 'local_downloadcenter'));
     $PAGE->requires->css('/local/downloadcenter/styles.css');
     $PAGE->requires->js_call_amd('local_downloadcenter/admin_tree', 'init', [$initialconfig]);
-
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('admindownloadcenter', 'local_downloadcenter'));
 
