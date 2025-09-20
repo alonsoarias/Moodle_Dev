@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_downloadcenter';
-$plugin->version   = 2025120200;  // YYYYMMDDXX format.
+$plugin->version   = 2025120201;  // YYYYMMDDXX format.
 $plugin->release   = 'v5.1.0-extended';
 $plugin->requires  = 2024100700;  // Requires Moodle 4.5+.
 $plugin->maturity  = MATURITY_STABLE;
