@@ -20,7 +20,7 @@
  * @copyright  2025 Academic Moodle Cooperation
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['core/notification'], function(Notification) {
+define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
     'use strict';
 
     const SELECTORS = {
@@ -105,31 +105,11 @@ define(['core/notification'], function(Notification) {
                 });
         }
 
-        return new Promise(function(resolve, reject) {
-            require(['core/ajax'], function(Ajax) {
-                const request = Ajax.call([{
-                    methodname: methodname,
-                    args: args || {}
-                }])[0];
-
-                if (controller && controller.signal) {
-                    if (controller.signal.aborted && request && request.abort) {
-                        request.abort();
-                        const abortError = new Error('Aborted');
-                        abortError.name = 'AbortError';
-                        reject(abortError);
-                        return;
-                    }
-                    controller.signal.addEventListener('abort', function() {
-                        if (request && request.abort) {
-                            request.abort();
-                        }
-                    });
-                }
-
-                request.then(resolve).catch(reject);
-            }, reject);
-        });
+        // Fallback to core/ajax if fetch is not supported
+        return Ajax.call([{
+            methodname: methodname,
+            args: args || {}
+        }])[0];
     };
 
     /**
