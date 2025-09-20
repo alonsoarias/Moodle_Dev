@@ -84,6 +84,7 @@ $string['infomessage_teachers'] = 'Here you can download single or all available
 $string['nocoursesselected'] = 'No courses selected for download.';
 $string['nocourseaccess'] = 'You do not have access to download these courses.';
 $string['nocoursesfound'] = 'No courses found in this category.';
+$string['nocontentavailable'] = 'There are no downloadable resources in this course yet.';
 $string['adminfullcourselabel'] = 'Select all available course resources';
 $string['adminfullcoursehint'] = 'Attempts to include every downloadable resource for this course even if items are not listed below.';
 $string['toomanycoursesselected'] = 'Too many courses selected. Maximum allowed: {$a}';
@@ -91,6 +92,8 @@ $string['zipfailed'] = 'Failed to create ZIP file.';
 $string['noselectederror'] = 'Please select at least one resource to download.';
 $string['zipcreating'] = 'The ZIP archive is being created...';
 $string['zipready'] = 'The ZIP archive has been successfully created.';
+$string['selectioncleared'] = 'Selection cleared';
+$string['loading'] = 'Loading…';
 
 // Search.
 $string['search:hint'] = 'Type to filter activities and resources...';
@@ -104,10 +107,7 @@ $string['eventdownloadedzip'] = 'ZIP downloaded';
 $string['untitled'] = 'Untitled';
 $string['privacy:metadata'] = 'The Download Center plugin does not store any personal data.';
 
-// Add these strings to the existing language file:
-
 $string['currentselection'] = 'Current selection';
-$string['selectioncleared'] = 'Selection cleared';
 $string['saveoptions'] = 'Save options';
 $string['courses'] = 'courses';
 $string['hidden'] = 'Hidden';

@@ -43,6 +43,9 @@ class selection_manager {
     
     /** @var array Download options */
     protected $options;
+
+    /** @var array<int, int[]> Cached course category paths */
+    protected $coursecategories = [];
     
     /**
      * Constructor.
@@ -63,6 +66,10 @@ class selection_manager {
     protected function load_selection() {
         $pref = get_user_preferences('downloadcenter_selection', '{}', $this->userid);
         $this->selection = json_decode($pref, true) ?: [];
+        $this->selection = array_filter($this->selection, function($value) {
+            return is_array($value);
+        });
+        $this->build_course_categories_cache();
     }
     
     /**
@@ -106,8 +113,10 @@ class selection_manager {
      * @return void
      */
     public function add_course($courseid, $resources = []) {
-        $this->selection[$courseid] = empty($resources) ? ['all' => true] : $resources;
-        $this->save_selection();
+        if (empty($resources)) {
+            $resources = ['__fullcourse' => 1];
+        }
+        $this->set_course_selection($courseid, $resources);
     }
     
     /**
@@ -118,6 +127,7 @@ class selection_manager {
      */
     public function remove_course($courseid) {
         unset($this->selection[$courseid]);
+        unset($this->coursecategories[$courseid]);
         $this->save_selection();
     }
     
@@ -176,6 +186,7 @@ class selection_manager {
      */
     public function clear_selection() {
         $this->selection = [];
+        $this->coursecategories = [];
         $this->save_selection();
     }
     
@@ -208,10 +219,10 @@ class selection_manager {
         if ($this->is_course_selected($courseid)) {
             $this->remove_course($courseid);
             return false;
-        } else {
-            $this->add_course($courseid);
-            return true;
         }
+
+        $this->set_course_selection($courseid, ['__fullcourse' => 1]);
+        return true;
     }
     
     /**
@@ -224,9 +235,150 @@ class selection_manager {
     public function update_course_resources($courseid, $resources) {
         if (empty($resources)) {
             $this->remove_course($courseid);
-        } else {
-            $this->selection[$courseid] = $resources;
-            $this->save_selection();
+            return;
         }
+
+        $this->set_course_selection($courseid, $resources);
+    }
+
+    /**
+     * Replace the current selection for the course.
+     *
+     * @param int $courseid Course id
+     * @param array $selection Selection data (form compatible)
+     * @return void
+     */
+    public function set_course_selection($courseid, array $selection): void {
+        $courseid = (int)$courseid;
+        if ($courseid <= 0) {
+            return;
+        }
+
+        $filtered = [];
+        foreach ($selection as $key => $value) {
+            if ($value === null || $value === '' || $value === false) {
+                continue;
+            }
+            if ($key === '__fullcourse' || preg_match('/^item_[a-z0-9]+_\d+$/i', $key)) {
+                $filtered[$key] = 1;
+            } else if (preg_match('/^item_topic_\d+$/', $key)) {
+                $filtered[$key] = 1;
+            }
+        }
+
+        if (empty($filtered)) {
+            $this->remove_course($courseid);
+            return;
+        }
+
+        $this->selection[$courseid] = $filtered;
+        $this->coursecategories[$courseid] = $this->resolve_course_categories($courseid);
+        $this->save_selection();
+    }
+
+    /**
+     * Determine if the course has a partial selection.
+     *
+     * @param int $courseid Course id
+     * @return bool
+     */
+    public function course_has_partial_selection(int $courseid): bool {
+        if (!$this->is_course_selected($courseid)) {
+            return false;
+        }
+
+        $selection = $this->selection[$courseid];
+        return empty($selection['__fullcourse']);
+    }
+
+    /**
+     * Calculate the category state based on selected courses.
+     *
+     * @param int $categoryid Category id
+     * @return array{checked:bool,indeterminate:bool,selected:bool}
+     */
+    public function get_course_selections_for_category(int $categoryid): array {
+        $categoryid = (int)$categoryid;
+        $hasselection = false;
+        $allfull = true;
+
+        foreach ($this->selection as $courseid => $selection) {
+            $categories = $this->get_course_categories($courseid);
+            if (!in_array($categoryid, $categories, true)) {
+                continue;
+            }
+
+            $hasselection = true;
+            if (empty($selection['__fullcourse'])) {
+                $allfull = false;
+                break;
+            }
+        }
+
+        if (!$hasselection) {
+            return ['checked' => false, 'indeterminate' => false, 'selected' => false];
+        }
+
+        return [
+            'checked' => $allfull,
+            'indeterminate' => !$allfull,
+            'selected' => true,
+        ];
+    }
+
+    /**
+     * Retrieve the cached course category path.
+     *
+     * @param int $courseid Course id
+     * @return int[]
+     */
+    protected function get_course_categories(int $courseid): array {
+        if (!isset($this->coursecategories[$courseid])) {
+            $this->coursecategories[$courseid] = $this->resolve_course_categories($courseid);
+        }
+        return $this->coursecategories[$courseid];
+    }
+
+    /**
+     * Build cache for selected courses.
+     *
+     * @return void
+     */
+    protected function build_course_categories_cache(): void {
+        $this->coursecategories = [];
+        foreach (array_keys($this->selection) as $courseid) {
+            $this->coursecategories[$courseid] = $this->resolve_course_categories((int)$courseid);
+        }
+    }
+
+    /**
+     * Resolve all categories the course belongs to.
+     *
+     * @param int $courseid Course id
+     * @return int[]
+     */
+    protected function resolve_course_categories(int $courseid): array {
+        global $DB;
+
+        $course = $DB->get_record('course', ['id' => $courseid], 'id, category');
+        if (!$course) {
+            return [];
+        }
+
+        $categoryids = [];
+        if (!empty($course->category)) {
+            try {
+                $category = \core_course_category::get($course->category, \IGNORE_MISSING, true);
+            } catch (\moodle_exception $e) {
+                $category = null;
+            }
+
+            if ($category) {
+                $categoryids = $category->get_parents();
+                $categoryids[] = $category->id;
+            }
+        }
+
+        return array_map('intval', array_filter($categoryids));
     }
 }
