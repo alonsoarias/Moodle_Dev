@@ -60,9 +60,8 @@ class admin_tree_renderer {
      */
     public function render_root_categories(): string {
         $output = '';
-
-        $topcategories = core_course_category::top();
-        foreach ($topcategories as $category) {
+        $rootcategory = core_course_category::top();
+        foreach ($rootcategory->get_children() as $category) {
             $output .= $this->render_category_node($category, true);
         }
 
