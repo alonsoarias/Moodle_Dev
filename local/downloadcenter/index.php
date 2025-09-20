@@ -25,10 +25,6 @@
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
-// Raise limits for large downloads.
-\core_php_time_limit::raise();
-raise_memory_limit(MEMORY_HUGE);
-
 // Get parameters.
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
@@ -140,51 +136,68 @@ if ($mode === 'admin' && $isadmin) {
 
     require_once(__DIR__ . '/classes/admin_manager.php');
     require_once(__DIR__ . '/classes/factory.php');
+    require_once(__DIR__ . '/classes/selection_manager.php');
+    require_once(__DIR__ . '/classes/output/admin_tree_renderer.php');
 
     $PAGE->set_context($systemcontext);
     $PAGE->set_url(new moodle_url('/local/downloadcenter/index.php', ['mode' => 'admin']));
     $PAGE->set_pagelayout('admin');
     $PAGE->add_body_class('path-local-downloadcenter-admin');
 
+    $allowrestrictedcourses = has_capability('local/downloadcenter:downloadmultiple', $systemcontext);
+
+    $selectionmanager = new \local_downloadcenter\selection_manager($USER->id);
+    $storedoptions = $selectionmanager->get_download_options();
     $defaultoptions = [
         'excludestudent' => (int)(get_config('local_downloadcenter', 'excludestudentdefault') ?? 0),
         'filesrealnames' => 0,
         'addnumbering' => 0,
     ];
+    $downloadoptions = array_merge($defaultoptions, $storedoptions);
+    $downloadoptions['excludestudent'] = optional_param('excludestudent', $downloadoptions['excludestudent'], PARAM_BOOL);
+    $downloadoptions['filesrealnames'] = optional_param('filesrealnames', $downloadoptions['filesrealnames'], PARAM_BOOL);
+    $downloadoptions['addnumbering'] = optional_param('addnumbering', $downloadoptions['addnumbering'], PARAM_BOOL);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $selectionmanager->set_download_options($downloadoptions);
+    }
 
-    $downloadoptions = [
-        'excludestudent' => optional_param('excludestudent', $defaultoptions['excludestudent'], PARAM_BOOL),
-        'filesrealnames' => optional_param('filesrealnames', $defaultoptions['filesrealnames'], PARAM_BOOL),
-        'addnumbering' => optional_param('addnumbering', $defaultoptions['addnumbering'], PARAM_BOOL),
-    ];
-
-    $allowrestrictedcourses = has_capability('local/downloadcenter:downloadmultiple', $systemcontext);
-
+    $rawcoursedata = [];
     try {
-        $coursedata = optional_param_array('coursedata', null, PARAM_RAW);
+        $rawcoursedata = optional_param_array('coursedata', null, PARAM_RAW);
     } catch (\coding_exception $exception) {
         if (strpos($exception->getMessage(), 'clean() can not process arrays') === false) {
             throw $exception;
         }
-        $coursedata = null;
+        $rawcoursedata = null;
     }
 
-    if ($coursedata === null) {
+    if ($rawcoursedata === null) {
         if (isset($_POST['coursedata'])) {
-            $coursedata = $_POST['coursedata'];
+            $rawcoursedata = $_POST['coursedata'];
         } else if (isset($_GET['coursedata'])) {
-            $coursedata = $_GET['coursedata'];
+            $rawcoursedata = $_GET['coursedata'];
         }
     }
 
-    if (is_array($coursedata)) {
-        $coursedata = clean_param_array($coursedata, PARAM_RAW, true);
+    if (is_array($rawcoursedata)) {
+        $coursedata = clean_param_array($rawcoursedata, PARAM_RAW, true);
     } else {
         $coursedata = [];
     }
 
+    if ($action === 'clearselection') {
+        require_sesskey();
+        $selectionmanager->clear_selection();
+        redirect($PAGE->url, get_string('selectioncleared', 'local_downloadcenter'),
+            null, \core\output\notification::NOTIFY_SUCCESS);
+    }
+
     if ($action === 'download') {
         require_sesskey();
+
+        if (empty($coursedata)) {
+            $coursedata = $selectionmanager->get_course_selections();
+        }
 
         $courseselections = local_downloadcenter_prepare_admin_selections(
             $coursedata,
@@ -202,22 +215,31 @@ if ($mode === 'admin' && $isadmin) {
         exit;
     }
 
+    $treerenderer = new \local_downloadcenter\output\admin_tree_renderer($selectionmanager, $allowrestrictedcourses);
+    $treehtml = $treerenderer->render_root_categories();
+
+    $initialconfig = [
+        'sesskey' => sesskey(),
+        'options' => $downloadoptions,
+        'selection' => $selectionmanager->get_course_selections(),
+        'allowRestricted' => $allowrestrictedcourses,
+        'services' => [
+            'categoryChildren' => 'local_downloadcenter_get_category_children',
+            'courseResources' => 'local_downloadcenter_get_course_resources',
+            'setSelection' => 'local_downloadcenter_set_course_selection',
+            'setOptions' => 'local_downloadcenter_set_download_options',
+        ],
+        'strings' => [
+            'loading' => get_string('loading', 'local_downloadcenter'),
+            'nocontent' => get_string('nocontentavailable', 'local_downloadcenter'),
+            'selectionlabel' => get_string('currentselection', 'local_downloadcenter'),
+        ],
+    ];
+
     $PAGE->set_title(get_string('admindownloadcenter', 'local_downloadcenter'));
     $PAGE->set_heading(get_string('admindownloadcenter', 'local_downloadcenter'));
     $PAGE->requires->css('/local/downloadcenter/styles.css');
-    $PAGE->requires->js_call_amd('local_downloadcenter/admin_tree', 'init');
-
-    $categories = \core_course_category::get_all();
-    $treehtml = '';
-    foreach ($categories as $category) {
-        if ($category->parent != 0) {
-            continue;
-        }
-        $rendered = local_downloadcenter_render_admin_category($category, $coursedata, $allowrestrictedcourses);
-        if (!empty($rendered['html'])) {
-            $treehtml .= $rendered['html'];
-        }
-    }
+    $PAGE->requires->js_call_amd('local_downloadcenter/admin_tree', 'init', $initialconfig);
 
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('admindownloadcenter', 'local_downloadcenter'));
@@ -226,6 +248,7 @@ if ($mode === 'admin' && $isadmin) {
         'method' => 'post',
         'action' => $PAGE->url->out(false),
         'class' => 'downloadcenter-admin-form',
+        'id' => 'downloadcenter-admin-form',
     ]);
     echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
     echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => 'download']);
@@ -235,8 +258,11 @@ if ($mode === 'admin' && $isadmin) {
     echo html_writer::start_div('col-lg-8 downloadcenter-tree-column');
     echo html_writer::tag('h3', get_string('selectcourses', 'local_downloadcenter'));
     echo html_writer::tag('p', get_string('adminmultiselectinstructions', 'local_downloadcenter'), ['class' => 'text-muted']);
+
     if (!empty($treehtml)) {
-        echo html_writer::div($treehtml, 'downloadcenter-category-tree');
+        echo html_writer::div($treehtml, 'downloadcenter-category-tree', [
+            'data-region' => 'downloadcenter-tree',
+        ]);
     } else {
         echo html_writer::div(get_string('nocoursesfound', 'local_downloadcenter'), 'alert alert-info');
     }
@@ -245,10 +271,21 @@ if ($mode === 'admin' && $isadmin) {
     echo html_writer::start_div('col-lg-4 downloadcenter-options-column');
     echo html_writer::tag('h3', get_string('downloadoptions', 'local_downloadcenter'));
 
+    $selectioncount = count($selectionmanager->get_course_selections());
+    echo html_writer::div(
+        html_writer::span(
+            get_string('currentselection', 'local_downloadcenter') . ': ' .
+            html_writer::span($selectioncount, 'selection-count badge badge-primary'),
+            'font-weight-bold'
+        ),
+        'downloadcenter-selection-summary mb-3'
+    );
+
     echo html_writer::start_div('form-check mb-2');
     echo html_writer::empty_tag('input', [
         'type' => 'checkbox',
-        'class' => 'form-check-input',
+        'class' => 'form-check-input downloadcenter-option',
+        'data-option' => 'excludestudent',
         'id' => 'excludestudent',
         'name' => 'excludestudent',
         'value' => 1,
@@ -261,7 +298,8 @@ if ($mode === 'admin' && $isadmin) {
     echo html_writer::start_div('form-check mb-2');
     echo html_writer::empty_tag('input', [
         'type' => 'checkbox',
-        'class' => 'form-check-input',
+        'class' => 'form-check-input downloadcenter-option',
+        'data-option' => 'filesrealnames',
         'id' => 'filesrealnames',
         'name' => 'filesrealnames',
         'value' => 1,
@@ -274,7 +312,8 @@ if ($mode === 'admin' && $isadmin) {
     echo html_writer::start_div('form-check mb-3');
     echo html_writer::empty_tag('input', [
         'type' => 'checkbox',
-        'class' => 'form-check-input',
+        'class' => 'form-check-input downloadcenter-option',
+        'data-option' => 'addnumbering',
         'id' => 'addnumbering',
         'name' => 'addnumbering',
         'value' => 1,
@@ -284,8 +323,17 @@ if ($mode === 'admin' && $isadmin) {
         ['class' => 'form-check-label', 'for' => 'addnumbering']);
     echo html_writer::end_div();
 
-    echo html_writer::tag('button', get_string('downloadselection', 'local_downloadcenter'),
-        ['type' => 'submit', 'class' => 'btn btn-primary btn-block mt-3']);
+    echo html_writer::start_div('d-flex flex-column gap-2');
+    echo html_writer::tag('button', get_string('downloadselection', 'local_downloadcenter'), [
+        'type' => 'submit',
+        'class' => 'btn btn-primary btn-block mt-3',
+        'id' => 'download-selection',
+        'disabled' => $selectioncount ? null : 'disabled',
+    ]);
+    echo html_writer::link(new moodle_url($PAGE->url, ['action' => 'clearselection', 'sesskey' => sesskey()]),
+        get_string('clearselection', 'local_downloadcenter'),
+        ['class' => 'btn btn-secondary mt-2', 'id' => 'clear-selection-link']);
+    echo html_writer::end_div();
 
     echo html_writer::end_div();
 
@@ -293,7 +341,6 @@ if ($mode === 'admin' && $isadmin) {
 
     echo html_writer::end_tag('form');
 
-    // The AMD module admin_tree will handle all the JavaScript functionality
     echo $OUTPUT->footer();
     exit;
 }
@@ -301,261 +348,6 @@ if ($mode === 'admin' && $isadmin) {
 // If no valid mode, redirect to course listing.
 require_login();
 redirect(new moodle_url('/course/index.php'));
-
-/**
- * Render a category node for the admin multi-course selector.
- *
- * @param \core_course_category $category Category object
- * @param array $selectedcoursedata Posted course/resource selections
- * @param bool $allowrestricted True when course access checks should be bypassed
- * @return array{html:string, selected:bool} Rendered HTML and selection state
- */
-function local_downloadcenter_render_admin_category(\core_course_category $category,
-        array $selectedcoursedata, bool $allowrestricted = false) {
-    $courses = $category->get_courses(['recursive' => false, 'sort' => ['fullname' => 1]]);
-    $children = $category->get_children();
-
-    $content = '';
-    $hasselected = false;
-
-    foreach ($courses as $course) {
-        if (!$course instanceof \core_course_list_element) {
-            $course = new \core_course_list_element($course);
-        }
-        if (!$allowrestricted && !$course->can_access()) {
-            continue;
-        }
-
-        $rendered = local_downloadcenter_render_admin_course($course, $selectedcoursedata, $allowrestricted);
-        if (!empty($rendered['html'])) {
-            $content .= $rendered['html'];
-            $hasselected = $hasselected || $rendered['selected'];
-        }
-    }
-
-    foreach ($children as $child) {
-        $childrendered = local_downloadcenter_render_admin_category($child, $selectedcoursedata, $allowrestricted);
-        if (!empty($childrendered['html'])) {
-            $content .= $childrendered['html'];
-            $hasselected = $hasselected || $childrendered['selected'];
-        }
-    }
-
-    if ($content === '') {
-        return ['html' => '', 'selected' => false];
-    }
-
-    $categoryid = $category->id;
-    $checkboxattrs = [
-        'type' => 'checkbox',
-        'class' => 'form-check-input category-checkbox',
-        'data-categoryid' => $categoryid,
-        'id' => 'category-' . $categoryid,
-    ];
-    if ($hasselected) {
-        $checkboxattrs['checked'] = 'checked';
-    }
-
-    $labeltext = format_string($category->name);
-    $coursecount = count($courses);
-    if ($coursecount) {
-        $labeltext .= ' (' . $coursecount . ' ' . get_string('courses') . ')';
-    }
-
-    $checkbox = html_writer::empty_tag('input', $checkboxattrs);
-    $label = html_writer::tag('label', $labeltext, [
-        'for' => 'category-' . $categoryid,
-        'class' => 'mb-0 ml-2 font-weight-bold',
-    ]);
-
-    $summary = html_writer::tag('summary', $checkbox . $label, ['class' => 'd-flex align-items-center']);
-
-    $detailsattrs = [
-        'class' => 'downloadcenter-category mb-3',
-        'data-categoryid' => $categoryid,
-    ];
-    if ($hasselected) {
-        $detailsattrs['open'] = 'open';
-    }
-
-    $body = html_writer::div($content, 'category-children pl-3', ['id' => 'category-node-' . $categoryid]);
-
-    return [
-        'html' => html_writer::tag('details', $summary . $body, $detailsattrs),
-        'selected' => $hasselected,
-    ];
-}
-
-/**
- * Render a single course node with its resources for admin selection.
- *
- * @param \core_course_list_element $course Course element
- * @param array $selectedcoursedata Posted course/resource selections
- * @param bool $allowrestricted True when course access checks should be bypassed
- * @return array{html:string, selected:bool} Rendered HTML and selection state
- */
-function local_downloadcenter_render_admin_course(\core_course_list_element $course,
-        array $selectedcoursedata, bool $allowrestricted = false) {
-    global $DB, $USER;
-
-    $courseid = $course->id;
-    $courserecord = $DB->get_record('course', ['id' => $courseid]);
-    if (!$courserecord) {
-        return ['html' => '', 'selected' => false];
-    }
-
-    $factory = new \local_downloadcenter\factory($courserecord, $USER);
-    try {
-        $resources = $factory->get_resources_for_user();
-    } catch (\moodle_exception $exception) {
-        debugging('Unable to enumerate resources for course ' . $courseid . ': ' . $exception->getMessage(),
-            DEBUG_DEVELOPER);
-        $resources = [];
-    }
-
-    $courseitems = $selectedcoursedata[$courseid] ?? [];
-    if (!is_array($courseitems)) {
-        $courseitems = [];
-    }
-    $fullcourseselected = !empty($courseitems['__fullcourse']);
-    unset($courseitems['__fullcourse']);
-
-    $hasselected = $fullcourseselected;
-    $hasresources = !empty($resources);
-    $resourceoutput = '';
-    $sectionindex = 0;
-
-    if ($hasresources) {
-        $fullcourseattrs = [
-            'type' => 'hidden',
-            'name' => 'coursedata[' . $courseid . '][__fullcourse]',
-            'value' => 1,
-            'class' => 'course-fullcourse-flag',
-            'data-courseid' => $courseid,
-        ];
-        if (!$fullcourseselected) {
-            $fullcourseattrs['disabled'] = 'disabled';
-        }
-        $resourceoutput .= html_writer::empty_tag('input', $fullcourseattrs);
-    }
-
-    if (!$hasresources) {
-        $fallbackattrs = [
-            'type' => 'checkbox',
-            'class' => 'form-check-input resource-checkbox course-fullcourse-checkbox',
-            'name' => 'coursedata[' . $courseid . '][__fullcourse]',
-            'value' => 1,
-            'id' => 'resource-' . $courseid . '-fullcourse',
-            'data-fullcourse' => 1,
-        ];
-        if ($fullcourseselected) {
-            $fallbackattrs['checked'] = 'checked';
-        }
-
-        $resourceoutput .= html_writer::div(
-            html_writer::empty_tag('input', $fallbackattrs) .
-            html_writer::tag('label', get_string('adminfullcourselabel', 'local_downloadcenter'), [
-                'for' => 'resource-' . $courseid . '-fullcourse',
-                'class' => 'form-check-label d-flex align-items-center',
-            ]) .
-            html_writer::tag('div', get_string('adminfullcoursehint', 'local_downloadcenter'), [
-                'class' => 'text-muted small mt-1',
-            ]),
-            'form-check resource-item'
-        );
-    } else {
-        foreach ($resources as $sectionid => $section) {
-            $sectionclasses = 'downloadcenter-section-title font-weight-bold';
-            if ($sectionindex++ > 0) {
-                $sectionclasses .= ' mt-3';
-            }
-            $resourceoutput .= html_writer::div(format_string($section->title), $sectionclasses);
-
-            foreach ($section->res as $res) {
-                $reskey = 'item_' . $res->modname . '_' . $res->instanceid;
-                $checked = $fullcourseselected || !empty($courseitems[$reskey]);
-                if ($checked) {
-                    $hasselected = true;
-                }
-
-                $inputattrs = [
-                    'type' => 'checkbox',
-                    'class' => 'form-check-input resource-checkbox',
-                    'name' => 'coursedata[' . $courseid . '][' . $reskey . ']',
-                    'value' => 1,
-                    'id' => 'resource-' . $courseid . '-' . $res->cmid,
-                ];
-                if ($checked) {
-                    $inputattrs['checked'] = 'checked';
-                }
-
-                $labeltext = $res->icon . format_string($res->name);
-                if (!$res->visible || !empty($res->isstealth)) {
-                    $labeltext .= html_writer::span(get_string('hidden'), 'badge badge-warning ml-2');
-                }
-
-                $resourceoutput .= html_writer::div(
-                    html_writer::empty_tag('input', $inputattrs) .
-                    html_writer::tag('label', $labeltext, [
-                        'for' => 'resource-' . $courseid . '-' . $res->cmid,
-                        'class' => 'form-check-label d-flex align-items-center',
-                    ]),
-                    'form-check resource-item'
-                );
-            }
-        }
-    }
-
-    $coursecheckboxattrs = [
-        'type' => 'checkbox',
-        'class' => 'form-check-input course-checkbox',
-        'data-courseid' => $courseid,
-        'id' => 'course-' . $courseid,
-    ];
-    if ($hasselected) {
-        $coursecheckboxattrs['checked'] = 'checked';
-    }
-
-    $coursebadge = '';
-    if (!$course->visible) {
-        $coursebadge = html_writer::span(get_string('hidden'), 'badge badge-warning ml-2');
-    }
-
-    $coursecontext = \context_course::instance($courseid);
-    $coursename = method_exists($course, 'get_formatted_name') ? $course->get_formatted_name()
-        : format_string($course->fullname, true, ['context' => $coursecontext]);
-    $courseshortname = format_string($course->shortname, true, ['context' => $coursecontext]);
-
-    $summarylabel = html_writer::tag('label',
-        $coursename . ' (' . $courseshortname . ')' . $coursebadge,
-        [
-            'for' => 'course-' . $courseid,
-            'class' => 'mb-0 ml-2 d-inline-flex align-items-center',
-        ]
-    );
-
-    $summary = html_writer::tag(
-        'summary',
-        html_writer::empty_tag('input', $coursecheckboxattrs) . $summarylabel,
-        ['class' => 'd-flex align-items-center']
-    );
-
-    $detailsattrs = [
-        'class' => 'downloadcenter-course mb-2',
-        'data-courseid' => $courseid,
-    ];
-    $detailsattrs['data-hasresources'] = $hasresources ? 1 : 0;
-    if ($hasselected) {
-        $detailsattrs['open'] = 'open';
-    }
-
-    $body = html_writer::div($resourceoutput, 'course-resources pl-4', ['id' => 'course-node-' . $courseid]);
-
-    return [
-        'html' => html_writer::tag('details', $summary . $body, $detailsattrs),
-        'selected' => $hasselected,
-    ];
-}
 
 /**
  * Build the per-course selection array expected by the admin manager.
