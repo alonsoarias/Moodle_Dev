@@ -84,6 +84,7 @@ $string['infomessage_teachers'] = 'Aquí puede descargar uno o todos los conteni
 $string['nocoursesselected'] = 'No se han seleccionado cursos para descargar.';
 $string['nocourseaccess'] = 'No tiene acceso para descargar estos cursos.';
 $string['nocoursesfound'] = 'No se encontraron cursos en esta categoría.';
+$string['nocontentavailable'] = 'Este curso aún no tiene recursos descargables.';
 $string['adminfullcourselabel'] = 'Seleccionar todos los recursos disponibles del curso';
 $string['adminfullcoursehint'] = 'Intentará incluir todos los recursos descargables del curso aunque no aparezcan listados abajo.';
 $string['toomanycoursesselected'] = 'Demasiados cursos seleccionados. Máximo permitido: {$a}';
@@ -91,6 +92,8 @@ $string['zipfailed'] = 'Error al crear el archivo ZIP.';
 $string['noselectederror'] = 'Por favor seleccione al menos un recurso para descargar.';
 $string['zipcreating'] = 'Se está creando el archivo ZIP...';
 $string['zipready'] = 'El archivo ZIP se ha creado exitosamente.';
+$string['selectioncleared'] = 'Selección eliminada';
+$string['loading'] = 'Cargando…';
 
 // Búsqueda.
 $string['search:hint'] = 'Escriba para filtrar actividades y recursos...';
@@ -104,10 +107,7 @@ $string['eventdownloadedzip'] = 'ZIP descargado';
 $string['untitled'] = 'Sin título';
 $string['privacy:metadata'] = 'El plugin Centro de descargas no almacena ningún dato personal.';
 
-// Add these strings to the existing language file:
-
 $string['currentselection'] = 'Selección actual';
-$string['selectioncleared'] = 'Selección borrada';
 $string['saveoptions'] = 'Guardar opciones';
 $string['courses'] = 'cursos';
 $string['hidden'] = 'Oculto';

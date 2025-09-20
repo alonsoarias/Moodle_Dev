@@ -81,6 +81,9 @@ class factory {
     
     /** @var int Resource counter for numbering */
     protected $resourcecount = 0;
+
+    /** @var array<string,bool> Cache of module availability */
+    protected static $moduleavailability = [];
     
     /**
      * Constructor.
@@ -91,6 +94,15 @@ class factory {
     public function __construct($course, $user) {
         $this->course = $course;
         $this->user = $user;
+    }
+
+    /**
+     * Get the course object associated with the factory.
+     *
+     * @return \stdClass
+     */
+    public function get_course() {
+        return $this->course;
     }
     
     /**
@@ -164,9 +176,15 @@ class factory {
         
         // Preload resource instances.
         foreach ($resources as $modname => $instances) {
-            if (!empty($instances)) {
-                $resources[$modname] = $DB->get_records_list($modname, 'id', $instances, 'id');
+            if (empty($instances)) {
+                unset($resources[$modname]);
+                continue;
             }
+            if (!$this->is_module_available($modname)) {
+                unset($resources[$modname]);
+                continue;
+            }
+            $resources[$modname] = $DB->get_records_list($modname, 'id', $instances, 'id');
         }
         
         // Process each course module.
@@ -574,6 +592,11 @@ class factory {
         if (empty($chapters)) {
             return;
         }
+
+        $chapterids = array_map(function($chapter) {
+            return $chapter->id;
+        }, $chapters);
+        $chaptercontents = $DB->get_records_list('book_chapters', 'id', $chapterids);
         
         // Add embedded files.
         $fsfiles = $fs->get_area_files($context->id, 'mod_book', 'chapter', null, 'id', false);
@@ -594,8 +617,8 @@ class factory {
             if ($chapter->hidden) {
                 continue;
             }
-            
-            $chaptercontent = $DB->get_record('book_chapters', ['id' => $chapter->id]);
+
+            $chaptercontent = $chaptercontents[$chapter->id] ?? null;
             if ($chaptercontent) {
                 $content .= '<div class="book-chapter">';
                 $content .= '<h2>' . format_string($chapter->title) . '</h2>';
@@ -766,7 +789,7 @@ class factory {
      * @return array Array of module names
      */
     public function get_js_modnames() {
-        return [$this->jsnames];
+        return $this->jsnames;
     }
     
     /**
@@ -816,5 +839,23 @@ $content
 </body>
 </html>
 HTML;
+    }
+
+    /**
+     * Determine if a module is installed and usable.
+     *
+     * @param string $modname Module name
+     * @return bool
+     */
+    protected function is_module_available(string $modname): bool {
+        global $DB;
+
+        if (!array_key_exists($modname, self::$moduleavailability)) {
+            $pluginpath = \core_component::get_plugin_directory('mod', $modname);
+            $available = $pluginpath && $DB->get_manager()->table_exists($modname);
+            self::$moduleavailability[$modname] = (bool)$available;
+        }
+
+        return self::$moduleavailability[$modname];
     }
 }

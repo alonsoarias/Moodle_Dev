@@ -126,13 +126,37 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+
 .path-local-downloadcenter-admin .downloadcenter-category-tree summary {
     cursor: pointer;
     list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .path-local-downloadcenter-admin .downloadcenter-category-tree summary::-webkit-details-marker {
     display: none;
+}
+
+.path-local-downloadcenter-admin .downloadcenter-chevron {
+    display: inline-flex;
+    width: 1.25rem;
+    height: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: #6c757d;
+    transition: color 0.2s ease;
+}
+
+.path-local-downloadcenter-admin .downloadcenter-chevron::before {
+    content: '\25B6';
+}
+
+.path-local-downloadcenter-admin .downloadcenter-category[open] > summary .downloadcenter-chevron::before,
+.path-local-downloadcenter-admin .downloadcenter-course[open] > summary .downloadcenter-chevron::before {
+    content: '\25BC';
 }
 
 .path-local-downloadcenter-admin .downloadcenter-category-tree .category-children {
@@ -147,6 +171,11 @@
 
 .path-local-downloadcenter-admin .downloadcenter-category-tree .downloadcenter-course summary {
     font-weight: 600;
+}
+
+.path-local-downloadcenter-admin .downloadcenter-category-tree .downloadcenter-course summary .selection-counter {
+    margin-left: auto;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .path-local-downloadcenter-admin .downloadcenter-category-tree .course-resources {
@@ -238,67 +267,18 @@
     }
 }
 
-/* Add this to the existing styles.css file */
-
-/* Admin interface styles */
-.downloadcenter-admin-container {
-    margin-top: 20px;
+.downloadcenter-selection-summary .selection-count {
+    margin-left: 0.5rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.category-tree {
-    max-height: 600px;
-    overflow-y: auto;
+.path-local-downloadcenter-admin details {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.category-header {
-    cursor: pointer;
-    user-select: none;
-}
-
-.category-header:hover {
-    background-color: #e9ecef !important;
-}
-
-.category-toggle {
-    display: block;
-    width: 100%;
-    text-align: left;
-}
-
-.category-toggle:hover {
-    text-decoration: none !important;
-}
-
-.category-content {
-    margin-top: 10px;
-    padding-left: 20px;
-    border-left: 2px solid #dee2e6;
-}
-
-.selection-panel {
-    position: sticky;
-    top: 60px;
-}
-
-.selected-courses-list {
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 10px;
-}
-
-.selected-course {
-    background-color: #f8f9fa;
-}
-
-.selected-course:hover {
-    background-color: #e9ecef;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .selection-panel {
-        position: relative;
-        top: 0;
-        margin-top: 20px;
-    }
+.path-local-downloadcenter-admin details[open] {
+    background-color: #fffdf8;
+    box-shadow: 0 4px 12px rgba(33, 37, 41, 0.08);
 }
