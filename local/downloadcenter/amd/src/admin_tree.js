@@ -40,6 +40,77 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
 
     let config = {};
     const pendingRequests = {};
+    const hasFetchSupport = typeof window.fetch === 'function';
+
+    /**
+     * Call an AJAX service using the configured endpoints.
+     *
+     * @param {String} serviceKey Configuration key for the service name
+     * @param {Object} args Arguments to send
+     * @param {AbortController} controller Optional abort controller
+     * @return {Promise}
+     */
+    const callService = function(serviceKey, args, controller) {
+        if (!config.ajaxEnabled || !config.services || !config.services[serviceKey]) {
+            return Promise.reject(new Error('Service not available.'));
+        }
+
+        const methodname = config.services[serviceKey];
+        const payload = JSON.stringify([{
+            index: 0,
+            methodname: methodname,
+            args: args || {}
+        }]);
+
+        const sesskey = config.sesskey || (window.M && window.M.cfg && window.M.cfg.sesskey) || '';
+        const baseurl = (window.M && window.M.cfg && window.M.cfg.wwwroot) || '';
+        const info = encodeURIComponent(methodname);
+
+        if (hasFetchSupport) {
+            const options = {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: payload
+            };
+
+            if (controller && typeof controller.signal !== 'undefined') {
+                options.signal = controller.signal;
+            }
+
+            return window.fetch(baseurl + '/lib/ajax/service.php?sesskey=' +
+                    encodeURIComponent(sesskey) + '&info=' + info, options)
+                .then((response) => {
+                    if (!response.ok) {
+                        const error = new Error('Request failed with status ' + response.status);
+                        error.code = response.status;
+                        throw error;
+                    }
+                    return response.json();
+                }).then((data) => {
+                    if (!Array.isArray(data) || !data.length) {
+                        throw new Error('Invalid response from service.');
+                    }
+                    const first = data[0];
+                    if (first.error) {
+                        const exception = first.exception || {};
+                        const error = new Error(exception.message || first.message || 'Unknown error');
+                        error.debuginfo = exception.debuginfo || first.debuginfo;
+                        error.errorcode = exception.errorcode || first.errorcode;
+                        throw error;
+                    }
+                    return first.data;
+                });
+        }
+
+        // Fallback to core/ajax if fetch is not supported
+        return Ajax.call([{
+            methodname: methodname,
+            args: args || {}
+        }])[0];
+    };
 
     /**
      * Initialise the module.
@@ -134,10 +205,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         }
 
         const categoryid = parseInt(categoryNode.dataset.categoryid, 10);
-        const request = Ajax.call([{
-            methodname: config.services.categoryChildren,
-            args: {categoryid: categoryid}
-        }])[0];
+        const request = callService('categoryChildren', {categoryid: categoryid});
 
         categoryNode._loadingPromise = request;
         request.then((response) => {
@@ -151,6 +219,9 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             container.querySelectorAll(SELECTORS.resourceCheckbox).forEach(registerResourceCheckbox);
             updateSelectionCount(response.selectioncount);
         }).catch((error) => {
+            if (error && error.name === 'AbortError') {
+                return;
+            }
             Notification.exception(error);
         }).then(() => {
             if (categoryNode._loadingPromise === request) {
@@ -180,10 +251,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         }
 
         const courseid = parseInt(courseNode.dataset.courseid, 10);
-        const request = Ajax.call([{
-            methodname: config.services.courseResources,
-            args: {courseid: courseid}
-        }])[0];
+        const request = callService('courseResources', {courseid: courseid});
 
         courseNode._loadingPromise = request;
         request.then((response) => {
@@ -195,6 +263,9 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             container.querySelectorAll(SELECTORS.resourceCheckbox).forEach(registerResourceCheckbox);
             updateCourseState(courseNode);
         }).catch((error) => {
+            if (error && error.name === 'AbortError') {
+                return;
+            }
             Notification.exception(error);
         }).then(() => {
             if (courseNode._loadingPromise === request) {
@@ -422,32 +493,47 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         const selection = collectCourseSelection(courseNode, fullcourse);
         const payload = JSON.stringify(selection);
 
-        if (pendingRequests[courseid] && pendingRequests[courseid].abort) {
-            pendingRequests[courseid].abort();
-        }
-
         if (!config.ajaxEnabled || !config.services.setSelection) {
             updateSelectionCount(countSelectedCourses());
             return;
         }
 
-        const request = Ajax.call([{
-            methodname: config.services.setSelection,
-            args: {
-                courseid: courseid,
-                selection: payload
-            }
-        }])[0];
+        if (pendingRequests[courseid] && typeof pendingRequests[courseid].abort === 'function') {
+            pendingRequests[courseid].abort();
+        }
 
-        pendingRequests[courseid] = request;
+        let controller = null;
+        let token = {};
+
+        if (hasFetchSupport && typeof window.AbortController === 'function') {
+            controller = new AbortController();
+            token = controller;
+            pendingRequests[courseid] = controller;
+        } else {
+            pendingRequests[courseid] = token;
+        }
+
+        const request = callService('setSelection', {
+            courseid: courseid,
+            selection: payload
+        }, controller);
+
         request.then((response) => {
             updateSelectionCount(response.selectioncount);
-        }).catch((error) => {
-            Notification.exception(error);
-        }).then(() => {
-            if (pendingRequests[courseid] === request) {
+            if (pendingRequests[courseid] === token) {
                 delete pendingRequests[courseid];
             }
+        }).catch((error) => {
+            if (error && error.name === 'AbortError') {
+                if (pendingRequests[courseid] === token) {
+                    delete pendingRequests[courseid];
+                }
+                return;
+            }
+            if (pendingRequests[courseid] === token) {
+                delete pendingRequests[courseid];
+            }
+            Notification.exception(error);
         });
     };
 
@@ -560,12 +646,13 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             return;
         }
 
-        Ajax.call([{
-            methodname: config.services.setOptions,
-            args: {options: JSON.stringify(options)}
-        }])[0].catch((error) => {
-            Notification.exception(error);
-        });
+        callService('setOptions', {options: JSON.stringify(options)})
+            .catch((error) => {
+                if (error && error.name === 'AbortError') {
+                    return;
+                }
+                Notification.exception(error);
+            });
     };
 
     /**
