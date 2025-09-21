@@ -20,7 +20,7 @@
  * @copyright  2025 Academic Moodle Cooperation
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
+define(['core/notification'], function(Notification) {
     'use strict';
 
     const SELECTORS = {
@@ -105,11 +105,31 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
                 });
         }
 
-        // Fallback to core/ajax if fetch is not supported
-        return Ajax.call([{
-            methodname: methodname,
-            args: args || {}
-        }])[0];
+        return new Promise(function(resolve, reject) {
+            require(['core/ajax'], function(Ajax) {
+                const request = Ajax.call([{
+                    methodname: methodname,
+                    args: args || {}
+                }])[0];
+
+                if (controller && controller.signal) {
+                    if (controller.signal.aborted && request && request.abort) {
+                        request.abort();
+                        const abortError = new Error('Aborted');
+                        abortError.name = 'AbortError';
+                        reject(abortError);
+                        return;
+                    }
+                    controller.signal.addEventListener('abort', function() {
+                        if (request && request.abort) {
+                            request.abort();
+                        }
+                    });
+                }
+
+                request.then(resolve).catch(reject);
+            }, reject);
+        });
     };
 
     /**
@@ -131,13 +151,30 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
             config.ajaxEnabled = false;
         }
 
-        document.querySelectorAll(SELECTORS.category).forEach(initialiseCategoryNode);
-        document.querySelectorAll(SELECTORS.course).forEach(initialiseCourseNode);
+        document.querySelectorAll(SELECTORS.category).forEach((categoryNode) => {
+            initialiseCategoryNode(categoryNode);
+            if (parseInt(categoryNode.dataset.loaded, 10) === 1) {
+                updateCategoryState(categoryNode);
+            }
+        });
+
+        document.querySelectorAll(SELECTORS.course).forEach((courseNode) => {
+            initialiseCourseNode(courseNode);
+            if (parseInt(courseNode.dataset.loaded, 10) === 1) {
+                courseNode.querySelectorAll(SELECTORS.sectionCheckbox).forEach((sectionCheckbox) => {
+                    registerSectionCheckbox(sectionCheckbox);
+                    updateSectionState(courseNode, sectionCheckbox.dataset.sectionid);
+                });
+                courseNode.querySelectorAll(SELECTORS.resourceCheckbox).forEach(registerResourceCheckbox);
+                updateCourseState(courseNode);
+            }
+        });
+
         document.querySelectorAll(SELECTORS.optionCheckbox).forEach((option) => {
             option.addEventListener('change', saveOptions);
         });
 
-        updateSelectionCount(config.selection ? Object.keys(config.selection).length : 0);
+        updateSelectionCount(countSelectedCourses());
     };
 
     /**

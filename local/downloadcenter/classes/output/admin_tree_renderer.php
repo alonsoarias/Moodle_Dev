@@ -74,9 +74,10 @@ class admin_tree_renderer {
      * Render immediate children (sub categories + courses) for a category.
      *
      * @param int $categoryid Category id
+     * @param bool $lazy Whether descendants should be lazy loaded
      * @return string HTML
      */
-    public function render_category_children(int $categoryid): string {
+    public function render_category_children(int $categoryid, bool $lazy = true): string {
         $output = '';
 
         if (!$categoryid) {
@@ -90,7 +91,7 @@ class admin_tree_renderer {
         }
 
         foreach ($category->get_children() as $child) {
-            $output .= $this->render_category_node($child, false);
+            $output .= $this->render_category_node($child, $lazy);
         }
 
         $courses = $category->get_courses(['recursive' => false, 'sort' => ['fullname' => 1]]);
@@ -103,7 +104,7 @@ class admin_tree_renderer {
                 continue;
             }
 
-            $output .= $this->render_course_node($course);
+            $output .= $this->render_course_node($course, $lazy);
         }
 
         return $output ?: html_writer::div(\get_string('nocoursesfound', 'local_downloadcenter'),
@@ -168,7 +169,7 @@ class admin_tree_renderer {
             'id' => 'category-node-' . $category->id,
         ];
 
-        $body = $lazy ? '' : $this->render_category_children($category->id);
+        $body = $lazy ? '' : $this->render_category_children($category->id, false);
         $body = html_writer::div($body, $childrenattrs['class'], $childrenattrs);
 
         return html_writer::tag('details', $summary . $body, $detailsattrs);
@@ -178,9 +179,12 @@ class admin_tree_renderer {
      * Render a course node placeholder.
      *
      * @param core_course_list_element $course Course to render
+     * @param bool $lazy Whether resources should be loaded lazily
      * @return string HTML
      */
-    public function render_course_node(core_course_list_element $course): string {
+    public function render_course_node(core_course_list_element $course, bool $lazy = true): string {
+        global $USER, $CFG;
+
         $coursecontext = context_course::instance($course->id);
         $coursename = method_exists($course, 'get_formatted_name') ?
             $course->get_formatted_name() :
@@ -196,7 +200,7 @@ class admin_tree_renderer {
             'class' => 'form-check-input course-checkbox',
             'data-courseid' => $course->id,
         ];
-        if ($isfull) {
+        if ($isfull || $haspartial) {
             $checkboxattrs['checked'] = 'checked';
         }
         if (!$isfull && $haspartial) {
@@ -222,13 +226,25 @@ class admin_tree_renderer {
         $detailsattrs = [
             'class' => 'downloadcenter-course mb-2',
             'data-courseid' => $course->id,
-            'data-loaded' => 0,
+            'data-loaded' => $lazy ? 0 : 1,
         ];
         if ($isfull || $haspartial) {
             $detailsattrs['open'] = 'open';
         }
 
-        $resourcecontainer = html_writer::div('', 'course-resources', ['id' => 'course-node-' . $course->id]);
+        $resourceshtml = '';
+        if (!$lazy) {
+            require_once($CFG->dirroot . '/course/lib.php');
+            $courserecord = get_course($course->id);
+            $factory = new factory($courserecord, $USER);
+            $factory->set_download_options($this->selectionmanager->get_download_options());
+            $resourceshtml = $this->render_course_resources(
+                $factory,
+                $this->selectionmanager->get_course_selection($course->id)
+            );
+        }
+
+        $resourcecontainer = html_writer::div($resourceshtml, 'course-resources', ['id' => 'course-node-' . $course->id]);
         $hiddenflag = html_writer::empty_tag('input', [
             'type' => 'hidden',
             'class' => 'course-fullcourse-flag',
@@ -238,7 +254,9 @@ class admin_tree_renderer {
             'disabled' => $isfull ? null : 'disabled',
         ]);
 
-        return html_writer::tag('details', $summary . $resourcecontainer, $detailsattrs) . $hiddenflag;
+        $body = $resourcecontainer . $hiddenflag;
+
+        return html_writer::tag('details', $summary . $body, $detailsattrs);
     }
 
     /**
