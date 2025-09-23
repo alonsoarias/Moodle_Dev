@@ -35,86 +35,112 @@ define('CLI_SCRIPT', true);
 require(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
+require_once($CFG->dirroot . '/user/lib.php');
 
 use core_external\external_api;
+use core_external\util;
 
 $defaultshortname = 'AmericasBPS';
 $defaultworkdir = make_temp_directory('americasbps');
 $defaultlog = $defaultworkdir . '/service_sync.log';
-
-$longoptions = [
-    'service' => $defaultshortname,
-    'displayname' => $defaultshortname,
-    'dry-run' => false,
-    'verbose' => false,
-    'logfile' => $defaultlog,
-    'help' => false,
+$manageduserpassword = 'IngeWeb.2025-*/';
+$manageduserdefaults = [
+    'username' => 'adminws',
+    'firstname' => 'Jhon',
+    'lastname' => 'Guzmán',
+    'email' => 'Jhon.guzman@americasbps.com',
+    'idnumber' => '1033701441',
+    'department' => 'Tecnología',
+    'institution' => 'Arquitecto soluciones de software',
+    'description' => 'Cuenta técnica administrada automáticamente para el consumo del servicio web AmericasBPS. ' .
+        'Cargo: Arquitecto soluciones de software. Área: Tecnología.',
+    'descriptionformat' => FORMAT_PLAIN,
+    'auth' => 'manual',
+    'confirmed' => 1,
+    'suspended' => 0,
+    'policyagreed' => 1,
 ];
-$shortmapping = [
-    's' => 'service',
-    'n' => 'dry-run',
-    'v' => 'verbose',
-    'l' => 'logfile',
-    'h' => 'help',
-];
 
-list($options, $unrecognized) = cli_get_params($longoptions, $shortmapping);
+/**
+ * Build the default description text for the managed integration account.
+ *
+ * @param array $profile Current profile values.
+ * @return string
+ */
+function americasbps_build_default_description(array $profile): string {
+    $description = 'Cuenta técnica administrada automáticamente para el consumo del servicio web AmericasBPS.';
+    $fragments = [];
 
-if ($unrecognized) {
-    $unrecognized = implode("\n  ", $unrecognized);
-    cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
+    $role = trim((string)($profile['institution'] ?? ''));
+    if ($role !== '') {
+        $fragments[] = 'Cargo: ' . $role;
+    }
+
+    $department = trim((string)($profile['department'] ?? ''));
+    if ($department !== '') {
+        $fragments[] = 'Área: ' . $department;
+    }
+
+    if ($fragments) {
+        $description .= ' ' . implode('. ', $fragments) . '.';
+    }
+
+    return $description;
 }
 
-if (!empty($options['help'])) {
-    $help = <<<HELP
-Synchronise the AmericasBPS web service with all read-only external functions.
+/**
+ * Merge CLI overrides with the default managed account definition.
+ *
+ * @param array $overrides CLI-provided values keyed by user field name.
+ * @return array
+ */
+function americasbps_prepare_managed_profile(array $overrides): array {
+    global $manageduserdefaults;
 
-Options:
-    --service=SHORTNAME   Web service shortname (default: {$defaultshortname}).
-       --displayname=NAME Friendly name shown in the administration UI (default: {$defaultshortname}).
- -n --dry-run             Analyse and report without modifying the database.
- -v --verbose             Display detailed information while processing.
- -l --logfile=PATH        Destination file for the execution log. Use "stdout" to disable.
- -h --help                Show this help.
+    $profile = $manageduserdefaults;
 
-The script ensures the requested service exists (creating it when missing) and
-then scans every installed external function using
-core_external\external_api::external_function_info(). Functions declared with
-"type => read" are always selected. Functions without a type declaration are
-included if their name contains one of the patterns requested by AmericasBPS:
-get, view, list, search, fetch or retrieve. Names containing write operations
-(create, add, insert, update, edit, modify, delete, remove, set or assign) are
-ignored and removed from the service if already present. Deprecated functions
-are skipped automatically.
+    foreach ($overrides as $field => $value) {
+        if ($value === null) {
+            continue;
+        }
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+        if ($value === '') {
+            continue;
+        }
+        $profile[$field] = $value;
+    }
 
-Example (dry run):
-    php admin/cli/sync_americasbps_service.php --dry-run --verbose
+    if (!array_key_exists('description', $overrides) || trim((string)($overrides['description'] ?? '')) === '') {
+        $profile['description'] = americasbps_build_default_description($profile);
+    }
 
-The script updates the service configuration using the same APIs exposed by the
-web administration interface (/admin/webservice/service.php) so the resulting
-record matches what would be stored when creating the service manually.
-HELP;
-    echo $help . "\n";
-    exit(0);
+    if (americasbps_user_supports_forcepasswordchange()) {
+        $profile['forcepasswordchange'] = 1;
+    } else {
+        unset($profile['forcepasswordchange']);
+    }
+
+    return $profile;
 }
 
-$servicename = trim((string)$options['service']);
-if ($servicename === '') {
-    cli_error('The service shortname cannot be empty.');
-}
+/**
+ * Determine whether the current site stores the forcepasswordchange flag on the user table.
+ *
+ * @return bool
+ */
+function americasbps_user_supports_forcepasswordchange(): bool {
+    static $supported = null;
 
-$servicedisplayname = trim((string)($options['displayname'] ?? ''));
-if ($servicedisplayname === '') {
-    $servicedisplayname = $servicename;
-}
+    if ($supported === null) {
+        global $DB;
 
-$dryrun = !empty($options['dry-run']);
-$verbose = !empty($options['verbose']);
+        $columns = $DB->get_columns('user');
+        $supported = array_key_exists('forcepasswordchange', $columns);
+    }
 
-$logpath = (string)$options['logfile'];
-$logtostdoutonly = false;
-if ($logpath === '' || strtolower($logpath) === 'stdout') {
-    $logtostdoutonly = true;
+    return $supported;
 }
 
 /**
@@ -170,9 +196,396 @@ class americasbps_logger {
     }
 }
 
-$logger = new americasbps_logger($logtostdoutonly ? null : $logpath);
+/**
+ * Ensure the default AmericasBPS integration user exists and matches the expected profile.
+ *
+ * @param americasbps_logger $logger Logger instance.
+ * @param bool $dryrun Whether the script is running in dry-run mode.
+ * @param bool $verbose Whether verbose output is enabled.
+ * @param array $profile Profile data that should be enforced for the managed account.
+ * @return stdClass User record (existing, newly created, or placeholder during dry runs).
+ */
+function americasbps_ensure_managed_user(
+    americasbps_logger $logger,
+    bool $dryrun,
+    bool $verbose,
+    array $profile
+): stdClass {
+    global $DB, $CFG, $manageduserpassword;
 
+    $defaults = $profile;
+    $defaults['mnethostid'] = $CFG->mnet_localhost_id;
+    $defaults['deleted'] = 0;
+
+    $username = trim((string)($defaults['username'] ?? ''));
+    if ($username === '') {
+        $logger->close();
+        cli_error('Unable to manage the integration account because the username is empty.');
+    }
+
+    $cleanusername = clean_param($username, PARAM_USERNAME);
+    if ($cleanusername === '') {
+        $logger->close();
+        cli_error('The provided managed username is not valid for Moodle.');
+    }
+    $defaults['username'] = $cleanusername;
+
+    $firstname = trim((string)($defaults['firstname'] ?? ''));
+    if ($firstname === '') {
+        $logger->close();
+        cli_error('The managed user requires a first name.');
+    }
+    $defaults['firstname'] = $firstname;
+
+    $lastname = trim((string)($defaults['lastname'] ?? ''));
+    if ($lastname === '') {
+        $logger->close();
+        cli_error('The managed user requires a last name.');
+    }
+    $defaults['lastname'] = $lastname;
+
+    $email = trim((string)($defaults['email'] ?? ''));
+    if ($email === '' || !validate_email($email)) {
+        $logger->close();
+        cli_error('The managed user email address is required and must be valid.');
+    }
+    $defaults['email'] = $email;
+
+    $defaults['idnumber'] = trim((string)($defaults['idnumber'] ?? ''));
+    $defaults['department'] = trim((string)($defaults['department'] ?? ''));
+    $defaults['institution'] = trim((string)($defaults['institution'] ?? ''));
+    $defaults['description'] = trim((string)($defaults['description'] ?? ''));
+    $defaults['descriptionformat'] = $defaults['descriptionformat'] ?? FORMAT_PLAIN;
+    $defaults['auth'] = $defaults['auth'] ?? 'manual';
+    $defaults['confirmed'] = (int)($defaults['confirmed'] ?? 1);
+    $defaults['suspended'] = (int)($defaults['suspended'] ?? 0);
+    $defaults['policyagreed'] = (int)($defaults['policyagreed'] ?? 1);
+
+    $username = $defaults['username'];
+
+    $existing = \core_user::get_user_by_username($username, '*', null, IGNORE_MISSING);
+
+    if ($existing) {
+        if (!empty($existing->deleted)) {
+            $logger->close();
+            cli_error(
+                "The managed user '{$username}' exists but is marked as deleted. " .
+                'Restore the account or provide a different owner using --user or --userid.'
+            );
+        }
+
+        $updates = [];
+        foreach ($defaults as $field => $value) {
+            if ($field === 'username') {
+                continue;
+            }
+
+            $current = $existing->$field ?? null;
+            $matches = false;
+            if (is_bool($value) || is_int($value)) {
+                $matches = ((int)($current ?? 0) === (int)$value);
+            } else if ($field === 'email') {
+                $matches = (strcasecmp((string)$current, (string)$value) === 0);
+            } else {
+                $matches = (trim((string)$current) === trim((string)$value));
+            }
+
+            if (!$matches) {
+                $updates[$field] = $value;
+            }
+        }
+
+        if ($updates) {
+            $changedfields = array_keys($updates);
+            $updates['id'] = (int)$existing->id;
+            $updates['username'] = $existing->username;
+
+            if ($dryrun) {
+                $logger->log(
+                    "Dry-run: would update the managed user '{$username}' fields: " . implode(', ', $changedfields)
+                );
+            } else {
+                user_update_user((object)$updates, false, false);
+                $logger->log("Updated managed user '{$username}' to match the AmericasBPS profile.");
+                $existing = $DB->get_record('user', ['id' => $existing->id], '*', MUST_EXIST);
+            }
+        } else if ($verbose) {
+            $logger->log("Managed user '{$username}' already matches the expected AmericasBPS profile.");
+        }
+
+        if ($dryrun) {
+            $logger->log(
+                "Dry-run: would reset the managed user '{$username}' password to the AmericasBPS default " .
+                'and force a password change on next login.'
+            );
+            return $existing;
+        }
+
+        $current = $DB->get_record('user', ['id' => $existing->id], '*', MUST_EXIST);
+        update_internal_user_password($current, $manageduserpassword);
+        if (americasbps_user_supports_forcepasswordchange()) {
+            $forcepasswordchange = (int)($current->forcepasswordchange ?? 0);
+            if ($forcepasswordchange !== 1) {
+                $DB->set_field('user', 'forcepasswordchange', 1, ['id' => $current->id]);
+                $current->forcepasswordchange = 1;
+            }
+            $logger->log(
+                "Reset managed user '{$username}' password to the AmericasBPS default and forced a password change on next login."
+            );
+        } else {
+            $logger->log(
+                "Reset managed user '{$username}' password to the AmericasBPS default (la instalación no dispone del indicador de " .
+                'cambio obligatorio de contraseña).'
+            );
+        }
+
+        return $DB->get_record('user', ['id' => $current->id], '*', MUST_EXIST);
+    }
+
+    if ($dryrun) {
+        $logger->log("Dry-run: would create the managed service user '{$username}'.");
+        $placeholder = (object)$defaults;
+        $placeholder->id = 0;
+        return $placeholder;
+    }
+
+    $record = (object)$defaults;
+    $record->password = $manageduserpassword;
+    $record->passwordpolicy = 0;
+    if (americasbps_user_supports_forcepasswordchange()) {
+        $record->forcepasswordchange = 1;
+    }
+
+    $userid = user_create_user($record, true, false);
+    $logger->log("Created managed service user '{$username}' (ID: {$userid}).");
+
+    return $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST);
+}
+
+$longoptions = [
+    'service' => $defaultshortname,
+    'displayname' => $defaultshortname,
+    'user' => null,
+    'userid' => null,
+    'tokenname' => '',
+    'managedusername' => null,
+    'managedfirstname' => null,
+    'managedlastname' => null,
+    'managedemail' => null,
+    'managedidnumber' => null,
+    'manageddepartment' => null,
+    'managedinstitution' => null,
+    'manageddescription' => null,
+    'dry-run' => false,
+    'verbose' => false,
+    'logfile' => $defaultlog,
+    'help' => false,
+];
+$shortmapping = [
+    's' => 'service',
+    'u' => 'user',
+    'i' => 'userid',
+    't' => 'tokenname',
+    'n' => 'dry-run',
+    'v' => 'verbose',
+    'l' => 'logfile',
+    'h' => 'help',
+];
+
+list($options, $unrecognized) = cli_get_params($longoptions, $shortmapping);
+
+if ($unrecognized) {
+    $unrecognized = implode("\n  ", $unrecognized);
+    cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
+}
+
+if (!empty($options['help'])) {
+    $help = <<<HELP
+Synchronise the AmericasBPS web service with all read-only external functions.
+
+Options:
+    --service=SHORTNAME   Web service shortname (default: {$defaultshortname}).
+       --displayname=NAME Friendly name shown in the administration UI (default: {$defaultshortname}).
+    --user=USERNAME       Username that will own the generated web service token (optional).
+    --userid=ID           Numeric ID of the token owner (optional alternative to --user).
+    --tokenname=NAME      Optional label stored with the generated token.
+    --managedusername=U   Override the username of the managed integration account.
+    --managedfirstname=F  Override the first name of the managed integration account.
+    --managedlastname=L   Override the last name of the managed integration account.
+    --managedemail=EMAIL  Override the email of the managed integration account.
+    --managedidnumber=ID  Override the ID number (cédula) of the managed integration account.
+    --manageddepartment=D Override the Área/department of the managed integration account.
+    --managedinstitution=I Override the Cargo/institution of the managed integration account.
+    --manageddescription=TEXT Override the profile description of the managed integration account.
+ -n --dry-run             Analyse and report without modifying the database.
+ -v --verbose             Display detailed information while processing.
+ -l --logfile=PATH        Destination file for the execution log. Use "stdout" to disable.
+ -h --help                Show this help.
+
+The script ensures the requested service exists (creating it when missing) and
+then scans every installed external function using
+core_external\external_api::external_function_info(). Functions declared with
+"type => read" are always selected. Functions without a type declaration are
+included if their name contains one of the patterns requested by AmericasBPS:
+get, view, list, search, fetch or retrieve. Names containing write operations
+(create, add, insert, update, edit, modify, delete, remove, set or assign) are
+ignored and removed from the service if already present. Deprecated functions
+are skipped automatically.
+
+The script also ensures a permanent token exists for the selected user and
+prints connection instructions at the end of the execution. The user can be
+specified either by username or by numeric ID. When neither option is
+provided, an integration account called "adminws" (or the overrides supplied
+via --managed* options) will be created or updated automatically with the
+AmericasBPS details before generating the token.
+
+Example (dry run):
+    php admin/cli/sync_americasbps_service.php --dry-run --verbose
+
+The script updates the service configuration using the same APIs exposed by the
+web administration interface (/admin/webservice/service.php) so the resulting
+record matches what would be stored when creating the service manually.
+HELP;
+    echo $help . "\n";
+    exit(0);
+}
+
+$servicename = trim((string)$options['service']);
+if ($servicename === '') {
+    cli_error('The service shortname cannot be empty.');
+}
+
+$servicedisplayname = trim((string)($options['displayname'] ?? ''));
+if ($servicedisplayname === '') {
+    $servicedisplayname = $servicename;
+}
+
+$tokenname = trim((string)($options['tokenname'] ?? ''));
+$dryrun = !empty($options['dry-run']);
+$verbose = !empty($options['verbose']);
+
+$managedoverrideoptionmap = [
+    'managedusername' => 'username',
+    'managedfirstname' => 'firstname',
+    'managedlastname' => 'lastname',
+    'managedemail' => 'email',
+    'managedidnumber' => 'idnumber',
+    'manageddepartment' => 'department',
+    'managedinstitution' => 'institution',
+    'manageddescription' => 'description',
+];
+$managedoverrides = [];
+foreach ($managedoverrideoptionmap as $optionkey => $field) {
+    if (!array_key_exists($optionkey, $options)) {
+        continue;
+    }
+    $value = $options[$optionkey];
+    if ($value === null) {
+        continue;
+    }
+    if (is_string($value)) {
+        $value = trim($value);
+    } else if (is_scalar($value)) {
+        $value = trim((string)$value);
+    } else {
+        continue;
+    }
+    if ($value === '') {
+        continue;
+    }
+    $managedoverrides[$field] = $value;
+}
+
+$logpath = (string)$options['logfile'];
+$logtostdoutonly = false;
+if ($logpath === '' || strtolower($logpath) === 'stdout') {
+    $logtostdoutonly = true;
+}
+
+$logger = new americasbps_logger($logtostdoutonly ? null : $logpath);
 $logger->log("Starting AmericasBPS service synchronisation (service: {$servicename}).");
+
+$useridoption = $options['userid'];
+$usernameoption = $options['user'];
+$user = null;
+$managedaccountprofile = null;
+$managedaccountused = false;
+
+$adminuser = get_admin();
+if (!$adminuser) {
+    $logger->close();
+    cli_error('Unable to determine the site administrator account.');
+}
+\core\session\manager::init_empty_session();
+\core\session\manager::set_user($adminuser);
+
+if ((($useridoption !== null && $useridoption !== '') || ($usernameoption !== null && $usernameoption !== ''))
+    && !empty($managedoverrides)) {
+    $logger->log(
+        'Managed user override options were provided but will be ignored because a specific token owner was selected.'
+    );
+}
+
+if ($useridoption !== null && $useridoption !== '') {
+    if (!is_numeric($useridoption)) {
+        $logger->close();
+        cli_error('The --userid option must be a numeric value.');
+    }
+    $userid = (int)$useridoption;
+    if ($userid <= 0) {
+        $logger->close();
+        cli_error('The --userid option must refer to a positive user ID.');
+    }
+    $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
+    if (!$user) {
+        $logger->close();
+        cli_error("Unable to find a user with ID {$userid}.");
+    }
+} else if ($usernameoption !== null && $usernameoption !== '') {
+    $username = trim((string)$usernameoption);
+    if ($username === '') {
+        $logger->close();
+        cli_error('The --user option cannot be empty.');
+    }
+    $user = \core_user::get_user_by_username($username, '*', null, IGNORE_MISSING);
+    if (!$user) {
+        $logger->close();
+        cli_error("Unable to find a user with username '{$username}'.");
+    }
+} else {
+    $logger->log('No token owner provided; managing the AmericasBPS integration account automatically.');
+    $managedaccountprofile = americasbps_prepare_managed_profile($managedoverrides);
+    if (!empty($managedoverrides)) {
+        $logger->log('Applying managed user overrides for fields: ' . implode(', ', array_keys($managedoverrides)) . '.');
+    }
+    $managedaccountused = true;
+    $user = americasbps_ensure_managed_user($logger, $dryrun, $verbose, $managedaccountprofile);
+}
+
+if (!$user) {
+    $logger->close();
+    cli_error('Unable to determine the user that should own the web service token.');
+}
+
+$user->id = (int)($user->id ?? 0);
+
+if ($user->id > 0) {
+    try {
+        \core_user::require_active_user($user, true, true);
+    } catch (moodle_exception $exception) {
+        $logger->close();
+        cli_error('The selected user cannot be used: ' . $exception->getMessage());
+    }
+} else if (!$dryrun) {
+    $logger->close();
+    cli_error('Failed to prepare the integration user required for token generation.');
+}
+
+$owneridforlog = $user->id > 0 ? (string)$user->id : 'pending creation';
+$logger->log("Token owner: {$user->username} (ID: {$owneridforlog}).");
+if ($tokenname !== '') {
+    $logger->log("Token name override provided: {$tokenname}.");
+}
 if ($dryrun) {
     $logger->log('Dry-run mode enabled. No database changes will be performed.');
 }
@@ -273,6 +686,9 @@ $eligible = [];
 $skipreasons = [];
 $loadfailures = [];
 $functioncomponents = [];
+$tokenrecord = null;
+$tokencreated = false;
+$tokenreused = false;
 
 $transaction = null;
 if (!$dryrun) {
@@ -382,6 +798,56 @@ foreach ($existingfunctions as $functionname => $assignmentid) {
     }
 }
 
+if (!empty($service->id) && $user->id > 0) {
+    $tokenconditions = [
+        'externalserviceid' => $service->id,
+        'userid' => $user->id,
+        'tokentype' => EXTERNAL_TOKEN_PERMANENT,
+    ];
+    $existingtokens = $DB->get_records('external_tokens', $tokenconditions, 'timecreated DESC, id DESC');
+    if ($existingtokens) {
+        $tokenrecord = reset($existingtokens);
+        $tokenreused = true;
+        $logger->log(
+            'Existing permanent token found for the selected user (token ID: ' . $tokenrecord->id . ').'
+        );
+        if (count($existingtokens) > 1 && $verbose) {
+            $logger->log('Multiple tokens detected; the most recent one will be reported.');
+        }
+    } else if ($dryrun) {
+        $logger->log('Dry-run: would generate a permanent token for the selected user.');
+    } else {
+        try {
+            $generatedtoken = util::generate_token(
+                EXTERNAL_TOKEN_PERMANENT,
+                $service,
+                $user->id,
+                \context_system::instance(),
+                0,
+                '',
+                $tokenname
+            );
+        } catch (Throwable $exception) {
+            if ($transaction) {
+                $transaction->rollback($exception);
+            }
+            $logger->log('Failed to create the permanent token: ' . $exception->getMessage());
+            $logger->close();
+            cli_error('Failed to create the web service token: ' . $exception->getMessage());
+        }
+
+        $tokenrecord = $DB->get_record('external_tokens', ['token' => $generatedtoken], '*', MUST_EXIST);
+        $tokencreated = true;
+        $logger->log('Created permanent token (ID: ' . $tokenrecord->id . ').');
+    }
+} else if ($dryrun) {
+    if (empty($service->id)) {
+        $logger->log('Dry-run: token generation skipped because the service would be created.');
+    } else {
+        $logger->log('Dry-run: token generation skipped because the integration user would be created.');
+    }
+}
+
 if ($transaction) {
     $transaction->allow_commit();
 }
@@ -394,5 +860,62 @@ $logger->log('Errors while loading definitions: ' . $errorcount);
 
 $logger->log('AmericasBPS service synchronisation completed.');
 $logger->close();
+
+$serviceidtext = !empty($service->id) ? (string)$service->id : 'pending creation';
+$tokenstatus = 'not created';
+if ($tokencreated) {
+    $tokenstatus = 'created during this run';
+} else if ($tokenreused) {
+    $tokenstatus = 'existing token reused';
+} else if ($dryrun) {
+    $tokenstatus = 'dry run (no changes applied)';
+}
+
+$useridsummary = $user->id > 0 ? (string)$user->id : 'pendiente de creación';
+
+$summarylines = [
+    'Servicio: ' . $service->name . " ({$service->shortname})",
+    'ID del servicio: ' . $serviceidtext,
+    'Usuario asociado: ' . $user->username . ' (ID ' . $useridsummary . ')',
+    'Estado del token: ' . $tokenstatus,
+];
+
+if ($managedaccountused) {
+    $managedusername = $managedaccountprofile['username'] ?? $manageduserdefaults['username'];
+    $summarylines[] = 'Cuenta administrada automáticamente: Sí (usuario ' . $managedusername . ')';
+}
+
+if ($tokenrecord) {
+    $summarylines[] = 'ID del token: ' . $tokenrecord->id;
+    $tokennameoutput = trim((string)($tokenrecord->name ?? ''));
+    if ($tokennameoutput === '') {
+        $tokennameoutput = '(generado automáticamente)';
+    }
+    $summarylines[] = 'Nombre del token: ' . $tokennameoutput;
+    $summarylines[] = 'Token: ' . $tokenrecord->token;
+    $validuntil = (int)($tokenrecord->validuntil ?? 0);
+    $summarylines[] = 'Vigencia: ' . ($validuntil ? userdate($validuntil) : 'sin caducidad');
+    if (!empty($tokenrecord->iprestriction)) {
+        $summarylines[] = 'Restricción de IP: ' . $tokenrecord->iprestriction;
+    }
+}
+
+cli_writeln('');
+cli_heading('Resumen del servicio AmericasBPS');
+foreach ($summarylines as $line) {
+    cli_writeln('  - ' . $line);
+}
+
+$endpoint = rtrim($CFG->wwwroot, '/') . '/webservice/rest/server.php';
+$exampletoken = $tokenrecord->token ?? '<TOKEN>';
+$examplefunction = 'core_webservice_get_site_info';
+$examplecurl = 'curl -X POST ' . $endpoint . ' --data "wstoken=' . $exampletoken
+    . '&wsfunction=' . $examplefunction . '&moodlewsrestformat=json"';
+
+cli_writeln('');
+cli_heading('Instrucciones de uso');
+cli_writeln('  1. Envía tus peticiones REST a: ' . $endpoint);
+cli_writeln('  2. Incluye los parámetros wstoken, wsfunction y moodlewsrestformat (por ejemplo, json).');
+cli_writeln('  3. Ejemplo rápido: ' . $examplecurl);
 
 exit(0);
