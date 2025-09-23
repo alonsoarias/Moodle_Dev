@@ -17,11 +17,10 @@
 /**
  * CLI utility that synchronises the AmericasBPS service with every read-only external function.
  *
- * The script ensures the target service exists, inspects the installed external functions,
- * classifies the read-only ones using metadata and naming conventions requested by
- * AmericasBPS, and adds the eligible functions while removing write operations. A JSON
- * report is generated with the function documentation so it can be reviewed or shared with
- * consumers of the service.
+ * The script ensures the target service exists, aligns its configuration with the
+ * administrative UI, inspects the installed external functions, classifies the
+ * read-only ones using metadata and naming conventions requested by AmericasBPS,
+ * and adds the eligible functions while removing write operations.
  *
  * @package    core
  * @subpackage cli
@@ -38,22 +37,16 @@ require_once($CFG->libdir . '/clilib.php');
 require_once($CFG->dirroot . '/webservice/lib.php');
 
 use core_external\external_api;
-use core_external\external_description;
-use core_external\external_function_parameters;
-use core_external\external_multiple_structure;
-use core_external\external_single_structure;
-use core_external\external_value;
 
 $defaultshortname = 'AmericasBPS';
 $defaultworkdir = make_temp_directory('americasbps');
-$defaultexport = $defaultworkdir . '/service_functions.json';
 $defaultlog = $defaultworkdir . '/service_sync.log';
 
 $longoptions = [
     'service' => $defaultshortname,
+    'displayname' => $defaultshortname,
     'dry-run' => false,
     'verbose' => false,
-    'export' => $defaultexport,
     'logfile' => $defaultlog,
     'help' => false,
 ];
@@ -61,7 +54,6 @@ $shortmapping = [
     's' => 'service',
     'n' => 'dry-run',
     'v' => 'verbose',
-    'e' => 'export',
     'l' => 'logfile',
     'h' => 'help',
 ];
@@ -79,9 +71,9 @@ Synchronise the AmericasBPS web service with all read-only external functions.
 
 Options:
     --service=SHORTNAME   Web service shortname (default: {$defaultshortname}).
+       --displayname=NAME Friendly name shown in the administration UI (default: {$defaultshortname}).
  -n --dry-run             Analyse and report without modifying the database.
  -v --verbose             Display detailed information while processing.
- -e --export=PATH         Path for the JSON documentation report. Use "none" to skip.
  -l --logfile=PATH        Destination file for the execution log. Use "stdout" to disable.
  -h --help                Show this help.
 
@@ -98,8 +90,9 @@ are skipped automatically.
 Example (dry run):
     php admin/cli/sync_americasbps_service.php --dry-run --verbose
 
-Example (persist changes and export to a custom path):
-    php admin/cli/sync_americasbps_service.php --export="/tmp/americasbps.json"
+The script updates the service configuration using the same APIs exposed by the
+web administration interface (/admin/webservice/service.php) so the resulting
+record matches what would be stored when creating the service manually.
 HELP;
     echo $help . "\n";
     exit(0);
@@ -110,14 +103,13 @@ if ($servicename === '') {
     cli_error('The service shortname cannot be empty.');
 }
 
+$servicedisplayname = trim((string)($options['displayname'] ?? ''));
+if ($servicedisplayname === '') {
+    $servicedisplayname = $servicename;
+}
+
 $dryrun = !empty($options['dry-run']);
 $verbose = !empty($options['verbose']);
-
-$exportpath = (string)$options['export'];
-$skipreport = false;
-if ($exportpath === '' || strtolower($exportpath) === 'none' || strtolower($exportpath) === 'off') {
-    $skipreport = true;
-}
 
 $logpath = (string)$options['logfile'];
 $logtostdoutonly = false;
@@ -194,12 +186,12 @@ if (!$service) {
     $servicecreated = true;
 
     $serviceconfig = new stdClass();
-    $serviceconfig->name = $servicename;
+    $serviceconfig->name = $servicedisplayname;
     $serviceconfig->shortname = $servicename;
     $serviceconfig->enabled = 1;
     $serviceconfig->restrictedusers = 0;
     $serviceconfig->requiredcapability = '';
-    $serviceconfig->component = '';
+    $serviceconfig->component = null;
     $serviceconfig->downloadfiles = 1;
     $serviceconfig->uploadfiles = 0;
 
@@ -216,6 +208,42 @@ if (!$service) {
     }
 } else {
     $logger->log("Found service '{$service->name}' (ID: {$service->id}).");
+}
+
+if (!empty($service->component)) {
+    $logger->log("Service '{$service->shortname}' belongs to component '{$service->component}' and cannot be modified by this script.");
+    $logger->close();
+    exit(1);
+}
+
+if (!$servicecreated) {
+    $desiredconfig = [
+        'name' => $servicedisplayname,
+        'enabled' => 1,
+        'restrictedusers' => 0,
+        'requiredcapability' => '',
+        'downloadfiles' => 1,
+        'uploadfiles' => 0,
+        'component' => null,
+    ];
+    $needsupdate = false;
+    foreach ($desiredconfig as $field => $value) {
+        $current = $service->$field ?? null;
+        $matches = ($value === null) ? ($current === null) : ((string)$current === (string)$value);
+        if (!$matches) {
+            $service->$field = $value;
+            $needsupdate = true;
+        }
+    }
+    if ($needsupdate) {
+        if ($dryrun) {
+            $logger->log('Dry-run: service configuration would be updated to match admin/webservice/service.php defaults.');
+        } else {
+            $webservice->update_external_service($service);
+            $logger->log('Updated existing service configuration to match admin/webservice/service.php defaults.');
+            $service = $webservice->get_external_service_by_id($service->id, MUST_EXIST);
+        }
+    }
 }
 
 $existingfunctions = [];
@@ -236,11 +264,11 @@ $logger->log('Discovered ' . count($allfunctions) . ' registered external functi
 $readpattern = '/(^|_)(get|view|list|search|fetch|retrieve)(_|$)/';
 $writepattern = '/(^|_)(add|assign|create|delete|drop|insert|modify|remove|set|update|edit|save|post|send|submit)(_|$)/';
 
-$added = [];
-$skipped = [];
-$already = [];
-$errors = [];
-$removed = [];
+$addedcount = 0;
+$skippedcount = 0;
+$alreadycount = 0;
+$errorcount = 0;
+$removedcount = 0;
 $eligible = [];
 $skipreasons = [];
 $loadfailures = [];
@@ -256,23 +284,15 @@ foreach ($allfunctions as $function) {
     try {
         $info = external_api::external_function_info($function);
     } catch (Throwable $e) {
-        $errors[] = [
-            'name' => $function->name,
-            'component' => $function->component,
-            'reason' => 'Failed to load definition: ' . $e->getMessage(),
-        ];
+        $errorcount++;
         $logger->log("Skipping {$function->name}: unable to load definition ({$e->getMessage()}).");
         $loadfailures[$function->name] = $e->getMessage();
         continue;
     }
 
     if (!empty($info->deprecated)) {
-        $skipped[] = [
-            'name' => $function->name,
-            'component' => $function->component,
-            'reason' => 'Deprecated function',
-        ];
         $skipreasons[$function->name] = 'Deprecated function';
+        $skippedcount++;
         if ($verbose) {
             $logger->log("Skipping {$function->name}: function marked as deprecated.");
         }
@@ -309,14 +329,11 @@ foreach ($allfunctions as $function) {
     }
 
     if (!$decision['include']) {
-        $skipped[] = [
-            'name' => $function->name,
-            'component' => $function->component,
-            'reason' => $decision['reason'] ?: 'Did not match read filters',
-        ];
-        $skipreasons[$function->name] = $decision['reason'] ?: 'Did not match read filters';
+        $reason = $decision['reason'] ?: 'Did not match read filters';
+        $skipreasons[$function->name] = $reason;
+        $skippedcount++;
         if ($verbose) {
-            $logger->log("Skipping {$function->name}: {$skipped[array_key_last($skipped)]['reason']}");
+            $logger->log("Skipping {$function->name}: {$reason}.");
         }
         continue;
     }
@@ -324,46 +341,20 @@ foreach ($allfunctions as $function) {
     $eligible[$function->name] = $decision['classification'] ?? ($info->type ?: 'unknown');
 
     if (isset($existingfunctions[$function->name])) {
-        $already[] = [
-            'name' => $function->name,
-            'component' => $function->component,
-            'reason' => 'Already linked to the service',
-        ];
+        $alreadycount++;
         if ($verbose) {
             $logger->log("Already present {$function->name}, skipping addition.");
         }
         continue;
     }
 
-    if (!$dryrun) {
-        $record = new stdClass();
-        $record->externalserviceid = $service->id;
-        $record->functionname = $function->name;
-        $DB->insert_record('external_services_functions', $record);
-    }
-
-    $documentation = [
-        'name' => $function->name,
-        'component' => $function->component,
-        'classname' => $function->classname,
-        'methodname' => $function->methodname,
-        'type' => $info->type ?? $decision['classification'] ?? 'unknown',
-        'description' => $info->description,
-        'selectionreason' => $decision['reason'],
-        'capabilities' => normalise_capabilities($function->capabilities ?? ''),
-        'loginrequired' => $info->loginrequired ?? true,
-        'readonlysession' => $info->readonlysession ?? false,
-        'allowedfromajax' => $info->allowed_from_ajax ?? false,
-        'parameters' => describe_external_description($info->parameters_desc),
-        'returns' => $info->returns_desc ? describe_external_description($info->returns_desc) : null,
-    ];
-    $added[] = $documentation;
-
     if ($dryrun) {
         $logger->log("Dry-run: would add {$function->name} ({$function->component}).");
     } else {
+        $webservice->add_external_function_to_service($function->name, $service->id);
         $logger->log("Added {$function->name} ({$function->component}).");
     }
+    $addedcount++;
 }
 
 foreach ($existingfunctions as $functionname => $assignmentid) {
@@ -381,17 +372,13 @@ foreach ($existingfunctions as $functionname => $assignmentid) {
     if (!isset($functioncomponents[$functionname])) {
         $reason = 'Function no longer registered in Moodle';
     }
-    $removed[] = [
-        'name' => $functionname,
-        'component' => $functioncomponents[$functionname] ?? null,
-        'reason' => $reason,
-    ];
+    $removedcount++;
 
-    if (!$dryrun) {
-        $DB->delete_records('external_services_functions', ['id' => $assignmentid]);
-        $logger->log("Removed {$functionname} from service ({$reason}).");
-    } else {
+    if ($dryrun) {
         $logger->log("Dry-run: would remove {$functionname} from service ({$reason}).");
+    } else {
+        $webservice->remove_external_function_from_service($functionname, $service->id);
+        $logger->log("Removed {$functionname} from service ({$reason}).");
     }
 }
 
@@ -399,190 +386,13 @@ if ($transaction) {
     $transaction->allow_commit();
 }
 
-$summary = [
-    'service' => [
-        'id' => (int)$service->id,
-        'name' => $service->name,
-        'shortname' => $service->shortname,
-        'enabled' => (bool)$service->enabled,
-        'restrictedusers' => (bool)$service->restrictedusers,
-        'requiredcapability' => (string)($service->requiredcapability ?? ''),
-        'component' => (string)($service->component ?? ''),
-        'downloadfiles' => (bool)($service->downloadfiles ?? 0),
-        'uploadfiles' => (bool)($service->uploadfiles ?? 0),
-        'timecreated' => (int)($service->timecreated ?? 0),
-        'timemodified' => (int)($service->timemodified ?? 0),
-        'created' => $servicecreated,
-    ],
-    'execution' => [
-        'timestamp' => time(),
-        'dryrun' => $dryrun,
-        'totalfunctions' => count($allfunctions),
-        'added' => count($added),
-        'alreadyassigned' => count($already),
-        'removed' => count($removed),
-        'skipped' => count($skipped),
-        'errors' => count($errors),
-    ],
-    'added' => $added,
-    'alreadyassigned' => $already,
-    'skipped' => $skipped,
-    'removed' => $removed,
-    'errors' => $errors,
-];
-
-$logger->log('Added functions: ' . count($added));
-$logger->log('Functions already assigned: ' . count($already));
-$logger->log('Functions removed: ' . count($removed));
-$logger->log('Functions skipped: ' . count($skipped));
-$logger->log('Errors: ' . count($errors));
-
-if (!$skipreport) {
-    $reportpath = $exportpath;
-    $directory = dirname($reportpath);
-    if (!is_dir($directory) && !mkdir($directory, $CFG->directorypermissions ?? 0777, true) && !is_dir($directory)) {
-        $logger->log("Unable to create report directory: {$directory}");
-    } else {
-        file_put_contents($reportpath, json_encode($summary, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        $logger->log("Documentation exported to {$reportpath}.");
-    }
-} else {
-    $logger->log('Report generation disabled by configuration.');
-}
+$logger->log('Added functions: ' . $addedcount);
+$logger->log('Functions already assigned: ' . $alreadycount);
+$logger->log('Functions removed: ' . $removedcount);
+$logger->log('Functions skipped: ' . $skippedcount);
+$logger->log('Errors while loading definitions: ' . $errorcount);
 
 $logger->log('AmericasBPS service synchronisation completed.');
 $logger->close();
 
 exit(0);
-
-/**
- * Normalise a capability string to an array of capability names.
- *
- * @param string $capabilitystring
- * @return array
- */
-function normalise_capabilities(string $capabilitystring): array {
-    $capabilitystring = trim($capabilitystring);
-    if ($capabilitystring === '') {
-        return [];
-    }
-    $parts = array_map('trim', explode(',', $capabilitystring));
-    $parts = array_filter($parts, static function($value) {
-        return $value !== '';
-    });
-    return array_values(array_unique($parts));
-}
-
-/**
- * Convert an external_description tree into an associative array.
- *
- * @param external_description $description
- * @return array
- */
-function describe_external_description(external_description $description): array {
-    $base = [
-        'type' => get_class_shortname($description),
-        'description' => (string)$description->desc,
-        'required' => describe_required_flag($description->required),
-        'default' => normalise_default_value($description->default),
-        'allownull' => (bool)$description->allownull,
-    ];
-
-    if ($description instanceof external_value) {
-        $base['valuetype'] = describe_param_type($description->type);
-    } else if ($description instanceof external_single_structure || $description instanceof external_function_parameters) {
-        $keys = [];
-        foreach ($description->keys as $key => $subdescription) {
-            $keys[$key] = describe_external_description($subdescription);
-        }
-        $base['keys'] = $keys;
-    } else if ($description instanceof external_multiple_structure) {
-        $base['content'] = describe_external_description($description->content);
-    }
-
-    return $base;
-}
-
-/**
- * Return the short name of a class (without namespace).
- *
- * @param object $object
- * @return string
- */
-function get_class_shortname(object $object): string {
-    $parts = explode('\\\\', get_class($object));
-    return end($parts);
-}
-
-/**
- * Translate parameter requirement constants into readable strings.
- *
- * @param int $flag
- * @return string
- */
-function describe_required_flag(int $flag): string {
-    switch ($flag) {
-        case VALUE_REQUIRED:
-            return 'required';
-        case VALUE_OPTIONAL:
-            return 'optional';
-        case VALUE_DEFAULT:
-            return 'default';
-        default:
-            return (string)$flag;
-    }
-}
-
-/**
- * Resolve PARAM_* constant values into readable strings when possible.
- *
- * @param mixed $type
- * @return string
- */
-function describe_param_type($type): string {
-    static $map = null;
-
-    if ($map === null) {
-        $map = [];
-        $constants = get_defined_constants(true);
-        foreach ($constants['user'] ?? [] as $name => $value) {
-            if (strpos($name, 'PARAM_') === 0) {
-                $map[$value] = $name;
-            }
-        }
-    }
-
-    if (isset($map[$type])) {
-        return $map[$type];
-    }
-
-    if (is_scalar($type)) {
-        return (string)$type;
-    }
-
-    return gettype($type);
-}
-
-/**
- * Normalise default values (arrays/objects) so they can be exported safely.
- *
- * @param mixed $value
- * @return mixed
- */
-function normalise_default_value($value) {
-    if (is_array($value)) {
-        return array_map('normalise_default_value', $value);
-    }
-    if (is_object($value)) {
-        if ($value instanceof stdClass) {
-            $result = [];
-            foreach ((array)$value as $key => $item) {
-                $result[$key] = normalise_default_value($item);
-            }
-            return $result;
-        }
-        return get_class($value);
-    }
-
-    return $value;
-}
