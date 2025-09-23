@@ -59,7 +59,6 @@ $manageduserdefaults = [
     'confirmed' => 1,
     'suspended' => 0,
     'policyagreed' => 1,
-    'forcepasswordchange' => 1,
 ];
 
 /**
@@ -117,7 +116,31 @@ function americasbps_prepare_managed_profile(array $overrides): array {
         $profile['description'] = americasbps_build_default_description($profile);
     }
 
+    if (americasbps_user_supports_forcepasswordchange()) {
+        $profile['forcepasswordchange'] = 1;
+    } else {
+        unset($profile['forcepasswordchange']);
+    }
+
     return $profile;
+}
+
+/**
+ * Determine whether the current site stores the forcepasswordchange flag on the user table.
+ *
+ * @return bool
+ */
+function americasbps_user_supports_forcepasswordchange(): bool {
+    static $supported = null;
+
+    if ($supported === null) {
+        global $DB;
+
+        $columns = $DB->get_columns('user');
+        $supported = array_key_exists('forcepasswordchange', $columns);
+    }
+
+    return $supported;
 }
 
 /**
@@ -237,7 +260,6 @@ function americasbps_ensure_managed_user(
     $defaults['confirmed'] = (int)($defaults['confirmed'] ?? 1);
     $defaults['suspended'] = (int)($defaults['suspended'] ?? 0);
     $defaults['policyagreed'] = (int)($defaults['policyagreed'] ?? 1);
-    $defaults['forcepasswordchange'] = 1;
 
     $username = $defaults['username'];
 
@@ -301,13 +323,21 @@ function americasbps_ensure_managed_user(
 
         $current = $DB->get_record('user', ['id' => $existing->id], '*', MUST_EXIST);
         update_internal_user_password($current, $manageduserpassword);
-        if ((int)$current->forcepasswordchange !== 1) {
-            $DB->set_field('user', 'forcepasswordchange', 1, ['id' => $current->id]);
-            $current->forcepasswordchange = 1;
+        if (americasbps_user_supports_forcepasswordchange()) {
+            $forcepasswordchange = (int)($current->forcepasswordchange ?? 0);
+            if ($forcepasswordchange !== 1) {
+                $DB->set_field('user', 'forcepasswordchange', 1, ['id' => $current->id]);
+                $current->forcepasswordchange = 1;
+            }
+            $logger->log(
+                "Reset managed user '{$username}' password to the AmericasBPS default and forced a password change on next login."
+            );
+        } else {
+            $logger->log(
+                "Reset managed user '{$username}' password to the AmericasBPS default (la instalación no dispone del indicador de " .
+                'cambio obligatorio de contraseña).'
+            );
         }
-        $logger->log(
-            "Reset managed user '{$username}' password to the AmericasBPS default and forced a password change on next login."
-        );
 
         return $DB->get_record('user', ['id' => $current->id], '*', MUST_EXIST);
     }
@@ -322,7 +352,9 @@ function americasbps_ensure_managed_user(
     $record = (object)$defaults;
     $record->password = $manageduserpassword;
     $record->passwordpolicy = 0;
-    $record->forcepasswordchange = 1;
+    if (americasbps_user_supports_forcepasswordchange()) {
+        $record->forcepasswordchange = 1;
+    }
 
     $userid = user_create_user($record, true, false);
     $logger->log("Created managed service user '{$username}' (ID: {$userid}).");
