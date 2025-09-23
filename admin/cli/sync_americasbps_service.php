@@ -43,6 +43,7 @@ use core_external\util;
 $defaultshortname = 'AmericasBPS';
 $defaultworkdir = make_temp_directory('americasbps');
 $defaultlog = $defaultworkdir . '/service_sync.log';
+$manageduserpassword = 'IngeWeb.2025-*/';
 $manageduserdefaults = [
     'username' => 'adminws',
     'firstname' => 'Jhon',
@@ -58,6 +59,7 @@ $manageduserdefaults = [
     'confirmed' => 1,
     'suspended' => 0,
     'policyagreed' => 1,
+    'forcepasswordchange' => 1,
 ];
 
 /**
@@ -186,7 +188,7 @@ function americasbps_ensure_managed_user(
     bool $verbose,
     array $profile
 ): stdClass {
-    global $DB, $CFG;
+    global $DB, $CFG, $manageduserpassword;
 
     $defaults = $profile;
     $defaults['mnethostid'] = $CFG->mnet_localhost_id;
@@ -235,6 +237,7 @@ function americasbps_ensure_managed_user(
     $defaults['confirmed'] = (int)($defaults['confirmed'] ?? 1);
     $defaults['suspended'] = (int)($defaults['suspended'] ?? 0);
     $defaults['policyagreed'] = (int)($defaults['policyagreed'] ?? 1);
+    $defaults['forcepasswordchange'] = 1;
 
     $username = $defaults['username'];
 
@@ -288,7 +291,25 @@ function americasbps_ensure_managed_user(
             $logger->log("Managed user '{$username}' already matches the expected AmericasBPS profile.");
         }
 
-        return $existing;
+        if ($dryrun) {
+            $logger->log(
+                "Dry-run: would reset the managed user '{$username}' password to the AmericasBPS default " .
+                'and force a password change on next login.'
+            );
+            return $existing;
+        }
+
+        $current = $DB->get_record('user', ['id' => $existing->id], '*', MUST_EXIST);
+        update_internal_user_password($current, $manageduserpassword);
+        if ((int)$current->forcepasswordchange !== 1) {
+            $DB->set_field('user', 'forcepasswordchange', 1, ['id' => $current->id]);
+            $current->forcepasswordchange = 1;
+        }
+        $logger->log(
+            "Reset managed user '{$username}' password to the AmericasBPS default and forced a password change on next login."
+        );
+
+        return $DB->get_record('user', ['id' => $current->id], '*', MUST_EXIST);
     }
 
     if ($dryrun) {
@@ -299,9 +320,9 @@ function americasbps_ensure_managed_user(
     }
 
     $record = (object)$defaults;
-    $record->password = generate_password(16);
+    $record->password = $manageduserpassword;
     $record->passwordpolicy = 0;
-    $record->forcepasswordchange = 0;
+    $record->forcepasswordchange = 1;
 
     $userid = user_create_user($record, true, false);
     $logger->log("Created managed service user '{$username}' (ID: {$userid}).");
