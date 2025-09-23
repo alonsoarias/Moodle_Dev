@@ -61,6 +61,64 @@ $manageduserdefaults = [
 ];
 
 /**
+ * Build the default description text for the managed integration account.
+ *
+ * @param array $profile Current profile values.
+ * @return string
+ */
+function americasbps_build_default_description(array $profile): string {
+    $description = 'Cuenta técnica administrada automáticamente para el consumo del servicio web AmericasBPS.';
+    $fragments = [];
+
+    $role = trim((string)($profile['institution'] ?? ''));
+    if ($role !== '') {
+        $fragments[] = 'Cargo: ' . $role;
+    }
+
+    $department = trim((string)($profile['department'] ?? ''));
+    if ($department !== '') {
+        $fragments[] = 'Área: ' . $department;
+    }
+
+    if ($fragments) {
+        $description .= ' ' . implode('. ', $fragments) . '.';
+    }
+
+    return $description;
+}
+
+/**
+ * Merge CLI overrides with the default managed account definition.
+ *
+ * @param array $overrides CLI-provided values keyed by user field name.
+ * @return array
+ */
+function americasbps_prepare_managed_profile(array $overrides): array {
+    global $manageduserdefaults;
+
+    $profile = $manageduserdefaults;
+
+    foreach ($overrides as $field => $value) {
+        if ($value === null) {
+            continue;
+        }
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+        if ($value === '') {
+            continue;
+        }
+        $profile[$field] = $value;
+    }
+
+    if (!array_key_exists('description', $overrides) || trim((string)($overrides['description'] ?? '')) === '') {
+        $profile['description'] = americasbps_build_default_description($profile);
+    }
+
+    return $profile;
+}
+
+/**
  * Simple logger that mirrors messages to stdout and an optional file.
  */
 class americasbps_logger {
@@ -119,14 +177,65 @@ class americasbps_logger {
  * @param americasbps_logger $logger Logger instance.
  * @param bool $dryrun Whether the script is running in dry-run mode.
  * @param bool $verbose Whether verbose output is enabled.
+ * @param array $profile Profile data that should be enforced for the managed account.
  * @return stdClass User record (existing, newly created, or placeholder during dry runs).
  */
-function americasbps_ensure_managed_user(americasbps_logger $logger, bool $dryrun, bool $verbose): stdClass {
-    global $manageduserdefaults, $DB, $CFG;
+function americasbps_ensure_managed_user(
+    americasbps_logger $logger,
+    bool $dryrun,
+    bool $verbose,
+    array $profile
+): stdClass {
+    global $DB, $CFG;
 
-    $defaults = $manageduserdefaults;
+    $defaults = $profile;
     $defaults['mnethostid'] = $CFG->mnet_localhost_id;
     $defaults['deleted'] = 0;
+
+    $username = trim((string)($defaults['username'] ?? ''));
+    if ($username === '') {
+        $logger->close();
+        cli_error('Unable to manage the integration account because the username is empty.');
+    }
+
+    $cleanusername = clean_param($username, PARAM_USERNAME);
+    if ($cleanusername === '') {
+        $logger->close();
+        cli_error('The provided managed username is not valid for Moodle.');
+    }
+    $defaults['username'] = $cleanusername;
+
+    $firstname = trim((string)($defaults['firstname'] ?? ''));
+    if ($firstname === '') {
+        $logger->close();
+        cli_error('The managed user requires a first name.');
+    }
+    $defaults['firstname'] = $firstname;
+
+    $lastname = trim((string)($defaults['lastname'] ?? ''));
+    if ($lastname === '') {
+        $logger->close();
+        cli_error('The managed user requires a last name.');
+    }
+    $defaults['lastname'] = $lastname;
+
+    $email = trim((string)($defaults['email'] ?? ''));
+    if ($email === '' || !validate_email($email)) {
+        $logger->close();
+        cli_error('The managed user email address is required and must be valid.');
+    }
+    $defaults['email'] = $email;
+
+    $defaults['idnumber'] = trim((string)($defaults['idnumber'] ?? ''));
+    $defaults['department'] = trim((string)($defaults['department'] ?? ''));
+    $defaults['institution'] = trim((string)($defaults['institution'] ?? ''));
+    $defaults['description'] = trim((string)($defaults['description'] ?? ''));
+    $defaults['descriptionformat'] = $defaults['descriptionformat'] ?? FORMAT_PLAIN;
+    $defaults['auth'] = $defaults['auth'] ?? 'manual';
+    $defaults['confirmed'] = (int)($defaults['confirmed'] ?? 1);
+    $defaults['suspended'] = (int)($defaults['suspended'] ?? 0);
+    $defaults['policyagreed'] = (int)($defaults['policyagreed'] ?? 1);
+
     $username = $defaults['username'];
 
     $existing = \core_user::get_user_by_username($username, '*', null, IGNORE_MISSING);
@@ -206,6 +315,14 @@ $longoptions = [
     'user' => null,
     'userid' => null,
     'tokenname' => '',
+    'managedusername' => null,
+    'managedfirstname' => null,
+    'managedlastname' => null,
+    'managedemail' => null,
+    'managedidnumber' => null,
+    'manageddepartment' => null,
+    'managedinstitution' => null,
+    'manageddescription' => null,
     'dry-run' => false,
     'verbose' => false,
     'logfile' => $defaultlog,
@@ -239,6 +356,14 @@ Options:
     --user=USERNAME       Username that will own the generated web service token (optional).
     --userid=ID           Numeric ID of the token owner (optional alternative to --user).
     --tokenname=NAME      Optional label stored with the generated token.
+    --managedusername=U   Override the username of the managed integration account.
+    --managedfirstname=F  Override the first name of the managed integration account.
+    --managedlastname=L   Override the last name of the managed integration account.
+    --managedemail=EMAIL  Override the email of the managed integration account.
+    --managedidnumber=ID  Override the ID number (cédula) of the managed integration account.
+    --manageddepartment=D Override the Área/department of the managed integration account.
+    --managedinstitution=I Override the Cargo/institution of the managed integration account.
+    --manageddescription=TEXT Override the profile description of the managed integration account.
  -n --dry-run             Analyse and report without modifying the database.
  -v --verbose             Display detailed information while processing.
  -l --logfile=PATH        Destination file for the execution log. Use "stdout" to disable.
@@ -257,8 +382,9 @@ are skipped automatically.
 The script also ensures a permanent token exists for the selected user and
 prints connection instructions at the end of the execution. The user can be
 specified either by username or by numeric ID. When neither option is
-provided, an integration account called "adminws" will be created or updated
-automatically with the AmericasBPS details before generating the token.
+provided, an integration account called "adminws" (or the overrides supplied
+via --managed* options) will be created or updated automatically with the
+AmericasBPS details before generating the token.
 
 Example (dry run):
     php admin/cli/sync_americasbps_service.php --dry-run --verbose
@@ -285,6 +411,38 @@ $tokenname = trim((string)($options['tokenname'] ?? ''));
 $dryrun = !empty($options['dry-run']);
 $verbose = !empty($options['verbose']);
 
+$managedoverrideoptionmap = [
+    'managedusername' => 'username',
+    'managedfirstname' => 'firstname',
+    'managedlastname' => 'lastname',
+    'managedemail' => 'email',
+    'managedidnumber' => 'idnumber',
+    'manageddepartment' => 'department',
+    'managedinstitution' => 'institution',
+    'manageddescription' => 'description',
+];
+$managedoverrides = [];
+foreach ($managedoverrideoptionmap as $optionkey => $field) {
+    if (!array_key_exists($optionkey, $options)) {
+        continue;
+    }
+    $value = $options[$optionkey];
+    if ($value === null) {
+        continue;
+    }
+    if (is_string($value)) {
+        $value = trim($value);
+    } else if (is_scalar($value)) {
+        $value = trim((string)$value);
+    } else {
+        continue;
+    }
+    if ($value === '') {
+        continue;
+    }
+    $managedoverrides[$field] = $value;
+}
+
 $logpath = (string)$options['logfile'];
 $logtostdoutonly = false;
 if ($logpath === '' || strtolower($logpath) === 'stdout') {
@@ -297,6 +455,8 @@ $logger->log("Starting AmericasBPS service synchronisation (service: {$servicena
 $useridoption = $options['userid'];
 $usernameoption = $options['user'];
 $user = null;
+$managedaccountprofile = null;
+$managedaccountused = false;
 
 $adminuser = get_admin();
 if (!$adminuser) {
@@ -305,6 +465,13 @@ if (!$adminuser) {
 }
 \core\session\manager::init_empty_session();
 \core\session\manager::set_user($adminuser);
+
+if ((($useridoption !== null && $useridoption !== '') || ($usernameoption !== null && $usernameoption !== ''))
+    && !empty($managedoverrides)) {
+    $logger->log(
+        'Managed user override options were provided but will be ignored because a specific token owner was selected.'
+    );
+}
 
 if ($useridoption !== null && $useridoption !== '') {
     if (!is_numeric($useridoption)) {
@@ -334,7 +501,12 @@ if ($useridoption !== null && $useridoption !== '') {
     }
 } else {
     $logger->log('No token owner provided; managing the AmericasBPS integration account automatically.');
-    $user = americasbps_ensure_managed_user($logger, $dryrun, $verbose);
+    $managedaccountprofile = americasbps_prepare_managed_profile($managedoverrides);
+    if (!empty($managedoverrides)) {
+        $logger->log('Applying managed user overrides for fields: ' . implode(', ', array_keys($managedoverrides)) . '.');
+    }
+    $managedaccountused = true;
+    $user = americasbps_ensure_managed_user($logger, $dryrun, $verbose, $managedaccountprofile);
 }
 
 if (!$user) {
@@ -655,8 +827,9 @@ $summarylines = [
     'Estado del token: ' . $tokenstatus,
 ];
 
-if (($useridoption === null || $useridoption === '') && ($usernameoption === null || $usernameoption === '')) {
-    $summarylines[] = 'Cuenta administrada automáticamente: Sí (usuario adminws)';
+if ($managedaccountused) {
+    $managedusername = $managedaccountprofile['username'] ?? $manageduserdefaults['username'];
+    $summarylines[] = 'Cuenta administrada automáticamente: Sí (usuario ' . $managedusername . ')';
 }
 
 if ($tokenrecord) {
