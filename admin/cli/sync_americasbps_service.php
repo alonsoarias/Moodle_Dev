@@ -155,6 +155,8 @@ if (!$user) {
     cli_error('You must provide either --user or --userid to select the token owner.');
 }
 
+$user->id = (int)$user->id;
+
 try {
     \core_user::require_active_user($user, true, true);
 } catch (moodle_exception $exception) {
