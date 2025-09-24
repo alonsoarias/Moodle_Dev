@@ -165,7 +165,8 @@ if ($mode === 'admin' && $isadmin) {
     try {
         $rawcoursedata = optional_param_array('coursedata', null, PARAM_RAW);
     } catch (\coding_exception $exception) {
-        if (strpos($exception->getMessage(), 'clean() can not process arrays') === false) {
+        $message = $exception->getMessage();
+        if (stripos($message, 'can not process arrays') === false) {
             throw $exception;
         }
         $rawcoursedata = null;

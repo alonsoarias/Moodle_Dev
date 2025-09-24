@@ -34,6 +34,12 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class selection_manager {
+
+    /** Prefix used to mark compressed preference values. */
+    private const COMPRESSED_PREFIX = 'gz:';
+
+    /** Maximum number of characters accepted by the user preference value column. */
+    private const PREFERENCE_MAX_LENGTH = 1333;
     
     /** @var int User ID */
     protected $userid;
@@ -65,7 +71,7 @@ class selection_manager {
      */
     protected function load_selection() {
         $pref = get_user_preferences('downloadcenter_selection', '{}', $this->userid);
-        $this->selection = json_decode($pref, true) ?: [];
+        $this->selection = $this->decode_preference_value($pref);
         $this->selection = array_filter($this->selection, function($value) {
             return is_array($value);
         });
@@ -79,12 +85,16 @@ class selection_manager {
      */
     protected function load_options() {
         $pref = get_user_preferences('downloadcenter_options', '{}', $this->userid);
-        $this->options = json_decode($pref, true) ?: [
-            'excludestudent' => get_config('local_downloadcenter', 'excludestudentdefault'),
+        $defaults = [
+            'excludestudent' => (int)(get_config('local_downloadcenter', 'excludestudentdefault') ?? 0),
             'includefiles' => 1,
             'filesrealnames' => 0,
-            'addnumbering' => 0
+            'addnumbering' => 0,
         ];
+
+        $options = $this->decode_preference_value($pref);
+        $options = is_array($options) ? $options : [];
+        $this->options = array_merge($defaults, array_intersect_key($options, $defaults));
     }
     
     /**
@@ -93,7 +103,7 @@ class selection_manager {
      * @return void
      */
     protected function save_selection() {
-        set_user_preference('downloadcenter_selection', json_encode($this->selection), $this->userid);
+        $this->persist_preference('downloadcenter_selection', $this->selection);
     }
     
     /**
@@ -102,7 +112,7 @@ class selection_manager {
      * @return void
      */
     protected function save_options() {
-        set_user_preference('downloadcenter_options', json_encode($this->options), $this->userid);
+        $this->persist_preference('downloadcenter_options', $this->options);
     }
     
     /**
@@ -380,5 +390,85 @@ class selection_manager {
         }
 
         return array_map('intval', array_filter($categoryids));
+    }
+
+    /**
+     * Persist a preference array while respecting the user preference length limit.
+     *
+     * @param string $name Preference name
+     * @param array $value Preference value to store
+     * @return void
+     */
+    protected function persist_preference(string $name, array $value): void {
+        $encoded = $this->encode_preference_value($value);
+        if ($encoded === null) {
+            unset_user_preference($name, $this->userid);
+            return;
+        }
+
+        set_user_preference($name, $encoded, $this->userid);
+    }
+
+    /**
+     * Encode a preference array for storage, compressing when necessary.
+     *
+     * @param array $value Value to encode
+     * @return string|null Encoded preference value or null when it can not be persisted
+     */
+    protected function encode_preference_value(array $value): ?string {
+        $json = json_encode($value);
+        if ($json === false) {
+            debugging('local_downloadcenter: failed to encode preference value as JSON', DEBUG_DEVELOPER);
+            return null;
+        }
+
+        if (\core_text::strlen($json) <= self::PREFERENCE_MAX_LENGTH) {
+            return $json;
+        }
+
+        if (!function_exists('gzcompress')) {
+            debugging('local_downloadcenter: preference value exceeds storage limit and compression is unavailable',
+                DEBUG_DEVELOPER);
+            return null;
+        }
+
+        $compressed = gzcompress($json, 6);
+        if ($compressed === false) {
+            debugging('local_downloadcenter: failed to compress oversized preference value', DEBUG_DEVELOPER);
+            return null;
+        }
+
+        $encoded = self::COMPRESSED_PREFIX . base64_encode($compressed);
+        if (\core_text::strlen($encoded) <= self::PREFERENCE_MAX_LENGTH) {
+            return $encoded;
+        }
+
+        debugging('local_downloadcenter: preference value exceeds storage limit even after compression',
+            DEBUG_DEVELOPER);
+        return null;
+    }
+
+    /**
+     * Decode a preference that may have been stored in compressed form.
+     *
+     * @param string $value Stored preference value
+     * @return array Decoded preference array
+     */
+    protected function decode_preference_value(string $value): array {
+        if (strpos($value, self::COMPRESSED_PREFIX) === 0) {
+            $encoded = substr($value, strlen(self::COMPRESSED_PREFIX));
+            $compressed = base64_decode($encoded, true);
+            if ($compressed !== false && function_exists('gzuncompress')) {
+                $json = @gzuncompress($compressed);
+                if ($json !== false) {
+                    $value = $json;
+                }
+            } else if ($compressed !== false) {
+                debugging('local_downloadcenter: unable to decompress stored preference value', DEBUG_DEVELOPER);
+            }
+        }
+
+        $decoded = json_decode($value, true);
+        return is_array($decoded) ? $decoded : [];
     }
 }
