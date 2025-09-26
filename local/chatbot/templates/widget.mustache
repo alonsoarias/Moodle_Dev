@@ -28,13 +28,18 @@
     }
 }}
 <div id="local-chatbot-container"
-     class="chatbot-shell chatbot-{{position}} chatbot-theme-{{theme}}"
+     class="chatbot-shell chatbot-{{position}} chatbot-theme-{{theme}} mode-{{mode}}"
      data-position="{{position}}"
      data-theme="{{theme}}"
      style="display:none;">
-    <div id="chatbot-widget" class="chatbot-popup" aria-hidden="true">
-        <div class="chatbot-scrollarea">
-            <div id="chatbot-header" class="chatbot-header">
+    <input type="hidden" id="local-chatbot-welcome" value="{{welcome}}">
+    <div id="chatbot-widget"
+         class="chatbot-popup"
+         role="dialog"
+         aria-hidden="true"
+         aria-label="{{title}}">
+        <div id="chatbot-scrollarea" class="chatbot-scrollarea">
+            <div class="chatbot-header">
                 <div class="chatbot-header-info">
                     <div class="chatbot-avatar" aria-hidden="true">
                         <span class="chatbot-avatar-initial">{{initial}}</span>
@@ -47,14 +52,24 @@
                 </div>
                 <div class="chatbot-header-actions">
                     {{#canexport}}
-                        <button class="chatbot-btn-export" type="button" title="{{exportlabel}}">{{{exporticon}}}</button>
+                        <button class="chatbot-action-btn chatbot-btn-export" type="button" title="{{exportlabel}}">
+                            {{#pix}}i/export, core{{/pix}}
+                        </button>
                     {{/canexport}}
-                    <button class="chatbot-btn-minimize" type="button" title="{{minimizelabel}}">{{{minimizeicon}}}</button>
-                    <button class="chatbot-btn-close" type="button" title="{{closelabel}}">{{{closeicon}}}</button>
+                    <button class="chatbot-action-btn chatbot-btn-minimize" type="button" title="{{minimizelabel}}">
+                        {{#pix}}t/minus, core{{/pix}}
+                    </button>
+                    <button class="chatbot-action-btn chatbot-btn-close" type="button" title="{{closelabel}}">
+                        {{#pix}}i/close, core{{/pix}}
+                    </button>
                 </div>
             </div>
-            <div id="chatbot-quick-actions" class="chatbot-quick-actions" style="display:none;">
-                <div class="quick-actions-container" role="toolbar"></div>
+            <div id="chatbot-quick-actions"
+                 class="chatbot-quick-actions{{^showquickactions}} is-disabled{{/showquickactions}}"
+                 role="toolbar"
+                 aria-label="{{quickactionslabel}}"
+                 {{^showquickactions}}style="display:none;"{{/showquickactions}}>
+                <div class="quick-actions-container"></div>
             </div>
             <div id="chatbot-body" class="chatbot-body">
                 <div id="chatbot-messages" class="chatbot-messages" role="log" aria-live="polite"></div>
@@ -67,7 +82,11 @@
                     <span class="typing-text">{{typing}}</span>
                 </div>
             </div>
-            <div id="chatbot-suggestions" class="chatbot-suggestions" style="display:none;">
+            <div id="chatbot-suggestions"
+                 class="chatbot-suggestions{{^showsuggestions}} is-disabled{{/showsuggestions}}"
+                 role="list"
+                 aria-label="{{suggestionslabel}}"
+                 {{^showsuggestions}}style="display:none;"{{/showsuggestions}}>
                 <div class="suggestions-container"></div>
             </div>
         </div>
@@ -80,12 +99,18 @@
                           aria-label="{{placeholder}}"></textarea>
                 <div class="chatbot-input-actions">
                     {{#voiceenabled}}
-                        <button class="chatbot-btn-voice" type="button" title="{{voicelabel}}">{{{voiceicon}}}</button>
+                        <button class="chatbot-icon-button chatbot-btn-voice" type="button" title="{{voicelabel}}">
+                            {{#pix}}i/microphone, core{{/pix}}
+                        </button>
                     {{/voiceenabled}}
                     {{#emojienabled}}
-                        <button class="chatbot-btn-emoji" type="button" title="{{emojilabel}}">{{{emojiicon}}}</button>
+                        <button class="chatbot-icon-button chatbot-btn-emoji" type="button" title="{{emojilabel}}">
+                            {{#pix}}e/emoticons, core{{/pix}}
+                        </button>
                     {{/emojienabled}}
-                    <button id="chatbot-send" class="chatbot-btn-send" type="button" title="{{sendlabel}}">{{{sendicon}}}</button>
+                    <button id="chatbot-send" class="chatbot-icon-button chatbot-btn-send" type="button" title="{{sendlabel}}">
+                        {{#pix}}t/send, core{{/pix}}
+                    </button>
                 </div>
             </div>
             <div class="chatbot-char-count">
@@ -99,9 +124,9 @@
             aria-controls="chatbot-widget"
             aria-expanded="false"
             title="{{togglelabel}}">
-        <span class="chatbot-launcher-badge" aria-hidden="true">0</span>
-        <span class="chatbot-launcher-label">{{togglelabel}}</span>
-        <span class="chatbot-icon chatbot-icon-open" aria-hidden="true">{{{openicon}}}</span>
-        <span class="chatbot-icon chatbot-icon-close" aria-hidden="true">{{{closeicon}}}</span>
+        <span class="chatbot-launcher-count" data-count="0">0</span>
+        <span class="chatbot-launcher-label">{{talklabel}}</span>
+        <span class="chatbot-launcher-icon chatbot-launcher-open" aria-hidden="true">{{#pix}}i/chat, core{{/pix}}</span>
+        <span class="chatbot-launcher-icon chatbot-launcher-close" aria-hidden="true">{{#pix}}i/close, core{{/pix}}</span>
     </button>
 </div>
