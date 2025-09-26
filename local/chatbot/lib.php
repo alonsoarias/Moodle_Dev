@@ -102,6 +102,8 @@ function local_chatbot_get_widget_bootstrap(): ?array {
         'minimize' => get_string('chatbot_minimize', 'local_chatbot'),
         'close' => get_string('chatbot_close', 'local_chatbot'),
         'welcome' => get_string('chatbot_welcome_template', 'local_chatbot'),
+        'quickactionslabel' => get_string('chatbot_quick_actions_region', 'local_chatbot'),
+        'suggestionslabel' => get_string('chatbot_suggestions_region', 'local_chatbot'),
     ];
 
     $features = [
@@ -122,9 +124,11 @@ function local_chatbot_get_widget_bootstrap(): ?array {
     $templatecontext = [
         'position' => $position,
         'theme' => $theme,
+        'mode' => 'geniai-inspired',
         'title' => $strings['title'],
         'status' => $strings['status'],
         'togglelabel' => $strings['toggle'],
+        'talklabel' => $strings['toggle'],
         'placeholder' => $strings['placeholder'],
         'typing' => $strings['typing'],
         'voicelabel' => $strings['voice'],
@@ -133,8 +137,13 @@ function local_chatbot_get_widget_bootstrap(): ?array {
         'exportlabel' => $strings['export'],
         'minimizelabel' => $strings['minimize'],
         'closelabel' => $strings['close'],
+        'welcome' => $strings['welcome'],
+        'quickactionslabel' => $strings['quickactionslabel'],
+        'suggestionslabel' => $strings['suggestionslabel'],
         'voiceenabled' => $features['voice_input'],
         'emojienabled' => $features['emoji_picker'],
+        'showquickactions' => $features['quick_actions'],
+        'showsuggestions' => $features['suggestions'],
         'canexport' => $permissions['canexport'],
         'maxlength' => $maxlength,
         'initial' => $avatar,
@@ -155,6 +164,7 @@ function local_chatbot_get_widget_bootstrap(): ?array {
         'avatar' => $avatar,
         'language' => current_language(),
         'strings' => $strings,
+        'storagekey' => 'local_chatbot_widget_state',
     ];
 
     $cached = [$templatecontext, $jsconfig];
@@ -255,4 +265,46 @@ function local_chatbot_export_conversation(string $sessionid, string $format = '
     $content .= '<p>' . get_string('chatbot_export_placeholder', 'local_chatbot', format_string($sessionid)) . '</p>';
 
     return $content;
+}
+
+/**
+ * Ensure default intents exist after installation or upgrade.
+ */
+function local_chatbot_init_intents(): void {
+    global $DB;
+
+    $now = time();
+    $defaults = [
+        [
+            'name' => 'greeting',
+            'display_name' => 'Greeting',
+            'description' => get_string('intent_greeting_desc', 'local_chatbot'),
+        ],
+        [
+            'name' => 'courses_help',
+            'display_name' => 'Courses help',
+            'description' => get_string('intent_courses_desc', 'local_chatbot'),
+        ],
+        [
+            'name' => 'grades_help',
+            'display_name' => 'Grades help',
+            'description' => get_string('intent_grades_desc', 'local_chatbot'),
+        ],
+    ];
+
+    foreach ($defaults as $record) {
+        try {
+            if ($DB->record_exists('local_chatbot_intents', ['name' => $record['name']])) {
+                continue;
+            }
+        } catch (\dml_exception $e) {
+            // Table not available yet.
+            return;
+        }
+
+        $record['enabled'] = 1;
+        $record['timecreated'] = $now;
+        $record['timemodified'] = $now;
+        $DB->insert_record('local_chatbot_intents', (object)$record);
+    }
 }

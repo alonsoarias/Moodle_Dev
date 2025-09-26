@@ -63,6 +63,8 @@ function($, Ajax, Notification, Templates) {
                 canexport: false
             }, config.permissions || {});
 
+            config.storagekey = config.storagekey || 'local_chatbot_widget_state';
+
             config.strings = $.extend({
                 title: 'Virtual Assistant',
                 status: 'Online',
@@ -75,7 +77,9 @@ function($, Ajax, Notification, Templates) {
                 export: 'Export conversation',
                 minimize: 'Minimize',
                 close: 'Close',
-                welcome: 'Hello! I am your assistant. How can I help you today?'
+                welcome: 'Hello! I am your assistant. How can I help you today?',
+                quickactionslabel: 'Chatbot quick actions',
+                suggestionslabel: 'Suggested prompts'
             }, config.strings || {});
 
             return config;
@@ -86,6 +90,10 @@ function($, Ajax, Notification, Templates) {
          */
         init: function(config) {
             var self = this;
+
+            if ($('body.pagelayout-embedded, body.pagelayout-maintenance').length) {
+                return;
+            }
 
             this.config = this.prepareConfig(config);
             this.currentContext = {
@@ -100,6 +108,7 @@ function($, Ajax, Notification, Templates) {
                 self.applyTheme();
                 self.initializeFeatures();
                 self.loadConversationHistory();
+                self.restoreWidgetState();
                 self.showWelcomeMessage();
             }).catch(Notification.exception);
         },
@@ -112,9 +121,11 @@ function($, Ajax, Notification, Templates) {
             var templateContext = {
                 position: this.config.position,
                 theme: this.config.theme,
+                mode: 'geniai-inspired',
                 title: this.config.strings.title,
                 status: this.config.strings.status,
                 togglelabel: this.config.strings.toggle,
+                talklabel: this.config.strings.toggle,
                 placeholder: this.config.strings.placeholder,
                 typing: this.config.strings.typing,
                 voicelabel: this.config.strings.voice,
@@ -123,18 +134,14 @@ function($, Ajax, Notification, Templates) {
                 exportlabel: this.config.strings.export,
                 minimizelabel: this.config.strings.minimize,
                 closelabel: this.config.strings.close,
+                welcome: this.config.strings.welcome,
                 voiceenabled: this.config.features.voice_input,
                 emojienabled: this.config.features.emoji_picker,
+                showquickactions: this.config.features.quick_actions,
+                showsuggestions: this.config.features.suggestions,
                 canexport: this.config.permissions.canexport,
                 maxlength: this.config.maxlength,
-                initial: this.config.avatar,
-                openicon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path></svg>',
-                closeicon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>',
-                minimizeicon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M19 13H5v-2h14v2z"></path></svg>',
-                exporticon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7 7-7z"></path></svg>',
-                voiceicon: '<span aria-hidden="true">🎤</span>',
-                emojiicon: '<span aria-hidden="true">😊</span>',
-                sendicon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M2 21l21-9L2 3v7l15 2-15 2v7z"></path></svg>'
+                initial: this.config.avatar
             };
 
             $('#local-chatbot-container').remove();
@@ -153,6 +160,7 @@ function($, Ajax, Notification, Templates) {
             this.$container.show();
             this.$widget = $('#chatbot-widget');
             this.$launcher = $('#chatbot-launcher');
+            this.$badge = $('.chatbot-launcher-count');
         },
 
         /**
@@ -267,7 +275,26 @@ function($, Ajax, Notification, Templates) {
             // Connection monitoring
             this.monitorConnection();
         },
-        
+
+        /**
+         * Restore previously stored launcher state.
+         */
+        restoreWidgetState: function() {
+            var state = null;
+
+            try {
+                state = window.localStorage.getItem(this.config.storagekey);
+            } catch (error) {
+                state = null;
+            }
+
+            if (state === 'open') {
+                this.openChatbot();
+            } else {
+                this.closeChatbot();
+            }
+        },
+
         /**
          * Toggle chatbot visibility
          */
@@ -291,23 +318,38 @@ function($, Ajax, Notification, Templates) {
             this.isOpen = true;
 
             // Clear badge
-            $('.chatbot-launcher-badge').text('0').attr('aria-hidden', 'true');
+            if (this.$badge && this.$badge.length) {
+                this.$badge.text('0').attr('aria-hidden', 'true').attr('data-count', 0);
+            }
 
             // Mark messages as read
             this.markMessagesAsRead();
 
             // Load context-specific content
             this.updateContextualContent();
+
+            try {
+                window.localStorage.setItem(this.config.storagekey, 'open');
+            } catch (error) {
+                // Ignore storage issues (e.g. private browsing).
+            }
         },
 
         /**
          * Close chatbot
          */
         closeChatbot: function() {
+            this.$container.show();
             this.$widget.attr('aria-hidden', 'true');
             this.$container.removeClass('chatbot-active');
             this.$launcher.attr('aria-expanded', 'false');
             this.isOpen = false;
+
+            try {
+                window.localStorage.setItem(this.config.storagekey, 'closed');
+            } catch (error) {
+                // Storage may not be available.
+            }
         },
 
         /**
