@@ -29,6 +29,187 @@ use core\hook\output\before_footer_html_generation;
 require_once($CFG->dirroot . '/user/lib.php');
 
 /**
+ * Reset runtime caches for dynamic chatbot data.
+ */
+function local_chatbot_reset_runtime_cache(): void {
+    local_chatbot_get_intents(true);
+    local_chatbot_get_suggestions(true);
+    local_chatbot_get_quick_actions(true);
+}
+
+/**
+ * Fetch chatbot intents.
+ *
+ * @param bool $forcereload
+ * @return array
+ */
+function local_chatbot_get_intents(bool $forcereload = false): array {
+    global $DB;
+
+    static $cache = null;
+    if ($forcereload) {
+        $cache = null;
+    }
+
+    if ($cache === null) {
+        $records = $DB->get_records('local_chatbot_intents', ['enabled' => 1], 'sortorder ASC, name ASC');
+        $cache = array_values($records);
+    }
+
+    return $cache;
+}
+
+/**
+ * Parse keyword string into an array.
+ *
+ * @param string|null $keywords
+ * @return array
+ */
+function local_chatbot_parse_keywords(?string $keywords): array {
+    if ($keywords === null) {
+        return [];
+    }
+
+    $lines = preg_split('/[\n,]+/', core_text::strtolower($keywords));
+    $lines = array_map('trim', $lines);
+    $lines = array_filter($lines, static function($value) {
+        return $value !== '';
+    });
+
+    return array_values(array_unique($lines));
+}
+
+/**
+ * Classify a message and return the response configuration.
+ *
+ * @param string $message
+ * @return array{intent:?stdClass,response:string,matched:string}
+ */
+function local_chatbot_classify_message(string $message): array {
+    $message = trim($message);
+    $lcmessage = core_text::strtolower($message);
+
+    $fallback = null;
+    foreach (local_chatbot_get_intents() as $intent) {
+        if (!empty($intent->isfallback)) {
+            $fallback = $intent;
+            continue;
+        }
+
+        foreach (local_chatbot_parse_keywords($intent->keywords) as $keyword) {
+            if ($keyword !== '' && core_text::strpos($lcmessage, $keyword) !== false) {
+                return [$intent, $intent->response, $keyword];
+            }
+        }
+    }
+
+    if ($fallback) {
+        return [$fallback, $fallback->response, ''];
+    }
+
+    $response = (string)(get_config('local_chatbot', 'default_nomatch')
+        ?: get_string('default_nomatch', 'local_chatbot'));
+
+    return [null, $response, ''];
+}
+
+/**
+ * Retrieve configured suggestions.
+ *
+ * @param bool $forcereload
+ * @return array
+ */
+function local_chatbot_get_suggestions(bool $forcereload = false): array {
+    global $DB;
+
+    static $cache = null;
+    if ($forcereload) {
+        $cache = null;
+    }
+
+    if ($cache === null) {
+        $records = $DB->get_records('local_chatbot_suggestions', ['enabled' => 1], 'sortorder ASC, text ASC');
+        $cache = array_values($records);
+    }
+
+    return $cache;
+}
+
+/**
+ * Resolve a quick action URL replacing special tokens.
+ *
+ * @param string $payload
+ * @param stdClass $user
+ * @param int $courseid
+ * @return moodle_url
+ */
+function local_chatbot_resolve_quick_action_url(string $payload, stdClass $user, int $courseid): moodle_url {
+    global $CFG;
+
+    $replacements = [
+        '{userid}' => $user->id,
+        '{courseid}' => $courseid ?: 0,
+        '{wwwroot}' => $CFG->wwwroot,
+    ];
+
+    $resolved = str_replace(array_keys($replacements), array_values($replacements), trim($payload));
+    if ($resolved === '') {
+        return new moodle_url('/');
+    }
+
+    return new moodle_url($resolved);
+}
+
+/**
+ * Retrieve quick actions.
+ *
+ * @param bool $forcereload
+ * @return array
+ */
+function local_chatbot_get_quick_actions(bool $forcereload = false): array {
+    global $DB, $USER, $PAGE;
+
+    static $cache = null;
+    if ($forcereload) {
+        $cache = null;
+    }
+
+    if ($cache === null) {
+        $records = $DB->get_records('local_chatbot_quickacts', ['enabled' => 1], 'sortorder ASC, name ASC');
+        $courseid = $PAGE->course->id ?? 0;
+
+        $cache = [];
+        foreach ($records as $record) {
+            $action = [
+                'actionkey' => $record->actionkey,
+                'label' => $record->name,
+                'description' => (string)$record->description,
+                'icon' => (string)$record->icon,
+                'type' => $record->type,
+                'message' => '',
+                'url' => null,
+            ];
+
+            switch ($record->type) {
+                case 'inject':
+                case 'server':
+                    $action['message'] = (string)$record->payload;
+                    break;
+                case 'navigate':
+                default:
+                    $action['url'] = local_chatbot_resolve_quick_action_url($record->payload ?? '/', $USER, $courseid);
+                    $action['type'] = 'navigate';
+                    break;
+            }
+
+            $cache[] = $action;
+        }
+    }
+
+    return $cache;
+}
+
+/**
  * Legacy callback stub kept for completeness.
  */
 function local_chatbot_extend_navigation() {
@@ -213,44 +394,8 @@ function local_chatbot_process_message(string $message, ?string $sessionid = nul
     $sessionid = $sessionid ?: local_chatbot_generate_sessionid($USER->id);
     $start = microtime(true);
 
-    $intent = 'general';
-    $response = '';
-
-    $lcmessage = core_text::strtolower($message);
-    $responses = [
-        'greeting' => [
-            'keywords' => ['hola', 'hello', 'buenos', 'buenas', 'hi'],
-            'response' => get_string('chatbot_response_greeting', 'local_chatbot'),
-        ],
-        'help' => [
-            'keywords' => ['ayuda', 'help', 'assist', 'no puedo'],
-            'response' => get_string('chatbot_response_help', 'local_chatbot'),
-        ],
-        'courses' => [
-            'keywords' => ['curso', 'course', 'materia', 'class'],
-            'response' => get_string('chatbot_response_courses', 'local_chatbot'),
-        ],
-        'grades' => [
-            'keywords' => ['nota', 'grade', 'calificación'],
-            'response' => get_string('chatbot_response_grades', 'local_chatbot'),
-        ],
-    ];
-
-    foreach ($responses as $label => $data) {
-        foreach ($data['keywords'] as $keyword) {
-            if (core_text::strpos($lcmessage, $keyword) !== false) {
-                $intent = $label;
-                $response = $data['response'];
-                break 2;
-            }
-        }
-    }
-
-    if ($response === '') {
-        $intent = 'nomatch';
-        $response = (string)(get_config('local_chatbot', 'default_nomatch')
-            ?: get_string('default_nomatch', 'local_chatbot'));
-    }
+    [$intentrecord, $response, $matchedkeyword] = local_chatbot_classify_message($message);
+    $intent = $intentrecord ? (string)$intentrecord->name : 'nomatch';
 
     $responsetime = (int)round((microtime(true) - $start) * 1000);
 
@@ -261,7 +406,10 @@ function local_chatbot_process_message(string $message, ?string $sessionid = nul
         'response' => $response,
         'intent' => $intent,
         'responsetime' => $responsetime,
-        'metadata' => json_encode(['language' => current_language()]),
+        'metadata' => json_encode([
+            'language' => current_language(),
+            'matchedkeyword' => $matchedkeyword,
+        ]),
         'timecreated' => time(),
     ];
     $logid = $DB->insert_record('local_chatbot_logs', $record);
@@ -277,42 +425,39 @@ function local_chatbot_process_message(string $message, ?string $sessionid = nul
 }
 
 /**
- * Return contextual suggestions.
+ * Preview a message without logging it.
  *
+ * @param string $message
  * @return array
  */
-function local_chatbot_get_suggestions(): array {
+function local_chatbot_preview_message(string $message): array {
+    [$intent, $response, $matchedkeyword] = local_chatbot_classify_message($message);
+
     return [
-        ['text' => get_string('chatbot_suggestion_courses', 'local_chatbot'), 'action' => 'show_courses', 'icon' => '📚'],
-        ['text' => get_string('chatbot_suggestion_grades', 'local_chatbot'), 'action' => 'show_grades', 'icon' => '📊'],
-        ['text' => get_string('chatbot_suggestion_support', 'local_chatbot'), 'action' => '', 'icon' => '🆘'],
+        'intent' => $intent ? $intent->name : 'nomatch',
+        'response' => $response,
+        'matchedkeyword' => $matchedkeyword,
+        'intentrecord' => $intent,
     ];
 }
 
 /**
- * Return contextual quick actions.
+ * Return contextual suggestions.
  *
  * @return array
  */
-function local_chatbot_get_quick_actions(): array {
-    global $USER;
+function local_chatbot_get_suggestions_payload(): array {
+    $results = [];
+    foreach (local_chatbot_get_suggestions() as $suggestion) {
+        $results[] = [
+            'text' => $suggestion->text,
+            'mode' => $suggestion->mode,
+            'target' => (string)$suggestion->target,
+            'icon' => (string)$suggestion->icon,
+        ];
+    }
 
-    return [
-        [
-            'icon' => '👤',
-            'label' => get_string('chatbot_action_profile', 'local_chatbot'),
-            'action' => 'navigate',
-            'description' => get_string('chatbot_action_profile_desc', 'local_chatbot'),
-            'url' => new moodle_url('/user/profile.php', ['id' => $USER->id]),
-        ],
-        [
-            'icon' => '🗓️',
-            'label' => get_string('chatbot_action_calendar', 'local_chatbot'),
-            'action' => 'navigate',
-            'description' => get_string('chatbot_action_calendar_desc', 'local_chatbot'),
-            'url' => new moodle_url('/calendar/view.php', ['view' => 'month']),
-        ],
-    ];
+    return $results;
 }
 
 /**

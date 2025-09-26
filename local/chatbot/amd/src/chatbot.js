@@ -68,6 +68,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             this.maxlength = parseInt(config.maxlength, 10) || 500;
             this.initialised = false;
             this.typingTimer = null;
+            this.quickActions = {};
         }
 
         /**
@@ -139,23 +140,21 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
 
             this.$widget.on('click', '.suggestion-chip', function() {
                 const text = $(this).data('text');
-                const action = $(this).data('action');
-                if (action) {
-                    self.executeAction(action);
+                const mode = $(this).data('mode');
+                const target = $(this).data('target');
+
+                if (mode === 'action' && target) {
+                    self.handleQuickAction(target);
                 } else {
-                    self.$input.val(text);
+                    const message = target || text;
+                    self.$input.val(message);
                     self.sendMessage();
                 }
             });
 
             this.$widget.on('click', '.quick-action-btn', function() {
-                const action = $(this).data('action');
-                const url = $(this).data('url');
-                if (action === 'navigate' && url) {
-                    window.location.href = url;
-                    return;
-                }
-                self.executeAction(action);
+                const key = $(this).data('key');
+                self.handleQuickAction(key, $(this));
             });
 
             this.$widget.on('click', '.feedback-btn', function() {
@@ -306,7 +305,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 );
                 chip.text((suggestion.icon || '') + ' ' + suggestion.text);
                 chip.attr('data-text', suggestion.text);
-                chip.attr('data-action', suggestion.action || '');
+                chip.attr('data-mode', suggestion.mode || 'message');
+                chip.attr('data-target', suggestion.target || '');
                 container.append(chip);
             });
 
@@ -321,17 +321,21 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         renderQuickActions(actions) {
             const container = this.$quickActions.find('.quick-actions-container');
             container.empty();
+            this.quickActions = {};
 
             if (!actions.length) {
                 this.$quickActions.hide();
                 return;
             }
 
+            const self = this;
             actions.forEach(function(action) {
+                self.quickActions[action.actionkey] = action;
                 const button = createElement(
                     '<button type="button" class="quick-action-btn"></button>'
                 );
-                button.attr('data-action', action.action);
+                button.attr('data-key', action.actionkey);
+                button.attr('data-type', action.type || 'navigate');
                 button.attr('data-url', action.url || '');
                 button.attr('title', action.description || '');
                 button.html('<span class="quick-action-icon">' + (action.icon || '') + '</span>' +
@@ -340,6 +344,34 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             });
 
             this.$quickActions.show();
+        }
+
+        /**
+         * Execute quick action locally or via AJAX.
+         *
+         * @param {string} key
+         * @param {JQuery} [$button]
+         */
+        handleQuickAction(key, $button) {
+            if (!key) {
+                return;
+            }
+
+            const action = this.quickActions[key];
+            if (action) {
+                if (action.type === 'navigate' && action.url) {
+                    window.location.href = action.url;
+                    return;
+                }
+
+                if (action.type === 'inject' && action.message) {
+                    this.$input.val(action.message);
+                    this.sendMessage();
+                    return;
+                }
+            }
+
+            this.executeAction(key);
         }
 
         /**

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 - 2025-02-01
+- Reemplazadas todas las pantallas administrativas provisionales por consolas completas de intenciones, entidades, entrenamiento, analíticas, visor de diálogos y pruebas manuales (`admin/*`).
+- Añadidas las tablas `local_chatbot_intents`, `local_chatbot_suggestions` y `local_chatbot_quickacts` junto con formularios de gestión y semillas iniciales (`db/install.xml`, `db/upgrade.php`).
+- El clasificador de mensajes ahora consume las intenciones configuradas y almacena la palabra clave coincidente en los metadatos (`lib.php`).
+- Sugerencias y accesos rápidos pasan a ser totalmente configurables y se exponen mediante los servicios web y el módulo AMD actualizados (`lib.php`, `externallib.php`, `amd/src/chatbot.js`).
+- Nuevo tablero de analíticas con gráficos y métricas, visor de conversaciones con filtros y exportación directa (`admin/analytics.php`, `admin/dialogues.php`).
+- Documentación y traducciones renovadas para reflejar la administración ampliada del plugin (`README.md`, `lang/*`).
+
 ## 1.0.1 - 2025-02-15
 - Convert the widget injector to the Moodle `before_footer_html_generation` hook API and stop echoing output directly (`lib.php`, `db/hooks.php`).
 - Return the hook definition array so Moodle registers the widget callback reliably (`db/hooks.php`).
