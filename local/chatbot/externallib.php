@@ -67,22 +67,25 @@ class local_chatbot_external extends external_api {
         $result = local_chatbot_process_message($params['message'], $params['sessionid'] ?: null);
 
         $suggestions = [];
-        foreach (local_chatbot_get_suggestions() as $suggestion) {
+        foreach (local_chatbot_get_suggestions_payload() as $suggestion) {
             $suggestions[] = [
                 'text' => $suggestion['text'],
-                'action' => $suggestion['action'],
-                'icon' => $suggestion['icon'] ?? '',
+                'mode' => $suggestion['mode'],
+                'target' => $suggestion['target'],
+                'icon' => $suggestion['icon'],
             ];
         }
 
         $actions = [];
         foreach (local_chatbot_get_quick_actions() as $action) {
             $actions[] = [
-                'action' => $action['action'],
+                'actionkey' => $action['actionkey'],
                 'label' => $action['label'],
                 'icon' => $action['icon'],
                 'description' => $action['description'],
-                'url' => $action['url']->out(false),
+                'type' => $action['type'],
+                'message' => $action['message'],
+                'url' => $action['url'] instanceof moodle_url ? $action['url']->out(false) : '',
             ];
         }
 
@@ -113,15 +116,18 @@ class local_chatbot_external extends external_api {
             'timestamp' => new external_value(PARAM_INT, 'Creation time'),
             'suggestions' => new external_multiple_structure(new external_single_structure([
                 'text' => new external_value(PARAM_TEXT, 'Suggestion text'),
-                'action' => new external_value(PARAM_TEXT, 'Action key'),
+                'mode' => new external_value(PARAM_TEXT, 'Suggestion mode (message|action)'),
+                'target' => new external_value(PARAM_TEXT, 'Target message or action key', VALUE_DEFAULT, ''),
                 'icon' => new external_value(PARAM_TEXT, 'Emoji icon', VALUE_DEFAULT, ''),
             ]), 'Contextual suggestions'),
             'actions' => new external_multiple_structure(new external_single_structure([
-                'action' => new external_value(PARAM_TEXT, 'Action identifier'),
+                'actionkey' => new external_value(PARAM_TEXT, 'Action identifier'),
                 'label' => new external_value(PARAM_TEXT, 'Action label'),
                 'icon' => new external_value(PARAM_TEXT, 'Icon to display'),
                 'description' => new external_value(PARAM_TEXT, 'Tooltip description'),
-                'url' => new external_value(PARAM_URL, 'Destination URL'),
+                'type' => new external_value(PARAM_TEXT, 'Action type'),
+                'message' => new external_value(PARAM_RAW, 'Optional payload message', VALUE_DEFAULT, ''),
+                'url' => new external_value(PARAM_TEXT, 'Destination URL', VALUE_DEFAULT, ''),
             ]), 'Quick actions'),
         ]);
     }
@@ -149,11 +155,12 @@ class local_chatbot_external extends external_api {
         require_capability('local/chatbot:use', $systemcontext);
 
         $suggestions = [];
-        foreach (local_chatbot_get_suggestions() as $suggestion) {
+        foreach (local_chatbot_get_suggestions_payload() as $suggestion) {
             $suggestions[] = [
                 'text' => $suggestion['text'],
-                'action' => $suggestion['action'],
-                'icon' => $suggestion['icon'] ?? '',
+                'mode' => $suggestion['mode'],
+                'target' => $suggestion['target'],
+                'icon' => $suggestion['icon'],
             ];
         }
 
@@ -166,7 +173,8 @@ class local_chatbot_external extends external_api {
     public static function get_suggestions_returns(): external_multiple_structure {
         return new external_multiple_structure(new external_single_structure([
             'text' => new external_value(PARAM_TEXT, 'Suggestion text'),
-            'action' => new external_value(PARAM_TEXT, 'Action key'),
+            'mode' => new external_value(PARAM_TEXT, 'Suggestion mode (message|action)'),
+            'target' => new external_value(PARAM_TEXT, 'Target message or action key', VALUE_DEFAULT, ''),
             'icon' => new external_value(PARAM_TEXT, 'Emoji icon', VALUE_DEFAULT, ''),
         ]));
     }
@@ -196,11 +204,13 @@ class local_chatbot_external extends external_api {
         $actions = [];
         foreach (local_chatbot_get_quick_actions() as $action) {
             $actions[] = [
-                'action' => $action['action'],
+                'actionkey' => $action['actionkey'],
                 'label' => $action['label'],
                 'icon' => $action['icon'],
                 'description' => $action['description'],
-                'url' => $action['url']->out(false),
+                'type' => $action['type'],
+                'message' => $action['message'],
+                'url' => $action['url'] instanceof moodle_url ? $action['url']->out(false) : '',
             ];
         }
 
@@ -212,11 +222,13 @@ class local_chatbot_external extends external_api {
      */
     public static function get_quick_actions_returns(): external_multiple_structure {
         return new external_multiple_structure(new external_single_structure([
-            'action' => new external_value(PARAM_TEXT, 'Action identifier'),
+            'actionkey' => new external_value(PARAM_TEXT, 'Action identifier'),
             'label' => new external_value(PARAM_TEXT, 'Display label'),
             'icon' => new external_value(PARAM_TEXT, 'Icon'),
             'description' => new external_value(PARAM_TEXT, 'Tooltip description'),
-            'url' => new external_value(PARAM_URL, 'Destination URL'),
+            'type' => new external_value(PARAM_TEXT, 'Action type'),
+            'message' => new external_value(PARAM_RAW, 'Optional message payload', VALUE_DEFAULT, ''),
+            'url' => new external_value(PARAM_TEXT, 'Destination URL', VALUE_DEFAULT, ''),
         ]));
     }
 
@@ -365,7 +377,7 @@ class local_chatbot_external extends external_api {
      */
     public static function execute_action_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'action' => new external_value(PARAM_TEXT, 'Action identifier'),
+            'action' => new external_value(PARAM_TEXT, 'Action key identifier'),
             'params' => new external_value(PARAM_TEXT, 'JSON encoded parameters', VALUE_DEFAULT, '{}'),
         ]);
     }
@@ -378,6 +390,8 @@ class local_chatbot_external extends external_api {
      * @return array
      */
     public static function execute_action(string $action, string $params = '{}'): array {
+        global $DB;
+
         $params = self::validate_parameters(self::execute_action_parameters(), [
             'action' => $action,
             'params' => $params,
@@ -387,9 +401,38 @@ class local_chatbot_external extends external_api {
         self::validate_context($systemcontext);
         require_capability('local/chatbot:use', $systemcontext);
 
-        $decodedparams = json_decode($params['params'], true) ?: [];
+        $record = $DB->get_record('local_chatbot_quickacts', [
+            'actionkey' => $params['action'],
+            'enabled' => 1,
+        ]);
 
-        $message = get_string('chatbot_action_generic', 'local_chatbot', $params['action']);
+        if (!$record) {
+            return [
+                'success' => false,
+                'message' => get_string('chatbot_action_unknown', 'local_chatbot'),
+            ];
+        }
+
+        if ($record->type === 'server') {
+            $message = trim((string)$record->payload);
+            if ($message === '') {
+                $message = get_string('chatbot_action_generic', 'local_chatbot', $record->name);
+            }
+
+            return [
+                'success' => true,
+                'message' => format_text($message, FORMAT_PLAIN),
+            ];
+        }
+
+        if ($record->type === 'inject') {
+            return [
+                'success' => true,
+                'message' => format_text((string)$record->payload, FORMAT_PLAIN),
+            ];
+        }
+
+        $message = get_string('chatbot_action_generic', 'local_chatbot', $record->name);
 
         return [
             'success' => true,

@@ -1,109 +1,128 @@
 # Moodle local_chatbot
 
-`local_chatbot` adds a floating assistant to Moodle pages that mirrors the positioning and look & feel of the `local_geniai` widget while providing a lightweight, keyword-based responder. The widget is injected through Moodle's `before_footer_html_generation` hook, uses a Mustache template for markup, an AMD module for interactivity and logs every dialogue in a dedicated database table.
+`local_chatbot` añade a Moodle un asistente flotante inspirado en el widget de `local_geniai`. El asistente se inyecta mediante el _hook_ `before_footer_html_generation`, renderiza su interfaz con una plantilla Mustache y un módulo AMD, y almacena cada diálogo en tablas dedicadas que puedes gestionar desde el área de administración del plugin.
 
-## Feature highlights
+## Novedades principales
 
-- Floating launcher with badge counter and animated popup styled after `local_geniai` (`templates/widget.mustache`, `styles.css`).
-- Accessible chat surface with welcome prompt, quick actions, suggestions and typing indicator (Mustache + AMD module).
-- Keyword-driven responder with configurable welcome/fallback messaging and intent tagging (`lib.php`).
-- AJAX web services for messaging, history replay, quick actions, exports and feedback (`db/services.php`, `externallib.php`).
-- Conversation log table with HTML, CSV or JSON export (`install.xml`, `lib.php`, `export.php`).
-- Granular capabilities for usage, management and exporting plus Site administration pages for future expansion (`db/access.php`, `settings.php`, `admin/*`).
+- Lanzador flotante con contador de mensajes no leídos, animaciones y apariencia alineada con `local_geniai` (`templates/widget.mustache`, `styles.css`).
+- Superficie de conversación accesible con mensaje de bienvenida, sugerencias, accesos rápidos, indicador de escritura y contador de caracteres (Mustache + AMD).
+- Clasificador por palabras clave totalmente configurable desde la administración (tabla `local_chatbot_intents`), con intención _fallback_ y respuesta personalizada.
+- Sugerencias y accesos rápidos dinámicos administrados en las tablas `local_chatbot_suggestions` y `local_chatbot_quickacts`, incluidos soportes para acciones de navegación, mensajes prefijados y respuestas del servidor.
+- Servicios web AJAX para mensajes, historial, sugerencias, accesos rápidos, exportaciones y retroalimentación (`db/services.php`, `externallib.php`).
+- Consolas administrativas completas: gestión de intenciones, entidades, entrenamiento de mensajes, analíticas, visor de diálogos y pruebas manuales (`admin/*`).
+- Exportación HTML/CSV/JSON de conversaciones (`export.php`) y consola CLI/GUI con capacidades granuladas (`db/access.php`).
 
-## Requirements and compatibility
+## Requisitos y compatibilidad
 
-| Requirement | Minimum |
-|-------------|---------|
-| Moodle core | 4.3 (build 2023100900) |
-| PHP         | 8.0 |
-| Database    | Any Moodle supported DB (table defined in `db/install.xml`) |
+| Requisito    | Versión mínima |
+|--------------|----------------|
+| Moodle core  | 4.3 (build 2023100900) |
+| PHP          | 8.0 |
+| Base de datos | Cualquiera soportada por Moodle (tablas definidas en `db/install.xml`) |
 
-The widget is injected only for authenticated, non-guest users on layouts that allow popup notifications.
+El widget se muestra únicamente a usuarios autenticados (no invitados) y en páginas que permitan _popups_.
 
-## Installation
+## Instalación
 
-1. Copy this directory to `<moodle_root>/local/chatbot` or clone the repository inside `local/`.
-2. From the Moodle web UI or CLI run the upgrade step (`php admin/cli/upgrade.php`).
-3. (Optional) Purge caches after installation (`php admin/cli/purge_caches.php`).
-4. Run Moodle cron so caches are rebuilt (`php admin/cli/cron.php`).
+1. Copia este directorio en `<moodle_root>/local/chatbot` o clona el repositorio dentro de `local/`.
+2. Desde la interfaz de Moodle o la CLI ejecuta el _upgrade_ (`php admin/cli/upgrade.php`).
+3. (Opcional) Purga cachés (`php admin/cli/purge_caches.php`).
+4. Ejecuta el cron de Moodle (`php admin/cli/cron.php`) para reconstruir cachés.
 
-The AMD controller is loaded directly from `amd/src/chatbot.js`; no additional build step is required for production. If you prefer minified assets, run `npx grunt amd`.
+El módulo AMD se carga directamente desde `amd/src/chatbot.js`; no es obligatorio generar _builds_ minimizadas (puedes hacerlo con `npx grunt amd`).
 
-## Upgrading
+## Actualizaciones
 
-- Version 1.0.1 introduces the badge counter, timestamp propagation, stronger hook integration and ensures the widget defaults to enabled. During upgrade a default `enabled` config value is created when missing (`db/upgrade.php`).
-- After replacing the plugin directory, repeat the installation steps above. Moodle will apply outstanding database or configuration upgrades automatically.
+- **1.1.0 (2025-02-01)**: incorpora tablas para intenciones, sugerencias y accesos rápidos gestionables desde la administración; reemplaza las pantallas provisionales por consolas completas; añade tablero de analíticas, visor de diálogos, consola de entrenamiento y pruebas; actualiza servicios web y el widget para consumir la configuración dinámica.
+- **1.0.1 (2025-02-15)**: adapta la inyección del widget al _hook_ oficial, añade contador de mensajes y asegura que el plugin quede habilitado tras la actualización.
 
-## Configuration
+Después de sustituir el directorio del plugin, repite los pasos de instalación. Moodle aplicará automáticamente los cambios de base de datos y configuración pendientes.
 
-Navigate to **Site administration → Plugins → Local plugins → Chatbot assistant** (`settings.php`) to manage:
+## Configuración
 
-- Enable chatbot (defaults to on).
-- Assistant name shown in the header and aria labels.
-- Launcher position (bottom-right or bottom-left).
-- Theme palette (modern, minimal, dark).
-- Welcome message template supporting `{name}` token replacement.
-- Fallback response when no keyword is matched.
-- Maximum message length enforced in the UI.
-- Toggle for exposing the export button (requires `local/chatbot:export`).
+### Ajustes generales
 
-## Capabilities
+Visita **Administración del sitio → Plugins → Plugins locales → Asistente de chatbot** (`settings.php`) para controlar:
 
-| Capability | Purpose | Default roles |
-|------------|---------|----------------|
-| `local/chatbot:use` | Launch the widget and call web services | Authenticated users |
-| `local/chatbot:manage` | Access placeholder admin consoles | Manager |
-| `local/chatbot:export` | Export chat history | Authenticated users |
+- Activar o desactivar el chatbot.
+- Nombre del asistente (se muestra en el encabezado y textos accesibles).
+- Posición del lanzador (esquina inferior derecha o izquierda).
+- Paleta de colores (moderno, minimalista u oscuro).
+- Mensaje de bienvenida con soporte para el token `{name}`.
+- Mensaje por defecto cuando no hay coincidencias.
+- Longitud máxima del mensaje en la interfaz.
+- Visibilidad del botón de exportar (requiere el permiso `local/chatbot:export`).
 
-## Widget behaviour and assets
+### Consolas específicas
 
-- HTML is rendered from `templates/widget.mustache`, replicating `local_geniai` launcher/header layout and ARIA labelling.
-- Styling lives in `styles.css` with responsive rules that mirror the reference plugin.
-- `amd/src/chatbot.js` boots the widget, talks to web services, shows history, updates the launcher badge when new bot replies arrive and honours local/session storage for persistence.
-- Server bootstrap (`lib.php`) injects CSS/JS, builds the template context, enforces capabilities and passes localisation strings plus runtime config to the AMD module.
+El plugin añade una categoría propia en **Administración del sitio → Plugins → Plugins locales → Asistente de chatbot** con las siguientes páginas:
 
-## Web services
+| Página | Descripción |
+|--------|-------------|
+| **Gestionar intenciones** | Crea, edita y elimina intenciones, palabras clave y la intención _fallback_. |
+| **Gestionar entidades** | Administra accesos rápidos (navegación, inyección o respuesta del servidor) y sugerencias mostradas en el widget. |
+| **Entrenamiento y aprendizaje** | Analiza mensajes, comprueba coincidencias y (opcionalmente) registra el resultado en el historial. |
+| **Analíticas e informes** | Muestra métricas clave, gráficos de uso por intención, actividad diaria y distribución de feedback. |
+| **Flujos de diálogo** | Lista, filtra y detalla sesiones con posibilidad de exportar la conversación seleccionada. |
+| **Probar el chatbot** | Envía mensajes manualmente para verificar respuestas y revisar el historial de una sesión concreta. |
 
-All services are defined in `db/services.php` and implemented in `externallib.php`:
+## Capacidades
 
-- `local_chatbot_process_message`: keyword response, intent tagging, quick actions & suggestions.
-- `local_chatbot_get_history`: returns the latest messages with timestamps for replay.
-- `local_chatbot_get_suggestions`: contextual prompt suggestions.
-- `local_chatbot_get_quick_actions`: shortcut buttons (profile, calendar, etc.).
-- `local_chatbot_export_conversation`: server-side HTML/CSV/JSON export used by the widget and standalone export page.
-- `local_chatbot_feedback`: stores thumbs-up/down feedback on each log entry.
-- `local_chatbot_execute_action`: executes quick action shortcuts (placeholder).
+| Capacidad | Propósito | Roles por defecto |
+|-----------|-----------|-------------------|
+| `local/chatbot:use` | Mostrar el widget y consumir servicios web | Usuarios autenticados |
+| `local/chatbot:manage` | Acceder a las consolas administrativas | Gestor |
+| `local/chatbot:export` | Exportar historial de conversaciones | Usuarios autenticados |
 
-## Data storage
+## Funcionamiento del widget
 
-The plugin creates `local_chatbot_logs` (`db/install.xml`) capturing:
+- El HTML se genera con `templates/widget.mustache`, replicando la estructura y etiquetado ARIA del widget de `local_geniai`.
+- Los estilos (`styles.css`) se encargan del aspecto flotante, animaciones y adaptabilidad.
+- `amd/src/chatbot.js` inicializa el widget, consume los servicios AJAX, restaura el historial, gestiona el contador del lanzador y conserva la apertura/cierre usando `localStorage` y `sessionStorage`.
+- `lib.php` controla la inyección del widget, construye el contexto Mustache, obtiene la configuración dinámica (intenciones, sugerencias y accesos rápidos), valida permisos y expone la configuración al módulo AMD.
 
-- `userid`, `sessionid`, original `message` and bot `response`.
-- `intent`, response time, optional feedback label and metadata JSON.
-- `timecreated` timestamps used for history playback and exports.
+## Servicios web
 
-## Troubleshooting
+Los servicios definidos en `db/services.php` y desarrollados en `externallib.php` permiten al widget:
 
-- **Widget invisible:** confirm the plugin is enabled, the user has `local/chatbot:use`, the page layout allows popups and you are not logged in as guest.
-- **Launcher badge never resets:** opening the widget clears the badge and stores the state in `localStorage`. Purge browser storage if behaviour persists.
-- **AJAX errors:** check browser console; the AMD module surfaces Moodle notifications and server responses. Ensure the web service user has the required capability.
-- **Exports blank:** verify `local/chatbot_logs` contains data and the requester has `local/chatbot:export`.
+- Procesar mensajes (`local_chatbot_process_message`).
+- Recuperar historial (`local_chatbot_get_history`).
+- Obtener sugerencias dinámicas (`local_chatbot_get_suggestions`).
+- Recuperar accesos rápidos gestionables (`local_chatbot_get_quick_actions`).
+- Exportar conversaciones (`local_chatbot_export_conversation`).
+- Guardar retroalimentación (`local_chatbot_feedback`).
+- Ejecutar accesos rápidos del lado servidor (`local_chatbot_execute_action`).
 
-## Post-installation checklist
+## Almacenamiento de datos
 
-- ✅ Launch the widget as a standard user and confirm welcome text, suggestions and quick actions render.
-- ✅ Send a message and verify the bot response, badge counter increment (when closed) and history replay after page reload.
-- ✅ Review the `local_chatbot_logs` table entries and test HTML/CSV/JSON exports via the widget or `/local/chatbot/export.php`.
-- ✅ Visit the Site administration pages under **Local plugins → Chatbot assistant** to ensure capability restrictions and placeholder notices load.
+El plugin crea las siguientes tablas (`db/install.xml`):
 
-## Development and testing tips
+- `local_chatbot_logs`: historial de mensajes, respuestas, intención, tiempos de respuesta, metadatos y feedback.
+- `local_chatbot_intents`: intenciones configurables con palabras clave, respuesta, orden y bandera de _fallback_.
+- `local_chatbot_suggestions`: sugerencias mostradas en el widget con icono, modo (mensaje/acción) y orden.
+- `local_chatbot_quickacts`: accesos rápidos con clave, tipo (navegación/inyección/servidor), carga útil, icono y orden.
 
-- Use `php -l` on modified PHP files or run Moodle's PHPUnit for deeper validation.
-- Run `npx grunt amd` to generate minified JS if distributing the plugin.
-- Purge caches (`php admin/cli/purge_caches.php`) after modifying Mustache, JS or CSS assets.
-- Compare styles with `local/geniai/styles.css` if you need to align branding further.
+## Resolución de problemas
 
-## License
+- **El widget no aparece:** verifica que el plugin esté habilitado, que el usuario tenga `local/chatbot:use`, que la página permita popups y que no sea una sesión de invitado.
+- **El contador del lanzador no se reinicia:** abrir el widget limpia el contador y guarda el estado en `localStorage`. Borra el almacenamiento del navegador si persiste.
+- **Errores AJAX:** revisa la consola del navegador; el módulo AMD muestra las excepciones. Comprueba permisos y que los servicios web estén habilitados.
+- **Exportaciones vacías:** asegúrate de que existan registros en `local_chatbot_logs` y de que quien exporta tenga `local/chatbot:export`.
 
-GPL v3 or later. See Moodle's standard license text for details.
+## Lista de verificación tras la instalación
+
+- ✅ Abre el widget con un usuario estándar y confirma que se muestran mensaje de bienvenida, sugerencias y accesos rápidos.
+- ✅ Envía un mensaje, revisa la respuesta y valida que el contador del lanzador se incrementa cuando el widget está cerrado.
+- ✅ Comprueba que la intención correcta queda registrada en `local_chatbot_logs` y prueba las exportaciones en `/local/chatbot/export.php`.
+- ✅ Recorre las páginas administrativas (intenciones, entidades, entrenamiento, analíticas, diálogos y pruebas) para confirmar que cargan y funcionan con tus datos reales.
+
+## Desarrollo y pruebas
+
+- Ejecuta `php -l` sobre los archivos PHP modificados o ejecuta PHPUnit si quieres pruebas más profundas.
+- Para distribuir el plugin con assets minimizados puedes ejecutar `npx grunt amd`.
+- Purga cachés (`php admin/cli/purge_caches.php`) tras modificar plantillas Mustache, JS o CSS.
+- Compara estilos con `local/geniai/styles.css` si necesitas alinear aún más el diseño.
+
+## Licencia
+
+GPL v3 o posterior. Consulta la licencia estándar de Moodle para más detalles.
