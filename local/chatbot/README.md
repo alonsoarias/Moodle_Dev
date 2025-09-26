@@ -8,8 +8,9 @@
 - Superficie de conversación accesible con mensaje de bienvenida, sugerencias, accesos rápidos, indicador de escritura y contador de caracteres (Mustache + AMD).
 - Clasificador por palabras clave totalmente configurable desde la administración (tabla `local_chatbot_intents`), con intención _fallback_ y respuesta personalizada.
 - Sugerencias y accesos rápidos dinámicos administrados en las tablas `local_chatbot_suggestions` y `local_chatbot_quickacts`, incluidos soportes para acciones de navegación, mensajes prefijados y respuestas del servidor.
+- El widget recupera sugerencias y accesos rápidos en cuanto se inicia, mostrando contexto útil desde la primera interacción.
 - Servicios web AJAX para mensajes, historial, sugerencias, accesos rápidos, exportaciones y retroalimentación (`db/services.php`, `externallib.php`).
-- Consolas administrativas completas: gestión de intenciones, entidades, entrenamiento de mensajes, analíticas, visor de diálogos y pruebas manuales (`admin/*`).
+- Consolas administrativas completas: gestión de intenciones, entidades, entrenamiento de mensajes, visor de diálogos y pruebas manuales (`admin/*`).
 - Exportación HTML/CSV/JSON de conversaciones (`export.php`) y consola CLI/GUI con capacidades granuladas (`db/access.php`).
 
 ## Requisitos y compatibilidad
@@ -33,7 +34,7 @@ El módulo AMD se carga directamente desde `amd/src/chatbot.js`; no es obligator
 
 ## Actualizaciones
 
-- **1.1.0 (2025-02-01)**: incorpora tablas para intenciones, sugerencias y accesos rápidos gestionables desde la administración; reemplaza las pantallas provisionales por consolas completas; añade tablero de analíticas, visor de diálogos, consola de entrenamiento y pruebas; actualiza servicios web y el widget para consumir la configuración dinámica.
+- **1.1.0 (2025-02-01)**: incorpora tablas para intenciones, sugerencias y accesos rápidos gestionables desde la administración; reemplaza las pantallas provisionales por consolas completas; añade visor de diálogos, consola de entrenamiento y pruebas; actualiza servicios web y el widget para consumir la configuración dinámica.
 - **1.0.1 (2025-02-15)**: adapta la inyección del widget al _hook_ oficial, añade contador de mensajes y asegura que el plugin quede habilitado tras la actualización.
 
 Después de sustituir el directorio del plugin, repite los pasos de instalación. Moodle aplicará automáticamente los cambios de base de datos y configuración pendientes.
@@ -62,7 +63,6 @@ El plugin añade una categoría propia en **Administración del sitio → Plugin
 | **Gestionar intenciones** | Crea, edita y elimina intenciones, palabras clave y la intención _fallback_. |
 | **Gestionar entidades** | Administra accesos rápidos (navegación, inyección o respuesta del servidor) y sugerencias mostradas en el widget. |
 | **Entrenamiento y aprendizaje** | Analiza mensajes, comprueba coincidencias y (opcionalmente) registra el resultado en el historial. |
-| **Analíticas e informes** | Muestra métricas clave, gráficos de uso por intención, actividad diaria y distribución de feedback. |
 | **Flujos de diálogo** | Lista, filtra y detalla sesiones con posibilidad de exportar la conversación seleccionada. |
 | **Probar el chatbot** | Envía mensajes manualmente para verificar respuestas y revisar el historial de una sesión concreta. |
 
@@ -114,7 +114,7 @@ El plugin crea las siguientes tablas (`db/install.xml`):
 - ✅ Abre el widget con un usuario estándar y confirma que se muestran mensaje de bienvenida, sugerencias y accesos rápidos.
 - ✅ Envía un mensaje, revisa la respuesta y valida que el contador del lanzador se incrementa cuando el widget está cerrado.
 - ✅ Comprueba que la intención correcta queda registrada en `local_chatbot_logs` y prueba las exportaciones en `/local/chatbot/export.php`.
-- ✅ Recorre las páginas administrativas (intenciones, entidades, entrenamiento, analíticas, diálogos y pruebas) para confirmar que cargan y funcionan con tus datos reales.
+- ✅ Recorre las páginas administrativas (intenciones, entidades, entrenamiento, diálogos y pruebas) para confirmar que cargan y funcionan con tus datos reales.
 
 ## Desarrollo y pruebas
 

@@ -85,6 +85,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             this.updateCharCount();
             this.addWelcomeMessage();
             this.loadHistory();
+            this.loadContextualData();
         }
 
         /**
@@ -605,6 +606,43 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     // Silently fail if history cannot be loaded.
                 }
             }]);
+        }
+
+        /**
+         * Load suggestions and quick actions when the widget starts.
+         */
+        loadContextualData() {
+            const self = this;
+
+            Ajax.call([
+                {
+                    methodname: 'local_chatbot_get_suggestions',
+                    args: {
+                        context: '{}'
+                    }
+                }
+            ])[0].then(function(suggestions) {
+                self.renderSuggestions(suggestions || []);
+            }).catch(function(error) {
+                if (error) {
+                    Notification.exception(error);
+                }
+            });
+
+            Ajax.call([
+                {
+                    methodname: 'local_chatbot_get_quick_actions',
+                    args: {
+                        context: '{}'
+                    }
+                }
+            ])[0].then(function(actions) {
+                self.renderQuickActions(actions || []);
+            }).catch(function(error) {
+                if (error) {
+                    Notification.exception(error);
+                }
+            });
         }
 
         /**

@@ -23,6 +23,7 @@
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->dirroot . '/local/chatbot/lib.php');
 
 use local_chatbot\form\quickaction_form;
 use local_chatbot\form\suggestion_form;
@@ -139,7 +140,7 @@ if ($tab === 'quickactions') {
     foreach ($quickactions as $qa) {
         $statusparts = [];
         $statusparts[] = $qa->enabled ? get_string('enabled', 'core') : get_string('disabled', 'core');
-        $statusparts[] = get_string('quickaction_type_' . $qa->type, 'local_chatbot');
+        $statusparts[] = local_chatbot_get_quickaction_type_label($qa->type);
         $status = implode(' · ', $statusparts);
 
         $actions = [];
@@ -155,7 +156,7 @@ if ($tab === 'quickactions') {
         $table->add_data([
             format_string($qa->name),
             format_string($qa->actionkey),
-            format_string($qa->type),
+            local_chatbot_get_quickaction_type_label($qa->type),
             format_text($qa->payload, FORMAT_PLAIN),
             $status,
             (int)$qa->sortorder,

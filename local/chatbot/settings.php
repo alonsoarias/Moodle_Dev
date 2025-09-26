@@ -135,13 +135,6 @@ if ($hassiteconfig) {
     ));
 
     $ADMIN->add('local_chatbot_admin', new admin_externalpage(
-        'local_chatbot_analytics',
-        get_string('analytics', 'local_chatbot'),
-        new moodle_url('/local/chatbot/admin/analytics.php'),
-        'local/chatbot:manage'
-    ));
-
-    $ADMIN->add('local_chatbot_admin', new admin_externalpage(
         'local_chatbot_dialogues',
         get_string('dialogues', 'local_chatbot'),
         new moodle_url('/local/chatbot/admin/dialogues.php'),

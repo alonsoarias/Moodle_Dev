@@ -261,6 +261,10 @@ function xmldb_local_chatbot_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2025020100, 'local', 'chatbot');
     }
 
+    if ($oldversion < 2025022000) {
+        upgrade_plugin_savepoint(true, 2025022000, 'local', 'chatbot');
+    }
+
     return true;
 }
 

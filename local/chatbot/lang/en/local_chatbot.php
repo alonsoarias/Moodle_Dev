@@ -55,6 +55,7 @@ $string['chatbot_action_calendar'] = 'Calendar';
 $string['chatbot_action_calendar_desc'] = 'Open the calendar view';
 $string['chatbot_action_support'] = 'Support centre';
 $string['chatbot_action_support_desc'] = 'Display the institutional support contact options';
+$string['chatbot_action_unknown'] = 'The requested action is no longer available.';
 $string['chatbot_action_generic'] = 'Action executed: {$a}';
 
 // Responses.
@@ -193,21 +194,6 @@ $string['training_context_actions'] = 'Quick actions currently available:';
 $string['training_history_heading'] = 'Recent messages for this session';
 $string['training_result_time'] = 'Response time: {$a}';
 
-// Analytics dashboard.
-$string['analytics'] = 'Analytics and reports';
-$string['analytics_intro'] = 'Track engagement with the chatbot to understand how the assistant is used across the site.';
-$string['analytics_total_messages'] = 'Total messages logged';
-$string['analytics_total_sessions'] = 'Active sessions';
-$string['analytics_total_users'] = 'Unique users';
-$string['analytics_average_response'] = 'Average response time';
-$string['analytics_intents_heading'] = 'Intents usage';
-$string['analytics_messages'] = 'Messages';
-$string['analytics_intents_chart_title'] = 'Messages per intent';
-$string['analytics_activity_chart_title'] = 'Messages per day';
-$string['analytics_activity_heading'] = 'Recent activity';
-$string['analytics_feedback_heading'] = 'Feedback distribution';
-$string['analytics_feedback_unknown'] = 'Unspecified';
-
 // Dialogue viewer.
 $string['dialogues'] = 'Dialogue flows';
 $string['dialogue_filter_session'] = 'Session id';
@@ -249,4 +235,3 @@ $string['chatbot_feedback_thanks'] = 'Thanks for your feedback!';
 // Legacy strings kept for backwards compatibility (no longer displayed).
 $string['admin_placeholder'] = 'The management console is being prepared. The widget and web services are fully functional.';
 $string['admin_placeholder_help'] = 'Continue using the Site administration settings page to configure the chatbot in the meantime.';
-$string['analytics_and_reports'] = 'Analytics and reports';

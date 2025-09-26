@@ -210,6 +210,21 @@ function local_chatbot_get_quick_actions(bool $forcereload = false): array {
 }
 
 /**
+ * Return the human readable label for a quick action type.
+ *
+ * @param string $type
+ * @return string
+ */
+function local_chatbot_get_quickaction_type_label(string $type): string {
+    $identifier = 'quickaction_type_' . $type;
+    if (get_string_manager()->string_exists($identifier, 'local_chatbot')) {
+        return get_string($identifier, 'local_chatbot');
+    }
+
+    return $type;
+}
+
+/**
  * Legacy callback stub kept for completeness.
  */
 function local_chatbot_extend_navigation() {
