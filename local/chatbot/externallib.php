@@ -387,20 +387,11 @@ class local_chatbot_external extends external_api {
 
         $decodedparams = json_decode($params['params'], true) ?: [];
 
-        switch ($params['action']) {
-            case 'show_courses':
-                $message = get_string('chatbot_response_courses', 'local_chatbot');
-                break;
-            case 'show_grades':
-                $message = get_string('chatbot_response_grades', 'local_chatbot');
-                break;
-            default:
-                $message = get_string('chatbot_action_generic', 'local_chatbot', $params['action']);
-        }
+        $message = get_string('chatbot_action_generic', 'local_chatbot', $params['action']);
 
         return [
-            'message' => $message,
             'success' => true,
+            'message' => $message,
         ];
     }
 
@@ -409,8 +400,8 @@ class local_chatbot_external extends external_api {
      */
     public static function execute_action_returns(): external_single_structure {
         return new external_single_structure([
-            'message' => new external_value(PARAM_RAW, 'Message to display in the chat'),
-            'success' => new external_value(PARAM_BOOL, 'Whether the action executed successfully'),
+            'success' => new external_value(PARAM_BOOL, 'Success status'),
+            'message' => new external_value(PARAM_RAW, 'Action result message', VALUE_OPTIONAL),
         ]);
     }
 }

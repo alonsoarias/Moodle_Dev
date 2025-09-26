@@ -148,111 +148,21 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 }
                 self.executeAction(action);
             });
+
+            this.$widget.on('click', '.feedback-btn', function() {
+                const $btn = $(this);
+                const $wrapper = $btn.closest('.message-feedback');
+                const logid = $wrapper.data('logid');
+                const feedback = $btn.data('feedback');
+                
+                self.submitFeedback(logid, feedback);
+                $wrapper.find('.feedback-btn').removeClass('active');
+                $btn.addClass('active');
+            });
         }
 
         /**
-         * Restore launcher state from localStorage.
-         */
-        restoreLauncherState() {
-            let state = null;
-            try {
-                state = window.localStorage.getItem(this.config.storagekey);
-            } catch (e) {
-                state = null;
-            }
-
-            if (state === 'open') {
-                this.open();
-            } else {
-                this.close();
-            }
-        }
-
-        /**
-         * Persist launcher state.
-         *
-         * @param {string} state
-         */
-        persistState(state) {
-            try {
-                window.localStorage.setItem(this.config.storagekey, state);
-            } catch (e) {
-                // Ignore quota errors (e.g. private browsing).
-            }
-        }
-
-        /**
-         * Toggle widget visibility.
-         */
-        toggle() {
-            if (this.isOpen) {
-                this.close();
-            } else {
-                this.open();
-            }
-        }
-
-        /**
-         * Open the widget.
-         */
-        open() {
-            this.$container.addClass('chatbot-active').show();
-            this.$widget.attr('aria-hidden', 'false');
-            this.$launcher.attr('aria-expanded', 'true');
-            this.isOpen = true;
-            this.$input.focus();
-            this.scrollToBottom();
-            this.clearBadge();
-            this.persistState('open');
-        }
-
-        /**
-         * Close the widget.
-         */
-        close() {
-            this.$container.removeClass('chatbot-active').show();
-            this.$widget.attr('aria-hidden', 'true');
-            this.$launcher.attr('aria-expanded', 'false');
-            this.isOpen = false;
-            this.persistState('closed');
-        }
-
-        /**
-         * Add welcome message when widget loads.
-         */
-        addWelcomeMessage() {
-            const welcome = $('#local-chatbot-welcome').val();
-            if (welcome) {
-                this.addMessage('bot', welcome, {system: true});
-            }
-        }
-
-        /**
-         * Load conversation history from the server.
-         */
-        loadHistory() {
-            const self = this;
-            Ajax.call([{
-                methodname: 'local_chatbot_get_history',
-                args: {
-                    sessionid: this.sessionid,
-                    limit: 20,
-                },
-                done: function(history) {
-                    if (!history || !history.length) {
-                        return;
-                    }
-                    history.forEach(function(entry) {
-                        self.addMessage('user', entry.message, {historical: true});
-                        self.addMessage('bot', entry.response, {historical: true, intent: entry.intent});
-                    });
-                },
-                fail: Notification.exception,
-            }]);
-        }
-
-        /**
-         * Send the message currently in the textbox.
+         * Send message to server.
          */
         sendMessage() {
             const message = this.$input.val().trim();
@@ -343,6 +253,28 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         }
 
         /**
+         * Submit feedback for a message.
+         *
+         * @param {number} logid
+         * @param {string} feedback
+         */
+        submitFeedback(logid, feedback) {
+            Ajax.call([{
+                methodname: 'local_chatbot_feedback',
+                args: {
+                    logid: logid,
+                    feedback: feedback,
+                },
+                done: function() {
+                    // Silently succeed.
+                },
+                fail: function() {
+                    // Silently fail.
+                },
+            }]);
+        }
+
+        /**
          * Render suggestion chips.
          *
          * @param {Array} suggestions
@@ -389,6 +321,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 );
                 button.attr('data-action', action.action);
                 button.attr('data-url', action.url || '');
+                button.attr('title', action.description || '');
                 button.html('<span class="quick-action-icon">' + (action.icon || '') + '</span>' +
                     '<span class="quick-action-label">' + action.label + '</span>');
                 container.append(button);
@@ -399,123 +332,222 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
 
         /**
          * Append a message bubble to the conversation.
-         *
-         * @param {string} sender
-         * @param {string} message
-         * @param {Object} [meta]
+         * 
+         * @param {string} sender 'user' or 'bot'
+         * @param {string} text Message text
+         * @param {Object} metadata Optional metadata
          */
-        addMessage(sender, message, meta) {
-            meta = meta || {};
-            const messageId = meta.logid ? 'log-' + meta.logid : 'msg-' + Date.now();
-            const classes = ['chatbot-message'];
-            classes.push(sender === 'user' ? 'chatbot-message-user' : 'chatbot-message-bot');
-            if (meta.system) {
-                classes.push('chatbot-message-system');
+        addMessage(sender, text, metadata) {
+            metadata = metadata || {};
+            
+            const messageWrapper = createElement('<div class="chatbot-message chatbot-message-' + sender + '"></div>');
+            
+            if (sender === 'bot') {
+                const avatar = createElement('<div class="message-avatar bot-avatar"><span>🤖</span></div>');
+                messageWrapper.append(avatar);
             }
-
-            const avatar = sender === 'user' ? this.config.avatar : '🤖';
-            const header = sender === 'user' ? this.config.username : this.config.strings.title;
-            const timestamp = meta.timestamp ? formatTime(meta.timestamp) : formatTime(Math.floor(Date.now() / 1000));
-
-            const template = `
-                <div class="${classes.join(' ')}" data-id="${messageId}">
-                    <div class="message-avatar" aria-hidden="true">${avatar}</div>
-                    <div class="message-content-wrapper">
-                        <div class="message-header">
-                            <span class="message-author">${header}</span>
-                            <span class="message-time">${timestamp}</span>
-                        </div>
-                        <div class="message-content">${this.escape(message)}</div>
-                        ${meta.intent ? `<div class="message-intent">${meta.intent}</div>` : ''}
-                    </div>
-                </div>`;
-
-            const $message = createElement(template);
-            this.$messages.append($message);
+            
+            const contentWrapper = createElement('<div class="message-content-wrapper"></div>');
+            
+            if (sender === 'user') {
+                const header = createElement('<div class="message-header"></div>');
+                header.append('<span class="message-sender">' + this.config.username + '</span>');
+                header.append('<span class="message-time">' + formatTime(Date.now() / 1000) + '</span>');
+                contentWrapper.append(header);
+            }
+            
+            const content = createElement('<div class="message-content"></div>');
+            content.text(text);
+            contentWrapper.append(content);
+            
+            if (sender === 'bot' && metadata.intent) {
+                const intent = createElement('<div class="message-intent">Intent: ' + metadata.intent + '</div>');
+                contentWrapper.append(intent);
+            }
+            
+            if (sender === 'bot' && metadata.logid) {
+                const feedback = createElement('<div class="message-feedback" data-logid="' + metadata.logid + '"></div>');
+                feedback.html(
+                    '<span>Was this helpful?</span>' +
+                    '<button class="feedback-btn" data-feedback="helpful" title="Helpful">👍</button>' +
+                    '<button class="feedback-btn" data-feedback="not_helpful" title="Not helpful">👎</button>'
+                );
+                contentWrapper.append(feedback);
+            }
+            
+            if (sender === 'user') {
+                const avatar = createElement('<div class="message-avatar user-avatar"><span>' + 
+                    this.config.avatar + '</span></div>');
+                messageWrapper.append(contentWrapper);
+                messageWrapper.append(avatar);
+            } else {
+                messageWrapper.append(contentWrapper);
+            }
+            
+            this.$messages.append(messageWrapper);
             this.scrollToBottom();
-
-            if (!this.isOpen && sender === 'bot') {
-                this.incrementBadge();
-            }
         }
-
+        
         /**
-         * Escape HTML entities.
-         *
-         * @param {string} text
-         * @return {string}
-         */
-        escape(text) {
-            return $('<div>').text(text).html().replace(/\n/g, '<br>');
-        }
-
-        /**
-         * Scroll the conversation pane to the bottom.
-         */
-        scrollToBottom() {
-            this.$messages.scrollTop(this.$messages.prop('scrollHeight'));
-        }
-
-        /**
-         * Display typing indicator.
+         * Show typing indicator.
          */
         showTyping() {
             this.$typing.show();
             this.scrollToBottom();
         }
-
+        
         /**
          * Hide typing indicator.
          */
         hideTyping() {
             this.$typing.hide();
         }
-
+        
         /**
-         * Automatically resize the textarea.
+         * Scroll messages to bottom.
          */
-        autoResizeTextarea() {
-            this.$input.outerHeight(0);
-            const newHeight = Math.min(this.$input.prop('scrollHeight'), 120);
-            this.$input.outerHeight(newHeight);
+        scrollToBottom() {
+            const messages = this.$messages[0];
+            messages.scrollTop = messages.scrollHeight;
         }
-
+        
         /**
-         * Update the character counter.
+         * Update character count display.
          */
         updateCharCount() {
-            const length = this.$input.val().length;
-            this.$charcount.text(length);
+            const current = this.$input.val().length;
+            const $current = $('#char-current');
+            const $charcount = this.$charcount;
+            
+            $current.text(current);
+            
+            if (current > this.maxlength * 0.9) {
+                $charcount.addClass('warning');
+            } else {
+                $charcount.removeClass('warning');
+            }
         }
-
+        
         /**
-         * Increase unread badge counter.
+         * Auto-resize textarea based on content.
          */
-        incrementBadge() {
-            const current = parseInt(this.$badge.attr('data-count'), 10) || 0;
-            const next = current + 1;
-            this.$badge.attr('data-count', next);
-            this.$badge.text(next).attr('aria-hidden', next ? 'false' : 'true');
+        autoResizeTextarea() {
+            const textarea = this.$input[0];
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         }
-
+        
         /**
-         * Clear unread badge.
+         * Restore launcher state from localStorage.
          */
-        clearBadge() {
-            this.$badge.attr('data-count', 0);
-            this.$badge.text('0').attr('aria-hidden', 'true');
+        restoreLauncherState() {
+            if (!window.localStorage) {
+                return;
+            }
+            
+            const state = localStorage.getItem(this.config.storagekey);
+            if (state === 'open') {
+                this.open();
+            }
+            
+            // Show widget after initialization.
+            this.$container.show();
+        }
+        
+        /**
+         * Toggle widget open/closed.
+         */
+        toggle() {
+            if (this.isOpen) {
+                this.close();
+            } else {
+                this.open();
+            }
+        }
+        
+        /**
+         * Open the widget.
+         */
+        open() {
+            this.isOpen = true;
+            this.$container.addClass('chatbot-active');
+            this.$widget.attr('aria-hidden', 'false');
+            this.$input.focus();
+            this.$badge.attr('data-count', '0');
+            
+            if (window.localStorage) {
+                localStorage.setItem(this.config.storagekey, 'open');
+            }
+        }
+        
+        /**
+         * Close the widget.
+         */
+        close() {
+            this.isOpen = false;
+            this.$container.removeClass('chatbot-active');
+            this.$widget.attr('aria-hidden', 'true');
+            
+            if (window.localStorage) {
+                localStorage.setItem(this.config.storagekey, 'closed');
+            }
+        }
+        
+        /**
+         * Add welcome message if first visit.
+         */
+        addWelcomeMessage() {
+            const welcomeShown = sessionStorage.getItem('chatbot_welcome_shown');
+            if (!welcomeShown) {
+                const welcomeText = $('#local-chatbot-welcome').val();
+                if (welcomeText) {
+                    const parsedWelcome = welcomeText.replace('{name}', this.config.username);
+                    this.addMessage('bot', parsedWelcome);
+                    sessionStorage.setItem('chatbot_welcome_shown', 'true');
+                }
+            }
+        }
+        
+        /**
+         * Load conversation history.
+         */
+        loadHistory() {
+            const self = this;
+            Ajax.call([{
+                methodname: 'local_chatbot_get_history',
+                args: {
+                    sessionid: this.sessionid,
+                    limit: 10
+                },
+                done: function(history) {
+                    if (history.length > 0) {
+                        const separator = createElement('<div class="history-separator">Previous messages</div>');
+                        self.$messages.prepend(separator);
+                        
+                        history.forEach(function(item) {
+                            self.addMessage('user', item.message);
+                            self.addMessage('bot', item.response, {intent: item.intent});
+                        });
+                    }
+                },
+                fail: function() {
+                    // Silently fail if history cannot be loaded.
+                }
+            }]);
         }
     }
-
+    
+    /**
+     * Module initialization.
+     * 
+     * @param {Object} config
+     */
+    const init = function(config) {
+        const widget = new ChatbotWidget(config);
+        widget.init();
+    };
+    
     return {
-        /**
-         * Initialise the widget.
-         *
-         * @param {Object} config
-         */
-        init: function(config) {
-            const widget = new ChatbotWidget(config || {});
-            widget.init();
-        }
+        init: init
     };
 });

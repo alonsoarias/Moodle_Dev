@@ -107,7 +107,6 @@ function local_chatbot_get_widget_bootstrap(): ?array {
         'toggle' => get_string('chatbot_toggle_label', 'local_chatbot', $assistantname),
         'placeholder' => get_string('chatbot_placeholder', 'local_chatbot'),
         'typing' => get_string('chatbot_typing_indicator', 'local_chatbot'),
-        'voice' => get_string('chatbot_voice_input_label', 'local_chatbot'),
         'emoji' => get_string('chatbot_emoji_picker_label', 'local_chatbot'),
         'send' => get_string('chatbot_send', 'local_chatbot'),
         'export' => get_string('chatbot_export_conversation_label', 'local_chatbot'),
@@ -121,11 +120,10 @@ function local_chatbot_get_widget_bootstrap(): ?array {
     ];
 
     $features = [
-        'voice_input' => false,
         'emoji_picker' => false,
         'quick_actions' => true,
         'suggestions' => true,
-        'typing_animation' => false,
+        'typing_animation' => true,
         'sound_notifications' => false,
     ];
 
@@ -146,7 +144,6 @@ function local_chatbot_get_widget_bootstrap(): ?array {
         'talklabel' => $strings['toggle'],
         'placeholder' => $strings['placeholder'],
         'typing' => $strings['typing'],
-        'voicelabel' => $strings['voice'],
         'emojilabel' => $strings['emoji'],
         'sendlabel' => $strings['send'],
         'exportlabel' => $strings['export'],
@@ -155,7 +152,6 @@ function local_chatbot_get_widget_bootstrap(): ?array {
         'welcome' => $strings['welcome'],
         'quickactionslabel' => $strings['quickactionslabel'],
         'suggestionslabel' => $strings['suggestionslabel'],
-        'voiceenabled' => $features['voice_input'],
         'emojienabled' => $features['emoji_picker'],
         'showquickactions' => $features['quick_actions'],
         'showsuggestions' => $features['suggestions'],
