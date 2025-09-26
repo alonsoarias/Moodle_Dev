@@ -1,0 +1,107 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_chatbot/widget
+
+    Example context (json):
+    {
+        "position": "bottom_right",
+        "theme": "modern",
+        "title": "Virtual Assistant",
+        "status": "Online",
+        "togglelabel": "Talk to the assistant",
+        "placeholder": "Type your message..."
+    }
+}}
+<div id="local-chatbot-container"
+     class="chatbot-shell chatbot-{{position}} chatbot-theme-{{theme}}"
+     data-position="{{position}}"
+     data-theme="{{theme}}"
+     style="display:none;">
+    <div id="chatbot-widget" class="chatbot-popup" aria-hidden="true">
+        <div class="chatbot-scrollarea">
+            <div id="chatbot-header" class="chatbot-header">
+                <div class="chatbot-header-info">
+                    <div class="chatbot-avatar" aria-hidden="true">
+                        <span class="chatbot-avatar-initial">{{initial}}</span>
+                        <span class="chatbot-status-indicator"></span>
+                    </div>
+                    <div class="chatbot-header-text">
+                        <span class="chatbot-title">{{title}}</span>
+                        <span class="chatbot-status">{{status}}</span>
+                    </div>
+                </div>
+                <div class="chatbot-header-actions">
+                    {{#canexport}}
+                        <button class="chatbot-btn-export" type="button" title="{{exportlabel}}">{{{exporticon}}}</button>
+                    {{/canexport}}
+                    <button class="chatbot-btn-minimize" type="button" title="{{minimizelabel}}">{{{minimizeicon}}}</button>
+                    <button class="chatbot-btn-close" type="button" title="{{closelabel}}">{{{closeicon}}}</button>
+                </div>
+            </div>
+            <div id="chatbot-quick-actions" class="chatbot-quick-actions" style="display:none;">
+                <div class="quick-actions-container" role="toolbar"></div>
+            </div>
+            <div id="chatbot-body" class="chatbot-body">
+                <div id="chatbot-messages" class="chatbot-messages" role="log" aria-live="polite"></div>
+                <div id="chatbot-typing-indicator" class="chatbot-typing-indicator" style="display:none;">
+                    <div class="typing-dots" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="typing-text">{{typing}}</span>
+                </div>
+            </div>
+            <div id="chatbot-suggestions" class="chatbot-suggestions" style="display:none;">
+                <div class="suggestions-container"></div>
+            </div>
+        </div>
+        <div id="chatbot-footer" class="chatbot-footer">
+            <div class="chatbot-input-container">
+                <textarea id="chatbot-input"
+                          class="chatbot-input"
+                          rows="1"
+                          placeholder="{{placeholder}}"
+                          aria-label="{{placeholder}}"></textarea>
+                <div class="chatbot-input-actions">
+                    {{#voiceenabled}}
+                        <button class="chatbot-btn-voice" type="button" title="{{voicelabel}}">{{{voiceicon}}}</button>
+                    {{/voiceenabled}}
+                    {{#emojienabled}}
+                        <button class="chatbot-btn-emoji" type="button" title="{{emojilabel}}">{{{emojiicon}}}</button>
+                    {{/emojienabled}}
+                    <button id="chatbot-send" class="chatbot-btn-send" type="button" title="{{sendlabel}}">{{{sendicon}}}</button>
+                </div>
+            </div>
+            <div class="chatbot-char-count">
+                <span id="char-count">0</span>/{{maxlength}}
+            </div>
+        </div>
+    </div>
+    <button id="chatbot-launcher"
+            class="chatbot-launcher"
+            type="button"
+            aria-controls="chatbot-widget"
+            aria-expanded="false"
+            title="{{togglelabel}}">
+        <span class="chatbot-launcher-badge" aria-hidden="true">0</span>
+        <span class="chatbot-launcher-label">{{togglelabel}}</span>
+        <span class="chatbot-icon chatbot-icon-open" aria-hidden="true">{{{openicon}}}</span>
+        <span class="chatbot-icon chatbot-icon-close" aria-hidden="true">{{{closeicon}}}</span>
+    </button>
+</div>

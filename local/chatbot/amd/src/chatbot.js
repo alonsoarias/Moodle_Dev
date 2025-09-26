@@ -21,8 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates'], 
-function($, Ajax, Notification, Str, Templates) {
+define(['jquery', 'core/ajax', 'core/notification', 'core/templates'],
+function($, Ajax, Notification, Templates) {
     
     var IntelligentChatbot = {
         
@@ -35,132 +35,151 @@ function($, Ajax, Notification, Str, Templates) {
         typingTimer: null,
         messageQueue: [],
         isProcessing: false,
-        
+
+        /**
+         * Normalize configuration options coming from PHP.
+         *
+         * @param {Object} config
+         * @returns {Object}
+         */
+        prepareConfig: function(config) {
+            config = config || {};
+
+            config.position = config.position || 'bottom_right';
+            config.theme = config.theme || 'modern';
+            config.maxlength = config.maxlength || 500;
+            config.avatar = config.avatar || (config.username ? config.username.charAt(0).toUpperCase() : 'A');
+
+            config.features = $.extend({
+                voice_input: false,
+                emoji_picker: false,
+                quick_actions: false,
+                suggestions: false,
+                typing_animation: false,
+                sound_notifications: false
+            }, config.features || {});
+
+            config.permissions = $.extend({
+                canexport: false
+            }, config.permissions || {});
+
+            config.strings = $.extend({
+                title: 'Virtual Assistant',
+                status: 'Online',
+                toggle: 'Open assistant',
+                placeholder: 'Type your message...',
+                typing: 'The assistant is typing…',
+                voice: 'Voice input',
+                emoji: 'Emoji picker',
+                send: 'Send message',
+                export: 'Export conversation',
+                minimize: 'Minimize',
+                close: 'Close',
+                welcome: 'Hello! I am your assistant. How can I help you today?'
+            }, config.strings || {});
+
+            return config;
+        },
+
         /**
          * Initialize the chatbot
          */
         init: function(config) {
-            this.config = config;
+            var self = this;
+
+            this.config = this.prepareConfig(config);
             this.currentContext = {
-                courseid: config.courseid,
-                contextid: config.contextid,
-                sessionid: config.sessionid
+                courseid: this.config.courseid,
+                contextid: this.config.contextid,
+                sessionid: this.config.sessionid
             };
-            
-            this.createWidget();
-            this.attachEventHandlers();
-            this.initializeFeatures();
-            this.loadConversationHistory();
-            this.showWelcomeMessage();
+
+            this.createWidget().then(function() {
+                self.cacheElements();
+                self.attachEventHandlers();
+                self.applyTheme();
+                self.initializeFeatures();
+                self.loadConversationHistory();
+                self.showWelcomeMessage();
+            }).catch(Notification.exception);
         },
-        
+
         /**
          * Create the widget HTML structure
          */
         createWidget: function() {
             var self = this;
-            
-            var widgetHTML = `
-                <div id="chatbot-widget" class="chatbot-${this.config.position} chatbot-theme-${this.config.theme}" style="display: none;">
-                    <div id="chatbot-header">
-                        <div class="chatbot-header-info">
-                            <div class="chatbot-avatar">
-                                <span class="chatbot-status-indicator"></span>
-                            </div>
-                            <div class="chatbot-header-text">
-                                <span class="chatbot-title">Asistente Inteligente</span>
-                                <span class="chatbot-status">En línea y listo para ayudar</span>
-                            </div>
-                        </div>
-                        <div class="chatbot-header-actions">
-                            <button class="chatbot-btn-minimize" title="Minimizar">−</button>
-                            <button class="chatbot-btn-export" title="Exportar conversación">📥</button>
-                            <button class="chatbot-btn-close" title="Cerrar">×</button>
-                        </div>
-                    </div>
-                    
-                    <div id="chatbot-quick-actions" style="display: none;">
-                        <div class="quick-actions-container"></div>
-                    </div>
-                    
-                    <div id="chatbot-body">
-                        <div id="chatbot-messages"></div>
-                        <div id="chatbot-typing-indicator" style="display: none;">
-                            <div class="typing-dots">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-                            <span class="typing-text">El asistente está escribiendo...</span>
-                        </div>
-                    </div>
-                    
-                    <div id="chatbot-suggestions" style="display: none;">
-                        <div class="suggestions-container"></div>
-                    </div>
-                    
-                    <div id="chatbot-footer">
-                        <div class="chatbot-input-container">
-                            <textarea id="chatbot-input" 
-                                     placeholder="Escribe tu mensaje aquí..." 
-                                     rows="1"></textarea>
-                            <div class="chatbot-input-actions">
-                                ${this.config.features.voice_input ? 
-                                  '<button class="chatbot-btn-voice" title="Entrada de voz">🎤</button>' : ''}
-                                ${this.config.features.emoji_picker ? 
-                                  '<button class="chatbot-btn-emoji" title="Emojis">😊</button>' : ''}
-                                <button id="chatbot-send" class="chatbot-btn-send" title="Enviar">
-                                    <svg viewBox="0 0 24 24" width="20" height="20">
-                                        <path fill="currentColor" d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="chatbot-char-count">
-                            <span id="char-count">0</span>/500
-                        </div>
-                    </div>
-                </div>
-                
-                <button id="chatbot-launcher" class="chatbot-launcher chatbot-${this.config.position}">
-                    <div class="chatbot-launcher-icon">
-                        <svg viewBox="0 0 24 24" width="28" height="28">
-                            <path fill="white" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-                        </svg>
-                    </div>
-                    <span class="chatbot-launcher-badge" style="display: none;">0</span>
-                </button>
-            `;
-            
-            $('#local-chatbot-container').html(widgetHTML);
-            
-            // Add custom theme styles if needed
-            this.applyTheme();
+            var templateContext = {
+                position: this.config.position,
+                theme: this.config.theme,
+                title: this.config.strings.title,
+                status: this.config.strings.status,
+                togglelabel: this.config.strings.toggle,
+                placeholder: this.config.strings.placeholder,
+                typing: this.config.strings.typing,
+                voicelabel: this.config.strings.voice,
+                emojilabel: this.config.strings.emoji,
+                sendlabel: this.config.strings.send,
+                exportlabel: this.config.strings.export,
+                minimizelabel: this.config.strings.minimize,
+                closelabel: this.config.strings.close,
+                voiceenabled: this.config.features.voice_input,
+                emojienabled: this.config.features.emoji_picker,
+                canexport: this.config.permissions.canexport,
+                maxlength: this.config.maxlength,
+                initial: this.config.avatar,
+                openicon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path></svg>',
+                closeicon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>',
+                minimizeicon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M19 13H5v-2h14v2z"></path></svg>',
+                exporticon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7 7-7z"></path></svg>',
+                voiceicon: '<span aria-hidden="true">🎤</span>',
+                emojiicon: '<span aria-hidden="true">😊</span>',
+                sendicon: '<svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill="currentColor" d="M2 21l21-9L2 3v7l15 2-15 2v7z"></path></svg>'
+            };
+
+            $('#local-chatbot-container').remove();
+
+            return Templates.render('local_chatbot/widget', templateContext).then(function(html, js) {
+                $('body').append(html);
+                Templates.runTemplateJS(js);
+            });
         },
-        
+
+        /**
+         * Cache main DOM elements for reuse
+         */
+        cacheElements: function() {
+            this.$container = $('#local-chatbot-container');
+            this.$container.show();
+            this.$widget = $('#chatbot-widget');
+            this.$launcher = $('#chatbot-launcher');
+        },
+
         /**
          * Attach event handlers
          */
         attachEventHandlers: function() {
             var self = this;
-            
+
             // Launcher click
-            $('#chatbot-launcher').on('click', function() {
+            this.$launcher.on('click', function() {
                 self.toggleChatbot();
             });
-            
+
             // Header buttons
             $('.chatbot-btn-close').on('click', function() {
                 self.closeChatbot();
             });
-            
+
             $('.chatbot-btn-minimize').on('click', function() {
                 self.minimizeChatbot();
             });
-            
-            $('.chatbot-btn-export').on('click', function() {
-                self.exportConversation();
-            });
+
+            if (this.config.permissions.canexport) {
+                $('.chatbot-btn-export').on('click', function() {
+                    self.exportConversation();
+                });
+            }
             
             // Send message
             $('#chatbot-send').on('click', function() {
@@ -259,50 +278,43 @@ function($, Ajax, Notification, Str, Templates) {
                 this.openChatbot();
             }
         },
-        
+
         /**
          * Open chatbot
          */
         openChatbot: function() {
-            var self = this;
-            
-            $('#chatbot-widget').fadeIn(300, function() {
-                $('#chatbot-input').focus();
-                self.scrollToBottom();
-            });
-            
-            $('#chatbot-launcher').fadeOut(200);
+            this.$container.show().addClass('chatbot-active');
+            this.$widget.attr('aria-hidden', 'false');
+            this.$launcher.attr('aria-expanded', 'true');
+            $('#chatbot-input').focus();
+            this.scrollToBottom();
             this.isOpen = true;
-            
+
             // Clear badge
-            $('.chatbot-launcher-badge').hide().text('0');
-            
+            $('.chatbot-launcher-badge').text('0').attr('aria-hidden', 'true');
+
             // Mark messages as read
             this.markMessagesAsRead();
-            
+
             // Load context-specific content
             this.updateContextualContent();
         },
-        
+
         /**
          * Close chatbot
          */
         closeChatbot: function() {
-            $('#chatbot-widget').fadeOut(300);
-            $('#chatbot-launcher').fadeIn(200);
+            this.$widget.attr('aria-hidden', 'true');
+            this.$container.removeClass('chatbot-active');
+            this.$launcher.attr('aria-expanded', 'false');
             this.isOpen = false;
         },
-        
+
         /**
          * Minimize chatbot
          */
         minimizeChatbot: function() {
-            $('#chatbot-widget').addClass('minimized');
-            setTimeout(() => {
-                $('#chatbot-widget').removeClass('minimized').hide();
-                $('#chatbot-launcher').fadeIn(200);
-                this.isOpen = false;
-            }, 300);
+            this.closeChatbot();
         },
         
         /**
@@ -641,9 +653,19 @@ function($, Ajax, Notification, Str, Templates) {
          */
         updateCharCount: function() {
             var count = $('#chatbot-input').val().length;
+            var limit = this.config.maxlength || 500;
+
             $('#char-count').text(count);
-            
-            if (count > 450) {
+
+            if (count > limit) {
+                $('#chatbot-input').val(function(_, value) {
+                    return value.substring(0, limit);
+                });
+                count = limit;
+                $('#char-count').text(count);
+            }
+
+            if (count >= Math.round(limit * 0.9)) {
                 $('.chatbot-char-count').addClass('warning');
             } else {
                 $('.chatbot-char-count').removeClass('warning');
@@ -749,20 +771,23 @@ function($, Ajax, Notification, Str, Templates) {
                 greeting = '¡Buenas noches';
             }
             
-            var welcomeMessage = greeting + ', ' + this.config.username.split(' ')[0] + '! 👋\n\n' +
-                'Soy tu asistente inteligente y estoy aquí para ayudarte con todo lo que necesites. ' +
-                'Puedo ayudarte con información sobre cursos, tareas, calificaciones y mucho más.\n\n' +
-                '¿En qué puedo asistirte hoy?';
-            
-            this.addMessage('bot', welcomeMessage, {system: true});
+            var firstname = this.config.username ? this.config.username.split(' ')[0] : '';
+            var template = this.config.strings.welcome || '';
+            var welcomeMessage = greeting + ', ' + firstname + '! 👋\n\n' + template.replace('{name}', firstname);
+
+            this.addMessage('bot', welcomeMessage.trim(), {system: true});
         },
         
         /**
          * Export conversation
          */
         exportConversation: function() {
+            if (!this.config.permissions.canexport) {
+                return;
+            }
+
             var self = this;
-            
+
             Ajax.call([{
                 methodname: 'local_chatbot_export_conversation',
                 args: {

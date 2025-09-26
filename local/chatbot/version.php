@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_chatbot';
-$plugin->version   = 2025012500;  // Version 2.0.0
-$plugin->requires  = 2020061500;  // Requires Moodle 3.9 or higher
+$plugin->version   = 2025012501;  // Version 2.0.1
+$plugin->requires  = 2023100900;  // Requires Moodle 4.3 or higher
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.0.0 - Intelligent Edition';
+$plugin->release   = '2.0.1 - Intelligent Edition';
 
 // Dependencies (if any)
 $plugin->dependencies = array();
