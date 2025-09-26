@@ -15,139 +15,101 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Web services for intelligent chatbot
+ * Web service definitions for the local_chatbot plugin.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
-    'local_chatbot_process_message' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'process_message',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Process user message with intelligent analysis',
-        'type'        => 'write',
-        'ajax'        => true,
+$functions = [
+    'local_chatbot_process_message' => [
+        'classname' => 'local_chatbot_external',
+        'methodname' => 'process_message',
+        'classpath' => 'local/chatbot/externallib.php',
+        'description' => 'Process a message sent from the floating chatbot widget.',
+        'type' => 'write',
+        'ajax' => true,
         'capabilities' => 'local/chatbot:use',
         'loginrequired' => true,
-    ),
-    
-    'local_chatbot_get_suggestions' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'get_suggestions',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Get contextual suggestions',
-        'type'        => 'read',
-        'ajax'        => true,
+    ],
+    'local_chatbot_get_suggestions' => [
+        'classname' => 'local_chatbot_external',
+        'methodname' => 'get_suggestions',
+        'classpath' => 'local/chatbot/externallib.php',
+        'description' => 'Retrieve contextual suggestions for the chatbot widget.',
+        'type' => 'read',
+        'ajax' => true,
         'capabilities' => 'local/chatbot:use',
         'loginrequired' => true,
-    ),
-    
-    'local_chatbot_get_quick_actions' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'get_quick_actions',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Get quick actions for current context',
-        'type'        => 'read',
-        'ajax'        => true,
+    ],
+    'local_chatbot_get_quick_actions' => [
+        'classname' => 'local_chatbot_external',
+        'methodname' => 'get_quick_actions',
+        'classpath' => 'local/chatbot/externallib.php',
+        'description' => 'Retrieve quick action shortcuts for the chatbot widget.',
+        'type' => 'read',
+        'ajax' => true,
         'capabilities' => 'local/chatbot:use',
         'loginrequired' => true,
-    ),
-    
-    'local_chatbot_feedback' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'feedback',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Provide feedback on chatbot response',
-        'type'        => 'write',
-        'ajax'        => true,
+    ],
+    'local_chatbot_feedback' => [
+        'classname' => 'local_chatbot_external',
+        'methodname' => 'feedback',
+        'classpath' => 'local/chatbot/externallib.php',
+        'description' => 'Store feedback for a chatbot response.',
+        'type' => 'write',
+        'ajax' => true,
         'capabilities' => 'local/chatbot:use',
         'loginrequired' => true,
-    ),
-    
-    'local_chatbot_get_history' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'get_history',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Get conversation history',
-        'type'        => 'read',
-        'ajax'        => true,
+    ],
+    'local_chatbot_get_history' => [
+        'classname' => 'local_chatbot_external',
+        'methodname' => 'get_history',
+        'classpath' => 'local/chatbot/externallib.php',
+        'description' => 'Fetch recent conversation messages.',
+        'type' => 'read',
+        'ajax' => true,
         'capabilities' => 'local/chatbot:use',
         'loginrequired' => true,
-    ),
-    
-    'local_chatbot_export_conversation' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'export_conversation',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Export conversation in various formats',
-        'type'        => 'read',
-        'ajax'        => true,
+    ],
+    'local_chatbot_export_conversation' => [
+        'classname' => 'local_chatbot_external',
+        'methodname' => 'export_conversation',
+        'classpath' => 'local/chatbot/externallib.php',
+        'description' => 'Export the conversation history for the current session.',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'local/chatbot:export',
+        'loginrequired' => true,
+    ],
+    'local_chatbot_execute_action' => [
+        'classname' => 'local_chatbot_external',
+        'methodname' => 'execute_action',
+        'classpath' => 'local/chatbot/externallib.php',
+        'description' => 'Execute a predefined chatbot action (for quick replies).',
+        'type' => 'write',
+        'ajax' => true,
         'capabilities' => 'local/chatbot:use',
         'loginrequired' => true,
-    ),
-    
-    'local_chatbot_execute_action' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'execute_action',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Execute a custom action',
-        'type'        => 'write',
-        'ajax'        => true,
-        'capabilities' => 'local/chatbot:use',
-        'loginrequired' => true,
-    ),
-    
-    'local_chatbot_train_pattern' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'train_pattern',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Train chatbot with new pattern',
-        'type'        => 'write',
-        'ajax'        => true,
-        'capabilities' => 'local/chatbot:manage',
-        'loginrequired' => true,
-    ),
-    
-    'local_chatbot_get_analytics' => array(
-        'classname'   => 'local_chatbot_external',
-        'methodname'  => 'get_analytics',
-        'classpath'   => 'local/chatbot/externallib.php',
-        'description' => 'Get chatbot analytics data',
-        'type'        => 'read',
-        'ajax'        => true,
-        'capabilities' => 'local/chatbot:viewanalytics',
-        'loginrequired' => true,
-    ),
-);
+    ],
+];
 
-$services = array(
-    'Intelligent Chatbot Service' => array(
-        'functions' => array(
+$services = [
+    'Chatbot widget' => [
+        'functions' => [
             'local_chatbot_process_message',
             'local_chatbot_get_suggestions',
             'local_chatbot_get_quick_actions',
             'local_chatbot_feedback',
             'local_chatbot_get_history',
             'local_chatbot_export_conversation',
-            'local_chatbot_execute_action'
-        ),
+            'local_chatbot_execute_action',
+        ],
         'restrictedusers' => 0,
         'enabled' => 1,
-        'shortname' => 'intelligent_chatbot'
-    ),
-    
-    'Chatbot Management Service' => array(
-        'functions' => array(
-            'local_chatbot_train_pattern',
-            'local_chatbot_get_analytics'
-        ),
-        'restrictedusers' => 0,
-        'enabled' => 1,
-        'shortname' => 'chatbot_management'
-    )
-);
+        'shortname' => 'local_chatbot_widget',
+    ],
+];

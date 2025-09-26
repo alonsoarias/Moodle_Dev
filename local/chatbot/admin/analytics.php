@@ -18,7 +18,7 @@
  * Placeholder analytics dashboard for the chatbot plugin.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,7 +36,5 @@ echo $OUTPUT->heading($heading);
 
 echo $OUTPUT->notification(get_string('admin_placeholder', 'local_chatbot'), \core\output\notification::NOTIFY_INFO);
 echo $OUTPUT->notification(get_string('admin_placeholder_help', 'local_chatbot'), \core\output\notification::NOTIFY_INFO);
-
-echo html_writer::tag('p', get_string('chatbot:viewanalytics', 'local_chatbot'));
 
 echo $OUTPUT->footer();

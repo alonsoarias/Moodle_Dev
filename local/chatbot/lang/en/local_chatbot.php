@@ -15,181 +15,96 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Language strings for local_chatbot (English)
+ * English language strings for the local_chatbot plugin.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Intelligent Chatbot Widget';
-$string['chatbot:use'] = 'Use the chatbot';
-$string['chatbot:manage'] = 'Manage chatbot settings';
-$string['chatbot:viewanalytics'] = 'View chatbot analytics';
-$string['chatbot:train'] = 'Train the chatbot';
-$string['chatbot:export'] = 'Export conversations';
-$string['chatbot:viewallconversations'] = 'View all conversations';
-$string['chatbot:deletelogs'] = 'Delete conversation logs';
-$string['chatbot:configureintents'] = 'Configure intents and entities';
-$string['chatbot:impersonate'] = 'Test chatbot as different users';
+$string['pluginname'] = 'Chatbot assistant';
 
-// General settings
-$string['chatbot_title'] = 'Virtual Assistant';
-$string['chatbot_placeholder'] = 'Type your message...';
+// Capabilities.
+$string['chatbot:use'] = 'Use the chatbot widget';
+$string['chatbot:manage'] = 'Configure the chatbot widget';
+$string['chatbot:export'] = 'Export chatbot conversations';
+
+// General strings.
+$string['chatbot_title'] = 'Virtual assistant';
+$string['chatbot_placeholder'] = 'Write your message…';
 $string['chatbot_send'] = 'Send';
-$string['chatbot_welcome'] = 'Hello! I\'m your intelligent assistant. How can I help you today?';
-$string['chatbot_error'] = 'Sorry, an error occurred. Please try again.';
-$string['chatbot_typing'] = 'Typing...';
+$string['chatbot_error'] = 'Sorry, something went wrong. Please try again.';
+$string['chatbot_typing_indicator'] = 'The assistant is typing…';
 $string['chatbot_status_online'] = 'Online and ready to help';
 $string['chatbot_toggle_label'] = 'Talk with {$a}';
-$string['chatbot_typing_indicator'] = 'The assistant is typing...';
 $string['chatbot_voice_input_label'] = 'Voice input';
 $string['chatbot_emoji_picker_label'] = 'Emoji picker';
 $string['chatbot_export_conversation_label'] = 'Export conversation';
 $string['chatbot_minimize'] = 'Minimise';
 $string['chatbot_close'] = 'Close';
-$string['chatbot_welcome_template'] = 'I am your intelligent assistant and I am here to help with anything you need. How can I assist you today?';
 $string['chatbot_quick_actions_region'] = 'Chatbot quick actions';
 $string['chatbot_suggestions_region'] = 'Suggested prompts';
-$string['chatbot_suggestion_courses'] = 'Show my courses';
-$string['chatbot_suggestion_grades'] = 'Show my grades';
+$string['chatbot_welcome_template'] = 'Hello {name}! I am here to guide you through Moodle.';
+$string['default_nomatch'] = 'I am not sure about that yet. Could you rephrase your question?';
+
+// Suggestions and quick actions.
+$string['chatbot_suggestion_courses'] = 'Where are my courses?';
+$string['chatbot_suggestion_grades'] = 'How do I see my grades?';
+$string['chatbot_suggestion_support'] = 'Contact support';
 $string['chatbot_action_profile'] = 'My profile';
-$string['chatbot_action_profile_desc'] = 'Go to my user profile';
-$string['chatbot_export_heading'] = 'Conversation export';
-$string['chatbot_export_placeholder'] = 'Conversation history for session {$a} will appear here in a future release.';
-$string['chatbot_enabled'] = 'Chatbot is enabled';
-$string['chatbot_disabled'] = 'Chatbot is disabled';
-$string['enable_chatbot'] = 'Enable Chatbot';
-$string['settings'] = 'Chatbot Settings';
+$string['chatbot_action_profile_desc'] = 'Open your profile page';
+$string['chatbot_action_calendar'] = 'Calendar';
+$string['chatbot_action_calendar_desc'] = 'Open the calendar view';
+$string['chatbot_action_generic'] = 'Action executed: {$a}';
 
-// Position settings
-$string['position'] = 'Widget Position';
-$string['position_desc'] = 'Select where the chatbot widget will appear';
-$string['bottom_right'] = 'Bottom Right';
-$string['bottom_left'] = 'Bottom Left';
+// Responses.
+$string['chatbot_response_greeting'] = 'Hello! 👋 How can I help you today?';
+$string['chatbot_response_help'] = 'I can help you locate courses, grades and useful links. Try asking “Where do I see my grades?”';
+$string['chatbot_response_courses'] = 'Open the “My courses” menu at the top of the site to see your enrolled courses.';
+$string['chatbot_response_grades'] = 'Visit the grades page from the user menu or open the Grades option inside each course.';
 
-// Response management
-$string['manage_responses'] = 'Manage Chatbot Responses';
-$string['keyword'] = 'Keyword';
+// Export.
+$string['chatbot_export_heading'] = 'Conversation history';
+$string['chatbot_export_empty'] = 'No messages have been recorded yet.';
+$string['message'] = 'Message';
 $string['response'] = 'Response';
-$string['add_response'] = 'Add Response';
-$string['edit_responses'] = 'Edit Responses';
-$string['delete_response'] = 'Delete Response';
-$string['response_saved'] = 'Response saved successfully';
-$string['response_deleted'] = 'Response deleted successfully';
-$string['no_match'] = 'I\'m sorry, I don\'t understand your question. Could you please rephrase it?';
+$string['intent'] = 'Intent';
+$string['feedback'] = 'Feedback';
 
-// Intelligence settings
-$string['confidence_threshold'] = 'Confidence Threshold';
-$string['confidence_threshold_desc'] = 'Minimum confidence score to accept an intent (0-10)';
-$string['learning_enabled'] = 'Learning Mode';
-$string['learning_enabled_desc'] = 'Allow the chatbot to learn from interactions';
-$string['context_memory_size'] = 'Context Memory Size';
-$string['context_memory_size_desc'] = 'Number of previous interactions to remember';
-$string['fuzzy_matching'] = 'Fuzzy Matching';
-$string['fuzzy_matching_desc'] = 'Enable approximate matching for spelling errors';
-$string['multilingual'] = 'Multi-language Support';
-$string['multilingual_desc'] = 'Detect and respond in user\'s language';
+// Settings.
+$string['setting_enabled'] = 'Enable chatbot';
+$string['setting_enabled_desc'] = 'If disabled the widget will not be injected on any page.';
+$string['setting_assistantname'] = 'Assistant name';
+$string['setting_assistantname_desc'] = 'Shown in the widget header and used in accessibility descriptions.';
+$string['setting_position'] = 'Widget position';
+$string['setting_position_desc'] = 'Select where the launcher should appear on the screen.';
+$string['position_bottom_right'] = 'Bottom right';
+$string['position_bottom_left'] = 'Bottom left';
+$string['setting_theme'] = 'Theme';
+$string['setting_theme_desc'] = 'Choose the colour scheme for the widget.';
+$string['theme_modern'] = 'Modern';
+$string['theme_minimal'] = 'Minimal';
+$string['theme_dark'] = 'Dark';
+$string['setting_welcome'] = 'Welcome message';
+$string['setting_welcome_desc'] = 'Message displayed the first time a user opens the widget.';
+$string['setting_nomatch'] = 'Fallback response';
+$string['setting_nomatch_desc'] = 'Message sent when the chatbot cannot match a question.';
+$string['setting_maxlength'] = 'Maximum message length';
+$string['setting_maxlength_desc'] = 'Limit the amount of characters users can send.';
+$string['setting_allow_export'] = 'Allow conversation export';
+$string['setting_allow_export_desc'] = 'Show the export button when the user has the export capability.';
 
-// Feature settings
-$string['voice_input'] = 'Voice Input';
-$string['voice_input_desc'] = 'Allow users to speak to the chatbot';
-$string['quick_actions'] = 'Quick Actions';
-$string['quick_actions_desc'] = 'Show contextual quick action buttons';
-$string['suggestions'] = 'Smart Suggestions';
-$string['suggestions_desc'] = 'Show context-based suggestions';
-$string['emoji_picker'] = 'Emoji Picker';
-$string['emoji_picker_desc'] = 'Include emoji picker in chat';
-$string['typing_animation'] = 'Typing Animation';
-$string['typing_animation_desc'] = 'Simulate progressive typing in responses';
-$string['sound_notifications'] = 'Sound Notifications';
-$string['sound_notifications_desc'] = 'Play sounds when receiving messages';
-$string['allow_export'] = 'Allow Export';
-$string['allow_export_desc'] = 'Users can export their conversations';
+// Admin placeholder screens.
+$string['admin_placeholder'] = 'The management console is being prepared. The widget and web services are fully functional.';
+$string['admin_placeholder_help'] = 'Continue using the Site administration settings page to configure the chatbot in the meantime.';
+$string['manage_intents'] = 'Manage intents';
+$string['manage_entities'] = 'Manage entities';
+$string['training'] = 'Training & learning';
+$string['analytics'] = 'Analytics and reports';
+$string['dialogues'] = 'Dialogue flows';
+$string['test_chatbot'] = 'Try the chatbot';
 
-// Themes
-$string['theme'] = 'Visual Theme';
-$string['theme_desc'] = 'Select the visual theme for the chatbot';
-$string['theme_modern'] = 'Modern (Gradient)';
-$string['theme_minimal'] = 'Minimalist';
-$string['theme_dark'] = 'Dark Theme';
-$string['theme_colorful'] = 'Colorful';
-
-// Personality
-$string['personality'] = 'Chatbot Personality';
-$string['personality_desc'] = 'Define the tone of chatbot responses';
-$string['personality_professional'] = 'Professional';
-$string['personality_friendly'] = 'Friendly';
-$string['personality_casual'] = 'Casual';
-$string['personality_formal'] = 'Formal';
-
-// Performance settings
-$string['cache_duration'] = 'Cache Duration';
-$string['cache_duration_desc'] = 'Time in seconds to cache common responses';
-$string['max_response_time'] = 'Maximum Response Time';
-$string['max_response_time_desc'] = 'Maximum time in milliseconds before timeout';
-$string['rate_limit'] = 'Message Rate Limit';
-$string['rate_limit_desc'] = 'Maximum messages per minute per user';
-$string['log_retention_days'] = 'Log Retention Days';
-$string['log_retention_days_desc'] = 'Days to keep conversation logs';
-
-// Privacy settings
-$string['anonymous_mode'] = 'Anonymous Mode';
-$string['anonymous_mode_desc'] = 'Do not log personally identifiable information';
-$string['collect_analytics'] = 'Collect Analytics';
-$string['collect_analytics_desc'] = 'Collect data to improve service';
-$string['require_consent'] = 'Require Consent';
-$string['require_consent_desc'] = 'Request consent before using chatbot';
-
-// Admin pages
-$string['manage_intents'] = 'Manage Intents';
-$string['manage_entities'] = 'Manage Entities';
-$string['training'] = 'Training & Learning';
-$string['analytics'] = 'Analytics & Reports';
-$string['dialogues'] = 'Dialogue Flows';
-$string['test_chatbot'] = 'Test Chatbot';
-
-// Messages
-$string['default_nomatch'] = 'I\'m sorry, I don\'t fully understand your question. Could you rephrase or be more specific?';
-$string['welcome_message'] = 'Hello {name}! I\'m your intelligent assistant. How can I help you today?';
-$string['error_message'] = 'Sorry, an error occurred while processing your message. Please try again.';
-$string['idle_message'] = 'Are you still there? If you need anything else, feel free to ask me.';
-
-// Analytics
-$string['total_interactions'] = 'Total Interactions';
-$string['unique_users'] = 'Unique Users';
-$string['avg_response_time'] = 'Average Response Time';
-$string['sentiment_distribution'] = 'Sentiment Distribution';
-$string['top_intents'] = 'Top Intents';
-
-// Feedback
-$string['helpful'] = 'Helpful';
-$string['not_helpful'] = 'Not Helpful';
-$string['feedback_thanks'] = 'Thank you for your feedback!';
-
-// Export
-$string['export_conversation'] = 'Export Conversation';
-$string['export_format'] = 'Export Format';
-$string['export_html'] = 'HTML';
-$string['export_csv'] = 'CSV';
-$string['export_json'] = 'JSON';
-$string['export_text'] = 'Plain Text';
-
-// Errors
-$string['error_no_permission'] = 'You do not have permission to use the chatbot';
-$string['error_disabled'] = 'The chatbot is currently disabled';
-$string['error_processing'] = 'Error processing your message';
-$string['error_timeout'] = 'Request timeout. Please try again';
-$string['error_rate_limit'] = 'Too many messages. Please wait a moment';
-
-// Success messages
-$string['configuration_saved'] = 'Configuration saved successfully';
-$string['intent_created'] = 'Intent created successfully';
-$string['entity_created'] = 'Entity created successfully';
-$string['training_complete'] = 'Training completed successfully';
-$string['logs_exported'] = 'Logs exported successfully';
-$string['intent_greeting_desc'] = 'System greeting intent used for onboarding new conversations.';
-$string['intent_courses_desc'] = 'Provides guidance about accessing and managing courses.';
-$string['intent_grades_desc'] = 'Helps users locate their grades and grade reports.';
-$string['admin_placeholder'] = 'This management area is still being designed. The current release ships with the floating widget and core configuration options.';
-$string['admin_placeholder_help'] = 'Continue configuring the chatbot via Site administration → Plugins → Local plugins → Intelligent Chatbot while we finish these tools.';
+// Feedback buttons.
+$string['chatbot_feedback_helpful'] = 'Helpful';
+$string['chatbot_feedback_not_helpful'] = 'Not helpful';
+$string['chatbot_feedback_thanks'] = 'Thanks for your feedback!';

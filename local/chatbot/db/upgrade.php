@@ -15,93 +15,52 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Upgrade script for local_chatbot
+ * Upgrade steps for the local_chatbot plugin.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Upgrade function
+ * Execute local_chatbot upgrade steps.
+ *
+ * @param int $oldversion
+ * @return bool
  */
-function xmldb_local_chatbot_upgrade($oldversion) {
+function xmldb_local_chatbot_upgrade(int $oldversion): bool {
     global $DB;
-    
+
     $dbman = $DB->get_manager();
-    
-    if ($oldversion < 2025012500) {
-        
-        // Define table local_chatbot_intents to be created if not exists
-        $table = new xmldb_table('local_chatbot_intents');
-        
+
+    if ($oldversion < 2024052400) {
+        $table = new xmldb_table('local_chatbot_logs');
+
         if (!$dbman->table_exists($table)) {
-            // Adding fields
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-            $table->add_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('display_name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-            $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
-            $table->add_field('parent_intent', XMLDB_TYPE_CHAR, '100', null, null, null, null);
-            $table->add_field('training_phrases', XMLDB_TYPE_TEXT, null, null, null, null, null);
-            $table->add_field('required_entities', XMLDB_TYPE_TEXT, null, null, null, null, null);
-            $table->add_field('action', XMLDB_TYPE_CHAR, '100', null, null, null, null);
-            $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+            $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('sessionid', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('message', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+            $table->add_field('response', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+            $table->add_field('intent', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+            $table->add_field('responsetime', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('metadata', XMLDB_TYPE_TEXT, null, null, null, null, null);
+            $table->add_field('feedback', XMLDB_TYPE_CHAR, '20', null, null, null, null);
             $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-            
-            // Adding keys
+
             $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-            
-            // Adding indexes
-            $table->add_index('name', XMLDB_INDEX_UNIQUE, ['name']);
-            $table->add_index('parent', XMLDB_INDEX_NOTUNIQUE, ['parent_intent']);
-            
-            // Create the table
+            $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+            $table->add_index('sessionid', XMLDB_INDEX_NOTUNIQUE, ['sessionid']);
+            $table->add_index('timecreated', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
+
             $dbman->create_table($table);
         }
-        
-        // Add new fields to existing tables if they don't exist
-        $table = new xmldb_table('local_chatbot_responses');
-        
-        // Add intent field if it doesn't exist
-        $field = new xmldb_field('intent', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'id');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        
-        // Add patterns field if it doesn't exist
-        $field = new xmldb_field('patterns', XMLDB_TYPE_TEXT, null, null, null, null, null, 'keywords');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        
-        // Add response_variations field if it doesn't exist
-        $field = new xmldb_field('response_variations', XMLDB_TYPE_TEXT, null, null, null, null, null, 'response');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        
-        // Add success_rate field if it doesn't exist
-        $field = new xmldb_field('success_rate', XMLDB_TYPE_NUMBER, '5, 2', null, null, null, null, 'usage_count');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        
-        // Add usage_count field if it doesn't exist
-        $field = new xmldb_field('usage_count', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'enabled');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        
-        // Initialize default intents
-        require_once(__DIR__ . '/../lib.php');
-        local_chatbot_init_intents();
-        
-        // Chatbot savepoint reached
-        upgrade_plugin_savepoint(true, 2025012500, 'local', 'chatbot');
+
+        upgrade_plugin_savepoint(true, 2024052400, 'local', 'chatbot');
     }
-    
+
     return true;
 }

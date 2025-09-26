@@ -1,94 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/chatbot/db" VERSION="20250124" COMMENT="XMLDB file for Moodle local/chatbot v2"
+<XMLDB PATH="local/chatbot/db" VERSION="2024052400" COMMENT="XMLDB file for the local chatbot plugin"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="local_chatbot_responses" COMMENT="Stores chatbot responses with intent mapping">
+    <TABLE NAME="local_chatbot_logs" COMMENT="Conversation log for the local chatbot widget">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="intent" TYPE="char" LENGTH="100" NOTNULL="true" COMMENT="Intent category"/>
-        <FIELD NAME="keywords" TYPE="text" NOTNULL="false" COMMENT="Keywords that trigger this response"/>
-        <FIELD NAME="patterns" TYPE="text" NOTNULL="false" COMMENT="Regex patterns for matching"/>
-        <FIELD NAME="response" TYPE="text" NOTNULL="true" COMMENT="The response text"/>
-        <FIELD NAME="response_variations" TYPE="text" NOTNULL="false" COMMENT="JSON array of response variations"/>
-        <FIELD NAME="conditions" TYPE="text" NOTNULL="false" COMMENT="JSON conditions for using this response"/>
-        <FIELD NAME="followup_intents" TYPE="text" NOTNULL="false" COMMENT="Possible followup intents"/>
-        <FIELD NAME="priority" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="5" COMMENT="Priority order"/>
-        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
-        <FIELD NAME="usage_count" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Times this response was used"/>
-        <FIELD NAME="success_rate" TYPE="number" LENGTH="5" DECIMALS="2" NOTNULL="false" COMMENT="Success rate of this response"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="intent" UNIQUE="false" FIELDS="intent"/>
-        <INDEX NAME="enabled" UNIQUE="false" FIELDS="enabled"/>
-        <INDEX NAME="priority" UNIQUE="false" FIELDS="priority"/>
-      </INDEXES>
-    </TABLE>
-    
-    <TABLE NAME="local_chatbot_intents" COMMENT="Define chatbot intents and their relationships">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" COMMENT="Intent identifier"/>
-        <FIELD NAME="display_name" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Human readable name"/>
-        <FIELD NAME="description" TYPE="text" NOTNULL="false"/>
-        <FIELD NAME="parent_intent" TYPE="char" LENGTH="100" NOTNULL="false" COMMENT="Parent intent for hierarchy"/>
-        <FIELD NAME="training_phrases" TYPE="text" NOTNULL="false" COMMENT="Example phrases for this intent"/>
-        <FIELD NAME="required_entities" TYPE="text" NOTNULL="false" COMMENT="Required entities for this intent"/>
-        <FIELD NAME="action" TYPE="char" LENGTH="100" NOTNULL="false" COMMENT="Action to perform"/>
-        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="name" UNIQUE="true" FIELDS="name"/>
-        <INDEX NAME="parent" UNIQUE="false" FIELDS="parent_intent"/>
-      </INDEXES>
-    </TABLE>
-    
-    <TABLE NAME="local_chatbot_entities" COMMENT="Entity definitions and patterns">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="entity_type" TYPE="char" LENGTH="100" NOTNULL="true" COMMENT="Type of entity"/>
-        <FIELD NAME="value" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Entity value"/>
-        <FIELD NAME="synonyms" TYPE="text" NOTNULL="false" COMMENT="Synonyms for this entity"/>
-        <FIELD NAME="patterns" TYPE="text" NOTNULL="false" COMMENT="Regex patterns to match"/>
-        <FIELD NAME="context" TYPE="char" LENGTH="100" NOTNULL="false" COMMENT="Context where this entity applies"/>
-        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="entity_type" UNIQUE="false" FIELDS="entity_type"/>
-        <INDEX NAME="value" UNIQUE="false" FIELDS="value"/>
-      </INDEXES>
-    </TABLE>
-    
-    <TABLE NAME="local_chatbot_logs" COMMENT="Detailed logs of all chatbot interactions">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
-        <FIELD NAME="sessionid" TYPE="char" LENGTH="100" NOTNULL="false" COMMENT="Session identifier"/>
-        <FIELD NAME="message" TYPE="text" NOTNULL="true" COMMENT="User message"/>
-        <FIELD NAME="processed_message" TYPE="text" NOTNULL="false" COMMENT="Processed version of message"/>
-        <FIELD NAME="response" TYPE="text" NOTNULL="true" COMMENT="Bot response"/>
-        <FIELD NAME="intent" TYPE="char" LENGTH="100" NOTNULL="false" COMMENT="Detected intent"/>
-        <FIELD NAME="confidence" TYPE="number" LENGTH="5" DECIMALS="2" NOTNULL="false" COMMENT="Confidence score"/>
-        <FIELD NAME="entities" TYPE="text" NOTNULL="false" COMMENT="JSON of detected entities"/>
-        <FIELD NAME="sentiment" TYPE="char" LENGTH="20" NOTNULL="false" COMMENT="Detected sentiment"/>
-        <FIELD NAME="context" TYPE="text" NOTNULL="false" COMMENT="JSON conversation context"/>
-        <FIELD NAME="response_time" TYPE="int" LENGTH="10" NOTNULL="false" COMMENT="Response time in milliseconds"/>
-        <FIELD NAME="feedback" TYPE="char" LENGTH="20" NOTNULL="false" COMMENT="User feedback"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="User who sent the message"/>
+        <FIELD NAME="sessionid" TYPE="char" LENGTH="64" NOTNULL="true" COMMENT="Browser session identifier"/>
+        <FIELD NAME="message" TYPE="text" NOTNULL="true" COMMENT="Original user message"/>
+        <FIELD NAME="response" TYPE="text" NOTNULL="true" COMMENT="Chatbot response"/>
+        <FIELD NAME="intent" TYPE="char" LENGTH="50" NOTNULL="false" COMMENT="Matched intent label"/>
+        <FIELD NAME="responsetime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Response time in ms"/>
+        <FIELD NAME="metadata" TYPE="text" NOTNULL="false" COMMENT="Additional JSON metadata"/>
+        <FIELD NAME="feedback" TYPE="char" LENGTH="20" NOTNULL="false" COMMENT="Optional user feedback"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
       </FIELDS>
       <KEYS>
@@ -97,49 +23,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="sessionid" UNIQUE="false" FIELDS="sessionid"/>
-        <INDEX NAME="intent" UNIQUE="false" FIELDS="intent"/>
         <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
-      </INDEXES>
-    </TABLE>
-    
-    <TABLE NAME="local_chatbot_learning" COMMENT="Learning patterns from user interactions">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="pattern" TYPE="text" NOTNULL="true" COMMENT="Identified pattern"/>
-        <FIELD NAME="intent" TYPE="char" LENGTH="100" NOTNULL="true" COMMENT="Associated intent"/>
-        <FIELD NAME="frequency" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" COMMENT="Frequency of pattern"/>
-        <FIELD NAME="success_rate" TYPE="number" LENGTH="5" DECIMALS="2" NOTNULL="false"/>
-        <FIELD NAME="last_seen" TYPE="int" LENGTH="10" NOTNULL="true"/>
-        <FIELD NAME="auto_learned" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" COMMENT="Was this auto-learned"/>
-        <FIELD NAME="approved" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="Admin approved"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="intent" UNIQUE="false" FIELDS="intent"/>
-        <INDEX NAME="frequency" UNIQUE="false" FIELDS="frequency"/>
-      </INDEXES>
-    </TABLE>
-    
-    <TABLE NAME="local_chatbot_dialogues" COMMENT="Multi-turn dialogue definitions">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="dialogue_id" TYPE="char" LENGTH="100" NOTNULL="true"/>
-        <FIELD NAME="step" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Step in dialogue"/>
-        <FIELD NAME="intent" TYPE="char" LENGTH="100" NOTNULL="true"/>
-        <FIELD NAME="prompt" TYPE="text" NOTNULL="true" COMMENT="Prompt for this step"/>
-        <FIELD NAME="required_info" TYPE="text" NOTNULL="false" COMMENT="Required information to collect"/>
-        <FIELD NAME="next_step_conditions" TYPE="text" NOTNULL="false" COMMENT="Conditions for next step"/>
-        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="dialogue_step" UNIQUE="true" FIELDS="dialogue_id, step"/>
       </INDEXES>
     </TABLE>
   </TABLES>

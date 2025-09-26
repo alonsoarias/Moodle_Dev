@@ -15,20 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details for the intelligent chatbot plugin
+ * Version details for the local_chatbot plugin.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_chatbot';
-$plugin->version   = 2025012501;  // Version 2.0.1
-$plugin->requires  = 2023100900;  // Requires Moodle 4.3 or higher
+$plugin->version   = 2024052400;
+$plugin->requires  = 2023100900; // Moodle 4.3.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.0.1 - Intelligent Edition';
-
-// Dependencies (if any)
-$plugin->dependencies = array();
+$plugin->release   = '1.0.0';

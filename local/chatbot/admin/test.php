@@ -18,7 +18,7 @@
  * Placeholder testing surface for the chatbot.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,6 +37,8 @@ echo $OUTPUT->heading($heading);
 echo $OUTPUT->notification(get_string('admin_placeholder', 'local_chatbot'), \core\output\notification::NOTIFY_INFO);
 echo $OUTPUT->notification(get_string('admin_placeholder_help', 'local_chatbot'), \core\output\notification::NOTIFY_INFO);
 
-echo html_writer::tag('p', get_string('chatbot_welcome', 'local_chatbot'));
+$welcome = get_config('local_chatbot', 'welcome_message')
+    ?: get_string('chatbot_welcome_template', 'local_chatbot');
+echo html_writer::tag('p', $welcome);
 
 echo $OUTPUT->footer();
