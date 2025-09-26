@@ -1,11 +1,16 @@
 # Changelog
 
+## 1.1.1 - 2025-02-20
+- Se elimina la consola de analíticas obsoleta y se limpian todas las referencias asociadas para evitar enlaces rotos.
+- El widget carga sugerencias y accesos rápidos nada más abrirse para ofrecer contexto inmediato a la persona usuaria.
+- Ajustes menores en la administración para mostrar etiquetas traducidas de los tipos de acceso rápido.
+
 ## 1.1.0 - 2025-02-01
-- Reemplazadas todas las pantallas administrativas provisionales por consolas completas de intenciones, entidades, entrenamiento, analíticas, visor de diálogos y pruebas manuales (`admin/*`).
+- Reemplazadas todas las pantallas administrativas provisionales por consolas completas de intenciones, entidades, entrenamiento, visor de diálogos y pruebas manuales (`admin/*`).
 - Añadidas las tablas `local_chatbot_intents`, `local_chatbot_suggestions` y `local_chatbot_quickacts` junto con formularios de gestión y semillas iniciales (`db/install.xml`, `db/upgrade.php`).
 - El clasificador de mensajes ahora consume las intenciones configuradas y almacena la palabra clave coincidente en los metadatos (`lib.php`).
 - Sugerencias y accesos rápidos pasan a ser totalmente configurables y se exponen mediante los servicios web y el módulo AMD actualizados (`lib.php`, `externallib.php`, `amd/src/chatbot.js`).
-- Nuevo tablero de analíticas con gráficos y métricas, visor de conversaciones con filtros y exportación directa (`admin/analytics.php`, `admin/dialogues.php`).
+- Nuevo visor de conversaciones con filtros avanzados y exportación directa (`admin/dialogues.php`).
 - Documentación y traducciones renovadas para reflejar la administración ampliada del plugin (`README.md`, `lang/*`).
 
 ## 1.0.1 - 2025-02-15

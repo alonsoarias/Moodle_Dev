@@ -22,6 +22,7 @@
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->dirroot . '/local/chatbot/lib.php');
 
 use local_chatbot\form\test_form;
 
@@ -86,7 +87,7 @@ if ($result) {
         foreach ($quickactions as $action) {
             $rows[] = html_writer::tag('tr',
                 html_writer::tag('td', format_string($action['label'])) .
-                html_writer::tag('td', format_string($action['type'])) .
+                html_writer::tag('td', local_chatbot_get_quickaction_type_label($action['type'])) .
                 html_writer::tag('td', format_string($action['description']))
             );
         }

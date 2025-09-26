@@ -55,6 +55,7 @@ $string['chatbot_action_calendar'] = 'Calendario';
 $string['chatbot_action_calendar_desc'] = 'Abre la vista del calendario';
 $string['chatbot_action_support'] = 'Centro de soporte';
 $string['chatbot_action_support_desc'] = 'Muestra las opciones de contacto del soporte institucional';
+$string['chatbot_action_unknown'] = 'La acción solicitada ya no está disponible.';
 $string['chatbot_action_generic'] = 'Acción ejecutada: {$a}';
 
 // Respuestas automáticas.
@@ -193,21 +194,6 @@ $string['training_context_actions'] = 'Accesos rápidos disponibles:';
 $string['training_history_heading'] = 'Mensajes recientes de esta sesión';
 $string['training_result_time'] = 'Tiempo de respuesta: {$a}';
 
-// Panel de analíticas.
-$string['analytics'] = 'Analíticas e informes';
-$string['analytics_intro'] = 'Monitorea el uso del chatbot para comprender su adopción en la plataforma.';
-$string['analytics_total_messages'] = 'Mensajes registrados';
-$string['analytics_total_sessions'] = 'Sesiones activas';
-$string['analytics_total_users'] = 'Usuarios únicos';
-$string['analytics_average_response'] = 'Tiempo de respuesta promedio';
-$string['analytics_intents_heading'] = 'Uso de intenciones';
-$string['analytics_messages'] = 'Mensajes';
-$string['analytics_intents_chart_title'] = 'Mensajes por intención';
-$string['analytics_activity_chart_title'] = 'Mensajes por día';
-$string['analytics_activity_heading'] = 'Actividad reciente';
-$string['analytics_feedback_heading'] = 'Distribución de retroalimentación';
-$string['analytics_feedback_unknown'] = 'Sin especificar';
-
 // Visualizador de diálogos.
 $string['dialogues'] = 'Flujos de diálogo';
 $string['dialogue_filter_session'] = 'Id. de sesión';
@@ -249,4 +235,3 @@ $string['chatbot_feedback_thanks'] = '¡Gracias por tu comentario!';
 // Cadenas heredadas (compatibilidad).
 $string['admin_placeholder'] = 'El panel de gestión está en construcción. El widget y los servicios ya están disponibles.';
 $string['admin_placeholder_help'] = 'Mientras tanto utiliza la página de configuración en Administración del sitio → Plugins → Plugins locales → Asistente de chatbot.';
-$string['analytics_and_reports'] = 'Analíticas e informes';
