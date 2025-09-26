@@ -92,6 +92,7 @@ class local_chatbot_external extends external_api {
             'sessionid' => $result['sessionid'],
             'intent' => $result['intent'],
             'logid' => $result['logid'],
+            'timestamp' => $result['timestamp'],
             'suggestions' => $suggestions,
             'actions' => $actions,
         ];
@@ -109,6 +110,7 @@ class local_chatbot_external extends external_api {
             'sessionid' => new external_value(PARAM_TEXT, 'Session identifier'),
             'intent' => new external_value(PARAM_TEXT, 'Matched intent'),
             'logid' => new external_value(PARAM_INT, 'Log identifier'),
+            'timestamp' => new external_value(PARAM_INT, 'Creation time'),
             'suggestions' => new external_multiple_structure(new external_single_structure([
                 'text' => new external_value(PARAM_TEXT, 'Suggestion text'),
                 'action' => new external_value(PARAM_TEXT, 'Action key'),

@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$callbacks = [
+return [
     [
-        'hook' => '\core\hook\output\before_footer_html_generation',
+        'hook' => \core\hook\output\before_footer_html_generation::class,
         'callback' => 'local_chatbot_before_footer_html_generation',
         'priority' => 100,
     ],
