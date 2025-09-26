@@ -15,113 +15,48 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions for intelligent chatbot
+ * Capability definitions for the local_chatbot plugin.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    
-    // Use the chatbot
-    'local/chatbot:use' => array(
+$capabilities = [
+    'local/chatbot:use' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
+        'archetypes' => [
             'user' => CAP_ALLOW,
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        ),
-        'clonepermissionsfrom' => 'moodle/site:accessallgroups'
-    ),
-    
-    // Manage chatbot configuration
-    'local/chatbot:manage' => array(
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/site:sendmessage',
+    ],
+    'local/chatbot:manage' => [
         'riskbitmask' => RISK_CONFIG | RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-    
-    // View analytics and reports
-    'local/chatbot:viewanalytics' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
-            'coursecreator' => CAP_ALLOW
-        )
-    ),
-    
-    // Train the chatbot
-    'local/chatbot:train' => array(
-        'riskbitmask' => RISK_CONFIG,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-    
-    // Export conversations
-    'local/chatbot:export' => array(
+        ],
+    ],
+    'local/chatbot:export' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
+        'archetypes' => [
             'user' => CAP_ALLOW,
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
-    
-    // View all conversations (privacy sensitive)
-    'local/chatbot:viewallconversations' => array(
-        'riskbitmask' => RISK_PERSONAL,
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-    
-    // Delete conversation logs
-    'local/chatbot:deletelogs' => array(
-        'riskbitmask' => RISK_DATALOSS,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-    
-    // Configure intents and entities
-    'local/chatbot:configureintents' => array(
-        'riskbitmask' => RISK_CONFIG,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-    
-    // Test chatbot as different users
-    'local/chatbot:impersonate' => array(
-        'riskbitmask' => RISK_PERSONAL,
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-);
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/site:viewreports',
+    ],
+];

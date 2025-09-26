@@ -18,7 +18,7 @@
  * Placeholder administration page for managing chatbot intents.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -38,8 +38,8 @@ echo $OUTPUT->notification(get_string('admin_placeholder', 'local_chatbot'), \co
 echo $OUTPUT->notification(get_string('admin_placeholder_help', 'local_chatbot'), \core\output\notification::NOTIFY_INFO);
 
 echo html_writer::tag('p', html_writer::link(
-    new moodle_url('/admin/settings.php', ['section' => 'local_chatbot_general']),
-    get_string('settings', 'local_chatbot')
+    new moodle_url('/admin/settings.php', ['section' => 'local_chatbot']),
+    get_string('pluginname', 'local_chatbot')
 ));
 
 echo $OUTPUT->footer();

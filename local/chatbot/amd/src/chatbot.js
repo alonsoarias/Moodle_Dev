@@ -14,1191 +14,508 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Intelligent Chatbot Widget JavaScript
+ * Lightweight widget controller for the local_chatbot plugin.
  *
- * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @module     local_chatbot/chatbot
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification', 'core/templates'],
-function($, Ajax, Notification, Templates) {
-    
-    var IntelligentChatbot = {
-        
-        config: null,
-        isOpen: false,
-        isTyping: false,
-        conversationHistory: [],
-        currentContext: {},
-        lastMessageTime: null,
-        typingTimer: null,
-        messageQueue: [],
-        isProcessing: false,
+define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+    'use strict';
 
+    /**
+     * Build an element from template string.
+     *
+     * @param {string} html
+     * @return {JQuery}
+     */
+    const createElement = function(html) {
+        return $(html.trim());
+    };
+
+    /**
+     * Format a timestamp for display.
+     *
+     * @param {number} timestamp
+     * @return {string}
+     */
+    const formatTime = function(timestamp) {
+        const date = new Date(timestamp * 1000);
+        return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    };
+
+    /**
+     * Controller class for the floating widget.
+     */
+    class ChatbotWidget {
         /**
-         * Normalize configuration options coming from PHP.
-         *
          * @param {Object} config
-         * @returns {Object}
          */
-        prepareConfig: function(config) {
-            config = config || {};
-
-            config.position = config.position || 'bottom_right';
-            config.theme = config.theme || 'modern';
-            config.maxlength = config.maxlength || 500;
-            config.avatar = config.avatar || (config.username ? config.username.charAt(0).toUpperCase() : 'A');
-
-            config.features = $.extend({
-                voice_input: false,
-                emoji_picker: false,
-                quick_actions: false,
-                suggestions: false,
-                typing_animation: false,
-                sound_notifications: false
-            }, config.features || {});
-
-            config.permissions = $.extend({
-                canexport: false
-            }, config.permissions || {});
-
-            config.storagekey = config.storagekey || 'local_chatbot_widget_state';
-
-            config.strings = $.extend({
-                title: 'Virtual Assistant',
-                status: 'Online',
-                toggle: 'Open assistant',
-                placeholder: 'Type your message...',
-                typing: 'The assistant is typing…',
-                voice: 'Voice input',
-                emoji: 'Emoji picker',
-                send: 'Send message',
-                export: 'Export conversation',
-                minimize: 'Minimize',
-                close: 'Close',
-                welcome: 'Hello! I am your assistant. How can I help you today?',
-                quickactionslabel: 'Chatbot quick actions',
-                suggestionslabel: 'Suggested prompts'
-            }, config.strings || {});
-
-            return config;
-        },
+        constructor(config) {
+            this.config = config;
+            this.isOpen = false;
+            this.sessionid = config.sessionid;
+            this.maxlength = parseInt(config.maxlength, 10) || 500;
+            this.initialised = false;
+            this.typingTimer = null;
+        }
 
         /**
-         * Initialize the chatbot
+         * Entry point.
          */
-        init: function(config) {
-            var self = this;
-
-            if ($('body.pagelayout-embedded, body.pagelayout-maintenance').length) {
+        init() {
+            this.cacheNodes();
+            if (!this.$container.length) {
                 return;
             }
-
-            this.config = this.prepareConfig(config);
-            this.currentContext = {
-                courseid: this.config.courseid,
-                contextid: this.config.contextid,
-                sessionid: this.config.sessionid
-            };
-
-            this.createWidget().then(function() {
-                self.cacheElements();
-                self.attachEventHandlers();
-                self.applyTheme();
-                self.initializeFeatures();
-                self.loadConversationHistory();
-                self.restoreWidgetState();
-                self.showWelcomeMessage();
-            }).catch(Notification.exception);
-        },
+            this.initialised = true;
+            this.bindEvents();
+            this.restoreLauncherState();
+            this.updateCharCount();
+            this.addWelcomeMessage();
+            this.loadHistory();
+        }
 
         /**
-         * Create the widget HTML structure
+         * Cache frequently used DOM nodes.
          */
-        createWidget: function() {
-            var self = this;
-            var templateContext = {
-                position: this.config.position,
-                theme: this.config.theme,
-                mode: 'geniai-inspired',
-                title: this.config.strings.title,
-                status: this.config.strings.status,
-                togglelabel: this.config.strings.toggle,
-                talklabel: this.config.strings.toggle,
-                placeholder: this.config.strings.placeholder,
-                typing: this.config.strings.typing,
-                voicelabel: this.config.strings.voice,
-                emojilabel: this.config.strings.emoji,
-                sendlabel: this.config.strings.send,
-                exportlabel: this.config.strings.export,
-                minimizelabel: this.config.strings.minimize,
-                closelabel: this.config.strings.close,
-                welcome: this.config.strings.welcome,
-                voiceenabled: this.config.features.voice_input,
-                emojienabled: this.config.features.emoji_picker,
-                showquickactions: this.config.features.quick_actions,
-                showsuggestions: this.config.features.suggestions,
-                canexport: this.config.permissions.canexport,
-                maxlength: this.config.maxlength,
-                initial: this.config.avatar
-            };
-
-            $('#local-chatbot-container').remove();
-
-            return Templates.render('local_chatbot/widget', templateContext).then(function(html, js) {
-                $('body').append(html);
-                Templates.runTemplateJS(js);
-            });
-        },
-
-        /**
-         * Cache main DOM elements for reuse
-         */
-        cacheElements: function() {
+        cacheNodes() {
             this.$container = $('#local-chatbot-container');
-            this.$container.show();
             this.$widget = $('#chatbot-widget');
             this.$launcher = $('#chatbot-launcher');
+            this.$messages = $('#chatbot-messages');
+            this.$input = $('#chatbot-input');
+            this.$send = $('#chatbot-send');
+            this.$typing = $('#chatbot-typing-indicator');
             this.$badge = $('.chatbot-launcher-count');
-        },
+            this.$charcount = $('#char-count');
+            this.$quickActions = $('#chatbot-quick-actions');
+            this.$suggestions = $('#chatbot-suggestions');
+        }
 
         /**
-         * Attach event handlers
+         * Register DOM listeners.
          */
-        attachEventHandlers: function() {
-            var self = this;
+        bindEvents() {
+            const self = this;
 
-            // Launcher click
             this.$launcher.on('click', function() {
-                self.toggleChatbot();
+                self.toggle();
             });
 
-            // Header buttons
-            $('.chatbot-btn-close').on('click', function() {
-                self.closeChatbot();
-            });
-
-            $('.chatbot-btn-minimize').on('click', function() {
-                self.minimizeChatbot();
-            });
-
-            if (this.config.permissions.canexport) {
-                $('.chatbot-btn-export').on('click', function() {
-                    self.exportConversation();
-                });
-            }
-            
-            // Send message
-            $('#chatbot-send').on('click', function() {
+            this.$send.on('click', function() {
                 self.sendMessage();
             });
-            
-            // Input handling
-            $('#chatbot-input').on('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
+
+            this.$input.on('keydown', function(event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
                     self.sendMessage();
                 }
             });
-            
-            // Auto-resize textarea
-            $('#chatbot-input').on('input', function() {
-                self.autoResizeTextarea(this);
+
+            this.$input.on('input', function() {
                 self.updateCharCount();
-                self.detectTyping();
+                self.autoResizeTextarea();
             });
-            
-            // Voice input
-            if (this.config.features.voice_input) {
-                $('.chatbot-btn-voice').on('click', function() {
-                    self.startVoiceInput();
-                });
-            }
-            
-            // Emoji picker
-            if (this.config.features.emoji_picker) {
-                $('.chatbot-btn-emoji').on('click', function() {
-                    self.toggleEmojiPicker();
-                });
-            }
-            
-            // Suggestion clicks
-            $(document).on('click', '.suggestion-chip', function() {
-                var text = $(this).data('text');
-                var action = $(this).data('action');
-                
+
+            this.$widget.on('click', '.chatbot-btn-close, .chatbot-btn-minimize', function() {
+                self.close();
+            });
+
+            this.$widget.on('click', '.chatbot-btn-export', function() {
+                self.exportConversation();
+            });
+
+            this.$widget.on('click', '.suggestion-chip', function() {
+                const text = $(this).data('text');
+                const action = $(this).data('action');
                 if (action) {
-                    self.handleQuickAction(action, $(this).data());
+                    self.executeAction(action);
                 } else {
-                    $('#chatbot-input').val(text);
+                    self.$input.val(text);
                     self.sendMessage();
                 }
             });
-            
-            // Quick action clicks
-            $(document).on('click', '.quick-action-btn', function() {
-                var action = $(this).data('action');
-                self.handleQuickAction(action, $(this).data());
+
+            this.$widget.on('click', '.quick-action-btn', function() {
+                const action = $(this).data('action');
+                const url = $(this).data('url');
+                if (action === 'navigate' && url) {
+                    window.location.href = url;
+                    return;
+                }
+                self.executeAction(action);
             });
-            
-            // Feedback buttons
-            $(document).on('click', '.message-feedback button', function() {
-                var feedback = $(this).data('feedback');
-                var messageId = $(this).closest('.chatbot-message').data('id');
-                self.provideFeedback(messageId, feedback);
-            });
-        },
-        
-        /**
-         * Initialize special features
-         */
-        initializeFeatures: function() {
-            var self = this;
-            
-            // Quick actions
-            if (this.config.features.quick_actions) {
-                this.loadQuickActions();
-            }
-            
-            // Suggestions
-            if (this.config.features.suggestions) {
-                this.loadSuggestions();
-            }
-            
-            // Keyboard shortcuts
-            this.initKeyboardShortcuts();
-            
-            // Idle detection
-            this.initIdleDetection();
-            
-            // Connection monitoring
-            this.monitorConnection();
-        },
+        }
 
         /**
-         * Restore previously stored launcher state.
+         * Restore launcher state from localStorage.
          */
-        restoreWidgetState: function() {
-            var state = null;
-
+        restoreLauncherState() {
+            let state = null;
             try {
                 state = window.localStorage.getItem(this.config.storagekey);
-            } catch (error) {
+            } catch (e) {
                 state = null;
             }
 
             if (state === 'open') {
-                this.openChatbot();
+                this.open();
             } else {
-                this.closeChatbot();
+                this.close();
             }
-        },
+        }
 
         /**
-         * Toggle chatbot visibility
+         * Persist launcher state.
+         *
+         * @param {string} state
          */
-        toggleChatbot: function() {
+        persistState(state) {
+            try {
+                window.localStorage.setItem(this.config.storagekey, state);
+            } catch (e) {
+                // Ignore quota errors (e.g. private browsing).
+            }
+        }
+
+        /**
+         * Toggle widget visibility.
+         */
+        toggle() {
             if (this.isOpen) {
-                this.closeChatbot();
+                this.close();
             } else {
-                this.openChatbot();
+                this.open();
             }
-        },
+        }
 
         /**
-         * Open chatbot
+         * Open the widget.
          */
-        openChatbot: function() {
-            this.$container.show().addClass('chatbot-active');
+        open() {
+            this.$container.addClass('chatbot-active').show();
             this.$widget.attr('aria-hidden', 'false');
             this.$launcher.attr('aria-expanded', 'true');
-            $('#chatbot-input').focus();
-            this.scrollToBottom();
             this.isOpen = true;
-
-            // Clear badge
-            if (this.$badge && this.$badge.length) {
-                this.$badge.text('0').attr('aria-hidden', 'true').attr('data-count', 0);
-            }
-
-            // Mark messages as read
-            this.markMessagesAsRead();
-
-            // Load context-specific content
-            this.updateContextualContent();
-
-            try {
-                window.localStorage.setItem(this.config.storagekey, 'open');
-            } catch (error) {
-                // Ignore storage issues (e.g. private browsing).
-            }
-        },
+            this.$input.focus();
+            this.scrollToBottom();
+            this.clearBadge();
+            this.persistState('open');
+        }
 
         /**
-         * Close chatbot
+         * Close the widget.
          */
-        closeChatbot: function() {
-            this.$container.show();
+        close() {
+            this.$container.removeClass('chatbot-active').show();
             this.$widget.attr('aria-hidden', 'true');
-            this.$container.removeClass('chatbot-active');
             this.$launcher.attr('aria-expanded', 'false');
             this.isOpen = false;
-
-            try {
-                window.localStorage.setItem(this.config.storagekey, 'closed');
-            } catch (error) {
-                // Storage may not be available.
-            }
-        },
+            this.persistState('closed');
+        }
 
         /**
-         * Minimize chatbot
+         * Add welcome message when widget loads.
          */
-        minimizeChatbot: function() {
-            this.closeChatbot();
-        },
-        
+        addWelcomeMessage() {
+            const welcome = $('#local-chatbot-welcome').val();
+            if (welcome) {
+                this.addMessage('bot', welcome, {system: true});
+            }
+        }
+
         /**
-         * Send message
+         * Load conversation history from the server.
          */
-        sendMessage: function() {
-            var message = $('#chatbot-input').val().trim();
-            
-            if (message === '' || this.isProcessing) {
+        loadHistory() {
+            const self = this;
+            Ajax.call([{
+                methodname: 'local_chatbot_get_history',
+                args: {
+                    sessionid: this.sessionid,
+                    limit: 20,
+                },
+                done: function(history) {
+                    if (!history || !history.length) {
+                        return;
+                    }
+                    history.forEach(function(entry) {
+                        self.addMessage('user', entry.message, {historical: true});
+                        self.addMessage('bot', entry.response, {historical: true, intent: entry.intent});
+                    });
+                },
+                fail: Notification.exception,
+            }]);
+        }
+
+        /**
+         * Send the message currently in the textbox.
+         */
+        sendMessage() {
+            const message = this.$input.val().trim();
+            if (!message) {
                 return;
             }
-            
-            // Add to queue if already processing
-            if (this.isProcessing) {
-                this.messageQueue.push(message);
-                return;
+            if (message.length > this.maxlength) {
+                this.$input.val(message.slice(0, this.maxlength));
             }
-            
-            this.isProcessing = true;
-            
-            // Clear input
-            $('#chatbot-input').val('').trigger('input');
-            
-            // Add user message to chat
+
             this.addMessage('user', message);
-            
-            // Show typing indicator
-            this.showTypingIndicator();
-            
-            // Send to server
-            var self = this;
-            
+            this.$input.val('').trigger('input');
+            this.showTyping();
+
+            const self = this;
             Ajax.call([{
                 methodname: 'local_chatbot_process_message',
                 args: {
                     message: message,
-                    userid: this.config.userid,
-                    sessionid: this.config.sessionid,
-                    context: JSON.stringify(this.currentContext)
+                    sessionid: this.sessionid,
+                    context: '{}',
                 },
                 done: function(response) {
-                    self.hideTypingIndicator();
-                    
-                    // Add bot response with animation
-                    self.addMessage('bot', response.response, response);
-                    
-                    // Update context if provided
-                    if (response.context) {
-                        self.updateContext(response.context);
-                    }
-                    
-                    // Show suggestions if available
-                    if (response.suggestions) {
-                        self.showSuggestions(response.suggestions);
-                    }
-                    
-                    // Handle any actions
-                    if (response.actions) {
-                        self.executeActions(response.actions);
-                    }
-                    
-                    self.isProcessing = false;
-                    
-                    // Process queued messages
-                    if (self.messageQueue.length > 0) {
-                        var nextMessage = self.messageQueue.shift();
-                        $('#chatbot-input').val(nextMessage);
-                        self.sendMessage();
-                    }
+                    self.sessionid = response.sessionid;
+                    self.hideTyping();
+                    self.addMessage('bot', response.response, {
+                        intent: response.intent,
+                        logid: response.logid,
+                        responseTime: response.response_time,
+                    });
+                    self.renderSuggestions(response.suggestions || []);
+                    self.renderQuickActions(response.actions || []);
                 },
                 fail: function(error) {
-                    self.hideTypingIndicator();
-                    self.addMessage('bot', 
-                        'Lo siento, ha ocurrido un error. Por favor, intenta de nuevo.', 
-                        {error: true}
-                    );
-                    self.isProcessing = false;
+                    self.hideTyping();
+                    self.addMessage('bot', self.config.strings.error || 'There was an error.');
                     Notification.exception(error);
-                }
+                },
             }]);
-        },
-        
-        /**
-         * Add message to chat
-         */
-        addMessage: function(sender, message, metadata = {}) {
-            var self = this;
-            var messageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            
-            var messageClass = sender === 'user' ? 'chatbot-message-user' : 'chatbot-message-bot';
-            var avatar = sender === 'user' ? 
-                '<div class="message-avatar user-avatar">' + this.config.username.charAt(0) + '</div>' :
-                '<div class="message-avatar bot-avatar">🤖</div>';
-            
-            // Process message content (markdown, links, etc.)
-            var processedMessage = this.processMessageContent(message);
-            
-            // Build message HTML
-            var messageHTML = `
-                <div class="chatbot-message ${messageClass} ${metadata.error ? 'error-message' : ''}" 
-                     data-id="${messageId}"
-                     data-sender="${sender}">
-                    ${avatar}
-                    <div class="message-content-wrapper">
-                        <div class="message-content">
-                            ${processedMessage}
-                        </div>
-                        <div class="message-metadata">
-                            <span class="message-time">${this.getCurrentTime()}</span>
-                            ${metadata.response_time ? 
-                              '<span class="response-time">' + metadata.response_time + 'ms</span>' : ''}
-                            ${metadata.intent ? 
-                              '<span class="message-intent" title="Intención detectada">' + metadata.intent + '</span>' : ''}
-                        </div>
-                        ${sender === 'bot' && !metadata.error ? this.getFeedbackButtons(messageId) : ''}
-                    </div>
-                </div>
-            `;
-            
-            // Add with animation
-            var $message = $(messageHTML).hide();
-            $('#chatbot-messages').append($message);
-            $message.fadeIn(300);
-            
-            // Animate bot messages character by character
-            if (sender === 'bot' && this.config.features.typing_animation) {
-                this.animateText($message.find('.message-content'), processedMessage);
-            }
-            
-            // Update conversation history
-            this.conversationHistory.push({
-                id: messageId,
-                sender: sender,
-                message: message,
-                metadata: metadata,
-                timestamp: Date.now()
-            });
-            
-            // Scroll to bottom
-            this.scrollToBottom();
-            
-            // Play sound if enabled
-            if (this.config.features.sound_notifications && sender === 'bot') {
-                this.playNotificationSound();
-            }
-        },
-        
-        /**
-         * Process message content
-         */
-        processMessageContent: function(message) {
-            // Convert line breaks
-            message = message.replace(/\n/g, '<br>');
-            
-            // Process markdown-like syntax
-            message = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            message = message.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            message = message.replace(/`(.*?)`/g, '<code>$1</code>');
-            
-            // Process lists
-            message = message.replace(/^• (.*?)$/gm, '<li>$1</li>');
-            message = message.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-            
-            // Process links
-            message = message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-            
-            // Process emojis
-            message = this.processEmojis(message);
-            
-            return message;
-        },
-        
-        /**
-         * Show typing indicator
-         */
-        showTypingIndicator: function() {
-            $('#chatbot-typing-indicator').fadeIn(200);
-            this.scrollToBottom();
-        },
-        
-        /**
-         * Hide typing indicator
-         */
-        hideTypingIndicator: function() {
-            $('#chatbot-typing-indicator').fadeOut(200);
-        },
-        
-        /**
-         * Show suggestions
-         */
-        showSuggestions: function(suggestions) {
-            var html = '';
-            
-            suggestions.forEach(function(suggestion) {
-                html += `
-                    <button class="suggestion-chip" 
-                            data-text="${suggestion.text}"
-                            data-action="${suggestion.action || ''}">
-                        ${suggestion.icon || ''} ${suggestion.text}
-                    </button>
-                `;
-            });
-            
-            $('.suggestions-container').html(html);
-            $('#chatbot-suggestions').slideDown(200);
-        },
-        
-        /**
-         * Load quick actions
-         */
-        loadQuickActions: function() {
-            var self = this;
-            
-            Ajax.call([{
-                methodname: 'local_chatbot_get_quick_actions',
-                args: {
-                    context: JSON.stringify(this.currentContext)
-                },
-                done: function(actions) {
-                    if (actions && actions.length > 0) {
-                        self.displayQuickActions(actions);
-                    }
-                },
-                fail: function(error) {
-                    console.error('Failed to load quick actions:', error);
-                }
-            }]);
-        },
-        
-        /**
-         * Display quick actions
-         */
-        displayQuickActions: function(actions) {
-            var html = '';
-            
-            actions.forEach(function(action) {
-                html += `
-                    <button class="quick-action-btn" 
-                            data-action="${action.action}"
-                            data-url="${action.url || ''}"
-                            data-params="${JSON.stringify(action.params || {})}"
-                            title="${action.description || action.label}">
-                        <span class="quick-action-icon">${action.icon}</span>
-                        <span class="quick-action-label">${action.label}</span>
-                    </button>
-                `;
-            });
-            
-            $('.quick-actions-container').html(html);
-            $('#chatbot-quick-actions').show();
-        },
-        
-        /**
-         * Handle quick action
-         */
-        handleQuickAction: function(action, data) {
-            switch (action) {
-                case 'navigate':
-                    if (data.url) {
-                        window.location.href = data.url;
-                    }
-                    break;
-                    
-                case 'show_assignments':
-                    $('#chatbot-input').val('Muéstrame mis tareas pendientes');
-                    this.sendMessage();
-                    break;
-                    
-                case 'show_grades':
-                    $('#chatbot-input').val('Quiero ver mis calificaciones');
-                    this.sendMessage();
-                    break;
-                    
-                case 'show_calendar':
-                    $('#chatbot-input').val('Muéstrame el calendario');
-                    this.sendMessage();
-                    break;
-                    
-                default:
-                    // Custom action - send to server
-                    this.executeCustomAction(action, data);
-            }
-        },
-        
-        /**
-         * Provide feedback on message
-         */
-        provideFeedback: function(messageId, feedback) {
-            var self = this;
-            
-            // Visual feedback
-            var $buttons = $('[data-id="' + messageId + '"] .message-feedback button');
-            $buttons.prop('disabled', true);
-            $buttons.filter('[data-feedback="' + feedback + '"]').addClass('selected');
-            
-            // Send to server
-            Ajax.call([{
-                methodname: 'local_chatbot_feedback',
-                args: {
-                    messageid: messageId,
-                    feedback: feedback
-                },
-                done: function(response) {
-                    // Show thank you message
-                    self.showToast('¡Gracias por tu feedback!', 'success');
-                },
-                fail: function(error) {
-                    console.error('Failed to send feedback:', error);
-                }
-            }]);
-        },
-        
-        /**
-         * Get feedback buttons HTML
-         */
-        getFeedbackButtons: function(messageId) {
-            return `
-                <div class="message-feedback">
-                    <span class="feedback-label">¿Te fue útil?</span>
-                    <button data-feedback="helpful" title="Útil">👍</button>
-                    <button data-feedback="not_helpful" title="No útil">👎</button>
-                </div>
-            `;
-        },
-        
-        /**
-         * Auto-resize textarea
-         */
-        autoResizeTextarea: function(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-        },
-        
-        /**
-         * Update character count
-         */
-        updateCharCount: function() {
-            var count = $('#chatbot-input').val().length;
-            var limit = this.config.maxlength || 500;
+        }
 
-            $('#char-count').text(count);
-
-            if (count > limit) {
-                $('#chatbot-input').val(function(_, value) {
-                    return value.substring(0, limit);
-                });
-                count = limit;
-                $('#char-count').text(count);
-            }
-
-            if (count >= Math.round(limit * 0.9)) {
-                $('.chatbot-char-count').addClass('warning');
-            } else {
-                $('.chatbot-char-count').removeClass('warning');
-            }
-        },
-        
         /**
-         * Detect typing
+         * Execute a remote quick action.
+         *
+         * @param {string} action
          */
-        detectTyping: function() {
-            var self = this;
-            
-            clearTimeout(this.typingTimer);
-            
-            if (!this.isTyping) {
-                this.isTyping = true;
-                this.sendTypingStatus(true);
-            }
-            
-            this.typingTimer = setTimeout(function() {
-                self.isTyping = false;
-                self.sendTypingStatus(false);
-            }, 1000);
-        },
-        
-        /**
-         * Send typing status
-         */
-        sendTypingStatus: function(isTyping) {
-            // This could be used for real-time features
-            // For now, just for internal state management
-        },
-        
-        /**
-         * Scroll to bottom of messages
-         */
-        scrollToBottom: function() {
-            var container = $('#chatbot-messages')[0];
-            container.scrollTop = container.scrollHeight;
-        },
-        
-        /**
-         * Get current time formatted
-         */
-        getCurrentTime: function() {
-            var now = new Date();
-            return now.getHours().toString().padStart(2, '0') + ':' + 
-                   now.getMinutes().toString().padStart(2, '0');
-        },
-        
-        /**
-         * Load conversation history
-         */
-        loadConversationHistory: function() {
-            var self = this;
-            
-            Ajax.call([{
-                methodname: 'local_chatbot_get_history',
-                args: {
-                    sessionid: this.config.sessionid,
-                    limit: 20
-                },
-                done: function(history) {
-                    if (history && history.length > 0) {
-                        self.displayHistory(history);
-                    }
-                },
-                fail: function(error) {
-                    console.error('Failed to load history:', error);
-                }
-            }]);
-        },
-        
-        /**
-         * Display conversation history
-         */
-        displayHistory: function(history) {
-            var self = this;
-            
-            history.forEach(function(item) {
-                self.addMessage('user', item.message, {historical: true});
-                self.addMessage('bot', item.response, {historical: true});
-            });
-            
-            // Add separator
-            $('#chatbot-messages').append(
-                '<div class="history-separator">Conversación anterior</div>'
-            );
-        },
-        
-        /**
-         * Show welcome message
-         */
-        showWelcomeMessage: function() {
-            var hour = new Date().getHours();
-            var greeting;
-            
-            if (hour < 12) {
-                greeting = '¡Buenos días';
-            } else if (hour < 19) {
-                greeting = '¡Buenas tardes';
-            } else {
-                greeting = '¡Buenas noches';
-            }
-            
-            var firstname = this.config.username ? this.config.username.split(' ')[0] : '';
-            var template = this.config.strings.welcome || '';
-            var welcomeMessage = greeting + ', ' + firstname + '! 👋\n\n' + template.replace('{name}', firstname);
-
-            this.addMessage('bot', welcomeMessage.trim(), {system: true});
-        },
-        
-        /**
-         * Export conversation
-         */
-        exportConversation: function() {
-            if (!this.config.permissions.canexport) {
-                return;
-            }
-
-            var self = this;
-
-            Ajax.call([{
-                methodname: 'local_chatbot_export_conversation',
-                args: {
-                    sessionid: this.config.sessionid,
-                    format: 'html'
-                },
-                done: function(data) {
-                    self.downloadFile('conversacion_' + Date.now() + '.html', data, 'text/html');
-                    self.showToast('Conversación exportada exitosamente', 'success');
-                },
-                fail: function(error) {
-                    self.showToast('Error al exportar la conversación', 'error');
-                }
-            }]);
-        },
-        
-        /**
-         * Download file
-         */
-        downloadFile: function(filename, content, mimeType) {
-            var blob = new Blob([content], {type: mimeType});
-            var url = window.URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        },
-        
-        /**
-         * Initialize keyboard shortcuts
-         */
-        initKeyboardShortcuts: function() {
-            var self = this;
-            
-            $(document).on('keydown', function(e) {
-                // Ctrl/Cmd + Shift + C: Toggle chatbot
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 67) {
-                    e.preventDefault();
-                    self.toggleChatbot();
-                }
-                
-                // ESC: Close chatbot
-                if (e.keyCode === 27 && self.isOpen) {
-                    self.closeChatbot();
-                }
-            });
-        },
-        
-        /**
-         * Initialize idle detection
-         */
-        initIdleDetection: function() {
-            var self = this;
-            var idleTime = 0;
-            
-            setInterval(function() {
-                idleTime++;
-                
-                // After 5 minutes of inactivity
-                if (idleTime > 5 && self.isOpen) {
-                    self.addMessage('bot', 
-                        '¿Sigues ahí? Si necesitas algo más, no dudes en preguntarme. 😊',
-                        {system: true}
-                    );
-                    idleTime = 0;
-                }
-            }, 60000); // Check every minute
-            
-            // Reset idle time on activity
-            $(document).on('mousemove keypress', function() {
-                idleTime = 0;
-            });
-        },
-        
-        /**
-         * Monitor connection
-         */
-        monitorConnection: function() {
-            var self = this;
-            
-            window.addEventListener('online', function() {
-                self.updateConnectionStatus(true);
-            });
-            
-            window.addEventListener('offline', function() {
-                self.updateConnectionStatus(false);
-            });
-        },
-        
-        /**
-         * Update connection status
-         */
-        updateConnectionStatus: function(isOnline) {
-            if (isOnline) {
-                $('.chatbot-status').text('En línea y listo para ayudar');
-                $('.chatbot-status-indicator').removeClass('offline');
-            } else {
-                $('.chatbot-status').text('Sin conexión');
-                $('.chatbot-status-indicator').addClass('offline');
-                this.showToast('Sin conexión a internet', 'warning');
-            }
-        },
-        
-        /**
-         * Show toast notification
-         */
-        showToast: function(message, type) {
-            var toast = $('<div class="chatbot-toast chatbot-toast-' + type + '">' + message + '</div>');
-            $('body').append(toast);
-            
-            toast.fadeIn(300);
-            
-            setTimeout(function() {
-                toast.fadeOut(300, function() {
-                    $(this).remove();
-                });
-            }, 3000);
-        },
-        
-        /**
-         * Apply theme styles
-         */
-        applyTheme: function() {
-            // Theme-specific customizations can be added here
-            var theme = this.config.theme;
-            
-            switch (theme) {
-                case 'dark':
-                    $('#chatbot-widget').addClass('theme-dark');
-                    break;
-                case 'minimal':
-                    $('#chatbot-widget').addClass('theme-minimal');
-                    break;
-                case 'colorful':
-                    $('#chatbot-widget').addClass('theme-colorful');
-                    break;
-                default:
-                    // Modern theme (default)
-                    break;
-            }
-        },
-        
-        /**
-         * Update context
-         */
-        updateContext: function(newContext) {
-            Object.assign(this.currentContext, newContext);
-        },
-        
-        /**
-         * Update contextual content
-         */
-        updateContextualContent: function() {
-            // Refresh quick actions and suggestions based on current context
-            if (this.config.features.quick_actions) {
-                this.loadQuickActions();
-            }
-            
-            if (this.config.features.suggestions) {
-                this.loadSuggestions();
-            }
-        },
-        
-        /**
-         * Load suggestions
-         */
-        loadSuggestions: function() {
-            var self = this;
-            
-            Ajax.call([{
-                methodname: 'local_chatbot_get_suggestions',
-                args: {
-                    context: JSON.stringify(this.currentContext)
-                },
-                done: function(suggestions) {
-                    if (suggestions && suggestions.length > 0) {
-                        self.showSuggestions(suggestions);
-                    }
-                },
-                fail: function(error) {
-                    console.error('Failed to load suggestions:', error);
-                }
-            }]);
-        },
-        
-        /**
-         * Mark messages as read
-         */
-        markMessagesAsRead: function() {
-            // Implementation for marking messages as read
-            // Could be used for notification badges
-        },
-        
-        /**
-         * Process emojis in text
-         */
-        processEmojis: function(text) {
-            var emojiMap = {
-                ':)': '😊',
-                ':-)': '😊',
-                ':(': '😞',
-                ':-(': '😞',
-                ':D': '😃',
-                ':-D': '😃',
-                ':P': '😛',
-                ':-P': '😛',
-                ';)': '😉',
-                ';-)': '😉',
-                ':o': '😮',
-                ':-o': '😮',
-                ':|': '😐',
-                ':-|': '😐',
-                '<3': '❤️',
-                '</3': '💔',
-                ':*': '😘',
-                ':-*': '😘'
-            };
-            
-            for (var emoji in emojiMap) {
-                text = text.replace(new RegExp(emoji.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), emojiMap[emoji]);
-            }
-            
-            return text;
-        },
-        
-        /**
-         * Animate text character by character
-         */
-        animateText: function($element, text) {
-            // Simple implementation - can be enhanced
-            $element.html(text);
-        },
-        
-        /**
-         * Play notification sound
-         */
-        playNotificationSound: function() {
-            // Implementation for playing sound
-            // Would need audio file
-        },
-        
-        /**
-         * Execute custom action
-         */
-        executeCustomAction: function(action, data) {
-            // Send custom action to server for processing
-            var self = this;
-            
+        executeAction(action) {
+            const self = this;
             Ajax.call([{
                 methodname: 'local_chatbot_execute_action',
                 args: {
                     action: action,
-                    params: JSON.stringify(data.params || {})
+                    params: '{}',
                 },
                 done: function(response) {
                     if (response.message) {
-                        self.addMessage('bot', response.message, {action_response: true});
+                        self.addMessage('bot', response.message);
                     }
                 },
-                fail: function(error) {
-                    self.showToast('Error al ejecutar la acción', 'error');
-                }
+                fail: Notification.exception,
             }]);
-        },
-        
+        }
+
         /**
-         * Execute actions from response
+         * Export the current conversation.
          */
-        executeActions: function(actions) {
-            var self = this;
-            
-            actions.forEach(function(action) {
-                switch (action.type) {
-                    case 'navigate':
-                        setTimeout(function() {
-                            window.location.href = action.url;
-                        }, action.delay || 1000);
-                        break;
-                        
-                    case 'open_modal':
-                        // Implementation for opening modal
-                        break;
-                        
-                    case 'show_notification':
-                        self.showToast(action.message, action.level || 'info');
-                        break;
-                        
-                    default:
-                        console.log('Unknown action type:', action.type);
-                }
-            });
-        },
-        
+        exportConversation() {
+            const self = this;
+            Ajax.call([{
+                methodname: 'local_chatbot_export_conversation',
+                args: {
+                    sessionid: this.sessionid,
+                    format: 'html',
+                },
+                done: function(data) {
+                    const blob = new Blob([data.content], {type: 'text/html'});
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'chatbot-conversation.html';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                },
+                fail: Notification.exception,
+            }]);
+        }
+
         /**
-         * Start voice input
+         * Render suggestion chips.
+         *
+         * @param {Array} suggestions
          */
-        startVoiceInput: function() {
-            var self = this;
-            
-            if (!('webkitSpeechRecognition' in window)) {
-                this.showToast('Tu navegador no soporta entrada de voz', 'warning');
+        renderSuggestions(suggestions) {
+            const container = this.$suggestions.find('.suggestions-container');
+            container.empty();
+
+            if (!suggestions.length) {
+                this.$suggestions.hide();
                 return;
             }
-            
-            var recognition = new webkitSpeechRecognition();
-            recognition.lang = this.config.language || 'es-ES';
-            recognition.interimResults = true;
-            recognition.maxAlternatives = 1;
-            
-            recognition.onstart = function() {
-                $('.chatbot-btn-voice').addClass('recording');
-                self.showToast('Escuchando...', 'info');
-            };
-            
-            recognition.onresult = function(event) {
-                var transcript = event.results[0][0].transcript;
-                $('#chatbot-input').val(transcript);
-                self.updateCharCount();
-            };
-            
-            recognition.onerror = function(event) {
-                $('.chatbot-btn-voice').removeClass('recording');
-                self.showToast('Error en el reconocimiento de voz', 'error');
-            };
-            
-            recognition.onend = function() {
-                $('.chatbot-btn-voice').removeClass('recording');
-            };
-            
-            recognition.start();
-        },
-        
+
+            suggestions.forEach(function(suggestion) {
+                const chip = createElement(
+                    '<button type="button" class="suggestion-chip"></button>'
+                );
+                chip.text((suggestion.icon || '') + ' ' + suggestion.text);
+                chip.attr('data-text', suggestion.text);
+                chip.attr('data-action', suggestion.action || '');
+                container.append(chip);
+            });
+
+            this.$suggestions.show();
+        }
+
         /**
-         * Toggle emoji picker
+         * Render quick action buttons.
+         *
+         * @param {Array} actions
          */
-        toggleEmojiPicker: function() {
-            // Simple emoji picker implementation
-            var emojis = ['😊', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😉', '😇',
-                         '😍', '🥰', '😘', '😗', '😙', '😚', '🙂', '🤗', '🤔', '🤐',
-                         '😐', '😑', '😶', '🙄', '😏', '😣', '😥', '😮', '🤯', '😪',
-                         '😫', '😴', '😌', '😛', '😜', '😝', '🤤', '😒', '😓', '😔'];
-            
-            if ($('#emoji-picker').length === 0) {
-                var picker = $('<div id="emoji-picker" class="emoji-picker"></div>');
-                
-                emojis.forEach(function(emoji) {
-                    picker.append('<span class="emoji-option">' + emoji + '</span>');
-                });
-                
-                $('#chatbot-footer').append(picker);
-                
-                $('.emoji-option').on('click', function() {
-                    var emoji = $(this).text();
-                    var currentText = $('#chatbot-input').val();
-                    $('#chatbot-input').val(currentText + emoji).trigger('input');
-                    $('#emoji-picker').hide();
-                });
-            } else {
-                $('#emoji-picker').toggle();
+        renderQuickActions(actions) {
+            const container = this.$quickActions.find('.quick-actions-container');
+            container.empty();
+
+            if (!actions.length) {
+                this.$quickActions.hide();
+                return;
+            }
+
+            actions.forEach(function(action) {
+                const button = createElement(
+                    '<button type="button" class="quick-action-btn"></button>'
+                );
+                button.attr('data-action', action.action);
+                button.attr('data-url', action.url || '');
+                button.html('<span class="quick-action-icon">' + (action.icon || '') + '</span>' +
+                    '<span class="quick-action-label">' + action.label + '</span>');
+                container.append(button);
+            });
+
+            this.$quickActions.show();
+        }
+
+        /**
+         * Append a message bubble to the conversation.
+         *
+         * @param {string} sender
+         * @param {string} message
+         * @param {Object} [meta]
+         */
+        addMessage(sender, message, meta) {
+            meta = meta || {};
+            const messageId = meta.logid ? 'log-' + meta.logid : 'msg-' + Date.now();
+            const classes = ['chatbot-message'];
+            classes.push(sender === 'user' ? 'chatbot-message-user' : 'chatbot-message-bot');
+            if (meta.system) {
+                classes.push('chatbot-message-system');
+            }
+
+            const avatar = sender === 'user' ? this.config.avatar : '🤖';
+            const header = sender === 'user' ? this.config.username : this.config.strings.title;
+            const timestamp = meta.timestamp ? formatTime(meta.timestamp) : formatTime(Math.floor(Date.now() / 1000));
+
+            const template = `
+                <div class="${classes.join(' ')}" data-id="${messageId}">
+                    <div class="message-avatar" aria-hidden="true">${avatar}</div>
+                    <div class="message-content-wrapper">
+                        <div class="message-header">
+                            <span class="message-author">${header}</span>
+                            <span class="message-time">${timestamp}</span>
+                        </div>
+                        <div class="message-content">${this.escape(message)}</div>
+                        ${meta.intent ? `<div class="message-intent">${meta.intent}</div>` : ''}
+                    </div>
+                </div>`;
+
+            const $message = createElement(template);
+            this.$messages.append($message);
+            this.scrollToBottom();
+
+            if (!this.isOpen && sender === 'bot') {
+                this.incrementBadge();
             }
         }
-    };
-    
+
+        /**
+         * Escape HTML entities.
+         *
+         * @param {string} text
+         * @return {string}
+         */
+        escape(text) {
+            return $('<div>').text(text).html().replace(/\n/g, '<br>');
+        }
+
+        /**
+         * Scroll the conversation pane to the bottom.
+         */
+        scrollToBottom() {
+            this.$messages.scrollTop(this.$messages.prop('scrollHeight'));
+        }
+
+        /**
+         * Display typing indicator.
+         */
+        showTyping() {
+            this.$typing.show();
+            this.scrollToBottom();
+        }
+
+        /**
+         * Hide typing indicator.
+         */
+        hideTyping() {
+            this.$typing.hide();
+        }
+
+        /**
+         * Automatically resize the textarea.
+         */
+        autoResizeTextarea() {
+            this.$input.outerHeight(0);
+            const newHeight = Math.min(this.$input.prop('scrollHeight'), 120);
+            this.$input.outerHeight(newHeight);
+        }
+
+        /**
+         * Update the character counter.
+         */
+        updateCharCount() {
+            const length = this.$input.val().length;
+            this.$charcount.text(length);
+        }
+
+        /**
+         * Increase unread badge counter.
+         */
+        incrementBadge() {
+            const current = parseInt(this.$badge.attr('data-count'), 10) || 0;
+            const next = current + 1;
+            this.$badge.attr('data-count', next);
+            this.$badge.text(next).attr('aria-hidden', next ? 'false' : 'true');
+        }
+
+        /**
+         * Clear unread badge.
+         */
+        clearBadge() {
+            this.$badge.attr('data-count', 0);
+            this.$badge.text('0').attr('aria-hidden', 'true');
+        }
+    }
+
     return {
+        /**
+         * Initialise the widget.
+         *
+         * @param {Object} config
+         */
         init: function(config) {
-            IntelligentChatbot.init(config);
+            const widget = new ChatbotWidget(config || {});
+            widget.init();
         }
     };
 });

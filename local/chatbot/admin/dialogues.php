@@ -18,7 +18,7 @@
  * Placeholder administration page for multi-turn dialogues.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
