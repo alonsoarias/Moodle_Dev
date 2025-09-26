@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+define(['jquery', 'core/ajax', 'core/notification'], function ($, Ajax, Notification) {
     'use strict';
 
     /**
@@ -30,7 +30,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
      * @param {string} html
      * @return {JQuery}
      */
-    const createElement = function(html) {
+    const createElement = function (html) {
         return $(html.trim());
     };
 
@@ -40,9 +40,9 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
      * @param {number} timestamp
      * @return {string}
      */
-    const formatTime = function(timestamp) {
+    const formatTime = function (timestamp) {
         const date = new Date(timestamp * 1000);
-        return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
     /**
@@ -50,7 +50,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
      *
      * @return {number}
      */
-    const nowInSeconds = function() {
+    const nowInSeconds = function () {
         return Math.floor(Date.now() / 1000);
     };
 
@@ -111,35 +111,35 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         bindEvents() {
             const self = this;
 
-            this.$launcher.on('click', function() {
+            this.$launcher.on('click', function () {
                 self.toggle();
             });
 
-            this.$send.on('click', function() {
+            this.$send.on('click', function () {
                 self.sendMessage();
             });
 
-            this.$input.on('keydown', function(event) {
+            this.$input.on('keydown', function (event) {
                 if (event.key === 'Enter' && !event.shiftKey) {
                     event.preventDefault();
                     self.sendMessage();
                 }
             });
 
-            this.$input.on('input', function() {
+            this.$input.on('input', function () {
                 self.updateCharCount();
                 self.autoResizeTextarea();
             });
 
-            this.$widget.on('click', '.chatbot-btn-close, .chatbot-btn-minimize', function() {
+            this.$widget.on('click', '.chatbot-btn-close, .chatbot-btn-minimize', function () {
                 self.close();
             });
 
-            this.$widget.on('click', '.chatbot-btn-export', function() {
+            this.$widget.on('click', '.chatbot-btn-export', function () {
                 self.exportConversation();
             });
 
-            this.$widget.on('click', '.suggestion-chip', function() {
+            this.$widget.on('click', '.suggestion-chip', function () {
                 const text = $(this).data('text');
                 const mode = $(this).data('mode');
                 const target = $(this).data('target');
@@ -153,17 +153,17 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 }
             });
 
-            this.$widget.on('click', '.quick-action-btn', function() {
+            this.$widget.on('click', '.quick-action-btn', function () {
                 const key = $(this).data('key');
                 self.handleQuickAction(key, $(this));
             });
 
-            this.$widget.on('click', '.feedback-btn', function() {
+            this.$widget.on('click', '.feedback-btn', function () {
                 const $btn = $(this);
                 const $wrapper = $btn.closest('.message-feedback');
                 const logid = $wrapper.data('logid');
                 const feedback = $btn.data('feedback');
-                
+
                 self.submitFeedback(logid, feedback);
                 $wrapper.find('.feedback-btn').removeClass('active');
                 $btn.addClass('active');
@@ -182,7 +182,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 this.$input.val(message.slice(0, this.maxlength));
             }
 
-            this.addMessage('user', message, {timestamp: nowInSeconds()});
+            this.addMessage('user', message, { timestamp: nowInSeconds() });
             this.$input.val('').trigger('input');
             this.showTyping();
 
@@ -194,7 +194,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     sessionid: this.sessionid,
                     context: '{}',
                 },
-                done: function(response) {
+                done: function (response) {
                     self.sessionid = response.sessionid;
                     self.hideTyping();
                     self.addMessage('bot', response.response, {
@@ -206,7 +206,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     self.renderSuggestions(response.suggestions || []);
                     self.renderQuickActions(response.actions || []);
                 },
-                fail: function(error) {
+                fail: function (error) {
                     self.hideTyping();
                     self.addMessage('bot', self.config.strings.error || 'There was an error.', {
                         timestamp: nowInSeconds()
@@ -229,9 +229,9 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     action: action,
                     params: '{}',
                 },
-                done: function(response) {
+                done: function (response) {
                     if (response.message) {
-                        self.addMessage('bot', response.message, {timestamp: nowInSeconds()});
+                        self.addMessage('bot', response.message, { timestamp: nowInSeconds() });
                     }
                 },
                 fail: Notification.exception,
@@ -249,8 +249,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     sessionid: this.sessionid,
                     format: 'html',
                 },
-                done: function(data) {
-                    const blob = new Blob([data.content], {type: 'text/html'});
+                done: function (data) {
+                    const blob = new Blob([data.content], { type: 'text/html' });
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
@@ -277,10 +277,10 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     logid: logid,
                     feedback: feedback,
                 },
-                done: function() {
+                done: function () {
                     // Silently succeed.
                 },
-                fail: function() {
+                fail: function () {
                     // Silently fail.
                 },
             }]);
@@ -300,7 +300,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 return;
             }
 
-            suggestions.forEach(function(suggestion) {
+            suggestions.forEach(function (suggestion) {
                 const chip = createElement(
                     '<button type="button" class="suggestion-chip"></button>'
                 );
@@ -330,7 +330,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             }
 
             const self = this;
-            actions.forEach(function(action) {
+            actions.forEach(function (action) {
                 self.quickActions[action.actionkey] = action;
                 const button = createElement(
                     '<button type="button" class="quick-action-btn"></button>'
@@ -436,7 +436,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 this.incrementBadge();
             }
         }
-        
+
         /**
          * Show typing indicator.
          */
@@ -444,14 +444,14 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             this.$typing.show();
             this.scrollToBottom();
         }
-        
+
         /**
          * Hide typing indicator.
          */
         hideTyping() {
             this.$typing.hide();
         }
-        
+
         /**
          * Scroll messages to bottom.
          */
@@ -464,7 +464,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 messages.scrollTop = messages.scrollHeight;
             }
         }
-        
+
         /**
          * Update character count display.
          */
@@ -496,7 +496,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             textarea.style.height = 'auto';
             textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         }
-        
+
         /**
          * Restore launcher state from localStorage.
          */
@@ -512,7 +512,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
 
             this.$container.show();
         }
-        
+
         /**
          * Toggle widget open/closed.
          */
@@ -523,7 +523,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 this.open();
             }
         }
-        
+
         /**
          * Open the widget.
          */
@@ -538,7 +538,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 localStorage.setItem(this.config.storagekey, 'open');
             }
         }
-        
+
         /**
          * Close the widget.
          */
@@ -568,13 +568,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             const welcomeText = $('#local-chatbot-welcome').val();
             if (welcomeText) {
                 const parsedWelcome = welcomeText.replace('{name}', this.config.username);
-                this.addMessage('bot', parsedWelcome, {history: true});
+                this.addMessage('bot', parsedWelcome, { history: true });
                 if (window.sessionStorage) {
                     sessionStorage.setItem('chatbot_welcome_shown', 'true');
                 }
             }
         }
-        
+
         /**
          * Load conversation history.
          */
@@ -586,13 +586,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     sessionid: this.sessionid,
                     limit: 10
                 },
-                done: function(history) {
+                done: function (history) {
                     if (history.length > 0) {
                         const separator = createElement('<div class="history-separator">Previous messages</div>');
                         self.$messages.prepend(separator);
-                        
-                        history.forEach(function(item) {
-                            const metadata = {timestamp: item.timestamp, history: true};
+
+                        history.forEach(function (item) {
+                            const metadata = { timestamp: item.timestamp, history: true };
                             self.addMessage('user', item.message, metadata);
                             self.addMessage('bot', item.response, {
                                 intent: item.intent,
@@ -602,7 +602,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         });
                     }
                 },
-                fail: function() {
+                fail: function () {
                     // Silently fail if history cannot be loaded.
                 }
             }]);
@@ -621,9 +621,9 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         context: '{}'
                     }
                 }
-            ])[0].then(function(suggestions) {
+            ])[0].then(function (suggestions) {
                 self.renderSuggestions(suggestions || []);
-            }).catch(function(error) {
+            }).catch(function (error) {
                 if (error) {
                     Notification.exception(error);
                 }
@@ -636,9 +636,9 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         context: '{}'
                     }
                 }
-            ])[0].then(function(actions) {
+            ])[0].then(function (actions) {
                 self.renderQuickActions(actions || []);
-            }).catch(function(error) {
+            }).catch(function (error) {
                 if (error) {
                     Notification.exception(error);
                 }
@@ -682,17 +682,17 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             this.$badge.attr('aria-hidden', 'true');
         }
     }
-    
+
     /**
      * Module initialization.
      * 
      * @param {Object} config
      */
-    const init = function(config) {
+    const init = function (config) {
         const widget = new ChatbotWidget(config);
         widget.init();
     };
-    
+
     return {
         init: init
     };
