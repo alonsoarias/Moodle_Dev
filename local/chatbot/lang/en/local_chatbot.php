@@ -59,8 +59,8 @@ $string['chatbot_action_generic'] = 'Action executed: {$a}';
 
 // Responses.
 $string['chatbot_response_greeting'] = 'Hello! 👋 How can I help you today?';
-$string['chatbot_response_help'] = 'I can help you locate courses, grades and useful links. Try asking “Where do I see my grades?”';
-$string['chatbot_response_courses'] = 'Open the “My courses” menu at the top of the site to see your enrolled courses.';
+$string['chatbot_response_help'] = 'I can help you locate courses, grades and useful links. Try asking "Where do I see my grades?"';
+$string['chatbot_response_courses'] = 'Open the "My courses" menu at the top of the site to see your enrolled courses.';
 $string['chatbot_response_grades'] = 'Visit the grades page from the user menu or open the Grades option inside each course.';
 
 // Export.
@@ -70,6 +70,9 @@ $string['message'] = 'Message';
 $string['response'] = 'Response';
 $string['intent'] = 'Intent';
 $string['feedback'] = 'Feedback';
+$string['download'] = 'Download';
+$string['time'] = 'Time';
+$string['user'] = 'User';
 
 // Settings.
 $string['setting_enabled'] = 'Enable chatbot';
@@ -86,7 +89,7 @@ $string['theme_modern'] = 'Modern';
 $string['theme_minimal'] = 'Minimal';
 $string['theme_dark'] = 'Dark';
 $string['setting_welcome'] = 'Welcome message';
-$string['setting_welcome_desc'] = 'Message displayed the first time a user opens the widget.';
+$string['setting_welcome_desc'] = 'Message displayed the first time a user opens the widget. Use {name} for the user name.';
 $string['setting_nomatch'] = 'Fallback response';
 $string['setting_nomatch_desc'] = 'Message sent when the chatbot cannot match a question.';
 $string['setting_maxlength'] = 'Maximum message length';

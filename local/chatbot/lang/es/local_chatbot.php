@@ -8,11 +8,11 @@
 //
 // Moodle se distribuye con la esperanza de que sea útil,
 // pero SIN NINGUNA GARANTÍA; ni siquiera la garantía implícita
-// de COMERCIABILIDAD o IDONEIDAD PARA UN PROPÓSITO PARTICULAR.  Véase la
+// de COMERCIABILIDAD o IDONEIDAD PARA UN PROPÓSITO PARTICULAR. Véase la
 // Licencia Pública General de GNU para más detalles.
 //
 // Deberías haber recibido una copia de la Licencia Pública General de GNU
-// junto con Moodle.  Si no, consulta <http://www.gnu.org/licenses/>.
+// junto con Moodle. Si no, consulta <http://www.gnu.org/licenses/>.
 
 /**
  * Cadenas en español para el plugin local_chatbot.
@@ -59,8 +59,8 @@ $string['chatbot_action_generic'] = 'Acción ejecutada: {$a}';
 
 // Respuestas rápidas.
 $string['chatbot_response_greeting'] = '¡Hola! 👋 ¿En qué puedo ayudarte hoy?';
-$string['chatbot_response_help'] = 'Puedo ayudarte a encontrar cursos, calificaciones y enlaces útiles. Por ejemplo pregunta “¿Dónde veo mis calificaciones?”';
-$string['chatbot_response_courses'] = 'Abre el menú “Mis cursos” en la parte superior para ver tus asignaturas inscritas.';
+$string['chatbot_response_help'] = 'Puedo ayudarte a encontrar cursos, calificaciones y enlaces útiles. Por ejemplo pregunta "¿Dónde veo mis calificaciones?"';
+$string['chatbot_response_courses'] = 'Abre el menú "Mis cursos" en la parte superior para ver tus asignaturas inscritas.';
 $string['chatbot_response_grades'] = 'Accede al reporte de calificaciones desde el menú de usuario o dentro de cada curso.';
 
 // Exportación.
@@ -70,6 +70,9 @@ $string['message'] = 'Mensaje';
 $string['response'] = 'Respuesta';
 $string['intent'] = 'Intención';
 $string['feedback'] = 'Retroalimentación';
+$string['download'] = 'Descargar';
+$string['time'] = 'Hora';
+$string['user'] = 'Usuario';
 
 // Configuración.
 $string['setting_enabled'] = 'Habilitar chatbot';
@@ -86,7 +89,7 @@ $string['theme_modern'] = 'Moderno';
 $string['theme_minimal'] = 'Minimalista';
 $string['theme_dark'] = 'Oscuro';
 $string['setting_welcome'] = 'Mensaje de bienvenida';
-$string['setting_welcome_desc'] = 'Mensaje que se muestra al abrir el chatbot por primera vez.';
+$string['setting_welcome_desc'] = 'Mensaje que se muestra al abrir el chatbot por primera vez. Usa {name} para el nombre del usuario.';
 $string['setting_nomatch'] = 'Respuesta por defecto';
 $string['setting_nomatch_desc'] = 'Mensaje enviado cuando el chatbot no reconoce la pregunta.';
 $string['setting_maxlength'] = 'Longitud máxima del mensaje';

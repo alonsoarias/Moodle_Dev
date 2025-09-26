@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Hook callbacks for local_chatbot
+ * Hook callbacks for local_chatbot.
  *
  * @package    local_chatbot
- * @copyright  2025 Your Name
+ * @copyright  2024 Moodle Community
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,7 +26,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $callbacks = [
     [
-        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'hook' => '\core\hook\output\before_footer_html_generation',
         'callback' => 'local_chatbot_before_footer_html_generation',
+        'priority' => 100,
     ],
 ];
