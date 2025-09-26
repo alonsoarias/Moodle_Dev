@@ -46,6 +46,15 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
     };
 
     /**
+     * Return the current timestamp in seconds.
+     *
+     * @return {number}
+     */
+    const nowInSeconds = function() {
+        return Math.floor(Date.now() / 1000);
+    };
+
+    /**
      * Controller class for the floating widget.
      */
     class ChatbotWidget {
@@ -173,7 +182,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 this.$input.val(message.slice(0, this.maxlength));
             }
 
-            this.addMessage('user', message);
+            this.addMessage('user', message, {timestamp: nowInSeconds()});
             this.$input.val('').trigger('input');
             this.showTyping();
 
@@ -192,13 +201,16 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         intent: response.intent,
                         logid: response.logid,
                         responseTime: response.response_time,
+                        timestamp: response.timestamp,
                     });
                     self.renderSuggestions(response.suggestions || []);
                     self.renderQuickActions(response.actions || []);
                 },
                 fail: function(error) {
                     self.hideTyping();
-                    self.addMessage('bot', self.config.strings.error || 'There was an error.');
+                    self.addMessage('bot', self.config.strings.error || 'There was an error.', {
+                        timestamp: nowInSeconds()
+                    });
                     Notification.exception(error);
                 },
             }]);
@@ -219,7 +231,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 },
                 done: function(response) {
                     if (response.message) {
-                        self.addMessage('bot', response.message);
+                        self.addMessage('bot', response.message, {timestamp: nowInSeconds()});
                     }
                 },
                 fail: Notification.exception,
@@ -339,32 +351,32 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          */
         addMessage(sender, text, metadata) {
             metadata = metadata || {};
-            
+
             const messageWrapper = createElement('<div class="chatbot-message chatbot-message-' + sender + '"></div>');
-            
+
             if (sender === 'bot') {
                 const avatar = createElement('<div class="message-avatar bot-avatar"><span>🤖</span></div>');
                 messageWrapper.append(avatar);
             }
-            
+
             const contentWrapper = createElement('<div class="message-content-wrapper"></div>');
-            
+
             if (sender === 'user') {
                 const header = createElement('<div class="message-header"></div>');
                 header.append('<span class="message-sender">' + this.config.username + '</span>');
-                header.append('<span class="message-time">' + formatTime(Date.now() / 1000) + '</span>');
+                header.append('<span class="message-time">' + this.getMessageTime(metadata) + '</span>');
                 contentWrapper.append(header);
             }
-            
+
             const content = createElement('<div class="message-content"></div>');
             content.text(text);
             contentWrapper.append(content);
-            
+
             if (sender === 'bot' && metadata.intent) {
                 const intent = createElement('<div class="message-intent">Intent: ' + metadata.intent + '</div>');
                 contentWrapper.append(intent);
             }
-            
+
             if (sender === 'bot' && metadata.logid) {
                 const feedback = createElement('<div class="message-feedback" data-logid="' + metadata.logid + '"></div>');
                 feedback.html(
@@ -374,18 +386,22 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 );
                 contentWrapper.append(feedback);
             }
-            
+
             if (sender === 'user') {
-                const avatar = createElement('<div class="message-avatar user-avatar"><span>' + 
+                const avatar = createElement('<div class="message-avatar user-avatar"><span>' +
                     this.config.avatar + '</span></div>');
                 messageWrapper.append(contentWrapper);
                 messageWrapper.append(avatar);
             } else {
                 messageWrapper.append(contentWrapper);
             }
-            
+
             this.$messages.append(messageWrapper);
             this.scrollToBottom();
+
+            if (sender === 'bot' && !this.isOpen && !metadata.history) {
+                this.incrementBadge();
+            }
         }
         
         /**
@@ -407,32 +423,43 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Scroll messages to bottom.
          */
         scrollToBottom() {
+            if (!this.$messages.length) {
+                return;
+            }
             const messages = this.$messages[0];
-            messages.scrollTop = messages.scrollHeight;
+            if (messages) {
+                messages.scrollTop = messages.scrollHeight;
+            }
         }
         
         /**
          * Update character count display.
          */
         updateCharCount() {
-            const current = this.$input.val().length;
+            const current = this.$input.length ? this.$input.val().length : 0;
             const $current = $('#char-current');
             const $charcount = this.$charcount;
-            
+
             $current.text(current);
-            
+
             if (current > this.maxlength * 0.9) {
                 $charcount.addClass('warning');
             } else {
                 $charcount.removeClass('warning');
             }
         }
-        
+
         /**
          * Auto-resize textarea based on content.
          */
         autoResizeTextarea() {
+            if (!this.$input.length) {
+                return;
+            }
             const textarea = this.$input[0];
+            if (!textarea) {
+                return;
+            }
             textarea.style.height = 'auto';
             textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         }
@@ -441,16 +468,15 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Restore launcher state from localStorage.
          */
         restoreLauncherState() {
-            if (!window.localStorage) {
-                return;
+            let state = null;
+            if (window.localStorage) {
+                state = localStorage.getItem(this.config.storagekey);
             }
-            
-            const state = localStorage.getItem(this.config.storagekey);
+
             if (state === 'open') {
                 this.open();
             }
-            
-            // Show widget after initialization.
+
             this.$container.show();
         }
         
@@ -473,8 +499,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             this.$container.addClass('chatbot-active');
             this.$widget.attr('aria-hidden', 'false');
             this.$input.focus();
-            this.$badge.attr('data-count', '0');
-            
+            this.resetBadge();
+
             if (window.localStorage) {
                 localStorage.setItem(this.config.storagekey, 'open');
             }
@@ -487,22 +513,30 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             this.isOpen = false;
             this.$container.removeClass('chatbot-active');
             this.$widget.attr('aria-hidden', 'true');
-            
+
             if (window.localStorage) {
                 localStorage.setItem(this.config.storagekey, 'closed');
             }
         }
-        
+
         /**
          * Add welcome message if first visit.
          */
         addWelcomeMessage() {
-            const welcomeShown = sessionStorage.getItem('chatbot_welcome_shown');
-            if (!welcomeShown) {
-                const welcomeText = $('#local-chatbot-welcome').val();
-                if (welcomeText) {
-                    const parsedWelcome = welcomeText.replace('{name}', this.config.username);
-                    this.addMessage('bot', parsedWelcome);
+            let welcomeShown = false;
+            if (window.sessionStorage) {
+                welcomeShown = sessionStorage.getItem('chatbot_welcome_shown') === 'true';
+            }
+
+            if (welcomeShown) {
+                return;
+            }
+
+            const welcomeText = $('#local-chatbot-welcome').val();
+            if (welcomeText) {
+                const parsedWelcome = welcomeText.replace('{name}', this.config.username);
+                this.addMessage('bot', parsedWelcome, {history: true});
+                if (window.sessionStorage) {
                     sessionStorage.setItem('chatbot_welcome_shown', 'true');
                 }
             }
@@ -525,8 +559,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         self.$messages.prepend(separator);
                         
                         history.forEach(function(item) {
-                            self.addMessage('user', item.message);
-                            self.addMessage('bot', item.response, {intent: item.intent});
+                            const metadata = {timestamp: item.timestamp, history: true};
+                            self.addMessage('user', item.message, metadata);
+                            self.addMessage('bot', item.response, {
+                                intent: item.intent,
+                                timestamp: item.timestamp,
+                                history: true
+                            });
                         });
                     }
                 },
@@ -534,6 +573,43 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     // Silently fail if history cannot be loaded.
                 }
             }]);
+        }
+
+        /**
+         * Return formatted message time.
+         *
+         * @param {Object} metadata
+         * @return {string}
+         */
+        getMessageTime(metadata) {
+            const timestamp = metadata.timestamp || nowInSeconds();
+            return formatTime(timestamp);
+        }
+
+        /**
+         * Increase launcher badge count.
+         */
+        incrementBadge() {
+            if (!this.$badge.length) {
+                return;
+            }
+            const current = parseInt(this.$badge.attr('data-count') || this.$badge.text() || '0', 10);
+            const next = current + 1;
+            this.$badge.attr('data-count', next);
+            this.$badge.text(next);
+            this.$badge.attr('aria-hidden', next ? 'false' : 'true');
+        }
+
+        /**
+         * Reset launcher badge state.
+         */
+        resetBadge() {
+            if (!this.$badge.length) {
+                return;
+            }
+            this.$badge.attr('data-count', '0');
+            this.$badge.text('0');
+            this.$badge.attr('aria-hidden', 'true');
         }
     }
     

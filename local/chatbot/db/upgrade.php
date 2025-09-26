@@ -62,5 +62,14 @@ function xmldb_local_chatbot_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2024052400, 'local', 'chatbot');
     }
 
+    if ($oldversion < 2025012503) {
+        if (get_config('local_chatbot', 'enabled') === null) {
+            set_config('enabled', 1, 'local_chatbot');
+        }
+
+        upgrade_plugin_savepoint(true, 2025012503, 'local', 'chatbot');
+    }
+
     return true;
 }
+

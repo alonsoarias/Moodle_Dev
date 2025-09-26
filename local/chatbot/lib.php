@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use core\hook\output\before_footer_html_generation;
+
 require_once($CFG->dirroot . '/user/lib.php');
 
 /**
@@ -35,8 +37,10 @@ function local_chatbot_extend_navigation() {
 
 /**
  * Hook callback executed before the footer is rendered.
+ *
+ * @param before_footer_html_generation $hook
  */
-function local_chatbot_before_footer_html_generation(): void {
+function local_chatbot_before_footer_html_generation(before_footer_html_generation $hook): void {
     global $PAGE, $OUTPUT;
 
     $data = local_chatbot_get_widget_bootstrap();
@@ -47,12 +51,9 @@ function local_chatbot_before_footer_html_generation(): void {
     [$templatecontext, $jsconfig] = $data;
 
     $PAGE->requires->css('/local/chatbot/styles.css');
-    // Load the unminified AMD module explicitly so the plugin can operate without
-    // shipping the compiled chatbot.min.js asset.
-    $PAGE->requires->js(new moodle_url('/local/chatbot/amd/src/chatbot.js'), true);
     $PAGE->requires->js_call_amd('local_chatbot/chatbot', 'init', [$jsconfig]);
 
-    echo $OUTPUT->render_from_template('local_chatbot/widget', $templatecontext);
+    $hook->add_html($OUTPUT->render_from_template('local_chatbot/widget', $templatecontext));
 }
 
 /**
@@ -79,7 +80,11 @@ function local_chatbot_get_widget_bootstrap(): ?array {
         return null;
     }
 
-    if (!get_config('local_chatbot', 'enabled')) {
+    $enabled = get_config('local_chatbot', 'enabled');
+    if ($enabled === null) {
+        $enabled = true;
+    }
+    if (!$enabled) {
         $cached = null;
         return null;
     }
@@ -267,6 +272,7 @@ function local_chatbot_process_message(string $message, ?string $sessionid = nul
         'sessionid' => $sessionid,
         'intent' => $intent,
         'logid' => $logid,
+        'timestamp' => $record->timecreated,
     ];
 }
 
@@ -362,10 +368,13 @@ function local_chatbot_export_conversation(string $sessionid, string $format = '
     if ($format === 'csv') {
         $lines = ["time;sender;message;response;intent;feedback"];
         foreach ($history as $item) {
+            $user = core_user::get_user($item->userid);
+            $username = $user ? fullname($user) : get_string('deleteduser', 'core');
+
             $lines[] = sprintf(
                 '%s;%s;%s;%s;%s;%s',
                 userdate($item->timecreated),
-                fullname(core_user::get_user($item->userid)),
+                $username,
                 str_replace(['"', "\n"], ['""', ' '], $item->message),
                 str_replace(['"', "\n"], ['""', ' '], $item->response),
                 $item->intent,
@@ -390,9 +399,12 @@ function local_chatbot_export_conversation(string $sessionid, string $format = '
     $html .= html_writer::start_tag('tbody');
 
     foreach ($history as $item) {
+        $user = core_user::get_user($item->userid);
+        $username = $user ? fullname($user) : get_string('deleteduser', 'core');
+
         $html .= html_writer::tag('tr',
             html_writer::tag('td', userdate($item->timecreated)) .
-            html_writer::tag('td', fullname(core_user::get_user($item->userid))) .
+            html_writer::tag('td', $username) .
             html_writer::tag('td', format_text($item->message, FORMAT_PLAIN)) .
             html_writer::tag('td', format_text($item->response, FORMAT_PLAIN)) .
             html_writer::tag('td', s($item->intent)) .
