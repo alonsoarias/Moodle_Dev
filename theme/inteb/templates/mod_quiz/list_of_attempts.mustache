@@ -1,0 +1,51 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    
+    Theme INTEB - Child theme of RemUI
+    @package theme_inteb
+    @copyright (c) 2025 IngeWeb <soporte@ingeweb.co>
+    @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+    
+    Override de mod_quiz/list_of_attempts para centrado de la sección "Sus intentos"
+}}
+{{!
+    @template mod_quiz/list_of_attempts
+
+    MODIFICACIÓN INTEB: Centrado de la sección "Sus intentos"
+    - H3 centrado usando clase text-center de Bootstrap
+    - Grid system responsive mantenido
+    - Cards con Bootstrap responsive
+    
+    The structure for each attempt should be what is required by mod_quiz/attempt_summary_information.
+
+    Example context (json):
+    {
+        "hasattempts": true,
+        "attempts": [...]
+    }
+}}
+{{#hasattempts}}
+{{! MODIFICACIÓN INTEB: H3 centrado usando text-center de Bootstrap }}
+<h3 class="text-center mb-4">{{# str}}summaryofattempts, quiz{{/str}}</h3>
+
+<ul class=" text-center list-unstyled row row-cols-1 row-cols-md-2 g-0">
+
+{{#attempts}}
+<li class="col ps-0 pe-2 mb-2">
+    <div class="card h-100">
+        <div class="card-header py-2 border-bottom-0">
+            <h4 class="card-title my-0">{{name}}</h4>
+        </div>
+        {{#summarydata}}
+            {{> mod_quiz/attempt_summary_information}}
+        {{/summarydata}}
+        <div class="card-body py-2">
+            <div>{{{reviewlink}}}</div>
+        </div>
+    </div>
+</li>
+{{/attempts}}
+
+</ul>
+
+{{/hasattempts}}

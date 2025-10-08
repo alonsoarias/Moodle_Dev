@@ -1,0 +1,1332 @@
+/* =========================================
+   SECCIÓN 1: NAVBAR Y NAVEGACIÓN
+   ========================================= */
+
+/* Navbar Base */
+.navbar {
+    border-bottom: 5px solid $color-primary;
+    box-shadow: 0px 2px 3px rgba(255, 255, 255, 0.5);
+}
+
+.navbar-brand {
+    background-color: transparent;
+}
+
+.navbar .primary-navigation .nav-link,
+.navbar .primary-navigation .more-nav > .dropdown > .dropdown-toggle,
+.navbar #usernavigation .nav-link,
+.navbar #usernavigation .more-nav > .dropdown > .dropdown-toggle {
+    color: $color-primary;
+}
+
+.navbar .primary-navigation .nav-link.active {
+    color: $color-primary;
+}
+
+.navbar .primary-navigation .nav-link.active::before {
+    border-bottom-color: $color-primary;
+}
+
+.navbar .primary-navigation .nav-link:hover,
+.navbar .primary-navigation .more-nav > .dropdown > .dropdown-toggle:hover,
+.navbar #usernavigation .nav-link:hover,
+.navbar #usernavigation .more-nav > .dropdown > .dropdown-toggle:hover {
+    color: $color-primary;
+}
+
+.navbar .primary-navigation .nav-link.active::before,
+.navbar .primary-navigation .dropdown-toggle.active::before,
+.navbar #usernavigation .nav-link.active::before,
+.navbar #usernavigation .dropdown-toggle.active::before {
+    top: 58px;
+    border-bottom: 3px solid $color-primary;
+}
+
+.navbar #usernavigation .userinitials {
+    background-color: $my-blue;
+    color: #ffffff;
+}
+
+.navbar .edw-icon {
+    color: $color-primary;
+}
+
+/* =========================================
+   SECCIÓN 2: TIPOGRAFÍA Y HEADINGS
+   ========================================= */
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+.h5,
+.h5,
+h6,
+.h6 {
+    color: $color-primary;
+    font-family: $headings-font-family;
+    font-weight: $headings-font-weight;
+}
+
+h1.h2.header-heading {
+    font-weight: bold !important;
+}
+
+a {
+    color: $color-primary;
+}
+
+a:hover {
+    color: $color-secondary;
+}
+
+a.nav-link {
+    font-weight: 600 !important;
+}
+
+.moremenu .nav-link {
+    font-size: 15.6px !important;
+}
+
+/* =========================================
+   SECCIÓN 3: FOOTER
+   ========================================= */
+
+#page-footer {
+    background-color: $color-secondary;
+}
+
+#page-footer .copyright {
+    background-color: $my-gris;
+    color: $color-primary;
+    text-align: center;
+    min-height: inherit;
+    margin-bottom: 0;
+}
+
+#page-footer .footer-container hr {
+    background-color: $color-primary;
+    border-top: 1px solid $color-white;
+}
+
+#top-footer {
+    background-color: $color-primary;
+    color: $color-white;
+    margin: 0 -15px;
+}
+
+#top-footer .my-about,
+#top-footer h3 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#top-footer h3 {
+    margin-bottom: 15px;
+    color: white;
+}
+
+.my-credit-footer-wrapper {
+    background-color: $color-lightgray;
+    color: $color-primary;
+    font-size: 15px;
+}
+
+a.my-credit-link,
+a.my-credit-link:hover {
+    color: $color-primary;
+}
+
+/* =========================================
+   SECCIÓN 4: BOTONES
+   ========================================= */
+
+/* Primary Button - Versión final con sobreescrituras aplicadas */
+.btn-primary {
+    background-color: $color-secondary;
+    border-color: $color-secondary;
+    color: #ffffff;
+    
+    .fa,
+    .edw-icon {
+        color: #ffffff !important;
+    }
+    
+    &:hover {
+        background-color: $color-primary;
+        border-color: $color-primary;
+        color: #ffffff;
+    }
+    
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: $color-secondary;
+        border-color: $color-secondary;
+        color: #ffffff;
+    }
+    
+    &:not(:disabled):not(.disabled):focus,
+    &:not(:disabled):not(.disabled).focus {
+        background-color: $color-secondary;
+        border-color: $color-secondary;
+        color: #ffffff;
+    }
+}
+
+/* Secondary Button */
+.btn-secondary {
+    background-color: $color-primary;
+    border-color: $color-primary;
+    color: #ffffff;
+    
+    .fa,
+    .edw-icon {
+        color: #ffffff;
+    }
+    
+    &:hover {
+        background-color: $color-secondary;
+        border-color: $color-secondary;
+        color: #ffffff;
+    }
+    
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: $color-primary;
+        border-color: $color-primary;
+        color: #ffffff;
+    }
+    
+    &:not(:disabled):not(.disabled):focus,
+    &:not(:disabled):not(.disabled).focus {
+        background-color: $color-secondary;
+        border-color: $color-secondary;
+        color: #ffffff;
+    }
+}
+
+/* Link Button */
+.btn-link {
+    background-color: #fff;
+    color: $color-secondary;
+    border-color: $color-primary;
+    
+    &:hover {
+        background-color: #fff;
+        color: $color-primary;
+        border-color: $color-secondary;
+    }
+}
+
+/* Outline Primary Button */
+.btn-outline-primary {
+    background-color: #fff;
+    color: $color-secondary;
+    border-color: $color-secondary;
+    
+    &:hover {
+        background-color: darken($color-secondary, 10%);
+        border-color: darken($color-secondary, 10%);
+        color: $color-white;
+    }
+}
+
+/* Botón específico con margen */
+button.btn.btn-primary.icon-no-margin.p-0 {
+    background-color: $color-secondary;
+    border-color: white;
+    color: white;
+    
+    &:hover {
+        background-color: $color-secondary;
+        border-color: white;
+        color: white !important;
+    }
+    
+    &:not(:disabled):not(.disabled):active,
+    &:not(:disabled):not(.disabled).active,
+    &:not(:disabled):not(.disabled):active:focus,
+    .show > &.dropdown-toggle {
+        background-color: darken($color-secondary, 10%);
+        border-color: white;
+        color: white;
+        
+        .fa,
+        .edw-icon {
+            color: white;
+        }
+    }
+}
+
+.btn-floating {
+    border-color: white;
+}
+
+/* =========================================
+   SECCIÓN 5: NAVEGACIÓN Y PILLS
+   ========================================= */
+
+.nav-pills {
+    .nav-link.active,
+    .show > .nav-link {
+        color: #ffffff;
+        background-color: $color-primary;
+    }
+}
+
+.nav-pills-custom .nav-link {
+    position: relative;
+}
+
+@media (min-width: 992px) {
+    .nav-pills-custom .nav-link::before {
+        content: '';
+        display: block;
+        border-top: 8px solid transparent;
+        border-left: 10px solid $color-primary;
+        border-bottom: 8px solid transparent;
+        position: absolute;
+        top: 50%;
+        right: -10px;
+        transform: translateY(-50%);
+        opacity: 0;
+    }
+}
+
+.nav-pills-custom .nav-link.active::before {
+    opacity: 1;
+}
+
+/* Tabs Navigation */
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link {
+    font-size: 0.9775rem;
+}
+
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link.active,
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link:hover,
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link:focus {
+    color: $color-primary;
+}
+
+.edw-tabs-navigation .nav-tabs .nav-item .nav-link.active::before {
+    border-bottom: 3px solid $color-primary;
+}
+
+nav.moremenu.navigation.observed {
+    font-size: 0.9775rem;
+}
+
+/* =========================================
+   SECCIÓN 6: CATEGORÍAS Y DASHBOARD
+   ========================================= */
+
+.dashboard-card .course-info-container .edw-card-design-hd span.categoryname.small-info-semibold,
+.dashboard-card .course-info-container .edw-card-design-hd .popover-region .content-item-container.notification span.categoryname.content-item-footer,
+.popover-region .content-item-container.notification .dashboard-card .course-info-container .edw-card-design-hd span.categoryname.content-item-footer,
+.dashboard-card .course-info-container .edw-card-design-hd #block-region-side-pre .block-content-area .table-wrapper .calendartable.calendarmonth th span.categoryname.h-semibold-5,
+#block-region-side-pre .block-content-area .table-wrapper .calendartable.calendarmonth th .dashboard-card .course-info-container .edw-card-design-hd span.categoryname.h-semibold-5,
+.dashboard-card .course-info-container .edw-card-design-hd span.categoryname.edw-msg-panel-badge {
+    color: #fff;
+    background-color: $color-secondary;
+    font-size: .8em;
+}
+
+.categoryname.text-truncate.small-info-semibold {
+    color: #fff;
+    background-color: $color-secondary;
+    font-size: 0.8em;
+}
+
+section.node-category {
+    margin: 2px;
+}
+
+/* =========================================
+   SECCIÓN 7: COURSEINDEX
+   ========================================= */
+
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title {
+    padding: 10px 24px;
+    color: #ffffff;
+    background-color: $color-primary;
+    border-radius: 0;
+    justify-content: space-between;
+}
+
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title.courseindex-item.d-flex.align-items-center.dropready {
+    padding: 10px 24px;
+    color: #ffffff;
+    background-color: $color-primary;
+    border-radius: 0;
+    justify-content: space-between;
+}
+
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .edw-icon,
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .fa-lock {
+    font-size: 24px;
+    height: 24px;
+    width: 24px;
+    color: #ffffff;
+}
+
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-item-content .courseindex-sectioncontent .courseindex-item .edw-icon,
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-item-content .courseindex-sectioncontent .courseindex-item .fa-lock {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    color: #ffffff;
+}
+
+/* Courseindex Collapsed States */
+#theme_remui-drawers-courseindex .courseindex-chevron.collapsed {
+    .collapsed-icon {
+        display: inline-block !important;
+    }
+    .expanded-icon {
+        display: none !important;
+    }
+}
+
+#theme_remui-drawers-courseindex .courseindex-chevron:not(.collapsed) {
+    .collapsed-icon {
+        display: none !important;
+    }
+    .expanded-icon {
+        display: inline-block !important;
+    }
+}
+
+#theme_remui-drawers-courseindex .courseindex-item-content {
+    transition: height 0.35s ease;
+}
+
+/* =========================================
+   SECCIÓN 8: BLOQUES - ESTILOS GENERALES
+   ========================================= */
+
+.block {
+    margin: 1px;
+}
+
+#block-region-side-pre .block {
+    border-bottom: 0px;
+}
+
+.block .card-title {
+    color: #696969;
+}
+
+.block .card-body {
+    background-color: white;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section > .card-header > h5.card-title {
+    color: white;
+}
+
+.card-header.idigital-block-header {
+    background-color: #e8e8e8;
+    border-radius: 24px 24px 0px 0px;
+}
+
+.inteb-block-header {
+    color: $color-primary;
+}
+
+.block .block-cards .multiline {
+    color: $color-primary;
+    font-size: 20px;
+}
+
+/* Block Buttons */
+.block button.btn.btn-outline-secondary {
+    background-color: #fff;
+    color: $color-secondary;
+    border: 1px solid $color-secondary;
+}
+
+.block button.dropdown-toggle:hover {
+    background-color: $color-secondary-dimmed;
+    color: white;
+    box-shadow: none;
+    border-color: $color-secondary;
+    border: 1px solid $color-secondary;
+}
+
+.block .show > .btn-outline-secondary.dropdown-toggle {
+    background-color: $color-secondary-dimmed;
+    color: white;
+    border-color: $color-secondary-dimmed;
+    border: 1px solid $color-secondary-dimmed;
+    outline: none !important;
+    outline-width: 0 !important;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    
+    &:focus {
+        border-color: $color-secondary-dimmed;
+        background-color: $color-secondary-dimmed;
+        outline: none !important;
+        outline-width: 0 !important;
+        box-shadow: none;
+        -moz-box-shadow: none;
+        -webkit-box-shadow: none;
+    }
+}
+
+.block .dropdown-item:focus {
+    background-color: $my-oscuro;
+    color: white;
+}
+
+/* Sidebar Control */
+#sidepreopen-control {
+    background-color: $color-secondary;
+}
+
+#sidepreopen-control:hover {
+    box-shadow: 0 0 6px $color-secondary-dimmed;
+    background-color: $color-secondary-dimmed;
+}
+
+/* =========================================
+   SECCIÓN 9: ICONOS DE BLOQUES
+   ========================================= */
+
+.block h5.card-title:before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 8px;
+}
+
+/* Iconos específicos para cada bloque */
+.block.block_accessreview h5.card-title:before {
+    content: "\f013"; /* configuración */
+}
+
+.block.block_activity_modules h5.card-title:before {
+    content: "\f24d"; /* libro */
+}
+
+.block.block_activity_results h5.card-title:before {
+    content: "\f080"; /* gráfico de barras */
+}
+
+.block.block_admin_bookmarks h5.card-title:before {
+    content: "\f02e"; /* marcador */
+}
+
+.block.block_badges h5.card-title:before {
+    content: "\f02b"; /* insignia */
+}
+
+.block.block_blog_menu h5.card-title:before {
+    content: "\f0e6"; /* blog */
+}
+
+.block.block_blog_recent h5.card-title:before {
+    content: "\f1ea"; /* historial */
+}
+
+.block.block_blog_tags h5.card-title:before {
+    content: "\f02c"; /* etiquetas */
+}
+
+.block.block_calendar_month h5.card-title:before {
+    content: "\f073"; /* calendario */
+}
+
+.block.block_calendar_upcoming h5.card-title:before {
+    content: "\f017"; /* reloj */
+}
+
+.block.block_checklist h5.card-title:before {
+    content: "\f00c"; /* verificación */
+}
+
+.block.block_comments h5.card-title:before {
+    content: "\f086"; /* comentarios */
+}
+
+.block.block_completion_progress h5.card-title:before {
+    content: "\f05d"; /* progreso */
+}
+
+.block.block_completionstatus h5.card-title:before {
+    content: "\f058"; /* check-circle */
+}
+
+.block.block_configurable_reports h5.card-title:before {
+    content: "\f200"; /* pie chart */
+}
+
+.block.block_dedication h5.card-title:before {
+    content: "\f004"; /* corazón */
+}
+
+.block.block_feedback h5.card-title:before {
+    content: "\f0e5"; /* comentarios alt */
+}
+
+.block.block_globalsearch h5.card-title:before {
+    content: "\f002"; /* búsqueda */
+}
+
+.block.block_glossary_random h5.card-title:before {
+    content: "\f02d"; /* libro abierto */
+}
+
+.block.block_grade_me h5.card-title:before {
+    content: "\f046"; /* check-square */
+}
+
+.block.block_grade_overview h5.card-title:before {
+    content: "\f06a"; /* exclamation-circle */
+}
+
+.block.block_html h5.card-title:before {
+    content: "\f097"; /* código */
+}
+
+.block.block_mentees h5.card-title:before {
+    content: "\f501"; /* user-friends */
+}
+
+.block.block_messageteacher h5.card-title:before {
+    content: "\f27b"; /* envelope-comment */
+}
+
+.block.block_mnet_hosts h5.card-title:before {
+    content: "\f0c2"; /* cloud */
+}
+
+.block.block_multiblock h5.card-title:before {
+    content: "\f022"; /* list-alt */
+}
+
+.block.block_mycertificates h5.card-title:before {
+    content: "\f0a3"; /* certificate */
+}
+
+.block.block_myoverview h5.card-title:before {
+    content: "\f080"; /* chart-bar */
+}
+
+.block.block_myprofile h5.card-title:before {
+    content: "\f007"; /* user */
+}
+
+.block.block_myprogress h5.card-title:before {
+    content: "\f201"; /* chart-line */
+}
+
+.block.block_navigation h5.card-title:before {
+    content: "\f0e8"; /* sitemap */
+}
+
+.block.block_news_items h5.card-title:before {
+    content: "\f1ea"; /* newspaper */
+}
+
+.block.block_online_users h5.card-title:before {
+    content: "\f0c0"; /* users */
+}
+
+.block.block_private_files h5.card-title:before {
+    content: "\f07c"; /* folder-open */
+}
+
+.block.block_quiz_results h5.card-title:before {
+    content: "\f080"; /* chart-bar */
+}
+
+.block.block_recent_activity h5.card-title:before {
+    content: "\f073"; /* calendar-alt */
+}
+
+.block.block_recentlyaccesseditems h5.card-title:before {
+    content: "\f0ca"; /* list */
+}
+
+.block.block_remuiblck h5.card-title:before {
+    content: "\f2c9"; /* layer-group */
+}
+
+.block.block_rss_client h5.card-title:before {
+    content: "\f09e"; /* rss */
+}
+
+.block.block_search_forums h5.card-title:before {
+    content: "\f002"; /* search */
+}
+
+.block.block_section_links h5.card-title:before {
+    content: "\f0cb"; /* list-ol */
+}
+
+.block.block_selfcompletion h5.card-title:before {
+    content: "\f058"; /* check-circle */
+}
+
+.block.block_settings h5.card-title:before {
+    content: "\f013"; /* cog */
+}
+
+.block.block_site_main_menu h5.card-title:before {
+    content: "\f0c9"; /* bars */
+}
+
+.block.block_social_activities h5.card-title:before {
+    content: "\f234"; /* user-plus */
+}
+
+.block.block_tag_flickr h5.card-title:before {
+    content: "\f16e"; /* flickr */
+}
+
+.block.block_tag_youtube h5.card-title:before {
+    content: "\f167"; /* youtube */
+}
+
+.block.block_tags h5.card-title:before {
+    content: "\f02c"; /* tags */
+}
+
+.block.block_xp h5.card-title:before {
+    content: "\f091"; /* trophy */
+}
+
+/* =========================================
+   SECCIÓN 10: COLORES CÍCLICOS DE BLOQUES
+   ========================================= */
+
+#block-region-side-pre > section:nth-of-type(7n) > .card-header {
+    background-color: $block-region-side-pre-7;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 1) > .card-header {
+    background-color: $block-region-side-pre-1;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 1) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 2) > .card-header {
+    background-color: $block-region-side-pre-2;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 2) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 3) > .card-header {
+    background-color: $block-region-side-pre-3;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 3) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 4) > .card-header {
+    background-color: $block-region-side-pre-4;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 4) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 5) > .card-header {
+    background-color: $block-region-side-pre-5;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 5) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 6) > .card-header {
+    background-color: $block-region-side-pre-6;
+    border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 6) > .card-body {
+    background-color: #f5f8ff;
+    border-radius: 0px 0px 24px 24px;
+}
+
+/* =========================================
+   SECCIÓN 11: BLOQUES ESPECÍFICOS
+   ========================================= */
+
+/* Timeline Block */
+.block_timeline .block-timeline [data-region="day-filter"] .dropdown-toggle,
+.block_timeline .block-timeline [data-region="view-selector"] .dropdown-toggle {
+    border: 1px solid #d5ddea;
+    color: #1c3d77;
+}
+
+.block_timeline .block-timeline [data-region="timeline-view"] {
+    box-shadow: none;
+}
+
+/* Calendar Block */
+.block_calendar_upcoming .event {
+    border-left: 2px solid #ccc;
+    padding-left: 5px;
+}
+
+.block_calendar_upcoming .event.my-event-urgent {
+    border-color: #f51f25;
+}
+
+.block_calendar_upcoming .event.my-event-priority {
+    border-color: #f89406;
+}
+
+/* My Overview Block */
+.block-myoverview [data-region="filter"] .nav-grouping-selector .nav {
+    margin: 10px 17px 16px 17px;
+}
+
+.block-myoverview
+    [data-region="filter"]
+    .all-filter-wrapper
+    .nav-display-selector-wrapper
+    .nav-display-selector
+    .nav
+    .nav-item
+    .nav-link
+    [aria-current="true"] {
+    color: $color-primary;
+}
+
+.block-myoverview [data-region="filter"] .nav-grouping-selector .nav li.nav-item [aria-current="true"]::after {
+    border-bottom: 3px solid $color-primary;
+}
+
+/* Grade Me Block */
+.block_grade_me .badge {
+    color: #ffffff;
+}
+
+/* =========================================
+   SECCIÓN 12: EVENTOS Y CALENDARIO
+   ========================================= */
+
+.event h3.name,
+.calendar_event_course {
+    color: white;
+    text-shadow: 1px 1px 1px #000;
+}
+
+.event a.card-link {
+    font-weight: bold;
+    border-bottom: 2px dotted;
+    font-size: 107%;
+}
+
+.maincalendar .calendarmonth td.today .day-number-circle {
+    color: $color-white;
+    background-color: $color-primary;
+}
+
+/* =========================================
+   SECCIÓN 13: BADGES
+   ========================================= */
+
+.badge.badge-danger {
+    background-color: #f51f25;
+}
+
+.badge-info {
+    background-color: $purple;
+    color: $color-primary;
+    transition: background-color 0.3s;
+    
+    &:hover {
+        background-color: $color-primary;
+        color: $color-white;
+    }
+}
+
+.badge-success {
+    background-color: $green;
+    color: $color-primary;
+    transition: background-color 0.3s;
+    
+    &:hover {
+        background-color: darken($green, 10%);
+    }
+}
+
+span.badge.badge-info,
+span.badge.rounded-pill.bg-secondary.text-dark,
+span.badge.bg-secondary.text-dark {
+    color: white !important;
+}
+
+/* =========================================
+   SECCIÓN 14: CUESTIONARIOS Y PREGUNTAS
+   ========================================= */
+
+.que .formulation {
+    background-color: white;
+    border: 1px solid #badae4;
+}
+
+.que.informationitem .formulation {
+    background-color: #def2f8;
+    border-color: #badae4;
+}
+
+.que.informationitem .info {
+    margin-bottom: 5px;
+}
+
+.que.correct .outcome,
+.que.correct .comment {
+    background-color: #dffae7;
+    border-color: #c7e9d1;
+    color: #0a1f22;
+}
+
+/* Quiz Centering */
+#page-mod-quiz-view {
+    .quizstartbuttondiv {
+        text-align: center !important;
+        margin: 2rem auto !important;
+        
+        form {
+            display: inline-block !important;
+            margin: 0 auto !important;
+        }
+        
+        .btn,
+        button,
+        input[type="submit"],
+        .singlebutton {
+            display: inline-block !important;
+            margin: 0 auto !important;
+        }
+    }
+    
+    .activity-description {
+        text-align: center !important;
+        margin: 1.5rem auto !important;
+        max-width: 900px !important;
+        
+        .no-overflow {
+            text-align: center !important;
+        }
+        
+        p {
+            text-align: center !important;
+        }
+    }
+    
+    #intro,
+    .generalbox {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 900px !important;
+        
+        .no-overflow {
+            text-align: center !important;
+        }
+    }
+    
+    .quizinfo {
+        text-align: center !important;
+        margin: 2rem auto !important;
+        max-width: 900px !important;
+    }
+}
+
+/* =========================================
+   SECCIÓN 15: HEADER Y PÁGINAS
+   ========================================= */
+
+#page-header.hasbackground.design-1 {
+    min-height: 270px !important;
+}
+
+#page-header.hasbackground.design-1 .header-main-section .category .badge {
+    color: white;
+    background-color: $green;
+}
+
+.position-absolute.w-100.h-100 {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.0) -5%, transparent 120%) !important;
+}
+
+#format_menutopic_menu .navbar-brand {
+    display: none !important;
+}
+
+div#navbarmenutopic {
+    padding: 0 16px !important;
+    height: 80px !important;
+}
+
+#page-content {
+    font-size: 0.9775rem;
+    font-weight: 400;
+    line-height: 1.52;
+}
+
+#page-header #page-navbar nav ol.breadcrumb .breadcrumb-item a {
+    color: $color-primary !important;
+}
+
+/* =========================================
+   SECCIÓN 16: ELEMENTOS VARIOS
+   ========================================= */
+
+/* Activity Instance */
+.activityinstance a {
+    text-transform: none;
+}
+
+/* Description */
+.description .course-description-item {
+    font-size: 0.9775rem;
+    font-weight: 400;
+    line-height: 1.52;
+}
+
+/* Breadcrumbs */
+li.breadcrumb-item {
+    font-size: 0.8775rem;
+}
+
+/* License Notice */
+.license-notice {
+    display: none;
+}
+
+/* Progress Bar */
+.progress-bar {
+    background-color: $color-primary;
+    border-top: 1px solid $color-white;
+}
+
+/* Text Info */
+.text-info,
+.users-list-name {
+    color: $color-primary !important;
+}
+
+/* About Text */
+.about-text-content {
+    text-align: justify;
+    padding: 0 15px;
+}
+
+.about-text-content h4.data {
+    color: #ffffff;
+}
+
+.about-text-content a.link-1 {
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .about-text-content {
+        padding: 0 10px;
+    }
+}
+
+/* =========================================
+   SECCIÓN 17: FORMULARIOS Y AUTOCOMPLETADO
+   ========================================= */
+
+.form-autocomplete-suggestions li {
+    &:hover,
+    &:focus,
+    &[aria-selected="true"] {
+        padding-left: 12px;
+    }
+    
+    &:hover {
+        background-color: $color-primary;
+        color: $color-white;
+        border-left: 4px solid $color-primary;
+    }
+    
+    &:focus {
+        background-color: $color-lightgray-dimmed;
+        color: $color-primary;
+        border-left: 4px solid $color-secondary-dark;
+    }
+    
+    &[aria-selected="true"] {
+        background-color: $color-primary;
+        color: $color-white;
+        border-left: 4px solid $color-secondary;
+    }
+}
+
+/* =========================================
+   SECCIÓN 18: ELEMENTOS COLAPSABLES
+   ========================================= */
+
+.collapsible-link {
+    position: relative;
+    display: block;
+    text-align: left;
+    
+    &::before {
+        content: '\f107';
+        position: absolute;
+        top: 50%;
+        right: 0.8rem;
+        transform: translateY(-50%);
+        font-family: 'FontAwesome';
+        font-size: 1.1rem;
+    }
+    
+    &[aria-expanded='true']::before {
+        content: '\f106';
+    }
+}
+
+/* =========================================
+   SECCIÓN 19: PAGINACIÓN
+   ========================================= */
+
+.page-link {
+    color: $color-primary;
+    text-decoration: none;
+    
+    &:hover {
+        z-index: 2;
+        color: darken($color-primary, 10%);
+        background-color: #e9ecef;
+        border-color: #d5ddea;
+    }
+}
+
+.page-item.active .page-link {
+    color: $color-white;
+    background-color: $color-primary;
+    border-color: $color-primary;
+}
+
+/* =========================================
+   SECCIÓN 20: BOTONES FLOTANTES
+   ========================================= */
+
+.floating-buttons-wrapper {
+    position: fixed;
+    bottom: 80px;
+    right: auto;
+    left: 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+.floating-buttons-wrapper > .btn-floating {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 48px;
+    margin-left: inherit;
+    transition: max-width 0.5s ease-in-out;
+    border-color: white;
+}
+
+/* =========================================
+   SECCIÓN 21: PÁGINA DE LOGIN
+   ========================================= */
+
+.login-page {
+    min-height: 100vh;
+    background-color: var(--color-bg-page);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    .login-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        
+        .row {
+            margin: 0;
+            min-height: 100vh;
+        }
+    }
+}
+
+.loginform {
+    display: flex;
+    flex-direction: column;
+    max-width: var(--max-width-form);
+    animation: fadeIn 0.8s ease-out;
+    
+    .login-welcome-wrapper {
+        text-align: center;
+        margin-bottom: 2rem;
+        
+        h2 {
+            font-size: 1.25rem;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        p {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+        }
+    }
+}
+
+.login-wrapper {
+    margin: 10%;
+}
+
+.login-logo img.mb-3.img-fluid {
+    width: 50%;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.footer {
+    background-color: var(--color-footer-bg);
+    padding: 1rem 0;
+    text-align: center;
+    
+    .my-credit {
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+    }
+}
+
+/* =========================================
+   SECCIÓN 22: CAROUSEL Y NAVEGACIÓN PRIMARIA
+   ========================================= */
+
+.carousel-item img {
+    object-fit: cover;
+    width: 100%;
+    height: 100vh;
+    max-height: 1080px;
+}
+
+.primary-navigation .nav.more-nav {
+    display: flex;
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="coursecat"] {
+    order: 1;
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="myhome"] {
+    order: 2;
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="mycourses"] {
+    order: 3;
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="home"] {
+    order: 4;
+}
+
+.primary-navigation .nav.more-nav .nav-item[data-key="siteadminnode"] {
+    order: 5;
+}
+
+.primary-navigation .nav.more-nav .dropdownmoremenu {
+    order: 6;
+}
+
+.navbar [data-key="recentcourses"] {
+    display: none;
+}
+
+/* =========================================
+   SECCIÓN 23: MEDIA QUERIES
+   ========================================= */
+
+@media (max-width: 991.98px) {
+    .loginform {
+        margin: 5%;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .loginform {
+        .login-welcome-wrapper h2 {
+            font-size: 1.25rem;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .loginform {
+        margin: 1rem;
+        padding: 1rem;
+        
+        .login-logo img {
+            max-width: 150px;
+        }
+    }
+}
+
+@media (max-width: 993px) {
+    @media (min-height: 640px) {
+        /* Estilos específicos para esta combinación */
+    }
+}
+
+/* Media queries vacíos para breakpoints adicionales */
+@media (min-width: 768px) {}
+@media (min-width: 800px) {}
+@media (min-width: 1200px) {}
+@media (max-width: 767px) {}
+@media (max-width: 639px) {}
+@media (max-width: 576px) {}
+@media (max-width: 500px) {}
+@media (max-width: 479px) {}

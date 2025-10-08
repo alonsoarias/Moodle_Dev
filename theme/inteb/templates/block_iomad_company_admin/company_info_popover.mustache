@@ -1,0 +1,39 @@
+<div class="companymenu">
+    <div class="dropdown show">
+        {{#hasmultiple}}
+            <a href="#"
+               role="button"
+               id="company-menu-toggle"
+               data-toggle="dropdown"
+               aria-label="Company menu"
+               aria-haspopup="true"
+               aria-controls="company-action-menu"
+               class="btn dropdown-toggle"
+               aria-expanded="true">
+        {{/hasmultiple}}
+                <span class="companybutton">
+                    {{companyname}}
+                </span>
+        {{#hasmultiple}}
+            </a>
+            <div id="company-action-menu" class="dropdown-menu dropdown-menu">
+                <div id="companymenu-carousel" class="carousel slide" data-touch="false" data-interval="false" data-keyboard="false">
+                    <div class="carousel-inner">
+                        <div id="carousel-item-main" class="carousel-item active" role="menu" tabindex="-1" aria-label="Company">
+                            {{#mycompanies}}
+                                <a href="{{{switchlink}}}" class="dropdown-item" role="menuitem" tabindex="-1">
+                                    {{#logo}}
+                                        <img src="{{{logo}}}" 
+                                             alt="{{{name}}}" 
+                                             class="company-dropdown-logo">
+                                    {{/logo}}
+                                    {{{name}}}
+                                </a>
+                            {{/mycompanies}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/hasmultiple}}
+    </div>
+</div>

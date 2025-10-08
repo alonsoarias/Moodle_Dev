@@ -1,0 +1,124 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+ * @package   block_mycourses
+ * @copyright 2021 Derick Turner
+ * @author    Derick Turner
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+{{!
+    @template block_mycourses/completed-view
+
+    This template renders the completed view for the mycourses block.
+
+    Example context (json):
+    {}
+}}
+<div id="completed-view-{{uniqid}}" data-region="completed-view">
+    <div class="tab-content">
+        <div class="tab-pane active" id="mycourses_completed_view">
+            <div id="paged-content-container-{{uniqid}}" data-region="paged-content-container">
+                <div id="paged-content-page" data-page="1">
+                    {{#completedview.courses}}
+                        <div class="card-grid mx-0 row row-cols-1 row-cols-sm-2 row-cols-lg-3" data-region="card-deck" role="list">
+                            <div class="col px-0 mb-2">
+                                <div class="card dashboard-card" role="listitem" data-region="course-content" data-course-id="{{{id}}}">
+                                    <div tabindex="-1">
+                                        <div class="card-img dashboard-card-img p-p-4 edw-course-img-wrapper" style='background-image: url("{{{courseimage}}}");'>
+                                            <a href="{{ viewurl }}" class="view-course-url"></a>
+                                            <div class="card-img-icons-wrapper d-flex align-items-center flex-gap-2 ml-auto">
+                                                {{> core_course/favouriteicon }}
+                                                {{^visible}}
+                                                <div class="visibilityicon">
+                                                    <span class="hidden-icon edw-icon edw-icon-Hide visible" aria-hidden="true" title="{{#str}} hiddencourse, theme_remui {{/str}}"></span>
+                                                </div>
+                                                {{/visible}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body course-info-container d-flex flex-column justify-content-between flex-gap-3" id="course-info-container-{{id}}-{{uniqid}}">
+                                        <div class="edw-card-design-hd d-flex flex-column flex-gap-3">
+                                            <div class="d-flex flex-column align-items-start flex-gap-3">
+                                                <span class="categoryname text-truncate small-info-semibold" title="{{{coursecategory}}}">
+                                                    {{{coursecategory}}}
+                                                </span>
+                                                <div class="w-100 text-truncate">
+                                                    {{#showshortname}}
+                                                    <div class="text-muted muted d-flex mb-1 flex-wrap">
+                                                        <span class="sr-only">
+                                                            {{#str}}aria:courseshortname, core_course{{/str}}
+                                                        </span>
+                                                        <div>
+                                                            {{{shortname}}}
+                                                        </div>
+                                                    </div>
+                                                    {{/showshortname}}
+                                                    <a href="{{viewurl}}" class="aalink coursename text-decoration-none ellipsis ellipsis-3 h-semibold-6" title="{{{fullname}}}">
+                                                        <span class="sr-only">
+                                                            {{#str}}aria:coursename, core_course{{/str}}
+                                                        </span>
+                                                        {{{fullname}}}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="edw-card-design-ft d-flex flex-column align-self-strech flex-gap-5">
+                                            <div class="progress-data-wrapper">
+                                                <div class="card-footer dashboard-card-footer border-0 bg-transparent w-100 p-0 d-flex flex-column flex-gap-0d5">
+                                                    <div class="completion-status">
+                                                        <span class="badge badge-success">{{#str}} completed, block_mycourses {{/str}}</span>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" title="{{#str}}completed, block_mycourses{{/str}}"></div>
+                                                    </div>
+                                                    <div class="progress-text h-semibold-6" title="{{#str}}completed, block_mycourses{{/str}}">
+                                                        <span class="sr-only">{{#str}}aria:courseprogress, block_myoverview{{/str}}</span>
+                                                        {{#str}}completed, block_mycourses{{/str}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <a class="btn btn-secondary btn-sm view-course-btn ml-auto" href="{{viewurl}}" title="{{#str}}viewcoursetitle,theme_remui{{/str}}">{{#str}}viewcourse,theme_remui{{/str}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {{/completedview.courses}}
+                    {{^completedview.courses}}
+                        <div class="text-xs-center text-center m-t-3"></div>
+                        <div class="text-xs-center text-center m-t-3">
+                            <img class="empty-placeholder-image-lg"
+                                src="{{nocourses}}"
+                                alt="{{#str}} nocompleted, block_mycourses {{/str}}"
+                                role="presentation">
+                            <p class="text-muted m-t-1">{{#str}} nocompleted, block_mycourses {{/str}}</p>
+                        </div>
+                        <div class="text-xs-center text-center m-t-3"></div>
+                    {{/completedview.courses}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{#js}}
+require(['jquery', 'core/custom_interaction_events'], function($, customEvents) {
+    var root = $('#completed-view-{{uniqid}}');
+    customEvents.define(root, [customEvents.events.activate]);
+    root.on(customEvents.events.activate, '[data-toggle="btns"] > .btn', function() {
+        root.find('.btn.active').removeClass('active');
+    });
+});
+{{/js}}
