@@ -21,22 +21,27 @@ h6,
 h1 {
     color: $color-primary;
 }
+
 h1.h2.header-heading {
     font-weight: bold !important;
 }
+
 a {
     color: $color-primary;
 }
+
 a:hover {
     color: $color-secondary;
 }
+
 #top-footer h3 {
     color: white;
 }
 
 .nav-pills {
+
     .nav-link.active,
-    .show > .nav-link {
+    .show>.nav-link {
         color: #ffffff; // Uso de blanco directo
         background-color: $color-primary; // Azul oscuro para el fondo activo
     }
@@ -47,6 +52,7 @@ a:hover {
 .edw-tabs-navigation .nav-tabs .nav-item .nav-link:focus {
     color: $color-primary; // Reemplazado #3972b5 con $color-primary
 }
+
 .edw-tabs-navigation .nav-tabs .nav-item .nav-link.active::before {
     border-bottom: 3px solid $color-primary;
 }
@@ -72,21 +78,15 @@ a:hover {
 .block-myoverview [data-region="filter"] .nav-grouping-selector .nav {
     margin: 10px 17px 16px 17px;
 }
-.block-myoverview
-    [data-region="filter"]
-    .all-filter-wrapper
-    .nav-display-selector-wrapper
-    .nav-display-selector
-    .nav
-    .nav-item
-    .nav-link
-    [aria-current="true"] {
+
+.block-myoverview [data-region="filter"] .all-filter-wrapper .nav-display-selector-wrapper .nav-display-selector .nav .nav-item .nav-link [aria-current="true"] {
     color: $color-primary;
 }
 
 .block-myoverview [data-region="filter"] .nav-grouping-selector .nav li.nav-item [aria-current="true"]::after {
     border-bottom: 3px solid $color-primary;
 }
+
 .block_calendar_upcoming .event.my-event-urgent {
     border-color: #f51f25;
 }
@@ -151,7 +151,7 @@ section.node-category {
     margin: 2px;
 }
 
-.block .show > .btn-outline-secondary.dropdown-toggle:focus {
+.block .show>.btn-outline-secondary.dropdown-toggle:focus {
     border-color: $color-secondary-dimmed;
     background-color: $color-secondary-dimmed;
     outline: none !important;
@@ -161,7 +161,7 @@ section.node-category {
     -webkit-box-shadow: none;
 }
 
-.block .show > .btn-outline-secondary.dropdown-toggle {
+.block .show>.btn-outline-secondary.dropdown-toggle {
     background-color: $color-secondary-dimmed;
     color: white;
     border-color: $color-secondary-dimmed;
@@ -178,7 +178,7 @@ section.node-category {
     color: white;
 }
 
-#block-region-side-pre > section > .card-header > h5.card-title {
+#block-region-side-pre>section>.card-header>h5.card-title {
     color: white;
 }
 
@@ -199,266 +199,316 @@ section.node-category {
 
 /* Iconos para diferentes bloques */
 .block.block_accessreview h5.card-title:before {
-    content: "\f013"; /* Icono de configuración */
+    content: "\f013";
+    /* Icono de configuración */
 }
 
 .block.block_activity_modules h5.card-title:before {
-    content: "\f24d"; /* Icono de libro */
+    content: "\f24d";
+    /* Icono de libro */
 }
 
 .block.block_activity_results h5.card-title:before {
-    content: "\f080"; /* Icono de gráfico de barras */
+    content: "\f080";
+    /* Icono de gráfico de barras */
 }
 
 .block.block_admin_bookmarks h5.card-title:before {
-    content: "\f02e"; /* Icono de marcador */
+    content: "\f02e";
+    /* Icono de marcador */
 }
 
 .block.block_badges h5.card-title:before {
-    content: "\f02b"; /* Icono de insignia */
+    content: "\f02b";
+    /* Icono de insignia */
 }
 
 .block.block_blog_menu h5.card-title:before {
-    content: "\f0e6"; /* Icono de blog */
+    content: "\f0e6";
+    /* Icono de blog */
 }
 
 .block.block_blog_recent h5.card-title:before {
-    content: "\f1ea"; /* Icono de historial */
+    content: "\f1ea";
+    /* Icono de historial */
 }
 
 .block.block_blog_tags h5.card-title:before {
-    content: "\f02c"; /* Icono de etiquetas */
+    content: "\f02c";
+    /* Icono de etiquetas */
 }
 
 .block.block_calendar_month h5.card-title:before {
-    content: "\f073"; /* Icono de calendario */
+    content: "\f073";
+    /* Icono de calendario */
 }
 
 .block.block_calendar_upcoming h5.card-title:before {
-    content: "\f017"; /* Icono de calendario para eventos próximos */
+    content: "\f017";
+    /* Icono de calendario para eventos próximos */
 }
 
 .block.block_checklist h5.card-title:before {
-    content: "\f00c"; /* Icono de verificación */
+    content: "\f00c";
+    /* Icono de verificación */
 }
 
 .block.block_comments h5.card-title:before {
-    content: "\f086"; /* Icono de comentarios */
+    content: "\f086";
+    /* Icono de comentarios */
 }
 
 .block.block_completion_progress h5.card-title:before {
-    content: "\f05d"; /* Icono de progreso */
+    content: "\f05d";
+    /* Icono de progreso */
 }
 
 .block.block_completionstatus h5.card-title:before {
-    content: "\f058"; /* Icono de check-circle */
+    content: "\f058";
+    /* Icono de check-circle */
 }
 
 .block.block_configurable_reports h5.card-title:before {
-    content: "\f080"; /* Icono de pie chart */
+    content: "\f080";
+    /* Icono de pie chart */
 }
 
 .block.block_dedication h5.card-title:before {
-    content: "\f004"; /* Icono de corazón */
+    content: "\f004";
+    /* Icono de corazón */
 }
 
 .block.block_feedback h5.card-title:before {
-    content: "\f0e5"; /* Icono de comentarios */
+    content: "\f0e5";
+    /* Icono de comentarios */
 }
 
 .block.block_globalsearch h5.card-title:before {
-    content: "\f002"; /* Icono de búsqueda */
+    content: "\f002";
+    /* Icono de búsqueda */
 }
 
 .block.block_glossary_random h5.card-title:before {
-    content: "\f02d"; /* Icono de libro abierto */
+    content: "\f02d";
+    /* Icono de libro abierto */
 }
 
 .block.block_grade_me h5.card-title:before {
-    content: "\f046"; /* Icono de gráfico */
+    content: "\f046";
+    /* Icono de gráfico */
 }
 
 .block.block_grade_overview h5.card-title:before {
-    content: "\f06a"; /* Icono de ojo */
+    content: "\f06a";
+    /* Icono de ojo */
 }
 
 .block.block_html h5.card-title:before {
-    content: "\f097"; /* Icono de código */
+    content: "\f097";
+    /* Icono de código */
 }
 
 .block.block_mentees h5.card-title:before {
-    content: "\f501"; /* Icono de user-friends */
+    content: "\f501";
+    /* Icono de user-friends */
 }
 
 .block.block_messageteacher h5.card-title:before {
-    content: "\f27b"; /* Icono de sobre */
+    content: "\f27b";
+    /* Icono de sobre */
 }
 
 .block.block_mnet_hosts h5.card-title:before {
-    content: "\f0c2"; /* Icono de globo */
+    content: "\f0c2";
+    /* Icono de globo */
 }
 
 .block.block_multiblock h5.card-title:before {
-    content: "\f022"; /* Icono de clon */
+    content: "\f022";
+    /* Icono de clon */
 }
 
 .block.block_mycertificates h5.card-title:before {
-    content: "\f0a3"; /* Icono de certificado */
+    content: "\f0a3";
+    /* Icono de certificado */
 }
 
 .block.block_myoverview h5.card-title:before {
-    content: "\f200"; /* Icono de dashboard */
+    content: "\f200";
+    /* Icono de dashboard */
 }
 
 .block.block_myprofile h5.card-title:before {
-    content: "\f007"; /* Icono de usuario */
+    content: "\f007";
+    /* Icono de usuario */
 }
 
 .block.block_navigation h5.card-title:before {
-    content: "\f0e8"; /* Icono de navegación */
+    content: "\f0e8";
+    /* Icono de navegación */
 }
 
 .block.block_news_items h5.card-title:before {
-    content: "\f1ea"; /* Icono de periódico */
+    content: "\f1ea";
+    /* Icono de periódico */
 }
 
 .block.block_online_users h5.card-title:before {
-    content: "\f0c0"; /* Icono de usuarios */
+    content: "\f0c0";
+    /* Icono de usuarios */
 }
 
 .block.block_private_files h5.card-title:before {
-    content: "\f07c"; /* Icono de carpeta abierta */
+    content: "\f07c";
+    /* Icono de carpeta abierta */
 }
 
 .block.block_quiz_results h5.card-title:before {
-    content: "\f080"; /* Icono de gráfico de barras */
+    content: "\f080";
+    /* Icono de gráfico de barras */
 }
 
 .block.block_recent_activity h5.card-title:before {
-    content: "\f073"; /* Icono de historial */
+    content: "\f073";
+    /* Icono de historial */
 }
 
 .block.block_recentlyaccesseditems h5.card-title:before {
-    content: "\f0ca"; /* Icono de lista */
+    content: "\f0ca";
+    /* Icono de lista */
 }
 
 .block.block_remuiblck h5.card-title:before {
-    content: "\f2c9"; /* Icono de layer-group */
+    content: "\f2c9";
+    /* Icono de layer-group */
 }
 
 .block.block_rss_client h5.card-title:before {
-    content: "\f09e"; /* Icono de RSS */
+    content: "\f09e";
+    /* Icono de RSS */
 }
 
 .block.block_search_forums h5.card-title:before {
-    content: "\f002"; /* Icono de búsqueda */
+    content: "\f002";
+    /* Icono de búsqueda */
 }
 
 .block.block_section_links h5.card-title:before {
-    content: "\f0cb"; /* Icono de lista numerada */
+    content: "\f0cb";
+    /* Icono de lista numerada */
 }
 
 .block.block_selfcompletion h5.card-title:before {
-    content: "\f058"; /* Icono de check-circle */
+    content: "\f058";
+    /* Icono de check-circle */
 }
 
 .block.block_settings h5.card-title:before {
-    content: "\f013"; /* Icono de engranaje */
+    content: "\f013";
+    /* Icono de engranaje */
 }
 
 .block.block_site_main_menu h5.card-title:before {
-    content: "\f0c9"; /* Icono de barras */
+    content: "\f0c9";
+    /* Icono de barras */
 }
 
 .block.block_social_activities h5.card-title:before {
-    content: "\f234"; /* Icono de usuarios */
+    content: "\f234";
+    /* Icono de usuarios */
 }
 
 .block.block_tag_flickr h5.card-title:before {
-    content: "\f16e"; /* Icono de Flickr */
+    content: "\f16e";
+    /* Icono de Flickr */
 }
 
 .block.block_tag_youtube h5.card-title:before {
-    content: "\f167"; /* Icono de YouTube */
+    content: "\f167";
+    /* Icono de YouTube */
 }
 
 .block.block_tags h5.card-title:before {
-    content: "\f02c"; /* Icono de etiquetas */
+    content: "\f02c";
+    /* Icono de etiquetas */
 }
 
 .block.block_xp h5.card-title:before {
-    content: "\f091"; /* Icono de trofeo */
+    content: "\f091";
+    /* Icono de trofeo */
 }
 
 .block.block_myprogress h5.card-title:before {
-    content: "\f201"; /* Icono de línea de gráfico */
+    content: "\f201";
+    /* Icono de línea de gráfico */
 }
 
-#block-region-side-pre > section:nth-of-type(7n) > .card-header {
+#block-region-side-pre>section:nth-of-type(7n)>.card-header {
     background-color: $block-region-side-pre-7;
     border-radius: 0px;
 }
-#block-region-side-pre > section:nth-of-type(7n) > .card-body {
+
+#block-region-side-pre>section:nth-of-type(7n)>.card-body {
     background-color: #f5f8ff;
     border-radius: 0px 0px 24px 24px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 1) > .card-header {
+#block-region-side-pre>section:nth-of-type(7n + 1)>.card-header {
     background-color: $block-region-side-pre-1;
     border-radius: 0px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 1) > .card-body {
+#block-region-side-pre>section:nth-of-type(7n + 1)>.card-body {
     background-color: #f5f8ff;
     border-radius: 0px 0px 24px 24px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 2) > .card-header {
+#block-region-side-pre>section:nth-of-type(7n + 2)>.card-header {
     background-color: $block-region-side-pre-2;
     border-radius: 0px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 2) > .card-body {
+#block-region-side-pre>section:nth-of-type(7n + 2)>.card-body {
     background-color: #f5f8ff;
     border-radius: 0px 0px 24px 24px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 3) > .card-header {
+#block-region-side-pre>section:nth-of-type(7n + 3)>.card-header {
     background-color: $block-region-side-pre-3;
     border-radius: 0px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 3) > .card-body {
+#block-region-side-pre>section:nth-of-type(7n + 3)>.card-body {
     background-color: #f5f8ff;
     border-radius: 0px 0px 24px 24px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 4) > .card-header {
+#block-region-side-pre>section:nth-of-type(7n + 4)>.card-header {
     background-color: $block-region-side-pre-4;
     border-radius: 0px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 4) > .card-body {
+#block-region-side-pre>section:nth-of-type(7n + 4)>.card-body {
     background-color: #f5f8ff;
     border-radius: 0px 0px 24px 24px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 5) > .card-header {
+#block-region-side-pre>section:nth-of-type(7n + 5)>.card-header {
     background-color: $block-region-side-pre-5;
     border-radius: 0px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 5) > .card-body {
+#block-region-side-pre>section:nth-of-type(7n + 5)>.card-body {
     background-color: #f5f8ff;
     border-radius: 0px 0px 24px 24px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 6) > .card-header {
+#block-region-side-pre>section:nth-of-type(7n + 6)>.card-header {
     background-color: $block-region-side-pre-6;
     border-radius: 0px;
 }
 
-#block-region-side-pre > section:nth-of-type(7n + 6) > .card-body {
+#block-region-side-pre>section:nth-of-type(7n + 6)>.card-body {
     background-color: #f5f8ff;
     border-radius: 0px 0px 24px 24px;
 }
@@ -471,9 +521,11 @@ section.node-category {
     background-color: #e8e8e8;
     border-radius: 24px 24px 0px 0px;
 }
+
 .block .card-title {
     color: #696969;
 }
+
 .block .card-body {
     background-color: white;
     border-radius: 0px 0px 24px 24px;
@@ -484,9 +536,11 @@ section.node-category {
     border: 1px solid #d5ddea;
     color: #1c3d77;
 }
+
 .block_timeline .block-timeline [data-region="timeline-view"] {
     box-shadow: none;
 }
+
 .block button.dropdown-toggle:hover {
     background-color: #bdbdbc;
     color: white;
@@ -525,21 +579,26 @@ nav.moremenu.navigation.observed {
 .edw-tabs-navigation .nav-tabs .nav-item .nav-link {
     font-size: 0.9775rem;
 }
+
 li.breadcrumb-item {
     font-size: 0.8775rem;
 }
+
 a.nav-link {
     font-weight: bold;
 }
+
 .navbar-brand {
     background-color: transparent;
 }
+
 .navbar .primary-navigation .nav-link,
-.navbar .primary-navigation .more-nav > .dropdown > .dropdown-toggle,
+.navbar .primary-navigation .more-nav>.dropdown>.dropdown-toggle,
 .navbar #usernavigation .nav-link,
-.navbar #usernavigation .more-nav > .dropdown > .dropdown-toggle {
+.navbar #usernavigation .more-nav>.dropdown>.dropdown-toggle {
     color: $color-primary;
 }
+
 .navbar .primary-navigation .nav-link.active {
     color: $color-primary; // Reemplazado #366daf con $color-primary
 }
@@ -549,16 +608,19 @@ a.nav-link {
 }
 
 .navbar .primary-navigation .nav-link:hover,
-.navbar .primary-navigation .more-nav > .dropdown > .dropdown-toggle:hover,
+.navbar .primary-navigation .more-nav>.dropdown>.dropdown-toggle:hover,
 .navbar #usernavigation .nav-link:hover,
-.navbar #usernavigation .more-nav > .dropdown > .dropdown-toggle:hover {
+.navbar #usernavigation .more-nav>.dropdown>.dropdown-toggle:hover {
     color: $color-primary; // Reemplazado #3972b5 con $color-primary
 }
 
 .navbar {
-    border-bottom: 5px solid $color-primary; /* Borde sólido azul en la parte inferior */
-    box-shadow: 0px 2px 3px rgba(255, 255, 255, 0.5); /* Sombra blanca suave para crear el efecto de filo */
+    border-bottom: 5px solid $color-primary;
+    /* Borde sólido azul en la parte inferior */
+    box-shadow: 0px 2px 3px rgba(255, 255, 255, 0.5);
+    /* Sombra blanca suave para crear el efecto de filo */
 }
+
 .navbar .primary-navigation .nav-link.active::before,
 .navbar .primary-navigation .dropdown-toggle.active::before,
 .navbar #usernavigation .nav-link.active::before,
@@ -569,12 +631,14 @@ a.nav-link {
 
 /* Footer */
 #page-footer {
-    background-color: $color-secondary; /* Reemplazado con $color-secondary */
+    background-color: $color-secondary;
+    /* Reemplazado con $color-secondary */
 }
 
 /* Top Footer */
 #top-footer {
-    background-color: $color-primary; /* Azul oscuro */
+    background-color: $color-primary;
+    /* Azul oscuro */
     color: $color-white;
     margin: 0 -15px;
 }
@@ -587,14 +651,16 @@ a.nav-link {
 #block-region-side-pre .block-content-area .table-wrapper .calendartable.calendarmonth th .dashboard-card .course-info-container .edw-card-design-hd span.categoryname.h-semibold-5,
 .dashboard-card .course-info-container .edw-card-design-hd span.categoryname.edw-msg-panel-badge {
     color: #fff;
-    background-color: $color-secondary; /* Rojo */
+    background-color: $color-secondary;
+    /* Rojo */
     font-size: .8em;
 }
 
 /* Asegurar que las clases categoryname, text-truncate, small-info-semibold se vean bien */
 .categoryname.text-truncate.small-info-semibold {
     color: #fff;
-    background-color: $color-secondary; /* Rojo */
+    background-color: $color-secondary;
+    /* Rojo */
     font-size: 0.8em;
 }
 
@@ -605,17 +671,10 @@ a.nav-link {
     background-color: $color-primary;
     border-radius: 0;
     justify-content: space-between;
-
-    a {
-        color: #ffffff;
-
-        &:hover,
-        &:focus {
-            color: #ffffff;
-        }
-    }
 }
-#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .edw-icon, #theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .fa-lock {
+
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .edw-icon,
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-section-title .fa-lock {
     font-size: 24px;
     height: 24px;
     width: 24px;
@@ -644,7 +703,7 @@ a.nav-link {
     &:not(:disabled):not(.disabled):active,
     &:not(:disabled):not(.disabled).active,
     &:not(:disabled):not(.disabled):active:focus,
-    .show > &.dropdown-toggle {
+    .show>&.dropdown-toggle {
         background-color: $color-secondary; // Rojo en activo
         border-color: $color-secondary; // Rojo en activo
         color: #ffffff; // Blanco en activo
@@ -678,7 +737,7 @@ a.nav-link {
     &:not(:disabled):not(.disabled):active,
     &:not(:disabled):not(.disabled).active,
     &:not(:disabled):not(.disabled):active:focus,
-    .show > &.dropdown-toggle {
+    .show>&.dropdown-toggle {
         background-color: $color-primary; // Azul oscuro en activo
         border-color: $color-primary; // Azul oscuro en activo
         color: #ffffff; // Blanco en activo
@@ -707,7 +766,7 @@ button.btn.btn-primary.icon-no-margin.p-0 {
     &:not(:disabled):not(.disabled):active,
     &:not(:disabled):not(.disabled).active,
     &:not(:disabled):not(.disabled):active:focus,
-    .show > &.dropdown-toggle {
+    .show>&.dropdown-toggle {
         background-color: darken($color-secondary, 10%); // Oscurece el color secundario para el estado activo
         border-color: white; // Mantiene el borde blanco para el estado activo
         color: white; // Mantiene el texto blanco para mejor visibilidad
@@ -748,108 +807,241 @@ button.btn.btn-primary.icon-no-margin.p-0 {
 /* Responsive rules */
 
 /* Para tablets y desktops pequeños */
-@media (min-width: 768px) {
-}
+@media (min-width: 768px) {}
 
 /* Para pantallas un poco más grandes que tablets */
-@media (min-width: 800px) {
-}
+@media (min-width: 800px) {}
 
 /* Para desktops grandes */
-@media (min-width: 1200px) {
-}
+@media (min-width: 1200px) {}
 
 /* Estilos para dispositivos con un ancho máximo de 993px y una altura mínima de 640px */
 @media (max-width: 993px) {
-    @media (min-height: 640px) {
-    }
+    @media (min-height: 640px) {}
 }
 
 /* Para dispositivos móviles (tablets y teléfonos en posición horizontal) */
-@media (max-width: 767px) {
-}
+@media (max-width: 767px) {}
 
 /* Para pantallas pequeñas */
-@media (max-width: 639px) {
-}
+@media (max-width: 639px) {}
 
 /* Para dispositivos aún más pequeños */
-@media (max-width: 576px) {
-}
+@media (max-width: 576px) {}
 
 /* Para teléfonos muy pequeños */
-@media (max-width: 500px) {
-}
+@media (max-width: 500px) {}
 
 /* Para los teléfonos más pequeños */
-@media (max-width: 479px) {
+@media (max-width: 479px) {}
+
+/* =========================================
+   INTEB - TAREA 1: Courseindex Colapsado y Cuestionarios Centrados
+   Agregar al final de /theme/inteb/scss/inteb.scss
+   ========================================= */
+
+/* =========================================
+   PARTE 1: Courseindex Collapsed by Default
+   ========================================= */
+
+/* Asegurar que el ícono muestre el estado correcto */
+#theme_remui-drawers-courseindex .courseindex-chevron.collapsed {
+    .collapsed-icon {
+        display: inline-block !important;
+    }
+
+    .expanded-icon {
+        display: none !important;
+    }
 }
 
-/* Course index collapsed by default */
-#page-course-view .courseindex .courseindex-item-content {
-    display: none;
+#theme_remui-drawers-courseindex .courseindex-chevron:not(.collapsed) {
+    .collapsed-icon {
+        display: none !important;
+    }
+
+    .expanded-icon {
+        display: inline-block !important;
+    }
 }
 
-/* Centre quiz intro and start attempt button */
-#page-mod-quiz-view #intro,
-#page-mod-quiz-view .activity-description,
-#page-mod-quiz-view .quiz-info {
-    text-align: center;
+/* Transición suave para el colapso/expansión */
+#theme_remui-drawers-courseindex .courseindex-item-content {
+    transition: height 0.35s ease;
 }
 
-#page-mod-quiz-view .tertiary-navigation .row {
-    justify-content: center;
-}
+/* =========================================
+   PARTE 2: Centrado de Cuestionarios mod_quiz
+   IMPORTANTE: Solo centrar botón y descripción
+   ========================================= */
 
-#page-mod-quiz-view .quizstartbuttondiv {
-    text-align: center;
-}
+/* Centrar el botón de inicio del quiz */
+#page-mod-quiz-view {
 
-/* Course index item styling */
-/* Ensure text and icons remain visible on dark backgrounds */
-#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-item-content .courseindex-sectioncontent .courseindex-item,
-#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-sectioncontent > .courseindex-item {
-    padding: 4px 24px;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    border-radius: unset;
-    background-color: transparent;
+    /* Centrar el div que contiene el botón */
+    .quizstartbuttondiv {
+        text-align: center !important;
+        margin: 2rem auto !important;
 
-    .courseindex-link {
-        color: #fff;
+        /* Centrar el formulario dentro */
+        form {
+            display: inline-block !important;
+            margin: 0 auto !important;
+        }
 
-        &:hover,
-        &:focus {
-            color: #fff;
+        /* Asegurar que el botón esté centrado */
+        .btn,
+        button,
+        input[type="submit"],
+        .singlebutton {
+            display: inline-block !important;
+            margin: 0 auto !important;
         }
     }
 
-    .edw-icon,
-    .fa-lock {
-        font-size: 18px;
-        height: 18px;
-        width: 18px;
-        color: #fff;
+    /* Centrar la descripción del quiz */
+    .activity-description {
+        text-align: center !important;
+        margin: 1.5rem auto !important;
+        max-width: 900px !important;
+
+        .no-overflow {
+            text-align: center !important;
+        }
+
+        p {
+            text-align: center !important;
+        }
     }
 
-    &:hover,
-    &:focus-within,
-    &[aria-selected="true"] {
-        background-color: $color-primary;
-        color: #fff;
+    /* Centrar el contenedor principal del quiz intro */
+    #intro,
+    .generalbox {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 900px !important;
 
-        .courseindex-link,
-        .edw-icon,
-        .fa-lock {
-            color: #fff;
+        .no-overflow {
+            text-align: center !important;
+        }
+    }
+
+    /* Centrar información del quiz */
+    .quizinfo {
+        text-align: center !important;
+        margin: 2rem auto !important;
+        max-width: 900px !important;
+
+        h2,
+        h3,
+        h4,
+        p {
+            text-align: center !important;
+        }
+    }
+
+    /* Centrar el feedback de calificación */
+    #page .quizgradefeedback,
+    .generalbox#feedback {
+        text-align: center !important;
+        margin: 2rem auto !important;
+        max-width: 900px !important;
+    }
+}
+
+/* Asegurar centrado en la página de resumen */
+#page-mod-quiz-summary {
+    #content {
+        text-align: center !important;
+    }
+
+    .submitbtns {
+        text-align: center !important;
+        margin: 2rem auto !important;
+
+        .btn {
+            margin: 0 0.5rem !important;
+        }
+    }
+
+    #quiz-timer {
+        text-align: center !important;
+        margin: 1.5rem auto !important;
+    }
+}
+
+/* Asegurar centrado en la página de revisión */
+#page-mod-quiz-review {
+    .submitbtns {
+        text-align: center !important;
+        margin: 2rem auto !important;
+        justify-content: center !important;
+    }
+
+    table.quizreviewsummary {
+        margin: 2rem auto !important;
+        max-width: 800px !important;
+    }
+}
+
+/* =========================================
+   PARTE 3: Fix para clearfix
+   ========================================= */
+
+.path-mod-quiz .clearfix::after {
+    content: none !important;
+    display: table !important;
+    clear: both !important;
+}
+
+/* =========================================
+   PARTE 4: Responsive para elementos centrados
+   ========================================= */
+
+@media (max-width: 768px) {
+    #page-mod-quiz-view {
+
+        .quizstartbuttondiv,
+        .activity-description,
+        #intro,
+        .generalbox,
+        .quizinfo {
+            padding: 0 1rem !important;
+            max-width: 100% !important;
+        }
+
+        .quizstartbuttondiv {
+
+            .btn,
+            button,
+            input[type="submit"] {
+                width: 90% !important;
+                max-width: 300px !important;
+            }
         }
     }
 }
 
-/* Highlight selected course category */
-#course-category-listings .listitem[data-selected="1"] {
-    border-left: calc(1px + 5px) solid $color-primary;
-    padding-left: calc(1.25rem - 5px);
+/* =========================================
+   FIN DE ESTILOS TAREA 1
+   ========================================= */
+
+.moremenu .nav-link {
+    font-size: 15.6px !important;
 }
 
+a.nav-link {
+    font-weight: 600 !important;
+}
+
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-item-content .courseindex-sectioncontent .courseindex-item .edw-icon,
+#theme_remui-drawers-courseindex .drawercontent #courseindex #courseindex-content .courseindex .courseindex-section .courseindex-item-content .courseindex-sectioncontent .courseindex-item .fa-lock {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    color: #ffffff;
+}
+.block_grade_me .badge {
+    color: #ffffff;
+}

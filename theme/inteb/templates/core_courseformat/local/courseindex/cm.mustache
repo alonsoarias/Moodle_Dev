@@ -8,32 +8,35 @@
 
     Moodle is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Moodle. If not, see <http: //www.gnu.org/licenses />.
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-    Edwiser RemUI
-    @package theme_remui
-    @copyright (c) 2023 WisdmLabs (https://wisdmlabs.com/)
+    Theme INTEB - Child theme of RemUI
+    @package theme_inteb
+    @copyright (c) 2025 IngeWeb <soporte@ingeweb.co>
     @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+    
+    Based on theme_remui/templates/core_courseformat/local/courseindex/cm.mustache
 }}
 {{!
     @template core_courseformat/local/courseindex/cm
 
     Displays a course index course-module entry.
+    Copy from RemUI parent theme - No modifications needed for cm items.
 
     Example context (json):
     {
-    "id": "12",
-    "name": "Announcements",
-    "url": "#",
-    "visible": 1,
-    "isactive": 1,
-    "uniqid": "0",
-    "accessvisible": 1,
-    "hascmrestrictions": 0
+        "id": "12",
+        "name": "Announcements",
+        "url": "#",
+        "visible": 1,
+        "isactive": 1,
+        "uniqid": "0",
+        "accessvisible": 1,
+        "hascmrestrictions": 0
     }
 }}
 <li class="courseindex-item
@@ -41,9 +44,7 @@
         {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
         {{^accessvisible}}dimmed{{/accessvisible}}
         {{#indent}} indented {{/indent}}
-
         {{#hasdelegatedsection}}py-0{{/hasdelegatedsection}}
-
         {{#url}} d-flex {{/url}} {{^url}} d-flex-noedit {{/url}}"
     id="{{uniqid}}-course-index-cm-{{id}}"
     data-for="cm"
@@ -52,22 +53,22 @@
 >
     {{^hasdelegatedsection}}
         <div class="edw-section-content-wrapper text-truncate align-items-center">
-        <span class="completioninfo" data-for="cm_completion" data-value="NaN"></span>
-        {{#uservisible}}
-        <a
-            class="courseindex-link text-truncate text-link-regular"
-            {{#url}} href="{{{url}}}" {{/url}}{{^url}} href="#{{{anchor}}}" data-anchor="true" {{/url}}
-            data-for="cm_name"
-            tabindex="-1"
-        >
-            {{{name}}}
-        </a>
-        {{/uservisible}}
-        {{^uservisible}}
-        <a class="courseindex-link text-truncate text-link-regular" href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
-            {{{name}}}
-        </a>
-        {{/uservisible}}
+            <span class="completioninfo" data-for="cm_completion" data-value="NaN"></span>
+            {{#uservisible}}
+            <a
+                class="courseindex-link text-truncate text-link-regular"
+                {{#url}} href="{{{url}}}" {{/url}}{{^url}} href="#{{{anchor}}}" data-anchor="true" {{/url}}
+                data-for="cm_name"
+                tabindex="-1"
+            >
+                {{{name}}}
+            </a>
+            {{/uservisible}}
+            {{^uservisible}}
+            <a class="courseindex-link text-truncate text-link-regular" href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+                {{{name}}}
+            </a>
+            {{/uservisible}}
         </div>
         <div class="edw-section-content-icon-wrapper align-items-center">
             <span class="courseindex-locked " data-for="cm_name">
@@ -84,6 +85,6 @@
 </li>
 {{#js}}
 require(['core_courseformat/local/courseindex/cm'], function(component) {
-component.init('{{uniqid}}-course-index-cm-{{id}}');
+    component.init('{{uniqid}}-course-index-cm-{{id}}');
 });
 {{/js}}

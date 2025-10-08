@@ -63,7 +63,7 @@ class core_renderer extends \theme_remui\output\core_renderer
      */
     public function get_theme_img_url($img) {
         $theme = theme_config::load('inteb');
-        return $theme->setting_file_url('ib_' . $img, 'ib_' . $img);
+        return $theme->setting_file_url($img, $img);
     }
 
     /**
@@ -92,12 +92,12 @@ class core_renderer extends \theme_remui\output\core_renderer
         $theme = theme_config::load('inteb');
 
         // 1) Widget de chat
-        if (!empty($theme->settings->ib_enable_chat)) {
+        if (!empty($theme->settings->enable_chat)) {
             $output .= $this->add_chat_widget();
         }
 
         // 2) Prevención de Copy/Paste
-        if (!empty($theme->settings->ib_copypaste_prevention)) {
+        if (!empty($theme->settings->copypaste_prevention)) {
             $this->add_copy_paste_prevention();
         }
 
@@ -116,23 +116,23 @@ class core_renderer extends \theme_remui\output\core_renderer
         $output = '';
 
         // Ocultar secciones front page si está configurado
-        if (!empty($theme->settings->ib_hidefrontpagesections)) {
+        if (!empty($theme->settings->hidefrontpagesections)) {
             $output .= '<style>.frontpage-sections { display: none; }</style>';
         }
 
         // Aviso general (notice)
-        if (!empty(trim($theme->settings->ib_generalnotice))) {
-            $mode = $theme->settings->ib_generalnoticemode;
+        if (!empty(trim($theme->settings->generalnotice))) {
+            $mode = $theme->settings->generalnoticemode;
             // 'info' => alert-info, 'danger' => alert-danger, 'off' => sin aviso
             if ($mode === 'info') {
-                $output .= '<div class="alert alert-info mt-4"><strong><i class="fa fa-info-circle"></i></strong> ' . $theme->settings->ib_generalnotice . '</div>';
+                $output .= '<div class="alert alert-info mt-4"><strong><i class="fa fa-info-circle"></i></strong> ' . $theme->settings->generalnotice . '</div>';
             } else if ($mode === 'danger') {
-                $output .= '<div class="alert alert-danger mt-4"><strong><i class="fa fa-warning"></i></strong> ' . $theme->settings->ib_generalnotice . '</div>';
+                $output .= '<div class="alert alert-danger mt-4"><strong><i class="fa fa-warning"></i></strong> ' . $theme->settings->generalnotice . '</div>';
             }
         }
 
         // Recordatorio para admin, si el aviso está en modo 'off'
-        if (is_siteadmin() && (!empty($theme->settings->ib_generalnoticemode) && $theme->settings->ib_generalnoticemode === 'off')) {
+        if (is_siteadmin() && (!empty($theme->settings->generalnoticemode) && $theme->settings->generalnoticemode === 'off')) {
             $output .= '<div class="alert mt-4"><a href="' . $CFG->wwwroot . '/admin/settings.php?section=themesettinginteb#theme_inteb">' .
                        '<strong><i class="fa fa-edit"></i></strong> ' . get_string('generalnotice_create', 'theme_inteb') . '</a></div>';
         }
@@ -158,7 +158,7 @@ class core_renderer extends \theme_remui\output\core_renderer
 
         $theme = theme_config::load('inteb');
         // Si el usuario no ha iniciado sesión o no tenemos URL del chat, no hacemos nada
-        if (!isloggedin() || empty($theme->settings->ib_tawkto_embed_url)) {
+        if (!isloggedin() || empty($theme->settings->tawkto_embed_url)) {
             return '';
         }
 
@@ -184,7 +184,7 @@ class core_renderer extends \theme_remui\output\core_renderer
         (function(){
             var s1 = document.createElement(\"script\"), s0 = document.getElementsByTagName(\"script\")[0];
             s1.async = true;
-            s1.src = '" . $theme->settings->ib_tawkto_embed_url . "';
+            s1.src = '" . $theme->settings->tawkto_embed_url . "';
             s1.charset = 'UTF-8';
             s1.setAttribute('crossorigin','*');
             s0.parentNode.insertBefore(s1, s0);
@@ -196,14 +196,14 @@ class core_renderer extends \theme_remui\output\core_renderer
         return $script;
     }
 
-    /**
+/**
      * Agrega la lógica de prevención de Copy/Paste para roles específicos.
      */
     protected function add_copy_paste_prevention() {
-        global $USER, $PAGE, $COURSE;
+        global $USER, $PAGE, $COURSE, $CFG;
 
         $theme = theme_config::load('inteb');
-        $restrictedroles = $theme->settings->ib_copypaste_roles;
+        $restrictedroles = $theme->settings->copypaste_roles;
 
         // Si no hay roles restringidos, no hacemos nada.
         if (empty($restrictedroles)) {
@@ -215,43 +215,77 @@ class core_renderer extends \theme_remui\output\core_renderer
             return;
         }
 
+        // Solo aplicar si el usuario está logueado
+        if (!isloggedin()) {
+            return;
+        }
+
         try {
             // Obtenemos el contexto para saber en qué curso o página estamos
             $context = null;
+            
             if (!empty($COURSE->id) && $COURSE->id > 1) {
                 // Contexto de un curso
                 $context = \context_course::instance($COURSE->id);
             } else if (!empty($PAGE->context)) {
                 // Si no es un curso, usamos el contexto de la página actual
                 $context = $PAGE->context;
+            } else {
+                // Contexto del sistema por defecto
+                $context = \context_system::instance();
             }
 
             if (!$context) {
-                return; // No hay contexto válido
+                debugging('No valid context found for copy/paste prevention', DEBUG_DEVELOPER);
+                return;
             }
 
-            // Convertimos a array si es string (por seguridad)
+            // Convertimos a array si es string y limpiamos valores
             if (!is_array($restrictedroles)) {
-                $restrictedroles = explode(',', $restrictedroles);
+                $restrictedroles = array_map('trim', explode(',', $restrictedroles));
+                $restrictedroles = array_filter($restrictedroles, function($role) {
+                    return !empty($role) && is_numeric($role);
+                });
+            }
+
+            if (empty($restrictedroles)) {
+                debugging('No valid restricted roles found', DEBUG_DEVELOPER);
+                return;
             }
 
             // Obtenemos los roles del usuario en este contexto
-            $userroles = get_user_roles($context, $USER->id);
+            $userroles = get_user_roles($context, $USER->id, true);
             $hasrestrictedrole = false;
+            $activeroles = [];
+            
             foreach ($userroles as $role) {
+                $activeroles[] = $role->roleid;
                 if (in_array($role->roleid, $restrictedroles)) {
                     $hasrestrictedrole = true;
-                    break;
                 }
             }
 
             // Si el usuario tiene algún rol restringido, aplicamos la prevención
-            if (isloggedin() && $hasrestrictedrole) {
-                // Llama a un módulo AMD con la lógica para bloquear copy/paste
+            if ($hasrestrictedrole) {
+                // Cargar el módulo AMD - sin parámetros ya que tu JS no los necesita
                 $PAGE->requires->js_call_amd('theme_inteb/prevent_copy_paste', 'init');
+                
+                // Log para debugging (solo en modo debug)
+                if ($CFG->debugdisplay) {
+                    debugging(
+                        'Copy/paste prevention applied for user: ' . $USER->username . 
+                        ' with roles: ' . implode(',', $activeroles) . 
+                        ' in context: ' . get_class($context) . '(' . $context->id . ')', 
+                        DEBUG_DEVELOPER
+                    );
+                }
             }
+
         } catch (moodle_exception $e) {
             debugging('Error in copy/paste prevention: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return;
+        } catch (Exception $e) {
+            debugging('Unexpected error in copy/paste prevention: ' . $e->getMessage(), DEBUG_DEVELOPER);
             return;
         }
     }
@@ -326,8 +360,8 @@ class core_renderer extends \theme_remui\output\core_renderer
         $allowed_urls = [
             'https://inteb.moodlesoporte.net',
             'http://inteb.moodlesoporte.net',
-            'https://aulavirtualnew.inteb.edu.co',
-            'http://aulavirtualnew.inteb.edu.co',
+            'https://aulavirtual.inteb.edu.co',
+            'http://aulavirtual.inteb.edu.co',
             'https://moodle45.localhost.com',
             'http://moodle45.localhost.com',
             'https://demomoodle.ingeweb.co',
