@@ -1,868 +1,102 @@
 {{!
     This file is part of Moodle - http://moodle.org/
-    Windows Explorer style folder template
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
     @template mod_folder/folder
-    @package mod_folder
+
+    Template for displaying folder resource.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Example context (json):
+    {
+        "id": 42,
+        "showexpanded": true,
+        "buttons": {
+           "edit_button": {
+                "id": "edit_button",
+                "label": "Edit",
+                "url": "/mod/folder/edit.php",
+                "classes": "navitem"
+            },
+            "download_button": {
+                "id": "download_button",
+                "label": "Download",
+                "url": "/mod/folder/download.php",
+                "classes": "navitem"
+            }
+        },
+        "dir": [
+            {
+                "name": "Folder",
+                "icon": "<img src='icon' alt='alt'>",
+                "hassubdirs": true,
+                "subdirs": [
+                    {
+                        "name": "File1",
+                        "icon": "<img src='icon' alt='alt'>",
+                        "hassubdirs": false,
+                        "subdirs": null
+                     }
+                ]
+            },
+            {
+                "name": "File2",
+                "icon": "<img src='icon' alt='alt'>",
+                "hassubdirs": false,
+                "subdirs": null
+            }
+        ]
+    }
 }}
 
-<div class="folder-container-onedrive folder-explorer-container" id="{{id}}" data-root-name="{{rootname}}">
-
-    {{! Intro }}
-    {{#intro}}
-    <div class="folder-intro">
-        {{{intro}}}
-    </div>
-    {{/intro}}
-
-    {{! Buttons }}
+<div class="flex-fill description-inner text-break">
+    {{{intro}}}
     {{#hasbuttons}}
-    <div class="folder-header-actions">
-        <div class="btn-group">
-            {{#edit_button}}
-                {{>core/single_button}}
-            {{/edit_button}}
-            {{#download_button}}
-                {{>core/single_button}}
-            {{/download_button}}
+        <div class="container-fluid">
+            <div class="row">
+                {{#edit_button}}
+                    {{>core/single_button}}
+                {{/edit_button}}
+                {{#download_button}}
+                    {{>core/single_button}}
+                {{/download_button}}
+            </div>
         </div>
-    </div>
     {{/hasbuttons}}
-
-    <div class="folder-explorer-shell">
-        {{#has_tree}}
-        <aside class="folder-navigation" aria-label="{{strings.navigationaria}}">
-            <div class="navigation-header">{{strings.navigationheader}}</div>
-            <div class="folder-tree-scroll">
-                <ul class="folder-tree-list">
-                    {{#tree}}
-                        {{> mod_folder/tree}}
-                    {{/tree}}
+    <div class="box generalbox pt-0 pb-3 foldertree">
+        <div id="{{{id}}}" class="filemanager">
+            {{#dir}}
+                <ul>
+                    <li>
+                        {{>mod_folder/tree}}
+                    </li>
                 </ul>
-            </div>
-        </aside>
-        {{/has_tree}}
-
-        <div class="folder-main-panel">
-            <div class="folder-header-bar">
-                <div class="folder-navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
-                    <button type="button" class="nav-button nav-button-back" title="{{strings.navbacktitle}}" aria-label="{{strings.navbackaria}}" disabled>
-                        <i class="fa fa-arrow-left"></i>
-                    </button>
-                    <button type="button" class="nav-button nav-button-forward" title="{{strings.navforwardtitle}}" aria-label="{{strings.navforwardaria}}" disabled>
-                        <i class="fa fa-arrow-right"></i>
-                    </button>
-                    <button type="button" class="nav-button nav-button-up" title="{{strings.navuptitle}}" aria-label="{{strings.navuparia}}" disabled>
-                        <i class="fa fa-level-up"></i>
-                    </button>
-                </div>
-                <div class="folder-breadcrumbs" role="navigation" aria-label="{{strings.breadcrumbsaria}}"></div>
-            </div>
-
-            {{! Search and Controls Bar }}
-            <div class="folder-controls-bar">
-                <div class="controls-left">
-                    <div class="search-box">
-                        <i class="fa fa-search"></i>
-                        <input type="text"
-                               class="folder-search-input"
-                               placeholder="{{strings.searchplaceholder}}"
-                               aria-label="{{strings.searcharia}}">
-                        <button class="search-clear" style="display:none;">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="controls-right">
-                    <div class="sort-controls">
-                        <label class="sort-label">{{strings.sortlabel}}</label>
-                        <select class="folder-sort-select">
-                            <option value="name-asc">{{strings.sortnameasc}}</option>
-                            <option value="name-desc">{{strings.sortnamedesc}}</option>
-                            <option value="date-desc">{{strings.sortdatenewest}}</option>
-                            <option value="date-asc">{{strings.sortdateoldest}}</option>
-                            <option value="type-asc">{{strings.sorttypeasc}}</option>
-                            <option value="type-desc">{{strings.sorttypedesc}}</option>
-                            <option value="size-desc">{{strings.sortsizedesc}}</option>
-                            <option value="size-asc">{{strings.sortsizeasc}}</option>
-                        </select>
-                    </div>
-                    <div class="filter-controls">
-                        <label class="filter-label">{{strings.filterlabel}}</label>
-                        <select class="folder-filter-select">
-                            <option value="all">{{strings.filterall}}</option>
-                            <option value="folders">{{strings.filterfolders}}</option>
-                            <option value="files">{{strings.filterfiles}}</option>
-                            <option value="images">{{strings.filterimages}}</option>
-                            <option value="documents">{{strings.filterdocuments}}</option>
-                            <option value="videos">{{strings.filtervideos}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            {{! Toolbar }}
-            <div class="folder-toolbar-onedrive">
-                <div class="toolbar-left">
-                    <button class="btn btn-sm view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
-                        <i class="fa fa-th"></i>
-                    </button>
-                    <button class="btn btn-sm view-toggle" data-view="list" title="{{strings.viewlist}}">
-                        <i class="fa fa-list"></i>
-                    </button>
-                    <button class="btn btn-sm view-toggle" data-view="details" title="{{strings.viewdetails}}">
-                        <i class="fa fa-th-list"></i>
-                    </button>
-                </div>
-                <div class="toolbar-right">
-                    <span class="item-count-display"></span>
-                    <span class="selection-count-display" style="display:none;"></span>
-                </div>
-            </div>
-
-            <div class="folder-content-views">
-                <div class="folder-content-grid active">
-                    <div class="grid-container">
-                        {{#items}}
-                        <div class="grid-item {{#is_folder}}item-folder{{/is_folder}}{{#is_file}}item-file{{/is_file}}"
-                             data-name="{{name}}"
-                             data-type="{{type}}"
-                             data-extension="{{extension}}"
-                             data-size-bytes="{{size_bytes}}"
-                             data-modified-timestamp="{{modified_timestamp}}"
-                             data-file-category="{{file_category}}"
-                             data-parent-path="{{parent_path_encoded}}"
-                             {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                             {{#url}}data-url="{{{url}}}"{{/url}}>
-
-                            <div class="item-checkbox">
-                                <input type="checkbox" aria-label="{{#str}}selectitem, mod_folder, {{name}}{{/str}}">
-                            </div>
-
-                            <div class="item-icon {{icon_class}}">
-                                {{{icon}}}
-                            </div>
-
-                            <div class="item-details">
-                                <div class="item-name" title="{{name}}">{{name}}</div>
-                                {{#is_file}}
-                                <div class="item-meta">
-                                    <span class="item-size">{{size}}</span>
-                                    <span class="item-modified">{{modified}}</span>
-                                </div>
-                                {{/is_file}}
-                            </div>
-                        </div>
-                        {{/items}}
-                    </div>
-                </div>
-
-                <div class="folder-content-list">
-                    <table class="table table-hover folder-table-list">
-                        <thead>
-                            <tr>
-                                <th width="30"><input type="checkbox" class="select-all"></th>
-                                <th>{{strings.tableheadername}}</th>
-                                <th width="100">{{strings.tableheadertype}}</th>
-                                <th width="100">{{strings.tableheadersize}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#items}}
-                            <tr class="list-item"
-                                data-name="{{name}}"
-                                data-type="{{type}}"
-                                data-extension="{{extension}}"
-                                data-size-bytes="{{size_bytes}}"
-                                data-modified-timestamp="{{modified_timestamp}}"
-                                data-file-category="{{file_category}}"
-                                data-parent-path="{{parent_path_encoded}}"
-                                {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                                {{#url}}data-url="{{{url}}}"{{/url}}>
-                                <td><input type="checkbox"></td>
-                                <td>
-                                    <span class="list-icon {{icon_class}}">{{{icon}}}</span>
-                                    <span class="list-name">{{name}}</span>
-                                </td>
-                                <td>{{type}}</td>
-                                <td>{{size}}</td>
-                            </tr>
-                            {{/items}}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="folder-content-details">
-                    <table class="table table-hover folder-table-details">
-                        <thead>
-                            <tr>
-                                <th width="30"><input type="checkbox" class="select-all"></th>
-                                <th class="sortable" data-sort="name">
-                                    {{strings.tableheadername}} <i class="fa fa-sort sort-icon"></i>
-                                </th>
-                                <th width="150" class="sortable" data-sort="date">
-                                    {{strings.tableheaderdatemodified}} <i class="fa fa-sort sort-icon"></i>
-                                </th>
-                                <th width="100" class="sortable" data-sort="type">
-                                    {{strings.tableheadertype}} <i class="fa fa-sort sort-icon"></i>
-                                </th>
-                                <th width="100" class="sortable" data-sort="size">
-                                    {{strings.tableheadersize}} <i class="fa fa-sort sort-icon"></i>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#items}}
-                            <tr class="details-item"
-                                data-name="{{name}}"
-                                data-type="{{type}}"
-                                data-extension="{{extension}}"
-                                data-size-bytes="{{size_bytes}}"
-                                data-modified-timestamp="{{modified_timestamp}}"
-                                data-file-category="{{file_category}}"
-                                data-parent-path="{{parent_path_encoded}}"
-                                {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                                {{#url}}data-url="{{{url}}}"{{/url}}>
-                                <td><input type="checkbox"></td>
-                                <td>
-                                    <span class="details-icon {{icon_class}}">{{{icon}}}</span>
-                                    <span class="details-name">{{name}}</span>
-                                </td>
-                                <td class="text-muted">{{modified}}</td>
-                                <td class="text-muted">{{type}}</td>
-                                <td class="text-muted">{{size}}</td>
-                            </tr>
-                            {{/items}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="empty-folder-message" style="display:none;">
-                <div class="empty-state">
-                    <i class="fa fa-folder-open-o fa-5x"></i>
-                    <p>{{strings.emptyfolder}}</p>
-                </div>
-            </div>
-
-            <div class="no-results-message" style="display:none;">
-                <div class="empty-state">
-                    <i class="fa fa-search fa-5x"></i>
-                    <p>{{strings.noresults}}</p>
-                    <button class="btn btn-secondary clear-search-btn">{{strings.clearsearch}}</button>
-                </div>
-            </div>
+            {{/dir}}
         </div>
     </div>
 </div>
 
 {{#js}}
-require(['jquery'], function($) {
-    var containerId = '{{id}}';
-    var container = $('#' + containerId);
-    var currentView = 'grid';
-    var currentSort = 'name-asc';
-    var currentFilter = 'all';
-    var currentPath = '';
-    var searchTerm = '';
-    var rootName = decodeHtml(container.attr('data-root-name') || '');
-    var strings = {{{stringsjson}}};
-
-    var searchInput = container.find('.folder-search-input');
-    var searchClear = container.find('.search-clear');
-    var navButtonBack = container.find('.nav-button-back');
-    var navButtonForward = container.find('.nav-button-forward');
-    var navButtonUp = container.find('.nav-button-up');
-    var navigationHistory = [''];
-    var historyIndex = 0;
-
-    initialiseTree();
-    setCurrentPath('', {initial: true});
-
-    // View toggle.
-    container.find('.view-toggle').on('click', function() {
-        currentView = $(this).data('view');
-        container.find('.view-toggle').removeClass('active');
-        $(this).addClass('active');
-        applyFiltersAndSort();
+    // Init tree JS.
+    require(['mod_folder/folder'], function(Folder) {
+        Folder.initTree('{{{id}}}', '{{{showexpanded}}}');
     });
-
-    // Search functionality.
-    searchInput.on('input', function() {
-        searchTerm = $(this).val().toLowerCase().trim();
-        if (searchTerm.length > 0) {
-            searchClear.show();
-        } else {
-            searchClear.hide();
-        }
-        applyFiltersAndSort();
-    });
-
-    searchClear.on('click', function() {
-        searchInput.val('');
-        searchTerm = '';
-        $(this).hide();
-        applyFiltersAndSort();
-    });
-
-    container.find('.clear-search-btn').on('click', function() {
-        searchInput.val('');
-        searchTerm = '';
-        searchClear.hide();
-        applyFiltersAndSort();
-    });
-
-    // Sort functionality.
-    container.find('.folder-sort-select').on('change', function() {
-        currentSort = $(this).val();
-        applyFiltersAndSort();
-    });
-
-    // Filter functionality.
-    container.find('.folder-filter-select').on('change', function() {
-        currentFilter = $(this).val();
-        applyFiltersAndSort();
-    });
-
-    // Tree interactions.
-    container.on('click', '.folder-tree-toggle', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var node = $(this).closest('.folder-tree-node');
-        var willExpand = !node.hasClass('expanded');
-        node.toggleClass('expanded', willExpand).toggleClass('collapsed', !willExpand);
-        $(this).attr('aria-expanded', willExpand);
-    });
-
-    container.on('click', '.folder-tree-label', function(e) {
-        e.preventDefault();
-        var node = $(this).closest('.folder-tree-node');
-        var path = node.attr('data-path') || '';
-        if (node.hasClass('has-children')) {
-            node.addClass('expanded').removeClass('collapsed');
-            var toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
-            if (toggle.length) {
-                toggle.attr('aria-expanded', true);
-            }
-        }
-        setCurrentPath(path);
-    });
-
-    // Breadcrumb navigation.
-    container.on('click', '.breadcrumb-button', function(e) {
-        e.preventDefault();
-        if ($(this).is(':disabled')) {
-            return;
-        }
-        var path = $(this).attr('data-path') || '';
-        setCurrentPath(path);
-    });
-
-    // Navigation buttons.
-    navButtonBack.on('click', function() {
-        if ($(this).is(':disabled')) {
-            return;
-        }
-        if (historyIndex > 0) {
-            historyIndex--;
-            setCurrentPath(navigationHistory[historyIndex], {fromHistory: true});
-        }
-    });
-
-    navButtonForward.on('click', function() {
-        if ($(this).is(':disabled')) {
-            return;
-        }
-        if (historyIndex < navigationHistory.length - 1) {
-            historyIndex++;
-            setCurrentPath(navigationHistory[historyIndex], {fromHistory: true});
-        }
-    });
-
-    navButtonUp.on('click', function() {
-        if ($(this).is(':disabled')) {
-            return;
-        }
-        var parentPath = getParentPath(currentPath);
-        setCurrentPath(parentPath);
-    });
-
-    function initialiseTree() {
-        container.find('.folder-tree-node.has-children').each(function() {
-            var node = $(this);
-            if (!node.hasClass('expanded')) {
-                node.addClass('collapsed');
-            }
-            var toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
-            if (toggle.length) {
-                toggle.attr('aria-expanded', node.hasClass('expanded'));
-            }
-        });
-    }
-
-    function setCurrentPath(path, options) {
-        options = options || {};
-        var normalisedPath = normalisePath(path);
-
-        if (options.initial) {
-            navigationHistory = [normalisedPath];
-            historyIndex = 0;
-        } else if (!options.fromHistory) {
-            var currentHistoryPath = navigationHistory[historyIndex];
-            if (currentHistoryPath !== normalisedPath) {
-                navigationHistory = navigationHistory.slice(0, historyIndex + 1);
-                navigationHistory.push(normalisedPath);
-                historyIndex = navigationHistory.length - 1;
-            }
-        }
-
-        currentPath = normalisedPath;
-        container.find('.grid-item, .list-item, .details-item').removeClass('selected');
-        container.find('input[type="checkbox"]').prop('checked', false);
-        updateBreadcrumbs();
-        highlightTreeSelection();
-        applyFiltersAndSort();
-        updateNavigationButtons();
-    }
-
-    function normalisePath(path) {
-        if (!path) {
-            return '';
-        }
-        return String(path);
-    }
-
-    function updateNavigationButtons() {
-        navButtonBack.prop('disabled', historyIndex <= 0);
-        navButtonForward.prop('disabled', historyIndex >= navigationHistory.length - 1);
-        navButtonUp.prop('disabled', !currentPath);
-    }
-
-    function getParentPath(path) {
-        var normalised = normalisePath(path);
-        if (!normalised) {
-            return '';
-        }
-        var segments = normalised.split('/').filter(function(segment) {
-            return segment !== '';
-        });
-        segments.pop();
-        return segments.join('/');
-    }
-
-    function applyFiltersAndSort() {
-        var allItems = container.find('.grid-item, .list-item, .details-item');
-        var uniqueVisibleItems = {};
-        var uniqueInPath = {};
-        var gridMatches = [];
-        var listMatches = [];
-        var detailMatches = [];
-
-        allItems.each(function() {
-            var item = $(this);
-            var parentPath = item.attr('data-parent-path') || '';
-            var keyBase = parentPath + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
-
-            if (parentPath === currentPath) {
-                uniqueInPath[keyBase] = true;
-            }
-
-            var matches = parentPath === currentPath;
-
-            if (matches && searchTerm) {
-                var itemName = (item.data('name') || '').toString().toLowerCase();
-                if (itemName.indexOf(searchTerm) === -1) {
-                    matches = false;
-                }
-            }
-
-            if (matches && currentFilter !== 'all') {
-                var itemType = item.data('type');
-                var itemCategory = item.data('file-category');
-                if (currentFilter === 'folders') {
-                    matches = itemType === 'folder';
-                } else if (currentFilter === 'files') {
-                    matches = itemType === 'file';
-                } else if (currentFilter === 'images') {
-                    matches = itemCategory === 'image';
-                } else if (currentFilter === 'documents') {
-                    matches = itemCategory === 'document';
-                } else if (currentFilter === 'videos') {
-                    matches = itemCategory === 'video';
-                }
-            }
-
-            item.data('matches', matches);
-
-            if (matches) {
-                item.show();
-                if (item.hasClass('grid-item')) {
-                    gridMatches.push(item[0]);
-                } else if (item.hasClass('list-item')) {
-                    listMatches.push(item[0]);
-                } else if (item.hasClass('details-item')) {
-                    detailMatches.push(item[0]);
-                }
-                uniqueVisibleItems[keyBase] = true;
-            } else {
-                if (item.hasClass('selected')) {
-                    item.removeClass('selected');
-                    item.find('input[type="checkbox"]').prop('checked', false);
-                }
-                item.hide();
-            }
-        });
-
-        var visibleCount = Object.keys(uniqueVisibleItems).length;
-        var totalInPath = Object.keys(uniqueInPath).length;
-
-        sortItems(gridMatches, listMatches, detailMatches);
-        updateEmptyStates(visibleCount, totalInPath);
-        updateItemCount();
-        updateSelectionCount();
-        container.find('.select-all').prop('checked', false);
-    }
-
-    function sortItems(gridItems, listItems, detailsItems) {
-        var sortFunc = getSortFunction();
-        var gridContainer = container.find('.grid-container');
-        var listContainer = container.find('.folder-table-list tbody');
-        var detailsContainer = container.find('.folder-table-details tbody');
-
-        gridItems.sort(sortFunc);
-        listItems.sort(sortFunc);
-        detailsItems.sort(sortFunc);
-
-        $.each(gridItems, function(idx, item) {
-            gridContainer.append(item);
-        });
-        $.each(listItems, function(idx, item) {
-            listContainer.append(item);
-        });
-        $.each(detailsItems, function(idx, item) {
-            detailsContainer.append(item);
-        });
-    }
-
-    function updateEmptyStates(visibleCount, totalInPath) {
-        var hasFilters = !!searchTerm || currentFilter !== 'all';
-        var views = container.find('.folder-content-grid, .folder-content-list, .folder-content-details');
-        var noResults = container.find('.no-results-message');
-        var emptyFolder = container.find('.empty-folder-message');
-
-        views.removeClass('active').hide();
-        noResults.hide();
-        emptyFolder.hide();
-
-        if (visibleCount === 0) {
-            if (hasFilters && totalInPath > 0) {
-                noResults.show();
-            } else if (totalInPath === 0) {
-                emptyFolder.show();
-            } else {
-                noResults.show();
-            }
-        } else {
-            showCurrentView();
-        }
-    }
-
-    function showCurrentView() {
-        if (currentView === 'grid') {
-            container.find('.folder-content-grid').show().addClass('active');
-        } else if (currentView === 'list') {
-            container.find('.folder-content-list').show().addClass('active');
-        } else {
-            container.find('.folder-content-details').show().addClass('active');
-        }
-    }
-
-    function getSortFunction() {
-        var parts = currentSort.split('-');
-        var field = parts[0];
-        var order = parts[1];
-
-        return function(a, b) {
-            var aItem = $(a);
-            var bItem = $(b);
-            var aVal;
-            var bVal;
-
-            if (field !== 'type') {
-                var aType = aItem.data('type');
-                var bType = bItem.data('type');
-                if (aType === 'folder' && bType !== 'folder') {
-                    return -1;
-                }
-                if (aType !== 'folder' && bType === 'folder') {
-                    return 1;
-                }
-            }
-
-            if (field === 'name') {
-                aVal = (aItem.data('name') || '').toString().toLowerCase();
-                bVal = (bItem.data('name') || '').toString().toLowerCase();
-            } else if (field === 'date') {
-                aVal = parseInt(aItem.data('modified-timestamp'), 10) || 0;
-                bVal = parseInt(bItem.data('modified-timestamp'), 10) || 0;
-            } else if (field === 'type') {
-                aVal = (aItem.data('extension') || aItem.data('type') || '').toString().toLowerCase();
-                bVal = (bItem.data('extension') || bItem.data('type') || '').toString().toLowerCase();
-            } else if (field === 'size') {
-                aVal = parseInt(aItem.data('size-bytes'), 10) || 0;
-                bVal = parseInt(bItem.data('size-bytes'), 10) || 0;
-            }
-
-            if (order === 'asc') {
-                if (aVal > bVal) {
-                    return 1;
-                }
-                if (aVal < bVal) {
-                    return -1;
-                }
-                return 0;
-            }
-
-            if (aVal < bVal) {
-                return 1;
-            }
-            if (aVal > bVal) {
-                return -1;
-            }
-            return 0;
-        };
-    }
-
-    // Item selection handling.
-    container.on('click', '.grid-item, .list-item, .details-item', function(e) {
-        if ($(e.target).is('input[type="checkbox"]')) {
-            return;
-        }
-        if (!e.ctrlKey && !e.metaKey) {
-            container.find('.grid-item, .list-item, .details-item').removeClass('selected');
-            container.find('input[type="checkbox"]').prop('checked', false);
-        }
-        $(this).toggleClass('selected');
-        $(this).find('input[type="checkbox"]').prop('checked', $(this).hasClass('selected'));
-        updateSelectionCount();
-    });
-
-    container.on('change', 'input[type="checkbox"]', function() {
-        var item = $(this).closest('.grid-item, .list-item, .details-item');
-        if ($(this).is(':checked')) {
-            item.addClass('selected');
-        } else {
-            item.removeClass('selected');
-        }
-        updateSelectionCount();
-    });
-
-    container.on('change', '.select-all', function() {
-        var checked = $(this).is(':checked');
-        var visibleItems = container.find('.grid-item, .list-item, .details-item').filter(function() {
-            return $(this).data('matches');
-        });
-        visibleItems.find('input[type="checkbox"]').prop('checked', checked);
-        if (checked) {
-            visibleItems.addClass('selected');
-        } else {
-            visibleItems.removeClass('selected');
-        }
-        updateSelectionCount();
-    });
-
-    container.on('dblclick', '.grid-item, .list-item, .details-item', function() {
-        var item = $(this);
-        if (item.data('type') === 'folder') {
-            var folderPath = item.attr('data-folder-path') || '';
-            setCurrentPath(folderPath);
-            return;
-        }
-        var url = item.data('url');
-        if (url) {
-            window.open(url, '_blank');
-        }
-    });
-
-    // Details view header sorting.
-    container.on('click', '.sortable', function() {
-        var sortBy = $(this).data('sort');
-        var currentOrder = 'asc';
-
-        if (currentSort.indexOf(sortBy) === 0) {
-            currentOrder = currentSort.endsWith('asc') ? 'desc' : 'asc';
-        }
-
-        currentSort = sortBy + '-' + currentOrder;
-        container.find('.folder-sort-select').val(currentSort);
-        container.find('.sortable .sort-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
-        if (currentOrder === 'asc') {
-            $(this).find('.sort-icon').removeClass('fa-sort').addClass('fa-sort-asc');
-        } else {
-            $(this).find('.sort-icon').removeClass('fa-sort').addClass('fa-sort-desc');
-        }
-        applyFiltersAndSort();
-    });
-
-    function updateBreadcrumbs() {
-        var breadcrumbs = container.find('.folder-breadcrumbs');
-        breadcrumbs.empty();
-
-        var nav = $('<nav/>', {'aria-label': strings.breadcrumbsaria});
-        var list = $('<ol/>', {'class': 'folder-breadcrumb-list'});
-
-        list.append(createBreadcrumbItem(rootName || strings.modulename, '', currentPath === ''));
-
-        var segments = decodePathSegments(currentPath);
-        var encodedSegments = currentPath ? currentPath.split('/') : [];
-        var accumulated = [];
-
-        for (var i = 0; i < encodedSegments.length; i++) {
-            accumulated.push(encodedSegments[i]);
-            var label = segments[i] || '';
-            var encodedPath = accumulated.join('/');
-            list.append(createBreadcrumbItem(label, encodedPath, i === encodedSegments.length - 1));
-        }
-
-        nav.append(list);
-        breadcrumbs.append(nav);
-    }
-
-    function createBreadcrumbItem(label, pathValue, isActive) {
-        var item = $('<li/>', {'class': 'folder-breadcrumb-item'});
-        var button = $('<button/>', {
-            'type': 'button',
-            'class': 'breadcrumb-button' + (isActive ? ' is-active' : ''),
-            'data-path': pathValue
-        }).text(label || rootName || strings.modulename);
-        if (isActive) {
-            button.attr('disabled', true);
-        }
-        item.append(button);
-        return item;
-    }
-
-    function highlightTreeSelection() {
-        var nodes = container.find('.folder-tree-node');
-        nodes.removeClass('active');
-        var target = nodes.filter(function() {
-            var nodePath = $(this).attr('data-path') || '';
-            return nodePath === currentPath;
-        }).first();
-
-        if (target.length) {
-            target.addClass('active');
-            target.parents('.folder-tree-node').each(function() {
-                var parentNode = $(this);
-                parentNode.addClass('expanded').removeClass('collapsed');
-                var toggle = parentNode.find('> .folder-tree-node-inner .folder-tree-toggle');
-                if (toggle.length) {
-                    toggle.attr('aria-expanded', true);
-                }
-            });
-        } else {
-            container.find('.folder-tree-node.is-root').addClass('active');
-        }
-    }
-
-    function formatString(template, data) {
-        if (typeof template !== 'string') {
-            return '';
-        }
-
-        if (data === undefined || data === null) {
-            return template.replace(/\{\$a(?:->[a-zA-Z0-9_]+)?\}/g, '');
-        }
-
-        if (typeof data !== 'object') {
-            return template.replace(/\{\$a\}/g, data);
-        }
-
-        return template.replace(/\{\$a(?:->([a-zA-Z0-9_]+))?\}/g, function(match, key) {
-            if (!key) {
-                if (Object.prototype.hasOwnProperty.call(data, 'a')) {
-                    return data.a;
-                }
-                return '';
-            }
-            return Object.prototype.hasOwnProperty.call(data, key) ? data[key] : '';
-        });
-    }
-
-    function updateItemCount() {
-        var matchedItems = container.find('.grid-item, .list-item, .details-item').filter(function() {
-            return $(this).data('matches');
-        });
-        var unique = {};
-
-        matchedItems.each(function() {
-            var item = $(this);
-            var key = (item.attr('data-parent-path') || '') + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
-            if (!unique[key]) {
-                unique[key] = {
-                    type: item.data('type')
-                };
-            }
-        });
-
-        var keys = Object.keys(unique);
-        var total = keys.length;
-        var folders = 0;
-        var files = 0;
-
-        keys.forEach(function(key) {
-            if (unique[key].type === 'folder') {
-                folders++;
-            } else if (unique[key].type === 'file') {
-                files++;
-            }
-        });
-
-        var text = formatString(strings.itemcounts, total);
-        if (folders > 0 && files > 0) {
-            text = formatString(strings.folderfilecounts, {folders: folders, files: files});
-        } else if (folders > 0) {
-            text = formatString(folders === 1 ? strings.foldercountsingular : strings.foldercountplural, folders);
-        } else if (files > 0) {
-            text = formatString(files === 1 ? strings.filecountsingular : strings.filecountplural, files);
-        }
-
-        container.find('.item-count-display').text(text);
-    }
-
-    function updateSelectionCount() {
-        var selected = container.find('.grid-item.selected, .list-item.selected, .details-item.selected');
-        var uniqueSelected = {};
-        selected.each(function() {
-            var item = $(this);
-            var key = (item.attr('data-parent-path') || '') + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
-            uniqueSelected[key] = true;
-        });
-        var count = Object.keys(uniqueSelected).length;
-
-        if (count > 0) {
-            container.find('.selection-count-display').text(formatString(strings.selectedcount, count)).show();
-        } else {
-            container.find('.selection-count-display').hide();
-        }
-    }
-
-    function decodePathSegments(path) {
-        if (!path) {
-            return [];
-        }
-        return path.split('/').filter(function(segment) {
-            return segment !== '';
-        }).map(function(segment) {
-            try {
-                return decodeURIComponent(segment);
-            } catch (error) {
-                return segment;
-            }
-        });
-    }
-
-    function decodeHtml(html) {
-        return $('<textarea/>').html(html).text();
-    }
-});
 {{/js}}

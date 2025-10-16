@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -34,7 +33,6 @@ $f  = optional_param('f', 0, PARAM_INT);   // Folder instance id
 if ($f) {  // Two ways to specify the module
     $folder = $DB->get_record('folder', array('id'=>$f), '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('folder', $folder->id, $folder->course, true, MUST_EXIST);
-
 } else {
     $cm = get_coursemodule_from_id('folder', $id, 0, true, MUST_EXIST);
     $folder = $DB->get_record('folder', array('id'=>$cm->instance), '*', MUST_EXIST);
@@ -45,10 +43,13 @@ $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 require_course_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/folder:view', $context);
+
+// Redirect to course page if display is inline
 if ($folder->display == FOLDER_DISPLAY_INLINE) {
     redirect(course_get_url($folder->course, $cm->sectionnum));
 }
 
+// Log event
 $params = array(
     'context' => $context,
     'objectid' => $folder->id
@@ -63,18 +64,20 @@ $event->trigger();
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
 
+// Configure page
 $PAGE->set_url('/mod/folder/view.php', array('id' => $cm->id));
-
 $PAGE->set_title($course->shortname.': '.$folder->name);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_activity_record($folder);
-
 $PAGE->add_body_class('limitedwidth');
 
+// Add OneDrive-style class to body for additional styling if needed
+$PAGE->add_body_class('mod-folder-onedrive');
+
+// Get renderer
 $output = $PAGE->get_renderer('mod_folder');
 
+// Output page
 echo $output->header();
-
 echo $output->display_folder($folder);
-
 echo $output->footer();
