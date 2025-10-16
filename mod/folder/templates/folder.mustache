@@ -1,102 +1,554 @@
 {{!
     This file is part of Moodle - http://moodle.org/
-
-    Moodle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Moodle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-}}
-{{!
+    OneDrive/Windows Explorer style folder template
     @template mod_folder/folder
-
-    Template for displaying folder resource.
-
-    Classes required for JS:
-    * none
-
-    Data attributes required for JS:
-    * none
-
-    Example context (json):
-    {
-        "id": 42,
-        "showexpanded": true,
-        "buttons": {
-           "edit_button": {
-                "id": "edit_button",
-                "label": "Edit",
-                "url": "/mod/folder/edit.php",
-                "classes": "navitem"
-            },
-            "download_button": {
-                "id": "download_button",
-                "label": "Download",
-                "url": "/mod/folder/download.php",
-                "classes": "navitem"
-            }
-        },
-        "dir": [
-            {
-                "name": "Folder",
-                "icon": "<img src='icon' alt='alt'>",
-                "hassubdirs": true,
-                "subdirs": [
-                    {
-                        "name": "File1",
-                        "icon": "<img src='icon' alt='alt'>",
-                        "hassubdirs": false,
-                        "subdirs": null
-                     }
-                ]
-            },
-            {
-                "name": "File2",
-                "icon": "<img src='icon' alt='alt'>",
-                "hassubdirs": false,
-                "subdirs": null
-            }
-        ]
-    }
+    @package mod_folder
 }}
 
-<div class="flex-fill description-inner text-break">
-    {{{intro}}}
+<div class="folder-container-onedrive" id="{{id}}">
+
+    {{! Intro }}
+    {{#intro}}
+    <div class="folder-intro">
+        {{{intro}}}
+    </div>
+    {{/intro}}
+
+    {{! Buttons }}
     {{#hasbuttons}}
-        <div class="container-fluid">
-            <div class="row">
-                {{#edit_button}}
-                    {{>core/single_button}}
-                {{/edit_button}}
-                {{#download_button}}
-                    {{>core/single_button}}
-                {{/download_button}}
-            </div>
-        </div>
-    {{/hasbuttons}}
-    <div class="box generalbox pt-0 pb-3 foldertree">
-        <div id="{{{id}}}" class="filemanager">
-            {{#dir}}
-                <ul>
-                    <li>
-                        {{>mod_folder/tree}}
-                    </li>
-                </ul>
-            {{/dir}}
+    <div class="folder-header-actions">
+        <div class="btn-group">
+            {{#edit_button}}
+                {{>core/single_button}}
+            {{/edit_button}}
+            {{#download_button}}
+                {{>core/single_button}}
+            {{/download_button}}
         </div>
     </div>
+    {{/hasbuttons}}
+
+    {{! Search and Controls Bar }}
+    <div class="folder-controls-bar">
+        <div class="controls-left">
+            <div class="search-box">
+                <i class="fa fa-search"></i>
+                <input type="text" 
+                       class="folder-search-input" 
+                       placeholder="Search files and folders..."
+                       aria-label="Search">
+                <button class="search-clear" style="display:none;">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="controls-right">
+            <div class="sort-controls">
+                <label class="sort-label">Sort by:</label>
+                <select class="folder-sort-select">
+                    <option value="name-asc">Name (A to Z)</option>
+                    <option value="name-desc">Name (Z to A)</option>
+                    <option value="date-desc">Date modified (newest first)</option>
+                    <option value="date-asc">Date modified (oldest first)</option>
+                    <option value="type-asc">Type (A to Z)</option>
+                    <option value="type-desc">Type (Z to A)</option>
+                    <option value="size-desc">Size (largest first)</option>
+                    <option value="size-asc">Size (smallest first)</option>
+                </select>
+            </div>
+            <div class="filter-controls">
+                <label class="filter-label">Show:</label>
+                <select class="folder-filter-select">
+                    <option value="all">All items</option>
+                    <option value="folders">Folders only</option>
+                    <option value="files">Files only</option>
+                    <option value="images">Images</option>
+                    <option value="documents">Documents</option>
+                    <option value="videos">Videos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    {{! Toolbar }}
+    <div class="folder-toolbar-onedrive">
+        <div class="toolbar-left">
+            <button class="btn btn-sm view-toggle active" data-view="grid" title="Grid view">
+                <i class="fa fa-th"></i>
+            </button>
+            <button class="btn btn-sm view-toggle" data-view="list" title="List view">
+                <i class="fa fa-list"></i>
+            </button>
+            <button class="btn btn-sm view-toggle" data-view="details" title="Details view">
+                <i class="fa fa-th-list"></i>
+            </button>
+        </div>
+        <div class="toolbar-right">
+            <span class="item-count-display"></span>
+            <span class="selection-count-display" style="display:none;"></span>
+        </div>
+    </div>
+
+    {{! Grid View }}
+    <div class="folder-content-grid active">
+        {{#has_items}}
+        <div class="grid-container">
+            {{#items}}
+            <div class="grid-item {{#is_folder}}item-folder{{/is_folder}}{{#is_file}}item-file{{/is_file}}" 
+                 data-name="{{name}}"
+                 data-type="{{type}}"
+                 data-extension="{{extension}}"
+                 data-size-bytes="{{size_bytes}}"
+                 data-modified-timestamp="{{modified_timestamp}}"
+                 data-file-category="{{file_category}}"
+                 {{#url}}data-url="{{{url}}}"{{/url}}
+                 {{#path}}data-path="{{path}}"{{/path}}>
+                
+                <div class="item-checkbox">
+                    <input type="checkbox" aria-label="Select {{name}}">
+                </div>
+                
+                <div class="item-icon {{icon_class}}">
+                    {{{icon}}}
+                </div>
+                
+                <div class="item-details">
+                    <div class="item-name" title="{{name}}">{{name}}</div>
+                    {{#is_file}}
+                    <div class="item-meta">
+                        <span class="item-size">{{size}}</span>
+                        <span class="item-modified">{{modified}}</span>
+                    </div>
+                    {{/is_file}}
+                </div>
+            </div>
+            {{/items}}
+        </div>
+        {{/has_items}}
+        
+        {{^has_items}}
+        <div class="empty-state">
+            <i class="fa fa-folder-open-o fa-5x"></i>
+            <p>This folder is empty</p>
+        </div>
+        {{/has_items}}
+    </div>
+
+    {{! List View (Compact) }}
+    <div class="folder-content-list">
+        {{#has_items}}
+        <table class="table table-hover folder-table-list">
+            <thead>
+                <tr>
+                    <th width="30"><input type="checkbox" class="select-all"></th>
+                    <th>Name</th>
+                    <th width="100">Type</th>
+                    <th width="100">Size</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#items}}
+                <tr class="list-item" 
+                    data-name="{{name}}"
+                    data-type="{{type}}"
+                    data-extension="{{extension}}"
+                    data-size-bytes="{{size_bytes}}"
+                    data-modified-timestamp="{{modified_timestamp}}"
+                    data-file-category="{{file_category}}"
+                    {{#url}}data-url="{{{url}}}"{{/url}}>
+                    <td><input type="checkbox"></td>
+                    <td>
+                        <span class="list-icon {{icon_class}}">{{{icon}}}</span>
+                        <span class="list-name">{{name}}</span>
+                    </td>
+                    <td>{{type}}</td>
+                    <td>{{size}}</td>
+                </tr>
+                {{/items}}
+            </tbody>
+        </table>
+        {{/has_items}}
+    </div>
+
+    {{! Details View (Detailed) }}
+    <div class="folder-content-details">
+        {{#has_items}}
+        <table class="table table-hover folder-table-details">
+            <thead>
+                <tr>
+                    <th width="30"><input type="checkbox" class="select-all"></th>
+                    <th class="sortable" data-sort="name">
+                        Name <i class="fa fa-sort sort-icon"></i>
+                    </th>
+                    <th width="150" class="sortable" data-sort="date">
+                        Date modified <i class="fa fa-sort sort-icon"></i>
+                    </th>
+                    <th width="100" class="sortable" data-sort="type">
+                        Type <i class="fa fa-sort sort-icon"></i>
+                    </th>
+                    <th width="100" class="sortable" data-sort="size">
+                        Size <i class="fa fa-sort sort-icon"></i>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#items}}
+                <tr class="details-item"
+                    data-name="{{name}}"
+                    data-type="{{type}}"
+                    data-extension="{{extension}}"
+                    data-size-bytes="{{size_bytes}}"
+                    data-modified-timestamp="{{modified_timestamp}}"
+                    data-file-category="{{file_category}}"
+                    {{#url}}data-url="{{{url}}}"{{/url}}>
+                    <td><input type="checkbox"></td>
+                    <td>
+                        <span class="details-icon {{icon_class}}">{{{icon}}}</span>
+                        <span class="details-name">{{name}}</span>
+                    </td>
+                    <td class="text-muted">{{modified}}</td>
+                    <td class="text-muted">{{type}}</td>
+                    <td class="text-muted">{{size}}</td>
+                </tr>
+                {{/items}}
+            </tbody>
+        </table>
+        {{/has_items}}
+    </div>
+
+    {{! No results message }}
+    <div class="no-results-message" style="display:none;">
+        <div class="empty-state">
+            <i class="fa fa-search fa-5x"></i>
+            <p>No items match your search</p>
+            <button class="btn btn-secondary clear-search-btn">Clear search</button>
+        </div>
+    </div>
+
 </div>
 
 {{#js}}
-    // Init tree JS.
-    require(['mod_folder/folder'], function(Folder) {
-        Folder.initTree('{{{id}}}', '{{{showexpanded}}}');
+require(['jquery'], function($) {
+    var containerId = '{{id}}';
+    var container = $('#' + containerId);
+    var allItems = container.find('.grid-item, .list-item, .details-item');
+    var currentView = 'grid';
+    var currentSort = 'name-asc';
+    var currentFilter = 'all';
+    var searchTerm = '';
+
+    // Initialize
+    updateItemCount();
+
+    // View toggle
+    container.find('.view-toggle').on('click', function() {
+        currentView = $(this).data('view');
+        container.find('.view-toggle').removeClass('active');
+        $(this).addClass('active');
+        
+        container.find('.folder-content-grid, .folder-content-list, .folder-content-details').removeClass('active');
+        
+        if (currentView === 'grid') {
+            container.find('.folder-content-grid').addClass('active');
+        } else if (currentView === 'list') {
+            container.find('.folder-content-list').addClass('active');
+        } else {
+            container.find('.folder-content-details').addClass('active');
+        }
+        
+        updateItemCount();
     });
+
+    // Search functionality
+    var searchInput = container.find('.folder-search-input');
+    var searchClear = container.find('.search-clear');
+    
+    searchInput.on('input', function() {
+        searchTerm = $(this).val().toLowerCase().trim();
+        
+        if (searchTerm.length > 0) {
+            searchClear.show();
+        } else {
+            searchClear.hide();
+        }
+        
+        applyFiltersAndSort();
+    });
+    
+    searchClear.on('click', function() {
+        searchInput.val('');
+        searchTerm = '';
+        $(this).hide();
+        applyFiltersAndSort();
+    });
+    
+    container.find('.clear-search-btn').on('click', function() {
+        searchInput.val('');
+        searchTerm = '';
+        searchClear.hide();
+        applyFiltersAndSort();
+    });
+
+    // Sort functionality
+    container.find('.folder-sort-select').on('change', function() {
+        currentSort = $(this).val();
+        applyFiltersAndSort();
+    });
+
+    // Filter functionality
+    container.find('.folder-filter-select').on('change', function() {
+        currentFilter = $(this).val();
+        applyFiltersAndSort();
+    });
+
+    // Apply filters and sorting
+    function applyFiltersAndSort() {
+        allItems = container.find('.grid-item, .list-item, .details-item');
+        var visibleCount = 0;
+        
+        allItems.each(function() {
+            var item = $(this);
+            var itemName = item.data('name').toLowerCase();
+            var itemType = item.data('type');
+            var itemCategory = item.data('file-category');
+            var visible = true;
+            
+            // Apply search filter
+            if (searchTerm && !itemName.includes(searchTerm)) {
+                visible = false;
+            }
+            
+            // Apply type filter
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'folders' && itemType !== 'folder') {
+                    visible = false;
+                } else if (currentFilter === 'files' && itemType !== 'file') {
+                    visible = false;
+                } else if (currentFilter === 'images' && itemCategory !== 'image') {
+                    visible = false;
+                } else if (currentFilter === 'documents' && itemCategory !== 'document') {
+                    visible = false;
+                } else if (currentFilter === 'videos' && itemCategory !== 'video') {
+                    visible = false;
+                }
+            }
+            
+            if (visible) {
+                item.show();
+                visibleCount++;
+            } else {
+                item.hide();
+            }
+        });
+        
+        // Sort visible items
+        sortItems();
+        
+        // Show/hide no results message
+        if (visibleCount === 0) {
+            container.find('.folder-content-grid, .folder-content-list, .folder-content-details').hide();
+            container.find('.no-results-message').show();
+        } else {
+            container.find('.no-results-message').hide();
+            container.find('.folder-content-grid, .folder-content-list, .folder-content-details').removeClass('active');
+            if (currentView === 'grid') {
+                container.find('.folder-content-grid').addClass('active');
+            } else if (currentView === 'list') {
+                container.find('.folder-content-list').addClass('active');
+            } else {
+                container.find('.folder-content-details').addClass('active');
+            }
+        }
+        
+        updateItemCount();
+    }
+
+    // Sort items
+    function sortItems() {
+        var gridContainer = container.find('.grid-container');
+        var listContainer = container.find('.folder-table-list tbody');
+        var detailsContainer = container.find('.folder-table-details tbody');
+        
+        var gridItems = gridContainer.find('.grid-item:visible').get();
+        var listItems = listContainer.find('.list-item:visible').get();
+        var detailsItems = detailsContainer.find('.details-item:visible').get();
+        
+        var sortFunc = getSortFunction();
+        
+        gridItems.sort(sortFunc);
+        listItems.sort(sortFunc);
+        detailsItems.sort(sortFunc);
+        
+        $.each(gridItems, function(idx, item) { gridContainer.append(item); });
+        $.each(listItems, function(idx, item) { listContainer.append(item); });
+        $.each(detailsItems, function(idx, item) { detailsContainer.append(item); });
+    }
+
+    // Get sort function based on current sort
+    function getSortFunction() {
+        var parts = currentSort.split('-');
+        var field = parts[0];
+        var order = parts[1];
+        
+        return function(a, b) {
+            var aVal, bVal;
+            var aItem = $(a);
+            var bItem = $(b);
+            
+            // Folders always first (except when sorting by type)
+            if (field !== 'type') {
+                var aType = aItem.data('type');
+                var bType = bItem.data('type');
+                if (aType === 'folder' && bType !== 'folder') return -1;
+                if (aType !== 'folder' && bType === 'folder') return 1;
+            }
+            
+            switch(field) {
+                case 'name':
+                    aVal = aItem.data('name').toLowerCase();
+                    bVal = bItem.data('name').toLowerCase();
+                    break;
+                case 'date':
+                    aVal = aItem.data('modified-timestamp') || 0;
+                    bVal = bItem.data('modified-timestamp') || 0;
+                    break;
+                case 'type':
+                    aVal = aItem.data('extension') || aItem.data('type') || '';
+                    bVal = bItem.data('extension') || bItem.data('type') || '';
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                    break;
+                case 'size':
+                    aVal = aItem.data('size-bytes') || 0;
+                    bVal = bItem.data('size-bytes') || 0;
+                    break;
+            }
+            
+            if (order === 'asc') {
+                return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+            } else {
+                return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+            }
+        };
+    }
+
+    // Item selection
+    container.on('click', '.grid-item, .list-item, .details-item', function(e) {
+        if ($(e.target).is('input[type="checkbox"]')) {
+            return;
+        }
+        if (!e.ctrlKey && !e.metaKey) {
+            container.find('.grid-item, .list-item, .details-item').removeClass('selected');
+            container.find('input[type="checkbox"]').prop('checked', false);
+        }
+        $(this).toggleClass('selected');
+        $(this).find('input[type="checkbox"]').prop('checked', $(this).hasClass('selected'));
+        updateSelectionCount();
+    });
+
+    // Checkbox change
+    container.on('change', 'input[type="checkbox"]', function() {
+        var item = $(this).closest('.grid-item, .list-item, .details-item');
+        if ($(this).is(':checked')) {
+            item.addClass('selected');
+        } else {
+            item.removeClass('selected');
+        }
+        updateSelectionCount();
+    });
+
+    // Select all
+    container.on('change', '.select-all', function() {
+        var checked = $(this).is(':checked');
+        var visibleItems = container.find('.grid-item:visible, .list-item:visible, .details-item:visible');
+        visibleItems.find('input[type="checkbox"]').prop('checked', checked);
+        if (checked) {
+            visibleItems.addClass('selected');
+        } else {
+            visibleItems.removeClass('selected');
+        }
+        updateSelectionCount();
+    });
+
+    // Double click to open
+    container.on('dblclick', '.grid-item, .list-item, .details-item', function() {
+        var url = $(this).data('url');
+        if (url) {
+            window.open(url, '_blank');
+        }
+    });
+
+    // Update item count
+    function updateItemCount() {
+        var visibleItems = container.find('.grid-item:visible, .list-item:visible, .details-item:visible');
+        var uniqueItems = {};
+        visibleItems.each(function() {
+            var name = $(this).data('name');
+            uniqueItems[name] = true;
+        });
+        var total = Object.keys(uniqueItems).length;
+        
+        var folders = 0;
+        var files = 0;
+        for (var name in uniqueItems) {
+            var item = visibleItems.filter('[data-name="' + name + '"]').first();
+            if (item.data('type') === 'folder') {
+                folders++;
+            } else {
+                files++;
+            }
+        }
+        
+        var text = total + ' items';
+        if (folders > 0 && files > 0) {
+            text = folders + ' folders, ' + files + ' files';
+        } else if (folders > 0) {
+            text = folders + (folders === 1 ? ' folder' : ' folders');
+        } else if (files > 0) {
+            text = files + (files === 1 ? ' file' : ' files');
+        }
+        
+        container.find('.item-count-display').text(text);
+    }
+
+    // Update selection count
+    function updateSelectionCount() {
+        var selected = container.find('.grid-item.selected, .list-item.selected, .details-item.selected');
+        var uniqueSelected = {};
+        selected.each(function() {
+            var name = $(this).data('name');
+            uniqueSelected[name] = true;
+        });
+        var count = Object.keys(uniqueSelected).length;
+        
+        if (count > 0) {
+            container.find('.selection-count-display').text(count + ' selected').show();
+        } else {
+            container.find('.selection-count-display').hide();
+        }
+    }
+
+    // Table header sorting (for details view)
+    container.on('click', '.sortable', function() {
+        var sortBy = $(this).data('sort');
+        var currentOrder = 'asc';
+        
+        if (currentSort.startsWith(sortBy)) {
+            currentOrder = currentSort.endsWith('asc') ? 'desc' : 'asc';
+        }
+        
+        currentSort = sortBy + '-' + currentOrder;
+        container.find('.folder-sort-select').val(currentSort);
+        
+        // Update sort icons
+        container.find('.sortable .sort-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
+        if (currentOrder === 'asc') {
+            $(this).find('.sort-icon').removeClass('fa-sort').addClass('fa-sort-asc');
+        } else {
+            $(this).find('.sort-icon').removeClass('fa-sort').addClass('fa-sort-desc');
+        }
+        
+        applyFiltersAndSort();
+    });
+});
 {{/js}}

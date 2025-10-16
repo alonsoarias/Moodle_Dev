@@ -457,8 +457,6 @@ function folder_cm_info_view(cm_info $cm) {
     if ($cm->uservisible && $cm->customdata &&
             has_capability('mod/folder:view', $cm->context)) {
         // Restore folder object from customdata.
-        // Note the field 'customdata' is not empty IF AND ONLY IF we display contens inline.
-        // Otherwise the content is default.
         $folder = $cm->customdata;
         $folder->id = (int)$cm->instance;
         $folder->course = (int)$cm->course;
@@ -470,6 +468,10 @@ function folder_cm_info_view(cm_info $cm) {
         if (empty($folder->introformat)) {
             $folder->introformat = FORMAT_MOODLE;
         }
+        
+        // Add OneDrive class to inline display
+        $PAGE->add_body_class('mod-folder-onedrive-inline');
+        
         // display folder
         $renderer = $PAGE->get_renderer('mod_folder');
         $cm->set_content($renderer->display_folder($folder), true);
