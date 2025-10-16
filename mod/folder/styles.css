@@ -2,9 +2,206 @@
 
 .folder-container-onedrive {
     background: #fff;
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 20px;
     margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.folder-explorer-shell {
+    display: flex;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.folder-navigation {
+    width: 260px;
+    background: #f6f8fa;
+    border-right: 1px solid #d0d7de;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.navigation-header {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #57606a;
+}
+
+.folder-tree-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.folder-tree-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.folder-tree-node {
+    margin: 0;
+    padding: 0;
+    color: #24292f;
+}
+
+.folder-tree-node-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.folder-tree-node-inner:hover {
+    background: #eaeef2;
+}
+
+.folder-tree-node.active > .folder-tree-node-inner {
+    background: #e2eaff;
+}
+
+.folder-tree-node.active .folder-tree-label {
+    color: #0969da;
+    font-weight: 600;
+}
+
+.folder-tree-toggle {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+}
+
+.folder-tree-toggle::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 0 5px 6px;
+    border-color: transparent transparent transparent #57606a;
+    transition: transform 0.2s ease;
+}
+
+.folder-tree-node.expanded > .folder-tree-node-inner .folder-tree-toggle::before {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.folder-tree-toggle.placeholder {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.folder-tree-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.folder-tree-icon img,
+.folder-tree-icon .icon {
+    width: 16px;
+    height: 16px;
+}
+
+.folder-tree-label {
+    background: transparent;
+    border: none;
+    padding: 4px 6px;
+    font-size: 13px;
+    color: #24292f;
+    flex: 1;
+    text-align: left;
+    cursor: pointer;
+}
+
+.folder-tree-label:hover {
+    color: #0969da;
+}
+
+.folder-tree-children {
+    list-style: none;
+    margin: 0 0 0 18px;
+    padding: 0;
+}
+
+.folder-tree-node.collapsed > .folder-tree-children {
+    display: none;
+}
+
+.folder-main-panel {
+    flex: 1;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+}
+
+.folder-content-views {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.folder-breadcrumbs {
+    display: flex;
+    align-items: center;
+    padding: 6px 0 14px;
+    border-bottom: 1px solid #e1e4e8;
+    margin-bottom: 12px;
+}
+
+.folder-breadcrumb-list {
+    list-style: none;
+    display: flex;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+}
+
+.folder-breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-button {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #1f2328;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-button:hover:not(:disabled) {
+    background: #eaeef2;
+    border-color: #b6bec8;
+}
+
+.breadcrumb-button.is-active {
+    background: #0969da;
+    border-color: #0969da;
+    color: #fff;
+    cursor: default;
 }
 
 .folder-intro {
@@ -478,11 +675,25 @@
 /* ====== RESPONSIVE ADJUSTMENTS ====== */
 
 @media (max-width: 992px) {
+    .folder-explorer-shell {
+        flex-direction: column;
+    }
+
+    .folder-navigation {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #d0d7de;
+    }
+
+    .folder-main-panel {
+        padding: 16px;
+    }
+
     .folder-controls-bar {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .controls-left,
     .controls-right {
         width: 100%;
@@ -508,13 +719,40 @@
 }
 
 @media (max-width: 768px) {
+    .folder-navigation {
+        padding: 16px 12px;
+    }
+
+    .folder-main-panel {
+        padding: 14px;
+    }
+
+    .folder-breadcrumbs {
+        padding-bottom: 10px;
+    }
+
     .folder-table-details th,
     .folder-table-details td {
         padding: 8px 5px;
         font-size: 12px;
     }
-    
+
     .details-icon {
         display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .folder-tree-node-inner {
+        padding: 4px;
+    }
+
+    .folder-tree-label {
+        font-size: 12px;
+    }
+
+    .breadcrumb-button {
+        font-size: 12px;
+        padding: 3px 10px;
     }
 }
