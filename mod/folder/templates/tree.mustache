@@ -1,34 +1,28 @@
 {{!
     This file is part of Moodle - http://moodle.org/
 
-    Tree template - Adapted for OneDrive style
-    This template is now primarily used internally for data structure
-    The visual rendering is handled by folder.mustache with grid view
-
+    Tree template for Windows Explorer style navigation
     @template mod_folder/tree
     @package   mod_folder
 }}
 
-{{! OneDrive grid item representation }}
-<div class="folder-tree-item {{#is_folder}}folder-type-folder{{/is_folder}}{{#is_file}}folder-type-file{{/is_file}}">
-    <div class="fp-filename-icon">
-        <span class="fp-icon">
-            {{{icon}}}
-        </span>
-        <span class="fp-filename">
-            {{#url}}
-                <a href="{{url}}">{{{name}}}</a>
-            {{/url}}
-            {{^url}}
-                {{{name}}}
-            {{/url}}
-        </span>
+<li class="folder-tree-node {{#isroot}}is-root{{/isroot}} {{#hassubdirs}}has-children{{/hassubdirs}} {{#expanded}}expanded{{/expanded}}{{^expanded}}collapsed{{/expanded}}"
+    data-path="{{path_encoded}}">
+    <div class="folder-tree-node-inner">
+        {{#hassubdirs}}
+        <button type="button" class="folder-tree-toggle" aria-label="Toggle folder" aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}"></button>
+        {{/hassubdirs}}
+        {{^hassubdirs}}
+        <span class="folder-tree-toggle placeholder" aria-hidden="true"></span>
+        {{/hassubdirs}}
+        <span class="folder-tree-icon">{{{icon}}}</span>
+        <button type="button" class="folder-tree-label">{{name}}</button>
     </div>
     {{#hassubdirs}}
-        <div class="folder-tree-subdirs">
-            {{#subdirs}}
-                {{>mod_folder/tree}}
-            {{/subdirs}}
-        </div>
+    <ul class="folder-tree-children">
+        {{#subdirs}}
+            {{> mod_folder/tree}}
+        {{/subdirs}}
+    </ul>
     {{/hassubdirs}}
-</div>
+</li>

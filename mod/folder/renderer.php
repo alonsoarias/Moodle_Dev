@@ -66,13 +66,17 @@ class mod_folder_renderer extends plugin_renderer_base {
 
         $data['id'] = 'folder_tree_' . $cm->id;
         $data['showexpanded'] = !empty($foldertree->folder->showexpanded);
-        
+
+        $rootname = format_string($folder->name, true, ['context' => $context]);
+        $data['rootname'] = $rootname;
+
         // Convertir estructura a elementos planos para grid (NUEVA FUNCIÓN)
         $data['items'] = $this->flatten_tree_for_grid($foldertree, $foldertree->dir);
         $data['has_items'] = !empty($data['items']);
 
-        // Mantener también la estructura de árbol original para compatibilidad
-        $data['dir'] = $this->renderable_tree_elements($foldertree, ['files' => [], 'subdirs' => [$foldertree->dir]]);
+        // Construir estructura de navegación estilo explorador.
+        $data['tree'] = $this->build_tree_structure($foldertree, $rootname);
+        $data['has_tree'] = !empty($data['tree']);
 
         return $this->render_from_template('mod_folder/folder', $data);
     }
@@ -85,109 +89,175 @@ class mod_folder_renderer extends plugin_renderer_base {
      * @param string $path
      * @return array
      */
-protected function flatten_tree_for_grid($tree, $dir, $path = '') {
-    $items = [];
-    
-    // Procesar subdirectorios
-    if (!empty($dir['subdirs'])) {
-        foreach ($dir['subdirs'] as $subdir) {
-            $subdirname = $subdir['dirname'];
-            $newpath = $path ? $path . '/' . $subdirname : $subdirname;
-            
-            $items[] = [
-                'name' => $subdirname,
-                'type' => 'folder',
-                'icon' => $this->output->pix_icon(file_folder_icon(), $subdirname, 'moodle', ['class' => 'icon-folder']),
-                'icon_class' => 'folder-icon-folder',
-                'size' => '',
-                'size_bytes' => 0,
-                'modified' => '',
-                'modified_timestamp' => 0,
-                'extension' => '',
-                'file_category' => 'folder',
-                'path' => $newpath,
-                'is_folder' => true,
-                'has_items' => !empty($subdir['subdirs']) || !empty($subdir['files'])
-            ];
-            
-            $items = array_merge($items, $this->flatten_tree_for_grid($tree, $subdir, $newpath));
-        }
-    }
-    
-    // Procesar archivos
-    if (!empty($dir['files'])) {
-        foreach ($dir['files'] as $file) {
-            $filename = $file->get_filename();
-            $filesize = $file->get_filesize();
-            $filesize_display = display_size($filesize);
-            $modified_timestamp = $file->get_timemodified();
-            $modified = userdate($modified_timestamp, get_string('strftimedatetime', 'langconfig'));
-            
-            $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-            $file_category = $this->get_file_category($extension);
-            
-            $url = moodle_url::make_pluginfile_url(
-                $file->get_contextid(),
-                $file->get_component(),
-                $file->get_filearea(),
-                $file->get_itemid(),
-                $file->get_filepath(),
-                $filename,
-                false
-            );
-            
-            if ($tree->folder->forcedownload) {
-                $url->param('forcedownload', 1);
-            }
-            
-            // Determinar si es imagen para preview
-            $is_image = file_extension_in_typegroup($filename, 'web_image');
-            if ($is_image) {
-                $preview_url = $url->out(false, ['preview' => 'thumb', 'oid' => $modified_timestamp]);
-                $icon = html_writer::empty_tag('img', [
-                    'src' => $preview_url,
-                    'alt' => clean_filename($filename),
-                    'class' => 'file-preview-img'
-                ]);
-            } else {
-                $icon = $this->output->pix_icon(
-                    file_file_icon($file),
-                    clean_filename($filename),
-                    'moodle',
-                    ['class' => 'icon-file']
-                );
-            }
-            
-            $items[] = [
-                'name' => clean_filename($filename),
-                'type' => 'file',
-                'icon' => $icon,
-                'icon_class' => $this->get_file_icon_class($filename),
-                'size' => $filesize_display,
-                'size_bytes' => $filesize,
-                'modified' => $modified,
-                'modified_timestamp' => $modified_timestamp,
-                'extension' => $extension,
-                'file_category' => $file_category,
-                'url' => $url->out(false),
-                'path' => $path,
-                'is_file' => true,
-                'has_preview' => $is_image,
-                'mimetype' => $file->get_mimetype()
-            ];
-        }
-    }
-    
-    return $items;
-}
+    protected function flatten_tree_for_grid($tree, $dir, $path = '') {
+        $items = [];
 
-/**
- * Get file category for filtering
- * 
- * @param string $extension
- * @return string
- */
-protected function get_file_category($extension) {
+        $encodedparentpath = $this->encode_path($path);
+
+        // Procesar subdirectorios.
+        if (!empty($dir['subdirs'])) {
+            foreach ($dir['subdirs'] as $subdir) {
+                $subdirname = $subdir['dirname'];
+                $newpath = $path ? $path . '/' . $subdirname : $subdirname;
+                $encodedpath = $this->encode_path($newpath);
+                $displayname = format_string($subdirname, true, ['context' => $tree->context]);
+
+                $items[] = [
+                    'name' => $displayname,
+                    'type' => 'folder',
+                    'icon' => $this->output->pix_icon(file_folder_icon(), $displayname, 'moodle', ['class' => 'icon-folder']),
+                    'icon_class' => 'folder-icon-folder',
+                    'size' => '',
+                    'size_bytes' => 0,
+                    'modified' => '',
+                    'modified_timestamp' => 0,
+                    'extension' => '',
+                    'file_category' => 'folder',
+                    'path' => $newpath,
+                    'path_encoded' => $encodedpath,
+                    'parent_path' => $path,
+                    'parent_path_encoded' => $encodedparentpath,
+                    'folder_path' => $newpath,
+                    'folder_path_encoded' => $encodedpath,
+                    'is_folder' => true,
+                    'has_items' => !empty($subdir['subdirs']) || !empty($subdir['files'])
+                ];
+
+                $items = array_merge($items, $this->flatten_tree_for_grid($tree, $subdir, $newpath));
+            }
+        }
+
+        // Procesar archivos.
+        if (!empty($dir['files'])) {
+            foreach ($dir['files'] as $file) {
+                $filename = $file->get_filename();
+                $filesize = $file->get_filesize();
+                $filesize_display = display_size($filesize);
+                $modified_timestamp = $file->get_timemodified();
+                $modified = userdate($modified_timestamp, get_string('strftimedatetime', 'langconfig'));
+
+                $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $file_category = $this->get_file_category($extension);
+
+                $url = moodle_url::make_pluginfile_url(
+                    $file->get_contextid(),
+                    $file->get_component(),
+                    $file->get_filearea(),
+                    $file->get_itemid(),
+                    $file->get_filepath(),
+                    $filename,
+                    false
+                );
+
+                if ($tree->folder->forcedownload) {
+                    $url->param('forcedownload', 1);
+                }
+
+                // Determinar si es imagen para preview.
+                $is_image = file_extension_in_typegroup($filename, 'web_image');
+                if ($is_image) {
+                    $preview_url = $url->out(false, ['preview' => 'thumb', 'oid' => $modified_timestamp]);
+                    $icon = html_writer::empty_tag('img', [
+                        'src' => $preview_url,
+                        'alt' => clean_filename($filename),
+                        'class' => 'file-preview-img'
+                    ]);
+                } else {
+                    $icon = $this->output->pix_icon(
+                        file_file_icon($file),
+                        clean_filename($filename),
+                        'moodle',
+                        ['class' => 'icon-file']
+                    );
+                }
+
+                $items[] = [
+                    'name' => clean_filename($filename),
+                    'type' => 'file',
+                    'icon' => $icon,
+                    'icon_class' => $this->get_file_icon_class($filename),
+                    'size' => $filesize_display,
+                    'size_bytes' => $filesize,
+                    'modified' => $modified,
+                    'modified_timestamp' => $modified_timestamp,
+                    'extension' => $extension,
+                    'file_category' => $file_category,
+                    'url' => $url->out(false),
+                    'path' => $path,
+                    'path_encoded' => $encodedparentpath,
+                    'parent_path' => $path,
+                    'parent_path_encoded' => $encodedparentpath,
+                    'is_file' => true,
+                    'has_preview' => $is_image,
+                    'mimetype' => $file->get_mimetype()
+                ];
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Build navigation structure for explorer view.
+     *
+     * @param folder_tree $tree
+     * @param string $rootname
+     * @return array
+     */
+    protected function build_tree_structure(folder_tree $tree, string $rootname): array {
+        $rooticon = $this->output->pix_icon(
+            file_folder_icon(),
+            $rootname,
+            'moodle',
+            ['class' => 'tree-folder-icon']
+        );
+
+        $subdirs = $this->renderable_tree_elements(
+            $tree,
+            $tree->dir,
+            '',
+            !empty($tree->folder->showexpanded)
+        );
+
+        return [[
+            'name' => $rootname,
+            'icon' => $rooticon,
+            'path' => '',
+            'path_encoded' => '',
+            'parent_path' => '',
+            'parent_path_encoded' => '',
+            'isroot' => true,
+            'hassubdirs' => !empty($subdirs),
+            'expanded' => true,
+            'subdirs' => $subdirs,
+        ]];
+    }
+
+    /**
+     * Encode folder path segments for safe HTML attributes.
+     *
+     * @param string $path
+     * @return string
+     */
+    protected function encode_path(string $path): string {
+        $path = trim($path, '/');
+        if ($path === '') {
+            return '';
+        }
+
+        $segments = explode('/', $path);
+        $encoded = array_map('rawurlencode', $segments);
+
+        return implode('/', $encoded);
+    }
+
+    /**
+     * Get file category for filtering
+     *
+     * @param string $extension
+     * @return string
+     */
+    protected function get_file_category($extension) {
     $categories = [
         'image' => ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'],
         'document' => ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt'],
@@ -276,46 +346,45 @@ protected function get_file_category($extension) {
     }
 
     /**
-     * Mantener función original para compatibilidad
+     * Build directory nodes for navigation tree.
+     *
+     * @param folder_tree $tree
+     * @param array $dir
+     * @param string $path
+     * @param bool $expanded
+     * @return array
      */
-    protected function renderable_tree_elements(folder_tree $tree, array $dir): array {
-        if (empty($dir['subdirs']) && empty($dir['files'])) {
+    protected function renderable_tree_elements(folder_tree $tree, array $dir, string $path = '', bool $expanded = false): array {
+        if (empty($dir['subdirs'])) {
             return [];
         }
+
         $elements = [];
+
         foreach ($dir['subdirs'] as $subdir) {
-            $htmllize = $this->renderable_tree_elements($tree, $subdir);
-            $image = $this->output->pix_icon(file_folder_icon(), $subdir['dirname'], 'moodle');
-            $elements[] = [
-                'name' => $subdir['dirname'],
-                'icon' => $image,
-                'subdirs' => $htmllize,
-                'hassubdirs' => !empty($htmllize),
-            ];
-        }
-        foreach ($dir['files'] as $file) {
-            $filename = $file->get_filename();
-            $filenamedisplay = clean_filename($filename);
+            $subdirname = $subdir['dirname'];
+            $newpath = $path ? $path . '/' . $subdirname : $subdirname;
+            $encodedpath = $this->encode_path($newpath);
+            $encodedparent = $this->encode_path($path);
+            $displayname = format_string($subdirname, true, ['context' => $tree->context]);
 
-            $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
-                $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $filename, false);
-            if (file_extension_in_typegroup($filename, 'web_image')) {
-                $image = $url->out(false, ['preview' => 'tinyicon', 'oid' => $file->get_timemodified()]);
-                $image = html_writer::empty_tag('img', ['src' => $image]);
-            } else {
-                $image = $this->output->pix_icon(file_file_icon($file), $filenamedisplay, 'moodle');
-            }
-
-            if ($tree->folder->forcedownload) {
-                $url->param('forcedownload', 1);
-            }
+            $children = $this->renderable_tree_elements($tree, $subdir, $newpath, $expanded);
 
             $elements[] = [
-                'name' => $filenamedisplay,
-                'icon' => $image,
-                'url' => $url,
-                'subdirs' => null,
-                'hassubdirs' => false,
+                'name' => $displayname,
+                'icon' => $this->output->pix_icon(
+                    file_folder_icon(),
+                    $displayname,
+                    'moodle',
+                    ['class' => 'tree-folder-icon']
+                ),
+                'path' => $newpath,
+                'path_encoded' => $encodedpath,
+                'parent_path' => $path,
+                'parent_path_encoded' => $encodedparent,
+                'hassubdirs' => !empty($children),
+                'expanded' => $expanded,
+                'subdirs' => $children,
             ];
         }
 
