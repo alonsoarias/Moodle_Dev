@@ -10,7 +10,7 @@
     data-path="{{path_encoded}}">
     <div class="folder-tree-node-inner">
         {{#hassubdirs}}
-        <button type="button" class="folder-tree-toggle" aria-label="Toggle folder" aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}"></button>
+        <button type="button" class="folder-tree-toggle" aria-label="{{strings.togglefolder}}" aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}"></button>
         {{/hassubdirs}}
         {{^hassubdirs}}
         <span class="folder-tree-toggle placeholder" aria-hidden="true"></span>

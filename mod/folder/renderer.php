@@ -78,6 +78,10 @@ class mod_folder_renderer extends plugin_renderer_base {
         $data['tree'] = $this->build_tree_structure($foldertree, $rootname);
         $data['has_tree'] = !empty($data['tree']);
 
+        $strings = $this->get_template_strings();
+        $data['strings'] = $strings;
+        $data['stringsjson'] = json_encode($strings, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+
         return $this->render_from_template('mod_folder/folder', $data);
     }
 
@@ -389,6 +393,63 @@ class mod_folder_renderer extends plugin_renderer_base {
         }
 
         return $elements;
+    }
+
+    /**
+     * Returns the collection of strings required by the folder template.
+     *
+     * @return array
+     */
+    protected function get_template_strings(): array {
+        return [
+            'navigationaria' => get_string('foldernavigation', 'mod_folder'),
+            'navigationheader' => get_string('navigationheader', 'mod_folder'),
+            'navigationcontrols' => get_string('navigationcontrols', 'mod_folder'),
+            'navbacktitle' => get_string('navigationback', 'mod_folder'),
+            'navbackaria' => get_string('navigationgoback', 'mod_folder'),
+            'navforwardtitle' => get_string('navigationforward', 'mod_folder'),
+            'navforwardaria' => get_string('navigationgoforward', 'mod_folder'),
+            'navuptitle' => get_string('navigationup', 'mod_folder'),
+            'navuparia' => get_string('navigationgoup', 'mod_folder'),
+            'breadcrumbsaria' => get_string('folderbreadcrumbs', 'mod_folder'),
+            'searchplaceholder' => get_string('searchplaceholder', 'mod_folder'),
+            'searcharia' => get_string('searcharia', 'mod_folder'),
+            'sortlabel' => get_string('sortlabel', 'mod_folder'),
+            'sortnameasc' => get_string('sortnameasc', 'mod_folder'),
+            'sortnamedesc' => get_string('sortnamedesc', 'mod_folder'),
+            'sortdatenewest' => get_string('sortdatenewest', 'mod_folder'),
+            'sortdateoldest' => get_string('sortdateoldest', 'mod_folder'),
+            'sorttypeasc' => get_string('sorttypeasc', 'mod_folder'),
+            'sorttypedesc' => get_string('sorttypedesc', 'mod_folder'),
+            'sortsizedesc' => get_string('sortsizedesc', 'mod_folder'),
+            'sortsizeasc' => get_string('sortsizeasc', 'mod_folder'),
+            'filterlabel' => get_string('filterlabel', 'mod_folder'),
+            'filterall' => get_string('filterall', 'mod_folder'),
+            'filterfolders' => get_string('filterfolders', 'mod_folder'),
+            'filterfiles' => get_string('filterfiles', 'mod_folder'),
+            'filterimages' => get_string('filterimages', 'mod_folder'),
+            'filterdocuments' => get_string('filterdocuments', 'mod_folder'),
+            'filtervideos' => get_string('filtervideos', 'mod_folder'),
+            'viewgrid' => get_string('viewgrid', 'mod_folder'),
+            'viewlist' => get_string('viewlist', 'mod_folder'),
+            'viewdetails' => get_string('viewdetails', 'mod_folder'),
+            'tableheadername' => get_string('tableheadername', 'mod_folder'),
+            'tableheadertype' => get_string('tableheadertype', 'mod_folder'),
+            'tableheadersize' => get_string('tableheadersize', 'mod_folder'),
+            'tableheaderdatemodified' => get_string('tableheaderdatemodified', 'mod_folder'),
+            'emptyfolder' => get_string('emptyfolder', 'mod_folder'),
+            'noresults' => get_string('noresults', 'mod_folder'),
+            'clearsearch' => get_string('clearsearch', 'mod_folder'),
+            'togglefolder' => get_string('togglefolder', 'mod_folder'),
+            'selectedcount' => get_string('selectedcount', 'mod_folder'),
+            'itemcounts' => get_string('itemcounts', 'mod_folder'),
+            'foldercountsingular' => get_string('foldercountsingular', 'mod_folder'),
+            'foldercountplural' => get_string('foldercountplural', 'mod_folder'),
+            'filecountsingular' => get_string('filecountsingular', 'mod_folder'),
+            'filecountplural' => get_string('filecountplural', 'mod_folder'),
+            'folderfilecounts' => get_string('folderfilecounts', 'mod_folder'),
+            'modulename' => get_string('modulename', 'mod_folder'),
+        ];
     }
 }
 
