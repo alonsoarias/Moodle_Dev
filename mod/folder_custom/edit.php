@@ -24,8 +24,10 @@
  */
 
 require('../../config.php');
-require_once("$CFG->dirroot/mod/folder/locallib.php");
-require_once("$CFG->dirroot/mod/folder/edit_form.php");
+// CORRECTED: Load the folder helpers from the customised plugin directory so
+// the tailored filemanager configuration is used when saving uploads.
+require_once(__DIR__ . '/locallib.php');
+require_once(__DIR__ . '/edit_form.php');
 require_once("$CFG->dirroot/repository/lib.php");
 
 $id = required_param('id', PARAM_INT);  // Course module ID

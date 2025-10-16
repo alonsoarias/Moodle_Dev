@@ -23,7 +23,9 @@
  */
 
 require('../../config.php');
-require_once("$CFG->dirroot/mod/folder/locallib.php");
+// CORRECTED: Use the customised helper library bundled with this plugin
+// instead of the core variant so new UI logic and file handling are loaded.
+require_once(__DIR__ . '/locallib.php');
 require_once("$CFG->dirroot/repository/lib.php");
 require_once($CFG->libdir . '/completionlib.php');
 
