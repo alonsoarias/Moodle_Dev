@@ -43,7 +43,20 @@
         {{/has_tree}}
 
         <div class="folder-main-panel">
-            <div class="folder-breadcrumbs" role="navigation" aria-label="Folder breadcrumbs"></div>
+            <div class="folder-header-bar">
+                <div class="folder-navigation-buttons" role="group" aria-label="Navigation controls">
+                    <button type="button" class="nav-button nav-button-back" title="Back" aria-label="Go back" disabled>
+                        <i class="fa fa-arrow-left"></i>
+                    </button>
+                    <button type="button" class="nav-button nav-button-forward" title="Forward" aria-label="Go forward" disabled>
+                        <i class="fa fa-arrow-right"></i>
+                    </button>
+                    <button type="button" class="nav-button nav-button-up" title="Up" aria-label="Go up" disabled>
+                        <i class="fa fa-level-up"></i>
+                    </button>
+                </div>
+                <div class="folder-breadcrumbs" role="navigation" aria-label="Folder breadcrumbs"></div>
+            </div>
 
             {{! Search and Controls Bar }}
             <div class="folder-controls-bar">
@@ -255,9 +268,14 @@ require(['jquery'], function($) {
 
     var searchInput = container.find('.folder-search-input');
     var searchClear = container.find('.search-clear');
+    var navButtonBack = container.find('.nav-button-back');
+    var navButtonForward = container.find('.nav-button-forward');
+    var navButtonUp = container.find('.nav-button-up');
+    var navigationHistory = [''];
+    var historyIndex = 0;
 
     initialiseTree();
-    setCurrentPath('');
+    setCurrentPath('', {initial: true});
 
     // View toggle.
     container.find('.view-toggle').on('click', function() {
@@ -338,6 +356,35 @@ require(['jquery'], function($) {
         setCurrentPath(path);
     });
 
+    // Navigation buttons.
+    navButtonBack.on('click', function() {
+        if ($(this).is(':disabled')) {
+            return;
+        }
+        if (historyIndex > 0) {
+            historyIndex--;
+            setCurrentPath(navigationHistory[historyIndex], {fromHistory: true});
+        }
+    });
+
+    navButtonForward.on('click', function() {
+        if ($(this).is(':disabled')) {
+            return;
+        }
+        if (historyIndex < navigationHistory.length - 1) {
+            historyIndex++;
+            setCurrentPath(navigationHistory[historyIndex], {fromHistory: true});
+        }
+    });
+
+    navButtonUp.on('click', function() {
+        if ($(this).is(':disabled')) {
+            return;
+        }
+        var parentPath = getParentPath(currentPath);
+        setCurrentPath(parentPath);
+    });
+
     function initialiseTree() {
         container.find('.folder-tree-node.has-children').each(function() {
             var node = $(this);
@@ -351,13 +398,29 @@ require(['jquery'], function($) {
         });
     }
 
-    function setCurrentPath(path) {
-        currentPath = normalisePath(path);
+    function setCurrentPath(path, options) {
+        options = options || {};
+        var normalisedPath = normalisePath(path);
+
+        if (options.initial) {
+            navigationHistory = [normalisedPath];
+            historyIndex = 0;
+        } else if (!options.fromHistory) {
+            var currentHistoryPath = navigationHistory[historyIndex];
+            if (currentHistoryPath !== normalisedPath) {
+                navigationHistory = navigationHistory.slice(0, historyIndex + 1);
+                navigationHistory.push(normalisedPath);
+                historyIndex = navigationHistory.length - 1;
+            }
+        }
+
+        currentPath = normalisedPath;
         container.find('.grid-item, .list-item, .details-item').removeClass('selected');
         container.find('input[type="checkbox"]').prop('checked', false);
         updateBreadcrumbs();
         highlightTreeSelection();
         applyFiltersAndSort();
+        updateNavigationButtons();
     }
 
     function normalisePath(path) {
@@ -365,6 +428,24 @@ require(['jquery'], function($) {
             return '';
         }
         return String(path);
+    }
+
+    function updateNavigationButtons() {
+        navButtonBack.prop('disabled', historyIndex <= 0);
+        navButtonForward.prop('disabled', historyIndex >= navigationHistory.length - 1);
+        navButtonUp.prop('disabled', !currentPath);
+    }
+
+    function getParentPath(path) {
+        var normalised = normalisePath(path);
+        if (!normalised) {
+            return '';
+        }
+        var segments = normalised.split('/').filter(function(segment) {
+            return segment !== '';
+        });
+        segments.pop();
+        return segments.join('/');
     }
 
     function applyFiltersAndSort() {
