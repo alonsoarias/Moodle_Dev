@@ -30,8 +30,8 @@
 
     <div class="folder-explorer-shell">
         {{#has_tree}}
-        <aside class="folder-navigation" aria-label="Folder navigation">
-            <div class="navigation-header">Navigation</div>
+        <aside class="folder-navigation" aria-label="{{strings.navigationaria}}">
+            <div class="navigation-header">{{strings.navigationheader}}</div>
             <div class="folder-tree-scroll">
                 <ul class="folder-tree-list">
                     {{#tree}}
@@ -44,18 +44,18 @@
 
         <div class="folder-main-panel">
             <div class="folder-header-bar">
-                <div class="folder-navigation-buttons" role="group" aria-label="Navigation controls">
-                    <button type="button" class="nav-button nav-button-back" title="Back" aria-label="Go back" disabled>
+                <div class="folder-navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
+                    <button type="button" class="nav-button nav-button-back" title="{{strings.navbacktitle}}" aria-label="{{strings.navbackaria}}" disabled>
                         <i class="fa fa-arrow-left"></i>
                     </button>
-                    <button type="button" class="nav-button nav-button-forward" title="Forward" aria-label="Go forward" disabled>
+                    <button type="button" class="nav-button nav-button-forward" title="{{strings.navforwardtitle}}" aria-label="{{strings.navforwardaria}}" disabled>
                         <i class="fa fa-arrow-right"></i>
                     </button>
-                    <button type="button" class="nav-button nav-button-up" title="Up" aria-label="Go up" disabled>
+                    <button type="button" class="nav-button nav-button-up" title="{{strings.navuptitle}}" aria-label="{{strings.navuparia}}" disabled>
                         <i class="fa fa-level-up"></i>
                     </button>
                 </div>
-                <div class="folder-breadcrumbs" role="navigation" aria-label="Folder breadcrumbs"></div>
+                <div class="folder-breadcrumbs" role="navigation" aria-label="{{strings.breadcrumbsaria}}"></div>
             </div>
 
             {{! Search and Controls Bar }}
@@ -65,8 +65,8 @@
                         <i class="fa fa-search"></i>
                         <input type="text"
                                class="folder-search-input"
-                               placeholder="Search files and folders..."
-                               aria-label="Search">
+                               placeholder="{{strings.searchplaceholder}}"
+                               aria-label="{{strings.searcharia}}">
                         <button class="search-clear" style="display:none;">
                             <i class="fa fa-times"></i>
                         </button>
@@ -74,27 +74,27 @@
                 </div>
                 <div class="controls-right">
                     <div class="sort-controls">
-                        <label class="sort-label">Sort by:</label>
+                        <label class="sort-label">{{strings.sortlabel}}</label>
                         <select class="folder-sort-select">
-                            <option value="name-asc">Name (A to Z)</option>
-                            <option value="name-desc">Name (Z to A)</option>
-                            <option value="date-desc">Date modified (newest first)</option>
-                            <option value="date-asc">Date modified (oldest first)</option>
-                            <option value="type-asc">Type (A to Z)</option>
-                            <option value="type-desc">Type (Z to A)</option>
-                            <option value="size-desc">Size (largest first)</option>
-                            <option value="size-asc">Size (smallest first)</option>
+                            <option value="name-asc">{{strings.sortnameasc}}</option>
+                            <option value="name-desc">{{strings.sortnamedesc}}</option>
+                            <option value="date-desc">{{strings.sortdatenewest}}</option>
+                            <option value="date-asc">{{strings.sortdateoldest}}</option>
+                            <option value="type-asc">{{strings.sorttypeasc}}</option>
+                            <option value="type-desc">{{strings.sorttypedesc}}</option>
+                            <option value="size-desc">{{strings.sortsizedesc}}</option>
+                            <option value="size-asc">{{strings.sortsizeasc}}</option>
                         </select>
                     </div>
                     <div class="filter-controls">
-                        <label class="filter-label">Show:</label>
+                        <label class="filter-label">{{strings.filterlabel}}</label>
                         <select class="folder-filter-select">
-                            <option value="all">All items</option>
-                            <option value="folders">Folders only</option>
-                            <option value="files">Files only</option>
-                            <option value="images">Images</option>
-                            <option value="documents">Documents</option>
-                            <option value="videos">Videos</option>
+                            <option value="all">{{strings.filterall}}</option>
+                            <option value="folders">{{strings.filterfolders}}</option>
+                            <option value="files">{{strings.filterfiles}}</option>
+                            <option value="images">{{strings.filterimages}}</option>
+                            <option value="documents">{{strings.filterdocuments}}</option>
+                            <option value="videos">{{strings.filtervideos}}</option>
                         </select>
                     </div>
                 </div>
@@ -103,13 +103,13 @@
             {{! Toolbar }}
             <div class="folder-toolbar-onedrive">
                 <div class="toolbar-left">
-                    <button class="btn btn-sm view-toggle active" data-view="grid" title="Grid view">
+                    <button class="btn btn-sm view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
                         <i class="fa fa-th"></i>
                     </button>
-                    <button class="btn btn-sm view-toggle" data-view="list" title="List view">
+                    <button class="btn btn-sm view-toggle" data-view="list" title="{{strings.viewlist}}">
                         <i class="fa fa-list"></i>
                     </button>
-                    <button class="btn btn-sm view-toggle" data-view="details" title="Details view">
+                    <button class="btn btn-sm view-toggle" data-view="details" title="{{strings.viewdetails}}">
                         <i class="fa fa-th-list"></i>
                     </button>
                 </div>
@@ -135,7 +135,7 @@
                              {{#url}}data-url="{{{url}}}"{{/url}}>
 
                             <div class="item-checkbox">
-                                <input type="checkbox" aria-label="Select {{name}}">
+                                <input type="checkbox" aria-label="{{#str}}selectitem, mod_folder, {{name}}{{/str}}">
                             </div>
 
                             <div class="item-icon {{icon_class}}">
@@ -161,9 +161,9 @@
                         <thead>
                             <tr>
                                 <th width="30"><input type="checkbox" class="select-all"></th>
-                                <th>Name</th>
-                                <th width="100">Type</th>
-                                <th width="100">Size</th>
+                                <th>{{strings.tableheadername}}</th>
+                                <th width="100">{{strings.tableheadertype}}</th>
+                                <th width="100">{{strings.tableheadersize}}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -197,16 +197,16 @@
                             <tr>
                                 <th width="30"><input type="checkbox" class="select-all"></th>
                                 <th class="sortable" data-sort="name">
-                                    Name <i class="fa fa-sort sort-icon"></i>
+                                    {{strings.tableheadername}} <i class="fa fa-sort sort-icon"></i>
                                 </th>
                                 <th width="150" class="sortable" data-sort="date">
-                                    Date modified <i class="fa fa-sort sort-icon"></i>
+                                    {{strings.tableheaderdatemodified}} <i class="fa fa-sort sort-icon"></i>
                                 </th>
                                 <th width="100" class="sortable" data-sort="type">
-                                    Type <i class="fa fa-sort sort-icon"></i>
+                                    {{strings.tableheadertype}} <i class="fa fa-sort sort-icon"></i>
                                 </th>
                                 <th width="100" class="sortable" data-sort="size">
-                                    Size <i class="fa fa-sort sort-icon"></i>
+                                    {{strings.tableheadersize}} <i class="fa fa-sort sort-icon"></i>
                                 </th>
                             </tr>
                         </thead>
@@ -240,15 +240,15 @@
             <div class="empty-folder-message" style="display:none;">
                 <div class="empty-state">
                     <i class="fa fa-folder-open-o fa-5x"></i>
-                    <p>This folder is empty</p>
+                    <p>{{strings.emptyfolder}}</p>
                 </div>
             </div>
 
             <div class="no-results-message" style="display:none;">
                 <div class="empty-state">
                     <i class="fa fa-search fa-5x"></i>
-                    <p>No items match your search</p>
-                    <button class="btn btn-secondary clear-search-btn">Clear search</button>
+                    <p>{{strings.noresults}}</p>
+                    <button class="btn btn-secondary clear-search-btn">{{strings.clearsearch}}</button>
                 </div>
             </div>
         </div>
@@ -265,6 +265,7 @@ require(['jquery'], function($) {
     var currentPath = '';
     var searchTerm = '';
     var rootName = decodeHtml(container.attr('data-root-name') || '');
+    var strings = {{{stringsjson}}};
 
     var searchInput = container.find('.folder-search-input');
     var searchClear = container.find('.search-clear');
@@ -706,10 +707,10 @@ require(['jquery'], function($) {
         var breadcrumbs = container.find('.folder-breadcrumbs');
         breadcrumbs.empty();
 
-        var nav = $('<nav/>', {'aria-label': 'Folder breadcrumbs'});
+        var nav = $('<nav/>', {'aria-label': strings.breadcrumbsaria});
         var list = $('<ol/>', {'class': 'folder-breadcrumb-list'});
 
-        list.append(createBreadcrumbItem(rootName || 'Folder', '', currentPath === ''));
+        list.append(createBreadcrumbItem(rootName || strings.modulename, '', currentPath === ''));
 
         var segments = decodePathSegments(currentPath);
         var encodedSegments = currentPath ? currentPath.split('/') : [];
@@ -732,7 +733,7 @@ require(['jquery'], function($) {
             'type': 'button',
             'class': 'breadcrumb-button' + (isActive ? ' is-active' : ''),
             'data-path': pathValue
-        }).text(label || rootName || 'Folder');
+        }).text(label || rootName || strings.modulename);
         if (isActive) {
             button.attr('disabled', true);
         }
@@ -761,6 +762,30 @@ require(['jquery'], function($) {
         } else {
             container.find('.folder-tree-node.is-root').addClass('active');
         }
+    }
+
+    function formatString(template, data) {
+        if (typeof template !== 'string') {
+            return '';
+        }
+
+        if (data === undefined || data === null) {
+            return template.replace(/\{\$a(?:->[a-zA-Z0-9_]+)?\}/g, '');
+        }
+
+        if (typeof data !== 'object') {
+            return template.replace(/\{\$a\}/g, data);
+        }
+
+        return template.replace(/\{\$a(?:->([a-zA-Z0-9_]+))?\}/g, function(match, key) {
+            if (!key) {
+                if (Object.prototype.hasOwnProperty.call(data, 'a')) {
+                    return data.a;
+                }
+                return '';
+            }
+            return Object.prototype.hasOwnProperty.call(data, key) ? data[key] : '';
+        });
     }
 
     function updateItemCount() {
@@ -792,13 +817,13 @@ require(['jquery'], function($) {
             }
         });
 
-        var text = total + ' items';
+        var text = formatString(strings.itemcounts, total);
         if (folders > 0 && files > 0) {
-            text = folders + ' folders, ' + files + ' files';
+            text = formatString(strings.folderfilecounts, {folders: folders, files: files});
         } else if (folders > 0) {
-            text = folders + (folders === 1 ? ' folder' : ' folders');
+            text = formatString(folders === 1 ? strings.foldercountsingular : strings.foldercountplural, folders);
         } else if (files > 0) {
-            text = files + (files === 1 ? ' file' : ' files');
+            text = formatString(files === 1 ? strings.filecountsingular : strings.filecountplural, files);
         }
 
         container.find('.item-count-display').text(text);
@@ -815,7 +840,7 @@ require(['jquery'], function($) {
         var count = Object.keys(uniqueSelected).length;
 
         if (count > 0) {
-            container.find('.selection-count-display').text(count + ' selected').show();
+            container.find('.selection-count-display').text(formatString(strings.selectedcount, count)).show();
         } else {
             container.find('.selection-count-display').hide();
         }
