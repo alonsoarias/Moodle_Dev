@@ -23,7 +23,7 @@
  */
 
 require('../../config.php');
-require_once("$CFG->dirroot/mod/folder/locallib.php");
+require_once(__DIR__ . '/locallib.php');
 require_once("$CFG->dirroot/repository/lib.php");
 require_once($CFG->libdir . '/completionlib.php');
 
@@ -65,7 +65,8 @@ $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
 
 // Configure page
-$PAGE->set_url('/mod/folder/view.php', array('id' => $cm->id));
+$modulepath = '/mod/' . $cm->modname;
+$PAGE->set_url($modulepath . '/view.php', array('id' => $cm->id));
 $PAGE->set_title($course->shortname.': '.$folder->name);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_activity_record($folder);
