@@ -24,8 +24,8 @@
  */
 
 require('../../config.php');
-require_once("$CFG->dirroot/mod/folder/locallib.php");
-require_once("$CFG->dirroot/mod/folder/edit_form.php");
+require_once(__DIR__ . '/locallib.php');
+require_once(__DIR__ . '/edit_form.php');
 require_once("$CFG->dirroot/repository/lib.php");
 
 $id = required_param('id', PARAM_INT);  // Course module ID
@@ -38,7 +38,9 @@ $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 require_login($course, false, $cm);
 require_capability('mod/folder:managefiles', $context);
 
-$PAGE->set_url('/mod/folder/edit.php', array('id' => $cm->id));
+$modulepath = '/mod/' . $cm->modname;
+
+$PAGE->set_url($modulepath . '/edit.php', array('id' => $cm->id));
 $PAGE->set_title($course->shortname.': '.$folder->name);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_activity_record($folder);
@@ -59,7 +61,7 @@ $mform = new mod_folder_edit_form(null, array('data'=>$data, 'options'=>$options
 if ($folder->display == FOLDER_DISPLAY_INLINE) {
     $redirecturl = course_get_url($cm->course, $cm->sectionnum);
 } else {
-    $redirecturl = new moodle_url('/mod/folder/view.php', array('id' => $cm->id));
+    $redirecturl = new moodle_url($modulepath . '/view.php', array('id' => $cm->id));
 }
 
 if ($mform->is_cancelled()) {

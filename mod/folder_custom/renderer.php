@@ -34,9 +34,11 @@ class mod_folder_renderer extends plugin_renderer_base {
         $canmanagefolderfiles = has_capability('mod/folder:managefiles', $context);
         $canmanagecourseactivities = has_capability('moodle/course:manageactivities', $context);
         
+        $modulebase = '/mod/' . $cm->modname;
+
         if ($canmanagefolderfiles && ($folder->display != FOLDER_DISPLAY_INLINE || !$canmanagecourseactivities)) {
             $editbutton = new single_button(
-                new moodle_url('/mod/folder/edit.php', ['id' => $cm->id]),
+                new moodle_url($modulebase . '/edit.php', ['id' => $cm->id]),
                 get_string('edit'), 
                 'post', 
                 single_button::BUTTON_PRIMARY
@@ -49,7 +51,7 @@ class mod_folder_renderer extends plugin_renderer_base {
         $downloadable = folder_archive_available($folder, $cm);
         if ($downloadable) {
             $downloadbutton = new single_button(
-                new moodle_url('/mod/folder/download_folder.php', ['id' => $cm->id]),
+                new moodle_url($modulebase . '/download_folder.php', ['id' => $cm->id]),
                 get_string('downloadfolder', 'folder'), 
                 'get'
             );
