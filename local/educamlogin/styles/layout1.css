@@ -1,6 +1,10 @@
 /* =====================================================
    LAYOUT 1: Dos Columnas (Imagen izquierda + Formulario derecha)
    Basado en el diseño original de Educam
+   
+   FONDO CONDICIONAL:
+   - Si NO hay imagen personalizada: muestra blobs, dots y color de fondo
+   - Si HAY imagen personalizada: solo muestra la imagen de fondo
    ===================================================== */
 
 html, body {
@@ -15,7 +19,7 @@ body {
 }
 
 /* ===================== FONDO / BACKGROUND ===================== */
-/* BLOBS: círculos decorativos del fondo */
+/* BLOBS: círculos decorativos del fondo (solo sin imagen personalizada) */
 .blob-a, .blob-b {
     position: fixed;
     pointer-events: none;
@@ -39,6 +43,17 @@ body {
     bottom: -140px;
     background: radial-gradient(60% 60% at 50% 50%, #c099d8 0%, #b084cc 45%, #9a6fbf 70%, transparent 71%);
     border-radius: 50%;
+}
+
+/* Cuando hay imagen personalizada, ocultar blobs */
+body.has-custom-bg .blob-a,
+body.has-custom-bg .blob-b {
+    display: none;
+}
+
+/* Cuando hay imagen personalizada, hacer fondo transparente */
+body.has-custom-bg {
+    background: transparent;
 }
 
 .wrapper {
@@ -67,6 +82,11 @@ body {
     overflow: hidden;
     display: flex;
     box-shadow: 0 26px 60px rgba(16, 28, 76, .22);
+}
+
+/* Mayor sombra cuando hay fondo personalizado para mejor contraste */
+body.has-custom-bg .shell {
+    box-shadow: 0 26px 60px rgba(16, 28, 76, .45);
 }
 
 /* COLUMNA IZQUIERDA: fotografía del equipo */
@@ -116,6 +136,7 @@ body {
     height: 46px;
     border-radius: 12px;
     font-weight: 600;
+    padding: 0 16px;
 }
 
 .form-control::placeholder {
@@ -131,6 +152,7 @@ body {
 .hint {
     color: var(--link);
     font-size: .82rem;
+    text-decoration: none;
 }
 
 .hint:hover {
@@ -146,6 +168,7 @@ body {
     letter-spacing: .3px;
     text-transform: uppercase;
     color: #fff;
+    transition: background 0.2s ease;
 }
 
 .btn-access:hover {
@@ -174,7 +197,7 @@ body {
 }
 
 /* ===================== DOTS DECORATIVOS ===================== */
-/* Dots inferiores */
+/* Dots inferiores (solo sin imagen personalizada) */
 .dots {
     display: grid;
     grid-template-columns: repeat(10, 14px);
@@ -196,10 +219,21 @@ body {
     background: #2f8fd1;
 }
 
+/* Cuando hay imagen personalizada, ocultar dots */
+body.has-custom-bg .dots {
+    display: none;
+}
+
 /* ===================== reCAPTCHA ===================== */
 .recaptcha-container {
     display: flex;
     justify-content: center;
+    margin-top: 10px;
+}
+
+/* ===================== ALERTS ===================== */
+.alert {
+    border-radius: 12px;
 }
 
 /* ===================== RESPONSIVE ===================== */
@@ -240,5 +274,9 @@ body {
     
     .welcome {
         font-size: 36px;
+    }
+    
+    .frame {
+        margin: 10px;
     }
 }

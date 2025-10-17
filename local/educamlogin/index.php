@@ -66,21 +66,11 @@ $wantsurl = optional_param('wantsurl', '', PARAM_LOCALURL);
 // Prepare template context
 $context = local_educamlogin_prepare_context($layout, $errormsg, $wantsurl);
 
-// Render template
+// Render template using Moodle's standard method
 $OUTPUT->header();
 
-$renderer = $PAGE->get_renderer('core');
-$mustache = $OUTPUT->mustache();
-
-// Load template file
-$templatefile = __DIR__ . '/templates/' . $layout . '.mustache';
-if (!file_exists($templatefile)) {
-    echo '<p>Template not found: ' . $layout . '</p>';
-    $OUTPUT->footer();
-    die();
-}
-
-$template = file_get_contents($templatefile);
-echo $mustache->render($template, $context);
+// Use Moodle's render_from_template method
+$templatename = 'local_educamlogin/' . $layout;
+echo $OUTPUT->render_from_template($templatename, $context);
 
 $OUTPUT->footer();

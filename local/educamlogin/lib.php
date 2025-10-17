@@ -161,25 +161,20 @@ function local_educamlogin_pluginfile($course, $cm, $context, $filearea, $args, 
 function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = '') {
     global $CFG;
     
-    // Get images
-    $team_photo = local_educamlogin_get_file_url('team_photo');
-    $background_image = local_educamlogin_get_file_url('background_image');
-    $logo_educam = local_educamlogin_get_file_url('logo_educam');
-    $logo_americas = local_educamlogin_get_file_url('logo_americas');
+    // Get images - check if custom images exist
+    $team_photo_custom = local_educamlogin_get_file_url('team_photo');
+    $background_image_custom = local_educamlogin_get_file_url('background_image');
+    $logo_educam_custom = local_educamlogin_get_file_url('logo_educam');
+    $logo_americas_custom = local_educamlogin_get_file_url('logo_americas');
     
-    // Use fallbacks if images not uploaded
-    if (!$team_photo) {
-        $team_photo = local_educamlogin_get_fallback_image('team');
-    }
-    if (!$background_image) {
-        $background_image = local_educamlogin_get_fallback_image('background');
-    }
-    if (!$logo_educam) {
-        $logo_educam = local_educamlogin_get_fallback_image('logo_educam');
-    }
-    if (!$logo_americas) {
-        $logo_americas = local_educamlogin_get_fallback_image('logo_americas');
-    }
+    // Use custom or fallback images
+    $team_photo = $team_photo_custom ?: local_educamlogin_get_fallback_image('team');
+    $background_image = $background_image_custom ?: local_educamlogin_get_fallback_image('background');
+    $logo_educam = $logo_educam_custom ?: local_educamlogin_get_fallback_image('logo_educam');
+    $logo_americas = $logo_americas_custom ?: local_educamlogin_get_fallback_image('logo_americas');
+    
+    // Check if background image was uploaded (not using fallback)
+    $has_background_image = !empty($background_image_custom);
     
     // Get colors
     $colors = array(
@@ -217,6 +212,9 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
         'background_image' => $background_image,
         'logo_educam' => $logo_educam,
         'logo_americas' => $logo_americas,
+        
+        // Background image flag
+        'has_background_image' => $has_background_image,
         
         // Colors
         'bg_color' => $colors['bg_color'],

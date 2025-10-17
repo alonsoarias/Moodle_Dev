@@ -21,15 +21,39 @@
             --btn: {{{btn_color}}};
             --btnHover: {{{btn_hover}}};
         }
+        
+        {{#has_background_image}}
+        /* Cuando hay imagen de fondo personalizada */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url('{{{background_image}}}');
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            z-index: -1;
+        }
+        
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.15);
+            z-index: -1;
+        }
+        {{/has_background_image}}
     </style>
 </head>
-<body>
+<body{{#has_background_image}} class="has-custom-bg"{{/has_background_image}}>
     <!-- Logo Educam fijo en esquina superior derecha -->
     <img class="site-logo" src="{{{logo_educam}}}" alt="educam" />
     
-    <!-- Blobs decorativos del fondo -->
+    {{^has_background_image}}
+    <!-- Blobs decorativos del fondo (solo si NO hay imagen personalizada) -->
     <div class="blob-a"></div>
     <div class="blob-b"></div>
+    {{/has_background_image}}
 
     <section class="vh-100 wrapper d-flex align-items-center">
         <div class="container frame">
@@ -90,7 +114,8 @@
                 </div>
             </div>
             
-            <!-- Dots decorativos inferiores -->
+            {{^has_background_image}}
+            <!-- Dots decorativos inferiores (solo si NO hay imagen personalizada) -->
             <div class="dots">
                 <span></span><span></span><span></span><span></span><span></span>
                 <span></span><span></span><span></span><span></span><span></span>
@@ -99,6 +124,7 @@
                 <span></span><span></span><span></span><span></span><span></span>
                 <span></span><span></span><span></span><span></span><span></span>
             </div>
+            {{/has_background_image}}
         </div>
     </section>
 
