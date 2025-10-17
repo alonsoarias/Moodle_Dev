@@ -1,0 +1,188 @@
+/* =====================================================
+   LAYOUT 2: Centrado con Fondo Completo
+   Panel central sobre imagen de fondo
+   ===================================================== */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+/* ===================== FONDO FOTOGRÁFICO ===================== */
+/* Fondo fotográfico con tinte morado */
+.bg-screen {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Imagen de fondo */
+.bg-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* background-image es inyectado desde el template */
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: grayscale(0) saturate(1.1);
+}
+
+/* Overlay morado para mejor contraste */
+.bg-screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(130, 69, 129, .55), rgba(130, 69, 129, .55));
+    mix-blend-mode: multiply;
+}
+
+/* ===================== PANEL CENTRAL ===================== */
+.login-panel {
+    position: relative;
+    z-index: 1;
+    width: min(92vw, 720px);
+    border-radius: 18px;
+    padding: 38px 48px 30px;
+    background: linear-gradient(180deg, var(--panelTop) 0%, var(--panelMid) 56%, var(--panelBottom) 100%);
+    box-shadow: 0 18px 60px rgba(6, 11, 24, .45);
+    color: #fff;
+    text-align: center;
+}
+
+/* ===================== LOGO EDUCAM (SVG) ===================== */
+.logo-mark {
+    width: 110px;
+    height: 110px;
+    margin: -6px auto 6px;
+    display: block;
+}
+
+/* ===================== WELCOME TEXT ===================== */
+.welcome {
+    font-weight: 800;
+    font-size: 64px;
+    line-height: 1.05;
+    margin: 6px 0 22px;
+}
+
+/* ===================== FORMULARIO ===================== */
+.form-area {
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.form-label {
+    font-weight: 700;
+    color: var(--hint);
+    text-align: left;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.form-control {
+    background: var(--field);
+    border: 0;
+    height: 46px;
+    border-radius: 12px;
+    font-weight: 600;
+    width: 100%;
+    padding: 0 12px;
+}
+
+.form-control::placeholder {
+    color: #7b88a8;
+}
+
+.form-control:focus {
+    background: var(--field);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* ===================== FORGOT PASSWORD LINK ===================== */
+.forgot {
+    font-size: .82rem;
+    color: #e6eaf8;
+    text-decoration: none;
+}
+
+.forgot:hover {
+    color: #fff;
+}
+
+/* ===================== BOTÓN ACCEDER ===================== */
+.btn-access {
+    background: var(--btn);
+    border: 0;
+    height: 52px;
+    border-radius: 18px;
+    font-weight: 900;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.btn-access:hover {
+    background: var(--btnHover);
+    color: #fff;
+}
+
+/* ===================== COPYRIGHT ===================== */
+.copyright {
+    color: #d5dcf5;
+    font-size: .84rem;
+    margin-top: 14px;
+    line-height: 1.6;
+}
+
+/* ===================== LOGO AMERICAS ===================== */
+.vendor {
+    margin-top: 8px;
+}
+
+.vendor img {
+    height: 32px;
+}
+
+/* ===================== reCAPTCHA ===================== */
+.recaptcha-container {
+    display: flex;
+    justify-content: center;
+}
+
+/* ===================== ALERTS ===================== */
+.alert {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 575.98px) {
+    .welcome {
+        font-size: 42px;
+    }
+    
+    .login-panel {
+        padding: 28px 20px;
+    }
+    
+    .logo-mark {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .welcome {
+        font-size: 48px;
+    }
+}

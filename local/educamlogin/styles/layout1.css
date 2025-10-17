@@ -1,0 +1,244 @@
+/* =====================================================
+   LAYOUT 1: Dos Columnas (Imagen izquierda + Formulario derecha)
+   Basado en el diseño original de Educam
+   ===================================================== */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--bg);
+}
+
+/* ===================== FONDO / BACKGROUND ===================== */
+/* BLOBS: círculos decorativos del fondo */
+.blob-a, .blob-b {
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    opacity: .85;
+}
+
+.blob-a {
+    width: 520px;
+    height: 520px;
+    left: -170px;
+    top: -160px;
+    background: radial-gradient(60% 60% at 50% 50%, #5f6ad6 0%, #4c5ac4 45%, #3a49ad 70%, transparent 71%);
+    border-radius: 50%;
+}
+
+.blob-b {
+    width: 460px;
+    height: 460px;
+    right: -160px;
+    bottom: -140px;
+    background: radial-gradient(60% 60% at 50% 50%, #c099d8 0%, #b084cc 45%, #9a6fbf 70%, transparent 71%);
+    border-radius: 50%;
+}
+
+.wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.frame {
+    max-width: 1180px;
+    margin: 28px auto 44px;
+}
+
+/* ===================== LOGOTIPO EDUCAM ===================== */
+/* LOGO EDUCAM: fijo en la esquina superior derecha de la página */
+.site-logo {
+    position: fixed;
+    top: 14px;
+    right: 24px;
+    height: 58px;
+    z-index: 2;
+}
+
+/* ===================== TARJETA / COMPOSICIÓN ===================== */
+.shell {
+    border-radius: 28px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 26px 60px rgba(16, 28, 76, .22);
+}
+
+/* COLUMNA IZQUIERDA: fotografía del equipo */
+.left-photo {
+    flex: 0 0 58%;
+    position: relative;
+    background: #cfd8ff;
+}
+
+.left-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* COLUMNA DERECHA: panel de login con gradiente */
+.right-panel {
+    flex: 1;
+    position: relative;
+    background: linear-gradient(180deg, var(--panelTop) 0%, var(--panelMid) 55%, var(--panelBottom) 100%);
+    color: #fff;
+}
+
+.right-inner {
+    padding: 46px 48px 36px;
+    max-width: 520px;
+    margin-left: auto;
+}
+
+.welcome {
+    font-weight: 800;
+    font-size: 64px;
+    line-height: 1.05;
+    margin: 6px 0 28px;
+}
+
+.form-label {
+    font-weight: 700;
+    color: var(--link);
+    margin-bottom: 6px;
+}
+
+.form-control {
+    background: var(--field);
+    border: 0;
+    height: 46px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.form-control::placeholder {
+    color: #7b88a8;
+}
+
+.form-control:focus {
+    background: var(--field);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.hint {
+    color: var(--link);
+    font-size: .82rem;
+}
+
+.hint:hover {
+    color: #fff;
+}
+
+.btn-access {
+    background: var(--btn);
+    border: 0;
+    height: 52px;
+    border-radius: 18px;
+    font-weight: 900;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.btn-access:hover {
+    background: var(--btnHover);
+    color: #fff;
+}
+
+.copyright {
+    color: #b9c7ef;
+    font-size: .84rem;
+    text-align: center;
+    margin-top: 18px;
+    line-height: 1.6;
+}
+
+/* ===================== LOGO AMERICAS ===================== */
+/* LOGO AMERICAS: imagen de marca al pie del panel de login */
+.vendor {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.vendor img {
+    height: 30px;
+}
+
+/* ===================== DOTS DECORATIVOS ===================== */
+/* Dots inferiores */
+.dots {
+    display: grid;
+    grid-template-columns: repeat(10, 14px);
+    grid-auto-rows: 14px;
+    gap: 12px;
+    width: max-content;
+    margin: 26px auto 0;
+}
+
+.dots span {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #61b5d6;
+    opacity: .9;
+}
+
+.dots span:nth-child(5n) {
+    background: #2f8fd1;
+}
+
+/* ===================== reCAPTCHA ===================== */
+.recaptcha-container {
+    display: flex;
+    justify-content: center;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 991.98px) {
+    .frame {
+        margin: 14px auto;
+    }
+    
+    .shell {
+        flex-direction: column;
+    }
+    
+    .left-photo {
+        flex-basis: auto;
+        height: 260px;
+    }
+    
+    .right-inner {
+        max-width: 100%;
+        margin-left: 0;
+    }
+    
+    .welcome {
+        font-size: 44px;
+    }
+    
+    .site-logo {
+        position: static;
+        display: block;
+        margin: 20px auto;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .right-inner {
+        padding: 30px 20px;
+    }
+    
+    .welcome {
+        font-size: 36px;
+    }
+}

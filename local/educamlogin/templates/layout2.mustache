@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login — Educam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="{{{css_url}}}" rel="stylesheet">
+    {{#has_recaptcha}}
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    {{/has_recaptcha}}
+    <style>
+        :root {
+            --panelTop: {{{panel_top}}};
+            --panelMid: {{{panel_mid}}};
+            --panelBottom: {{{panel_bottom}}};
+            --field: {{{field_bg}}};
+            --hint: {{{link_color}}};
+            --btn: {{{btn_color}}};
+            --btnHover: {{{btn_hover}}};
+        }
+        
+        /* Inject background image */
+        .bg-screen::before {
+            background-image: url('{{{background_image}}}');
+        }
+    </style>
+</head>
+<body>
+    <!-- FONDO: contenedor con imagen de fondo y overlay morado -->
+    <section class="bg-screen">
+        <div class="login-panel">
+            <!-- Logo superior centrado (SVG simplificado) -->
+            <svg class="logo-mark" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                    <linearGradient id="glow" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
+                        <stop offset="1" stop-color="#ffffff" stop-opacity=".85"/>
+                    </linearGradient>
+                </defs>
+                <rect x="12" y="20" rx="10" ry="10" width="96" height="64" fill="none" stroke="url(#glow)" stroke-width="6"/>
+                <circle cx="60" cy="52" r="22" fill="none" stroke="#fff" stroke-width="6"/>
+                <path d="M52 52a8 8 0 0 0 8 8h12" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+                <path d="M20 36h20M20 56h16M84 36h16M88 56h12" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+            </svg>
+
+            <div class="welcome">{{{welcome_text}}}</div>
+
+            {{#has_error}}
+            <div class="alert alert-danger" role="alert">
+                {{{errormsg}}}
+            </div>
+            {{/has_error}}
+
+            <form class="form-area text-start" method="post" action="">
+                <div class="mb-3">
+                    <label class="form-label">{{{str_username}}}:</label>
+                    <input type="text" name="username" class="form-control" placeholder="User123" required autofocus>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">{{{str_password}}}:</label>
+                    <input type="password" name="password" class="form-control" placeholder="******" required>
+                </div>
+                <div class="text-center my-2">
+                    <a href="{{{wwwroot}}}/login/forgot_password.php" class="forgot">{{{str_forgotpassword}}}</a>
+                </div>
+                
+                {{#has_recaptcha}}
+                <div class="recaptcha-container mb-3">
+                    <div class="g-recaptcha" data-sitekey="{{{recaptcha_sitekey}}}"></div>
+                </div>
+                {{/has_recaptcha}}
+                
+                {{#has_wantsurl}}
+                <input type="hidden" name="wantsurl" value="{{{wantsurl}}}">
+                {{/has_wantsurl}}
+                
+                <div class="d-grid col-sm-8 mx-sm-auto mt-2 mb-1">
+                    <button type="submit" class="btn btn-access">{{{str_login}}}</button>
+                </div>
+            </form>
+
+            <div class="copyright">
+                {{{copyright_text}}}
+            </div>
+            
+            <!-- Logo Americas en el pie del panel -->
+            <div class="vendor">
+                <img src="{{{logo_americas}}}" alt="americas" />
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
