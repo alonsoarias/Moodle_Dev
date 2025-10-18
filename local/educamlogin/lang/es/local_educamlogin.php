@@ -72,6 +72,8 @@ $string['forgotpassword'] = '¿Olvidó su contraseña?';
 $string['login'] = 'Acceder';
 $string['showpassword'] = 'Mostrar contraseña';
 $string['hidepassword'] = 'Ocultar contraseña';
+$string['skiptoform'] = 'Ir al formulario de acceso';
+$string['logininstructions'] = 'Ingrese su usuario y contraseña para acceder a la plataforma.';
 
 // Error messages
 $string['loginerror'] = 'Usuario o contraseña incorrectos. Por favor, inténtelo de nuevo.';

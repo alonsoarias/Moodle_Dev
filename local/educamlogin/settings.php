@@ -7,6 +7,7 @@
 // (at your option) any later version.
 
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/lib.php');
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage('local_educamlogin', get_string('pluginname', 'local_educamlogin'));
@@ -18,12 +19,14 @@ if ($hassiteconfig) {
         ''
     ));
 
-    $settings->add(new admin_setting_configcheckbox(
+    $enabledsetting = new admin_setting_configcheckbox(
         'local_educamlogin/ed_enabled',
         get_string('enabled', 'local_educamlogin'),
         get_string('enabled_desc', 'local_educamlogin'),
         1
-    ));
+    );
+    $enabledsetting->set_updatedcallback('local_educamlogin_update_alternatelogin');
+    $settings->add($enabledsetting);
 
     // ==================== LAYOUT SELECTION ====================
     $settings->add(new admin_setting_heading(
@@ -210,4 +213,5 @@ if ($hassiteconfig) {
     ));
 
     $ADMIN->add('localplugins', $settings);
+    local_educamlogin_update_alternatelogin();
 }

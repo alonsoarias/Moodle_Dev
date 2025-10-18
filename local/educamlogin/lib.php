@@ -9,6 +9,34 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Synchronise Moodle's alternate login URL with the plugin setting.
+ */
+function local_educamlogin_update_alternatelogin() {
+    $enabled = (int)get_config('local_educamlogin', 'ed_enabled');
+    $targeturl = (new moodle_url('/local/educamlogin/index.php'))->out(false);
+    $currentalt = get_config('moodle', 'alternateloginurl');
+    $backup = get_config('local_educamlogin', 'ed_alternatelogin_backup');
+
+    if ($enabled) {
+        if (!empty($currentalt) && $currentalt !== $targeturl && empty($backup)) {
+            set_config('ed_alternatelogin_backup', $currentalt, 'local_educamlogin');
+        }
+
+        if ($currentalt !== $targeturl) {
+            set_config('alternateloginurl', $targeturl);
+        }
+    } else {
+        if (!empty($backup)) {
+            set_config('alternateloginurl', $backup);
+        } else if ($currentalt === $targeturl) {
+            unset_config('alternateloginurl');
+        }
+
+        unset_config('ed_alternatelogin_backup', 'local_educamlogin');
+    }
+}
+
+/**
  * Get the URL for a stored file
  * ONLY returns URLs for files uploaded via settings.php with ed_ prefix
  *
@@ -241,6 +269,8 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
         'str_login' => get_string('login', 'local_educamlogin'),
         'str_showpassword' => get_string('showpassword', 'local_educamlogin'),
         'str_hidepassword' => get_string('hidepassword', 'local_educamlogin'),
+        'str_skiptoform' => get_string('skiptoform', 'local_educamlogin'),
+        'str_logininstructions' => get_string('logininstructions', 'local_educamlogin'),
 
         // CSS file path
         'css_url' => new moodle_url('/local/educamlogin/styles/' . $layout . '.css'),

@@ -13,6 +13,26 @@ body {
     font-family: Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
     background: var(--bg);
     color: #fff;
+    min-height: 100%;
+}
+
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    padding: 10px 16px;
+    background: #0b1a3f;
+    color: #fff;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: top 0.2s ease, box-shadow 0.2s ease;
+    z-index: 4;
+}
+
+.skip-link:focus {
+    top: 18px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+    outline: none;
 }
 
 /* ===================== FONDO / BACKGROUND ===================== */
@@ -61,12 +81,21 @@ body.has-custom-bg {
 }
 
 /* ===================== LOGOTIPO EDUCAM ===================== */
-.site-logo {
+.brand-header {
     position: fixed;
-    top: 14px;
-    right: 24px;
-    height: 58px;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 24px 0;
+    pointer-events: none;
     z-index: 2;
+}
+
+.site-logo {
+    height: 58px;
+    pointer-events: auto;
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -128,12 +157,23 @@ body.has-custom-bg .shell {
     gap: 12px;
 }
 
+.welcome-wrapper {
+    display: grid;
+    gap: 8px;
+}
+
 .welcome {
     font-weight: 800;
     font-size: clamp(2.2rem, 4.3vw, 4rem);
     line-height: 1.05;
     margin: 6px 0 28px;
     letter-spacing: -0.5px;
+}
+
+.instructions {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: -12px 0 22px;
 }
 
 .form-label {
@@ -162,38 +202,38 @@ body.has-custom-bg .shell {
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
-.password-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
 .password-field__wrapper {
-    position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--field);
 }
 
-.password-field .form-control {
-    padding-right: 3.25rem;
+.password-field__input {
+    background: transparent;
+    border: none;
+    padding-right: 0;
+}
+
+.password-field__input:focus {
+    box-shadow: none;
+}
+
+.password-field__wrapper:focus-within {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .password-toggle {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(-50%);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
     border: 0;
     background: transparent;
     color: var(--link);
-    padding: 0;
-    border-radius: 50%;
-    transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .password-toggle:hover,
@@ -205,10 +245,6 @@ body.has-custom-bg .shell {
 .password-toggle:focus,
 .password-toggle:focus-visible {
     outline: none;
-}
-
-.password-toggle:focus-visible {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.28);
 }
 
 .password-toggle__icon {
@@ -312,6 +348,9 @@ body.has-custom-bg .dots {
     justify-content: center;
     margin-top: 10px;
 }
+.inputs .row {
+    margin-bottom: 6px;
+}
 
 .alert {
     border-radius: 14px;
@@ -325,6 +364,10 @@ body.has-custom-bg .dots {
 }
 
 @media (max-width: 1199.98px) {
+    .brand-header {
+        padding: 12px 18px 0;
+    }
+
     .site-logo {
         height: 52px;
     }
@@ -337,6 +380,13 @@ body.has-custom-bg .dots {
 @media (max-width: 991.98px) {
     body {
         background: linear-gradient(180deg, rgba(26, 41, 97, 0.92), rgba(12, 20, 54, 0.9));
+    }
+
+    .brand-header {
+        position: static;
+        justify-content: center;
+        padding: 12px 0 0;
+        pointer-events: auto;
     }
 
     .frame {
@@ -366,6 +416,10 @@ body.has-custom-bg .dots {
         text-align: center;
     }
 
+    .instructions {
+        text-align: center;
+    }
+
     .hint {
         text-align: center;
         display: inline-block;
@@ -373,9 +427,8 @@ body.has-custom-bg .dots {
     }
 
     .site-logo {
-        position: static;
         display: block;
-        margin: 12px auto 18px;
+        margin: 0 auto 18px;
         height: 46px;
         opacity: 0.92;
     }
@@ -396,6 +449,10 @@ body.has-custom-bg .dots {
 
     .welcome {
         font-size: clamp(1.8rem, 7vw, 2.6rem);
+    }
+
+    .instructions {
+        font-size: 0.95rem;
     }
 
     .dots {
@@ -420,13 +477,8 @@ body.has-custom-bg .dots {
         padding: 26px 20px 24px;
     }
 
-    .password-field .form-control {
-        padding-right: 3rem;
-    }
-
     .password-toggle {
-        width: 38px;
-        height: 38px;
+        padding: 0 12px;
     }
 }
 
@@ -442,14 +494,8 @@ body.has-custom-bg .dots {
 }
 
 @media (max-width: 420px) {
-    .password-field .form-control {
-        padding-right: 2.75rem;
-    }
-
     .password-toggle {
-        width: 36px;
-        height: 36px;
-        right: 10px;
+        padding: 0 10px;
     }
 }
 

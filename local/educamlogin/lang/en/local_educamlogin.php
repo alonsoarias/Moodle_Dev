@@ -72,6 +72,8 @@ $string['forgotpassword'] = 'Forgot your password?';
 $string['login'] = 'Login';
 $string['showpassword'] = 'Show password';
 $string['hidepassword'] = 'Hide password';
+$string['skiptoform'] = 'Skip to login form';
+$string['logininstructions'] = 'Enter your username and password to access the platform.';
 
 // Error messages
 $string['loginerror'] = 'Invalid username or password. Please try again.';
