@@ -29,68 +29,74 @@
 </head>
 <body>
     <!-- FONDO: contenedor con imagen de fondo y overlay morado -->
-    <section class="bg-screen">
-        <div class="login-panel">
-            <!-- Logo superior centrado (SVG simplificado) -->
-            <svg class="logo-mark" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <defs>
-                    <linearGradient id="glow" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
-                        <stop offset="1" stop-color="#ffffff" stop-opacity=".85"/>
-                    </linearGradient>
-                </defs>
-                <rect x="12" y="20" rx="10" ry="10" width="96" height="64" fill="none" stroke="url(#glow)" stroke-width="6"/>
-                <circle cx="60" cy="52" r="22" fill="none" stroke="#fff" stroke-width="6"/>
-                <path d="M52 52a8 8 0 0 0 8 8h12" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-                <path d="M20 36h20M20 56h16M84 36h16M88 56h12" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-            </svg>
+    <main class="bg-screen" role="main">
+        <article class="login-panel">
+            <header class="login-panel__header">
+                <!-- Logo superior centrado (SVG simplificado) -->
+                <svg class="logo-mark" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="glow" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
+                            <stop offset="1" stop-color="#ffffff" stop-opacity=".85"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="12" y="20" rx="10" ry="10" width="96" height="64" fill="none" stroke="url(#glow)" stroke-width="6"/>
+                    <circle cx="60" cy="52" r="22" fill="none" stroke="#fff" stroke-width="6"/>
+                    <path d="M52 52a8 8 0 0 0 8 8h12" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M20 36h20M20 56h16M84 36h16M88 56h12" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+                </svg>
 
-            <div class="welcome">{{{welcome_text}}}</div>
+                <p class="welcome">{{{welcome_text}}}</p>
+            </header>
 
-            {{#has_error}}
-            <div class="alert alert-danger" role="alert">
-                {{{errormsg}}}
-            </div>
-            {{/has_error}}
+            <section class="login-panel__body">
+                {{#has_error}}
+                <div class="alert alert-danger" role="alert">
+                    {{{errormsg}}}
+                </div>
+                {{/has_error}}
 
-            <form class="form-area text-start" method="post" action="">
-                <div class="mb-3">
-                    <label class="form-label">{{{str_username}}}:</label>
-                    <input type="text" name="username" class="form-control" placeholder="User123" required autofocus>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">{{{str_password}}}:</label>
-                    <input type="password" name="password" class="form-control" placeholder="******" required>
-                </div>
-                <div class="text-center my-2">
-                    <a href="{{{wwwroot}}}/login/forgot_password.php" class="forgot">{{{str_forgotpassword}}}</a>
-                </div>
-                
-                {{#has_recaptcha}}
-                <div class="recaptcha-container mb-3">
-                    <div class="g-recaptcha" data-sitekey="{{{recaptcha_sitekey}}}"></div>
-                </div>
-                {{/has_recaptcha}}
-                
-                {{#has_wantsurl}}
-                <input type="hidden" name="wantsurl" value="{{{wantsurl}}}">
-                {{/has_wantsurl}}
-                
-                <div class="d-grid col-sm-8 mx-sm-auto mt-2 mb-1">
-                    <button type="submit" class="btn btn-access">{{{str_login}}}</button>
-                </div>
-            </form>
+                <form class="form-area" method="post" action="">
+                    <div class="form-row">
+                        <label class="form-label" for="login-username">{{{str_username}}}:</label>
+                        <input id="login-username" type="text" name="username" class="form-control" placeholder="User123" required autofocus>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="login-password">{{{str_password}}}:</label>
+                        <input id="login-password" type="password" name="password" class="form-control" placeholder="******" required>
+                    </div>
+                    <div class="form-utility">
+                        <a href="{{{wwwroot}}}/login/forgot_password.php" class="forgot">{{{str_forgotpassword}}}</a>
+                    </div>
 
-            <div class="copyright">
-                {{{copyright_text}}}
-            </div>
-            
-            <!-- Logo Americas en el pie del panel -->
-            <div class="vendor">
-                <img src="{{{logo_americas}}}" alt="americas" />
-            </div>
-        </div>
-    </section>
+                    {{#has_recaptcha}}
+                    <div class="recaptcha-container">
+                        <div class="g-recaptcha" data-sitekey="{{{recaptcha_sitekey}}}"></div>
+                    </div>
+                    {{/has_recaptcha}}
+
+                    {{#has_wantsurl}}
+                    <input type="hidden" name="wantsurl" value="{{{wantsurl}}}">
+                    {{/has_wantsurl}}
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-access">{{{str_login}}}</button>
+                    </div>
+                </form>
+            </section>
+
+            <footer class="login-panel__footer">
+                <div class="copyright">
+                    {{{copyright_text}}}
+                </div>
+
+                <!-- Logo Americas en el pie del panel -->
+                <div class="vendor">
+                    <img src="{{{logo_americas}}}" alt="americas" />
+                </div>
+            </footer>
+        </article>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

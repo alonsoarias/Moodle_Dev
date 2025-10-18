@@ -11,6 +11,7 @@ html, body {
 
 body {
     font-family: Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+    min-height: 100%;
 }
 
 /* ===================== FONDO FOTOGRÁFICO ===================== */
@@ -22,6 +23,7 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    padding: clamp(32px, 6vw, 64px) clamp(20px, 6vw, 48px);
 }
 
 /* Imagen de fondo */
@@ -50,18 +52,24 @@ body {
     position: relative;
     z-index: 1;
     width: min(92vw, 720px);
-    border-radius: 18px;
-    padding: 38px 48px 30px;
+    border-radius: 24px;
+    padding: clamp(28px, 6vw, 48px);
     background: linear-gradient(180deg, var(--panelTop) 0%, var(--panelMid) 56%, var(--panelBottom) 100%);
     box-shadow: 0 18px 60px rgba(6, 11, 24, .45);
     color: #fff;
+    display: grid;
+    gap: clamp(16px, 3vw, 32px);
+}
+
+.login-panel__header,
+.login-panel__footer {
     text-align: center;
 }
 
 /* ===================== LOGO EDUCAM (SVG) ===================== */
 .logo-mark {
-    width: 110px;
-    height: 110px;
+    width: clamp(80px, 9vw, 120px);
+    height: clamp(80px, 9vw, 120px);
     margin: -6px auto 6px;
     display: block;
 }
@@ -69,23 +77,29 @@ body {
 /* ===================== WELCOME TEXT ===================== */
 .welcome {
     font-weight: 800;
-    font-size: 64px;
+    font-size: clamp(2.35rem, 4vw, 4rem);
     line-height: 1.05;
-    margin: 6px 0 22px;
+    margin: 12px 0 clamp(12px, 2.5vw, 24px);
 }
 
 /* ===================== FORMULARIO ===================== */
 .form-area {
     max-width: 520px;
     margin: 0 auto;
+    text-align: left;
+    display: grid;
+    gap: 18px;
+}
+
+.form-row {
+    display: grid;
+    gap: 6px;
 }
 
 .form-label {
     font-weight: 700;
     color: var(--hint);
-    text-align: left;
-    margin-bottom: 6px;
-    display: block;
+    margin-bottom: 0;
 }
 
 .form-control {
@@ -96,6 +110,7 @@ body {
     font-weight: 600;
     width: 100%;
     padding: 0 12px;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .form-control::placeholder {
@@ -119,6 +134,16 @@ body {
     color: #fff;
 }
 
+.form-utility {
+    text-align: center;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+}
+
 /* ===================== BOTÓN ACCEDER ===================== */
 .btn-access {
     background: var(--btn);
@@ -129,11 +154,14 @@ body {
     letter-spacing: .3px;
     text-transform: uppercase;
     color: #fff;
+    min-width: min(100%, 280px);
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .btn-access:hover {
     background: var(--btnHover);
     color: #fff;
+    transform: translateY(-1px);
 }
 
 /* ===================== COPYRIGHT ===================== */
@@ -150,39 +178,69 @@ body {
 }
 
 .vendor img {
-    height: 32px;
+    height: clamp(26px, 3vw, 34px);
 }
 
 /* ===================== reCAPTCHA ===================== */
 .recaptcha-container {
     display: flex;
     justify-content: center;
+    padding-top: 6px;
 }
 
 /* ===================== ALERTS ===================== */
 .alert {
-    text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 0;
 }
 
 /* ===================== RESPONSIVE ===================== */
-@media (max-width: 575.98px) {
-    .welcome {
-        font-size: 42px;
+@media (max-width: 991.98px) {
+    .bg-screen {
+        padding: clamp(24px, 8vw, 48px) clamp(16px, 7vw, 36px);
     }
-    
+
     .login-panel {
-        padding: 28px 20px;
-    }
-    
-    .logo-mark {
-        width: 90px;
-        height: 90px;
+        border-radius: 20px;
     }
 }
 
 @media (max-width: 767.98px) {
     .welcome {
-        font-size: 48px;
+        font-size: clamp(2rem, 7vw, 2.75rem);
+    }
+
+    .login-panel {
+        width: min(100%, 560px);
+    }
+}
+
+@media (max-width: 575.98px) {
+    body {
+        min-height: 100vh;
+    }
+
+    .bg-screen {
+        padding: clamp(18px, 8vw, 32px) clamp(12px, 6vw, 24px);
+    }
+
+    .login-panel {
+        border-radius: 16px;
+        gap: clamp(14px, 6vw, 24px);
+        padding: clamp(22px, 8vw, 32px);
+    }
+
+    .form-control {
+        height: 50px;
+    }
+
+    .form-area {
+        gap: clamp(14px, 5vw, 20px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-access,
+    .form-control {
+        transition: none;
     }
 }

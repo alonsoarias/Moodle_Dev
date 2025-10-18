@@ -47,7 +47,9 @@
 </head>
 <body{{#has_background_image}} class="has-custom-bg"{{/has_background_image}}>
     <!-- Logo Educam fijo en esquina superior derecha -->
-    <img class="site-logo" src="{{{logo_educam}}}" alt="educam" />
+    <header class="brand-bar" role="banner">
+        <img class="brand-bar__logo" src="{{{logo_educam}}}" alt="educam" />
+    </header>
     
     {{^has_background_image}}
     <!-- Blobs decorativos del fondo (solo si NO hay imagen personalizada) -->
@@ -55,16 +57,16 @@
     <div class="blob-b"></div>
     {{/has_background_image}}
 
-    <section class="vh-100 wrapper d-flex align-items-center">
+    <main class="vh-100 wrapper d-flex align-items-center" role="main">
         <div class="container frame">
-            <div class="shell">
+            <article class="shell layout-shell">
                 <!-- COLUMNA IZQUIERDA: FOTOGRAFÍA DEL EQUIPO -->
-                <div class="left-photo">
+                <figure class="left-photo layout-shell__visual">
                     <img src="{{{team_photo}}}" alt="team">
-                </div>
-                
+                </figure>
+
                 <!-- COLUMNA DERECHA: PANEL DE LOGIN -->
-                <div class="right-panel d-flex align-items-center">
+                <div class="right-panel layout-shell__panel d-flex align-items-center">
                     <div class="right-inner ms-lg-0">
                         <div class="welcome">{{{welcome_text}}}</div>
                         
@@ -76,12 +78,12 @@
                         
                         <form class="inputs" method="post" action="">
                             <div class="mb-3">
-                                <label class="form-label">{{{str_username}}}:</label>
-                                <input type="text" name="username" class="form-control" placeholder="User123" required autofocus>
+                                <label class="form-label" for="split-username">{{{str_username}}}:</label>
+                                <input id="split-username" type="text" name="username" class="form-control" placeholder="User123" required autofocus>
                             </div>
                             <div class="mb-1">
-                                <label class="form-label">{{{str_password}}}:</label>
-                                <input type="password" name="password" class="form-control" placeholder="******" required>
+                                <label class="form-label" for="split-password">{{{str_password}}}:</label>
+                                <input id="split-password" type="password" name="password" class="form-control" placeholder="******" required>
                             </div>
                             <div class="text-start mt-2 mb-3">
                                 <a class="hint text-decoration-none" href="{{{wwwroot}}}/login/forgot_password.php">{{{str_forgotpassword}}}</a>
@@ -105,15 +107,15 @@
                         <div class="copyright mt-3">
                             {{{copyright_text}}}
                         </div>
-                        
+
                         <!-- Logo Americas en el pie del panel -->
                         <div class="vendor">
                             <img src="{{{logo_americas}}}" alt="americas" />
                         </div>
                     </div>
                 </div>
-            </div>
-            
+            </article>
+
             {{^has_background_image}}
             <!-- Dots decorativos inferiores (solo si NO hay imagen personalizada) -->
             <div class="dots">
@@ -126,7 +128,7 @@
             </div>
             {{/has_background_image}}
         </div>
-    </section>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
