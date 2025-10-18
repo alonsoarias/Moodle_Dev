@@ -239,7 +239,9 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
         'str_password' => get_string('password', 'local_educamlogin'),
         'str_forgotpassword' => get_string('forgotpassword', 'local_educamlogin'),
         'str_login' => get_string('login', 'local_educamlogin'),
-        
+        'str_showpassword' => get_string('showpassword', 'local_educamlogin'),
+        'str_hidepassword' => get_string('hidepassword', 'local_educamlogin'),
+
         // CSS file path
         'css_url' => new moodle_url('/local/educamlogin/styles/' . $layout . '.css'),
     );

@@ -21,9 +21,8 @@
             --btn: {{{btn_color}}};
             --btnHover: {{{btn_hover}}};
         }
-        
+
         {{#has_background_image}}
-        /* Cuando hay imagen de fondo personalizada */
         body::before {
             content: "";
             position: fixed;
@@ -34,7 +33,7 @@
             background-repeat: no-repeat;
             z-index: -1;
         }
-        
+
         body::after {
             content: "";
             position: fixed;
@@ -46,76 +45,80 @@
     </style>
 </head>
 <body{{#has_background_image}} class="has-custom-bg"{{/has_background_image}}>
-    <!-- Logo Educam fijo en esquina superior derecha -->
     <img class="site-logo" src="{{{logo_educam}}}" alt="educam" />
-    
+
     {{^has_background_image}}
-    <!-- Blobs decorativos del fondo (solo si NO hay imagen personalizada) -->
     <div class="blob-a"></div>
     <div class="blob-b"></div>
     {{/has_background_image}}
 
-    <section class="vh-100 wrapper d-flex align-items-center">
-        <div class="container frame">
-            <div class="shell">
-                <!-- COLUMNA IZQUIERDA: FOTOGRAFÍA DEL EQUIPO -->
-                <div class="left-photo">
+    <section class="vh-100 wrapper py-4 py-lg-5 d-flex align-items-center">
+        <div class="container-xl frame px-3 px-sm-4 px-xl-0">
+            <div class="shell row g-0 flex-column flex-lg-row">
+                <div class="left-photo col-lg-6">
                     <img src="{{{team_photo}}}" alt="team">
                 </div>
-                
-                <!-- COLUMNA DERECHA: PANEL DE LOGIN -->
-                <div class="right-panel d-flex align-items-center">
-                    <div class="right-inner ms-lg-0">
+
+                <div class="right-panel col-lg-6 d-flex align-items-center justify-content-center">
+                    <div class="right-inner w-100">
                         <div class="welcome">{{{welcome_text}}}</div>
-                        
+
                         {{#has_error}}
                         <div class="alert alert-danger" role="alert">
                             {{{errormsg}}}
                         </div>
                         {{/has_error}}
-                        
+
                         <form class="inputs" method="post" action="">
                             <div class="mb-3">
-                                <label class="form-label">{{{str_username}}}:</label>
-                                <input type="text" name="username" class="form-control" placeholder="User123" required autofocus>
+                                <label class="form-label" for="username">{{str_username}}:</label>
+                                <input type="text" id="username" name="username" class="form-control" placeholder="User123" required autofocus autocomplete="username">
                             </div>
-                            <div class="mb-1">
-                                <label class="form-label">{{{str_password}}}:</label>
-                                <input type="password" name="password" class="form-control" placeholder="******" required>
+                            <div class="mb-1 password-field">
+                                <label class="form-label" for="password">{{str_password}}:</label>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="******" required autocomplete="current-password">
+                                <button type="button" class="password-toggle" data-target="password" data-label-show="{{str_showpassword}}" data-label-hide="{{str_hidepassword}}" aria-label="{{str_showpassword}}" aria-pressed="false">
+                                    <svg class="password-toggle__icon password-toggle__icon--on" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M12 5c-4.8 0-8.8 3.1-10.5 7.5.7 1.9 1.9 3.5 3.4 4.7C6.2 18.7 8.9 20 12 20s5.8-1.3 7.1-2.8c1.5-1.2 2.7-2.8 3.4-4.7C20.8 8.1 16.8 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+                                        <circle cx="12" cy="12" r="2.5"/>
+                                    </svg>
+                                    <svg class="password-toggle__icon password-toggle__icon--off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3.3 2.3 2 3.6l4 4C3.8 8.6 2.3 10.2 1.5 12c.7 1.9 1.9 3.5 3.4 4.7C6.2 18.7 8.9 20 12 20c2 0 3.8-.5 5.3-1.3l3.4 3.4 1.3-1.3L3.3 2.3zM12 18c-2.5 0-4.6-.9-6.3-2.3a10 10 0 0 1-2.6-3.7c.6-1.3 1.6-2.6 2.9-3.6l2.2 2.2a4 4 0 0 0 5.2 5.2l1.6 1.6c-.9.4-1.9.6-3 .6zm9.1-6a11.6 11.6 0 0 1-3.4 4.7 10 10 0 0 1-2.2 1.4l-2.1-2.1A4 4 0 0 0 9 9.4L6.8 7.2C8.3 6.3 10 5.8 12 5.8c2.5 0 4.6.9 6.3 2.3 1.1.9 2 2 2.6 3.7-.2.4-.3.8-.8 1.2z"/>
+                                    </svg>
+                                    <span class="password-toggle__label">{{str_showpassword}}</span>
+                                </button>
                             </div>
                             <div class="text-start mt-2 mb-3">
                                 <a class="hint text-decoration-none" href="{{{wwwroot}}}/login/forgot_password.php">{{{str_forgotpassword}}}</a>
                             </div>
-                            
+
                             {{#has_recaptcha}}
                             <div class="recaptcha-container mb-3">
                                 <div class="g-recaptcha" data-sitekey="{{{recaptcha_sitekey}}}"></div>
                             </div>
                             {{/has_recaptcha}}
-                            
+
                             {{#has_wantsurl}}
                             <input type="hidden" name="wantsurl" value="{{{wantsurl}}}">
                             {{/has_wantsurl}}
-                            
-                            <div class="d-grid" style="max-width:340px;margin-inline:auto">
+
+                            <div class="d-grid" style="max-width:360px;margin-inline:auto">
                                 <button type="submit" class="btn btn-access">{{{str_login}}}</button>
                             </div>
                         </form>
-                        
+
                         <div class="copyright mt-3">
                             {{{copyright_text}}}
                         </div>
-                        
-                        <!-- Logo Americas en el pie del panel -->
+
                         <div class="vendor">
                             <img src="{{{logo_americas}}}" alt="americas" />
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             {{^has_background_image}}
-            <!-- Dots decorativos inferiores (solo si NO hay imagen personalizada) -->
             <div class="dots">
                 <span></span><span></span><span></span><span></span><span></span>
                 <span></span><span></span><span></span><span></span><span></span>
@@ -129,5 +132,34 @@
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function() {
+            const toggles = document.querySelectorAll('.password-toggle[data-target]');
+            toggles.forEach(function(toggle) {
+                const targetId = toggle.getAttribute('data-target');
+                const target = document.getElementById(targetId);
+                if (!target) {
+                    return;
+                }
+
+                const showLabel = toggle.getAttribute('data-label-show');
+                const hideLabel = toggle.getAttribute('data-label-hide');
+
+                const update = function(isVisible) {
+                    toggle.setAttribute('aria-pressed', isVisible ? 'true' : 'false');
+                    toggle.querySelector('.password-toggle__label').textContent = isVisible ? hideLabel : showLabel;
+                    toggle.setAttribute('aria-label', isVisible ? hideLabel : showLabel);
+                    toggle.classList.toggle('is-visible', isVisible);
+                };
+
+                toggle.addEventListener('click', function() {
+                    const currentlyPassword = target.getAttribute('type') === 'password';
+                    target.setAttribute('type', currentlyPassword ? 'text' : 'password');
+                    update(currentlyPassword);
+                    target.focus();
+                });
+            });
+        })();
+    </script>
 </body>
 </html>
