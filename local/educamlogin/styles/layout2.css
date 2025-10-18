@@ -11,6 +11,44 @@ html, body {
 
 body {
     font-family: Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+    min-height: 100%;
+}
+
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    padding: 10px 16px;
+    background: rgba(7, 13, 31, 0.92);
+    color: #fff;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: top 0.2s ease, box-shadow 0.2s ease;
+    z-index: 3;
+}
+
+.skip-link:focus {
+    top: 18px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+    outline: none;
+}
+
+.brand-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 24px 0;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.site-logo {
+    height: 54px;
+    pointer-events: auto;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 /* ===================== FONDO FOTOGRÁFICO ===================== */
@@ -74,6 +112,12 @@ body {
     margin: 6px 0 18px;
 }
 
+.instructions {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: -6px 0 18px;
+}
+
 /* ===================== FORMULARIO ===================== */
 .form-area {
     width: 100%;
@@ -113,38 +157,38 @@ body {
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
-.password-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
 .password-field__wrapper {
-    position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--field);
 }
 
-.password-field .form-control {
-    padding-right: 3.25rem;
+.password-field__input {
+    background: transparent;
+    border: none;
+    padding-right: 0;
+}
+
+.password-field__input:focus {
+    box-shadow: none;
+}
+
+.password-field__wrapper:focus-within {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
 .password-toggle {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(-50%);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
     border: 0;
     background: transparent;
     color: var(--hint);
-    padding: 0;
-    border-radius: 50%;
-    transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .password-toggle:hover,
@@ -156,10 +200,6 @@ body {
 .password-toggle:focus,
 .password-toggle:focus-visible {
     outline: none;
-}
-
-.password-toggle:focus-visible {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
 .password-toggle__icon {
@@ -254,9 +294,26 @@ body {
         padding: 32px 16px 24px;
     }
 
+    .brand-header {
+        position: static;
+        justify-content: center;
+        padding: 12px 0 0;
+        pointer-events: auto;
+    }
+
+    .site-logo {
+        height: 48px;
+        margin-bottom: 12px;
+        opacity: 0.95;
+    }
+
     .welcome {
         text-align: center;
         font-size: clamp(2rem, 6vw, 3.2rem);
+    }
+
+    .instructions {
+        text-align: center;
     }
 
     .form-area {
@@ -280,8 +337,8 @@ body {
         border-radius: 22px;
     }
 
-    .password-field .form-control {
-        padding-right: 3rem;
+    .instructions {
+        font-size: 0.95rem;
     }
 }
 
@@ -299,8 +356,7 @@ body {
     }
 
     .password-toggle {
-        width: 38px;
-        height: 38px;
+        padding: 0 12px;
     }
 }
 
@@ -312,14 +368,8 @@ body {
 }
 
 @media (max-width: 420px) {
-    .password-field .form-control {
-        padding-right: 2.75rem;
-    }
-
     .password-toggle {
-        width: 36px;
-        height: 36px;
-        right: 10px;
+        padding: 0 10px;
     }
 }
 
