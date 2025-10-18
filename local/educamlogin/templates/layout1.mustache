@@ -76,17 +76,19 @@
                             </div>
                             <div class="mb-1 password-field">
                                 <label class="form-label" for="password">{{str_password}}:</label>
-                                <input type="password" id="password" name="password" class="form-control" placeholder="******" required autocomplete="current-password">
-                                <button type="button" class="password-toggle" data-target="password" data-label-show="{{str_showpassword}}" data-label-hide="{{str_hidepassword}}" aria-label="{{str_showpassword}}" aria-pressed="false">
-                                    <svg class="password-toggle__icon password-toggle__icon--on" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                        <path d="M12 5c-4.8 0-8.8 3.1-10.5 7.5.7 1.9 1.9 3.5 3.4 4.7C6.2 18.7 8.9 20 12 20s5.8-1.3 7.1-2.8c1.5-1.2 2.7-2.8 3.4-4.7C20.8 8.1 16.8 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
-                                        <circle cx="12" cy="12" r="2.5"/>
-                                    </svg>
-                                    <svg class="password-toggle__icon password-toggle__icon--off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                        <path d="M3.3 2.3 2 3.6l4 4C3.8 8.6 2.3 10.2 1.5 12c.7 1.9 1.9 3.5 3.4 4.7C6.2 18.7 8.9 20 12 20c2 0 3.8-.5 5.3-1.3l3.4 3.4 1.3-1.3L3.3 2.3zM12 18c-2.5 0-4.6-.9-6.3-2.3a10 10 0 0 1-2.6-3.7c.6-1.3 1.6-2.6 2.9-3.6l2.2 2.2a4 4 0 0 0 5.2 5.2l1.6 1.6c-.9.4-1.9.6-3 .6zm9.1-6a11.6 11.6 0 0 1-3.4 4.7 10 10 0 0 1-2.2 1.4l-2.1-2.1A4 4 0 0 0 9 9.4L6.8 7.2C8.3 6.3 10 5.8 12 5.8c2.5 0 4.6.9 6.3 2.3 1.1.9 2 2 2.6 3.7-.2.4-.3.8-.8 1.2z"/>
-                                    </svg>
-                                    <span class="password-toggle__label">{{str_showpassword}}</span>
-                                </button>
+                                <div class="password-field__wrapper">
+                                    <input type="password" id="password" name="password" class="form-control" placeholder="******" required autocomplete="current-password">
+                                    <button type="button" class="password-toggle" data-target="password" data-label-show="{{str_showpassword}}" data-label-hide="{{str_hidepassword}}" aria-label="{{str_showpassword}}" aria-pressed="false" title="{{str_showpassword}}">
+                                        <span class="visually-hidden password-toggle__label">{{str_showpassword}}</span>
+                                        <svg class="password-toggle__icon password-toggle__icon--on" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M12 5c-4.8 0-8.8 3.1-10.5 7.5.7 1.9 1.9 3.5 3.4 4.7C6.2 18.7 8.9 20 12 20s5.8-1.3 7.1-2.8c1.5-1.2 2.7-2.8 3.4-4.7C20.8 8.1 16.8 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+                                            <circle cx="12" cy="12" r="2.5"/>
+                                        </svg>
+                                        <svg class="password-toggle__icon password-toggle__icon--off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M3.3 2.3 2 3.6l4 4C3.8 8.6 2.3 10.2 1.5 12c.7 1.9 1.9 3.5 3.4 4.7C6.2 18.7 8.9 20 12 20c2 0 3.8-.5 5.3-1.3l3.4 3.4 1.3-1.3L3.3 2.3zM12 18c-2.5 0-4.6-.9-6.3-2.3a10 10 0 0 1-2.6-3.7c.6-1.3 1.6-2.6 2.9-3.6l2.2 2.2a4 4 0 0 0 5.2 5.2l1.6 1.6c-.9.4-1.9.6-3 .6zm9.1-6a11.6 11.6 0 0 1-3.4 4.7 10 10 0 0 1-2.2 1.4l-2.1-2.1A4 4 0 0 0 9 9.4L6.8 7.2C8.3 6.3 10 5.8 12 5.8c2.5 0 4.6.9 6.3 2.3 1.1.9 2 2 2.6 3.7-.2.4-.3.8-.8 1.2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <div class="text-start mt-2 mb-3">
                                 <a class="hint text-decoration-none" href="{{{wwwroot}}}/login/forgot_password.php">{{{str_forgotpassword}}}</a>
@@ -144,11 +146,16 @@
 
                 const showLabel = toggle.getAttribute('data-label-show');
                 const hideLabel = toggle.getAttribute('data-label-hide');
+                const hiddenText = toggle.querySelector('.password-toggle__label');
 
                 const update = function(isVisible) {
+                    const label = isVisible ? hideLabel : showLabel;
                     toggle.setAttribute('aria-pressed', isVisible ? 'true' : 'false');
-                    toggle.querySelector('.password-toggle__label').textContent = isVisible ? hideLabel : showLabel;
-                    toggle.setAttribute('aria-label', isVisible ? hideLabel : showLabel);
+                    toggle.setAttribute('aria-label', label);
+                    toggle.setAttribute('title', label);
+                    if (hiddenText) {
+                        hiddenText.textContent = label;
+                    }
                     toggle.classList.toggle('is-visible', isVisible);
                 };
 
@@ -158,6 +165,8 @@
                     update(currentlyPassword);
                     target.focus();
                 });
+
+                update(target.getAttribute('type') !== 'password');
             });
         })();
     </script>
