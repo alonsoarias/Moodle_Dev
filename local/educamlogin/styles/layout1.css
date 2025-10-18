@@ -1,10 +1,6 @@
 /* =====================================================
    LAYOUT 1: Dos Columnas (Imagen izquierda + Formulario derecha)
-   Basado en el diseño original de Educam
-   
-   FONDO CONDICIONAL:
-   - Si NO hay imagen personalizada: muestra blobs, dots y color de fondo
-   - Si HAY imagen personalizada: solo muestra la imagen de fondo
+   Basado en el diseño original de Educam con mejoras responsivas
    ===================================================== */
 
 html, body {
@@ -16,10 +12,10 @@ html, body {
 body {
     font-family: Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
     background: var(--bg);
+    color: #fff;
 }
 
 /* ===================== FONDO / BACKGROUND ===================== */
-/* BLOBS: círculos decorativos del fondo (solo sin imagen personalizada) */
 .blob-a, .blob-b {
     position: fixed;
     pointer-events: none;
@@ -45,13 +41,11 @@ body {
     border-radius: 50%;
 }
 
-/* Cuando hay imagen personalizada, ocultar blobs */
 body.has-custom-bg .blob-a,
 body.has-custom-bg .blob-b {
     display: none;
 }
 
-/* Cuando hay imagen personalizada, hacer fondo transparente */
 body.has-custom-bg {
     background: transparent;
 }
@@ -63,37 +57,50 @@ body.has-custom-bg {
 
 .frame {
     max-width: 1180px;
-    margin: 28px auto 44px;
+    margin: 0 auto;
 }
 
 /* ===================== LOGOTIPO EDUCAM ===================== */
-/* LOGO EDUCAM: fijo en la esquina superior derecha de la página */
 .site-logo {
     position: fixed;
     top: 14px;
     right: 24px;
     height: 58px;
     z-index: 2;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 /* ===================== TARJETA / COMPOSICIÓN ===================== */
 .shell {
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
     border-radius: 28px;
     overflow: hidden;
     display: flex;
+    flex-wrap: nowrap;
     box-shadow: 0 26px 60px rgba(16, 28, 76, .22);
+    background: rgba(15, 27, 71, 0.32);
+    backdrop-filter: blur(4px);
 }
 
-/* Mayor sombra cuando hay fondo personalizado para mejor contraste */
 body.has-custom-bg .shell {
     box-shadow: 0 26px 60px rgba(16, 28, 76, .45);
+    background: rgba(8, 16, 46, 0.55);
 }
 
-/* COLUMNA IZQUIERDA: fotografía del equipo */
 .left-photo {
-    flex: 0 0 58%;
+    flex: 0 0 50%;
     position: relative;
     background: #cfd8ff;
+}
+
+.left-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(13, 32, 74, 0.25), rgba(37, 21, 59, 0.55));
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .left-photo img {
@@ -103,25 +110,25 @@ body.has-custom-bg .shell {
     object-fit: cover;
 }
 
-/* COLUMNA DERECHA: panel de login con gradiente */
 .right-panel {
-    flex: 1;
+    flex: 1 1 0;
     position: relative;
     background: linear-gradient(180deg, var(--panelTop) 0%, var(--panelMid) 55%, var(--panelBottom) 100%);
     color: #fff;
 }
 
 .right-inner {
-    padding: 46px 48px 36px;
+    padding: 48px clamp(28px, 4vw, 60px) 40px;
     max-width: 520px;
-    margin-left: auto;
+    margin: 0 auto;
 }
 
 .welcome {
     font-weight: 800;
-    font-size: 64px;
+    font-size: clamp(2.2rem, 4.3vw, 4rem);
     line-height: 1.05;
     margin: 6px 0 28px;
+    letter-spacing: -0.5px;
 }
 
 .form-label {
@@ -133,10 +140,11 @@ body.has-custom-bg .shell {
 .form-control {
     background: var(--field);
     border: 0;
-    height: 46px;
-    border-radius: 12px;
+    height: 48px;
+    border-radius: 14px;
     font-weight: 600;
     padding: 0 16px;
+    color: #1a2753;
 }
 
 .form-control::placeholder {
@@ -149,10 +157,62 @@ body.has-custom-bg .shell {
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
+.password-field {
+    position: relative;
+}
+
+.password-field .form-control {
+    padding-right: 124px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    background: transparent;
+    color: var(--link);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.password-toggle:hover,
+.password-toggle:focus {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.14);
+    outline: none;
+}
+
+.password-toggle__icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.password-toggle__icon--off {
+    display: none;
+}
+
+.password-toggle.is-visible .password-toggle__icon--on {
+    display: none;
+}
+
+.password-toggle.is-visible .password-toggle__icon--off {
+    display: inline;
+}
+
 .hint {
     color: var(--link);
-    font-size: .82rem;
+    font-size: .85rem;
     text-decoration: none;
+    font-weight: 600;
 }
 
 .hint:hover {
@@ -168,36 +228,39 @@ body.has-custom-bg .shell {
     letter-spacing: .3px;
     text-transform: uppercase;
     color: #fff;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.btn-access:hover {
+.btn-access:hover,
+.btn-access:focus {
     background: var(--btnHover);
     color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-access:active {
+    transform: translateY(0);
 }
 
 .copyright {
-    color: #b9c7ef;
-    font-size: .84rem;
+    color: #d1dcff;
+    font-size: .9rem;
     text-align: center;
-    margin-top: 18px;
+    margin-top: 22px;
     line-height: 1.6;
 }
 
-/* ===================== LOGO AMERICAS ===================== */
-/* LOGO AMERICAS: imagen de marca al pie del panel de login */
 .vendor {
     display: flex;
     justify-content: center;
-    margin-top: 8px;
+    margin-top: 16px;
 }
 
 .vendor img {
-    height: 30px;
+    height: 32px;
+    width: auto;
 }
 
-/* ===================== DOTS DECORATIVOS ===================== */
-/* Dots inferiores (solo sin imagen personalizada) */
 .dots {
     display: grid;
     grid-template-columns: repeat(10, 14px);
@@ -219,64 +282,155 @@ body.has-custom-bg .shell {
     background: #2f8fd1;
 }
 
-/* Cuando hay imagen personalizada, ocultar dots */
 body.has-custom-bg .dots {
     display: none;
 }
 
-/* ===================== reCAPTCHA ===================== */
 .recaptcha-container {
     display: flex;
     justify-content: center;
     margin-top: 10px;
 }
 
-/* ===================== ALERTS ===================== */
 .alert {
-    border-radius: 12px;
+    border-radius: 14px;
 }
 
 /* ===================== RESPONSIVE ===================== */
-@media (max-width: 991.98px) {
+@media (max-width: 1399.98px) {
     .frame {
-        margin: 14px auto;
+        max-width: 1040px;
     }
-    
+}
+
+@media (max-width: 1199.98px) {
+    .site-logo {
+        height: 52px;
+    }
+
+    .welcome {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+    }
+}
+
+@media (max-width: 991.98px) {
+    body {
+        background: linear-gradient(180deg, rgba(26, 41, 97, 0.92), rgba(12, 20, 54, 0.9));
+    }
+
+    .frame {
+        margin: 0 auto;
+    }
+
     .shell {
         flex-direction: column;
+        border-radius: 26px;
     }
-    
+
     .left-photo {
         flex-basis: auto;
-        height: 260px;
+        min-height: 240px;
     }
-    
+
+    .left-photo::after {
+        opacity: 1;
+    }
+
     .right-inner {
-        max-width: 100%;
-        margin-left: 0;
+        max-width: 600px;
+        padding: 38px clamp(24px, 6vw, 56px) 32px;
     }
-    
+
     .welcome {
-        font-size: 44px;
+        text-align: center;
     }
-    
+
+    .hint {
+        text-align: center;
+        display: inline-block;
+        width: 100%;
+    }
+
     .site-logo {
         position: static;
         display: block;
-        margin: 20px auto;
+        margin: 12px auto 18px;
+        height: 46px;
+        opacity: 0.92;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .wrapper {
+        align-items: flex-start !important;
+    }
+
+    .frame {
+        padding: 0;
+    }
+
+    .right-inner {
+        padding: 32px clamp(20px, 6vw, 40px) 28px;
+    }
+
+    .welcome {
+        font-size: clamp(1.8rem, 7vw, 2.6rem);
+    }
+
+    .dots {
+        transform: scale(0.92);
     }
 }
 
 @media (max-width: 575.98px) {
-    .right-inner {
-        padding: 30px 20px;
+    .left-photo {
+        min-height: 200px;
     }
-    
-    .welcome {
-        font-size: 36px;
-    }
-    
+
     .frame {
-        margin: 10px;
+        padding-inline: 0;
+    }
+
+    .shell {
+        border-radius: 22px;
+    }
+
+    .right-inner {
+        padding: 26px 20px 24px;
+    }
+
+    .password-field .form-control {
+        padding-right: 96px;
+    }
+
+    .password-toggle {
+        gap: 4px;
+        padding-inline: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .password-toggle__label {
+        display: none;
+    }
+
+    .password-field .form-control {
+        padding-right: 56px;
+    }
+
+    .welcome {
+        font-size: clamp(1.7rem, 9vw, 2.2rem);
+    }
+
+    .btn-access {
+        border-radius: 16px;
+        height: 50px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition-duration: 0.001ms !important;
+        animation-duration: 0.001ms !important;
     }
 }

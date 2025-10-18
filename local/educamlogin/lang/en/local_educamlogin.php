@@ -70,6 +70,8 @@ $string['username'] = 'Username';
 $string['password'] = 'Password';
 $string['forgotpassword'] = 'Forgot your password?';
 $string['login'] = 'Login';
+$string['showpassword'] = 'Show password';
+$string['hidepassword'] = 'Hide password';
 
 // Error messages
 $string['loginerror'] = 'Invalid username or password. Please try again.';

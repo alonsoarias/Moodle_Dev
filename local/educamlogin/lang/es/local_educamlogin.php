@@ -70,6 +70,8 @@ $string['username'] = 'Usuario';
 $string['password'] = 'Contraseña';
 $string['forgotpassword'] = '¿Olvidó su contraseña?';
 $string['login'] = 'Acceder';
+$string['showpassword'] = 'Mostrar contraseña';
+$string['hidepassword'] = 'Ocultar contraseña';
 
 // Error messages
 $string['loginerror'] = 'Usuario o contraseña incorrectos. Por favor, inténtelo de nuevo.';
