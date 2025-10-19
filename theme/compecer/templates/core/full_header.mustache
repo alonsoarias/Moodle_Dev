@@ -1,0 +1,112 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_compecer/core/full_header
+
+    This template renders the header.
+
+    Example context (json):
+    {
+        "contextheader": "context_header_html",
+        "settingsmenu": "settings_html",
+        "hasnavbar": false,
+        "navbar": "navbar_if_available",
+        "courseheader": "course_header_html",
+        "welcomemessage": "welcomemessage",
+        "pageheadingbutton": "button_html",
+        "courseimageurl": "http://example.com/course-image.jpg",
+        "headeractions": [{
+            "url": "http://example.com",
+            "icon": "cog",
+            "title": "Action link"
+        }],
+        "generalnotice": "notice_html"
+    }
+}}
+<header id="page-header" class="moove-container-fluid">
+    {{#courseimageurl}}
+    <div class="breadcrumb-header" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{{courseimageurl}}}');">
+        <div class="container">
+            <div class="breadcrumb-inner">
+                {{#contextheader}}
+                    <div class="header-context">
+                        {{{contextheader}}}
+                    </div>
+                {{/contextheader}}
+
+                {{#pageheadingbutton}}
+                    <div class="header-actions ml-2">
+                        {{{pageheadingbutton}}}
+                    </div>
+                {{/pageheadingbutton}}
+
+                {{#hasnavbar}}
+                    <div class="header-navigation">
+                        <nav aria-label="{{#str}}breadcrumb, theme_compecer{{/str}}">
+                            {{{navbar}}}
+                        </nav>
+                    </div>
+                {{/hasnavbar}}
+
+                {{#activityheader}}
+                    <div class="activity-header">
+                        {{{activityheader}}}
+                    </div>
+                {{/activityheader}}
+            </div>
+        </div>
+    </div>
+    {{/courseimageurl}}
+
+    {{^courseimageurl}}
+    <div class="d-flex flex-wrap">
+        <div class="ml-auto d-flex">
+            {{{pageheadingbutton}}}
+        </div>
+        <div id="course-header">
+            {{{courseheader}}}
+        </div>
+    </div>
+    <div class="d-sm-flex align-items-center">
+        {{^welcomemessage}}
+            {{#contextheader}}
+                <div class="mr-auto">
+                    {{{contextheader}}}
+                </div>
+            {{/contextheader}}
+        {{/welcomemessage}}
+        {{#hasnavbar}}
+            <div class="header-navigation">
+                <nav aria-label="{{#str}}breadcrumb, theme_compecer{{/str}}">
+                    {{{navbar}}}
+                </nav>
+            </div>
+        {{/hasnavbar}}
+    </div>
+    {{/courseimageurl}}
+
+    <div class="header-actions-container ml-auto" data-region="header-actions-container">
+        {{#headeractions}}
+            <div class="header-action ml-2">{{{.}}}</div>
+        {{/headeractions}}
+    </div>
+
+    {{> core/welcome }}
+
+    {{! Aviso general }}
+    {{{generalnotice}}}
+</header>

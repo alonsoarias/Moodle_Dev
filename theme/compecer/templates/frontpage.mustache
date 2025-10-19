@@ -1,0 +1,262 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_compecer/frontpage
+    Moodle frontpage template.
+}}
+
+{{> theme_moove/head }}
+
+<body {{{ bodyattributes }}}>
+{{> core/local/toast/wrapper}}
+
+<div id="page-wrapper" class="d-print-block">
+    {{{ output.standard_top_of_body_html }}}
+    {{> theme_moove/navbar }}
+
+    <div id="page" data-region="mainpage" data-usertour="scroller" class="drawers drag-container bg-white">
+        {{#slidercount}}
+        <!-- Slider Section -->
+        <section id="mooveslideshow" class="position-relative animate-section {{#isloggedin}}slider-logged-in{{/isloggedin}} {{^hasanymobileimage}}d-none d-md-block{{/hasanymobileimage}}">
+            <div id="frontpage-carousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    {{#slides}}
+                    <div class="carousel-item {{#active}}active{{/active}}">
+                        <div class="carousel-image-wrapper">
+                            <!-- Desktop Image -->
+                            <img src="{{{image}}}" 
+                                 alt="{{#str}}sliderimagedesc, theme_compecer{{/str}}" 
+                                 class="carousel-image carousel-image-desktop d-none d-md-block">
+                            
+                            <!-- Mobile Image (solo si existe) -->
+                            {{#has_mobile}}
+                            <img src="{{{mobile_image}}}" 
+                                 alt="{{#str}}sliderimagedesc, theme_compecer{{/str}}" 
+                                 class="carousel-image carousel-image-mobile d-block d-md-none">
+                            {{/has_mobile}}
+                        </div>
+                    </div>
+                    {{/slides}}
+                </div>
+
+                {{^slidersingleslide}}
+                <a class="carousel-control-prev" href="#frontpage-carousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">{{#str}}previous{{/str}}</span>
+                </a>
+                <a class="carousel-control-next" href="#frontpage-carousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">{{#str}}next{{/str}}</span>
+                </a>
+                {{/slidersingleslide}}
+            </div>
+        </section>
+        {{/slidercount}}
+
+        {{#aboutsection}}
+        <!-- About Section -->
+        <section id="about-section" class="py-5 animate-section">
+            <div class="container text-center">
+                <div class="row justify-content-center">
+                    <div class="col-12 about-content-container p-4">
+                        <h2 class="section-heading mb-4">{{{abouttitle}}}</h2>
+                        <div class="section-content">
+                            {{{aboutcontent}}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {{/aboutsection}}
+
+        {{#careerboxes}}
+        <!-- Career Boxes Section -->
+        <section id="career-section" class="py-5 animate-section" style="background-color: {{careerboxesbgcolor}}">
+            <div class="container">
+                <div class="row justify-content-center mb-5">
+                    <div class="col-lg-8 text-center">
+                        <h2 class="section-heading text-white">
+                            {{#str}}careersection_title, theme_compecer{{/str}}
+                        </h2>
+                    </div>
+                </div>
+                
+                <div class="row justify-content-center">
+                    {{#boxes}}
+                    {{#row_break}}
+                </div>
+                <div class="row justify-content-center mt-4">
+                    {{/row_break}}
+                    <div class="{{columnclass}} mb-4">
+                        <div class="career-box text-center h-100 p-4 rounded shadow-sm">
+                            <div class="icon-wrapper mb-4">
+                                <i class="fas fa-{{{icon}}} fa-3x text-white"></i>
+                            </div>
+                            <h3 class="h4 mb-3 text-white">{{{title}}}</h3>
+                            <div class="description text-white">
+                                {{{content}}}
+                            </div>
+                        </div>
+                    </div>
+                    {{/boxes}}
+                </div>
+            </div>
+        </section>
+        {{/careerboxes}}
+
+        <!-- Main Content Area -->
+        <div id="topofscroll" class="main-content animate-section">
+            <div id="page-content" class="d-print-block main-inner">
+                <div id="region-main-box">
+                    <section id="region-main" aria-label="{{#str}}content{{/str}}">
+                        {{{ output.course_content_header }}}
+                        {{{ output.main_content }}}
+                        {{{ output.course_content_footer }}}
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        {{#hassearchcategories}}
+        <!-- Search and Categories Section -->
+        <section id="search-categories" class="py-5 animate-section">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-md-12 col-lg-6">
+                        <div class="search-box mb-5">
+                            <h2 class="section-heading text-center mb-4">{{{searchsectiontitle}}}</h2>
+                            {{#searchsectiondesc}}
+                            <p class="text-center mb-4">{{{searchsectiondesc}}}</p>
+                            {{/searchsectiondesc}}
+                            <form class="search-form" action="{{config.wwwroot}}/course/search.php" method="get">
+                                <div class="input-group">
+                                    <input type="text"
+                                           class="form-control form-control-lg"
+                                           name="q"
+                                           placeholder="{{#str}}searchcourses, theme_compecer{{/str}}"
+                                           aria-label="{{#str}}searchcourses, theme_compecer{{/str}}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary btn-lg" type="submit">
+                                            <i class="fa fa-search" aria-hidden="true"></i>
+                                            <span class="sr-only">{{#str}}search{{/str}}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    {{#categories}}
+                    <div class="col-auto mb-2">
+                        <a href="{{{url}}}" class="btn btn-tertiary" style="background-color: {{{categoriesbgcolor}}}">
+                            {{{name}}}
+                        </a>
+                    </div>
+                    {{/categories}}
+                </div>
+            </div>
+        </section>
+        {{/hassearchcategories}}
+
+        {{> theme_moove/footer }}
+    </div>
+    {{{ output.standard_after_main_region_html }}}
+</div>
+
+</body>
+</html>
+
+{{#js}}
+require(['jquery', 'theme_boost/bootstrap/carousel', 'theme_boost/bootstrap/dropdown', 'theme_boost/drawer'], function($, Carousel, Dropdown, Drawer) {
+    // Inicializar los drawers
+    Drawer.init();
+    
+    // Asegurarnos que los dropdowns funcionen correctamente
+    $(document).ready(function() {
+        // Inicializar explícitamente los dropdowns del menú de usuario
+        $('[data-toggle="dropdown"]').dropdown();
+    });
+    
+    // Inicialización del carrusel
+    function initializeCarousel() {
+        var $carousel = $('#frontpage-carousel');
+        
+        if ($carousel.length) {
+            // Verificar si hay slides visibles según el viewport
+            var isMobile = window.innerWidth < 768;
+            var hasVisibleSlides = false;
+            
+            if (isMobile) {
+                hasVisibleSlides = $carousel.find('.carousel-item .carousel-image-mobile').length > 0;
+            } else {
+                hasVisibleSlides = $carousel.find('.carousel-item .carousel-image-desktop').length > 0;
+            }
+            
+            if (hasVisibleSlides) {
+                $carousel.carousel({
+                    interval: 5000,
+                    keyboard: true,
+                    ride: 'carousel',
+                    wrap: true,
+                    pause: 'hover'
+                });
+                $carousel.closest('section').show();
+            } else if (isMobile) {
+                $carousel.closest('section').hide();
+            }
+        }
+    }
+
+    // Función para manejar las animaciones
+    function handleScrollAnimations() {
+        const animateSections = document.querySelectorAll('.animate-section');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        animateSections.forEach(section => {
+            observer.observe(section);
+        });
+    }
+
+    // Inicialización
+    $(document).ready(function() {
+        initializeCarousel();
+        handleScrollAnimations();
+    });
+
+    // Reinicialización en cambios de viewport
+    let resizeTimer;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            initializeCarousel();
+        }, 250);
+    });
+});
+{{/js}}

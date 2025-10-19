@@ -1,0 +1,24 @@
+{{!
+    @template core_courseformat/local/courseindex/drawer
+
+    This template renders the course index drawer.
+    Adaptado para theme compecer (child theme de Boost).
+    
+    Example context (json):
+    {}
+}}
+<nav id="courseindex" class="course-index-drawer">
+  <div class="mb-4">
+    <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
+      {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
+    </span>
+  </div>
+  <div id="courseindex-content">
+    {{> core_courseformat/local/courseindex/placeholders}}
+  </div>
+</nav>
+{{#js}}
+require(['core_courseformat/local/courseindex/drawer'], function(component) {
+  component.init('courseindex');
+});
+{{/js}}

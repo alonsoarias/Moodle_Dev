@@ -1,0 +1,1163 @@
+/*******************
+  Headings
+*******************/
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+  color: $title-blue; // antes: #455a64
+  font-family: $headings-font-family;
+  font-weight: $headings-font-weight;
+}
+
+h1 {
+  color: $title-blue;
+}
+
+.text-success {
+  // Se reemplaza el valor directo (#001f40) por la variable de color (en este ejemplo, usamos $primary-blue)
+  color: $primary-blue !important;
+}
+
+#nav-drawer .list-group .list-group-item a,
+#page-navbar .breadcrumb li {
+  font-family: $font-family-aux;
+}
+
+#nav-drawer {
+  background-color: $primary-blue; // anteriormente se usaba $nav-drawer-color
+  padding: 0;
+}
+
+#page-my-index body,
+body {
+  background-color: $white; // antes: $body-bg
+}
+
+#nav-drawer .list-group .list-group-item:hover,
+#nav-drawer.closed .list-group .list-group-item:hover {
+  background-color: darken($gray, 10%); // en lugar de un color fijo
+}
+
+.force-text-white,
+#my-credit {
+  color: $white !important;
+}
+
+#page-navbar .breadcrumb li:first-of-type > * {
+  padding-left: 0.7em;
+}
+
+#nav-drawer.closed .list-group .list-group-item:hover .text {
+  margin-left: 23px !important;
+}
+
+#page-navbar .breadcrumb li:last-of-type > * {
+  padding-right: 0.7em;
+}
+
+.panel.my-credit {
+  padding-top: 5px;
+  padding-bottom: 10px;
+}
+
+#page-navbar .breadcrumb li:last-child > a:hover {
+  background-color: darken($gray, 10%);
+  border-color: darken($gray, 10%);
+}
+
+#page-navbar .breadcrumb li .no-link {
+  background-color: darken($gray, 15%);
+  border-color: darken($gray, 15%);
+}
+
+#nav-drawer .list-group + .list-group {
+  border-top: 2px solid lighten($gray, 40%); // antes: #f7f8f9c4
+}
+
+@mixin myboxshadow {
+  box-shadow: 1px 1px 1px rgba(10, 10, 10, 0.2);
+}
+
+#nav-drawer.closed .list-group .list-group-item:hover li .text {
+  margin-left: 0 !important;
+  font-size: 110%;
+}
+
+#nav-drawer.closed .list-group .list-group-item:hover > ul {
+  width: 320px;
+}
+
+#nav-drawer.closed .list-group .list-group-item:hover a .text {
+  display: inline-block;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow: hidden;
+  max-width: 200px;
+  white-space: nowrap;
+}
+
+#nav-drawer.closed .list-group .list-group-item:hover li .text {
+  margin-left: 0 !important;
+  font-size: 150%;
+  line-height: 110%;
+  font-weight: normal;
+}
+
+.alert-info {
+  @include myboxshadow;
+}
+
+#nav-drawer,
+[data-region="blocks-column"] {
+  top: $navbar-height;
+}
+
+#page-site-index.notloggedin .frontpage-numbers .row h2 {
+  color: $white;
+  -webkit-filter: none;
+  filter: none;
+}
+
+.drawer-toggle button.nav-link > i.slicon-menu {
+  color: $black; // anteriormente $color-black
+  font-size: 24px;
+  font-weight: bold;
+}
+
+img.userpicture {
+  margin-right: 0.5rem;
+  outline: none;
+  border: 1px solid lighten($gray, 40%);
+  box-shadow: 0 0 2px 2px rgba(221, 221, 221, 0.68);
+}
+.userpicture {
+  border-radius: 0px !important;
+}
+
+.dropdown-toggle::after {
+  margin-left: 0.055em;
+  font-size: 120%;
+}
+
+.alert.falde {
+  box-shadow: 2px 2px 5px -2px;
+  margin-right: 2px;
+}
+
+body.pagelayout-course #region-main a,
+body.pagelayout-incourse #region-main a,
+body.pagelayout-course .section-navigation > a,
+body.pagelayout-incourse .section-navigation > a {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+#nav-drawer.closed:not(:hover),
+nav ol.breadcrumb:not(:hover) {
+  opacity: 0.9;
+}
+
+#top-footer .social ul li a {
+  text-decoration: none;
+  color: $white;
+  border-radius: 4px;
+}
+
+#top-footer .social li i {
+  font-size: 16px;
+  line-height: 16px;
+  padding-top: 3px;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+a.my-credit-link {
+  text-decoration: none !important;
+}
+
+a.my-credit-link:hover {
+  color: lighten($primary-blue, 10%) !important;
+}
+
+section#sidepre-blocks section.card {
+  border-bottom: 3px dashed lighten($gray, 40%);
+  border-left: none;
+  border-top: none;
+}
+
+.border-bottom {
+  border-bottom: 2px dashed lighten($gray, 40%);
+}
+
+.nav-tabs .nav-link {
+  border: 2px solid transparent;
+}
+
+#page-footer {
+  background-color: darken($footer-blue, 10%);
+  color: $white;
+}
+
+#top-footer {
+  background-color: $primary-blue; // en la versión anterior se usaba $color-terciary
+  color: $white;
+  margin-top: 0 -15px;
+}
+
+#my-before-top-footer .tool_dataprivacy {
+  text-align: right;
+}
+
+#top-footer .contact ul li {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+  display: inline-block;
+  border-right: 1px dotted $gray;
+  padding-right: 8px;
+  margin-right: 4px;
+}
+
+#top-footer .contact ul li:last-child {
+  border-right: none;
+  padding-right: 0px;
+  margin-right: 0px;
+}
+
+#top-footer h3 {
+  color: $white;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+#page-footer .copyright {
+  background-color: $black; // antes: $my-dark
+}
+
+h3.footer-title {
+  color: $white;
+}
+
+#top-footer .contact ul li,
+#top-footer .contact ul li * {
+  color: lighten($primary-blue, 20%);
+}
+
+#nav-drawer .list-group + .list-group {
+  border-top: 2px solid #f9f9f9;
+}
+
+nav.navbar {
+  padding: 0.25rem 1rem;
+}
+
+nav.navbar .navbar-brand .logo img {
+  min-width: 114px;
+  max-height: $navbar-height;
+}
+.navbar.fixed-top .navbar-brand .logo {
+  max-height: calc(60px - (0.25rem * 2));
+}
+#nav-drawer .list-group .list-group-item a:before {
+  margin-right: 7px;
+}
+
+#nav-drawer .list-group .list-group-item a {
+  text-transform: uppercase;
+}
+
+nav.navbar .drawer-toggle {
+  border-right: 1px dotted rgba(10, 10, 10, 0.07);
+}
+
+body.drawer-open-right [data-region="blocks-column"] {
+  box-shadow: -3px 0px 2px rgba(10, 10, 10, 0.07);
+}
+
+.my-after-divider:after {
+  height: 1px;
+  display: block;
+  width: 70px;
+  border-bottom: 1px dotted $black;
+  margin: 0 auto;
+  content: " ";
+}
+
+h3,
+.h3 {
+  font-size: 1.640625rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: $gray; // antes: #555
+}
+
+.activityinstance a {
+  text-transform: uppercase;
+  font-size: 116%;
+  font-weight: lighter !important;
+}
+
+.btn-secondary,
+.btn-default {
+  color: $black;
+  background-color: lighten($gray, 40%); // antes: #ced4da
+  border-color: lighten($gray, 30%);       // antes: #bfc6cc
+  text-shadow: 1px 0 1px lighten($gray, 50%);
+  box-sizing: border-box;
+}
+
+#page-my-index #region-main-box #region-main .card.mymaincontent {
+  border: none !important;
+  background-color: initial;
+}
+
+#page-my-index .small-box > .inner {
+  padding: 10px 20px 5px 15px;
+  border: 4px solid $white;
+  text-align: right;
+}
+
+#page-my-index .small-box .icon {
+  -webkit-transition: all 0.3s linear;
+  -o-transition: all 0.3s linear;
+  transition: all 0.3s linear;
+  position: absolute;
+  top: 7px;
+  left: 15px;
+  z-index: 0;
+  font-size: 31px;
+  color: $white;
+  right: initial;
+  opacity: 0.7;
+}
+
+nav.navbar ul.navbar-nav .lang-menu .nav-item {
+  line-height: $navbar-height;
+}
+
+.card {
+  border-width: 2px;
+}
+
+div + div.buttons {
+  margin-top: 10px;
+}
+
+nav.navbar .drawer-toggle {
+  background-color: transparent;
+}
+
+.drawer-toggle button.nav-link > i.slicon-menu {
+  color: $black;
+  font-size: 140%;
+}
+
+#block-region-side-pre > section > .card-body > h5.card-title {
+  border-left: 3px solid;
+  padding-left: 5px;
+  color: $primary-blue; // se asigna un color de enlace principal
+}
+
+section#sidepre-blocks section.card:last-child {
+  padding-bottom: 30px;
+}
+
+/* Colores para títulos en bloques laterales (se mantienen las variables heredadas) */
+#block-region-side-pre > section:nth-of-type(7n) > .card-body > h5.card-title {
+  color: $block-region-side-pre-7;
+}
+#block-region-side-pre > section:nth-of-type(7n + 1) > .card-body > h5.card-title {
+  color: $block-region-side-pre-1;
+}
+#block-region-side-pre > section:nth-of-type(7n + 2) > .card-body > h5.card-title {
+  color: $block-region-side-pre-2;
+}
+#block-region-side-pre > section:nth-of-type(7n + 3) > .card-body > h5.card-title {
+  color: $block-region-side-pre-3;
+}
+#block-region-side-pre > section:nth-of-type(7n + 4) > .card-body > h5.card-title {
+  color: $block-region-side-pre-4;
+}
+#block-region-side-pre > section:nth-of-type(7n + 5) > .card-body > h5.card-title {
+  color: $block-region-side-pre-5;
+}
+#block-region-side-pre > section:nth-of-type(7n + 6) > .card-body > h5.card-title {
+  color: $block-region-side-pre-6;
+}
+
+.my-loginbg_image-image-wrapper {
+  padding: 0 !important;
+}
+
+#my-loginbg_image-image {
+  width: 100%;
+  object-fit: contain;
+}
+
+.my-loginbg_image-container {
+  overflow: hidden;
+  border-radius: 10px 0 0 10px;
+  text-align: center;
+  max-height: 480px;
+}
+
+.card.bg-primary {
+  border-color: $primary-blue !important; // se utiliza el azul principal
+  color: $white;
+}
+
+.bg-primary a {
+  color: $white;
+}
+
+.bg-primary a.my-credit-link {
+  color: $white !important;
+}
+
+.bg-primary a.my-credit-link:hover {
+  color: lighten($primary-blue, 20%) !important;
+}
+
+#my-mobile-logo-container {
+  display: none !important;
+}
+
+#my-mobile-logo-container > a {
+  width: 100%;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.logo-mobile img {
+  max-width: 90%;
+  width: 250px;
+}
+
+.my-cookies-notice.text-muted {
+  text-shadow: 0px 1px 1px $gray;
+  color: $gray !important;
+}
+
+.course-content ul.gridicons li.currentselected {
+  background-color: $white;
+  box-shadow: 1px 1px 2px;
+  border: 1px solid $black;
+}
+
+#gridiconcontainer ul.gridicons li {
+  margin: 15px;
+}
+
+#page .course-content ul.gridicons li .gridicon_link .tooltip-inner {
+  background-color: rgba(51, 51, 51, 0.9);
+  color: $white;
+  max-width: none;
+  padding: 8px;
+}
+
+.course-content ul.gridicons li.currentselected {
+  background-color: $white;
+}
+
+.course-content ul.gridicons li.currentselected .image_holder {
+  border-color: $black;
+}
+
+.course-content ul.gridicons li .icon_content {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-bottom: 9px;
+}
+
+.course-content ul.gridicons li .gridicon_link .tooltip {
+  font-size: 14px;
+  width: 300px;
+  max-height: 50vh;
+  overflow: hidden;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.375);
+  border-radius: 5px;
+  border: 1px solid $black;
+}
+
+#theme_compecer.tab-pane .formsettingheading {
+  padding-top: 25px;
+  padding-bottom: 25px;
+  margin-bottom: 25px;
+}
+
+#nav-drawer .list-group .list-group-item .list-group-item {
+  min-height: auto;
+}
+
+#nav-drawer.closed .list-group .list-group-item:hover > ul li a {
+  font-size: 10px;
+}
+
+.content img:not([class]) {
+  max-width: 99%;
+  height: auto;
+}
+
+#page-header .logo {
+  display: none;
+}
+
+.modal-header.calendar_event_course .modal-title {
+  color: $white;
+}
+
+.modal-header.calendar_event_course .close,
+.modal-header.calendar_event_course .moodle-dialogue-base .closebutton {
+  color: $white;
+}
+
+body.path-grade-report {
+  overflow-x: auto;
+}
+
+.path-grade-report-grader .gradeitemheader {
+  max-width: 150px;
+  letter-spacing: -1px;
+}
+
+.event h3.name,
+.calendar_event_course {
+  color: $white;
+  text-shadow: 1px 1px 1px $black;
+}
+
+.event a.card-link {
+  font-weight: bold;
+  border-bottom: 2px dotted;
+  font-size: 107%;
+}
+
+/* Personalizaciones Próximos Eventos */
+.block_calendar_upcoming .event {
+  border-left: 2px solid $gray;
+  padding-left: 5px;
+}
+
+.block_calendar_upcoming .event.my-event-urgent {
+  border-color: $primary-red;
+}
+
+.block_calendar_upcoming .event.my-event-priority {
+  border-color: $secondary-red;
+}
+
+.badge.badge-danger {
+  background-color: $primary-red;
+}
+
+/* END Personalizaciones Próximos Eventos */
+
+.que .formulation {
+  background-color: $white;
+  border: 1px solid lighten($gray, 40%);
+}
+
+.que.informationitem .formulation {
+  background-color: lighten($white, 10%);
+  border-color: lighten($gray, 40%);
+}
+
+.que.informationitem .info {
+  margin-bottom: 5px;
+}
+
+.activityinstance a {
+  text-transform: none;
+}
+
+.compecer-block-header {
+  color: $primary-blue;
+}
+
+.block .block-cards .multiline {
+  color: $primary-blue;
+  font-size: 20px;
+}
+
+.block button.dropdown-toggle {
+  box-shadow: none;
+  border-color: $primary-blue;
+  border: 1px solid $primary-blue;
+}
+
+.block button.dropdown-toggle:hover {
+  background-color: darken($primary-blue, 10%);
+  color: $white;
+  box-shadow: none;
+  border-color: $primary-blue;
+  border: 1px solid $primary-blue;
+}
+
+.block {
+  margin: 1px;
+}
+
+section.node-category {
+  margin: 2px;
+}
+
+.block .show > .btn-outline-secondary.dropdown-toggle:focus {
+  border-color: darken($primary-blue, 10%);
+  background-color: darken($primary-blue, 10%);
+  outline: none !important;
+  outline-width: 0 !important;
+  box-shadow: none;
+}
+
+.block .show > .btn-outline-secondary.dropdown-toggle {
+  background-color: darken($primary-blue, 10%);
+  color: $white;
+  border-color: darken($primary-blue, 10%);
+  border: 1px solid darken($primary-blue, 10%);
+  outline: none !important;
+  outline-width: 0 !important;
+  box-shadow: none;
+}
+
+.block .dropdown-item:focus {
+  background-color: darken($primary-blue, 15%);
+  color: $white;
+}
+
+#block-region-side-pre > section > .card-header > h5.card-title {
+  color: $white;
+}
+
+#sidepreopen-control {
+  background-color: $primary-blue;
+}
+
+#sidepreopen-control:hover {
+  box-shadow: 0 0 6px darken($primary-blue, 10%);
+  background-color: darken($primary-blue, 10%);
+}
+
+#block-region-side-pre > section:nth-of-type(7n) > .card-header {
+  background-color: $block-region-side-pre-7;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 1) > .card-header {
+  background-color: $block-region-side-pre-1;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 2) > .card-header {
+  background-color: $block-region-side-pre-2;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 3) > .card-header {
+  background-color: $block-region-side-pre-3;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 4) > .card-header {
+  background-color: $block-region-side-pre-4;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 5) > .card-header {
+  background-color: $block-region-side-pre-5;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 6) > .card-header {
+  background-color: $block-region-side-pre-6;
+}
+
+.footer-login {
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+  background: $gray;
+}
+
+/* Estilo base para todos los bloques */
+.block h5.card-title:before {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  margin-right: 8px;
+}
+
+/* Estilo por defecto para bloques no listados específicamente */
+.block h5.card-title:before {
+  content: "\f468"; /* fa-solid fa-box - icono general para bloques */
+}
+
+/* Access Review Block */
+.block.block_accessreview h5.card-title:before {
+  content: "\f070"; /* fa-solid fa-eye-slash - revisión de acceso */
+}
+
+/* Activity Modules Block */
+.block.block_activity_modules h5.card-title:before {
+  content: "\f468"; /* fa-solid fa-box - módulos de actividad */
+}
+
+/* Activity Results Block */
+.block.block_activity_results h5.card-title:before {
+  content: "\f681"; /* fa-solid fa-ranking-star - resultados */
+}
+
+/* Admin Bookmarks Block */
+.block.block_admin_bookmarks h5.card-title:before {
+  content: "\f02e"; /* fa-solid fa-bookmark - marcadores */
+}
+
+/* Badges Block */
+.block.block_badges h5.card-title:before {
+  content: "\f559"; /* fa-solid fa-medal - insignias */
+}
+
+/* Blog Menu Block */
+.block.block_blog_menu h5.card-title:before {
+  content: "\f781"; /* fa-solid fa-blog - menú del blog */
+}
+
+/* Blog Recent Block */
+.block.block_blog_recent h5.card-title:before {
+  content: "\f017"; /* fa-solid fa-clock - entradas recientes */
+}
+
+/* Blog Tags Block */
+.block.block_blog_tags h5.card-title:before {
+  content: "\f02c"; /* fa-solid fa-tags - etiquetas del blog */
+}
+
+/* Calendar Month Block */
+.block.block_calendar_month h5.card-title:before {
+  content: "\f133"; /* fa-solid fa-calendar - calendario mensual */
+}
+
+/* Calendar Upcoming Block */
+.block.block_calendar_upcoming h5.card-title:before {
+  content: "\f784"; /* fa-solid fa-calendar-day - eventos próximos */
+}
+
+/* Checklist Block */
+.block.block_checklist h5.card-title:before {
+  content: "\f14a"; /* fa-solid fa-square-check - lista de verificación */
+}
+
+/* Comments Block */
+.block.block_comments h5.card-title:before {
+  content: "\f086"; /* fa-solid fa-comments - comentarios */
+}
+
+/* Completion Progress Block */
+.block.block_completion_progress h5.card-title:before {
+  content: "\f772"; /* fa-solid fa-circle-half-stroke - progreso de finalización */
+}
+
+/* Completion Status Block */
+.block.block_completionstatus h5.card-title:before {
+  content: "\f058"; /* fa-solid fa-circle-check - estado de finalización */
+}
+
+/* Configurable Reports Block */
+.block.block_configurable_reports h5.card-title:before {
+  content: "\f200"; /* fa-solid fa-chart-pie - informes configurables */
+}
+
+/* Course List Block */
+.block.block_course_list h5.card-title:before {
+  content: "\f0ae"; /* fa-solid fa-table-list - lista de cursos */
+}
+
+/* Course Summary Block */
+.block.block_course_summary h5.card-title:before {
+  content: "\f022"; /* fa-solid fa-list-alt - resumen del curso */
+}
+
+/* Dedication Block */
+.block.block_dedication h5.card-title:before {
+  content: "\f004"; /* fa-solid fa-heart - dedicación */
+}
+
+/* Feedback Block */
+.block.block_feedback h5.card-title:before {
+  content: "\f4ad"; /* fa-solid fa-comment-dots - retroalimentación */
+}
+
+/* Global Search Block */
+.block.block_globalsearch h5.card-title:before {
+  content: "\f689"; /* fa-solid fa-search-plus - búsqueda global */
+}
+
+/* Glossary Random Block */
+.block.block_glossary_random h5.card-title:before {
+  content: "\f49e"; /* fa-solid fa-dice - glosario aleatorio */
+}
+
+/* Grade Me Block */
+.block.block_grade_me h5.card-title:before {
+  content: "\f304"; /* fa-solid fa-pen - calificación */
+}
+
+/* Grade Overview Block */
+.block.block_grade_overview h5.card-title:before {
+  content: "\f080"; /* fa-solid fa-chart-bars - vista general de calificaciones */
+}
+
+/* HTML Block */
+.block.block_html h5.card-title:before {
+  content: "\f121"; /* fa-solid fa-code - HTML */
+}
+
+/* Login Block */
+.block.block_login h5.card-title:before {
+  content: "\f2f6"; /* fa-solid fa-right-to-bracket - inicio de sesión */
+}
+
+/* LP Block */
+.block.block_lp h5.card-title:before {
+  content: "\f5da"; /* fa-solid fa-graduation-cap - planes de aprendizaje */
+}
+
+/* Mentees Block */
+.block.block_mentees h5.card-title:before {
+  content: "\f4c4"; /* fa-solid fa-user-graduate - estudiantes mentoreados */
+}
+
+/* Message Teacher Block */
+.block.block_messageteacher h5.card-title:before {
+  content: "\f4e8"; /* fa-solid fa-comment-dots - mensajes al profesor */
+}
+
+/* Mnet Hosts Block */
+.block.block_mnet_hosts h5.card-title:before {
+  content: "\f542"; /* fa-solid fa-network-wired - hosts de red */
+}
+
+/* Multiblock Block */
+.block.block_multiblock h5.card-title:before {
+  content: "\f5fd"; /* fa-solid fa-layer-group - múltiples bloques */
+}
+
+/* My Certificates Block */
+.block.block_mycertificates h5.card-title:before {
+  content: "\f0a3"; /* fa-solid fa-certificate - certificados */
+}
+
+/* My Overview Block */
+.block.block_myoverview h5.card-title:before {
+  content: "\f00a"; /* fa-solid fa-table-cells - vista general */
+}
+
+/* My Profile Block */
+.block.block_myprofile h5.card-title:before {
+  content: "\f2bd"; /* fa-solid fa-user-circle - perfil */
+}
+
+/* My Progress Block */
+.block.block_myprogress h5.card-title:before {
+  content: "\f64f"; /* fa-solid fa-user-clock - mi progreso */
+}
+
+/* Navigation Block */
+.block.block_navigation h5.card-title:before {
+  content: "\f0e8"; /* fa-solid fa-sitemap - navegación */
+}
+
+/* News Items Block */
+.block.block_news_items h5.card-title:before {
+  content: "\f1ea"; /* fa-solid fa-newspaper - noticias */
+}
+
+/* Online Users Block */
+.block.block_online_users h5.card-title:before {
+  content: "\f500"; /* fa-solid fa-user-group - usuarios en línea */
+}
+
+/* Private Files Block */
+.block.block_private_files h5.card-title:before {
+  content: "\f023"; /* fa-solid fa-lock - archivos privados */
+}
+
+/* Recent Activity Block */
+.block.block_recent_activity h5.card-title:before {
+  content: "\f1da"; /* fa-solid fa-clock-rotate-left - actividad reciente */
+}
+
+/* Recently Accessed Courses Block */
+.block.block_recentlyaccessedcourses h5.card-title:before {
+  content: "\f518"; /* fa-solid fa-book-open - cursos recientes */
+}
+
+/* Recently Accessed Items Block */
+.block.block_recentlyaccesseditems h5.card-title:before {
+  content: "\f07c"; /* fa-solid fa-folder-open - elementos recientes */
+}
+
+/* RSS Client Block */
+.block.block_rss_client h5.card-title:before {
+  content: "\f09e"; /* fa-solid fa-rss - RSS */
+}
+
+/* Search Forums Block */
+.block.block_search_forums h5.card-title:before {
+  content: "\f002"; /* fa-solid fa-magnifying-glass - búsqueda en foros */
+}
+
+/* Section Links Block */
+.block.block_section_links h5.card-title:before {
+  content: "\f0cb"; /* fa-solid fa-list-ol - enlaces de sección */
+}
+
+/* Self Completion Block */
+.block.block_selfcompletion h5.card-title:before {
+  content: "\f5a2"; /* fa-solid fa-user-check - auto-finalización */
+}
+
+/* Settings Block */
+.block.block_settings h5.card-title:before {
+  content: "\f013"; /* fa-solid fa-gear - configuración */
+}
+
+/* Site Main Menu Block */
+.block.block_site_main_menu h5.card-title:before {
+  content: "\f0c9"; /* fa-solid fa-bars - menú principal */
+}
+
+/* Social Activities Block */
+.block.block_social_activities h5.card-title:before {
+  content: "\f0c0"; /* fa-solid fa-users - actividades sociales */
+}
+
+/* Starred Courses Block */
+.block.block_starredcourses h5.card-title:before {
+  content: "\f005"; /* fa-solid fa-star - cursos destacados */
+}
+
+/* Tag Flickr Block */
+.block.block_tag_flickr h5.card-title:before {
+  content: "\f16e"; /* fa-brands fa-flickr - Flickr */
+}
+
+/* Tag YouTube Block */
+.block.block_tag_youtube h5.card-title:before {
+  content: "\f167"; /* fa-brands fa-youtube - YouTube */
+}
+
+/* Tags Block */
+.block.block_tags h5.card-title:before {
+  content: "\f02c"; /* fa-solid fa-tags - etiquetas */
+}
+
+/* Timeline Block */
+.block.block_timeline h5.card-title:before {
+  content: "\f783"; /* fa-solid fa-calendar-days - línea de tiempo */
+}
+
+/* XP Block */
+.block.block_xp h5.card-title:before {
+  content: "\f091"; /* fa-solid fa-trophy - puntos de experiencia */
+}
+
+#block-region-side-pre > section:nth-of-type(7n) > .card-header {
+  background-color: $block-region-side-pre-7;
+  border-radius: 0px;
+}
+#block-region-side-pre > section:nth-of-type(7n) > .card-body {
+  background-color: $light-bg;
+  border-radius: 0px 0px 24px 24px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 1) > .card-header {
+  background-color: $block-region-side-pre-1;
+  border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 1) > .card-body {
+  background-color: $light-bg;
+  border-radius: 0px 0px 24px 24px;
+  border-left: 1px solid $block-region-side-pre-1;
+  border-right: 1px solid $block-region-side-pre-1;
+  border-bottom: 1px solid $block-region-side-pre-1;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 2) > .card-header {
+  background-color: $block-region-side-pre-2;
+  border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 2) > .card-body {
+  background-color: $light-bg;
+  border-radius: 0px 0px 24px 24px;
+  border-left: 1px solid $block-region-side-pre-2;
+  border-right: 1px solid $block-region-side-pre-2;
+  border-bottom: 1px solid $block-region-side-pre-2;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 3) > .card-header {
+  background-color: $block-region-side-pre-3;
+  border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 3) > .card-body {
+  background-color: $light-bg;
+  border-radius: 0px 0px 24px 24px;
+  border-left: 1px solid $block-region-side-pre-3;
+  border-right: 1px solid $block-region-side-pre-3;
+  border-bottom: 1px solid $block-region-side-pre-3;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 4) > .card-header {
+  background-color: $block-region-side-pre-4;
+  border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 4) > .card-body {
+  background-color: $light-bg;
+  border-radius: 0px 0px 24px 24px;
+  border-left: 1px solid $block-region-side-pre-4;
+  border-right: 1px solid $block-region-side-pre-4;
+  border-bottom: 1px solid $block-region-side-pre-4;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 5) > .card-header {
+  background-color: $block-region-side-pre-5;
+  border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 5) > .card-body {
+  background-color: $light-bg;
+  border-radius: 0px 0px 24px 24px;
+  border-left: 1px solid $block-region-side-pre-5;
+  border-right: 1px solid $block-region-side-pre-5;
+  border-bottom: 1px solid $block-region-side-pre-5;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 6) > .card-header {
+  background-color: $block-region-side-pre-6;
+  border-radius: 0px;
+}
+
+#block-region-side-pre > section:nth-of-type(7n + 6) > .card-body {
+  background-color: $light-bg;
+  border-radius: 0px 0px 24px 24px;
+  border-left: 1px solid $block-region-side-pre-6;
+  border-right: 1px solid $block-region-side-pre-6;
+  border-bottom: 1px solid $block-region-side-pre-6;
+}
+
+#block-region-side-pre .block {
+  border-bottom: 0px;
+}
+
+.card-header.compecer-block-header {
+  background-color: lighten($gray, 60%);
+  border-radius: 24px 24px 0px 0px;
+}
+.block .card-title {
+  color: $footer-blue; // se usa el azul para footer para destacar el título del bloque
+}
+.block .card-body {
+  background-color: $white;
+  // border-radius: 0px 0px 24px 24px;
+}
+
+.block_timeline .block-timeline [data-region="day-filter"] .dropdown-toggle,
+.block_timeline .block-timeline [data-region="view-selector"] .dropdown-toggle {
+  border: 1px solid lighten($gray, 40%);
+  color: $primary-blue;
+}
+.block_timeline .block-timeline [data-region="timeline-view"] {
+  box-shadow: none;
+}
+.block button.dropdown-toggle:hover {
+  background-color: lighten($gray, 20%);
+  color: $white;
+}
+
+.navbar #usernavigation .userinitials {
+  background-color: darken($primary-blue, 10%);
+  color: $white;
+}
+
+/* Mejorando tamaño de tipografías para lectura */
+.description .course-description-item,
+#page-content {
+  font-size: 0.9775rem;
+  font-weight: 400;
+  line-height: 1.52;
+}
+
+/* Mejora en revisión de intentos de cuestionarios
+   TODO: Traducir a SCSS */
+.que.correct .outcome,
+.que.correct .comment {
+  background-color: lighten($primary-blue, 30%);
+  border-color: lighten($primary-blue, 20%);
+  color: darken($primary-blue, 20%);
+}
+
+.btn-primary {
+  color: $white;
+  background-color: $primary-red;
+  border-color: $primary-red;
+}
+.btn-primary:hover {
+  color: $white;
+  background-color: $secondary-red;
+  border-color: $secondary-red;
+}
+.btn-outline-primary {
+  color: $primary-red;
+  border-color: $primary-red;
+}
+.btn-outline-primary:hover {
+  color: $white;
+  background-color: $secondary-red;
+  border-color: $secondary-red;
+}
+.btn-link {
+  font-weight: 400;
+  color: $gray;
+  text-decoration: none;
+}
+.btn-link:hover {
+  color: darken($gray, 10%);
+  text-decoration: underline;
+}
+
+/* Responsive rules */
+@media (min-width: 768px) {
+  /* Ajustes para tablet en adelante */
+}
+@media (min-width: 800px) {
+  /* Ajustes para pantallas medianas */
+}
+@media (min-width: 1200px) {
+  /* Ajustes para pantallas grandes */
+}
+@media (max-width: 993px) {
+  /* Ajustes para pantallas medianas a pequeñas */
+  @media (min-height: 640px) {
+    /* Posibles ajustes verticales */
+  }
+}
+@media (max-width: 767px) {
+  /* Ajustes para móviles y tablets pequeñas */
+}
+@media (max-width: 639px) {
+  /* Ajustes adicionales para pantallas muy pequeñas */
+}
+@media (nax-width: 576px) {
+  /* Nota: revisar si se trató de un error tipográfico ("nax-width") */
+}
+@media (max-width: 500px) {
+  /* Ajustes para pantallas muy estrechas */
+}
+@media (max-width: 479px) {
+  /* Ajustes para dispositivos con anchura menor a 480px */
+}

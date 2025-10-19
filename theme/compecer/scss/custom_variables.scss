@@ -1,0 +1,94 @@
+// =====================================================================
+// scss/custom_variables.scss
+// Variables globales actualizadas para el nuevo esquema de colores
+// =====================================================================
+
+// -----------------------------------------------------
+// Paleta de Colores
+// -----------------------------------------------------
+// Rojo para elementos destacados y botones primarios
+$primary-red:    #e21144;   // Rojo principal
+$secondary-red:  #be0a37;   // Rojo secundario (hover o variantes)
+
+// Azules para textos, títulos y footer
+$primary-blue:   #365ba3;   // Azul principal (para textos principales y enlaces)
+$title-blue:     #345ba7;   // Azul para títulos y elementos destacados
+$footer-blue:    #2a3462;   // Azul para el footer (fondos y variantes)
+
+// Gris para botones secundarios y estados hover
+$gray:           #5e5e5e;   // Gris base
+
+// Colores Neutrales
+$white:          #FFFFFF;
+$black:          #000000;
+$light-bg:       #F9F9F9;   // Fondo claro para secciones o cards
+$dark-bg:        #333333;
+$yellow:         #ffb000;
+$brand-primary: $primary-red;
+
+// -----------------------------------------------------
+// Tipografía
+// -----------------------------------------------------
+$font-family-sans-serif: 'Roboto', sans-serif;
+$headings-font-family:   $font-family-sans-serif;
+
+// -----------------------------------------------------
+// Dimensiones y Espaciados
+// -----------------------------------------------------
+$navbar-height:         80px;
+$my-loginfooterheight:  80px;
+
+// -----------------------------------------------------
+// Botones
+// -----------------------------------------------------
+// Botón primario
+$btn-primary-bg:        $primary-red;
+$btn-primary-hover-bg:  $secondary-red; // Se recomienda usar darken($primary-red, 10%) o asignar el secundario
+
+// Botón secundario
+$btn-secondary-bg:      $gray;
+$btn-secondary-hover-bg: darken($gray, 10%);
+
+// -----------------------------------------------------
+// Enlaces y Textos
+// -----------------------------------------------------
+$link-color:         $primary-blue;
+$link-hover-color:   darken($primary-blue, 10%);
+$text-color:         $gray;
+$heading-color:      $title-blue;
+
+// -----------------------------------------------------
+// Footer
+// -----------------------------------------------------
+$footer-bg:          $footer-blue;
+$footer-text-color:  $white;
+
+// -----------------------------------------------------
+// Bordes, Sombras y Otros Estilos
+// -----------------------------------------------------
+$border-color:       lighten($gray, 40%);
+$box-shadow:         0 2px 4px rgba(0, 0, 0, 0.1);
+
+// Bordes redondeados
+$card-border-radius: 4px;
+$btn-border-radius:  4px;
+
+// -----------------------------------------------------
+// Otras Variables (Agregar según necesidades futuras)
+// -----------------------------------------------------
+//
+// Ejemplo:
+// $input-border-color: $border-color;
+// $input-focus-shadow: 0 0 5px rgba($primary-blue, 0.5);
+//
+
+// Variables locales del componente
+$course-index-border-width: 1px;
+$course-index-spacing: 1rem;
+$course-index-icon-size: 1.25rem;
+$primary-blue-hover: darken($primary-blue, 10%);
+$primary-blue-dark: darken($primary-blue, 15%);
+$footer-blue-dark: darken($footer-blue, 10%);
+// =====================================================================
+// Fin de scss/custom_variables.scss
+// =====================================================================

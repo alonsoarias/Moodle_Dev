@@ -1,0 +1,56 @@
+{{!
+    @template core_courseformat/local/courseindex/cm
+
+    Displays a course index module entry.
+    Adaptado para theme compecer.
+    Se han eliminado los iconos de las actividades.
+    
+    Example context (json):
+    {
+      "id": "12",
+      "name": "Announcements",
+      "url": "#",
+      "visible": 1,
+      "isactive": 1,
+      "uniqid": "0",
+      "accessvisible": 1,
+      "hascmrestrictions": 0
+    }
+}}
+<li class="course-index-item {{#isactive}}active{{/isactive}}
+           {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
+           {{^accessvisible}}dimmed{{/accessvisible}}
+           {{#indent}} indented {{/indent}}"
+    id="{{uniqid}}-course-index-cm-{{id}}"
+    data-for="cm"
+    data-id="{{id}}"
+    role="treeitem">
+  {{^hasdelegatedsection}}
+    <div class="d-flex align-items-center justify-content-between">
+      {{#uservisible}}
+        <a class="course-index-link text-truncate"
+           {{#url}}href="{{{url}}}"{{/url}}
+           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
+           data-for="cm_name" tabindex="-1" title="{{{name}}}">
+          {{{name}}}
+        </a>
+      {{/uservisible}}
+      {{^uservisible}}
+        <a class="course-index-link text-truncate"
+           href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+          {{{name}}}
+        </a>
+      {{/uservisible}}
+    </div>
+  {{/hasdelegatedsection}}
+  {{#hasdelegatedsection}}
+    {{#sectioninfo}}
+      {{> core_courseformat/local/courseindex/section}}
+    {{/sectioninfo}}
+  {{/hasdelegatedsection}}
+</li>
+{{#js}}
+require(['core_courseformat/local/courseindex/cm'], function(component) {
+  component.init('{{uniqid}}-course-index-cm-{{id}}');
+});
+{{/js}}
