@@ -10,11 +10,11 @@
                     {{#hasglobalprogress}}{{globalprogress.percentageformatted}}{{/hasglobalprogress}}{{^hasglobalprogress}}0{{/hasglobalprogress}}%
                 </span>
             </div>
-            <div class="progress courseindex-progresscard__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{#hasglobalprogress}}{{globalprogress.percentage}}{{/hasglobalprogress}}{{^hasglobalprogress}}0{{/hasglobalprogress}}">
+            <div class="progress courseindex-progresscard__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{#hasglobalprogress}}{{globalprogress.percentage}}{{/hasglobalprogress}}{{^hasglobalprogress}}0{{/hasglobalprogress}}" aria-label="{{#str}} courseprogressheading, theme_compecer {{/str}}">
                 <div class="progress-bar" style="width: {{#hasglobalprogress}}{{globalprogress.percentage}}{{/hasglobalprogress}}{{^hasglobalprogress}}0{{/hasglobalprogress}}%" data-region="course-progress-bar"></div>
             </div>
             <div class="courseindex-progresscard__details">
-                <span class="courseindex-progresscard__ratio" data-region="course-progress-details">
+                <span class="courseindex-progresscard__ratio" data-region="course-progress-details" role="status" aria-live="polite">
                     {{#hasglobalprogress}}
                         {{globalprogress.completed}} / {{globalprogress.total}} {{#str}} courseprogressactivities, theme_compecer {{/str}}
                     {{/hasglobalprogress}}
