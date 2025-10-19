@@ -104,6 +104,14 @@ $string['dashboard_card_icondesc'] = 'Elige el icono para la tarjeta del panel {
 $string['dashboard_card_visibility_heading'] = 'Ajustes de Visibilidad de la Tarjeta {$a}';
 $string['dashboard_card_content_heading'] = 'Ajustes de Contenido de la Tarjeta {$a}';
 $string['dashboard_card_appearance_heading'] = 'Ajustes de Apariencia de la Tarjeta {$a}';
+$string['courseprogressheading'] = 'Progreso del curso';
+$string['courseprogressactivities'] = 'actividades completadas';
+$string['courseprogressnodata'] = 'Aún no hay actividades con seguimiento.';
+$string['completion_notstarted'] = 'No iniciado';
+$string['completion_inprogress'] = 'En progreso';
+$string['completion_completed'] = 'Completado';
+$string['completion_failed'] = 'Fallido';
+$string['completion_untracked'] = 'Seguimiento de finalización no disponible';
 
 // Ajustes de Chat
 $string['enable_chat'] = 'Habilitar widget de chat';
