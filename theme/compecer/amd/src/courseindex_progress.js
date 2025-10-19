@@ -232,13 +232,17 @@ define(['core/str'], function(Str) {
             const percentageNode = this.root.querySelector(SELECTORS.GLOBAL_PERCENTAGE);
             if (percentageNode) {
                 percentageNode.textContent = percentage + '%';
+                percentageNode.setAttribute('aria-label', percentage + '%');
             }
             const detailsNode = this.root.querySelector(SELECTORS.GLOBAL_DETAILS);
             if (detailsNode) {
                 if (data.hasprogress) {
-                    detailsNode.textContent = data.completed + ' / ' + data.total + ' ' + this.strings.activities;
+                    const summary = data.completed + ' / ' + data.total + ' ' + this.strings.activities;
+                    detailsNode.textContent = summary;
+                    detailsNode.setAttribute('aria-label', summary);
                 } else {
                     detailsNode.textContent = this.strings.nodata;
+                    detailsNode.setAttribute('aria-label', this.strings.nodata);
                 }
             }
         }
@@ -251,7 +255,16 @@ define(['core/str'], function(Str) {
                 const percentage = data.total ? Math.round((data.completed / data.total) * 100) : 0;
                 const label = node.querySelector(SELECTORS.SECTION_LABEL);
                 if (label) {
-                    label.textContent = data.completed + '/' + data.total;
+                    if (data.total) {
+                        const text = data.completed + '/' + data.total;
+                        label.textContent = text;
+                        label.setAttribute('aria-label', text + ' ' + this.strings.activities);
+                        node.setAttribute('aria-label', text + ' ' + this.strings.activities);
+                    } else {
+                        label.textContent = '0/0';
+                        label.setAttribute('aria-label', this.strings.nodata);
+                        node.setAttribute('aria-label', this.strings.nodata);
+                    }
                 }
                 const bar = node.querySelector(SELECTORS.SECTION_BAR);
                 if (bar) {

@@ -36,9 +36,11 @@
                     </a>
                 {{/uservisible}}
             </div>
-            <span class="courseindex-locked ms-1" data-for="cm_name">
-                {{#pix}} t/locked, core {{/pix}}
-            </span>
+            {{#hascmrestrictions}}
+                <span class="courseindex-locked ms-1" data-for="cm_name">
+                    {{#pix}} t/locked, core {{/pix}}
+                </span>
+            {{/hascmrestrictions}}
         </div>
     {{/hasdelegatedsection}}
     {{#hasdelegatedsection}}

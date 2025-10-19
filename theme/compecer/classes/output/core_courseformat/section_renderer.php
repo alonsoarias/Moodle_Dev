@@ -23,6 +23,7 @@ use core_courseformat\output\section_renderer as core_section_renderer;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
 require_once($CFG->libdir . '/completionlib.php');
 
 /**
