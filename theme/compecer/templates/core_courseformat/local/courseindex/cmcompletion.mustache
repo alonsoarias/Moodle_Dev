@@ -1,0 +1,27 @@
+{{!
+    Custom completion icon states for the course index.
+}}
+{{#iscomplete}}
+<span class="completioninfo courseindex-status" data-for="cm_completion" data-value="{{state}}" data-state="completed">
+    <span class="courseindex-status__icon" aria-hidden="true"></span>
+    <span class="sr-only" data-region="completion-label">{{#str}} completion_completed, theme_compecer {{/str}}</span>
+</span>
+{{/iscomplete}}
+{{#isincomplete}}
+<span class="completioninfo courseindex-status" data-for="cm_completion" data-value="{{state}}" data-state="incomplete">
+    <span class="courseindex-status__icon" aria-hidden="true"></span>
+    <span class="sr-only" data-region="completion-label">{{#str}} completion_inprogress, theme_compecer {{/str}}</span>
+</span>
+{{/isincomplete}}
+{{#isfail}}
+<span class="completioninfo courseindex-status" data-for="cm_completion" data-value="{{state}}" data-state="failed">
+    <span class="courseindex-status__icon" aria-hidden="true"></span>
+    <span class="sr-only" data-region="completion-label">{{#str}} completion_failed, theme_compecer {{/str}}</span>
+</span>
+{{/isfail}}
+{{^hasstate}}
+<span class="completioninfo courseindex-status" data-for="cm_completion" data-value="{{state}}" data-state="untracked">
+    <span class="courseindex-status__icon" aria-hidden="true"></span>
+    <span class="sr-only" data-region="completion-label">{{#str}} completion_untracked, theme_compecer {{/str}}</span>
+</span>
+{{/hasstate}}
