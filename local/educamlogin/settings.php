@@ -221,6 +221,22 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+    $settings->add(new admin_setting_configtext(
+        'local_educamlogin/ed_recaptcha_action',
+        get_string('recaptcha_action', 'local_educamlogin'),
+        get_string('recaptcha_action_desc', 'local_educamlogin'),
+        'login',
+        PARAM_ALPHANUMEXT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_educamlogin/ed_recaptcha_threshold',
+        get_string('recaptcha_threshold', 'local_educamlogin'),
+        get_string('recaptcha_threshold_desc', 'local_educamlogin'),
+        '0.5',
+        PARAM_FLOAT
+    ));
+
     $ADMIN->add('localplugins', $settings);
     local_educamlogin_update_alternatelogin();
 }

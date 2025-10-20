@@ -66,6 +66,10 @@ $string['recaptcha_sitekey'] = 'Site Key de reCAPTCHA';
 $string['recaptcha_sitekey_desc'] = 'Clave del sitio (Site Key) de Google reCAPTCHA v3';
 $string['recaptcha_secretkey'] = 'Secret Key de reCAPTCHA';
 $string['recaptcha_secretkey_desc'] = 'Clave secreta (Secret Key) de Google reCAPTCHA v3';
+$string['recaptcha_action'] = 'Acción esperada';
+$string['recaptcha_action_desc'] = 'Nombre de la acción enviada a Google al ejecutar reCAPTCHA. Debe coincidir con la acción configurada en la consola de reCAPTCHA.';
+$string['recaptcha_threshold'] = 'Puntuación mínima';
+$string['recaptcha_threshold_desc'] = 'Puntuación mínima aceptable (0-1). Las solicitudes con una puntuación inferior serán rechazadas.';
 
 // Form strings
 $string['username'] = 'Usuario';

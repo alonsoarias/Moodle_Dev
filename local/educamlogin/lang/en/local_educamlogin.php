@@ -66,6 +66,10 @@ $string['recaptcha_sitekey'] = 'reCAPTCHA Site Key';
 $string['recaptcha_sitekey_desc'] = 'Google reCAPTCHA v3 Site Key';
 $string['recaptcha_secretkey'] = 'reCAPTCHA Secret Key';
 $string['recaptcha_secretkey_desc'] = 'Google reCAPTCHA v3 Secret Key';
+$string['recaptcha_action'] = 'Expected action';
+$string['recaptcha_action_desc'] = 'Action name sent to Google when executing reCAPTCHA. It must match the action configured in the reCAPTCHA admin console.';
+$string['recaptcha_threshold'] = 'Minimum score';
+$string['recaptcha_threshold_desc'] = 'Minimum acceptable score (0-1). Requests returning a lower score will be rejected.';
 
 // Form strings
 $string['username'] = 'Username';

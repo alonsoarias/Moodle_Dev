@@ -38,12 +38,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Verify reCAPTCHA if configured
     $recaptcha_sitekey = local_educamlogin_get_config('recaptcha_sitekey');
-    if (!empty($recaptcha_sitekey) && !local_educamlogin_verify_recaptcha($recaptcharesponse, 'login')) {
-        $errormsg = get_string('recaptchaerror', 'local_educamlogin');
-    } else {
+    $recaptchavalid = true;
+    if (!empty($recaptcha_sitekey)) {
+        $recaptchaaction = trim((string)local_educamlogin_get_config('recaptcha_action', 'login'));
+        $recaptchaerror = '';
+
+        if (!local_educamlogin_verify_recaptcha($recaptcharesponse, $recaptchaaction, null, $recaptchaerror)) {
+            $errormsg = get_string('recaptchaerror', 'local_educamlogin');
+
+            if (!empty($recaptchaerror)) {
+                debugging('local_educamlogin: reCAPTCHA failed - ' . $recaptchaerror, DEBUG_DEVELOPER);
+            }
+            $recaptchavalid = false;
+        }
+    }
+
+    if ($recaptchavalid) {
         // Authenticate user
         $user = authenticate_user_login($username, $password);
-        
+
         if ($user) {
             complete_user_login($user);
             
