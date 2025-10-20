@@ -55,7 +55,7 @@ $string['texts_heading'] = 'Text Settings';
 $string['welcome_text'] = 'Welcome text';
 $string['welcome_text_desc'] = 'Large welcome text';
 $string['copyright_text'] = 'Copyright text';
-$string['copyright_text_desc'] = 'Copyright text displayed at the bottom';
+$string['copyright_text_desc'] = 'Footer text displayed at the bottom of the login page. Supports HTML formatting.';
 $string['forgotpassword_url'] = 'Password recovery link';
 $string['forgotpassword_url_desc'] = 'Full URL used for the "Forgot your password?" link. Leave empty to hide the link.';
 
@@ -70,6 +70,8 @@ $string['recaptcha_action'] = 'Expected action';
 $string['recaptcha_action_desc'] = 'Action name sent to Google when executing reCAPTCHA. It must match the action configured in the reCAPTCHA admin console.';
 $string['recaptcha_threshold'] = 'Minimum score';
 $string['recaptcha_threshold_desc'] = 'Minimum acceptable score (0-1). Requests returning a lower score will be rejected.';
+$string['recaptcha_whitelist'] = 'reCAPTCHA IP whitelist';
+$string['recaptcha_whitelist_desc'] = 'List IP addresses or CIDR ranges (one per line or comma separated) that bypass reCAPTCHA verification. Lines starting with # are ignored. Supports IPv4 and IPv6.';
 
 // Form strings
 $string['username'] = 'Username';

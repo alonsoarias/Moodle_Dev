@@ -1,4 +1,4 @@
-# Login personalizado de Educam para Moodle (v2.1.0)
+# Login personalizado de Educam para Moodle (v2.2.0)
 
 Este plugin local sustituye la pantalla estándar de acceso de Moodle por una experiencia totalmente personalizada para la plataforma Educam. Incluye dos diseños responsivos basados en plantillas Mustache, estilos CSS independientes y compatibilidad con Google reCAPTCHA v3, manteniendo la autenticación y la seguridad nativa de Moodle.
 
@@ -10,10 +10,10 @@ Este plugin local sustituye la pantalla estándar de acceso de Moodle por una ex
 ## Características principales
 - Dos diseños («layout1» y «layout2») con estructuras visuales diferenciadas y totalmente responsivas.【F:local/educamlogin/templates/layout1.mustache†L1-L126】【F:local/educamlogin/templates/layout2.mustache†L1-L116】
 - Estilos encapsulados por layout con variables CSS que reflejan los colores configurables desde la administración.【F:local/educamlogin/styles/layout1.css†L1-L110】【F:local/educamlogin/styles/layout2.css†L1-L74】
-- Configuración completa desde el área de administración: activación, selección de layout, textos, paleta de colores, subida de imágenes y claves reCAPTCHA.【F:local/educamlogin/settings.php†L12-L214】
+- Configuración completa desde el área de administración: activación, selección de layout, textos, paleta de colores, subida de imágenes, claves reCAPTCHA y lista blanca de IP.【F:local/educamlogin/settings.php†L12-L222】
 - Integración automática con la URL de login alternativo de Moodle para redirigir a `/local/educamlogin/index.php` cuando el plugin está activo.【F:local/educamlogin/lib.php†L14-L44】【F:local/educamlogin/db/install.php†L12-L16】
 - Gestión de archivos mediante áreas propias (`ed_background_image`, `ed_team_photo`, `ed_logo_educam`, `ed_logo_americas`) con imágenes de respaldo («fallbacks») cuando no hay archivos cargados.【F:local/educamlogin/lib.php†L46-L115】
-- Protección adicional con Google reCAPTCHA v3 configurable (site key, secret, acción y umbral).【F:local/educamlogin/lib.php†L117-L282】
+- Protección adicional con Google reCAPTCHA v3 configurable (site key, secret, acción, umbral y lista blanca de IP para omitir el captcha).【F:local/educamlogin/lib.php†L117-L339】【F:local/educamlogin/settings.php†L199-L222】
 - Texto y etiquetas disponibles en español e inglés mediante archivos de idioma dedicados.【F:local/educamlogin/lang/es/local_educamlogin.php†L1-L80】【F:local/educamlogin/lang/en/local_educamlogin.php†L1-L80】
 
 ## Estructura del plugin
@@ -71,10 +71,10 @@ Sube hasta un archivo por área; se admiten formatos JPG, PNG, WEBP (y SVG en lo
 Selector de colores con vista previa instantánea para fondo, gradiente del panel, campos, enlaces y botón principal. Las selecciones alimentan variables CSS utilizadas en ambos layouts.【F:local/educamlogin/settings.php†L112-L168】【F:local/educamlogin/styles/layout1.css†L18-L109】
 
 ### Textos
-Personaliza el mensaje de bienvenida, el pie de página y la URL de recuperación de contraseña. Si dejas la URL vacía, el enlace no se mostrará en la interfaz.【F:local/educamlogin/settings.php†L170-L197】【F:local/educamlogin/lib.php†L244-L287】
+Personaliza el mensaje de bienvenida, el pie de página (con soporte para HTML) y la URL de recuperación de contraseña. Si dejas la URL vacía, el enlace no se mostrará en la interfaz.【F:local/educamlogin/settings.php†L170-L205】【F:local/educamlogin/lib.php†L244-L307】
 
 ### Seguridad (reCAPTCHA)
-Configura Google reCAPTCHA v3 indicando `sitekey`, `secretkey`, nombre de acción y puntuación mínima aceptable. Si faltan credenciales válidas la verificación fallará y se notificará mediante `debugging`.【F:local/educamlogin/settings.php†L199-L214】【F:local/educamlogin/lib.php†L117-L282】
+Configura Google reCAPTCHA v3 indicando `sitekey`, `secretkey`, nombre de acción, puntuación mínima aceptable y direcciones IP de confianza que evitarán el desafío. Si faltan credenciales válidas la verificación fallará y se notificará mediante `debugging`.【F:local/educamlogin/settings.php†L199-L222】【F:local/educamlogin/lib.php†L117-L339】【F:local/educamlogin/index.php†L30-L75】
 
 ## Descripción de los layouts
 ### Layout 1 – Dos columnas

@@ -9,7 +9,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educamlogin';
-$plugin->version = 2025101705;  // Version 2.0 - Mustache templates
+$plugin->version = 2025101706;  // Version 2.2.0 - IP whitelist and HTML footer
 $plugin->requires = 2020061500; // Moodle 3.9
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v2.1.0';
+$plugin->release = 'v2.2.0';
