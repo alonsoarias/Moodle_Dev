@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link href="{{{css_url}}}" rel="stylesheet">
     {{#has_recaptcha}}
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render={{recaptcha_sitekey}}"></script>
     {{/has_recaptcha}}
     <style>
         :root {
@@ -30,32 +30,8 @@
 <body>
     <a class="skip-link" href="#login-form">{{str_skiptoform}}</a>
 
-    <header class="brand-header" aria-hidden="true">
-        <img class="site-logo" src="{{{logo_educam}}}" alt="Educam" loading="lazy" />
-    </header>
-
     <main class="bg-screen py-4 py-lg-5" role="main">
         <div class="login-panel">
-            <div class="logo-mark-wrapper" aria-hidden="true">
-                <svg class="logo-mark" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="glow" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0" stop-color="#ffffff" stop-opacity=".95" />
-                            <stop offset="1" stop-color="#ffffff" stop-opacity=".85" />
-                        </linearGradient>
-                    </defs>
-                    <rect x="12" y="20" rx="10" ry="10" width="96" height="64" fill="none" stroke="url(#glow)" stroke-width="6" />
-                    <circle cx="60" cy="52" r="22" fill="none" stroke="#fff" stroke-width="6" />
-                    <path d="M52 52a8 8 0 0 0 8 8h12" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" />
-                    <path d="M20 36h20M20 56h16M84 36h16M88 56h12" stroke="#fff" stroke-width="6" stroke-linecap="round" />
-                </svg>
-            </div>
-
-            <div class="welcome-wrapper text-center">
-                <h1 id="login-heading" class="welcome">{{{welcome_text}}}</h1>
-                <p id="login-instructions" class="instructions">{{{str_logininstructions}}}</p>
-            </div>
-
             {{#has_error}}
             <div class="alert alert-danger" role="alert" aria-live="assertive">
                 {{{errormsg}}}
@@ -63,6 +39,20 @@
             {{/has_error}}
 
             <form class="form-area" method="post" action="" id="login-form" aria-labelledby="login-heading" aria-describedby="login-instructions" novalidate>
+                {{#has_recaptcha}}
+                <input type="hidden" name="g-recaptcha-response" id="login-recaptcha-token">
+                {{/has_recaptcha}}
+                <div class="form-heading text-center">
+                    <div class="logo-mark-wrapper">
+                        <img class="site-logo" src="{{{logo_educam}}}" alt="Educam" loading="lazy" />
+                    </div>
+
+                    <div class="welcome-wrapper text-center">
+                        <h1 id="login-heading" class="welcome">{{{welcome_text}}}</h1>
+                        <p id="login-instructions" class="instructions">{{{str_logininstructions}}}</p>
+                    </div>
+                </div>
+
                 <div class="form-floating-group">
                     <div class="mb-3">
                         <label class="form-label" for="username">{{str_username}}:</label>
@@ -86,15 +76,11 @@
                     </div>
                 </div>
 
+                {{#has_forgotpassword}}
                 <div class="text-center text-sm-end my-2">
-                    <a href="{{{wwwroot}}}/login/forgot_password.php" class="forgot text-decoration-none">{{{str_forgotpassword}}}</a>
+                    <a href="{{{forgotpassword_url}}}" class="forgot text-decoration-none">{{{str_forgotpassword}}}</a>
                 </div>
-
-                {{#has_recaptcha}}
-                <div class="recaptcha-container mb-3" role="group" aria-label="reCAPTCHA">
-                    <div class="g-recaptcha" data-sitekey="{{{recaptcha_sitekey}}}"></div>
-                </div>
-                {{/has_recaptcha}}
+                {{/has_forgotpassword}}
 
                 {{#has_wantsurl}}
                 <input type="hidden" name="wantsurl" value="{{{wantsurl}}}">
@@ -150,6 +136,36 @@
 
                 update(target.getAttribute('type') !== 'password');
             });
+            {{#has_recaptcha}}
+            window.addEventListener('load', function() {
+                if (typeof grecaptcha === 'undefined') {
+                    return;
+                }
+
+                const form = document.getElementById('login-form');
+                const tokenField = document.getElementById('login-recaptcha-token');
+                if (!form || !tokenField) {
+                    return;
+                }
+
+                const executeRecaptcha = function() {
+                    return grecaptcha.execute('{{recaptcha_sitekey}}', {action: '{{recaptcha_action}}'}).then(function(token) {
+                        tokenField.value = token;
+                    });
+                };
+
+                grecaptcha.ready(function() {
+                    executeRecaptcha();
+
+                    form.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        executeRecaptcha().then(function() {
+                            form.submit();
+                        });
+                    });
+                });
+            });
+            {{/has_recaptcha}}
         })();
     </script>
 </body>

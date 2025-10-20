@@ -99,22 +99,27 @@ function local_educamlogin_get_config($name, $default = null) {
  * Verify Google reCAPTCHA response
  *
  * @param string $response reCAPTCHA response token
+ * @param string $action Expected action name
+ * @param float $threshold Minimum acceptable score for v3 (0-1)
  * @return bool True if verification passed
  */
-function local_educamlogin_verify_recaptcha($response) {
+function local_educamlogin_verify_recaptcha($response, $action = 'login', $threshold = 0.5) {
     $secretkey = local_educamlogin_get_config('recaptcha_secretkey');
-    
+
     if (empty($secretkey) || empty($response)) {
         return false;
     }
-    
+
     $verifyurl = 'https://www.google.com/recaptcha/api/siteverify';
     $data = array(
         'secret' => $secretkey,
         'response' => $response,
-        'remoteip' => $_SERVER['REMOTE_ADDR']
     );
-    
+
+    if (!empty($_SERVER['REMOTE_ADDR'])) {
+        $data['remoteip'] = $_SERVER['REMOTE_ADDR'];
+    }
+
     $options = array(
         'http' => array(
             'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -122,16 +127,28 @@ function local_educamlogin_verify_recaptcha($response) {
             'content' => http_build_query($data)
         )
     );
-    
+
     $context  = stream_context_create($options);
-    $result = file_get_contents($verifyurl, false, $context);
-    
-    if ($result === FALSE) {
+    $result = @file_get_contents($verifyurl, false, $context);
+
+    if ($result === false) {
         return false;
     }
-    
+
     $responsedata = json_decode($result);
-    return $responsedata->success;
+    if (empty($responsedata) || empty($responsedata->success)) {
+        return false;
+    }
+
+    if (!empty($action) && !empty($responsedata->action) && $responsedata->action !== $action) {
+        return false;
+    }
+
+    if (isset($responsedata->score) && (float)$responsedata->score < (float)$threshold) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -221,9 +238,23 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
     $copyright_text = local_educamlogin_get_config('copyright_text', 
         '© 2020 La plataforma Educam Virtual es una plataforma de capacitación que pertenece a Americas Business Process.');
     
+    // Get forgot password link.
+    $forgotpasswordurl = get_config('local_educamlogin', 'ed_forgotpassword_url');
+    if ($forgotpasswordurl === false) {
+        $forgotpasswordurl = $CFG->wwwroot . '/login/forgot_password.php';
+    } else {
+        $forgotpasswordurl = trim($forgotpasswordurl);
+    }
+
+    if ($forgotpasswordurl !== '') {
+        $forgotpasswordurl = clean_param($forgotpasswordurl, PARAM_URL);
+    }
+    $hasforgotpassword = !empty($forgotpasswordurl);
+
     // Get reCAPTCHA
     $recaptcha_sitekey = local_educamlogin_get_config('recaptcha_sitekey');
     $has_recaptcha = !empty($recaptcha_sitekey);
+    $recaptchaaction = 'login';
     
     // Build context
     $context = array(
@@ -253,15 +284,18 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
         'link_color' => $colors['link_color'],
         'btn_color' => $colors['btn_color'],
         'btn_hover' => $colors['btn_hover'],
-        
+
         // Texts
         'welcome_text' => $welcome_text,
         'copyright_text' => $copyright_text,
-        
+        'forgotpassword_url' => $forgotpasswordurl,
+        'has_forgotpassword' => $hasforgotpassword,
+
         // reCAPTCHA
         'recaptcha_sitekey' => $recaptcha_sitekey,
         'has_recaptcha' => $has_recaptcha,
-        
+        'recaptcha_action' => $recaptchaaction,
+
         // Strings
         'str_username' => get_string('username', 'local_educamlogin'),
         'str_password' => get_string('password', 'local_educamlogin'),

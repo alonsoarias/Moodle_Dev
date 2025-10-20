@@ -76,8 +76,17 @@ body.has-custom-bg {
 }
 
 .frame {
-    max-width: 1180px;
-    margin: 0 auto;
+    max-width: 968px;
+    width: 100%;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(24px, 3.6vw, 36px);
+}
+
+.frame > .shell {
+    width: 100%;
 }
 
 /* ===================== LOGOTIPO EDUCAM ===================== */
@@ -118,7 +127,7 @@ body.has-custom-bg .shell {
 }
 
 .left-photo {
-    flex: 0 0 50%;
+    flex: 0 0 46%;
     position: relative;
     background: #cfd8ff;
 }
@@ -147,8 +156,8 @@ body.has-custom-bg .shell {
 }
 
 .right-inner {
-    padding: 48px clamp(28px, 4vw, 60px) 40px;
-    max-width: 520px;
+    padding: clamp(34px, 4vw, 48px) clamp(20px, 3vw, 36px) clamp(28px, 4vw, 40px);
+    max-width: 624px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -325,6 +334,7 @@ body.has-custom-bg .shell {
     gap: 12px;
     width: max-content;
     margin: 26px auto 0;
+    align-self: center;
 }
 
 .dots span {
@@ -359,7 +369,7 @@ body.has-custom-bg .dots {
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 1399.98px) {
     .frame {
-        max-width: 1040px;
+        max-width: 880px;
     }
 }
 
@@ -391,6 +401,7 @@ body.has-custom-bg .dots {
 
     .frame {
         margin: 0 auto;
+        gap: clamp(20px, 6vw, 32px);
     }
 
     .shell {
@@ -408,8 +419,8 @@ body.has-custom-bg .dots {
     }
 
     .right-inner {
-        max-width: 600px;
-        padding: 38px clamp(24px, 6vw, 56px) 32px;
+        max-width: 720px;
+        padding: clamp(32px, 6vw, 40px) clamp(20px, 6vw, 32px) clamp(26px, 6vw, 32px);
     }
 
     .welcome {
@@ -441,10 +452,11 @@ body.has-custom-bg .dots {
 
     .frame {
         padding: 0;
+        align-items: stretch;
     }
 
     .right-inner {
-        padding: 32px clamp(20px, 6vw, 40px) 28px;
+        padding: 30px clamp(18px, 6vw, 32px) 26px;
     }
 
     .welcome {
@@ -510,12 +522,8 @@ body.has-custom-bg .dots {
 }
 
 @media (min-width: 1400px) {
-    .frame {
-        max-width: 1240px;
-    }
-
     .right-inner {
-        padding: 60px clamp(36px, 4.5vw, 72px) 48px;
+        padding: clamp(40px, 3vw, 52px) clamp(24px, 2.6vw, 44px) clamp(32px, 3vw, 46px);
         gap: 16px;
     }
 }

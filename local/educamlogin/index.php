@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Verify reCAPTCHA if configured
     $recaptcha_sitekey = local_educamlogin_get_config('recaptcha_sitekey');
-    if (!empty($recaptcha_sitekey) && !local_educamlogin_verify_recaptcha($recaptcharesponse)) {
+    if (!empty($recaptcha_sitekey) && !local_educamlogin_verify_recaptcha($recaptcharesponse, 'login')) {
         $errormsg = get_string('recaptchaerror', 'local_educamlogin');
     } else {
         // Authenticate user

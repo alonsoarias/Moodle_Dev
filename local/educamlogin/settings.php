@@ -10,6 +10,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/lib.php');
 
 if ($hassiteconfig) {
+    global $CFG;
     $settings = new admin_settingpage('local_educamlogin', get_string('pluginname', 'local_educamlogin'));
 
     // ==================== GENERAL ====================
@@ -187,6 +188,14 @@ if ($hassiteconfig) {
         get_string('copyright_text_desc', 'local_educamlogin'),
         '© 2020 La plataforma Educam Virtual es una plataforma de capacitación que pertenece a Americas Business Process.',
         PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_educamlogin/ed_forgotpassword_url',
+        get_string('forgotpassword_url', 'local_educamlogin'),
+        get_string('forgotpassword_url_desc', 'local_educamlogin'),
+        $CFG->wwwroot . '/login/forgot_password.php',
+        PARAM_URL
     ));
 
     // ==================== reCAPTCHA ====================

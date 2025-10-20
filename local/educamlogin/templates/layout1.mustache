@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link href="{{{css_url}}}" rel="stylesheet">
     {{#has_recaptcha}}
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render={{recaptcha_sitekey}}"></script>
     {{/has_recaptcha}}
     <style>
         :root {
@@ -78,6 +78,9 @@
                         {{/has_error}}
 
                         <form class="inputs" method="post" action="" id="login-form" aria-labelledby="login-heading" aria-describedby="login-instructions" novalidate>
+                            {{#has_recaptcha}}
+                            <input type="hidden" name="g-recaptcha-response" id="login-recaptcha-token">
+                            {{/has_recaptcha}}
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label" for="username">{{str_username}}:</label>
@@ -101,15 +104,11 @@
                                 </div>
                             </div>
 
+                            {{#has_forgotpassword}}
                             <div class="text-start mt-3 mb-3">
-                                <a class="hint text-decoration-none" href="{{{wwwroot}}}/login/forgot_password.php">{{{str_forgotpassword}}}</a>
+                                <a class="hint text-decoration-none" href="{{{forgotpassword_url}}}">{{{str_forgotpassword}}}</a>
                             </div>
-
-                            {{#has_recaptcha}}
-                            <div class="recaptcha-container mb-3" role="group" aria-label="reCAPTCHA">
-                                <div class="g-recaptcha" data-sitekey="{{{recaptcha_sitekey}}}"></div>
-                            </div>
-                            {{/has_recaptcha}}
+                            {{/has_forgotpassword}}
 
                             {{#has_wantsurl}}
                             <input type="hidden" name="wantsurl" value="{{{wantsurl}}}">
@@ -179,6 +178,37 @@
 
                 update(target.getAttribute('type') !== 'password');
             });
+
+            {{#has_recaptcha}}
+            window.addEventListener('load', function() {
+                if (typeof grecaptcha === 'undefined') {
+                    return;
+                }
+
+                const form = document.getElementById('login-form');
+                const tokenField = document.getElementById('login-recaptcha-token');
+                if (!form || !tokenField) {
+                    return;
+                }
+
+                const executeRecaptcha = function() {
+                    return grecaptcha.execute('{{recaptcha_sitekey}}', {action: '{{recaptcha_action}}'}).then(function(token) {
+                        tokenField.value = token;
+                    });
+                };
+
+                grecaptcha.ready(function() {
+                    executeRecaptcha();
+
+                    form.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        executeRecaptcha().then(function() {
+                            form.submit();
+                        });
+                    });
+                });
+            });
+            {{/has_recaptcha}}
         })();
     </script>
 </body>
