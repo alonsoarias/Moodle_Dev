@@ -56,6 +56,8 @@ $string['welcome_text'] = 'Texto de bienvenida';
 $string['welcome_text_desc'] = 'Texto grande de bienvenida';
 $string['copyright_text'] = 'Texto de copyright';
 $string['copyright_text_desc'] = 'Texto de copyright que aparece en la parte inferior';
+$string['forgotpassword_url'] = 'Enlace de recuperación de contraseña';
+$string['forgotpassword_url_desc'] = 'URL completa utilizada para el enlace "¿Olvidó su contraseña?". Déjelo vacío para ocultar el enlace.';
 
 // reCAPTCHA
 $string['recaptcha_heading'] = 'Configuración de Google reCAPTCHA';
