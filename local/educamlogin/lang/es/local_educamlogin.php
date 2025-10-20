@@ -61,11 +61,11 @@ $string['forgotpassword_url_desc'] = 'URL completa utilizada para el enlace "¿O
 
 // reCAPTCHA
 $string['recaptcha_heading'] = 'Configuración de Google reCAPTCHA';
-$string['recaptcha_heading_desc'] = 'Configura Google reCAPTCHA v2 para proteger tu página de login contra bots';
+$string['recaptcha_heading_desc'] = 'Configura Google reCAPTCHA v3 para proteger tu página de login contra bots';
 $string['recaptcha_sitekey'] = 'Site Key de reCAPTCHA';
-$string['recaptcha_sitekey_desc'] = 'Clave del sitio (Site Key) de Google reCAPTCHA v2';
+$string['recaptcha_sitekey_desc'] = 'Clave del sitio (Site Key) de Google reCAPTCHA v3';
 $string['recaptcha_secretkey'] = 'Secret Key de reCAPTCHA';
-$string['recaptcha_secretkey_desc'] = 'Clave secreta (Secret Key) de Google reCAPTCHA v2';
+$string['recaptcha_secretkey_desc'] = 'Clave secreta (Secret Key) de Google reCAPTCHA v3';
 
 // Form strings
 $string['username'] = 'Usuario';
@@ -79,4 +79,4 @@ $string['logininstructions'] = 'Ingrese su usuario y contraseña para acceder a 
 
 // Error messages
 $string['loginerror'] = 'Usuario o contraseña incorrectos. Por favor, inténtelo de nuevo.';
-$string['recaptchaerror'] = 'Por favor, complete la verificación de reCAPTCHA.';
+$string['recaptchaerror'] = 'La verificación de reCAPTCHA falló. Por favor, inténtelo de nuevo.';
