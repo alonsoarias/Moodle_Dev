@@ -327,32 +327,6 @@ body.has-custom-bg .shell {
     width: auto;
 }
 
-.dots {
-    display: grid;
-    grid-template-columns: repeat(10, 14px);
-    grid-auto-rows: 14px;
-    gap: 12px;
-    width: max-content;
-    margin: 26px auto 0;
-    align-self: center;
-}
-
-.dots span {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #61b5d6;
-    opacity: .9;
-}
-
-.dots span:nth-child(5n) {
-    background: #2f8fd1;
-}
-
-body.has-custom-bg .dots {
-    display: none;
-}
-
 .recaptcha-container {
     display: flex;
     justify-content: center;
@@ -465,10 +439,6 @@ body.has-custom-bg .dots {
 
     .instructions {
         font-size: 0.95rem;
-    }
-
-    .dots {
-        transform: scale(0.92);
     }
 }
 
