@@ -101,9 +101,11 @@
                                 </div>
                             </div>
 
+                            {{#has_forgotpassword}}
                             <div class="text-start mt-3 mb-3">
-                                <a class="hint text-decoration-none" href="{{{wwwroot}}}/login/forgot_password.php">{{{str_forgotpassword}}}</a>
+                                <a class="hint text-decoration-none" href="{{{forgotpassword_url}}}">{{{str_forgotpassword}}}</a>
                             </div>
+                            {{/has_forgotpassword}}
 
                             {{#has_recaptcha}}
                             <div class="recaptcha-container mb-3" role="group" aria-label="reCAPTCHA">

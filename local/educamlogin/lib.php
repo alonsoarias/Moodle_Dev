@@ -221,6 +221,19 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
     $copyright_text = local_educamlogin_get_config('copyright_text', 
         '© 2020 La plataforma Educam Virtual es una plataforma de capacitación que pertenece a Americas Business Process.');
     
+    // Get forgot password link.
+    $forgotpasswordurl = get_config('local_educamlogin', 'ed_forgotpassword_url');
+    if ($forgotpasswordurl === false) {
+        $forgotpasswordurl = $CFG->wwwroot . '/login/forgot_password.php';
+    } else {
+        $forgotpasswordurl = trim($forgotpasswordurl);
+    }
+
+    if ($forgotpasswordurl !== '') {
+        $forgotpasswordurl = clean_param($forgotpasswordurl, PARAM_URL);
+    }
+    $hasforgotpassword = !empty($forgotpasswordurl);
+
     // Get reCAPTCHA
     $recaptcha_sitekey = local_educamlogin_get_config('recaptcha_sitekey');
     $has_recaptcha = !empty($recaptcha_sitekey);
@@ -253,11 +266,13 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
         'link_color' => $colors['link_color'],
         'btn_color' => $colors['btn_color'],
         'btn_hover' => $colors['btn_hover'],
-        
+
         // Texts
         'welcome_text' => $welcome_text,
         'copyright_text' => $copyright_text,
-        
+        'forgotpassword_url' => $forgotpasswordurl,
+        'has_forgotpassword' => $hasforgotpassword,
+
         // reCAPTCHA
         'recaptcha_sitekey' => $recaptcha_sitekey,
         'has_recaptcha' => $has_recaptcha,

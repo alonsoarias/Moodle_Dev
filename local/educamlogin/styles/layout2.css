@@ -33,22 +33,17 @@ body {
     outline: none;
 }
 
-.brand-header {
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
+.logo-mark-wrapper {
+    width: 100%;
     display: flex;
-    justify-content: flex-end;
-    padding: 14px 24px 0;
-    pointer-events: none;
-    z-index: 2;
+    justify-content: center;
 }
 
-.site-logo {
-    height: 54px;
-    pointer-events: auto;
+.logo-mark-wrapper .site-logo {
+    height: clamp(48px, 10vw, 72px);
     transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+    margin: 0 auto;
 }
 
 /* ===================== FONDO FOTOGRÁFICO ===================== */
@@ -98,13 +93,6 @@ body {
     gap: 16px;
 }
 
-.logo-mark {
-    width: clamp(88px, 12vw, 118px);
-    height: auto;
-    margin: -6px auto 4px;
-    display: block;
-}
-
 .welcome {
     font-weight: 800;
     font-size: clamp(2.2rem, 4.8vw, 4rem);
@@ -126,7 +114,15 @@ body {
     text-align: left;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 16px;
+}
+
+.form-heading {
+    width: 100%;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    text-align: center;
 }
 
 .form-label {
@@ -294,16 +290,9 @@ body {
         padding: 32px 16px 24px;
     }
 
-    .brand-header {
-        position: static;
-        justify-content: center;
-        padding: 12px 0 0;
-        pointer-events: auto;
-    }
-
-    .site-logo {
-        height: 48px;
-        margin-bottom: 12px;
+    .logo-mark-wrapper .site-logo {
+        height: clamp(44px, 12vw, 58px);
+        margin: 0 auto;
         opacity: 0.95;
     }
 
@@ -343,8 +332,9 @@ body {
 }
 
 @media (max-width: 575.98px) {
-    .logo-mark {
-        width: clamp(76px, 18vw, 90px);
+    .logo-mark-wrapper .site-logo {
+        height: clamp(42px, 18vw, 58px);
+        margin: 0 auto;
     }
 
     .welcome {
