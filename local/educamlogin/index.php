@@ -35,11 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = optional_param('username', '', PARAM_USERNAME);
     $password = optional_param('password', '', PARAM_RAW);
     $recaptcharesponse = optional_param('g-recaptcha-response', '', PARAM_RAW);
-    
+
     // Verify reCAPTCHA if configured
     $recaptcha_sitekey = local_educamlogin_get_config('recaptcha_sitekey');
+    $recaptchabypass = local_educamlogin_is_recaptcha_ip_whitelisted();
     $recaptchavalid = true;
-    if (!empty($recaptcha_sitekey)) {
+    if (!empty($recaptcha_sitekey) && !$recaptchabypass) {
         $recaptchaaction = trim((string)local_educamlogin_get_config('recaptcha_action', 'login'));
         $recaptchaerror = '';
 

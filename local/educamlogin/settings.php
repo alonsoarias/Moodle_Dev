@@ -182,12 +182,11 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
-    $settings->add(new admin_setting_configtextarea(
+    $settings->add(new admin_setting_confightmleditor(
         'local_educamlogin/ed_copyright_text',
         get_string('copyright_text', 'local_educamlogin'),
         get_string('copyright_text_desc', 'local_educamlogin'),
-        '© 2020 La plataforma Educam Virtual es una plataforma de capacitación que pertenece a Americas Business Process.',
-        PARAM_TEXT
+        '© 2020 La plataforma Educam Virtual es una plataforma de capacitación que pertenece a Americas Business Process.'
     ));
 
     $settings->add(new admin_setting_configtext(
@@ -235,6 +234,14 @@ if ($hassiteconfig) {
         get_string('recaptcha_threshold_desc', 'local_educamlogin'),
         '0.5',
         PARAM_FLOAT
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        'local_educamlogin/ed_recaptcha_whitelist',
+        get_string('recaptcha_whitelist', 'local_educamlogin'),
+        get_string('recaptcha_whitelist_desc', 'local_educamlogin'),
+        '',
+        PARAM_RAW
     ));
 
     $ADMIN->add('localplugins', $settings);

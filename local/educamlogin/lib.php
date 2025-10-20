@@ -102,6 +102,62 @@ function local_educamlogin_get_config($name, $default = null) {
 }
 
 /**
+ * Check whether the current request IP is whitelisted to bypass reCAPTCHA.
+ *
+ * @param string|null $ip Optional IP address to check. Defaults to the remote address detected by Moodle.
+ * @return bool True when the IP is in the whitelist.
+ */
+function local_educamlogin_is_recaptcha_ip_whitelisted(?string $ip = null): bool {
+    global $CFG;
+
+    $whitelist = (string)local_educamlogin_get_config('recaptcha_whitelist', '');
+    if (trim($whitelist) === '') {
+        return false;
+    }
+
+    if ($ip === null) {
+        $ip = getremoteaddr(null);
+    }
+
+    if (empty($ip)) {
+        return false;
+    }
+
+    $entries = preg_split('/[\r\n,]+/', $whitelist);
+    $normalized = array();
+
+    foreach ($entries as $entry) {
+        $entry = trim($entry);
+        if ($entry === '') {
+            continue;
+        }
+
+        $parts = explode('#', $entry, 2);
+        $candidate = trim($parts[0]);
+        if ($candidate === '') {
+            continue;
+        }
+
+        $normalised = \core\ip_utils::normalize_internet_address($candidate);
+        if ($normalised === '') {
+            continue;
+        }
+
+        $normalized[] = $normalised;
+    }
+
+    if (empty($normalized)) {
+        return false;
+    }
+
+    require_once($CFG->libdir . '/ipv6lib.php');
+
+    $list = implode("\n", $normalized);
+
+    return \core\ip_utils::is_ip_in_subnet_list($ip, $list);
+}
+
+/**
  * Verify Google reCAPTCHA response.
  *
  * @param string $response reCAPTCHA response token
@@ -356,7 +412,8 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
 
     // Get reCAPTCHA
     $recaptcha_sitekey = local_educamlogin_get_config('recaptcha_sitekey');
-    $has_recaptcha = !empty($recaptcha_sitekey);
+    $recaptchabypass = local_educamlogin_is_recaptcha_ip_whitelisted();
+    $has_recaptcha = !empty($recaptcha_sitekey) && !$recaptchabypass;
     $recaptchaaction = trim((string)local_educamlogin_get_config('recaptcha_action', 'login'));
     if ($recaptchaaction === '') {
         $recaptchaaction = 'login';
