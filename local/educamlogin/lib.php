@@ -92,60 +92,163 @@ function local_educamlogin_get_fallback_image($type) {
  * @return mixed Config value
  */
 function local_educamlogin_get_config($name, $default = null) {
-    return get_config('local_educamlogin', 'ed_' . $name) ?: $default;
+    $value = get_config('local_educamlogin', 'ed_' . $name);
+
+    if ($value === false || $value === null) {
+        return $default;
+    }
+
+    return $value;
 }
 
 /**
- * Verify Google reCAPTCHA response
+ * Verify Google reCAPTCHA response.
  *
  * @param string $response reCAPTCHA response token
  * @param string $action Expected action name
  * @param float $threshold Minimum acceptable score for v3 (0-1)
+ * @param string|null $errordetail Failure detail (by reference)
  * @return bool True if verification passed
  */
-function local_educamlogin_verify_recaptcha($response, $action = 'login', $threshold = 0.5) {
-    $secretkey = local_educamlogin_get_config('recaptcha_secretkey');
+function local_educamlogin_verify_recaptcha($response, $action = null, $threshold = null, &$errordetail = null) {
+    global $CFG;
 
-    if (empty($secretkey) || empty($response)) {
+    $errordetail = null;
+    $secretkey = trim((string)local_educamlogin_get_config('recaptcha_secretkey'));
+
+    if ($secretkey === '') {
+        $errordetail = 'missing secret key';
+        debugging('local_educamlogin: reCAPTCHA secret key is not configured.', DEBUG_DEVELOPER);
         return false;
     }
 
+    if (empty($response)) {
+        $errordetail = 'empty response token';
+        debugging('local_educamlogin: Empty reCAPTCHA response token received.', DEBUG_DEVELOPER);
+        return false;
+    }
+
+    if ($action === null) {
+        $action = trim((string)local_educamlogin_get_config('recaptcha_action', 'login'));
+    }
+
+    if ($threshold === null) {
+        $thresholdconfig = local_educamlogin_get_config('recaptcha_threshold', 0.5);
+        $threshold = is_numeric($thresholdconfig) ? (float)$thresholdconfig : 0.5;
+    } else {
+        $threshold = (float)$threshold;
+    }
+
+    if ($threshold < 0) {
+        $threshold = 0.0;
+    } else if ($threshold > 1) {
+        $threshold = 1.0;
+    }
+
+    require_once($CFG->libdir . '/filelib.php');
+
     $verifyurl = 'https://www.google.com/recaptcha/api/siteverify';
-    $data = array(
+    $postdata = array(
         'secret' => $secretkey,
         'response' => $response,
     );
 
     if (!empty($_SERVER['REMOTE_ADDR'])) {
-        $data['remoteip'] = $_SERVER['REMOTE_ADDR'];
+        $postdata['remoteip'] = $_SERVER['REMOTE_ADDR'];
     }
 
+    $curl = new curl(array('proxy' => true));
     $options = array(
-        'http' => array(
-            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-            'method'  => 'POST',
-            'content' => http_build_query($data)
-        )
+        'CURLOPT_TIMEOUT' => 10,
+        'CURLOPT_CONNECTTIMEOUT' => 5,
     );
 
-    $context  = stream_context_create($options);
-    $result = @file_get_contents($verifyurl, false, $context);
+    try {
+        $result = $curl->post($verifyurl, $postdata, $options);
+    } catch (Exception $e) {
+        $errordetail = 'exception: ' . $e->getMessage();
+        debugging('local_educamlogin: Error contacting reCAPTCHA service - ' . $e->getMessage(), DEBUG_DEVELOPER);
+        return false;
+    }
 
     if ($result === false) {
+        $errordetail = 'http request returned false';
+        debugging('local_educamlogin: Empty response from reCAPTCHA service.', DEBUG_DEVELOPER);
+        return false;
+    }
+
+    if ($curl->get_errno()) {
+        $errordetail = 'http error: ' . $curl->error;
+        debugging('local_educamlogin: HTTP error contacting reCAPTCHA service - ' . $curl->error, DEBUG_DEVELOPER);
         return false;
     }
 
     $responsedata = json_decode($result);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $errordetail = 'json decode error: ' . json_last_error_msg();
+        debugging('local_educamlogin: Failed to decode reCAPTCHA response - ' . $errordetail, DEBUG_DEVELOPER);
+        return false;
+    }
+
     if (empty($responsedata) || empty($responsedata->success)) {
+        $errorcodes = array();
+        if (!empty($responsedata->{'error-codes'})) {
+            if (is_array($responsedata->{'error-codes'})) {
+                $errorcodes = $responsedata->{'error-codes'};
+            } else if (is_string($responsedata->{'error-codes'})) {
+                $errorcodes = array($responsedata->{'error-codes'});
+            }
+        }
+        $errordetail = empty($errorcodes) ? 'invalid response payload' : ('api errors: ' . implode(', ', $errorcodes));
+        debugging('local_educamlogin: reCAPTCHA verification failed - ' . $errordetail, DEBUG_DEVELOPER);
         return false;
     }
 
-    if (!empty($action) && !empty($responsedata->action) && $responsedata->action !== $action) {
+    if ($action !== '' && isset($responsedata->action) && $responsedata->action !== $action) {
+        $errordetail = 'action mismatch: expected ' . $action . ', got ' . $responsedata->action;
+        debugging('local_educamlogin: reCAPTCHA action mismatch - expected "' . $action . '" but received "' .
+            $responsedata->action . '".', DEBUG_DEVELOPER);
         return false;
     }
 
-    if (isset($responsedata->score) && (float)$responsedata->score < (float)$threshold) {
+    if (isset($responsedata->score)) {
+        $score = (float)$responsedata->score;
+        if ($score < $threshold) {
+            $errordetail = 'score below threshold: ' . $score;
+            debugging('local_educamlogin: reCAPTCHA score ' . $score . ' is below threshold ' .
+                $threshold . '.', DEBUG_DEVELOPER);
+            return false;
+        }
+    }
+
+    if (!empty($responsedata->{'error-codes'})) {
+        $codes = $responsedata->{'error-codes'};
+        if (!is_array($codes)) {
+            $codes = array($codes);
+        }
+        $errordetail = 'api errors: ' . implode(', ', $codes);
+        debugging('local_educamlogin: reCAPTCHA returned error codes - ' . $errordetail, DEBUG_DEVELOPER);
         return false;
+    }
+
+    if (!empty($responsedata->success)) {
+        $summary = array();
+        if (isset($responsedata->score)) {
+            $summary[] = 'score ' . (float)$responsedata->score;
+        }
+        if (isset($responsedata->action)) {
+            $summary[] = 'action "' . $responsedata->action . '"';
+        }
+        if (isset($responsedata->hostname)) {
+            $summary[] = 'host ' . $responsedata->hostname;
+        }
+        if (!empty($responsedata->{'challenge_ts'})) {
+            $summary[] = 'challenge ' . $responsedata->{'challenge_ts'};
+        }
+        if (!empty($summary)) {
+            debugging('local_educamlogin: reCAPTCHA verification succeeded (' . implode(', ', $summary) . ').', DEBUG_DEVELOPER);
+        }
     }
 
     return true;
@@ -254,7 +357,10 @@ function local_educamlogin_prepare_context($layout, $errormsg = '', $wantsurl = 
     // Get reCAPTCHA
     $recaptcha_sitekey = local_educamlogin_get_config('recaptcha_sitekey');
     $has_recaptcha = !empty($recaptcha_sitekey);
-    $recaptchaaction = 'login';
+    $recaptchaaction = trim((string)local_educamlogin_get_config('recaptcha_action', 'login'));
+    if ($recaptchaaction === '') {
+        $recaptchaaction = 'login';
+    }
     
     // Build context
     $context = array(
