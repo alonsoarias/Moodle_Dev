@@ -106,7 +106,6 @@ $string['config_coursefilters_empty'] = 'No courses are available with the requi
 $string['config_categoryfilters'] = 'Limit to categories';
 $string['config_categoryfilters_help'] = 'Select whole categories to include in the report. All courses inside the chosen categories will be available to users.';
 $string['config_categoryfilters_empty'] = 'No categories are available with the required permissions.';
-$string['config_clearselection'] = 'Clear selection';
 $string['config_summary_courses'] = 'Courses: {$a}';
 $string['config_summary_categories'] = 'Categories: {$a}';
 

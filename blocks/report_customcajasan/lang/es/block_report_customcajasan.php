@@ -106,7 +106,6 @@ $string['config_coursefilters_empty'] = 'No hay cursos disponibles con los permi
 $string['config_categoryfilters'] = 'Limitar a categorías';
 $string['config_categoryfilters_help'] = 'Seleccione categorías completas para incluir en el reporte. Todos los cursos dentro de las categorías elegidas estarán disponibles.';
 $string['config_categoryfilters_empty'] = 'No hay categorías disponibles con los permisos requeridos.';
-$string['config_clearselection'] = 'Limpiar selección';
 $string['config_summary_courses'] = 'Cursos: {$a}';
 $string['config_summary_categories'] = 'Categorías: {$a}';
 

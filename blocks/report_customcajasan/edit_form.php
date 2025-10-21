@@ -75,8 +75,6 @@ class block_report_customcajasan_edit_form extends block_edit_form {
 
         $iscoursecontext = $parentcontext && $parentcontext->contextlevel === CONTEXT_COURSE;
 
-        $clearelements = [];
-
         if ($iscoursecontext) {
             $mform->addElement('header', 'configrestrictions', get_string('config_restriction_heading', 'block_report_customcajasan'));
             $mform->addHelpButton('configrestrictions', 'config_restriction_heading', 'block_report_customcajasan');
@@ -98,21 +96,6 @@ class block_report_customcajasan_edit_form extends block_edit_form {
                     ['multiple' => true, 'size' => min(10, max(3, count($courseoptions)))]
                 );
                 $mform->addHelpButton($coursename, 'config_coursefilters', 'block_report_customcajasan');
-
-                $clearcoursename = $coursename . '_clear';
-                $mform->addElement(
-                    'button',
-                    $clearcoursename,
-                    get_string('config_clearselection', 'block_report_customcajasan'),
-                    [
-                        'type' => 'button',
-                        'class' => 'btn btn-secondary mt-1 block-report-customcajasan-clear',
-                        'data-action' => 'clear-selection',
-                        'data-target' => $coursename,
-                    ]
-                );
-                $mform->registerNoSubmitButton($clearcoursename);
-                $clearelements[] = $coursename;
             } else {
                 $mform->addElement('static', 'config_' . block_report_customcajasan::CONFIG_COURSES . '_notice', '', get_string('config_coursefilters_empty', 'block_report_customcajasan'));
             }
@@ -128,72 +111,9 @@ class block_report_customcajasan_edit_form extends block_edit_form {
                     ['multiple' => true, 'size' => min(10, max(3, count($categoryoptions)))]
                 );
                 $mform->addHelpButton($categoryname, 'config_categoryfilters', 'block_report_customcajasan');
-
-                $clearcategoryname = $categoryname . '_clear';
-                $mform->addElement(
-                    'button',
-                    $clearcategoryname,
-                    get_string('config_clearselection', 'block_report_customcajasan'),
-                    [
-                        'type' => 'button',
-                        'class' => 'btn btn-secondary mt-1 block-report-customcajasan-clear',
-                        'data-action' => 'clear-selection',
-                        'data-target' => $categoryname,
-                    ]
-                );
-                $mform->registerNoSubmitButton($clearcategoryname);
-                $clearelements[] = $categoryname;
             } else {
                 $mform->addElement('static', 'config_' . block_report_customcajasan::CONFIG_CATEGORIES . '_notice', '', get_string('config_categoryfilters_empty', 'block_report_customcajasan'));
             }
-        }
-
-        if (!empty($clearelements)) {
-            $PAGE->requires->js_init_code(
-                "(function() {\n" .
-                "    var targets = " . json_encode(array_values($clearelements)) . ";\n" .
-                "    if (!targets.length) {\n" .
-                "        return;\n" .
-                "    }\n" .
-                "    document.addEventListener('click', function(event) {\n" .
-                "        var trigger = event.target;\n" .
-                "        while (trigger && trigger !== document) {\n" .
-                "            if (trigger.hasAttribute('data-action') && trigger.getAttribute('data-action') === 'clear-selection') {\n" .
-                "                break;\n" .
-                "            }\n" .
-                "            trigger = trigger.parentElement;\n" .
-                "        }\n" .
-                "        if (!trigger || trigger === document) {\n" .
-                "            return;\n" .
-                "        }\n" .
-                "        var name = trigger.getAttribute('data-target');\n" .
-                "        if (!name || targets.indexOf(name) === -1) {\n" .
-                "            return;\n" .
-                "        }\n" .
-                "        event.preventDefault();\n" .
-                "        var element = document.getElementById('id_' + name);\n" .
-                "        if (!element) {\n" .
-                "            return;\n" .
-                "        }\n" .
-                "        if (element.tagName === 'SELECT') {\n" .
-                "            for (var i = 0; i < element.options.length; i++) {\n" .
-                "                element.options[i].selected = false;\n" .
-                "            }\n" .
-                "            element.value = '';\n" .
-                "        } else {\n" .
-                "            element.value = '';\n" .
-                "        }\n" .
-                "        var changeEvent;\n" .
-                "        if (typeof window.Event === 'function') {\n" .
-                "            changeEvent = new Event('change', {bubbles: true});\n" .
-                "        } else {\n" .
-                "            changeEvent = document.createEvent('Event');\n" .
-                "            changeEvent.initEvent('change', true, true);\n" .
-                "        }\n" .
-                "        element.dispatchEvent(changeEvent);\n" .
-                "    });\n" .
-                "})();"
-            );
         }
     }
 
