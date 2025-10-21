@@ -38,9 +38,13 @@ $PAGE->set_heading(get_string('manageentries', 'local_educambot'));
 
 $action = optional_param('action', 'list', PARAM_ALPHA);
 $id = optional_param('id', 0, PARAM_INT);
+$search = optional_param('search', '', PARAM_RAW_TRIMMED);
 
 $output = $PAGE->get_renderer('core');
 $baseurl = new moodle_url('/local/educambot/manage.php');
+if ($search !== '') {
+    $baseurl->param('search', $search);
+}
 
 $cache = cache::make('local_educambot', 'rules');
 
@@ -65,7 +69,7 @@ if (in_array($action, ['add', 'edit'], true)) {
     $form = new \local_educambot\form\entry_form($baseurl, ['persistent' => $record]);
 
     if ($form->is_cancelled()) {
-        redirect($baseurl);
+        redirect(new moodle_url('/local/educambot/manage.php', $search !== '' ? ['search' => $search] : []));
     } else if ($data = $form->get_data()) {
         $saved = new stdClass();
         $saved->pattern = trim($data->pattern);
@@ -88,7 +92,8 @@ if (in_array($action, ['add', 'edit'], true)) {
         }
 
         $cache->delete('all');
-        redirect($baseurl, get_string('saved', 'local_educambot'));
+        redirect(new moodle_url('/local/educambot/manage.php', $search !== '' ? ['search' => $search] : []),
+            get_string('saved', 'local_educambot'));
     } else {
         if ($record) {
             $form->set_data($record);
@@ -102,7 +107,19 @@ if (in_array($action, ['add', 'edit'], true)) {
     }
 }
 
-$records = $DB->get_records('local_educambot_rule', null, 'timemodified DESC');
+$searching = $search !== '';
+
+if ($searching) {
+    $engine = new \local_educambot\bot\engine(null, null);
+    $records = [];
+    foreach ($engine->preview_rankings($search, true, 50) as $ranked) {
+        $entry = clone $ranked['entry'];
+        $entry->score = $ranked['score'];
+        $records[] = $entry;
+    }
+} else {
+    $records = array_values($DB->get_records('local_educambot_rule', null, 'timemodified DESC'));
+}
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('manageentries', 'local_educambot'));
@@ -110,8 +127,35 @@ echo $OUTPUT->heading(get_string('manageentries', 'local_educambot'));
 $addurl = new moodle_url('/local/educambot/manage.php', ['action' => 'add']);
 echo $OUTPUT->single_button($addurl, get_string('addentry', 'local_educambot'));
 
+$searchform = html_writer::start_tag('form', ['method' => 'get', 'class' => 'local-educambot-search my-3']);
+$searchform .= html_writer::start_div('d-flex flex-wrap gap-2 align-items-center');
+$searchform .= html_writer::tag('label', get_string('searchknowledgebase', 'local_educambot'), [
+    'for' => 'local-educambot-search-field',
+    'class' => 'sr-only',
+]);
+$searchform .= html_writer::empty_tag('input', [
+    'type' => 'text',
+    'name' => 'search',
+    'id' => 'local-educambot-search-field',
+    'value' => $search,
+    'class' => 'form-control flex-grow-1',
+    'placeholder' => get_string('searchplaceholder', 'local_educambot'),
+]);
+$searchform .= html_writer::tag('button', get_string('search'), [
+    'type' => 'submit',
+    'class' => 'btn btn-primary',
+]);
+if ($searching) {
+    $searchform .= html_writer::link(new moodle_url('/local/educambot/manage.php'),
+        get_string('clearsearch', 'local_educambot'), ['class' => 'btn btn-secondary']);
+}
+$searchform .= html_writer::end_div();
+$searchform .= html_writer::end_tag('form');
+echo $searchform;
+
 if (!$records) {
-    echo $OUTPUT->notification(get_string('noentries', 'local_educambot'), 'info');
+    $message = $searching ? get_string('nosearchresults', 'local_educambot') : get_string('noentries', 'local_educambot');
+    echo $OUTPUT->notification($message, 'info');
     echo $OUTPUT->footer();
     exit;
 }
@@ -119,28 +163,42 @@ if (!$records) {
 $table = new html_table();
 $table->head = [
     get_string('pattern', 'local_educambot'),
+];
+if ($searching) {
+    $table->head[] = get_string('confidence', 'local_educambot');
+}
+$table->head = array_merge($table->head, [
     get_string('status', 'local_educambot'),
     get_string('suggested', 'local_educambot'),
     get_string('timemodified', 'core'),
     get_string('actions', 'local_educambot'),
-];
+]);
 
 foreach ($records as $record) {
     $status = $record->enabled ? get_string('enabledyes', 'local_educambot') : get_string('enabledno', 'local_educambot');
     $suggested = $record->suggested ? get_string('enabledyes', 'local_educambot') : get_string('enabledno', 'local_educambot');
-    $editurl = new moodle_url('/local/educambot/manage.php', ['action' => 'edit', 'id' => $record->id]);
-    $deleteurl = new moodle_url('/local/educambot/manage.php', ['action' => 'delete', 'id' => $record->id, 'sesskey' => sesskey()]);
+    $editparams = ['action' => 'edit', 'id' => $record->id];
+    $deleteparams = ['action' => 'delete', 'id' => $record->id, 'sesskey' => sesskey()];
+    if ($searching) {
+        $editparams['search'] = $search;
+        $deleteparams['search'] = $search;
+    }
+    $editurl = new moodle_url('/local/educambot/manage.php', $editparams);
+    $deleteurl = new moodle_url('/local/educambot/manage.php', $deleteparams);
     $deleteaction = new \core\output\confirm_action(get_string('confirmdelete', 'local_educambot', format_string($record->pattern)));
     $actions = $OUTPUT->action_link($editurl, get_string('edit')) . ' | ' .
         $OUTPUT->action_link($deleteurl, get_string('delete'), $deleteaction);
 
-    $table->data[] = [
-        format_string($record->pattern),
-        $status,
-        $suggested,
-        userdate($record->timemodified),
-        $actions,
-    ];
+    $row = [format_string($record->pattern)];
+    if ($searching) {
+        $row[] = sprintf('%d%%', (int)round(($record->score ?? 0) * 100));
+    }
+    $row[] = $status;
+    $row[] = $suggested;
+    $row[] = userdate($record->timemodified);
+    $row[] = $actions;
+
+    $table->data[] = $row;
 }
 
 echo html_writer::table($table);
