@@ -98,6 +98,16 @@ $string['config_option_instructions'] = 'Mostrar instrucciones de uso';
 $string['config_option_statuslegend'] = 'Mostrar leyenda de estados';
 $string['config_custommessage'] = 'Mensaje adicional';
 $string['config_custommessage_help'] = 'Texto opcional que se mostrará debajo de la información seleccionada. Puede utilizarlo para destacar fechas límite, datos de contacto u otra orientación relevante.';
+$string['config_restriction_heading'] = 'Filtros de cursos y categorías';
+$string['config_restriction_heading_help'] = 'Seleccione los cursos o categorías que estarán disponibles al consultar el reporte desde este bloque. Estas restricciones aplican únicamente para esta instancia.';
+$string['config_coursefilters'] = 'Limitar a cursos';
+$string['config_coursefilters_help'] = 'Elija uno o varios cursos que estarán disponibles en el reporte. Los usuarios solo podrán consultar la información de los cursos seleccionados.';
+$string['config_coursefilters_empty'] = 'No hay cursos disponibles con los permisos requeridos.';
+$string['config_categoryfilters'] = 'Limitar a categorías';
+$string['config_categoryfilters_help'] = 'Seleccione categorías completas para incluir en el reporte. Todos los cursos dentro de las categorías elegidas estarán disponibles.';
+$string['config_categoryfilters_empty'] = 'No hay categorías disponibles con los permisos requeridos.';
+$string['config_summary_courses'] = 'Cursos: {$a}';
+$string['config_summary_categories'] = 'Categorías: {$a}';
 
 // Mensajes de error AJAX
 $string['ajax_error'] = 'Error al cargar datos. Por favor, inténtelo de nuevo.';
