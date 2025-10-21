@@ -36,15 +36,16 @@ class CourseIndexProgress extends BaseComponent {
         this.queued = false;
         this.queueRefresh = this.queueRefresh.bind(this);
         this.selectors = {
-            COURSE_WRAPPER: '.ci-course-progress-wrapper',
+            COURSE_WRAPPER: "[data-region='course-progress-wrapper']",
             COURSE_LABEL: "[data-region='course-progress-label']",
             COURSE_BAR: "[data-region='course-progress-bar']",
-            COURSE_SUMMARY: "[data-region='course-progress-fraction']",
+            COURSE_FRACTION: "[data-region='course-progress-fraction']",
             COURSE_A11Y: "[data-region='course-progress-a11y']",
             COURSE_DISABLED: "[data-region='course-progress-disabled']",
             SECTION_PROGRESS: "[data-region='section-progress']",
             SECTION_BAR: "[data-region='section-progress-bar']",
             SECTION_LABEL: "[data-region='section-progress-label']",
+            SECTION_FRACTION: "[data-region='section-progress-fraction']",
             SECTION_A11Y: "[data-region='section-progress-a11y']",
             CM_STATUS: "[data-region='cm-status']",
             CM_STATUS_LABEL: "[data-region='cm-status-label']",
@@ -186,9 +187,9 @@ class CourseIndexProgress extends BaseComponent {
             bar.style.width = `${percent}%`;
             bar.setAttribute('aria-valuenow', percent);
         }
-        const summary = this.element.querySelector(this.selectors.COURSE_SUMMARY);
-        if (summary) {
-            summary.textContent = course.summary ?? '';
+        const fraction = this.element.querySelector(this.selectors.COURSE_FRACTION);
+        if (fraction) {
+            fraction.textContent = course.fraction ?? '';
         }
         const a11y = this.element.querySelector(this.selectors.COURSE_A11Y);
         if (a11y) {
@@ -211,13 +212,22 @@ class CourseIndexProgress extends BaseComponent {
         containers.forEach((container) => {
             const sectionId = container.dataset.sectionId;
             const data = sectionMap.get(sectionId);
+            const header = container.closest('.ci-section-header');
+            const fraction = header ? header.querySelector(this.selectors.SECTION_FRACTION) : null;
             if (!data || (data.total ?? 0) === 0) {
                 container.hidden = true;
+                if (fraction) {
+                    fraction.textContent = data?.fraction ?? '';
+                }
                 return;
             }
 
             container.hidden = false;
             container.dataset.status = this.resolveSectionStatus(data);
+
+            if (fraction) {
+                fraction.textContent = data.fraction ?? '';
+            }
 
             const bar = container.querySelector(this.selectors.SECTION_BAR);
             if (bar) {

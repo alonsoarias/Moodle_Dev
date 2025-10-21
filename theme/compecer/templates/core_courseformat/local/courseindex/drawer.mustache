@@ -8,27 +8,40 @@
     {}
 }}
 <nav id="courseindex" class="course-index-drawer" data-region="courseindex">
-  <div class="ci-course-progress-wrapper mb-3" data-region="course-progress-wrapper">
-    <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
-      {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
+  <header class="ci-drawer-header">
+    <span class="ci-drawer-title" title="{{#str}}courseindexheading, theme_compecer{{/str}}">
+      {{#str}}courseindexheading, theme_compecer{{/str}}
     </span>
-    <div class="ci-course-progress-header">
-      <span class="ci-course-progress-label">{{#str}}courseprogresslabel, theme_compecer{{/str}}</span>
-      <span class="ci-course-progress-number" data-region="course-progress-label" aria-live="polite">0%</span>
+    <div class="ci-progress-block" data-region="course-progress-wrapper">
+      <div class="ci-progress-meta">
+        <span class="ci-progress-label">{{#str}}courseprogresslabel, theme_compecer{{/str}}</span>
+        <span class="ci-progress-value" data-region="course-progress-label" aria-live="polite">0%</span>
+      </div>
+      <div class="ci-progress-meter" role="presentation">
+        <span class="ci-progress-meter-fill"
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+              style="width: 0%"
+              data-region="course-progress-bar"></span>
+      </div>
+      <div class="ci-progress-caption">
+        <span class="ci-progress-fraction"
+              data-region="course-progress-fraction"
+              aria-live="polite">{{#str}}courseprogressloading, theme_compecer{{/str}}</span>
+      </div>
+      <span class="sr-only" data-region="course-progress-a11y" aria-live="polite"></span>
     </div>
-    <div class="progress ci-course-progress-bar" role="presentation">
-      <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
-           style="width: 0%" data-region="course-progress-bar"></div>
+    <div class="ci-progress-disabled"
+         data-region="course-progress-disabled"
+         role="status"
+         aria-live="polite"
+         hidden>
+      {{#str}}courseprogressdisabled, theme_compecer{{/str}}
     </div>
-    <div class="ci-course-progress-summary text-muted" data-region="course-progress-fraction" aria-live="polite">
-      {{#str}}courseprogressloading, theme_compecer{{/str}}
-    </div>
-    <span class="sr-only" data-region="course-progress-a11y" aria-live="polite"></span>
-  </div>
-  <div class="ci-course-progress-disabled" data-region="course-progress-disabled" role="status" aria-live="polite" hidden>
-    {{#str}}courseprogressdisabled, theme_compecer{{/str}}
-  </div>
-  <div id="courseindex-content">
+  </header>
+  <div class="ci-drawer-body" id="courseindex-content">
     {{> core_courseformat/local/courseindex/placeholders}}
   </div>
 </nav>
