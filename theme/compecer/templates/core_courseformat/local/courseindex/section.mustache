@@ -28,32 +28,29 @@
      data-number="{{number}}"
      role="treeitem"
      aria-owns="course-index-collapse{{number}}">
-  <div class="course-index-header d-flex align-items-center {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
+  <div class="ci-section-header d-flex align-items-center {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
        id="course-index-section{{number}}"
        data-for="section_item">
-    <div class="ci-section-header flex-grow-1 overflow-hidden">
-      <button type="button"
-              class="course-index-section-button text-truncate font-weight-bold"
-              data-action="togglecourseindexsection"
-              data-for="section_title"
-              tabindex="-1"
-              aria-controls="course-index-collapse{{number}}"
-              aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
-              title="{{{title}}}">
-        <span class="ci-section-title">{{{title}}}</span>
-      </button>
+    <div class="ci-section-details flex-grow-1 overflow-hidden">
+      <div class="ci-section-title text-truncate"
+           data-for="section_title"
+           title="{{{title}}}">
+        {{{title}}}
+      </div>
       <div class="ci-section-progress mt-1" data-region="section-progress" data-section-id="{{id}}" hidden>
         <div class="ci-section-progress-bar" role="presentation">
           <span class="ci-section-progress-bar-fill" data-region="section-progress-bar"></span>
         </div>
-        <span class="ci-section-progress-label" data-region="section-progress-label"></span>
-        <span class="sr-only" data-region="section-progress-a11y"></span>
+        <span class="ci-section-progress-label" data-region="section-progress-label" aria-live="polite">
+          {{#str}}sectionprogressloading, theme_compecer{{/str}}
+        </span>
+        <span class="sr-only" data-region="section-progress-a11y" aria-live="polite"></span>
       </div>
     </div>
     <button type="button"
             data-toggle="collapse"
             data-target="#course-index-collapse{{number}}"
-            class="course-index-toggle p-0 ml-auto {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
+            class="ci-section-toggle p-0 ml-auto {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
             aria-expanded="false"
             aria-controls="course-index-collapse{{number}}"
             tabindex="-1">
