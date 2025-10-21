@@ -57,8 +57,29 @@ function local_educambot_before_footer(?moodle_page $page = null, ?core_renderer
 
     $renderable = new \local_educambot\output\widget($suggestions, $pageidentifier);
 
+    return $output->render($renderable);
+}
+
+/**
+ * Ensures the chatbot assets are queued before the page header is output.
+ *
+ * @param moodle_page|null $page
+ * @param core_renderer|null $output
+ * @return void
+ */
+function local_educambot_before_standard_html_head(?moodle_page $page = null, ?core_renderer $output = null): void {
+    global $PAGE;
+
+    if (CLI_SCRIPT || AJAX_SCRIPT) {
+        return;
+    }
+
+    $page = $page ?? $PAGE;
+
+    if (!$page instanceof moodle_page) {
+        return;
+    }
+
     $page->requires->css('/local/educambot/styles.css');
     $page->requires->js_call_amd('local_educambot/widget', 'init');
-
-    return $output->render($renderable);
 }
