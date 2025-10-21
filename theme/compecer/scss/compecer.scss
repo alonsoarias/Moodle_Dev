@@ -1,5 +1,3 @@
-@import 'courseindex';
-
 /*******************
   Headings
 *******************/
@@ -1134,21 +1132,37 @@ section.node-category {
 
 // Course index refinements.
 #courseindex {
+  padding: 1.25rem 1rem 1.5rem;
+
+  .course-index-drawer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
   .ci-course-progress-wrapper {
-    border-bottom: 1px solid rgba($black, 0.08);
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
+    background-color: rgba($primary, 0.06);
+    border: 1px solid rgba($primary, 0.15);
+    border-radius: 0.875rem;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding: 1.25rem 1.5rem;
 
     .course-heading {
       display: block;
-      font-size: 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: $gray-600;
     }
 
     .ci-course-progress-header {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
-      margin-top: 0.5rem;
+      gap: 1rem;
+      margin-top: 0.75rem;
     }
 
     .ci-course-progress-label {
@@ -1161,59 +1175,133 @@ section.node-category {
     .ci-course-progress-number {
       color: $primary;
       font-weight: 600;
-      font-size: 1.25rem;
+      font-size: 1.75rem;
       line-height: 1;
+      font-variant-numeric: tabular-nums;
     }
 
     .ci-course-progress-bar {
-      margin-top: 0.75rem;
-      height: 0.375rem;
+      margin-top: 1rem;
+      height: 0.45rem;
       border-radius: 999px;
-      background-color: $gray-200;
+      background-color: rgba($primary, 0.12);
 
       .progress-bar {
         border-radius: 999px;
+        background-image: none;
         background-color: $primary;
-        transition: width 0.3s ease;
+        transition: width 0.3s ease, background-color 0.3s ease;
       }
     }
 
     .ci-course-progress-summary {
-      margin-top: 0.75rem;
-      color: $gray-600;
+      margin-top: 1rem;
+      color: $gray-700;
       font-size: 0.8125rem;
+      line-height: 1.4;
+      font-variant-numeric: tabular-nums;
     }
   }
 
   .ci-course-progress-disabled {
     font-size: 0.8125rem;
     color: $gray-700;
-    background: transparent;
-    border: 0;
-    padding: 0;
-    margin-bottom: 1rem;
+    background-color: rgba($gray-100, 0.6);
+    border: 1px dashed rgba($gray-500, 0.4);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
   }
 
-  .ci-section-header {
+  .course-index-section {
+    border-radius: 0.75rem;
+    border: 1px solid rgba($black, 0.05);
+    background-color: rgba($white, 0.92);
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    & + .course-index-section {
+      margin-top: 0.75rem;
+    }
+
+    &.current {
+      border-color: rgba($primary, 0.3);
+      background-color: rgba($primary, 0.08);
+    }
+  }
+
+  .course-index-header {
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.75rem 0.5rem;
+
     .course-index-section-button {
       background: transparent;
       border: 0;
-      padding: 0;
       color: inherit;
+      padding: 0;
       text-align: left;
       width: 100%;
+      font-size: 0.95rem;
+      font-weight: 600;
 
       &:focus-visible {
         outline: 2px solid $primary;
-        outline-offset: 2px;
+        outline-offset: 3px;
       }
     }
+
+    .ci-section-title {
+      display: inline-block;
+      color: $gray-900;
+    }
+  }
+
+  .course-index-toggle {
+    color: $gray-500;
+    background: transparent;
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    transition: color 0.2s ease, background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: $primary;
+      background-color: rgba($primary, 0.08);
+    }
+
+    &.collapsed .fa {
+      transform: rotate(0deg);
+    }
+
+    .fa {
+      transition: transform 0.2s ease;
+    }
+  }
+
+  .course-index-toggle:not(.collapsed) .fa {
+    transform: rotate(180deg);
+  }
+
+  .course-index-content {
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  .course-index-section-content {
+    margin: 0;
+    padding: 0.25rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
   }
 
   .ci-section-progress {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     margin-top: 0.25rem;
     font-size: 0.75rem;
     color: $gray-600;
@@ -1223,8 +1311,8 @@ section.node-category {
     }
 
     .ci-section-progress-bar {
-      flex: 1;
-      height: 0.3125rem;
+      flex: 1 1 auto;
+      height: 0.35rem;
       border-radius: 999px;
       background-color: $gray-200;
       overflow: hidden;
@@ -1234,13 +1322,14 @@ section.node-category {
         height: 100%;
         width: 0;
         background-color: $primary;
-        transition: width 0.3s ease;
+        transition: width 0.3s ease, background-color 0.3s ease;
       }
     }
 
     .ci-section-progress-label {
-      min-width: 4rem;
+      min-width: 4.5rem;
       text-align: right;
+      font-variant-numeric: tabular-nums;
     }
   }
 
@@ -1265,88 +1354,108 @@ section.node-category {
   }
 
   .ci-cm-item {
-    gap: 0.5rem;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+
+    &:hover,
+    &:focus-within {
+      background-color: rgba($gray-200, 0.5);
+    }
+
+    .courseindex-locked {
+      color: $gray-500;
+    }
+  }
+
+  .course-index-item.active .ci-cm-item {
+    background-color: rgba($primary, 0.08);
   }
 
   .ci-status-wrapper {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
     border-radius: 50%;
-    border: 1px solid $gray-300;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: $gray-600;
-    background-color: transparent;
     flex-shrink: 0;
-    transition: color 0.2s ease, border-color 0.2s ease;
+    background-color: rgba($gray-400, 0.25);
+    color: $gray-600;
+    transition: background-color 0.2s ease, color 0.2s ease;
 
     &[hidden] {
       display: none !important;
     }
 
     .ci-status-indicator {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       line-height: 1;
 
       &::before {
-        content: '\\25CB';
+        content: '\25CF';
       }
     }
   }
 
   .ci-status-wrapper[data-status='complete'] {
-    border-color: $success;
+    background-color: rgba($success, 0.15);
     color: $success;
 
     .ci-status-indicator::before {
-      content: '\\2713';
+      content: '\2713';
     }
   }
 
   .ci-status-wrapper[data-status='failed'] {
-    border-color: $danger;
+    background-color: rgba($danger, 0.12);
     color: $danger;
 
     .ci-status-indicator::before {
-      content: '\\2715';
+      content: '\2715';
     }
   }
 
   .ci-status-wrapper[data-status='inprogress'] {
-    border-color: $primary;
-    color: $primary;
+    background-color: rgba($warning, 0.25);
+    color: $warning;
 
     .ci-status-indicator::before {
-      content: '\\25B6';
+      content: '\25B6';
     }
   }
 
   .ci-status-wrapper[data-status='notstarted'] {
-    border-color: $gray-400;
-    color: $gray-500;
+    background-color: rgba($gray-400, 0.35);
+    color: $gray-600;
 
     .ci-status-indicator::before {
-      content: '\\25CF';
-      font-size: 0.5rem;
+      content: '\25CF';
+      font-size: 0.45rem;
     }
   }
 
   .ci-status-wrapper[data-status='nottracked'] {
-    border-color: $gray-300;
-    color: $gray-400;
+    background-color: rgba($gray-300, 0.4);
+    color: $gray-500;
 
     .ci-status-indicator::before {
-      content: '\\2013';
+      content: '\2013';
     }
   }
 
-  .ci-cm-main .course-index-link {
-    min-width: 0;
+  .ci-cm-main {
+    gap: 0.5rem;
 
-    &:hover,
-    &:focus {
-      text-decoration: underline;
+    .course-index-link {
+      min-width: 0;
+      color: $gray-900;
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+      }
     }
   }
 
