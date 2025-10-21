@@ -244,6 +244,7 @@ class provider {
         $percent = self::percent($counts[self::STATUS_COMPLETE], $counts['tracked']);
 
         $summary = get_string('courseprogresssummary', 'theme_compecer', (object) [
+            'percent' => $percent,
             'completed' => $counts[self::STATUS_COMPLETE],
             'total' => $counts['tracked'],
         ]);
@@ -281,6 +282,7 @@ class provider {
         $percent = self::percent($counts[self::STATUS_COMPLETE], $counts['tracked']);
 
         $summary = get_string('sectionprogresssummary', 'theme_compecer', (object) [
+            'percent' => $percent,
             'completed' => $counts[self::STATUS_COMPLETE],
             'total' => $counts['tracked'],
         ]);
