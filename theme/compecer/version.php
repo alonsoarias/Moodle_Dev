@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->component = 'theme_compecer';
 
 // This is the version of the plugin.
-$plugin->version = 2024103009;
+$plugin->version = 2024103007;
 
 // This is the named version.
 $plugin->release = '4.5.0';

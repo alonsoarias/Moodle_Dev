@@ -17,7 +17,7 @@
       "hascmrestrictions": 0
     }
 }}
-<li class="courseindex-item {{#isactive}}active{{/isactive}}
+<li class="course-index-item {{#isactive}}active{{/isactive}}
            {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
            {{^accessvisible}}dimmed{{/accessvisible}}
            {{#indent}} indented {{/indent}}"
@@ -26,32 +26,21 @@
     data-id="{{id}}"
     role="treeitem">
   {{^hasdelegatedsection}}
-    <div class="courseindex-cm-row" data-region="cm-row">
-      <span class="completioninfo d-none" data-for="cm_completion" data-value="NaN"></span>
-      <span class="courseindex-status"
-            data-region="cm-status"
-            data-cmid="{{id}}"
-            role="img"
-            aria-label="{{#str}}status_notracked, theme_compecer{{/str}}"></span>
-      <div class="courseindex-cm-main overflow-hidden">
-        {{#uservisible}}
-          <a class="courseindex-link text-truncate"
-             {{#url}}href="{{{url}}}"{{/url}}
-             {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-             data-for="cm_name" tabindex="-1" title="{{{name}}}">
-            {{{name}}}
-          </a>
-        {{/uservisible}}
-        {{^uservisible}}
-          <a class="courseindex-link text-truncate"
-             href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
-            {{{name}}}
-          </a>
-        {{/uservisible}}
-      </div>
-      <span class="courseindex-locked" data-for="cm_name">
-        {{#pix}} t/locked, core {{/pix}}
-      </span>
+    <div class="d-flex align-items-center justify-content-between">
+      {{#uservisible}}
+        <a class="course-index-link text-truncate"
+           {{#url}}href="{{{url}}}"{{/url}}
+           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
+           data-for="cm_name" tabindex="-1" title="{{{name}}}">
+          {{{name}}}
+        </a>
+      {{/uservisible}}
+      {{^uservisible}}
+        <a class="course-index-link text-truncate"
+           href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+          {{{name}}}
+        </a>
+      {{/uservisible}}
     </div>
   {{/hasdelegatedsection}}
   {{#hasdelegatedsection}}
