@@ -25,6 +25,8 @@
 namespace local_educambot\local;
 
 use stdClass;
+use function clean_param;
+use function purify_html;
 
 /**
  * Handles persistence of chatbot interactions.
@@ -56,14 +58,18 @@ class logger {
         if (!get_config('local_educambot', 'loggingenabled')) {
             return;
         }
+        $cleanquestion = clean_param($question, PARAM_TEXT);
+        $cleanpage = $page !== null ? clean_param($page, PARAM_NOTAGS) : null;
+        $cleanresponse = $response !== null ? purify_html($response) : null;
+
         $record = new stdClass();
         $record->sessionid = $sessionid;
-        $record->question = $question;
-        $record->response = $response;
+        $record->question = $cleanquestion;
+        $record->response = $cleanresponse;
         $record->ruleid = $ruleid;
         $record->confidence = $confidence;
         $record->userid = $userid;
-        $record->page = $page;
+        $record->page = $cleanpage;
         $record->timecreated = time();
         $this->db->insert_record('local_educambot_log', $record);
     }
@@ -81,8 +87,9 @@ class logger {
             return;
         }
 
+        $cleanquestion = clean_param($question, PARAM_TEXT);
         $params = [
-            'question' => $question,
+            'question' => $cleanquestion,
             'recent' => time() - DAYSECS,
         ];
         $conditions = 'question = :question AND timecreated >= :recent';
@@ -94,10 +101,12 @@ class logger {
             return;
         }
 
+        $cleanpage = $page !== null ? clean_param($page, PARAM_NOTAGS) : null;
+
         $record = new stdClass();
-        $record->question = $question;
+        $record->question = $cleanquestion;
         $record->userid = $userid;
-        $record->page = $page;
+        $record->page = $cleanpage;
         $record->timecreated = time();
         $this->db->insert_record('local_educambot_unanswered', $record);
     }

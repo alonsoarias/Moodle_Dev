@@ -27,6 +27,7 @@ namespace local_educambot\local\setup;
 use coding_exception;
 use core_text;
 use dml_exception;
+use local_educambot\local\knowledge_repository;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -59,6 +60,7 @@ class seed {
         }
 
         // Relations are created as part of create_knowledge when the table is empty.
+        knowledge_repository::reset_caches();
         $transaction->allow_commit();
     }
 
