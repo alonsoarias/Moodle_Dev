@@ -31,6 +31,7 @@ $string['enrollment_report'] = 'Informe de Seguimiento y Estado de Cursos';
 // Capacidades
 $string['report_customcajasan:addinstance'] = 'Añadir un nuevo bloque de Informe de Seguimiento y Estado de Cursos';
 $string['report_customcajasan:myaddinstance'] = 'Añadir un nuevo bloque de Informe de Seguimiento y Estado de Cursos a Mi Moodle';
+$string['report_customcajasan:viewblock'] = 'Ver el bloque de Informe de Seguimiento y Estado de Cursos';
 $string['report_customcajasan:viewreport'] = 'Ver Informe de Seguimiento y Estado de Cursos';
 
 // Cabeceras de tabla
@@ -87,6 +88,16 @@ $string['select_filter_first'] = 'Por favor, seleccione al menos un filtro para 
 $string['note_label'] = 'Nota';
 $string['status_note'] = 'Los cursos que no emiten certificados tienen el estado "SOLO CONSULTA".';
 $string['search'] = 'Buscar';
+$string['block_instructionstext'] = 'Utilice los filtros del informe para acotar la búsqueda y descargar solo la información necesaria.';
+
+// Configuración del bloque.
+$string['config_displayoptions'] = 'Información a mostrar';
+$string['config_displayoptions_help'] = 'Seleccione los elementos que deben ser visibles dentro de este bloque. Cada instancia puede presentar información distinta según las necesidades del curso o de la página.';
+$string['config_option_reportlink'] = 'Mostrar enlace al informe detallado';
+$string['config_option_instructions'] = 'Mostrar instrucciones de uso';
+$string['config_option_statuslegend'] = 'Mostrar leyenda de estados';
+$string['config_custommessage'] = 'Mensaje adicional';
+$string['config_custommessage_help'] = 'Texto opcional que se mostrará debajo de la información seleccionada. Puede utilizarlo para destacar fechas límite, datos de contacto u otra orientación relevante.';
 
 // Mensajes de error AJAX
 $string['ajax_error'] = 'Error al cargar datos. Por favor, inténtelo de nuevo.';

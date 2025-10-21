@@ -31,6 +31,7 @@ $string['enrollment_report'] = 'Course Status and Tracking Report';
 // Capabilities
 $string['report_customcajasan:addinstance'] = 'Add a new Course Status and Tracking Report block';
 $string['report_customcajasan:myaddinstance'] = 'Add a new Course Status and Tracking Report block to the My Moodle page';
+$string['report_customcajasan:viewblock'] = 'View the Course Status and Tracking Report block';
 $string['report_customcajasan:viewreport'] = 'View Course Status and Tracking Report';
 
 // Table Headers
@@ -87,6 +88,16 @@ $string['select_filter_first'] = 'Please select at least one filter to view the 
 $string['note_label'] = 'Note';
 $string['status_note'] = 'Courses that do not issue certificates have the "REFERENCE ONLY" status.';
 $string['search'] = 'Search';
+$string['block_instructionstext'] = 'Use the report filters to narrow the search and download only the information you need.';
+
+// Block configuration strings.
+$string['config_displayoptions'] = 'Information to display';
+$string['config_displayoptions_help'] = 'Choose which elements should be visible within this block. Each instance can present different information depending on the needs of the course or page.';
+$string['config_option_reportlink'] = 'Show link to the detailed report';
+$string['config_option_instructions'] = 'Show usage instructions';
+$string['config_option_statuslegend'] = 'Show status legend';
+$string['config_custommessage'] = 'Additional message';
+$string['config_custommessage_help'] = 'Optional text displayed beneath the selected information. This can be used to highlight deadlines, contact information or any other relevant guidance.';
 
 // AJAX error messages
 $string['ajax_error'] = 'Error loading data. Please try again.';
