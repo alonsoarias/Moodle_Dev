@@ -24,9 +24,7 @@
 
 define('AJAX_SCRIPT', true);
 
-require_once(__DIR__ . '/../config.php');
-
-authenticate_user_login(null, false); // Do not force login, allow guests.
+require_once(__DIR__ . '/../../config.php');
 
 require_sesskey();
 
