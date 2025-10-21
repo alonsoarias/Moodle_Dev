@@ -208,7 +208,7 @@ class context_provider {
             return $this->courses;
         }
 
-        require_once($CFG->dirroot . '/enrol/lib.php');
+        require_once($CFG->libdir . '/enrollib.php');
         $courses = enrol_get_users_courses($this->userid, true, 'id, fullname, shortname, idnumber, visible');
         foreach ($courses as $course) {
             if (!$course->visible) {
