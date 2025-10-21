@@ -1,5 +1,3 @@
-@import 'courseindex';
-
 /*******************
   Headings
 *******************/
@@ -1130,6 +1128,346 @@ section.node-category {
 .btn-link:hover {
   color: darken($gray, 10%);
   text-decoration: underline;
+}
+
+// Course index refinements.
+#courseindex {
+  padding: 1.5rem 1rem 2rem;
+
+  .course-index-drawer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .ci-course-progress-wrapper {
+    background-color: $white;
+    border: 1px solid $gray-200;
+    border-radius: 0.75rem;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding: 1.25rem 1.5rem;
+
+    .course-heading {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: $gray-700;
+      margin-bottom: 0.25rem;
+    }
+
+    .ci-course-progress-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .ci-course-progress-label {
+      color: $gray-600;
+      font-size: 0.8125rem;
+    }
+
+    .ci-course-progress-number {
+      color: $gray-900;
+      font-weight: 600;
+      font-size: 1.5rem;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ci-course-progress-bar {
+      margin-top: 0.75rem;
+      height: 0.35rem;
+      border-radius: 999px;
+      background-color: rgba($primary, 0.12);
+
+      .progress-bar {
+        border-radius: inherit;
+        background-image: none;
+        background-color: $primary-blue;
+        transition: width 0.3s ease;
+      }
+    }
+
+    .ci-course-progress-summary {
+      margin-top: 0.75rem;
+      color: $gray-600;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .ci-course-progress-disabled {
+    font-size: 0.875rem;
+    color: $gray-600;
+    background-color: $white;
+    border: 1px dashed $gray-300;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .course-index-section {
+    border-radius: 0.75rem;
+    border: 1px solid $gray-200;
+    background-color: $white;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    & + .course-index-section {
+      margin-top: 1rem;
+    }
+
+    &.current {
+      border-color: $primary-blue;
+      box-shadow: 0 0 0 1px rgba($primary-blue, 0.25);
+    }
+
+    &:hover,
+    &:focus-within {
+      border-color: $gray-300;
+      box-shadow: 0 6px 12px rgba($black, 0.05);
+    }
+
+    .ci-section-title {
+      display: inline-block;
+      color: $gray-900;
+    }
+  }
+
+  .course-index-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid $gray-200;
+  }
+
+  .ci-section-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: $gray-900;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .course-index-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid $gray-300;
+    border-radius: 50%;
+    background-color: transparent;
+    color: $gray-600;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+
+    .fa {
+      transition: transform 0.2s ease;
+    }
+  }
+
+  .course-index-toggle:hover,
+  .course-index-toggle:focus {
+    border-color: $gray-400;
+    color: $gray-800;
+    background-color: $gray-100;
+  }
+
+  .course-index-toggle:not(.collapsed) .fa {
+    transform: rotate(90deg);
+  }
+
+  .course-index-content {
+    padding: 0.5rem 1.25rem 1.25rem;
+  }
+
+  .course-index-section-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .course-index-item {
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+
+    &.active,
+    &:hover,
+    &:focus-within {
+      background-color: $gray-100;
+      box-shadow: 0 0 0 1px $gray-200 inset;
+    }
+
+    .ci-cm-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.625rem 0.75rem;
+
+      .courseindex-locked {
+        color: $gray-500;
+      }
+    }
+  }
+
+  .ci-cm-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .course-index-link {
+      min-width: 0;
+      color: $gray-900;
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .ci-section-progress {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $gray-600;
+    font-size: 0.8125rem;
+
+    &[hidden] {
+      display: none !important;
+    }
+  }
+
+  .ci-section-progress-bar {
+    flex: 0 0 5rem;
+    height: 0.25rem;
+    border-radius: 999px;
+    background-color: $gray-200;
+    overflow: hidden;
+
+    .progress-bar,
+    .ci-section-progress-bar-fill {
+      background-color: $gray-600;
+      background-image: none;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+  }
+
+  [data-region='section-progress'] {
+    &.is-complete .ci-section-progress-bar .progress-bar,
+    &[data-status='complete'] .ci-section-progress-bar-fill {
+      background-color: mix($success, $gray-600, 60%);
+    }
+
+    &.is-failed .ci-section-progress-bar .progress-bar,
+    &[data-status='failed'] .ci-section-progress-bar-fill {
+      background-color: mix($danger, $gray-600, 60%);
+    }
+
+    &.is-inprogress .ci-section-progress-bar .progress-bar,
+    &[data-status='inprogress'] .ci-section-progress-bar-fill {
+      background-color: mix($primary-blue, $gray-600, 50%);
+    }
+
+    &.is-notstarted .ci-section-progress-bar .progress-bar,
+    &[data-status='notstarted'] .ci-section-progress-bar-fill {
+      background-color: $gray-400;
+    }
+
+    &.is-nottracked .ci-section-progress-bar .progress-bar,
+    &[data-status='nottracked'] .ci-section-progress-bar-fill {
+      background-color: $gray-300;
+    }
+  }
+
+  .ci-status-wrapper {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background-color: $gray-100;
+    border: 1px solid $gray-300;
+    color: $gray-500;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+    &[hidden] {
+      display: none !important;
+    }
+
+    .ci-status-indicator {
+      font-size: 0.65rem;
+      line-height: 1;
+
+      &::before {
+        content: '\25CF';
+      }
+    }
+  }
+
+  .ci-status-wrapper[data-status='complete'] {
+    background-color: mix($success, $white, 12%);
+    border-color: mix($success, $gray-200, 40%);
+    color: $success;
+
+    .ci-status-indicator::before {
+      content: '\2713';
+    }
+  }
+
+  .ci-status-wrapper[data-status='failed'] {
+    background-color: mix($danger, $white, 12%);
+    border-color: mix($danger, $gray-200, 40%);
+    color: $danger;
+
+    .ci-status-indicator::before {
+      content: '\2715';
+    }
+  }
+
+  .ci-status-wrapper[data-status='inprogress'] {
+    background-color: mix($warning, $white, 18%);
+    border-color: mix($warning, $gray-200, 45%);
+    color: darken($warning, 10%);
+
+    .ci-status-indicator::before {
+      content: '\25B6';
+    }
+  }
+
+  .ci-status-wrapper[data-status='notstarted'] {
+    background-color: $gray-100;
+    border-color: $gray-300;
+    color: $gray-500;
+
+    .ci-status-indicator::before {
+      content: '\25CF';
+      font-size: 0.45rem;
+    }
+  }
+
+  .ci-status-wrapper[data-status='nottracked'] {
+    background-color: $white;
+    border-color: $gray-200;
+    color: $gray-400;
+
+    .ci-status-indicator::before {
+      content: '\2013';
+    }
+  }
+
+  .course-index-item .completioninfo {
+    display: none !important;
+  }
 }
 
 /* Responsive rules */

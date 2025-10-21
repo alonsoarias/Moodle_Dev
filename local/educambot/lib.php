@@ -55,7 +55,12 @@ function local_educambot_before_footer(?moodle_page $page = null, ?core_renderer
     $engine = new \local_educambot\bot\engine($userid, $pageidentifier);
     $suggestions = $engine->get_suggestions();
 
-    $renderable = new \local_educambot\output\widget($suggestions, $pageidentifier);
+    $renderable = new \local_educambot\output\widget(
+        $suggestions,
+        $pageidentifier,
+        $userid,
+        $engine->get_courseid()
+    );
 
     return $output->render($renderable);
 }

@@ -15,17 +15,36 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Lightweight template interpolation helper.
  *
  * @package     local_educambot
  * @copyright   2024 Educam
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace local_educambot\local;
 
-$plugin->component = 'local_educambot';
-$plugin->version   = 2024060101;
-$plugin->requires  = 2022041900; // Moodle 4.0.
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.3.0';
+/**
+ * Replaces {{placeholders}} in strings with provided values.
+ */
+class interpolator {
+    /**
+     * Performs placeholder replacement.
+     *
+     * @param string $template
+     * @param array $context
+     * @return string
+     */
+    public static function render(string $template, array $context): string {
+        if ($template === '') {
+            return $template;
+        }
+        return preg_replace_callback('/{{\s*([a-z0-9_.]+)\s*}}/iu', static function(array $matches) use ($context) {
+            $key = $matches[1];
+            if (!array_key_exists($key, $context)) {
+                return '';
+            }
+            return (string)$context[$key];
+        }, $template) ?? $template;
+    }
+}
