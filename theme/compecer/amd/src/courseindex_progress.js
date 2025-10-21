@@ -36,19 +36,18 @@ class CourseIndexProgress extends BaseComponent {
         this.queued = false;
         this.queueRefresh = this.queueRefresh.bind(this);
         this.selectors = {
-            COURSE_WRAPPER: "[data-region='course-progress-wrapper']",
-            COURSE_LABEL: "[data-region='course-progress-label']",
+            COURSE_BLOCK: "[data-region='course-progress']",
+            COURSE_VALUE: "[data-region='course-progress-value']",
             COURSE_BAR: "[data-region='course-progress-bar']",
-            COURSE_FRACTION: "[data-region='course-progress-fraction']",
+            COURSE_SUMMARY: "[data-region='course-progress-summary']",
             COURSE_A11Y: "[data-region='course-progress-a11y']",
             COURSE_DISABLED: "[data-region='course-progress-disabled']",
             SECTION_PROGRESS: "[data-region='section-progress']",
             SECTION_BAR: "[data-region='section-progress-bar']",
-            SECTION_LABEL: "[data-region='section-progress-label']",
+            SECTION_SUMMARY: "[data-region='section-progress-summary']",
             SECTION_FRACTION: "[data-region='section-progress-fraction']",
             SECTION_A11Y: "[data-region='section-progress-a11y']",
             CM_STATUS: "[data-region='cm-status']",
-            CM_STATUS_LABEL: "[data-region='cm-status-label']",
         };
     }
 
@@ -162,7 +161,7 @@ class CourseIndexProgress extends BaseComponent {
      */
     applyCourseProgress(data) {
         const enabled = data.completionenabled ?? false;
-        const wrapper = this.element.querySelector(this.selectors.COURSE_WRAPPER);
+        const wrapper = this.element.querySelector(this.selectors.COURSE_BLOCK);
         const disabled = this.element.querySelector(this.selectors.COURSE_DISABLED);
         const course = data.course ?? {};
 
@@ -178,18 +177,18 @@ class CourseIndexProgress extends BaseComponent {
         }
 
         const percent = course.percent ?? 0;
-        const label = this.element.querySelector(this.selectors.COURSE_LABEL);
-        if (label) {
-            label.textContent = `${percent}%`;
+        const value = this.element.querySelector(this.selectors.COURSE_VALUE);
+        if (value) {
+            value.textContent = `${percent}%`;
         }
         const bar = this.element.querySelector(this.selectors.COURSE_BAR);
         if (bar) {
             bar.style.width = `${percent}%`;
             bar.setAttribute('aria-valuenow', percent);
         }
-        const fraction = this.element.querySelector(this.selectors.COURSE_FRACTION);
-        if (fraction) {
-            fraction.textContent = course.fraction ?? '';
+        const summary = this.element.querySelector(this.selectors.COURSE_SUMMARY);
+        if (summary) {
+            summary.textContent = course.fraction ?? '';
         }
         const a11y = this.element.querySelector(this.selectors.COURSE_A11Y);
         if (a11y) {
@@ -212,7 +211,7 @@ class CourseIndexProgress extends BaseComponent {
         containers.forEach((container) => {
             const sectionId = container.dataset.sectionId;
             const data = sectionMap.get(sectionId);
-            const header = container.closest('.ci-section-header');
+            const header = container.closest('.courseindex-section-header');
             const fraction = header ? header.querySelector(this.selectors.SECTION_FRACTION) : null;
             if (!data || (data.total ?? 0) === 0) {
                 container.hidden = true;
@@ -236,9 +235,9 @@ class CourseIndexProgress extends BaseComponent {
                 bar.setAttribute('aria-valuenow', percent);
             }
 
-            const label = container.querySelector(this.selectors.SECTION_LABEL);
-            if (label) {
-                label.textContent = data.summary ?? '';
+            const summary = container.querySelector(this.selectors.SECTION_SUMMARY);
+            if (summary) {
+                summary.textContent = data.summary ?? '';
             }
 
             const a11y = container.querySelector(this.selectors.SECTION_A11Y);
@@ -297,16 +296,6 @@ class CourseIndexProgress extends BaseComponent {
             wrapper.dataset.status = data.status;
             wrapper.setAttribute('title', data.label);
             wrapper.setAttribute('aria-label', data.label);
-
-            const indicator = wrapper.querySelector('.ci-status-indicator');
-            if (indicator) {
-                indicator.dataset.status = data.status;
-            }
-
-            const srOnly = wrapper.querySelector(this.selectors.CM_STATUS_LABEL);
-            if (srOnly) {
-                srOnly.textContent = data.label;
-            }
         });
     }
 }

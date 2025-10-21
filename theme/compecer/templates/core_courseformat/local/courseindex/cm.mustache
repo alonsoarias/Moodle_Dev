@@ -17,7 +17,7 @@
       "hascmrestrictions": 0
     }
 }}
-<li class="course-index-item {{#isactive}}active{{/isactive}}
+<li class="courseindex-item {{#isactive}}active{{/isactive}}
            {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
            {{^accessvisible}}dimmed{{/accessvisible}}
            {{#indent}} indented {{/indent}}"
@@ -26,15 +26,16 @@
     data-id="{{id}}"
     role="treeitem">
   {{^hasdelegatedsection}}
-    <div class="ci-cm-row">
+    <div class="courseindex-cm-row" data-region="cm-row">
       <span class="completioninfo d-none" data-for="cm_completion" data-value="NaN"></span>
-      <span class="ci-status-icon" data-region="cm-status" data-cmid="{{id}}">
-        <span class="ci-status-indicator" aria-hidden="true"></span>
-        <span class="sr-only" data-region="cm-status-label"></span>
-      </span>
-      <div class="ci-cm-main overflow-hidden">
+      <span class="courseindex-status"
+            data-region="cm-status"
+            data-cmid="{{id}}"
+            role="img"
+            aria-label="{{#str}}status_notracked, theme_compecer{{/str}}"></span>
+      <div class="courseindex-cm-main overflow-hidden">
         {{#uservisible}}
-          <a class="ci-cm-link text-truncate"
+          <a class="courseindex-link text-truncate"
              {{#url}}href="{{{url}}}"{{/url}}
              {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
              data-for="cm_name" tabindex="-1" title="{{{name}}}">
@@ -42,7 +43,7 @@
           </a>
         {{/uservisible}}
         {{^uservisible}}
-          <a class="ci-cm-link text-truncate"
+          <a class="courseindex-link text-truncate"
              href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
             {{{name}}}
           </a>

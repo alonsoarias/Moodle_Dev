@@ -7,18 +7,19 @@
     Example context (json):
     {}
 }}
-<nav id="courseindex" class="course-index-drawer" data-region="courseindex">
-  <header class="ci-drawer-header">
-    <span class="ci-drawer-title" title="{{#str}}courseindexheading, theme_compecer{{/str}}">
+<nav id="courseindex" class="courseindex" data-region="courseindex">
+  <header class="courseindex-header">
+    <span class="course-heading h-bold-4" title="{{#str}}courseindexheading, theme_compecer{{/str}}">
       {{#str}}courseindexheading, theme_compecer{{/str}}
     </span>
-    <div class="ci-progress-block" data-region="course-progress-wrapper">
-      <div class="ci-progress-meta">
-        <span class="ci-progress-label">{{#str}}courseprogresslabel, theme_compecer{{/str}}</span>
-        <span class="ci-progress-value" data-region="course-progress-label" aria-live="polite">0%</span>
+    <div class="courseindex-progress" data-region="course-progress">
+      <div class="courseindex-progress-line" aria-live="polite">
+        <span class="courseindex-progress-label">{{#str}}courseprogresslabel, theme_compecer{{/str}}</span>
+        <span class="courseindex-progress-separator" aria-hidden="true">·</span>
+        <span class="courseindex-progress-value" data-region="course-progress-value">0%</span>
       </div>
-      <div class="ci-progress-meter" role="presentation">
-        <span class="ci-progress-meter-fill"
+      <div class="courseindex-progress-meter" role="presentation">
+        <span class="courseindex-progress-bar"
               role="progressbar"
               aria-valuemin="0"
               aria-valuemax="100"
@@ -26,14 +27,14 @@
               style="width: 0%"
               data-region="course-progress-bar"></span>
       </div>
-      <div class="ci-progress-caption">
-        <span class="ci-progress-fraction"
-              data-region="course-progress-fraction"
+      <div class="courseindex-progress-caption">
+        <span class="courseindex-progress-summary"
+              data-region="course-progress-summary"
               aria-live="polite">{{#str}}courseprogressloading, theme_compecer{{/str}}</span>
       </div>
       <span class="sr-only" data-region="course-progress-a11y" aria-live="polite"></span>
     </div>
-    <div class="ci-progress-disabled"
+    <div class="courseindex-progress-disabled"
          data-region="course-progress-disabled"
          role="status"
          aria-live="polite"
@@ -41,7 +42,7 @@
       {{#str}}courseprogressdisabled, theme_compecer{{/str}}
     </div>
   </header>
-  <div class="ci-drawer-body" id="courseindex-content">
+  <div class="courseindex-body" id="courseindex-content">
     {{> core_courseformat/local/courseindex/placeholders}}
   </div>
 </nav>

@@ -249,6 +249,9 @@ class provider {
             'completed' => $counts[self::STATUS_COMPLETE],
             'total' => $counts['tracked'],
         ]);
+        if ($counts['tracked'] <= 0) {
+            $summary = get_string('progressnottrackedshort', 'theme_compecer');
+        }
 
         $a11y = get_string('courseprogressaria', 'theme_compecer', (object) [
             'course' => format_string($course->fullname, true, ["context" => context_course::instance($course->id)]),
@@ -288,6 +291,9 @@ class provider {
             'completed' => $counts[self::STATUS_COMPLETE],
             'total' => $counts['tracked'],
         ]);
+        if ($counts['tracked'] <= 0) {
+            $summary = get_string('progressnottrackedshort', 'theme_compecer');
+        }
 
         $a11y = get_string('sectionprogressaria', 'theme_compecer', (object) [
             'section' => format_string($section->name ?? $section->section, true, ['context' => $context]),
