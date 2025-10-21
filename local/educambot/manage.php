@@ -170,7 +170,7 @@ if ($searching) {
 $table->head = array_merge($table->head, [
     get_string('status', 'local_educambot'),
     get_string('suggested', 'local_educambot'),
-    get_string('timemodified', 'core'),
+    get_string('timemodified', 'local_educambot'),
     get_string('actions', 'local_educambot'),
 ]);
 
@@ -185,7 +185,9 @@ foreach ($records as $record) {
     }
     $editurl = new moodle_url('/local/educambot/manage.php', $editparams);
     $deleteurl = new moodle_url('/local/educambot/manage.php', $deleteparams);
-    $deleteaction = new \core\output\confirm_action(get_string('confirmdelete', 'local_educambot', format_string($record->pattern)));
+    $deleteaction = new \core\output\actions\confirm_action(
+        get_string('confirmdelete', 'local_educambot', format_string($record->pattern))
+    );
     $actions = $OUTPUT->action_link($editurl, get_string('edit')) . ' | ' .
         $OUTPUT->action_link($deleteurl, get_string('delete'), $deleteaction);
 

@@ -32,6 +32,17 @@ defined('MOODLE_INTERNAL') || die();
  * @return string
  */
 function local_educambot_before_footer(?moodle_page $page = null, ?core_renderer $output = null): string {
+    return local_educambot_render_widget($page, $output);
+}
+
+/**
+ * Builds the chatbot widget markup.
+ *
+ * @param moodle_page|null $page
+ * @param core_renderer|null $output
+ * @return string
+ */
+function local_educambot_render_widget(?moodle_page $page = null, ?core_renderer $output = null): string {
     global $USER, $PAGE, $OUTPUT;
 
     if (CLI_SCRIPT || AJAX_SCRIPT) {
