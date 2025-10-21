@@ -28,10 +28,10 @@
      data-number="{{number}}"
      role="treeitem"
      aria-owns="course-index-collapse{{number}}">
-  <div class="course-index-header d-flex align-items-center {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
+  <div class="ci-section-header d-flex align-items-center {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
        id="course-index-section{{number}}"
        data-for="section_item">
-    <div class="ci-section-header flex-grow-1 overflow-hidden">
+    <div class="ci-section-details flex-grow-1 overflow-hidden">
       <div class="ci-section-title text-truncate"
            data-for="section_title"
            title="{{{title}}}">
@@ -50,7 +50,7 @@
     <button type="button"
             data-toggle="collapse"
             data-target="#course-index-collapse{{number}}"
-            class="course-index-toggle p-0 ml-auto {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
+            class="ci-section-toggle p-0 ml-auto {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
             aria-expanded="false"
             aria-controls="course-index-collapse{{number}}"
             tabindex="-1">
