@@ -30,9 +30,24 @@ use core_text;
 use stdClass;
 
 /**
- * Implements a simple rule engine with fuzzy matching heuristics.
+ * Implements a flexible rule engine with fuzzy matching heuristics.
  */
 class engine {
+    /**
+     * Stopwords used to improve token based matching. They include common English and Spanish words so that
+     * the matcher focuses on meaningful terms from the user question.
+     */
+    protected const STOPWORDS = [
+        'a', 'about', 'after', 'again', 'all', 'also', 'an', 'and', 'any', 'are', 'as', 'at', 'be', 'because',
+        'been', 'before', 'but', 'by', 'can', 'could', 'de', 'del', 'do', 'does', 'each', 'el', 'ella', 'ellas',
+        'ellos', 'en', 'era', 'eran', 'eres', 'es', 'esta', 'estaba', 'estamos', 'estan', 'este', 'for', 'from',
+        'had', 'has', 'have', 'he', 'how', 'i', 'in', 'is', 'it', 'la', 'las', 'le', 'les', 'lo', 'los', 'me',
+        'mas', 'más', 'mi', 'mis', 'much', 'muy', 'no', 'nos', 'not', 'now', 'of', 'on', 'or', 'our', 'para', 'por',
+        'que', 'se', 'ser', 'she', 'should', 'si', 'so', 'some', 'su', 'sus', 'te', 'than', 'that', 'the', 'their',
+        'them', 'then', 'there', 'these', 'they', 'this', 'those', 'through', 'to', 'una', 'unas', 'uno', 'unos',
+        'very', 'was', 'we', 'what', 'when', 'where', 'which', 'who', 'why', 'will', 'with', 'would', 'you', 'your'
+    ];
+
     /** @var \moodle_database */
     protected $db;
 
@@ -41,6 +56,9 @@ class engine {
 
     /** @var string|null */
     protected $pageidentifier;
+
+    /** @var string|null Normalised page identifier */
+    protected ?string $normalizedpage = null;
 
     /**
      * Constructor.
@@ -54,6 +72,7 @@ class engine {
         $this->db = $DB;
         $this->userid = $userid;
         $this->pageidentifier = $pageidentifier;
+        $this->normalizedpage = $pageidentifier ? $this->normalize($pageidentifier) : null;
     }
 
     /**
@@ -68,33 +87,10 @@ class engine {
             return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => []];
         }
 
-        $entries = $this->get_entries();
-        $normalizedquestion = $this->normalize($question);
-        $scores = [];
-
-        foreach ($entries as $entry) {
-            if (!$this->entry_matches_roles($entry)) {
-                continue;
-            }
-
-            $score = $this->calculate_score($entry, $normalizedquestion, $question);
-            if ($score <= 0) {
-                continue;
-            }
-
-            $scores[] = [
-                'entry' => $entry,
-                'score' => $score,
-            ];
-        }
-
+        $scores = $this->rank_entries($question);
         if (empty($scores)) {
             return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => $this->get_suggestions()];
         }
-
-        usort($scores, static function(array $a, array $b) {
-            return $b['score'] <=> $a['score'];
-        });
 
         $winner = $scores[0];
         $response = format_text($winner['entry']->response, FORMAT_HTML, ['filter' => true]);
@@ -103,7 +99,7 @@ class engine {
             'response' => $response,
             'ruleid' => (int)$winner['entry']->id,
             'confidence' => round(min(1, $winner['score']), 4),
-            'suggestions' => $this->get_suggestions(),
+            'suggestions' => $this->build_response_suggestions($scores),
         ];
     }
 
@@ -113,14 +109,45 @@ class engine {
      * @return array[]
      */
     public function get_suggestions(): array {
-        $records = $this->db->get_records('local_educambot_rule', ['enabled' => 1, 'suggested' => 1], 'timemodified DESC', 'id, pattern');
+        $records = $this->db->get_records('local_educambot_rule', ['enabled' => 1, 'suggested' => 1], 'timemodified DESC');
         $suggestions = [];
+        $normalizedpage = $this->normalizedpage ?? '';
         foreach ($records as $record) {
+            if ($normalizedpage !== '' && !empty($record->contexts)) {
+                $contexts = $this->explode_lines($record->contexts);
+                $match = false;
+                foreach ($contexts as $context) {
+                    $normalizedcontext = $this->normalize($context);
+                    if ($normalizedcontext !== '' && str_contains($normalizedpage, $normalizedcontext)) {
+                        $match = true;
+                        break;
+                    }
+                }
+                if (!$match) {
+                    continue;
+                }
+            }
             $suggestions[] = [
                 'id' => (int)$record->id,
-                'text' => $record->pattern,
+                'text' => format_string($record->pattern),
             ];
+            if (count($suggestions) >= 6) {
+                break;
+            }
         }
+
+        if (empty($suggestions)) {
+            foreach ($records as $record) {
+                $suggestions[] = [
+                    'id' => (int)$record->id,
+                    'text' => format_string($record->pattern),
+                ];
+                if (count($suggestions) >= 6) {
+                    break;
+                }
+            }
+        }
+
         return $suggestions;
     }
 
@@ -140,14 +167,59 @@ class engine {
     }
 
     /**
+     * Rank all entries for the provided question.
+     *
+     * @param string $question
+     * @param bool $ignoreroles When true, role checks are skipped.
+     * @return array
+     */
+    protected function rank_entries(string $question, bool $ignoreroles = false): array {
+        $entries = $this->get_entries();
+        $normalizedquestion = $this->normalize($question);
+        $questiontokens = $this->tokenize($question);
+        $normalizedpage = $this->normalizedpage ?? '';
+        $scores = [];
+
+        foreach ($entries as $entry) {
+            if (!$ignoreroles && !$this->entry_matches_roles($entry)) {
+                continue;
+            }
+
+            $score = $this->calculate_score($entry, $normalizedquestion, $question, $questiontokens, $normalizedpage);
+            if ($score <= 0) {
+                continue;
+            }
+
+            $scores[] = [
+                'entry' => $entry,
+                'score' => min(1.5, $score),
+            ];
+        }
+
+        usort($scores, static function(array $a, array $b) {
+            return $b['score'] <=> $a['score'];
+        });
+
+        return $scores;
+    }
+
+    /**
      * Calculates the matching score for an entry.
      *
      * @param stdClass $entry
      * @param string $normalizedquestion
      * @param string $originalquestion
+     * @param array $questiontokens
+     * @param string $normalizedpage
      * @return float
      */
-    protected function calculate_score(stdClass $entry, string $normalizedquestion, string $originalquestion): float {
+    protected function calculate_score(
+        stdClass $entry,
+        string $normalizedquestion,
+        string $originalquestion,
+        array $questiontokens,
+        string $normalizedpage
+    ): float {
         $score = 0.0;
         $phrases = $this->get_phrases($entry);
 
@@ -160,46 +232,103 @@ class engine {
                 $score += 1.0;
                 break;
             }
-            if (str_contains($normalizedquestion, $normalizedphrase)) {
-                $score += 0.75;
-            } else {
-                $distance = levenshtein($normalizedphrase, $normalizedquestion);
-                $longest = max(strlen($normalizedphrase), strlen($normalizedquestion));
-                if ($longest > 0) {
-                    $similarity = 1 - ($distance / $longest);
-                    if ($similarity > 0.6) {
-                        $score += $similarity * 0.6;
-                    }
+
+            $wildcardscore = $this->match_wildcard($phrase, $originalquestion, $normalizedquestion);
+            if ($wildcardscore !== null) {
+                if ($wildcardscore > 0) {
+                    $score += $wildcardscore;
+                    continue;
                 }
+            }
+
+            if (str_contains($normalizedquestion, $normalizedphrase)) {
+                $score += 0.85;
+            }
+
+            $phrasescore = $this->string_similarity($normalizedphrase, $normalizedquestion);
+            if ($phrasescore > 0.65) {
+                $score += $phrasescore * 0.7;
+            } else if ($phrasescore > 0.55) {
+                $score += $phrasescore * 0.4;
+            }
+
+            $phraseTokens = $this->tokenize($phrase);
+            $tokenoverlap = $this->token_overlap_score($phraseTokens, $questiontokens);
+            if ($tokenoverlap > 0) {
+                $score += $tokenoverlap * 0.6;
             }
         }
 
         $keywords = $this->get_keywords($entry);
         if (!empty($keywords)) {
-            $matchedkeywords = 0;
-            $questionwords = preg_split('/\s+/', $normalizedquestion, -1, PREG_SPLIT_NO_EMPTY);
+            $matchedkeywords = 0.0;
             foreach ($keywords as $keyword) {
-                if (in_array($keyword, $questionwords, true)) {
+                if (in_array($keyword, $questiontokens, true)) {
                     $matchedkeywords++;
+                } else if ($keyword !== '' && str_contains($normalizedquestion, $keyword)) {
+                    $matchedkeywords += 0.5;
                 }
             }
             if ($matchedkeywords > 0) {
-                $score += min(0.25, $matchedkeywords / max(1, count($keywords)));
+                $score += min(0.3, ($matchedkeywords / max(1, count($keywords))) * 0.8);
             }
         }
 
-        if (!empty($entry->contexts) && $this->pageidentifier) {
+        if (!empty($entry->contexts)) {
             $contexts = $this->explode_lines($entry->contexts);
             foreach ($contexts as $context) {
                 $normalizedcontext = $this->normalize($context);
-                if ($normalizedcontext !== '' && str_contains($this->normalize($this->pageidentifier), $normalizedcontext)) {
+                if ($normalizedcontext === '') {
+                    continue;
+                }
+                if ($normalizedpage !== '' && str_contains($normalizedpage, $normalizedcontext)) {
                     $score += 0.15;
+                    break;
+                }
+                if (str_contains($normalizedquestion, $normalizedcontext)) {
+                    $score += 0.1;
                     break;
                 }
             }
         }
 
         return $score;
+    }
+
+    /**
+     * Builds suggestions for the response payload. Prioritises the best ranked entries and
+     * fills remaining slots with general proactive suggestions.
+     *
+     * @param array $scores
+     * @return array
+     */
+    protected function build_response_suggestions(array $scores): array {
+        if (empty($scores)) {
+            return $this->get_suggestions();
+        }
+
+        $suggestions = [];
+        foreach (array_slice($scores, 0, 3) as $item) {
+            $suggestions[] = [
+                'id' => (int)$item['entry']->id,
+                'text' => format_string($item['entry']->pattern),
+            ];
+        }
+
+        if (count($suggestions) < 3) {
+            foreach ($this->get_suggestions() as $suggestion) {
+                $ids = array_column($suggestions, 'id');
+                if (in_array($suggestion['id'], $ids, true)) {
+                    continue;
+                }
+                $suggestions[] = $suggestion;
+                if (count($suggestions) >= 3) {
+                    break;
+                }
+            }
+        }
+
+        return $suggestions;
     }
 
     /**
@@ -239,7 +368,8 @@ class engine {
      */
     protected function normalize(string $text): string {
         $text = core_text::strtolower($text);
-        $text = preg_replace('/[^a-z0-9áéíóúüñ\s]/u', ' ', $text);
+        $text = core_text::specialtoascii($text);
+        $text = preg_replace('/[^a-z0-9\s]/u', ' ', $text);
         $text = preg_replace('/\s+/u', ' ', $text);
         return trim((string)$text);
     }
@@ -277,5 +407,126 @@ class engine {
             return $role->shortname ?? '';
         }, $userroles);
         return (bool)array_intersect($requiredroles, $usershortnames);
+    }
+
+    /**
+     * Tokenise a string applying stopword filtering and returning unique terms.
+     *
+     * @param string $text
+     * @return array
+     */
+    protected function tokenize(string $text): array {
+        $normalized = $this->normalize($text);
+        if ($normalized === '') {
+            return [];
+        }
+        $tokens = preg_split('/\s+/', $normalized, -1, PREG_SPLIT_NO_EMPTY);
+        if (empty($tokens)) {
+            return [];
+        }
+        $tokens = array_map('trim', $tokens);
+        $tokens = array_filter($tokens, static function(string $token) {
+            return $token !== '' && !in_array($token, self::STOPWORDS, true);
+        });
+        return array_values(array_unique($tokens));
+    }
+
+    /**
+     * Calculates the overlap ratio between the entry tokens and the user tokens.
+     *
+     * @param array $phasetokens
+     * @param array $questiontokens
+     * @return float
+     */
+    protected function token_overlap_score(array $phasetokens, array $questiontokens): float {
+        if (empty($phasetokens) || empty($questiontokens)) {
+            return 0.0;
+        }
+        $intersection = array_intersect($phasetokens, $questiontokens);
+        if (empty($intersection)) {
+            return 0.0;
+        }
+        $ratio = count($intersection) / max(1, count($phasetokens));
+        $questionratio = count($intersection) / max(1, count($questiontokens));
+        return max($ratio, $questionratio);
+    }
+
+    /**
+     * Returns a similarity score between two normalised phrases.
+     *
+     * @param string $phrase
+     * @param string $question
+     * @return float
+     */
+    protected function string_similarity(string $phrase, string $question): float {
+        if ($phrase === '' || $question === '') {
+            return 0.0;
+        }
+        $percent = 0.0;
+        similar_text($phrase, $question, $percent);
+        if ($percent >= 90) {
+            return 0.95;
+        }
+        if ($percent >= 75) {
+            return $percent / 100.0;
+        }
+
+        $distance = levenshtein($phrase, $question);
+        $longest = max(strlen($phrase), strlen($question));
+        if ($longest === 0) {
+            return 0.0;
+        }
+        $levratio = 1 - ($distance / $longest);
+        return max($levratio, $percent / 100.0);
+    }
+
+    /**
+     * Attempts to match wildcard expressions from the knowledge base.
+     *
+     * @param string $phrase Original phrase as configured by the teacher.
+     * @param string $originalquestion Raw user question.
+     * @param string $normalizedquestion Normalised user question.
+     * @return float|null Matching score or null when the phrase does not contain wildcards.
+     */
+    protected function match_wildcard(string $phrase, string $originalquestion, string $normalizedquestion): ?float {
+        if (!str_contains($phrase, '*') && !str_contains($phrase, '?')) {
+            return null;
+        }
+
+        $pattern = preg_quote($phrase, '/');
+        $pattern = str_replace(['\\*', '\\?'], ['.*', '.'], $pattern);
+        $pattern = '/^' . $pattern . '$/iu';
+
+        if (preg_match($pattern, $originalquestion)) {
+            return 0.9;
+        }
+
+        if (preg_match($pattern, $normalizedquestion)) {
+            return 0.8;
+        }
+
+        return 0.0;
+    }
+
+    /**
+     * Provides a preview of ranked entries for administrative tools.
+     *
+     * @param string $question
+     * @param bool $ignoreroles When true, role restrictions are ignored.
+     * @param int $limit
+     * @return array
+     */
+    public function preview_rankings(string $question, bool $ignoreroles = false, int $limit = 10): array {
+        if (trim($question) === '') {
+            return [];
+        }
+        $scores = $this->rank_entries($question, $ignoreroles);
+        if ($limit > 0) {
+            $scores = array_slice($scores, 0, $limit);
+        }
+        return array_map(static function(array $item) {
+            $item['score'] = round(min(1, $item['score']), 4);
+            return $item;
+        }, $scores);
     }
 }
