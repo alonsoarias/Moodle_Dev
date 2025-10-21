@@ -76,6 +76,24 @@ class logger {
      * @param string|null $page
      */
     public function record_unanswered(string $question, ?int $userid, ?string $page): void {
+        $question = trim($question);
+        if ($question === '') {
+            return;
+        }
+
+        $params = [
+            'question' => $question,
+            'recent' => time() - DAYSECS,
+        ];
+        $conditions = 'question = :question AND timecreated >= :recent';
+        if ($userid !== null) {
+            $conditions .= ' AND userid = :userid';
+            $params['userid'] = $userid;
+        }
+        if ($this->db->record_exists_select('local_educambot_unanswered', $conditions, $params)) {
+            return;
+        }
+
         $record = new stdClass();
         $record->question = $question;
         $record->userid = $userid;
