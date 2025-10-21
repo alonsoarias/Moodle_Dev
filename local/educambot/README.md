@@ -5,11 +5,12 @@ Educam Bot is a local Moodle plugin that adds a rule-based assistant to the enti
 ## Main features
 
 - Floating widget rendered across the site with a responsive chat panel.
-- Rule builder that supports patterns, synonyms, keywords, context hints, proactive suggestions and role restrictions.
-- Flexible matching engine with Levenshtein distance and keyword scoring.
+- Rule builder that supports patterns, synonyms, keywords, wildcard expressions, context hints, proactive suggestions and role restrictions.
+- Flexible matching engine with stopword-aware token scoring, Levenshtein/Similar-text comparison and wildcard evaluation.
 - Conversation logging, unanswered question tracking and automatic cleanup task.
 - Privacy API implementation for GDPR compliance.
 - Customisable settings for log retention and logging toggle.
+- Admin knowledge base search with fuzzy ranking of stored rules.
 
 ## Administration
 
