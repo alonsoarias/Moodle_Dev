@@ -54,5 +54,90 @@
                 <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid" />
             </INDEXES>
         </TABLE>
+        <TABLE NAME="local_educambot_topic" COMMENT="Topics that organise knowledge entries">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" />
+                <FIELD NAME="description" TYPE="text" NOTNULL="false" />
+                <FIELD NAME="parentid" TYPE="int" LENGTH="10" NOTNULL="false" />
+                <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" />
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" />
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+                <KEY NAME="parentfk" TYPE="foreign" FIELDS="parentid" REFTABLE="local_educambot_topic" REFFIELDS="id" />
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="local_educambot_knowledge" COMMENT="Structured knowledge entries for the reasoning engine">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" />
+                <FIELD NAME="summary" TYPE="text" NOTNULL="false" />
+                <FIELD NAME="content" TYPE="text" NOTNULL="false" />
+                <FIELD NAME="contentformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="1" />
+                <FIELD NAME="type" TYPE="char" LENGTH="50" NOTNULL="false" />
+                <FIELD NAME="externalurl" TYPE="char" LENGTH="255" NOTNULL="false" />
+                <FIELD NAME="tags" TYPE="text" NOTNULL="false" />
+                <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" />
+                <FIELD NAME="createdby" TYPE="int" LENGTH="10" NOTNULL="false" />
+                <FIELD NAME="updatedby" TYPE="int" LENGTH="10" NOTNULL="false" />
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" />
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled" />
+            </INDEXES>
+        </TABLE>
+        <TABLE NAME="local_educambot_kn_topic" COMMENT="Relation table between knowledge entries and topics">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="knowledgeid" TYPE="int" LENGTH="10" NOTNULL="true" />
+                <FIELD NAME="topicid" TYPE="int" LENGTH="10" NOTNULL="true" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+                <KEY NAME="knowledgefk" TYPE="foreign" FIELDS="knowledgeid" REFTABLE="local_educambot_knowledge" REFFIELDS="id" />
+                <KEY NAME="topicfk" TYPE="foreign" FIELDS="topicid" REFTABLE="local_educambot_topic" REFFIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="knowledgetopic_idx" UNIQUE="true" FIELDS="knowledgeid, topicid" />
+            </INDEXES>
+        </TABLE>
+        <TABLE NAME="local_educambot_relation" COMMENT="Relations between knowledge entries">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="sourceid" TYPE="int" LENGTH="10" NOTNULL="true" />
+                <FIELD NAME="targetid" TYPE="int" LENGTH="10" NOTNULL="true" />
+                <FIELD NAME="relationtype" TYPE="char" LENGTH="50" NOTNULL="true" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+                <KEY NAME="sourcefk" TYPE="foreign" FIELDS="sourceid" REFTABLE="local_educambot_knowledge" REFFIELDS="id" />
+                <KEY NAME="targetfk" TYPE="foreign" FIELDS="targetid" REFTABLE="local_educambot_knowledge" REFFIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="relation_idx" UNIQUE="false" FIELDS="sourceid, targetid" />
+            </INDEXES>
+        </TABLE>
+        <TABLE NAME="local_educambot_kn_context" COMMENT="Context metadata associated to knowledge entries">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="knowledgeid" TYPE="int" LENGTH="10" NOTNULL="true" />
+                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" />
+                <FIELD NAME="role" TYPE="char" LENGTH="100" NOTNULL="false" />
+                <FIELD NAME="pagecontext" TYPE="char" LENGTH="255" NOTNULL="false" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+                <KEY NAME="knowledgefk" TYPE="foreign" FIELDS="knowledgeid" REFTABLE="local_educambot_knowledge" REFFIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="course_idx" UNIQUE="false" FIELDS="courseid" />
+            </INDEXES>
+        </TABLE>
     </TABLES>
 </XMLDB>

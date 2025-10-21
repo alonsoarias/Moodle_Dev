@@ -98,6 +98,17 @@ $string['config_option_instructions'] = 'Show usage instructions';
 $string['config_option_statuslegend'] = 'Show status legend';
 $string['config_custommessage'] = 'Additional message';
 $string['config_custommessage_help'] = 'Optional text displayed beneath the selected information. This can be used to highlight deadlines, contact information or any other relevant guidance.';
+$string['config_restriction_heading'] = 'Course and category filters';
+$string['config_restriction_heading_help'] = 'Choose which courses or categories should be available when accessing the report from this block. The selection applies only to this block instance.';
+$string['config_coursefilters'] = 'Limit to courses';
+$string['config_coursefilters_help'] = 'Select one or more courses that should be available within the report. Users will only be able to see enrolments for the selected courses.';
+$string['config_coursefilters_empty'] = 'No courses are available with the required permissions.';
+$string['config_categoryfilters'] = 'Limit to categories';
+$string['config_categoryfilters_help'] = 'Select whole categories to include in the report. All courses inside the chosen categories will be available to users.';
+$string['config_categoryfilters_empty'] = 'No categories are available with the required permissions.';
+$string['config_clearselection'] = 'Clear selection';
+$string['config_summary_courses'] = 'Courses: {$a}';
+$string['config_summary_categories'] = 'Categories: {$a}';
 
 // AJAX error messages
 $string['ajax_error'] = 'Error loading data. Please try again.';

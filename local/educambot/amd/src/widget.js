@@ -29,7 +29,8 @@ define([], function() {
         input: '#educambot-input',
         send: '.local-educambot__send',
         suggestions: '.local-educambot__suggestions',
-        status: '.local-educambot__status'
+        status: '.local-educambot__status',
+        config: '.local-educambot__config'
     };
 
     /**
@@ -144,6 +145,17 @@ define([], function() {
         const send = widget.querySelector(SELECTORS.send);
         const suggestionContainer = widget.querySelector(SELECTORS.suggestions);
         const status = widget.querySelector(SELECTORS.status);
+        const configScript = widget.querySelector(SELECTORS.config);
+
+        let widgetConfig = {};
+        if (configScript) {
+            try {
+                widgetConfig = JSON.parse(configScript.textContent || '{}');
+            } catch (error) {
+                // Ignore malformed configuration to avoid breaking the widget.
+            }
+            configScript.remove();
+        }
 
         if (!toggle || !panel || !messages || !input || !send) {
             return;
@@ -164,6 +176,10 @@ define([], function() {
         toggle.addEventListener('click', () => togglePanel());
         if (close) {
             close.addEventListener('click', () => togglePanel(false));
+        }
+
+        if (widgetConfig.initialMessage) {
+            addMessage(messages, widgetConfig.initialMessage, 'bot');
         }
 
         const handleSend = () => {
