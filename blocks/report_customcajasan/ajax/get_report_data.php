@@ -49,12 +49,17 @@ if (!confirm_sesskey()) {
 
 // Check capability or manager role
 $systemcontext = context_system::instance();
+$blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
+$blockrestrictions = block_report_customcajasan_get_block_restrictions($blockinstanceid);
+
 try {
     // Verificar permisos - permitir acceso a gestores o usuarios con la capacidad específica
     $can_view = has_capability('block/report_customcajasan:viewreport', $systemcontext);
     $is_manager = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
-    
-    if (!$can_view && !$is_manager) {
+    $can_view_parent = !empty($blockrestrictions['parentcontext']) &&
+        has_capability('block/report_customcajasan:viewreport', $blockrestrictions['parentcontext']);
+
+    if (!$can_view && !$is_manager && !$can_view_parent) {
         throw new required_capability_exception($systemcontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
     }
 } catch (Exception $e) {
@@ -68,6 +73,8 @@ try {
 
 try {
     // Get filter parameters with consistent pattern
+    global $DB;
+
     $filters = array(
         'category' => optional_param('categoryid', 0, PARAM_INT),
         'course' => optional_param('courseid', 0, PARAM_INT),
@@ -78,6 +85,27 @@ try {
         'startdate' => optional_param('startdate', '', PARAM_TEXT),
         'enddate' => optional_param('enddate', '', PARAM_TEXT)
     );
+
+    $allowedcourses = $blockrestrictions['courses'];
+    $allowedcategories = $blockrestrictions['expandedcategories'];
+
+    if (!empty($allowedcategories) && !empty($filters['category']) &&
+        !in_array((int)$filters['category'], $allowedcategories, true)) {
+        $filters['category'] = 0;
+    }
+
+    if (!empty($filters['course']) && (!empty($allowedcourses) || !empty($allowedcategories))) {
+        $courseallowed = in_array((int)$filters['course'], $allowedcourses, true);
+        if (!$courseallowed && !empty($allowedcategories)) {
+            $coursecategory = $DB->get_field('course', 'category', ['id' => $filters['course']]);
+            if ($coursecategory !== false) {
+                $courseallowed = in_array((int)$coursecategory, $allowedcategories, true);
+            }
+        }
+        if (!$courseallowed) {
+            $filters['course'] = 0;
+        }
+    }
     
     // Process date parameters
     if (!empty($filters['startdate'])) {
@@ -87,7 +115,11 @@ try {
     if (!empty($filters['enddate'])) {
         $filters['enddate'] = strtotime($filters['enddate'] . ' 23:59:59');
     }
-    
+
+    $filters['allowedcourses'] = $allowedcourses;
+    $filters['allowedcategories'] = $allowedcategories;
+    $filters['blockinstanceid'] = $blockinstanceid;
+
     // Store filters in session for download use
     $_SESSION['report_customcajasan_filters'] = $filters;
     
@@ -180,7 +212,8 @@ try {
             'lastname' => $filters['lastname'],
             'estado' => $filters['estado'],
             'startdate' => $filters['startdate'] ? date('Y-m-d', $filters['startdate']) : '',
-            'enddate' => $filters['enddate'] ? date('Y-m-d', $filters['enddate']) : ''
+            'enddate' => $filters['enddate'] ? date('Y-m-d', $filters['enddate']) : '',
+            'blockinstanceid' => $blockinstanceid,
         ]);
         
         $html .= custom_paging_bar($totalcount, $page, $perpage, $baseurl);
