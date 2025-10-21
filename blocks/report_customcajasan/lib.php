@@ -253,31 +253,6 @@ function block_report_customcajasan_get_block_restrictions(int $blockinstanceid,
         $courseid = $parentcontext->instanceid ?? 0;
         if ($courseid > 0) {
             $result['courses'] = [$courseid];
-
-            if (empty($result['expandedcategories'])) {
-                $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
-                if (!empty($coursecategory)) {
-                    $coursecategory = (int)$coursecategory;
-                    $categoryids = [$coursecategory => $coursecategory];
-
-                    try {
-                        $category = core_course_category::get($coursecategory, IGNORE_MISSING);
-                    } catch (moodle_exception $e) {
-                        $category = null;
-                    }
-
-                    if ($category && !empty($category->path)) {
-                        foreach (explode('/', trim($category->path, '/')) as $pathid) {
-                            $pathid = (int)$pathid;
-                            if ($pathid > 0) {
-                                $categoryids[$pathid] = $pathid;
-                            }
-                        }
-                    }
-
-                    $result['expandedcategories'] = array_values($categoryids);
-                }
-            }
         }
     }
 
