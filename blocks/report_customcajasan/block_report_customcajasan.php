@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/lib.php');
+
 /**
  * Class block_report_customcajasan
  *
@@ -50,6 +52,12 @@ class block_report_customcajasan extends block_base {
     public function init() {
         $this->title = get_string('pluginname', 'block_report_customcajasan');
     }
+
+    /** @var string Option key for selected course filters. */
+    public const CONFIG_COURSES = 'coursefilters';
+
+    /** @var string Option key for selected category filters. */
+    public const CONFIG_CATEGORIES = 'categoryfilters';
 
     /**
      * Get the block content.
@@ -81,11 +89,22 @@ class block_report_customcajasan extends block_base {
         $contentparts = [];
         $selectedoptions = $this->config->displayoptions;
 
+        $restrictionsummary = '';
+        if ($this->is_course_parent_context()) {
+            $restrictions = block_report_customcajasan_compute_restrictions($this->config);
+            if (!empty($restrictions['courses']) || !empty($restrictions['categories'])) {
+                $restrictionsummary = $this->format_restriction_summary($restrictions);
+            }
+        }
+
         if (in_array(self::INFO_REPORT_LINK, $selectedoptions, true) && $canviewreport) {
             $courseid = $this->page->course->id ?? 0;
             $params = [];
             if (!empty($courseid)) {
                 $params['courseid'] = $courseid;
+            }
+            if ($this->is_course_parent_context() && !empty($this->instance->id)) {
+                $params['blockinstanceid'] = $this->instance->id;
             }
             $reporturl = new moodle_url('/blocks/report_customcajasan/report.php', $params);
             $contentparts[] = html_writer::div(
@@ -96,6 +115,10 @@ class block_report_customcajasan extends block_base {
                 ),
                 'report-links'
             );
+        }
+
+        if (!empty($restrictionsummary)) {
+            $contentparts[] = html_writer::div($restrictionsummary, 'alert alert-info mb-2 restrictions-summary');
         }
 
         if (in_array(self::INFO_INSTRUCTIONS, $selectedoptions, true)) {
@@ -155,6 +178,22 @@ class block_report_customcajasan extends block_base {
 
         if (!isset($this->config->custommessage)) {
             $this->config->custommessage = '';
+        }
+
+        if (!isset($this->config->{self::CONFIG_COURSES})) {
+            $this->config->{self::CONFIG_COURSES} = [];
+        } else if (is_string($this->config->{self::CONFIG_COURSES})) {
+            $this->config->{self::CONFIG_COURSES} = array_filter(array_map('intval', explode(',', $this->config->{self::CONFIG_COURSES})));
+        } else if (!is_array($this->config->{self::CONFIG_COURSES})) {
+            $this->config->{self::CONFIG_COURSES} = array_map('intval', (array)$this->config->{self::CONFIG_COURSES});
+        }
+
+        if (!isset($this->config->{self::CONFIG_CATEGORIES})) {
+            $this->config->{self::CONFIG_CATEGORIES} = [];
+        } else if (is_string($this->config->{self::CONFIG_CATEGORIES})) {
+            $this->config->{self::CONFIG_CATEGORIES} = array_filter(array_map('intval', explode(',', $this->config->{self::CONFIG_CATEGORIES})));
+        } else if (!is_array($this->config->{self::CONFIG_CATEGORIES})) {
+            $this->config->{self::CONFIG_CATEGORIES} = array_map('intval', (array)$this->config->{self::CONFIG_CATEGORIES});
         }
     }
 
@@ -242,7 +281,7 @@ class block_report_customcajasan extends block_base {
      * @return bool True if the block can be configured.
      */
     public function instance_allow_config() {
-        return true;
+        return $this->is_course_parent_context();
     }
 
     /**
@@ -274,7 +313,119 @@ class block_report_customcajasan extends block_base {
             $data->custommessage = '';
         }
 
+        if (!$this->is_course_parent_context()) {
+            $data->{self::CONFIG_COURSES} = [];
+            $data->{self::CONFIG_CATEGORIES} = [];
+            parent::instance_config_save($data, $nolongerused);
+            return;
+        }
+
+        $restrictions = $this->prepare_restriction_config($data);
+        $data->{self::CONFIG_COURSES} = $restrictions['courses'];
+        $data->{self::CONFIG_CATEGORIES} = $restrictions['categories'];
+
         parent::instance_config_save($data, $nolongerused);
+    }
+
+    /**
+     * Determine if the block's parent context is a course.
+     *
+     * @return bool
+     */
+    protected function is_course_parent_context(): bool {
+        $parentcontext = $this->get_parent_context();
+        return $parentcontext && $parentcontext->contextlevel === CONTEXT_COURSE;
+    }
+
+    /**
+     * Retrieve the context the block belongs to.
+     *
+     * @return context|null
+     */
+    protected function get_parent_context(): ?context {
+        if (!empty($this->instance->parentcontextid)) {
+            return context::instance_by_id($this->instance->parentcontextid, IGNORE_MISSING);
+        }
+
+        return $this->page->context ?? null;
+    }
+
+    /**
+     * Generate a human-readable summary of the configured restrictions.
+     *
+     * @param array $restrictions Data returned by block_report_customcajasan_compute_restrictions().
+     * @return string
+     */
+    protected function format_restriction_summary(array $restrictions): string {
+        global $DB;
+
+        $coursenames = [];
+        $categorynames = [];
+
+        if (!empty($restrictions['courses'])) {
+            list($insql, $params) = $DB->get_in_or_equal($restrictions['courses'], SQL_PARAMS_NAMED, 'crs');
+            $records = $DB->get_records_sql("SELECT id, fullname FROM {course} WHERE id $insql ORDER BY fullname ASC", $params);
+            foreach ($restrictions['courses'] as $courseid) {
+                if (!empty($records[$courseid])) {
+                    $coursecontext = context_course::instance($courseid, IGNORE_MISSING);
+                    $coursenames[] = format_string($records[$courseid]->fullname, true, ['context' => $coursecontext ?: null]);
+                }
+            }
+        }
+
+        if (!empty($restrictions['categories'])) {
+            foreach ($restrictions['categories'] as $categoryid) {
+                try {
+                    $category = \core_course_category::get($categoryid, IGNORE_MISSING);
+                } catch (moodle_exception $e) {
+                    $category = null;
+                }
+                if ($category) {
+                    $categorycontext = context_coursecat::instance($categoryid, IGNORE_MISSING);
+                    $categorynames[] = format_string($category->get_formatted_name(), true, ['context' => $categorycontext ?: null]);
+                }
+            }
+        }
+
+        $parts = [];
+        if (!empty($coursenames)) {
+            $parts[] = get_string('config_summary_courses', 'block_report_customcajasan', implode(', ', $coursenames));
+        }
+
+        if (!empty($categorynames)) {
+            $parts[] = get_string('config_summary_categories', 'block_report_customcajasan', implode(', ', $categorynames));
+        }
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * Validate and normalise restriction selections before saving.
+     *
+     * @param stdClass $data Configuration data submitted via the form.
+     * @return array{courses: array<int>, categories: array<int>}
+     */
+    protected function prepare_restriction_config(stdClass $data): array {
+        $courses = [];
+        $categories = [];
+
+        if (!empty($data->{self::CONFIG_COURSES})) {
+            $courses = array_map('intval', (array)$data->{self::CONFIG_COURSES});
+        }
+
+        if (!empty($data->{self::CONFIG_CATEGORIES})) {
+            $categories = array_map('intval', (array)$data->{self::CONFIG_CATEGORIES});
+        }
+
+        $restrictions = block_report_customcajasan_compute_restrictions((object)[
+            self::CONFIG_COURSES => $courses,
+            self::CONFIG_CATEGORIES => $categories,
+        ]);
+
+        return [
+            'courses' => $restrictions['courses'],
+            'categories' => $restrictions['categories'],
+        ];
     }
 }
 

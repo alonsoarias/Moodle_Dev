@@ -27,6 +27,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
         $('#downloadForm input[name="estado"]').val($('#estado').val());
         $('#downloadForm input[name="startdate"]').val($('#startdate').val());
         $('#downloadForm input[name="enddate"]').val($('#enddate').val());
+        $('#downloadForm input[name="blockinstanceid"]').val($('#report-form input[name="blockinstanceid"]').val());
     }
 
     /**
@@ -179,7 +180,8 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                     type: 'GET',
                     data: {
                         'categoryid': categoryId,
-                        'sesskey': M.cfg.sesskey
+                        'sesskey': M.cfg.sesskey,
+                        'blockinstanceid': $('#report-form input[name="blockinstanceid"]').val()
                     },
                     dataType: 'json',
                     success: function(data) {
