@@ -8,22 +8,24 @@
     {}
 }}
 <nav id="courseindex" class="course-index-drawer" data-region="courseindex">
-  <div class="ci-course-progress-wrapper mb-3">
+  <div class="ci-course-progress-wrapper mb-3" data-region="course-progress-wrapper">
     <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
       {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
     </span>
     <div class="ci-course-progress-header">
       <span class="ci-course-progress-label">{{#str}}courseprogresslabel, theme_compecer{{/str}}</span>
-      <span class="ci-course-progress-number" data-region="course-progress-label">0%</span>
+      <span class="ci-course-progress-number" data-region="course-progress-label" aria-live="polite">0%</span>
     </div>
     <div class="progress ci-course-progress-bar" role="presentation">
       <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
            style="width: 0%" data-region="course-progress-bar"></div>
     </div>
-    <div class="ci-course-progress-summary text-muted" data-region="course-progress-fraction"></div>
-    <span class="sr-only" data-region="course-progress-a11y"></span>
+    <div class="ci-course-progress-summary text-muted" data-region="course-progress-fraction" aria-live="polite">
+      {{#str}}courseprogressloading, theme_compecer{{/str}}
+    </div>
+    <span class="sr-only" data-region="course-progress-a11y" aria-live="polite"></span>
   </div>
-  <div class="ci-course-progress-disabled" data-region="course-progress-disabled" hidden>
+  <div class="ci-course-progress-disabled" data-region="course-progress-disabled" role="status" aria-live="polite" hidden>
     {{#str}}courseprogressdisabled, theme_compecer{{/str}}
   </div>
   <div id="courseindex-content">
