@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025032704;        // Incrementado para controles de acceso y configuración por instancia
+$plugin->version   = 2025101701;        // Incrementado para controles de acceso y configuración por instancia
 $plugin->requires  = 2022041900;        // Requires Moodle 4.0+
 $plugin->component = 'block_report_customcajasan'; // Full name of the plugin
 $plugin->maturity  = MATURITY_STABLE;
