@@ -25,6 +25,8 @@
 namespace local_educambot\local;
 
 use context_course;
+use context_system;
+use core_text;
 use core_calendar\local\api as calendar_api;
 use html_writer;
 use moodle_url;
@@ -54,6 +56,9 @@ class context_provider {
 
     /** @var array<string,array> */
     protected array $upcomingcache = [];
+
+    /** @var array<int,string>|null Cache of user role shortnames */
+    protected ?array $userrolesshortnames = null;
 
     /**
      * Constructor.
@@ -508,5 +513,86 @@ class context_provider {
         }
 
         return $this->courses;
+    }
+
+    /**
+     * Returns the list of effective role shortnames for the current user.
+     *
+     * @return array<int,string> Normalised role shortnames.
+     */
+    public function get_effective_roles(): array {
+        if ($this->userrolesshortnames !== null) {
+            return $this->userrolesshortnames;
+        }
+
+        $this->userrolesshortnames = [];
+        if (!$this->userid) {
+            return $this->userrolesshortnames;
+        }
+
+        $collected = [];
+
+        try {
+            $systemcontext = context_system::instance();
+            $assignments = get_user_roles($systemcontext, $this->userid, false);
+            foreach ($assignments as $assignment) {
+                $shortname = $assignment->shortname ?? '';
+                if ($shortname === '') {
+                    continue;
+                }
+                $normalized = core_text::strtolower(trim($shortname));
+                if ($normalized === '') {
+                    continue;
+                }
+                $collected[$normalized] = $normalized;
+            }
+        } catch (\Throwable $e) {
+            // Ignore failures retrieving system level roles.
+        }
+
+        $checkedcourseids = [];
+        foreach ($this->get_courses() as $course) {
+            $checkedcourseids[$course->id] = true;
+            try {
+                $coursecontext = context_course::instance($course->id);
+                $assignments = get_user_roles($coursecontext, $this->userid, false);
+                foreach ($assignments as $assignment) {
+                    $shortname = $assignment->shortname ?? '';
+                    if ($shortname === '') {
+                        continue;
+                    }
+                    $normalized = core_text::strtolower(trim($shortname));
+                    if ($normalized === '') {
+                        continue;
+                    }
+                    $collected[$normalized] = $normalized;
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+
+        if ($this->courseid && !isset($checkedcourseids[$this->courseid])) {
+            try {
+                $coursecontext = context_course::instance($this->courseid);
+                $assignments = get_user_roles($coursecontext, $this->userid, false);
+                foreach ($assignments as $assignment) {
+                    $shortname = $assignment->shortname ?? '';
+                    if ($shortname === '') {
+                        continue;
+                    }
+                    $normalized = core_text::strtolower(trim($shortname));
+                    if ($normalized === '') {
+                        continue;
+                    }
+                    $collected[$normalized] = $normalized;
+                }
+            } catch (\Throwable $e) {
+                // Ignore lookup failures for the focus course.
+            }
+        }
+
+        $this->userrolesshortnames = array_values($collected);
+        return $this->userrolesshortnames;
     }
 }

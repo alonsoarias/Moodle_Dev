@@ -24,6 +24,7 @@
 
 namespace local_educambot\local;
 
+use core_text;
 use moodle_database;
 use stdClass;
 
@@ -60,24 +61,47 @@ class knowledge_repository {
      * @param string $question
      * @param int|null $courseid
      * @param string|null $normalizedpage
+     * @param array $roles Normalised role shortnames for the current user.
      * @param int $limit
      * @return array
      */
-    public function search(string $question, ?int $courseid = null, ?string $normalizedpage = null, int $limit = 5): array {
+    public function search(
+        string $question,
+        ?int $courseid = null,
+        ?string $normalizedpage = null,
+        array $roles = [],
+        int $limit = 5
+    ): array {
         $question = trim($question);
         if ($question === '') {
             return [];
         }
         $normalizedquestion = text_helper::normalize($question);
         $questiontokens = text_helper::tokenize($question);
+        $normalizedroles = array_filter(array_map(static function(string $role): string {
+            return core_text::strtolower(trim($role));
+        }, $roles));
 
         $scores = [];
+        $contextmap = $this->get_context_map();
         foreach ($this->get_entries() as $entry) {
+            $context = $contextmap[$entry->id] ?? ['courses' => [], 'courseids' => [], 'roles' => [], 'contexts' => []];
+            if (!empty($context['roles'])) {
+                if (empty($normalizedroles)) {
+                    continue;
+                }
+                $entryroles = array_map(static function($role): string {
+                    return core_text::strtolower(trim((string)$role));
+                }, $context['roles']);
+                if (empty(array_intersect($entryroles, $normalizedroles))) {
+                    continue;
+                }
+            }
+
             $score = $this->score_entry($entry, $normalizedquestion, $questiontokens, $courseid, $normalizedpage);
             if ($score <= 0) {
                 continue;
             }
-            $context = $this->get_context_map()[$entry->id] ?? ['courses' => [], 'courseids' => [], 'roles' => [], 'contexts' => []];
             $scores[] = [
                 'record' => $entry,
                 'score' => min(1.2, $score),
@@ -85,6 +109,7 @@ class knowledge_repository {
                 'courses' => $context['courses'],
                 'courseids' => $context['courseids'],
                 'contexts' => $context['contexts'],
+                'roles' => $context['roles'],
             ];
         }
 
@@ -230,9 +255,10 @@ class knowledge_repository {
      * @param array $hits
      * @param int $depth
      * @param int $limit
+     * @param array $roles Normalised role shortnames for the current user.
      * @return array
      */
-    public function expand_with_relations(array $hits, int $depth = 1, int $limit = 6): array {
+    public function expand_with_relations(array $hits, int $depth = 1, int $limit = 6, array $roles = []): array {
         $expanded = [];
         $seen = [];
         $queue = [];
@@ -242,6 +268,9 @@ class knowledge_repository {
         }
         $topicsmap = $this->get_topics_map();
         $contextmap = $this->get_context_map();
+        $normalizedroles = array_filter(array_map(static function(string $role): string {
+            return core_text::strtolower(trim($role));
+        }, $roles));
 
         while (!empty($queue)) {
             $current = array_shift($queue);
@@ -253,6 +282,19 @@ class knowledge_repository {
                 continue;
             }
             $seen[$id] = true;
+            $context = $contextmap[$id] ?? ['courses' => [], 'courseids' => [], 'roles' => [], 'contexts' => []];
+            if (!empty($context['roles'])) {
+                if (empty($normalizedroles)) {
+                    continue;
+                }
+                $entryroles = array_map(static function($role): string {
+                    return core_text::strtolower(trim((string)$role));
+                }, $context['roles']);
+                if (empty(array_intersect($entryroles, $normalizedroles))) {
+                    continue;
+                }
+            }
+            $current['roles'] = $context['roles'];
             $expanded[] = $current;
 
             if ($currentdepth >= $depth) {
@@ -272,6 +314,17 @@ class knowledge_repository {
                 $target = $entries[$targetid];
                 $score = ($current['score'] ?? 0.6) * 0.75;
                 $context = $contextmap[$targetid] ?? ['courses' => [], 'courseids' => [], 'roles' => [], 'contexts' => []];
+                if (!empty($context['roles'])) {
+                    if (empty($normalizedroles)) {
+                        continue;
+                    }
+                    $entryroles = array_map(static function($role): string {
+                        return core_text::strtolower(trim((string)$role));
+                    }, $context['roles']);
+                    if (empty(array_intersect($entryroles, $normalizedroles))) {
+                        continue;
+                    }
+                }
                 $queue[] = [
                     'record' => $target,
                     'score' => min(1.0, $score),
@@ -279,6 +332,7 @@ class knowledge_repository {
                     'courses' => $context['courses'],
                     'courseids' => $context['courseids'],
                     'contexts' => $context['contexts'],
+                    'roles' => $context['roles'],
                     'relationtype' => $relation['relationtype'],
                     'sourceid' => $id,
                     '_depth' => $currentdepth + 1,
