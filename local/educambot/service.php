@@ -54,12 +54,12 @@ if (!is_array($suggestions)) {
 $confidence = isset($result['confidence']) ? (float)$result['confidence'] : 0.0;
 $confidence = max(0.0, min(1.0, $confidence));
 
-$logger = new \local_educambot\local\logger();
-$logger->log($sessionid, $question, $response, $result['ruleid'], $confidence, $userid, $page);
-
 $ruleid = $result['ruleid'] ?? null;
 
-if ($result['response'] === null) {
+$logger = new \local_educambot\local\logger();
+$logger->log($sessionid, $question, $response, $ruleid, $confidence, $userid, $page);
+
+if (!array_key_exists('response', $result) || $result['response'] === null) {
     $logger->record_unanswered($question, $userid, $page);
     $response = get_string('noanswer', 'local_educambot');
 }

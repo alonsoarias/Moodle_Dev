@@ -102,6 +102,29 @@ class text_helper {
     }
 
     /**
+     * Calculates token overlap between two arbitrary strings.
+     *
+     * @param string $first
+     * @param string $second
+     * @return float
+     */
+    public static function token_overlap(string $first, string $second): float {
+        $first = trim($first);
+        $second = trim($second);
+        if ($first === '' || $second === '') {
+            return 0.0;
+        }
+
+        $firsttokens = self::tokenize($first);
+        $secondtokens = self::tokenize($second);
+        if (empty($firsttokens) || empty($secondtokens)) {
+            return 0.0;
+        }
+
+        return self::token_overlap_score($firsttokens, $secondtokens);
+    }
+
+    /**
      * Returns a similarity score between two normalised phrases using a hybrid of similar_text and levenshtein.
      *
      * @param string $phrase
