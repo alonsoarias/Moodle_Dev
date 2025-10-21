@@ -32,16 +32,11 @@
        id="course-index-section{{number}}"
        data-for="section_item">
     <div class="ci-section-header flex-grow-1 overflow-hidden">
-      <button type="button"
-              class="course-index-section-button text-truncate font-weight-bold"
-              data-action="togglecourseindexsection"
-              data-for="section_title"
-              tabindex="-1"
-              aria-controls="course-index-collapse{{number}}"
-              aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
-              title="{{{title}}}">
-        <span class="ci-section-title">{{{title}}}</span>
-      </button>
+      <div class="ci-section-title text-truncate"
+           data-for="section_title"
+           title="{{{title}}}">
+        {{{title}}}
+      </div>
       <div class="ci-section-progress mt-1" data-region="section-progress" data-section-id="{{id}}" hidden>
         <div class="ci-section-progress-bar" role="presentation">
           <span class="ci-section-progress-bar-fill" data-region="section-progress-bar"></span>
