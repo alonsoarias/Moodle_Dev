@@ -43,6 +43,9 @@ class knowledge_repository {
     /** @var array<int,array>|null */
     protected ?array $contextmap = null;
 
+    /** @var array<int,array>|null */
+    protected ?array $relationsmap = null;
+
     /**
      * Constructor.
      */
@@ -81,6 +84,7 @@ class knowledge_repository {
                 'topics' => $this->get_topics_map()[$entry->id] ?? [],
                 'courses' => $context['courses'],
                 'courseids' => $context['courseids'],
+                'contexts' => $context['contexts'],
             ];
         }
 
@@ -185,15 +189,112 @@ class knowledge_repository {
                 $this->contextmap[$kid]['courses'] = $names;
                 $this->contextmap[$kid]['courseids'] = array_values($context['courseids']);
                 $this->contextmap[$kid]['roles'] = array_values($context['roles']);
+                $this->contextmap[$kid]['contexts'] = array_values(array_unique($context['contexts']));
             }
         } else {
             foreach ($this->contextmap as $kid => $context) {
                 $this->contextmap[$kid]['courses'] = [];
                 $this->contextmap[$kid]['courseids'] = [];
                 $this->contextmap[$kid]['roles'] = array_values($context['roles']);
+                $this->contextmap[$kid]['contexts'] = array_values(array_unique($context['contexts']));
             }
         }
         return $this->contextmap;
+    }
+
+    /**
+     * Returns knowledge relations indexed by source id.
+     *
+     * @return array<int,array<int,array>>
+     */
+    protected function get_relations_map(): array {
+        if ($this->relationsmap !== null) {
+            return $this->relationsmap;
+        }
+        $this->relationsmap = [];
+        $records = $this->db->get_records('local_educambot_relation', null, '', 'id, sourceid, targetid, relationtype');
+        foreach ($records as $record) {
+            $source = (int)$record->sourceid;
+            $target = (int)$record->targetid;
+            $this->relationsmap[$source][$target] = [
+                'targetid' => $target,
+                'relationtype' => $record->relationtype,
+            ];
+        }
+        return $this->relationsmap;
+    }
+
+    /**
+     * Expands knowledge matches with related entries.
+     *
+     * @param array $hits
+     * @param int $depth
+     * @param int $limit
+     * @return array
+     */
+    public function expand_with_relations(array $hits, int $depth = 1, int $limit = 6): array {
+        $expanded = [];
+        $seen = [];
+        $queue = [];
+        foreach ($hits as $hit) {
+            $hit['_depth'] = 0;
+            $queue[] = $hit;
+        }
+        $topicsmap = $this->get_topics_map();
+        $contextmap = $this->get_context_map();
+
+        while (!empty($queue)) {
+            $current = array_shift($queue);
+            $record = $current['record'];
+            $id = (int)$record->id;
+            $currentdepth = $current['_depth'] ?? 0;
+            unset($current['_depth']);
+            if (isset($seen[$id])) {
+                continue;
+            }
+            $seen[$id] = true;
+            $expanded[] = $current;
+
+            if ($currentdepth >= $depth) {
+                continue;
+            }
+
+            $relations = $this->get_relations_map()[$id] ?? [];
+            foreach ($relations as $relation) {
+                $targetid = $relation['targetid'];
+                if (isset($seen[$targetid])) {
+                    continue;
+                }
+                $entries = $this->get_entries();
+                if (!isset($entries[$targetid])) {
+                    continue;
+                }
+                $target = $entries[$targetid];
+                $score = ($current['score'] ?? 0.6) * 0.75;
+                $context = $contextmap[$targetid] ?? ['courses' => [], 'courseids' => [], 'roles' => [], 'contexts' => []];
+                $queue[] = [
+                    'record' => $target,
+                    'score' => min(1.0, $score),
+                    'topics' => $topicsmap[$targetid] ?? [],
+                    'courses' => $context['courses'],
+                    'courseids' => $context['courseids'],
+                    'contexts' => $context['contexts'],
+                    'relationtype' => $relation['relationtype'],
+                    'sourceid' => $id,
+                    '_depth' => $currentdepth + 1,
+                ];
+            }
+        }
+
+        usort($expanded, static function(array $a, array $b) {
+            return ($b['score'] ?? 0) <=> ($a['score'] ?? 0);
+        });
+
+        if ($limit > 0) {
+            $expanded = array_slice($expanded, 0, $limit);
+        }
+
+        return $expanded;
     }
 
     /**

@@ -15,17 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Install script for local_educambot.
  *
  * @package     local_educambot
  * @copyright   2024 Educam
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_educambot\local\setup\seed;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_educambot';
-$plugin->version   = 2024060101;
-$plugin->requires  = 2022041900; // Moodle 4.0.
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.3.0';
+/**
+ * Executes tasks after installing the plugin.
+ *
+ * @return bool
+ */
+function xmldb_local_educambot_install(): bool {
+    seed::seed_initial_data();
+    return true;
+}

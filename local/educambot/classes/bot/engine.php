@@ -26,6 +26,8 @@ namespace local_educambot\bot;
 
 use cache;
 use context_system;
+use local_educambot\bot\composite_reasoner;
+use local_educambot\bot\reasoner_interface;
 use local_educambot\local\context_provider;
 use local_educambot\local\knowledge_repository;
 use local_educambot\local\text_helper;
@@ -57,6 +59,9 @@ class engine {
     /** @var array Plugin configuration */
     protected array $config;
 
+    /** @var reasoner_interface */
+    protected reasoner_interface $reasoner;
+
     /** @var int|null Resolved course id from current page */
     protected ?int $courseid = null;
 
@@ -77,6 +82,7 @@ class engine {
         $this->contextprovider = new context_provider($userid, $this->courseid, $pageidentifier);
         $this->knowledge = new knowledge_repository();
         $this->config = (array)get_config('local_educambot');
+        $this->reasoner = new composite_reasoner($this->contextprovider, $this->knowledge, $this->courseid, $this->normalizedpage);
     }
 
     /**
@@ -92,29 +98,33 @@ class engine {
         }
 
         $scores = $this->rank_entries($question);
-        if (!empty($scores)) {
-            $winner = $scores[0];
-            $response = format_text($winner['entry']->response, FORMAT_HTML, ['filter' => true]);
-            $response = $this->contextprovider->personalise_html($response, $this->config);
+        $knowledgehits = $this->knowledge->search($question, $this->courseid, $this->normalizedpage);
 
-            return [
-                'response' => $response,
-                'ruleid' => (int)$winner['entry']->id,
-                'confidence' => round(min(1, $winner['score']), 4),
-                'suggestions' => $this->build_response_suggestions($scores, $question),
-            ];
-        }
+        $decision = $this->reasoner->decide($question, $scores, $knowledgehits);
+        if ($decision) {
+            if ($decision['type'] === 'rule') {
+                $winner = $decision['rule'];
+                $response = format_text($winner['entry']->response, FORMAT_HTML, ['filter' => true]);
+                $response = $this->contextprovider->personalise_html($response, $this->config);
+                return [
+                    'response' => $response,
+                    'ruleid' => (int)$winner['entry']->id,
+                    'confidence' => round(min(1, $winner['score']), 4),
+                    'suggestions' => $this->build_response_suggestions($scores, $question),
+                ];
+            }
 
-        $knowledge = $this->knowledge->search($question, $this->courseid, $this->normalizedpage);
-        if (!empty($knowledge)) {
-            $response = $this->build_knowledge_response($knowledge);
-            $topscore = $knowledge[0]['score'] ?? 0.5;
-            return [
-                'response' => $response,
-                'ruleid' => null,
-                'confidence' => round(min(1, max(0.35, $topscore))),
-                'suggestions' => $this->build_knowledge_suggestions($knowledge),
-            ];
+            if ($decision['type'] === 'knowledge') {
+                $knowledgebundle = $decision['knowledge'];
+                $response = $this->build_knowledge_response($knowledgebundle);
+                $topscore = $knowledgebundle[0]['score'] ?? 0.5;
+                return [
+                    'response' => $response,
+                    'ruleid' => null,
+                    'confidence' => round(min(1, max(0.35, $topscore))),
+                    'suggestions' => $this->build_knowledge_suggestions($knowledgebundle),
+                ];
+            }
         }
 
         return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => $this->get_suggestions()];
@@ -573,6 +583,13 @@ class engine {
             if ($link) {
                 $content .= \html_writer::tag('div', $link, ['class' => 'local-educambot__knowledge-link']);
             }
+            if (!empty($item['relationtype'])) {
+                $relationlabel = $this->format_relation_label($item['relationtype']);
+                if ($relationlabel !== '') {
+                    $relationtext = get_string('knowledgefallbackrelation', 'local_educambot', $relationlabel);
+                    $content .= \html_writer::tag('div', $relationtext, ['class' => 'local-educambot__knowledge-relation']);
+                }
+            }
             $content .= $metatext;
             $items[] = \html_writer::tag('li', $content, ['class' => 'local-educambot__knowledge-item']);
         }
@@ -596,5 +613,21 @@ class engine {
             ];
         }
         return $suggestions;
+    }
+
+    /**
+     * Formats relation labels for knowledge entries.
+     *
+     * @param string $relation
+     * @return string
+     */
+    protected function format_relation_label(string $relation): string {
+        $relation = trim($relation);
+        if ($relation === '') {
+            return '';
+        }
+        $relation = str_replace(['_', '-'], ' ', $relation);
+        $relation = ucwords($relation);
+        return format_string($relation);
     }
 }

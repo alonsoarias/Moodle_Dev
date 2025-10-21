@@ -14,18 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version details.
- *
- * @package     local_educambot
- * @copyright   2024 Educam
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_educambot';
-$plugin->version   = 2024060101;
-$plugin->requires  = 2022041900; // Moodle 4.0.
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.3.0';
+return [
+    [
+        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'callback' => \local_educambot\hook_callbacks::class . '::before_footer_html_generation',
+    ],
+];

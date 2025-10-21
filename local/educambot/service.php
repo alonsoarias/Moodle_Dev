@@ -41,20 +41,35 @@ $userid = isloggedin() && !isguestuser() ? (int)$USER->id : null;
 $engine = new \local_educambot\bot\engine($userid, $page);
 $result = $engine->respond($question);
 
+$response = $result['response'] ?? null;
+if (!is_string($response) || trim($response) === '') {
+    $response = get_string('noanswer', 'local_educambot');
+}
+
+$suggestions = $result['suggestions'] ?? [];
+if (!is_array($suggestions)) {
+    $suggestions = [];
+}
+
+$confidence = isset($result['confidence']) ? (float)$result['confidence'] : 0.0;
+$confidence = max(0.0, min(1.0, $confidence));
+
 $logger = new \local_educambot\local\logger();
-$logger->log($sessionid, $question, $result['response'], $result['ruleid'], $result['confidence'], $userid, $page);
+$logger->log($sessionid, $question, $response, $result['ruleid'], $confidence, $userid, $page);
+
+$ruleid = $result['ruleid'] ?? null;
 
 if ($result['response'] === null) {
     $logger->record_unanswered($question, $userid, $page);
-    $result['response'] = get_string('noanswer', 'local_educambot');
+    $response = get_string('noanswer', 'local_educambot');
 }
 
 $payload = [
-    'response' => $result['response'],
-    'ruleid' => $result['ruleid'],
-    'confidence' => $result['confidence'],
+    'response' => $response,
+    'ruleid' => $ruleid,
+    'confidence' => $confidence,
     'sessionid' => $sessionid,
-    'suggestions' => $result['suggestions'],
+    'suggestions' => array_values($suggestions),
 ];
 
 @header('Content-Type: application/json');
