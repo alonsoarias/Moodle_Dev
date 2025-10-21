@@ -1,5 +1,3 @@
-@import 'courseindex';
-
 /*******************
   Headings
 *******************/
@@ -1130,6 +1128,229 @@ section.node-category {
 .btn-link:hover {
   color: darken($gray, 10%);
   text-decoration: underline;
+}
+
+// Course index refinements.
+#courseindex {
+  .ci-course-progress-wrapper {
+    border-bottom: 1px solid rgba($black, 0.08);
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+
+    .course-heading {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .ci-course-progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+
+    .ci-course-progress-label {
+      color: $gray-600;
+      font-size: 0.75rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .ci-course-progress-number {
+      color: $primary;
+      font-weight: 600;
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .ci-course-progress-bar {
+      margin-top: 0.75rem;
+      height: 0.375rem;
+      border-radius: 999px;
+      background-color: $gray-200;
+
+      .progress-bar {
+        border-radius: 999px;
+        background-color: $primary;
+        transition: width 0.3s ease;
+      }
+    }
+
+    .ci-course-progress-summary {
+      margin-top: 0.75rem;
+      color: $gray-600;
+      font-size: 0.8125rem;
+    }
+  }
+
+  .ci-course-progress-disabled {
+    font-size: 0.8125rem;
+    color: $gray-700;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+
+  .ci-section-header {
+    .course-index-section-button {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      text-align: left;
+      width: 100%;
+
+      &:focus-visible {
+        outline: 2px solid $primary;
+        outline-offset: 2px;
+      }
+    }
+  }
+
+  .ci-section-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: $gray-600;
+
+    &[hidden] {
+      display: none !important;
+    }
+
+    .ci-section-progress-bar {
+      flex: 1;
+      height: 0.3125rem;
+      border-radius: 999px;
+      background-color: $gray-200;
+      overflow: hidden;
+
+      .ci-section-progress-bar-fill {
+        display: block;
+        height: 100%;
+        width: 0;
+        background-color: $primary;
+        transition: width 0.3s ease;
+      }
+    }
+
+    .ci-section-progress-label {
+      min-width: 4rem;
+      text-align: right;
+    }
+  }
+
+  [data-region='section-progress'][data-status='complete'] .ci-section-progress-bar-fill {
+    background-color: $success;
+  }
+
+  [data-region='section-progress'][data-status='failed'] .ci-section-progress-bar-fill {
+    background-color: $danger;
+  }
+
+  [data-region='section-progress'][data-status='inprogress'] .ci-section-progress-bar-fill {
+    background-color: $warning;
+  }
+
+  [data-region='section-progress'][data-status='notstarted'] .ci-section-progress-bar-fill {
+    background-color: $gray-400;
+  }
+
+  [data-region='section-progress'][data-status='nottracked'] .ci-section-progress-bar-fill {
+    background-color: $gray-300;
+  }
+
+  .ci-cm-item {
+    gap: 0.5rem;
+  }
+
+  .ci-status-wrapper {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    border: 1px solid $gray-300;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: $gray-600;
+    background-color: transparent;
+    flex-shrink: 0;
+    transition: color 0.2s ease, border-color 0.2s ease;
+
+    &[hidden] {
+      display: none !important;
+    }
+
+    .ci-status-indicator {
+      font-size: 0.75rem;
+      line-height: 1;
+
+      &::before {
+        content: '\\25CB';
+      }
+    }
+  }
+
+  .ci-status-wrapper[data-status='complete'] {
+    border-color: $success;
+    color: $success;
+
+    .ci-status-indicator::before {
+      content: '\\2713';
+    }
+  }
+
+  .ci-status-wrapper[data-status='failed'] {
+    border-color: $danger;
+    color: $danger;
+
+    .ci-status-indicator::before {
+      content: '\\2715';
+    }
+  }
+
+  .ci-status-wrapper[data-status='inprogress'] {
+    border-color: $primary;
+    color: $primary;
+
+    .ci-status-indicator::before {
+      content: '\\25B6';
+    }
+  }
+
+  .ci-status-wrapper[data-status='notstarted'] {
+    border-color: $gray-400;
+    color: $gray-500;
+
+    .ci-status-indicator::before {
+      content: '\\25CF';
+      font-size: 0.5rem;
+    }
+  }
+
+  .ci-status-wrapper[data-status='nottracked'] {
+    border-color: $gray-300;
+    color: $gray-400;
+
+    .ci-status-indicator::before {
+      content: '\\2013';
+    }
+  }
+
+  .ci-cm-main .course-index-link {
+    min-width: 0;
+
+    &:hover,
+    &:focus {
+      text-decoration: underline;
+    }
+  }
+
+  .course-index-item .completioninfo {
+    display: none !important;
+  }
 }
 
 /* Responsive rules */
