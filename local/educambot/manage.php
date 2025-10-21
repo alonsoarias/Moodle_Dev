@@ -25,6 +25,7 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->libdir . '/editorlib.php');
 require_once(__DIR__ . '/classes/form/entry_form.php');
 
 $context = context_system::instance();
@@ -38,7 +39,7 @@ $PAGE->set_heading(get_string('manageentries', 'local_educambot'));
 
 $action = optional_param('action', 'list', PARAM_ALPHA);
 $id = optional_param('id', 0, PARAM_INT);
-$search = optional_param('search', '', PARAM_RAW_TRIMMED);
+$search = optional_param('search', '', PARAM_TEXT);
 
 $output = $PAGE->get_renderer('core');
 $baseurl = new moodle_url('/local/educambot/manage.php');
@@ -48,11 +49,19 @@ if ($search !== '') {
 
 $cache = cache::make('local_educambot', 'rules');
 
+$editoroptions = [
+    'context' => $context,
+    'maxfiles' => EDITOR_UNLIMITED_FILES,
+    'maxbytes' => 0,
+    'trusttext' => false,
+    'subdirs' => false,
+];
+
 if ($action === 'delete' && $id) {
     require_sesskey();
     if ($record = $DB->get_record('local_educambot_rule', ['id' => $id])) {
         $DB->delete_records('local_educambot_rule', ['id' => $id]);
-        $cache->delete('all');
+        $cache->purge();
         redirect($baseurl, get_string('deleted', 'local_educambot'));
     } else {
         print_error('invalidrecord', 'error');
@@ -62,42 +71,63 @@ if ($action === 'delete' && $id) {
 if (in_array($action, ['add', 'edit'], true)) {
     if ($action === 'edit') {
         $record = $DB->get_record('local_educambot_rule', ['id' => $id], '*', MUST_EXIST);
+        $record = file_prepare_standard_editor($record, 'response', $editoroptions, $context, 'local_educambot', 'response', $record->id);
     } else {
-        $record = null;
+        $record = (object) [
+            'id' => 0,
+            'pattern' => '',
+            'synonyms' => '',
+            'keywords' => '',
+            'response' => '',
+            'roles' => [],
+            'contexts' => '',
+            'suggested' => 0,
+            'enabled' => 1,
+        ];
+        $record = file_prepare_standard_editor($record, 'response', $editoroptions, $context, 'local_educambot', 'response', 0);
     }
 
-    $form = new \local_educambot\form\entry_form($baseurl, ['persistent' => $record]);
+    $form = new \local_educambot\form\entry_form($baseurl, [
+        'persistent' => $record,
+        'editoroptions' => $editoroptions,
+    ]);
 
     if ($form->is_cancelled()) {
         redirect(new moodle_url('/local/educambot/manage.php', $search !== '' ? ['search' => $search] : []));
     } else if ($data = $form->get_data()) {
+        $now = time();
         $saved = new stdClass();
-        $saved->pattern = trim($data->pattern);
-        $saved->synonyms = trim($data->synonyms ?? '');
-        $saved->keywords = trim($data->keywords ?? '');
-        $saved->response = trim($data->response['text'] ?? '');
-        $saved->roles = !empty($data->roles) ? implode(',', (array)$data->roles) : null;
-        $saved->contexts = trim($data->contexts ?? '');
+        $saved->pattern = trim(clean_param($data->pattern, PARAM_TEXT));
+        $saved->synonyms = trim(clean_param($data->synonyms ?? '', PARAM_TEXT));
+        $saved->keywords = trim(clean_param($data->keywords ?? '', PARAM_TEXT));
+        $saved->roles = !empty($data->roles) ? implode(',', array_map(static function(string $role): string {
+            return trim(clean_param($role, PARAM_ALPHANUMEXT));
+        }, (array)$data->roles)) : null;
+        $saved->contexts = trim(clean_param($data->contexts ?? '', PARAM_TEXT));
         $saved->suggested = !empty($data->suggested) ? 1 : 0;
         $saved->enabled = !empty($data->enabled) ? 1 : 0;
-        $saved->timemodified = time();
+        $saved->timemodified = $now;
 
         if ($action === 'edit') {
             $saved->id = $record->id;
             $saved->timecreated = $record->timecreated;
+            $data = file_postupdate_standard_editor($data, 'response', $editoroptions, $context, 'local_educambot', 'response', $saved->id);
+            $saved->response = trim($data->response);
             $DB->update_record('local_educambot_rule', $saved);
         } else {
-            $saved->timecreated = time();
-            $id = $DB->insert_record('local_educambot_rule', $saved);
+            $saved->timecreated = $now;
+            $saved->response = '';
+            $saved->id = $DB->insert_record('local_educambot_rule', $saved);
+            $data = file_postupdate_standard_editor($data, 'response', $editoroptions, $context, 'local_educambot', 'response', $saved->id);
+            $saved->response = trim($data->response);
+            $DB->update_record('local_educambot_rule', $saved);
         }
 
-        $cache->delete('all');
+        $cache->purge();
         redirect(new moodle_url('/local/educambot/manage.php', $search !== '' ? ['search' => $search] : []),
             get_string('saved', 'local_educambot'));
     } else {
-        if ($record) {
-            $form->set_data($record);
-        }
+        $form->set_data($record);
 
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string($action === 'edit' ? 'editentry' : 'addentry', 'local_educambot'));

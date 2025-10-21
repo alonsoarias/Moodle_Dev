@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Educam Bot';
+$string['educambot:use'] = 'Interact with Educam Bot';
 $string['privacy:metadata'] = 'The Educam Bot plugin stores conversation data to improve the knowledge base.';
 $string['privacy:metadata:log'] = 'Conversation logs recorded by Educam Bot.';
 $string['privacy:metadata:log:userid'] = 'The identifier of the user interacting with the bot.';

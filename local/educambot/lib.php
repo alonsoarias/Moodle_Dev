@@ -99,3 +99,44 @@ function local_educambot_before_standard_html_head(?moodle_page $page = null, ?c
     $page->requires->css('/local/educambot/styles.css');
     $page->requires->js_call_amd('local_educambot/widget', 'init');
 }
+
+/**
+ * Serves plugin files for local_educambot.
+ *
+ * @param stdClass $course
+ * @param stdClass $cm
+ * @param context $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
+ * @param array $options
+ * @return bool
+ */
+function local_educambot_pluginfile($course, $cm, $context, string $filearea, array $args, bool $forcedownload, array $options = []) {
+    if ($context->contextlevel !== CONTEXT_SYSTEM || $filearea !== 'response') {
+        return false;
+    }
+
+    require_login(null, false);
+    require_capability('local/educambot:manage', context_system::instance());
+
+    if (empty($args)) {
+        return false;
+    }
+
+    $itemid = (int)array_shift($args);
+    if ($itemid <= 0) {
+        return false;
+    }
+
+    $filename = array_pop($args);
+    $filepath = empty($args) ? '/' : '/' . implode('/', $args) . '/';
+
+    $fs = get_file_storage();
+    $file = $fs->get_file($context->id, 'local_educambot', 'response', $itemid, $filepath, $filename);
+    if (!$file || $file->is_directory()) {
+        return false;
+    }
+
+    send_stored_file($file, 0, 0, $forcedownload, $options);
+}

@@ -28,6 +28,30 @@ $definitions = [
     'rules' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
-        'simpledata' => true,
+        'simpledata' => false,
+    ],
+    'knowledge' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => false,
+        'ttl' => 900,
+    ],
+    'knowledge_topics' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => false,
+        'ttl' => 900,
+    ],
+    'knowledge_context' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => false,
+        'ttl' => 900,
+    ],
+    'knowledge_relations' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => false,
+        'ttl' => 900,
     ],
 ];
