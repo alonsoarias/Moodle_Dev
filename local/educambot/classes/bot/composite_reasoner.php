@@ -204,7 +204,8 @@ class composite_reasoner implements reasoner_interface {
      */
     protected function decorate_knowledge_hits(array $knowledgehits): array {
         try {
-            $expanded = $this->knowledge->expand_with_relations($knowledgehits, 1, 6);
+            $roles = $this->contextprovider->get_effective_roles();
+            $expanded = $this->knowledge->expand_with_relations($knowledgehits, 1, 6, $roles);
         } catch (moodle_exception $e) {
             // Should not interrupt the reasoning flow when relations fail.
             $expanded = $knowledgehits;

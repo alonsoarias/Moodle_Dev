@@ -25,7 +25,7 @@
 namespace local_educambot\bot;
 
 use cache;
-use context_system;
+use core_text;
 use local_educambot\bot\composite_reasoner;
 use local_educambot\bot\reasoner_interface;
 use local_educambot\local\context_provider;
@@ -98,7 +98,8 @@ class engine {
         }
 
         $scores = $this->rank_entries($question);
-        $knowledgehits = $this->knowledge->search($question, $this->courseid, $this->normalizedpage);
+        $roles = $this->contextprovider->get_effective_roles();
+        $knowledgehits = $this->knowledge->search($question, $this->courseid, $this->normalizedpage, $roles);
 
         $decision = $this->reasoner->decide($question, $scores, $knowledgehits);
         if ($decision) {
@@ -140,6 +141,9 @@ class engine {
         $suggestions = [];
         $normalizedpage = $this->normalizedpage ?? '';
         foreach ($records as $record) {
+            if (!$this->entry_matches_roles($record)) {
+                continue;
+            }
             if ($normalizedpage !== '' && !empty($record->contexts)) {
                 $contexts = $this->explode_lines($record->contexts);
                 $match = false;
@@ -165,6 +169,9 @@ class engine {
 
         if (empty($suggestions)) {
             foreach ($records as $record) {
+                if (!$this->entry_matches_roles($record)) {
+                    continue;
+                }
                 $suggestions[] = [
                     'id' => (int)$record->id,
                     'text' => format_string($record->pattern),
@@ -364,7 +371,8 @@ class engine {
         }
 
         if (count($suggestions) < 3) {
-            $knowledge = $this->knowledge->search($question, $this->courseid, $this->normalizedpage);
+            $roles = $this->contextprovider->get_effective_roles();
+            $knowledge = $this->knowledge->search($question, $this->courseid, $this->normalizedpage, $roles);
             foreach ($knowledge as $item) {
                 if (count($suggestions) >= 3) {
                     break;
@@ -435,12 +443,19 @@ class engine {
         if (empty($requiredroles)) {
             return true;
         }
-        $systemcontext = context_system::instance();
-        $userroles = get_user_roles($systemcontext, $this->userid, false);
-        $usershortnames = array_map(static function($role) {
-            return $role->shortname ?? '';
-        }, $userroles);
-        return (bool)array_intersect($requiredroles, $usershortnames);
+        $requiredroles = array_filter(array_map(static function(string $role): string {
+            return core_text::strtolower(trim($role));
+        }, $requiredroles));
+        if (empty($requiredroles)) {
+            return true;
+        }
+
+        $userroles = $this->contextprovider->get_effective_roles();
+        if (empty($userroles)) {
+            return false;
+        }
+
+        return (bool)array_intersect($requiredroles, $userroles);
     }
 
     /**
