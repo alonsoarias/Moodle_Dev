@@ -1,14 +1,18 @@
-<div class="local-educambot" data-service-url="{{serviceurl}}" data-sessionkey="{{sessionkey}}" data-page="{{pageidentifier}}">
+<div class="local-educambot" data-service-url="{{serviceurl}}" data-sessionkey="{{sessionkey}}" data-page="{{pageidentifier}}"
+    style="--educambot-primary: {{theme.primary}}; --educambot-accent: {{theme.accent}}; --educambot-background: {{theme.background}}; --educambot-text: {{theme.text}};">
     <button class="local-educambot__toggle" aria-expanded="false" aria-controls="educambot-panel">
         <span class="local-educambot__label">{{widgettitle}}</span>
     </button>
     <div class="local-educambot__panel" id="educambot-panel" hidden>
         <div class="local-educambot__header">
             <strong>{{chatheader}}</strong>
+            {{#tagline}}
+                <span class="local-educambot__tagline">{{.}}</span>
+            {{/tagline}}
             <button type="button" class="local-educambot__close" aria-label="{{#str}}cancel, local_educambot{{/str}}">&times;</button>
         </div>
         <div class="local-educambot__body">
-            <div class="local-educambot__intro">{{widgetintro}}</div>
+            <div class="local-educambot__intro">{{{widgetintro}}}</div>
             <div class="local-educambot__messages" role="log" aria-live="polite"></div>
             <div class="local-educambot__suggestions" data-label="{{strings.suggestedquestions}}" {{^hasuggestions}}hidden{{/hasuggestions}}>
                 <span class="local-educambot__suggestions-title">{{strings.suggestedquestions}}</span>
@@ -28,4 +32,5 @@
         </div>
         <div class="local-educambot__status" data-loading="{{strings.loading}}" data-confidence-label="{{strings.confidence}}"></div>
     </div>
+    <script type="application/json" class="local-educambot__config">{{{widgetconfig}}}</script>
 </div>

@@ -24,6 +24,7 @@
 
 namespace local_educambot\output;
 
+use local_educambot\local\context_provider;
 use renderable;
 use templatable;
 use renderer_base;
@@ -39,15 +40,25 @@ class widget implements renderable, templatable {
     /** @var string|null Current page identifier */
     protected ?string $pageidentifier;
 
+    /** @var int|null */
+    protected ?int $userid;
+
+    /** @var int|null */
+    protected ?int $courseid;
+
     /**
      * Constructor.
      *
      * @param array $suggestions Suggested questions with text and id.
      * @param string|null $pageidentifier Current page path.
+     * @param int|null $userid
+     * @param int|null $courseid
      */
-    public function __construct(array $suggestions, ?string $pageidentifier) {
+    public function __construct(array $suggestions, ?string $pageidentifier, ?int $userid, ?int $courseid) {
         $this->suggestions = $suggestions;
         $this->pageidentifier = $pageidentifier;
+        $this->userid = $userid;
+        $this->courseid = $courseid;
     }
 
     /**
@@ -57,20 +68,52 @@ class widget implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output): array {
-        global $USER;
+        $config = (array)get_config('local_educambot');
+        $contextprovider = new context_provider($this->userid, $this->courseid, $this->pageidentifier);
+
+        $botname = $contextprovider->get_bot_name($config);
+        $introtemplate = trim($config['introtemplate'] ?? '');
+        if ($introtemplate === '') {
+            $introtemplate = get_string('widgetintro', 'local_educambot');
+        }
+        $intro = $contextprovider->personalise_html($introtemplate, $config);
+        $tagline = trim($config['personalitytagline'] ?? '');
+        if ($tagline !== '') {
+            $tagline = $contextprovider->personalise_html($tagline, $config);
+        }
+
+        $widgetlabel = trim($config['widgetlabel'] ?? '');
+        if ($widgetlabel === '') {
+            $widgetlabel = get_string('widgettitle', 'local_educambot');
+        }
+
+        $primary = $config['primarycolor'] ?? '#0f6fc5';
+        $accent = $config['accentcolor'] ?? '#e7f0fb';
+        $background = $config['backgroundcolor'] ?? '#f7f9fc';
+        $textcolor = $config['textcolor'] ?? '#1f2937';
+
+        $initialmessage = $contextprovider->build_initial_greeting($config);
+        $configpayload = json_encode([
+            'initialMessage' => $initialmessage,
+            'botName' => $botname,
+            'tagline' => $tagline,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($configpayload === false) {
+            $configpayload = '{}';
+        }
 
         $sessionkey = sesskey();
 
         return [
-            'widgettitle' => get_string('widgettitle', 'local_educambot'),
-            'widgetintro' => get_string('widgetintro', 'local_educambot'),
-            'chatheader' => get_string('chatheader', 'local_educambot'),
+            'widgettitle' => format_string($widgetlabel),
+            'widgetintro' => $intro,
+            'chatheader' => $botname,
             'placeholder' => get_string('startplaceholder', 'local_educambot'),
             'suggestions' => array_values($this->suggestions),
             'hasuggestions' => !empty($this->suggestions),
             'sessionkey' => $sessionkey,
             'serviceurl' => (new moodle_url('/local/educambot/service.php'))->out(false),
-            'userid' => (int)$USER->id,
+            'userid' => $this->userid,
             'pageidentifier' => $this->pageidentifier ?? '',
             'strings' => [
                 'loading' => get_string('loading', 'local_educambot'),
@@ -78,6 +121,14 @@ class widget implements renderable, templatable {
                 'suggestedquestions' => get_string('suggestedquestions', 'local_educambot'),
                 'confidence' => get_string('confidence', 'local_educambot'),
             ],
+            'theme' => [
+                'primary' => $primary,
+                'accent' => $accent,
+                'background' => $background,
+                'text' => $textcolor,
+            ],
+            'tagline' => $tagline,
+            'widgetconfig' => $configpayload,
         ];
     }
 }
