@@ -25,6 +25,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
+    'local/educambot:use' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'user' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'local/educambot:manage' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,

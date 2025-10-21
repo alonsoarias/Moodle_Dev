@@ -47,12 +47,28 @@ class knowledge_repository {
     /** @var array<int,array>|null */
     protected ?array $relationsmap = null;
 
+    /** @var \cache */
+    protected $entriescache;
+
+    /** @var \cache */
+    protected $topicscache;
+
+    /** @var \cache */
+    protected $contextcache;
+
+    /** @var \cache */
+    protected $relationscache;
+
     /**
      * Constructor.
      */
     public function __construct() {
         global $DB;
         $this->db = $DB;
+        $this->entriescache = \cache::make('local_educambot', 'knowledge');
+        $this->topicscache = \cache::make('local_educambot', 'knowledge_topics');
+        $this->contextcache = \cache::make('local_educambot', 'knowledge_context');
+        $this->relationscache = \cache::make('local_educambot', 'knowledge_relations');
     }
 
     /**
@@ -137,7 +153,13 @@ class knowledge_repository {
         if ($this->entries !== null) {
             return $this->entries;
         }
+        $cached = $this->entriescache->get('all');
+        if ($cached !== false) {
+            $this->entries = $cached;
+            return $this->entries;
+        }
         $this->entries = $this->db->get_records('local_educambot_knowledge', ['enabled' => 1], 'timemodified DESC');
+        $this->entriescache->set('all', $this->entries);
         return $this->entries;
     }
 
@@ -150,9 +172,15 @@ class knowledge_repository {
         if ($this->topicsmap !== null) {
             return $this->topicsmap;
         }
+        $cached = $this->topicscache->get('all');
+        if ($cached !== false) {
+            $this->topicsmap = $cached;
+            return $this->topicsmap;
+        }
         $this->topicsmap = [];
         $topics = $this->db->get_records('local_educambot_topic', null, '', 'id, name');
         if (empty($topics)) {
+            $this->topicscache->set('all', $this->topicsmap);
             return $this->topicsmap;
         }
         $links = $this->db->get_records('local_educambot_kn_topic', null, '', 'id, knowledgeid, topicid');
@@ -162,6 +190,7 @@ class knowledge_repository {
             }
             $this->topicsmap[$link->knowledgeid][] = format_string($topics[$link->topicid]->name);
         }
+        $this->topicscache->set('all', $this->topicsmap);
         return $this->topicsmap;
     }
 
@@ -174,9 +203,15 @@ class knowledge_repository {
         if ($this->contextmap !== null) {
             return $this->contextmap;
         }
+        $cached = $this->contextcache->get('all');
+        if ($cached !== false) {
+            $this->contextmap = $cached;
+            return $this->contextmap;
+        }
         $this->contextmap = [];
         $records = $this->db->get_records('local_educambot_kn_context', null, '', 'id, knowledgeid, courseid, role, pagecontext');
         if (empty($records)) {
+            $this->contextcache->set('all', $this->contextmap);
             return $this->contextmap;
         }
         $courseids = [];
@@ -224,6 +259,7 @@ class knowledge_repository {
                 $this->contextmap[$kid]['contexts'] = array_values(array_unique($context['contexts']));
             }
         }
+        $this->contextcache->set('all', $this->contextmap);
         return $this->contextmap;
     }
 
@@ -236,6 +272,11 @@ class knowledge_repository {
         if ($this->relationsmap !== null) {
             return $this->relationsmap;
         }
+        $cached = $this->relationscache->get('all');
+        if ($cached !== false) {
+            $this->relationsmap = $cached;
+            return $this->relationsmap;
+        }
         $this->relationsmap = [];
         $records = $this->db->get_records('local_educambot_relation', null, '', 'id, sourceid, targetid, relationtype');
         foreach ($records as $record) {
@@ -246,6 +287,7 @@ class knowledge_repository {
                 'relationtype' => $record->relationtype,
             ];
         }
+        $this->relationscache->set('all', $this->relationsmap);
         return $this->relationsmap;
     }
 
@@ -434,5 +476,14 @@ class knowledge_repository {
         }
 
         return $score;
+    }
+
+    /**
+     * Clears all cache definitions used by the repository.
+     */
+    public static function reset_caches(): void {
+        foreach (['knowledge', 'knowledge_topics', 'knowledge_context', 'knowledge_relations'] as $definition) {
+            \cache::make('local_educambot', $definition)->purge();
+        }
     }
 }

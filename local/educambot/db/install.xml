@@ -18,6 +18,9 @@
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
             </KEYS>
+            <INDEXES>
+                <INDEX NAME="enabledsuggested_idx" UNIQUE="false" FIELDS="enabled, suggested" />
+            </INDEXES>
         </TABLE>
         <TABLE NAME="local_educambot_log" COMMENT="Conversation logs for Educam Bot">
             <FIELDS>

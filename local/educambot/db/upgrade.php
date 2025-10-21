@@ -131,5 +131,15 @@ function xmldb_local_educambot_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2024060101, 'local', 'educambot');
     }
 
+    if ($oldversion < 2024060102) {
+        $table = new xmldb_table('local_educambot_rule');
+        $index = new xmldb_index('enabledsuggested_idx', XMLDB_INDEX_NOTUNIQUE, ['enabled', 'suggested']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        upgrade_plugin_savepoint(true, 2024060102, 'local', 'educambot');
+    }
+
     return true;
 }

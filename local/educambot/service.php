@@ -26,7 +26,11 @@ define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
 
+require_login(null, false);
 require_sesskey();
+
+$context = context_system::instance();
+require_capability('local/educambot:use', $context);
 
 $question = required_param('question', PARAM_RAW_TRIMMED);
 $sessionid = optional_param('sessionid', '', PARAM_ALPHANUMEXT);

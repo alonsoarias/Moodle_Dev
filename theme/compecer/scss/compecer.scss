@@ -1377,6 +1377,7 @@ $ci-color-failed: #c62828;
   .courseindex-section-summary {
     font-size: 0.75rem;
     color: $ci-color-muted;
+    font-variant-numeric: tabular-nums;
   }
 
   .courseindex-item-content {

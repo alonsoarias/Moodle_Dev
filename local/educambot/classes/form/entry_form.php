@@ -31,6 +31,7 @@ use moodleform;
 
 global $CFG;
 require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->libdir . '/editorlib.php');
 
 /**
  * Form to create or edit bot rules.
@@ -43,18 +44,24 @@ class entry_form extends moodleform {
         $mform = $this->_form;
 
         $mform->addElement('textarea', 'pattern', get_string('pattern', 'local_educambot'), 'rows="3" cols="50"');
-        $mform->setType('pattern', PARAM_RAW);
+        $mform->setType('pattern', PARAM_TEXT);
         $mform->addRule('pattern', get_string('formerrorpatternrequired', 'local_educambot'), 'required');
 
         $mform->addElement('textarea', 'synonyms', get_string('synonyms', 'local_educambot'), 'rows="4" cols="50"');
-        $mform->setType('synonyms', PARAM_RAW);
+        $mform->setType('synonyms', PARAM_TEXT);
         $mform->addHelpButton('synonyms', 'synonyms', 'local_educambot');
 
         $mform->addElement('text', 'keywords', get_string('keywords', 'local_educambot'));
         $mform->setType('keywords', PARAM_TEXT);
         $mform->addHelpButton('keywords', 'keywords', 'local_educambot');
 
-        $mform->addElement('editor', 'response', get_string('response', 'local_educambot'));
+        $editoroptions = $this->_customdata['editoroptions'] ?? [
+            'context' => context_system::instance(),
+            'maxfiles' => EDITOR_UNLIMITED_FILES,
+            'maxbytes' => 0,
+            'trusttext' => false,
+        ];
+        $mform->addElement('editor', 'response', get_string('response', 'local_educambot'), null, $editoroptions);
         $mform->setType('response', PARAM_RAW);
         $mform->addRule('response', get_string('formerrorresponcerequired', 'local_educambot'), 'required');
 
@@ -68,7 +75,7 @@ class entry_form extends moodleform {
         $mform->addHelpButton('roles', 'roles', 'local_educambot');
 
         $mform->addElement('textarea', 'contexts', get_string('contexts', 'local_educambot'), 'rows="3" cols="50"');
-        $mform->setType('contexts', PARAM_RAW);
+        $mform->setType('contexts', PARAM_TEXT);
         $mform->addHelpButton('contexts', 'contexts', 'local_educambot');
 
         $mform->addElement('advcheckbox', 'suggested', get_string('suggested', 'local_educambot'));
@@ -97,7 +104,7 @@ class entry_form extends moodleform {
         if (isset($defaultvalues['roles']) && is_string($defaultvalues['roles'])) {
             $defaultvalues['roles'] = preg_split('/[,;]/', $defaultvalues['roles'], -1, PREG_SPLIT_NO_EMPTY);
         }
-        if (!empty($defaultvalues['response'])) {
+        if (isset($defaultvalues['response']) && is_string($defaultvalues['response'])) {
             $defaultvalues['response'] = [
                 'text' => $defaultvalues['response'],
                 'format' => FORMAT_HTML,
