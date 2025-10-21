@@ -56,16 +56,16 @@
          data-region="section-progress"
          data-section-id="{{id}}"
          hidden>
-      <div class="ci-section-progress-meter" role="presentation">
-        <span class="ci-section-progress-fill"
+      <div class="ci-section-meter" role="presentation">
+        <span class="ci-section-meter-fill"
               role="progressbar"
               aria-valuemin="0"
               aria-valuemax="100"
               aria-valuenow="0"
               data-region="section-progress-bar"></span>
       </div>
-      <span class="ci-section-progress-label"
-            data-region="section-progress-label"
+      <span class="ci-section-summary"
+            data-region="section-progress-summary"
             aria-live="polite">
         {{#str}}sectionprogressloading, theme_compecer{{/str}}
       </span>
