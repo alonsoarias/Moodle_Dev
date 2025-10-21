@@ -1,40 +1,24 @@
 {{!
-    Theme Compecer custom course index drawer with progress summary.
+    @template core_courseformat/local/courseindex/drawer
+
+    This template renders the course index drawer.
+    Adaptado para theme compecer (child theme de Boost).
+    
+    Example context (json):
+    {}
 }}
-<nav id="courseindex" class="courseindex" data-progress-dataset='{{{progressdataset}}}' data-state-labels='{{{statelabels}}}'>
-    <div class="courseindex-progresspanel">
-        <div class="courseindex-progresscard" data-region="course-progress">
-            <div class="courseindex-progresscard__header">
-                <span class="courseindex-progresscard__title">{{#str}} courseprogressheading, theme_compecer {{/str}}</span>
-                <span class="courseindex-progresscard__percentage" data-region="course-progress-percentage">
-                    {{#hasglobalprogress}}{{globalprogress.percentageformatted}}{{/hasglobalprogress}}{{^hasglobalprogress}}0{{/hasglobalprogress}}%
-                </span>
-            </div>
-            <div class="progress courseindex-progresscard__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{#hasglobalprogress}}{{globalprogress.percentage}}{{/hasglobalprogress}}{{^hasglobalprogress}}0{{/hasglobalprogress}}" aria-label="{{#str}} courseprogressheading, theme_compecer {{/str}}">
-                <div class="progress-bar" style="width: {{#hasglobalprogress}}{{globalprogress.percentage}}{{/hasglobalprogress}}{{^hasglobalprogress}}0{{/hasglobalprogress}}%" data-region="course-progress-bar"></div>
-            </div>
-            <div class="courseindex-progresscard__details">
-                <span class="courseindex-progresscard__ratio" data-region="course-progress-details" role="status" aria-live="polite">
-                    {{#hasglobalprogress}}
-                        {{globalprogress.completed}} / {{globalprogress.total}} {{#str}} courseprogressactivities, theme_compecer {{/str}}
-                    {{/hasglobalprogress}}
-                    {{^hasglobalprogress}}
-                        {{#str}} courseprogressnodata, theme_compecer {{/str}}
-                    {{/hasglobalprogress}}
-                </span>
-            </div>
-        </div>
-    </div>
-    <div id="courseindex-content">
-        {{> core_courseformat/local/courseindex/placeholders }}
-    </div>
+<nav id="courseindex" class="course-index-drawer">
+  <div class="mb-4">
+    <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
+      {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
+    </span>
+  </div>
+  <div id="courseindex-content">
+    {{> core_courseformat/local/courseindex/placeholders}}
+  </div>
 </nav>
 {{#js}}
-require([
-    'core_courseformat/local/courseindex/drawer',
-    'theme_compecer/courseindex_progress'
-], function(component, progress) {
-    component.init('courseindex');
-    progress.init();
+require(['core_courseformat/local/courseindex/drawer'], function(component) {
+  component.init('courseindex');
 });
 {{/js}}
