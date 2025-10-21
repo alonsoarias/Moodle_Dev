@@ -21,50 +21,58 @@
       "cms": [ ... ]
     }
 }}
-<div class="course-index-section w-100 {{#current}}current{{/current}} {{#component}}delegated-section{{/component}}"
+<div class="courseindex-section w-100 {{#current}}current{{/current}} {{#component}}delegated-section{{/component}}"
      id="{{uniqid}}-course-index-section-{{id}}"
      data-for="section"
      data-id="{{id}}"
      data-number="{{number}}"
      role="treeitem"
-     aria-owns="course-index-collapse{{number}}">
-  <div class="ci-section-header courseindex-item {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
-       id="course-index-section{{number}}"
+     aria-owns="courseindexcollapse{{number}}">
+  <div class="courseindex-item courseindex-section-title courseindex-section-header {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
+       id="courseindexsection{{number}}"
        data-for="section_item">
     <button type="button"
             data-toggle="collapse"
-            data-target="#course-index-collapse{{number}}"
-            class="ci-section-toggle {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
+            data-target="#courseindexcollapse{{number}}"
+            class="courseindex-section-toggle {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
             aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
-            aria-controls="course-index-collapse{{number}}">
-      <span class="ci-section-title text-truncate"
+            aria-controls="courseindexcollapse{{number}}">
+      <span class="courseindex-link text-truncate"
             data-for="section_title"
             title="{{{title}}}">
         {{{title}}}
       </span>
-      <span class="ci-section-meta">
-        <span class="ci-section-fraction"
+      <span class="courseindex-section-meta">
+        <span class="courseindex-section-fraction"
               data-region="section-progress-fraction"
               aria-live="polite">
           {{#str}}sectionprogressloading, theme_compecer{{/str}}
         </span>
-        <span class="ci-section-caret" aria-hidden="true"></span>
+        <span class="courseindex-chevron icons-collapse-expand" aria-hidden="true"></span>
       </span>
       <span class="sr-only">{{#str}}toggle section{{/str}}</span>
     </button>
-    <div class="ci-section-progress"
+    {{#highlighted}}
+      <span class="current-badge badge badge-primary px-2 rounded-pill">
+        {{.}}
+      </span>
+    {{/highlighted}}
+    <span class="courseindex-locked" data-for="cm_name">
+      {{#pix}} t/locked, core {{/pix}}
+    </span>
+    <div class="courseindex-section-progress"
          data-region="section-progress"
          data-section-id="{{id}}"
          hidden>
-      <div class="ci-section-meter" role="presentation">
-        <span class="ci-section-meter-fill"
+      <div class="courseindex-section-meter" role="presentation">
+        <span class="courseindex-section-meter-bar"
               role="progressbar"
               aria-valuemin="0"
               aria-valuemax="100"
               aria-valuenow="0"
               data-region="section-progress-bar"></span>
       </div>
-      <span class="ci-section-summary"
+      <span class="courseindex-section-summary"
             data-region="section-progress-summary"
             aria-live="polite">
         {{#str}}sectionprogressloading, theme_compecer{{/str}}
@@ -72,10 +80,10 @@
       <span class="sr-only" data-region="section-progress-a11y" aria-live="polite"></span>
     </div>
   </div>
-  <div id="course-index-collapse{{number}}"
-       class="ci-section-panel course-index-content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
-       aria-labelledby="course-index-section{{number}}" role="group">
-    <ul class="course-index-section-content list-unstyled" data-for="cmlist" data-id="{{id}}" role="group">
+  <div id="courseindexcollapse{{number}}"
+       class="courseindex-item-content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
+       aria-labelledby="courseindexsection{{number}}" role="group">
+    <ul class="courseindex-sectioncontent unlist" data-for="cmlist" data-id="{{id}}" role="group">
       {{#cms}}
         {{> core_courseformat/local/courseindex/cm}}
       {{/cms}}

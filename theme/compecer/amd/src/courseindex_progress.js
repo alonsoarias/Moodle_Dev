@@ -211,7 +211,7 @@ class CourseIndexProgress extends BaseComponent {
         containers.forEach((container) => {
             const sectionId = container.dataset.sectionId;
             const data = sectionMap.get(sectionId);
-            const header = container.closest('.ci-section-header');
+            const header = container.closest('.courseindex-section-header');
             const fraction = header ? header.querySelector(this.selectors.SECTION_FRACTION) : null;
             if (!data || (data.total ?? 0) === 0) {
                 container.hidden = true;
