@@ -26,28 +26,18 @@ namespace local_educambot\bot;
 
 use cache;
 use context_system;
-use core_text;
+use local_educambot\bot\composite_reasoner;
+use local_educambot\bot\reasoner_interface;
+use local_educambot\local\context_provider;
+use local_educambot\local\knowledge_repository;
+use local_educambot\local\text_helper;
+use moodle_url;
 use stdClass;
 
 /**
  * Implements a flexible rule engine with fuzzy matching heuristics.
  */
 class engine {
-    /**
-     * Stopwords used to improve token based matching. They include common English and Spanish words so that
-     * the matcher focuses on meaningful terms from the user question.
-     */
-    protected const STOPWORDS = [
-        'a', 'about', 'after', 'again', 'all', 'also', 'an', 'and', 'any', 'are', 'as', 'at', 'be', 'because',
-        'been', 'before', 'but', 'by', 'can', 'could', 'de', 'del', 'do', 'does', 'each', 'el', 'ella', 'ellas',
-        'ellos', 'en', 'era', 'eran', 'eres', 'es', 'esta', 'estaba', 'estamos', 'estan', 'este', 'for', 'from',
-        'had', 'has', 'have', 'he', 'how', 'i', 'in', 'is', 'it', 'la', 'las', 'le', 'les', 'lo', 'los', 'me',
-        'mas', 'más', 'mi', 'mis', 'much', 'muy', 'no', 'nos', 'not', 'now', 'of', 'on', 'or', 'our', 'para', 'por',
-        'que', 'se', 'ser', 'she', 'should', 'si', 'so', 'some', 'su', 'sus', 'te', 'than', 'that', 'the', 'their',
-        'them', 'then', 'there', 'these', 'they', 'this', 'those', 'through', 'to', 'una', 'unas', 'uno', 'unos',
-        'very', 'was', 'we', 'what', 'when', 'where', 'which', 'who', 'why', 'will', 'with', 'would', 'you', 'your'
-    ];
-
     /** @var \moodle_database */
     protected $db;
 
@@ -59,6 +49,21 @@ class engine {
 
     /** @var string|null Normalised page identifier */
     protected ?string $normalizedpage = null;
+
+    /** @var context_provider */
+    protected context_provider $contextprovider;
+
+    /** @var knowledge_repository */
+    protected knowledge_repository $knowledge;
+
+    /** @var array Plugin configuration */
+    protected array $config;
+
+    /** @var reasoner_interface */
+    protected reasoner_interface $reasoner;
+
+    /** @var int|null Resolved course id from current page */
+    protected ?int $courseid = null;
 
     /**
      * Constructor.
@@ -72,7 +77,12 @@ class engine {
         $this->db = $DB;
         $this->userid = $userid;
         $this->pageidentifier = $pageidentifier;
-        $this->normalizedpage = $pageidentifier ? $this->normalize($pageidentifier) : null;
+        $this->normalizedpage = $pageidentifier ? text_helper::normalize($pageidentifier) : null;
+        $this->courseid = $this->resolve_courseid($pageidentifier);
+        $this->contextprovider = new context_provider($userid, $this->courseid, $pageidentifier);
+        $this->knowledge = new knowledge_repository();
+        $this->config = (array)get_config('local_educambot');
+        $this->reasoner = new composite_reasoner($this->contextprovider, $this->knowledge, $this->courseid, $this->normalizedpage);
     }
 
     /**
@@ -88,19 +98,36 @@ class engine {
         }
 
         $scores = $this->rank_entries($question);
-        if (empty($scores)) {
-            return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => $this->get_suggestions()];
+        $knowledgehits = $this->knowledge->search($question, $this->courseid, $this->normalizedpage);
+
+        $decision = $this->reasoner->decide($question, $scores, $knowledgehits);
+        if ($decision) {
+            if ($decision['type'] === 'rule') {
+                $winner = $decision['rule'];
+                $response = format_text($winner['entry']->response, FORMAT_HTML, ['filter' => true]);
+                $response = $this->contextprovider->personalise_html($response, $this->config);
+                return [
+                    'response' => $response,
+                    'ruleid' => (int)$winner['entry']->id,
+                    'confidence' => round(min(1, $winner['score']), 4),
+                    'suggestions' => $this->build_response_suggestions($scores, $question),
+                ];
+            }
+
+            if ($decision['type'] === 'knowledge') {
+                $knowledgebundle = $decision['knowledge'];
+                $response = $this->build_knowledge_response($knowledgebundle);
+                $topscore = $knowledgebundle[0]['score'] ?? 0.5;
+                return [
+                    'response' => $response,
+                    'ruleid' => null,
+                    'confidence' => round(min(1, max(0.35, $topscore))),
+                    'suggestions' => $this->build_knowledge_suggestions($knowledgebundle),
+                ];
+            }
         }
 
-        $winner = $scores[0];
-        $response = format_text($winner['entry']->response, FORMAT_HTML, ['filter' => true]);
-
-        return [
-            'response' => $response,
-            'ruleid' => (int)$winner['entry']->id,
-            'confidence' => round(min(1, $winner['score']), 4),
-            'suggestions' => $this->build_response_suggestions($scores),
-        ];
+        return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => $this->get_suggestions()];
     }
 
     /**
@@ -117,7 +144,7 @@ class engine {
                 $contexts = $this->explode_lines($record->contexts);
                 $match = false;
                 foreach ($contexts as $context) {
-                    $normalizedcontext = $this->normalize($context);
+                    $normalizedcontext = text_helper::normalize($context);
                     if ($normalizedcontext !== '' && str_contains($normalizedpage, $normalizedcontext)) {
                         $match = true;
                         break;
@@ -175,8 +202,8 @@ class engine {
      */
     protected function rank_entries(string $question, bool $ignoreroles = false): array {
         $entries = $this->get_entries();
-        $normalizedquestion = $this->normalize($question);
-        $questiontokens = $this->tokenize($question);
+        $normalizedquestion = text_helper::normalize($question);
+        $questiontokens = text_helper::tokenize($question);
         $normalizedpage = $this->normalizedpage ?? '';
         $scores = [];
 
@@ -224,7 +251,7 @@ class engine {
         $phrases = $this->get_phrases($entry);
 
         foreach ($phrases as $phrase) {
-            $normalizedphrase = $this->normalize($phrase);
+            $normalizedphrase = text_helper::normalize($phrase);
             if ($normalizedphrase === '') {
                 continue;
             }
@@ -245,15 +272,15 @@ class engine {
                 $score += 0.85;
             }
 
-            $phrasescore = $this->string_similarity($normalizedphrase, $normalizedquestion);
+            $phrasescore = text_helper::string_similarity($normalizedphrase, $normalizedquestion);
             if ($phrasescore > 0.65) {
                 $score += $phrasescore * 0.7;
             } else if ($phrasescore > 0.55) {
                 $score += $phrasescore * 0.4;
             }
 
-            $phraseTokens = $this->tokenize($phrase);
-            $tokenoverlap = $this->token_overlap_score($phraseTokens, $questiontokens);
+            $phraseTokens = text_helper::tokenize($phrase);
+            $tokenoverlap = text_helper::token_overlap_score($phraseTokens, $questiontokens);
             if ($tokenoverlap > 0) {
                 $score += $tokenoverlap * 0.6;
             }
@@ -277,7 +304,7 @@ class engine {
         if (!empty($entry->contexts)) {
             $contexts = $this->explode_lines($entry->contexts);
             foreach ($contexts as $context) {
-                $normalizedcontext = $this->normalize($context);
+                $normalizedcontext = text_helper::normalize($context);
                 if ($normalizedcontext === '') {
                     continue;
                 }
@@ -292,6 +319,13 @@ class engine {
             }
         }
 
+        if ($this->courseid && !empty($entry->contexts)) {
+            $course = $this->contextprovider->get_focus_course();
+            if ($course && str_contains(text_helper::normalize($course->fullname), $normalizedquestion)) {
+                $score += 0.1;
+            }
+        }
+
         return $score;
     }
 
@@ -300,9 +334,10 @@ class engine {
      * fills remaining slots with general proactive suggestions.
      *
      * @param array $scores
+     * @param string $question
      * @return array
      */
-    protected function build_response_suggestions(array $scores): array {
+    protected function build_response_suggestions(array $scores, string $question): array {
         if (empty($scores)) {
             return $this->get_suggestions();
         }
@@ -325,6 +360,19 @@ class engine {
                 if (count($suggestions) >= 3) {
                     break;
                 }
+            }
+        }
+
+        if (count($suggestions) < 3) {
+            $knowledge = $this->knowledge->search($question, $this->courseid, $this->normalizedpage);
+            foreach ($knowledge as $item) {
+                if (count($suggestions) >= 3) {
+                    break;
+                }
+                $suggestions[] = [
+                    'id' => (int)$item['record']->id,
+                    'text' => format_string($item['record']->title),
+                ];
             }
         }
 
@@ -356,22 +404,8 @@ class engine {
             return [];
         }
         $keywords = preg_split('/[,;]/', $entry->keywords, -1, PREG_SPLIT_NO_EMPTY);
-        $keywords = array_map(fn($keyword) => $this->normalize($keyword), $keywords);
+        $keywords = array_map(fn($keyword) => text_helper::normalize($keyword), $keywords);
         return array_filter($keywords);
-    }
-
-    /**
-     * Normalize text to lower case without punctuation.
-     *
-     * @param string $text
-     * @return string
-     */
-    protected function normalize(string $text): string {
-        $text = core_text::strtolower($text);
-        $text = core_text::specialtoascii($text);
-        $text = preg_replace('/[^a-z0-9\s]/u', ' ', $text);
-        $text = preg_replace('/\s+/u', ' ', $text);
-        return trim((string)$text);
     }
 
     /**
@@ -407,77 +441,6 @@ class engine {
             return $role->shortname ?? '';
         }, $userroles);
         return (bool)array_intersect($requiredroles, $usershortnames);
-    }
-
-    /**
-     * Tokenise a string applying stopword filtering and returning unique terms.
-     *
-     * @param string $text
-     * @return array
-     */
-    protected function tokenize(string $text): array {
-        $normalized = $this->normalize($text);
-        if ($normalized === '') {
-            return [];
-        }
-        $tokens = preg_split('/\s+/', $normalized, -1, PREG_SPLIT_NO_EMPTY);
-        if (empty($tokens)) {
-            return [];
-        }
-        $tokens = array_map('trim', $tokens);
-        $tokens = array_filter($tokens, static function(string $token) {
-            return $token !== '' && !in_array($token, self::STOPWORDS, true);
-        });
-        return array_values(array_unique($tokens));
-    }
-
-    /**
-     * Calculates the overlap ratio between the entry tokens and the user tokens.
-     *
-     * @param array $phasetokens
-     * @param array $questiontokens
-     * @return float
-     */
-    protected function token_overlap_score(array $phasetokens, array $questiontokens): float {
-        if (empty($phasetokens) || empty($questiontokens)) {
-            return 0.0;
-        }
-        $intersection = array_intersect($phasetokens, $questiontokens);
-        if (empty($intersection)) {
-            return 0.0;
-        }
-        $ratio = count($intersection) / max(1, count($phasetokens));
-        $questionratio = count($intersection) / max(1, count($questiontokens));
-        return max($ratio, $questionratio);
-    }
-
-    /**
-     * Returns a similarity score between two normalised phrases.
-     *
-     * @param string $phrase
-     * @param string $question
-     * @return float
-     */
-    protected function string_similarity(string $phrase, string $question): float {
-        if ($phrase === '' || $question === '') {
-            return 0.0;
-        }
-        $percent = 0.0;
-        similar_text($phrase, $question, $percent);
-        if ($percent >= 90) {
-            return 0.95;
-        }
-        if ($percent >= 75) {
-            return $percent / 100.0;
-        }
-
-        $distance = levenshtein($phrase, $question);
-        $longest = max(strlen($phrase), strlen($question));
-        if ($longest === 0) {
-            return 0.0;
-        }
-        $levratio = 1 - ($distance / $longest);
-        return max($levratio, $percent / 100.0);
     }
 
     /**
@@ -528,5 +491,143 @@ class engine {
             $item['score'] = round(min(1, $item['score']), 4);
             return $item;
         }, $scores);
+    }
+
+    /**
+     * Returns the resolved course id if any.
+     *
+     * @return int|null
+     */
+    public function get_courseid(): ?int {
+        return $this->courseid;
+    }
+
+    /**
+     * Extracts a course id from the current page identifier when possible.
+     *
+     * @param string|null $pageidentifier
+     * @return int|null
+     */
+    protected function resolve_courseid(?string $pageidentifier): ?int {
+        global $CFG;
+
+        if (!$pageidentifier) {
+            return null;
+        }
+
+        $url = $pageidentifier;
+        if (!str_starts_with($url, 'http')) {
+            $url = (new moodle_url($url))->out(false);
+        }
+        $urlparts = parse_url($url);
+        $path = $urlparts['path'] ?? '';
+        $params = [];
+        if (!empty($urlparts['query'])) {
+            parse_str($urlparts['query'], $params);
+        }
+
+        if (str_contains($path, '/course/view.php') && !empty($params['id'])) {
+            return (int)$params['id'];
+        }
+
+        if (!empty($params['courseid'])) {
+            return (int)$params['courseid'];
+        }
+
+        if (str_contains($path, '/mod/') && !empty($params['id'])) {
+            require_once($CFG->dirroot . '/course/lib.php');
+            $cmid = (int)$params['id'];
+            try {
+                $cm = get_coursemodule_from_id('', $cmid, 0, false, MUST_EXIST);
+                return $cm->course ?? null;
+            } catch (\Throwable $e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Builds a HTML response when knowledge entries are used instead of direct rules.
+     *
+     * @param array $knowledge
+     * @return string
+     */
+    protected function build_knowledge_response(array $knowledge): string {
+        $botname = $this->contextprovider->get_bot_name($this->config);
+        $intro = get_string('knowledgefallbackintro', 'local_educambot', $botname);
+        $html = \html_writer::tag('p', $intro, ['class' => 'local-educambot__knowledge-intro']);
+        $items = [];
+        foreach (array_slice($knowledge, 0, 3) as $item) {
+            $record = $item['record'];
+            $title = format_string($record->title);
+            $summary = format_text($record->summary, FORMAT_HTML, ['filter' => true]);
+            $link = '';
+            if (!empty($record->externalurl)) {
+                $link = \html_writer::link($record->externalurl, get_string('knowledgefallbackopen', 'local_educambot'));
+            }
+            $meta = [];
+            if (!empty($item['topics'])) {
+                $meta[] = implode(', ', array_map('format_string', $item['topics']));
+            }
+            if (!empty($item['courses'])) {
+                $meta[] = implode(', ', array_map('format_string', $item['courses']));
+            }
+            $metatext = '';
+            if (!empty($meta)) {
+                $metatext = \html_writer::tag('div', implode(' • ', $meta), ['class' => 'local-educambot__knowledge-meta']);
+            }
+            $content = \html_writer::tag('h4', $title, ['class' => 'local-educambot__knowledge-title']);
+            $content .= \html_writer::tag('div', $summary, ['class' => 'local-educambot__knowledge-summary']);
+            if ($link) {
+                $content .= \html_writer::tag('div', $link, ['class' => 'local-educambot__knowledge-link']);
+            }
+            if (!empty($item['relationtype'])) {
+                $relationlabel = $this->format_relation_label($item['relationtype']);
+                if ($relationlabel !== '') {
+                    $relationtext = get_string('knowledgefallbackrelation', 'local_educambot', $relationlabel);
+                    $content .= \html_writer::tag('div', $relationtext, ['class' => 'local-educambot__knowledge-relation']);
+                }
+            }
+            $content .= $metatext;
+            $items[] = \html_writer::tag('li', $content, ['class' => 'local-educambot__knowledge-item']);
+        }
+        $html .= \html_writer::tag('ul', implode('', $items), ['class' => 'local-educambot__knowledge-list']);
+
+        return $this->contextprovider->personalise_html($html, $this->config);
+    }
+
+    /**
+     * Converts knowledge hits into suggestion entries.
+     *
+     * @param array $knowledge
+     * @return array
+     */
+    protected function build_knowledge_suggestions(array $knowledge): array {
+        $suggestions = [];
+        foreach (array_slice($knowledge, 0, 3) as $item) {
+            $suggestions[] = [
+                'id' => (int)$item['record']->id,
+                'text' => format_string($item['record']->title),
+            ];
+        }
+        return $suggestions;
+    }
+
+    /**
+     * Formats relation labels for knowledge entries.
+     *
+     * @param string $relation
+     * @return string
+     */
+    protected function format_relation_label(string $relation): string {
+        $relation = trim($relation);
+        if ($relation === '') {
+            return '';
+        }
+        $relation = str_replace(['_', '-'], ' ', $relation);
+        $relation = ucwords($relation);
+        return format_string($relation);
     }
 }

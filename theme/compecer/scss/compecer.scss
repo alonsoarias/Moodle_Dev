@@ -1181,7 +1181,7 @@ section.node-category {
       margin-top: 0.75rem;
       height: 0.35rem;
       border-radius: 999px;
-      background-color: $gray-200;
+      background-color: rgba($primary, 0.12);
 
       .progress-bar {
         border-radius: inherit;
