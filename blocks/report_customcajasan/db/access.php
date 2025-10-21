@@ -31,7 +31,8 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => [
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/site:manageblocks',
     ],
@@ -42,12 +43,22 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ],
     ],
+    'block/report_customcajasan:viewblock' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/block:view',
+    ],
     'block/report_customcajasan:viewreport' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
         ],
     ],
 ];

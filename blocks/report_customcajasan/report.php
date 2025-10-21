@@ -30,12 +30,30 @@ require_once($CFG->dirroot . '/blocks/report_customcajasan/lib.php');
 require_login();
 $systemcontext = context_system::instance();
 
-// Verificar permisos - permitir acceso a gestores o usuarios con la capacidad específica
-$can_view = has_capability('block/report_customcajasan:viewreport', $systemcontext);
-$is_manager = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
+// Determine the most relevant context for permission checks.
+$courseid = optional_param('courseid', 0, PARAM_INT);
+$categoryid = optional_param('categoryid', 0, PARAM_INT);
 
-if (!$can_view && !$is_manager) {
-    throw new required_capability_exception($systemcontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
+if ($courseid && $courseid != SITEID) {
+    $context = context_course::instance($courseid, IGNORE_MISSING);
+} else if ($categoryid) {
+    $context = context_coursecat::instance($categoryid, IGNORE_MISSING);
+} else {
+    $context = $systemcontext;
+}
+
+if (!$context) {
+    $context = $systemcontext;
+}
+
+$canview = has_capability('block/report_customcajasan:viewreport', $context);
+$canviewsystem = has_capability('block/report_customcajasan:viewreport', $systemcontext);
+
+if (!$canview && !$canviewsystem) {
+    $managementaccess = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
+    if (!$managementaccess) {
+        throw new required_capability_exception($context, 'block/report_customcajasan:viewreport', 'nopermissions', '');
+    }
 }
 
 // Aumentar límites para permitir la generación de reportes grandes
@@ -46,8 +64,8 @@ if (function_exists('set_time_limit')) {
 raise_memory_limit(MEMORY_EXTRA);
 
 // Page setup
-$PAGE->set_context($systemcontext);
-$PAGE->set_url(new moodle_url('/blocks/report_customcajasan/report.php'));
+$PAGE->set_context($context);
+$PAGE->set_url(new moodle_url('/blocks/report_customcajasan/report.php', ['courseid' => $courseid, 'categoryid' => $categoryid]));
 $PAGE->set_pagelayout('report');
 $PAGE->set_title(get_string('report_title', 'block_report_customcajasan'));
 $PAGE->set_heading(get_string('report_title', 'block_report_customcajasan'));
@@ -55,8 +73,6 @@ $PAGE->requires->jquery();
 $PAGE->requires->js_call_amd('block_report_customcajasan/report', 'init');
 
 // Get filter parameters for initial page load
-$categoryid = optional_param('categoryid', 0, PARAM_INT);
-$courseid = optional_param('courseid', 0, PARAM_INT);
 $idnumber = optional_param('idnumber', '', PARAM_TEXT);
 $firstname = optional_param('firstname', '', PARAM_TEXT);
 $lastname = optional_param('lastname', '', PARAM_TEXT);
