@@ -155,6 +155,7 @@ class provider {
             'inprogress' => 0,
             'notstarted' => 0,
             'total' => 0,
+            'fraction' => '',
             'summary' => '',
             'a11y' => '',
         ];
@@ -264,6 +265,7 @@ class provider {
             'inprogress' => $counts[self::STATUS_INPROGRESS],
             'notstarted' => $counts[self::STATUS_NOTSTARTED],
             'total' => $counts['tracked'],
+            'fraction' => self::fraction_label($counts[self::STATUS_COMPLETE], $counts['tracked']),
             'summary' => $summary,
             'a11y' => $a11y,
         ];
@@ -302,6 +304,7 @@ class provider {
             'notstarted' => $counts[self::STATUS_NOTSTARTED],
             'failed' => $counts[self::STATUS_FAILED],
             'total' => $counts['tracked'],
+            'fraction' => self::fraction_label($counts[self::STATUS_COMPLETE], $counts['tracked']),
             'summary' => $summary,
             'a11y' => $a11y,
         ];
@@ -320,5 +323,23 @@ class provider {
         }
 
         return (int)round(($completed / $total) * 100);
+    }
+
+    /**
+     * Build a short fraction label for visual counters.
+     *
+     * @param int $completed Number of completed activities.
+     * @param int $total Total trackable activities.
+     * @return string
+     */
+    private static function fraction_label(int $completed, int $total): string {
+        if ($total <= 0) {
+            return get_string('progressnottrackedshort', 'theme_compecer');
+        }
+
+        return get_string('progressfraction', 'theme_compecer', (object) [
+            'completed' => $completed,
+            'total' => $total,
+        ]);
     }
 }
