@@ -94,6 +94,7 @@ define([], function() {
         const serviceUrl = widget.dataset.serviceUrl;
         const sessionKey = widget.dataset.sessionkey;
         const page = widget.dataset.page || '';
+        const fallbackResponse = widget.dataset.noanswer || '';
         const params = new URLSearchParams();
         params.append('sesskey', sessionKey);
         params.append('question', question);
@@ -114,14 +115,26 @@ define([], function() {
                 throw new Error('Network response was not ok');
             }
             const payload = await response.json();
-            widget.dataset.session = payload.sessionid;
-            addMessage(messages, payload.response, 'bot', true);
-            refreshSuggestions(suggestionContainer, payload.suggestions || []);
+            if (payload.sessionid) {
+                widget.dataset.session = payload.sessionid;
+            }
+            const botReply = typeof payload.response === 'string' && payload.response.trim() !== ''
+                ? payload.response
+                : fallbackResponse;
+            addMessage(messages, botReply || fallbackResponse, 'bot', true);
+            const suggestions = Array.isArray(payload.suggestions) ? payload.suggestions : [];
+            refreshSuggestions(suggestionContainer, suggestions);
             const confidenceLabel = status.dataset.confidenceLabel || '';
+            const rawConfidence = typeof payload.confidence === 'number' && !Number.isNaN(payload.confidence)
+                ? payload.confidence
+                : 0;
+            const confidence = Math.min(1, Math.max(0, rawConfidence));
             if (confidenceLabel) {
-                status.textContent = `${confidenceLabel}: ${(payload.confidence * 100).toFixed(0)}%`;
+                status.textContent = `${confidenceLabel}: ${(confidence * 100).toFixed(0)}%`;
+            } else if (confidence > 0) {
+                status.textContent = `${(confidence * 100).toFixed(0)}%`;
             } else {
-                status.textContent = `${(payload.confidence * 100).toFixed(0)}%`;
+                status.textContent = '';
             }
         } catch (error) {
             status.textContent = error.message;
