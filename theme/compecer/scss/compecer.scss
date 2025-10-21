@@ -1181,7 +1181,7 @@ section.node-category {
       margin-top: 0.75rem;
       height: 0.35rem;
       border-radius: 999px;
-      background-color: $gray-200;
+      background-color: rgba($primary, 0.12);
 
       .progress-bar {
         border-radius: inherit;
@@ -1260,6 +1260,54 @@ section.node-category {
         outline-offset: 3px;
       }
     }
+
+    .ci-section-title {
+      display: inline-block;
+      color: $gray-900;
+    }
+  }
+
+  .course-index-toggle {
+    color: $gray-500;
+    background: transparent;
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    transition: color 0.2s ease, background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: $primary;
+      background-color: rgba($primary, 0.08);
+    }
+
+    &.collapsed .fa {
+      transform: rotate(0deg);
+    }
+
+    .fa {
+      transition: transform 0.2s ease;
+    }
+  }
+
+  .course-index-toggle:not(.collapsed) .fa {
+    transform: rotate(180deg);
+  }
+
+  .course-index-content {
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  .course-index-section-content {
+    margin: 0;
+    padding: 0.25rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
   }
 
   .course-index-toggle {

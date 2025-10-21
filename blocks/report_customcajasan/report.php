@@ -29,15 +29,23 @@ require_once($CFG->dirroot . '/blocks/report_customcajasan/lib.php');
 // Verify login
 require_login();
 $systemcontext = context_system::instance();
+global $DB;
 
 // Determine the most relevant context for permission checks.
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $categoryid = optional_param('categoryid', 0, PARAM_INT);
+$blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
+
+$blockrestrictions = block_report_customcajasan_get_block_restrictions($blockinstanceid);
+$allowedcourses = $blockrestrictions['courses'];
+$allowedcategories = $blockrestrictions['expandedcategories'];
 
 if ($courseid && $courseid != SITEID) {
     $context = context_course::instance($courseid, IGNORE_MISSING);
 } else if ($categoryid) {
     $context = context_coursecat::instance($categoryid, IGNORE_MISSING);
+} else if (!empty($blockrestrictions['parentcontext'])) {
+    $context = $blockrestrictions['parentcontext'];
 } else {
     $context = $systemcontext;
 }
@@ -46,10 +54,37 @@ if (!$context) {
     $context = $systemcontext;
 }
 
+if (!empty($allowedcategories) && !empty($categoryid) && !in_array((int)$categoryid, $allowedcategories, true)) {
+    $categoryid = 0;
+}
+
+if (!empty($courseid) && (!empty($allowedcourses) || !empty($allowedcategories))) {
+    $courseallowed = in_array((int)$courseid, $allowedcourses, true);
+    if (!$courseallowed && !empty($allowedcategories)) {
+        $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+        if ($coursecategory !== false) {
+            $courseallowed = in_array((int)$coursecategory, $allowedcategories, true);
+        }
+    }
+    if (!$courseallowed) {
+        $courseid = 0;
+    }
+}
+
+if (empty($courseid) && $context->contextlevel === CONTEXT_COURSE) {
+    $context = !empty($blockrestrictions['parentcontext']) ? $blockrestrictions['parentcontext'] : $systemcontext;
+}
+
+if (empty($categoryid) && $context->contextlevel === CONTEXT_COURSECAT) {
+    $context = !empty($blockrestrictions['parentcontext']) ? $blockrestrictions['parentcontext'] : $systemcontext;
+}
+
 $canview = has_capability('block/report_customcajasan:viewreport', $context);
 $canviewsystem = has_capability('block/report_customcajasan:viewreport', $systemcontext);
+$canviewparent = !empty($blockrestrictions['parentcontext']) &&
+    has_capability('block/report_customcajasan:viewreport', $blockrestrictions['parentcontext']);
 
-if (!$canview && !$canviewsystem) {
+if (!$canview && !$canviewsystem && !$canviewparent) {
     $managementaccess = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
     if (!$managementaccess) {
         throw new required_capability_exception($context, 'block/report_customcajasan:viewreport', 'nopermissions', '');
@@ -65,7 +100,11 @@ raise_memory_limit(MEMORY_EXTRA);
 
 // Page setup
 $PAGE->set_context($context);
-$PAGE->set_url(new moodle_url('/blocks/report_customcajasan/report.php', ['courseid' => $courseid, 'categoryid' => $categoryid]));
+$PAGE->set_url(new moodle_url('/blocks/report_customcajasan/report.php', [
+    'courseid' => $courseid,
+    'categoryid' => $categoryid,
+    'blockinstanceid' => $blockinstanceid,
+]));
 $PAGE->set_pagelayout('report');
 $PAGE->set_title(get_string('report_title', 'block_report_customcajasan'));
 $PAGE->set_heading(get_string('report_title', 'block_report_customcajasan'));
@@ -152,10 +191,17 @@ if ($download) {
     } else if (!empty($session_filters['enddate'])) {
         $filters['enddate'] = $session_filters['enddate'];
     }
+
+    $filters['allowedcourses'] = $allowedcourses;
+    $filters['allowedcategories'] = $allowedcategories;
+    $filters['blockinstanceid'] = $blockinstanceid;
     
     // Verificar que al menos un filtro esté aplicado
     $has_filter = false;
-    foreach ($filters as $filter_value) {
+    foreach ($filters as $key => $filter_value) {
+        if (in_array($key, ['allowedcourses', 'allowedcategories', 'blockinstanceid'], true)) {
+            continue;
+        }
         if (!empty($filter_value)) {
             $has_filter = true;
             break;
@@ -165,7 +211,7 @@ if ($download) {
     if (!$has_filter) {
         // Redireccionar a la página del reporte con un mensaje de error
         redirect(
-            new moodle_url('/blocks/report_customcajasan/report.php'),
+            new moodle_url('/blocks/report_customcajasan/report.php', ['blockinstanceid' => $blockinstanceid]),
             get_string('filters_required', 'block_report_customcajasan'),
             null,
             \core\output\notification::NOTIFY_ERROR
@@ -178,7 +224,7 @@ if ($download) {
         report_customcajasan_export_csv($filters, 'enrollment_report');
     } else {
         report_customcajasan_export_spreadsheet(
-            $filters, 
+            $filters,
             'enrollment_report', 
             $format, 
             get_string('report_title', 'block_report_customcajasan')
@@ -213,6 +259,7 @@ echo html_writer::tag('div',
 
 // Filter form - Remove form submission handler and set id for JavaScript
 echo html_writer::start_tag('form', array('id' => 'report-form', 'method' => 'get', 'class' => 'mb-4'));
+echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'blockinstanceid', 'value' => $blockinstanceid));
 echo html_writer::start_div('container-fluid');
 
 // First row of filters
@@ -221,7 +268,7 @@ echo html_writer::start_div('row');
 // Category filter
 echo html_writer::start_div('col-md-4 mb-3');
 echo html_writer::tag('label', get_string('option_category', 'block_report_customcajasan'), array('for' => 'categoryid'));
-$categories = report_customcajasan_get_categories();
+$categories = report_customcajasan_get_categories($blockrestrictions['categories'], $allowedcourses);
 $categoryoptions = array();
 $categoryoptions[''] = get_string('option_all', 'block_report_customcajasan');
 foreach ($categories as $category) {
@@ -234,7 +281,7 @@ echo html_writer::end_div();
 // Course filter
 echo html_writer::start_div('col-md-4 mb-3');
 echo html_writer::tag('label', get_string('option_course', 'block_report_customcajasan'), array('for' => 'courseid'));
-$courses = report_customcajasan_get_courses($categoryid);
+$courses = report_customcajasan_get_courses($categoryid, $allowedcourses, $allowedcategories);
 $courseoptions = array();
 $courseoptions[''] = get_string('option_all', 'block_report_customcajasan');
 foreach ($courses as $course) {
@@ -387,6 +434,7 @@ echo html_writer::end_div();
 // Download options - This stays static since downloads need a page refresh
 echo html_writer::start_div('download-options mt-3');
 echo html_writer::start_tag('form', array('id' => 'downloadForm', 'method' => 'get'));
+echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'blockinstanceid', 'value' => $blockinstanceid));
 
 // Hidden fields to preserve filters
 echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'categoryid', 'value' => $categoryid));
@@ -408,7 +456,9 @@ if ($filter_selected) {
         'lastname' => $lastname,
         'estado' => $estado,
         'startdate' => !empty($startdate) ? strtotime($startdate) : '',
-        'enddate' => !empty($enddate) ? strtotime($enddate . ' 23:59:59') : ''
+        'enddate' => !empty($enddate) ? strtotime($enddate . ' 23:59:59') : '',
+        'allowedcourses' => $allowedcourses,
+        'allowedcategories' => $allowedcategories,
     ));
     
     if ($total_records > 1000) {
