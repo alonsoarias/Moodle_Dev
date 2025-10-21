@@ -136,7 +136,6 @@
                 <KEY NAME="knowledgefk" TYPE="foreign" FIELDS="knowledgeid" REFTABLE="local_educambot_knowledge" REFFIELDS="id" />
             </KEYS>
             <INDEXES>
-                <INDEX NAME="knowledgecontext_idx" UNIQUE="false" FIELDS="knowledgeid" />
                 <INDEX NAME="course_idx" UNIQUE="false" FIELDS="courseid" />
             </INDEXES>
         </TABLE>

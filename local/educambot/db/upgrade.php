@@ -118,7 +118,6 @@ function xmldb_local_educambot_upgrade(int $oldversion): bool {
 
             $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
             $table->add_key('knowledgefk', XMLDB_KEY_FOREIGN, ['knowledgeid'], 'local_educambot_knowledge', ['id']);
-            $table->add_index('knowledgecontext_idx', XMLDB_INDEX_NOTUNIQUE, ['knowledgeid']);
             $table->add_index('course_idx', XMLDB_INDEX_NOTUNIQUE, ['courseid']);
 
             $dbman->create_table($table);
