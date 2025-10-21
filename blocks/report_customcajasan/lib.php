@@ -35,11 +35,11 @@ define('REPORT_CUSTOMCAJASAN_CHUNK_SIZE', 1000); // Tamaño de chunks para proce
 /**
  * Normalise course and category restrictions stored in block configuration.
  *
- * @param stdClass|null $config Block configuration object.
+ * @param object|array|null $config Block configuration object or raw data.
  * @param int|null $userid User identifier used for capability checks.
  * @return array{courses: array<int>, categories: array<int>, expandedcategories: array<int>} Normalised restrictions.
  */
-function block_report_customcajasan_compute_restrictions(?stdClass $config, ?int $userid = null): array {
+function block_report_customcajasan_compute_restrictions($config = null, ?int $userid = null): array {
     global $USER, $CFG;
 
     $userid = $userid ?? $USER->id ?? 0;
@@ -48,7 +48,13 @@ function block_report_customcajasan_compute_restrictions(?stdClass $config, ?int
     $categories = [];
     $expandedcategories = [];
 
-    if (empty($config)) {
+    if ($config instanceof __PHP_Incomplete_Class) {
+        $config = (object)get_object_vars($config);
+    } else if (is_array($config)) {
+        $config = (object)$config;
+    }
+
+    if (empty($config) || !is_object($config)) {
         return [
             'courses' => [],
             'categories' => [],
@@ -160,9 +166,11 @@ function block_report_customcajasan_get_block_restrictions(int $blockinstanceid,
     if (!empty($blockinstance->configdata)) {
         $decoded = base64_decode($blockinstance->configdata, true);
         if ($decoded !== false) {
-            $config = @unserialize($decoded, ['allowed_classes' => false]);
+            $config = @unserialize($decoded, ['allowed_classes' => ['stdClass']]);
             if ($config === false || !is_object($config)) {
                 $config = null;
+            } else if ($config instanceof __PHP_Incomplete_Class) {
+                $config = (object)get_object_vars($config);
             }
         }
     }
