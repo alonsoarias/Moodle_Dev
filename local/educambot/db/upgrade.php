@@ -126,5 +126,10 @@ function xmldb_local_educambot_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2024060100, 'local', 'educambot');
     }
 
+    if ($oldversion < 2024060101) {
+        \local_educambot\local\setup\seed::seed_initial_data();
+        upgrade_plugin_savepoint(true, 2024060101, 'local', 'educambot');
+    }
+
     return true;
 }
