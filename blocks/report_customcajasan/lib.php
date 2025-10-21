@@ -44,9 +44,49 @@ function block_report_customcajasan_compute_restrictions($config = null, ?int $u
 
     $userid = $userid ?? $USER->id ?? 0;
 
+    require_once($CFG->dirroot . '/course/lib.php');
+
     $courses = [];
     $categories = [];
     $expandedcategories = [];
+
+    $accessiblecourses = [];
+    $accessiblecategories = [];
+
+    if ($userid > 0) {
+        $usercourses = get_user_capability_course('block/report_customcajasan:viewreport', $userid, true, 'id, category');
+        foreach ($usercourses as $usercourse) {
+            $courseid = isset($usercourse->id) ? (int)$usercourse->id : 0;
+            if ($courseid <= 0) {
+                continue;
+            }
+            $accessiblecourses[$courseid] = $courseid;
+
+            $coursecategoryid = isset($usercourse->category) ? (int)$usercourse->category : 0;
+            if ($coursecategoryid <= 0) {
+                continue;
+            }
+
+            $accessiblecategories[$coursecategoryid] = $coursecategoryid;
+
+            try {
+                $coursecategory = core_course_category::get($coursecategoryid, IGNORE_MISSING);
+            } catch (moodle_exception $e) {
+                $coursecategory = null;
+            }
+
+            if (!$coursecategory || empty($coursecategory->path)) {
+                continue;
+            }
+
+            foreach (explode('/', trim($coursecategory->path, '/')) as $pathid) {
+                $pathid = (int)$pathid;
+                if ($pathid > 0) {
+                    $accessiblecategories[$pathid] = $pathid;
+                }
+            }
+        }
+    }
 
     if ($config instanceof __PHP_Incomplete_Class) {
         $config = (object)get_object_vars($config);
@@ -71,6 +111,14 @@ function block_report_customcajasan_compute_restrictions($config = null, ?int $u
         if ($courseid <= 0) {
             continue;
         }
+
+        if (!empty($accessiblecourses)) {
+            if (isset($accessiblecourses[$courseid])) {
+                $courses[$courseid] = $courseid;
+            }
+            continue;
+        }
+
         $coursecontext = context_course::instance($courseid, IGNORE_MISSING);
         if ($coursecontext && has_capability('block/report_customcajasan:viewreport', $coursecontext, $userid, false)) {
             $courses[$courseid] = $courseid;
@@ -82,16 +130,20 @@ function block_report_customcajasan_compute_restrictions($config = null, ?int $u
         $categoryids = array_map('intval', (array)$config->categoryfilters);
     }
 
-    if (!empty($categoryids)) {
-        require_once($CFG->dirroot . '/course/lib.php');
-    }
-
     foreach ($categoryids as $categoryid) {
         if ($categoryid <= 0) {
             continue;
         }
         $categorycontext = context_coursecat::instance($categoryid, IGNORE_MISSING);
-        if (!$categorycontext || !has_capability('block/report_customcajasan:viewreport', $categorycontext, $userid, false)) {
+        $categoryallowed = false;
+
+        if ($categorycontext && has_capability('block/report_customcajasan:viewreport', $categorycontext, $userid, false)) {
+            $categoryallowed = true;
+        } else if (isset($accessiblecategories[$categoryid])) {
+            $categoryallowed = true;
+        }
+
+        if (!$categorycontext || !$categoryallowed) {
             continue;
         }
 
@@ -106,7 +158,19 @@ function block_report_customcajasan_compute_restrictions($config = null, ?int $u
 
         if ($category) {
             foreach ($category->get_all_children_ids() as $childid) {
-                $expandedcategories[$childid] = (int)$childid;
+                $childid = (int)$childid;
+                if ($childid <= 0) {
+                    continue;
+                }
+
+                if (!empty($accessiblecategories) && !isset($accessiblecategories[$childid])) {
+                    $childcontext = context_coursecat::instance($childid, IGNORE_MISSING);
+                    if (!$childcontext || !has_capability('block/report_customcajasan:viewreport', $childcontext, $userid, false)) {
+                        continue;
+                    }
+                }
+
+                $expandedcategories[$childid] = $childid;
             }
         }
     }
