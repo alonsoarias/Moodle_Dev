@@ -33,6 +33,225 @@ require_once($CFG->libdir . '/csvlib.class.php');
 define('REPORT_CUSTOMCAJASAN_CHUNK_SIZE', 1000); // Tamaño de chunks para procesamiento por lotes
 
 /**
+ * Normalise course and category restrictions stored in block configuration.
+ *
+ * @param object|array|null $config Block configuration object or raw data.
+ * @param int|null $userid User identifier used for capability checks.
+ * @return array{courses: array<int>, categories: array<int>, expandedcategories: array<int>} Normalised restrictions.
+ */
+function block_report_customcajasan_compute_restrictions($config = null, ?int $userid = null): array {
+    global $USER, $CFG;
+
+    $userid = $userid ?? $USER->id ?? 0;
+
+    require_once($CFG->dirroot . '/course/lib.php');
+
+    $courses = [];
+    $categories = [];
+    $expandedcategories = [];
+
+    $accessiblecourses = [];
+    $accessiblecategories = [];
+
+    if ($userid > 0) {
+        $usercourses = get_user_capability_course('block/report_customcajasan:viewreport', $userid, true, 'id, category');
+        foreach ($usercourses as $usercourse) {
+            $courseid = isset($usercourse->id) ? (int)$usercourse->id : 0;
+            if ($courseid <= 0) {
+                continue;
+            }
+            $accessiblecourses[$courseid] = $courseid;
+
+            $coursecategoryid = isset($usercourse->category) ? (int)$usercourse->category : 0;
+            if ($coursecategoryid <= 0) {
+                continue;
+            }
+
+            $accessiblecategories[$coursecategoryid] = $coursecategoryid;
+
+            try {
+                $coursecategory = core_course_category::get($coursecategoryid, IGNORE_MISSING);
+            } catch (moodle_exception $e) {
+                $coursecategory = null;
+            }
+
+            if (!$coursecategory || empty($coursecategory->path)) {
+                continue;
+            }
+
+            foreach (explode('/', trim($coursecategory->path, '/')) as $pathid) {
+                $pathid = (int)$pathid;
+                if ($pathid > 0) {
+                    $accessiblecategories[$pathid] = $pathid;
+                }
+            }
+        }
+    }
+
+    if ($config instanceof __PHP_Incomplete_Class) {
+        $config = (object)get_object_vars($config);
+    } else if (is_array($config)) {
+        $config = (object)$config;
+    }
+
+    if (empty($config) || !is_object($config)) {
+        return [
+            'courses' => [],
+            'categories' => [],
+            'expandedcategories' => [],
+        ];
+    }
+
+    $courseids = [];
+    if (!empty($config->coursefilters)) {
+        $courseids = array_map('intval', (array)$config->coursefilters);
+    }
+
+    foreach ($courseids as $courseid) {
+        if ($courseid <= 0) {
+            continue;
+        }
+
+        if (!empty($accessiblecourses)) {
+            if (isset($accessiblecourses[$courseid])) {
+                $courses[$courseid] = $courseid;
+            }
+            continue;
+        }
+
+        $coursecontext = context_course::instance($courseid, IGNORE_MISSING);
+        if ($coursecontext && has_capability('block/report_customcajasan:viewreport', $coursecontext, $userid, false)) {
+            $courses[$courseid] = $courseid;
+        }
+    }
+
+    $categoryids = [];
+    if (!empty($config->categoryfilters)) {
+        $categoryids = array_map('intval', (array)$config->categoryfilters);
+    }
+
+    foreach ($categoryids as $categoryid) {
+        if ($categoryid <= 0) {
+            continue;
+        }
+        $categorycontext = context_coursecat::instance($categoryid, IGNORE_MISSING);
+        $categoryallowed = false;
+
+        if ($categorycontext && has_capability('block/report_customcajasan:viewreport', $categorycontext, $userid, false)) {
+            $categoryallowed = true;
+        } else if (isset($accessiblecategories[$categoryid])) {
+            $categoryallowed = true;
+        }
+
+        if (!$categorycontext || !$categoryallowed) {
+            continue;
+        }
+
+        $categories[$categoryid] = $categoryid;
+        $expandedcategories[$categoryid] = $categoryid;
+
+        try {
+            $category = core_course_category::get($categoryid, IGNORE_MISSING);
+        } catch (moodle_exception $e) {
+            $category = null;
+        }
+
+        if ($category) {
+            foreach ($category->get_all_children_ids() as $childid) {
+                $childid = (int)$childid;
+                if ($childid <= 0) {
+                    continue;
+                }
+
+                if (!empty($accessiblecategories) && !isset($accessiblecategories[$childid])) {
+                    $childcontext = context_coursecat::instance($childid, IGNORE_MISSING);
+                    if (!$childcontext || !has_capability('block/report_customcajasan:viewreport', $childcontext, $userid, false)) {
+                        continue;
+                    }
+                }
+
+                $expandedcategories[$childid] = $childid;
+            }
+        }
+    }
+
+    return [
+        'courses' => array_values($courses),
+        'categories' => array_values($categories),
+        'expandedcategories' => array_values($expandedcategories),
+    ];
+}
+
+/**
+ * Retrieve restrictions defined by a block instance, validating permissions.
+ *
+ * @param int $blockinstanceid Block instance identifier.
+ * @param int|null $userid User identifier used for capability checks.
+ * @return array{courses: array<int>, categories: array<int>, expandedcategories: array<int>, parentcontext: ?context, blockcontext: ?context, config: ?stdClass}
+ */
+function block_report_customcajasan_get_block_restrictions(int $blockinstanceid, ?int $userid = null): array {
+    global $DB, $USER;
+
+    $userid = $userid ?? $USER->id ?? 0;
+
+    $result = [
+        'courses' => [],
+        'categories' => [],
+        'expandedcategories' => [],
+        'parentcontext' => null,
+        'blockcontext' => null,
+        'config' => null,
+    ];
+
+    if (empty($blockinstanceid)) {
+        return $result;
+    }
+
+    $blockinstance = $DB->get_record('block_instances', [
+        'id' => $blockinstanceid,
+        'blockname' => 'report_customcajasan',
+    ]);
+
+    if (!$blockinstance) {
+        return $result;
+    }
+
+    $blockcontext = context_block::instance($blockinstanceid, IGNORE_MISSING);
+    if (!$blockcontext || !has_capability('block/report_customcajasan:viewblock', $blockcontext, $userid, false)) {
+        return $result;
+    }
+
+    $parentcontext = context::instance_by_id($blockinstance->parentcontextid, IGNORE_MISSING);
+    if (!$parentcontext || $parentcontext->contextlevel !== CONTEXT_COURSE) {
+        return $result;
+    }
+
+    $config = null;
+    if (!empty($blockinstance->configdata)) {
+        $decoded = base64_decode($blockinstance->configdata, true);
+        if ($decoded !== false) {
+            $config = @unserialize($decoded, ['allowed_classes' => ['stdClass']]);
+            if ($config === false || !is_object($config)) {
+                $config = null;
+            } else if ($config instanceof __PHP_Incomplete_Class) {
+                $config = (object)get_object_vars($config);
+            }
+        }
+    }
+
+    $restrictions = block_report_customcajasan_compute_restrictions($config, $userid);
+
+    $result['courses'] = $restrictions['courses'];
+    $result['categories'] = $restrictions['categories'];
+    $result['expandedcategories'] = $restrictions['expandedcategories'];
+    $result['parentcontext'] = $parentcontext;
+    $result['blockcontext'] = $blockcontext;
+    $result['config'] = $config;
+
+    return $result;
+}
+
+/**
  * Get enrollment data based on filters with pagination support
  * Optimized for large datasets with pagination and chunking
  *
@@ -201,7 +420,28 @@ function report_customcajasan_get_data_chunk($filters, $limitfrom, $limitnum, $c
     
     // Parameter collection
     $params = array();
-    
+
+    $allowedcourses = !empty($filters['allowedcourses']) ? array_map('intval', (array)$filters['allowedcourses']) : [];
+    $allowedcategories = !empty($filters['allowedcategories']) ? array_map('intval', (array)$filters['allowedcategories']) : [];
+
+    if (!empty($allowedcourses) || !empty($allowedcategories)) {
+        $restrictionsql = [];
+        if (!empty($allowedcourses)) {
+            list($coursesql, $courseparams) = $DB->get_in_or_equal($allowedcourses, SQL_PARAMS_NAMED, 'alrc');
+            $restrictionsql[] = "c.id {$coursesql}";
+            $params = array_merge($params, $courseparams);
+        }
+        if (!empty($allowedcategories)) {
+            list($catsql, $catparams) = $DB->get_in_or_equal($allowedcategories, SQL_PARAMS_NAMED, 'alrg');
+            $restrictionsql[] = "cat.id {$catsql}";
+            $params = array_merge($params, $catparams);
+        }
+
+        if (!empty($restrictionsql)) {
+            $sql .= ' AND ' . (count($restrictionsql) > 1 ? '(' . implode(' OR ', $restrictionsql) . ')' : $restrictionsql[0]);
+        }
+    }
+
     // Apply filters using clean, consistent pattern with optimized conditions
     if (!empty($filters['category'])) {
         $sql .= " AND c.category = :category";
@@ -330,7 +570,28 @@ function report_customcajasan_count_data($filters) {
     
     // Parameter collection
     $params = array();
-    
+
+    $allowedcourses = !empty($filters['allowedcourses']) ? array_map('intval', (array)$filters['allowedcourses']) : [];
+    $allowedcategories = !empty($filters['allowedcategories']) ? array_map('intval', (array)$filters['allowedcategories']) : [];
+
+    if (!empty($allowedcourses) || !empty($allowedcategories)) {
+        $restrictionsql = [];
+        if (!empty($allowedcourses)) {
+            list($coursesql, $courseparams) = $DB->get_in_or_equal($allowedcourses, SQL_PARAMS_NAMED, 'alrc');
+            $restrictionsql[] = "c.id {$coursesql}";
+            $params = array_merge($params, $courseparams);
+        }
+        if (!empty($allowedcategories)) {
+            list($catsql, $catparams) = $DB->get_in_or_equal($allowedcategories, SQL_PARAMS_NAMED, 'alrg');
+            $restrictionsql[] = "cat.id {$catsql}";
+            $params = array_merge($params, $catparams);
+        }
+
+        if (!empty($restrictionsql)) {
+            $sql .= ' AND ' . (count($restrictionsql) > 1 ? '(' . implode(' OR ', $restrictionsql) . ')' : $restrictionsql[0]);
+        }
+    }
+
     // Apply filters
     if (!empty($filters['category'])) {
         $sql .= " AND c.category = :category";
@@ -618,11 +879,55 @@ function report_customcajasan_export_csv($filters, $filename) {
  *
  * @return array List of visible categories
  */
-function report_customcajasan_get_categories() {
+function report_customcajasan_get_categories(array $allowedcategories = [], array $allowedcourses = []) {
     global $DB;
-    
-    // Modificado para devolver solo categorías visibles (no ocultas)
-    return $DB->get_records('course_categories', array('visible' => 1), 'name ASC', 'id, name, depth, path');
+
+    $allowedcategories = array_filter(array_map('intval', $allowedcategories));
+    $allowedcourses = array_filter(array_map('intval', $allowedcourses));
+
+    if (empty($allowedcategories) && empty($allowedcourses)) {
+        return $DB->get_records('course_categories', ['visible' => 1], 'path ASC', 'id, name, depth, path');
+    }
+
+    $categoryids = $allowedcategories;
+
+    if (!empty($allowedcourses)) {
+        list($insql, $params) = $DB->get_in_or_equal($allowedcourses, SQL_PARAMS_NAMED, 'ccsel');
+        $coursecategories = $DB->get_fieldset_sql("SELECT DISTINCT category FROM {course} WHERE id {$insql}", $params);
+        $categoryids = array_merge($categoryids, array_map('intval', $coursecategories));
+    }
+
+    $categoryids = array_values(array_unique(array_filter($categoryids)));
+
+    if (empty($categoryids)) {
+        return [];
+    }
+
+    list($catsql, $params) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED, 'ccf');
+    $records = $DB->get_records_sql("SELECT id, name, depth, path FROM {course_categories} WHERE id {$catsql}", $params);
+
+    $allcategoryids = [];
+    foreach ($records as $record) {
+        $allcategoryids[$record->id] = $record->id;
+        if (!empty($record->path)) {
+            foreach (explode('/', trim($record->path, '/')) as $pathid) {
+                if ($pathid !== '') {
+                    $allcategoryids[(int)$pathid] = (int)$pathid;
+                }
+            }
+        }
+    }
+
+    if (empty($allcategoryids)) {
+        return [];
+    }
+
+    list($allsql, $allparams) = $DB->get_in_or_equal(array_values($allcategoryids), SQL_PARAMS_NAMED, 'ccvis');
+
+    return $DB->get_records_sql(
+        "SELECT id, name, depth, path FROM {course_categories} WHERE visible = 1 AND id {$allsql} ORDER BY path ASC",
+        $allparams
+    );
 }
 
 /**
@@ -631,26 +936,43 @@ function report_customcajasan_get_categories() {
  * @param int $categoryid Category ID
  * @return array List of visible courses
  */
-function report_customcajasan_get_courses($categoryid) {
+function report_customcajasan_get_courses($categoryid, array $allowedcourses = [], array $allowedcategories = []) {
     global $DB;
-    
-    $params = array();
-    
-    // Condición base: solo cursos visibles
-    $sql = "SELECT id, fullname FROM {course} WHERE visible = 1";
-    
+
+    $params = ['visible' => 1];
+    $sql = "SELECT id, fullname FROM {course} WHERE visible = :visible";
+
     if (!empty($categoryid)) {
-        // Verificar que la categoría seleccionada sea visible
-        $category_exists = $DB->record_exists('course_categories', array('id' => $categoryid, 'visible' => 1));
-        
-        if ($category_exists) {
+        $categoryexists = $DB->record_exists('course_categories', ['id' => $categoryid, 'visible' => 1]);
+        if ($categoryexists) {
             $sql .= " AND category = :category";
             $params['category'] = $categoryid;
         }
     }
-    
+
+    $allowedcourses = array_filter(array_map('intval', $allowedcourses));
+    $allowedcategories = array_filter(array_map('intval', $allowedcategories));
+
+    if (!empty($allowedcourses) || !empty($allowedcategories)) {
+        $restrictionsql = [];
+        if (!empty($allowedcourses)) {
+            list($coursesql, $courseparams) = $DB->get_in_or_equal($allowedcourses, SQL_PARAMS_NAMED, 'ccourse');
+            $restrictionsql[] = "id {$coursesql}";
+            $params = array_merge($params, $courseparams);
+        }
+        if (!empty($allowedcategories)) {
+            list($catsql, $catparams) = $DB->get_in_or_equal($allowedcategories, SQL_PARAMS_NAMED, 'ccat');
+            $restrictionsql[] = "category {$catsql}";
+            $params = array_merge($params, $catparams);
+        }
+
+        if (!empty($restrictionsql)) {
+            $sql .= ' AND (' . implode(' OR ', $restrictionsql) . ')';
+        }
+    }
+
     $sql .= " ORDER BY fullname ASC";
-    
+
     return $DB->get_records_sql($sql, $params);
 }
 

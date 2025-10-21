@@ -33,6 +33,8 @@ require_login(null, false);
 
 // Verify AJAX parameters
 $categoryid = optional_param('categoryid', 0, PARAM_INT);
+$blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
+$blockrestrictions = block_report_customcajasan_get_block_restrictions($blockinstanceid);
 
 // Verify sesskey
 if (!confirm_sesskey()) {
@@ -50,8 +52,10 @@ try {
     // Verificar permisos - permitir acceso a gestores o usuarios con la capacidad específica
     $can_view = has_capability('block/report_customcajasan:viewreport', $systemcontext);
     $is_manager = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
-    
-    if (!$can_view && !$is_manager) {
+    $can_view_parent = !empty($blockrestrictions['parentcontext']) &&
+        has_capability('block/report_customcajasan:viewreport', $blockrestrictions['parentcontext']);
+
+    if (!$can_view && !$is_manager && !$can_view_parent) {
         throw new required_capability_exception($systemcontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
     }
 } catch (Exception $e) {
@@ -64,19 +68,16 @@ try {
 }
 
 try {
-    // Use safer parameter binding with get_in_or_equal when possible
-    $params = array();
-    $sql = "SELECT id, fullname FROM {course} WHERE 1=1";
-    
-    if (!empty($categoryid)) {
-        $sql .= " AND category = :categoryid";
-        $params['categoryid'] = $categoryid;
+    $allowedcourses = $blockrestrictions['courses'];
+    $allowedcategories = $blockrestrictions['expandedcategories'];
+
+    if (!empty($allowedcategories) && !empty($categoryid) &&
+        !in_array((int)$categoryid, $allowedcategories, true)) {
+        $categoryid = 0;
     }
-    
-    $sql .= " ORDER BY fullname ASC";
-    
+
     // Get courses
-    $courses = $DB->get_records_sql($sql, $params);
+    $courses = report_customcajasan_get_courses($categoryid, $allowedcourses, $allowedcategories);
     
     // Format response
     $response = array(
