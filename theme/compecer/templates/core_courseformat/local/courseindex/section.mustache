@@ -31,23 +31,35 @@
   <div class="course-index-header d-flex align-items-center {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
        id="course-index-section{{number}}"
        data-for="section_item">
-    <a href="{{{sectionurl}}}"
-       class="course-index-link text-truncate font-weight-bold"
-       data-action="togglecourseindexsection"
-       data-for="section_title"
-       tabindex="-1"
-       title="{{{title}}}">
-      {{{title}}}
-    </a>
-    <a data-toggle="collapse"
-       href="#course-index-collapse{{number}}"
-       class="course-index-toggle p-0 ml-auto {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
-       aria-expanded="false"
-       aria-controls="course-index-collapse{{number}}"
-       tabindex="-1">
-      <i class="fa fa-chevron-down"></i>
+    <div class="ci-section-header flex-grow-1 overflow-hidden">
+      <button type="button"
+              class="course-index-section-button text-truncate font-weight-bold"
+              data-action="togglecourseindexsection"
+              data-for="section_title"
+              tabindex="-1"
+              aria-controls="course-index-collapse{{number}}"
+              aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
+              title="{{{title}}}">
+        <span class="ci-section-title">{{{title}}}</span>
+      </button>
+      <div class="ci-section-progress mt-1" data-region="section-progress" data-section-id="{{id}}" hidden>
+        <div class="ci-section-progress-bar" role="presentation">
+          <span class="ci-section-progress-bar-fill" data-region="section-progress-bar"></span>
+        </div>
+        <span class="ci-section-progress-label text-muted" data-region="section-progress-label"></span>
+        <span class="sr-only" data-region="section-progress-a11y"></span>
+      </div>
+    </div>
+    <button type="button"
+            data-toggle="collapse"
+            data-target="#course-index-collapse{{number}}"
+            class="course-index-toggle p-0 ml-auto {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
+            aria-expanded="false"
+            aria-controls="course-index-collapse{{number}}"
+            tabindex="-1">
+      <i class="fa fa-chevron-down" aria-hidden="true"></i>
       <span class="sr-only">{{#str}}toggle section{{/str}}</span>
-    </a>
+    </button>
   </div>
   <!-- Por defecto, la sección se muestra cerrada (sin la clase "show") -->
   <div id="course-index-collapse{{number}}"

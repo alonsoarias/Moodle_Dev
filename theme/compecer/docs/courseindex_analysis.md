@@ -160,3 +160,11 @@ La solución combinará **cálculo en servidor** (PHP) y **renderizado Mustache*
 - **Casos edge**: cursos sin finalización activada, secciones ocultas, actividades restringidas, subsecciones delegadas, usuarios sin permisos de edición.
 - **Validación**: pruebas manuales en curso con completion on/off, confirmar recalculo tras marcar actividades, verificación en móvil (drawer colapsable) y chequeo de cachés si se introduce almacenamiento.
 
+## 6. Implementación realizada (octubre 2024)
+- **Cálculo servidor**: se añadió `theme\compecer\local\courseprogress\provider` para consolidar porcentajes globales, por sección y estados por actividad reutilizando `completion_info::get_data()` y detectando estados *sin iniciar*, *en progreso*, *completado*, *fallido* y *sin seguimiento*.
+- **Servicio AJAX**: el nuevo endpoint `theme_compecer_courseindex_progress` (registro en `db/services.php`) expone la estructura agregada y controla acceso vía `require_login` y `context_course`.
+- **Plantillas**: `drawer.mustache`, `section.mustache` y `cm.mustache` incorporan contenedores semánticos (`data-region`) para progreso, botón no navegable en secciones y placeholders de iconos personalizados; se mantiene compatibilidad con los `data-for` del core.
+- **Interfaz**: el módulo AMD `theme_compecer/courseindex_progress` sincroniza los datos con el estado reactivo del course editor y refresca métricas ante eventos (`cm.completionstate`, cambios estructurales, etc.).
+- **Estilos**: `_courseindex.scss` define barra de progreso global, micro barras por sección y nueva iconografía consistente con la paleta Edutin; se ocultan los iconos estándar de `completioninfo` para evitar duplicidades.
+- **Internacionalización**: nuevas cadenas en `lang/en|es` describen los estados, etiquetas accesibles y mensajes cuando la finalización está deshabilitada.
+
