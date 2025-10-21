@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/lib.php');
+
 /**
  * Class block_report_customcajasan_edit_form
  *
@@ -37,6 +39,8 @@ class block_report_customcajasan_edit_form extends block_edit_form {
      * @param MoodleQuickForm $mform Form object to add elements to.
      */
     protected function specific_definition($mform) {
+        global $USER;
+
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
         $options = $this->block->get_available_info_options();
@@ -61,6 +65,54 @@ class block_report_customcajasan_edit_form extends block_edit_form {
         );
         $mform->setType('config_custommessage', PARAM_TEXT);
         $mform->addHelpButton('config_custommessage', 'config_custommessage', 'block_report_customcajasan');
+
+        $parentcontext = null;
+        if (!empty($this->block->instance->parentcontextid)) {
+            $parentcontext = context::instance_by_id($this->block->instance->parentcontextid, IGNORE_MISSING);
+        } else if (!empty($this->block->page->context)) {
+            $parentcontext = $this->block->page->context;
+        }
+
+        $iscoursecontext = $parentcontext && $parentcontext->contextlevel === CONTEXT_COURSE;
+
+        if ($iscoursecontext) {
+            $mform->addElement('header', 'configrestrictions', get_string('config_restriction_heading', 'block_report_customcajasan'));
+            $mform->addHelpButton('configrestrictions', 'config_restriction_heading', 'block_report_customcajasan');
+
+            $courseoptions = [];
+            $courses = get_user_capability_course('block/report_customcajasan:viewreport', $USER->id, true, 'fullname, shortname', 'fullname');
+            foreach ($courses as $course) {
+                $coursecontext = context_course::instance($course->id, IGNORE_MISSING);
+                $courseoptions[$course->id] = format_string($course->fullname, true, ['context' => $coursecontext ?: null]);
+            }
+
+            if (!empty($courseoptions)) {
+                $mform->addElement(
+                    'select',
+                    'config_' . block_report_customcajasan::CONFIG_COURSES,
+                    get_string('config_coursefilters', 'block_report_customcajasan'),
+                    $courseoptions,
+                    ['multiple' => true, 'size' => min(10, max(3, count($courseoptions)))]
+                );
+                $mform->addHelpButton('config_' . block_report_customcajasan::CONFIG_COURSES, 'config_coursefilters', 'block_report_customcajasan');
+            } else {
+                $mform->addElement('static', 'config_' . block_report_customcajasan::CONFIG_COURSES . '_notice', '', get_string('config_coursefilters_empty', 'block_report_customcajasan'));
+            }
+
+            $categoryoptions = core_course_category::make_categories_list('block/report_customcajasan:viewreport');
+            if (!empty($categoryoptions)) {
+                $mform->addElement(
+                    'select',
+                    'config_' . block_report_customcajasan::CONFIG_CATEGORIES,
+                    get_string('config_categoryfilters', 'block_report_customcajasan'),
+                    $categoryoptions,
+                    ['multiple' => true, 'size' => min(10, max(3, count($categoryoptions)))]
+                );
+                $mform->addHelpButton('config_' . block_report_customcajasan::CONFIG_CATEGORIES, 'config_categoryfilters', 'block_report_customcajasan');
+            } else {
+                $mform->addElement('static', 'config_' . block_report_customcajasan::CONFIG_CATEGORIES . '_notice', '', get_string('config_categoryfilters_empty', 'block_report_customcajasan'));
+            }
+        }
     }
 
     /**
@@ -75,6 +127,14 @@ class block_report_customcajasan_edit_form extends block_edit_form {
             }
             if (isset($this->block->config->custommessage)) {
                 $defaults->config_custommessage = $this->block->config->custommessage;
+            }
+
+            $restrictions = block_report_customcajasan_compute_restrictions($this->block->config);
+            if (!empty($restrictions['courses'])) {
+                $defaults->{'config_' . block_report_customcajasan::CONFIG_COURSES} = $restrictions['courses'];
+            }
+            if (!empty($restrictions['categories'])) {
+                $defaults->{'config_' . block_report_customcajasan::CONFIG_CATEGORIES} = $restrictions['categories'];
             }
         }
 
