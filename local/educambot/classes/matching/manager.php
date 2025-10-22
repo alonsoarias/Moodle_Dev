@@ -180,7 +180,11 @@ class manager {
     protected function get_phrases(stdClass $entry): array {
         $phrases = [];
         if (!empty($entry->pattern)) {
-            $phrases[] = $entry->pattern;
+            foreach ($this->explode_lines($entry->pattern) as $patternline) {
+                if ($patternline !== '') {
+                    $phrases[] = $patternline;
+                }
+            }
         }
         if (!empty($entry->synonyms)) {
             foreach ($this->explode_lines($entry->synonyms) as $line) {
