@@ -1435,18 +1435,6 @@
     }
   }
   
-  /* Mejoras de accesibilidad */
-  @media (prefers-reduced-motion: reduce) {
-    .course-index-section,
-    .course-index-link,
-    .course-index-toggle,
-    .course-index-item a,
-    .course-index-item a i {
-      @include transition(none);
-      transform: none;
-    }
-  }
-  
   .page-header-image.mr-2 {
     display: none;
   }
