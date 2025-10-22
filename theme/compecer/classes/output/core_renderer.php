@@ -38,6 +38,8 @@ use core_text;
 use help_icon;
 use context_system;
 use core_course_list_element;
+use core_courseformat\base as course_format;
+use theme_compecer\output\courseindex_progress;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -51,7 +53,28 @@ require_once(__DIR__ . '/../util/theme_settings.php');
  * @copyright  2024 IngeWeb https://www.ingeweb.co
  */
 class core_renderer extends \theme_moove\output\core_renderer {
-    
+
+    /**
+     * Render the course index drawer with progress information.
+     *
+     * @param course_format $format The active course format instance.
+     * @return string|null The rendered drawer HTML.
+     */
+    public function course_index_drawer(course_format $format): ?string {
+        global $USER;
+
+        if (!$format->uses_course_index()) {
+            return '';
+        }
+
+        include_course_editor($format);
+
+        $progress = new courseindex_progress($format, (int)$USER->id);
+        $context = $progress->export_for_template($this);
+
+        return $this->render_from_template('core_courseformat/local/courseindex/drawer', $context);
+    }
+
     /**
      * Cached theme config
      * @var object

@@ -8,23 +8,32 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
+define(['core/log'], function(Log) {
     
     const SELECTORS = {
         statusIcon: '.courseindex-item__status',
         statusText: '[data-region="cm-status-text"]',
         courseProgressValue: '[data-region="course-progress-value"]',
         courseProgressSummary: '[data-region="course-progress-summary"]',
-        courseProgressBar: '.courseindex-progress-bar__fill',
+        courseProgressBar: '.courseindex-progress-bar',
+        courseProgressBarFill: '.courseindex-progress-bar__fill',
         sectionProgressValue: '[data-region="section-progress-value"]',
         sectionProgressText: '[data-region="section-progress-text"]',
     };
-    
+
     const STATUS_CLASSES = {
         notstarted: 'courseindex-item__status--notstarted',
         inprogress: 'courseindex-item__status--inprogress',
         completed: 'courseindex-item__status--completed',
         failed: 'courseindex-item__status--failed',
+    };
+
+    const COMPLETION_STATES = {
+        0: 'notstarted',
+        1: 'completed',
+        2: 'completed',
+        3: 'failed',
+        4: 'failed',
     };
     
     /**
@@ -80,28 +89,29 @@ define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
         const valueEl = drawer.querySelector(SELECTORS.courseProgressValue);
         const summaryEl = drawer.querySelector(SELECTORS.courseProgressSummary);
         const barEl = drawer.querySelector(SELECTORS.courseProgressBar);
-        
+        const fillEl = drawer.querySelector(SELECTORS.courseProgressBarFill);
+
         if (valueEl && courseData.percentageformatted) {
             valueEl.textContent = courseData.percentageformatted;
         }
-        
+
         if (summaryEl) {
             summaryEl.textContent = courseData.summary || strings?.courseprogressdisabled || '';
         }
 
-        if (barEl) {
+        if (barEl && fillEl) {
             const percentage = typeof courseData.percentage !== 'undefined' && courseData.percentage !== null
                 ? courseData.percentage
                 : 0;
-            barEl.style.setProperty('--progress', percentage + '%');
+            fillEl.style.setProperty('--progress', percentage + '%');
             barEl.setAttribute('aria-valuenow', percentage);
             if (courseData.aria) {
                 barEl.setAttribute('aria-label', courseData.aria);
             }
             if (!courseData.percentage && courseData.percentage !== 0) {
-                barEl.classList.add('is-disabled');
+                fillEl.classList.add('is-disabled');
             } else {
-                barEl.classList.remove('is-disabled');
+                fillEl.classList.remove('is-disabled');
             }
         }
     };
@@ -153,26 +163,36 @@ define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
             
             if (!itemEl) return;
             
-            const statusIcon = itemEl.querySelector(SELECTORS.statusIcon);
-            const statusText = itemEl.querySelector(SELECTORS.statusText);
-            
-            if (statusIcon) {
-                Object.values(STATUS_CLASSES).forEach(cls => {
-                    statusIcon.classList.remove(cls);
-                });
-                
-                const statusClass = STATUS_CLASSES[activityData.status];
-                if (statusClass) {
-                    statusIcon.classList.add(statusClass);
-                }
-            }
-            
-            if (statusText) {
-                statusText.textContent = activityData.label || '';
-            }
+            setItemStatus(itemEl, activityData.status, activityData.label);
         });
     };
-    
+
+    const setItemStatus = (itemEl, statusKey, label) => {
+        if (!itemEl) {
+            return;
+        }
+
+        const statusIcon = itemEl.querySelector(SELECTORS.statusIcon);
+        const statusText = itemEl.querySelector(SELECTORS.statusText);
+
+        if (statusIcon) {
+            Object.values(STATUS_CLASSES).forEach(cls => statusIcon.classList.remove(cls));
+            const statusClass = STATUS_CLASSES[statusKey];
+            if (statusClass) {
+                statusIcon.classList.add(statusClass);
+            }
+            if (label) {
+                statusIcon.setAttribute('title', label);
+            } else {
+                statusIcon.removeAttribute('title');
+            }
+        }
+
+        if (statusText) {
+            statusText.textContent = label || '';
+        }
+    };
+
     /**
      * Setup event listeners for live updates
      */
@@ -182,14 +202,25 @@ define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'data-value') {
                     const cmId = mutation.target.closest('[data-for="cm"]')?.getAttribute('data-id');
-                    if (cmId) {
-                        Log.debug('Completion changed for cm: ' + cmId);
-                        // In production: fetch fresh data and update
+                    if (!cmId) {
+                        return;
+                    }
+
+                    const state = parseInt(mutation.target.getAttribute('data-value'), 10);
+                    const statusKey = COMPLETION_STATES[state] || 'notstarted';
+                    const label = dataset.strings?.[statusKey] || '';
+
+                    const itemEl = drawer.querySelector(`[data-id="${cmId}"][data-for="cm"]`);
+                    setItemStatus(itemEl, statusKey, label);
+
+                    if (dataset.activities && dataset.activities[cmId]) {
+                        dataset.activities[cmId].status = statusKey;
+                        dataset.activities[cmId].label = label;
                     }
                 }
             });
         });
-        
+
         drawer.querySelectorAll('.completioninfo').forEach(el => {
             completionObserver.observe(el, {
                 attributes: true,
