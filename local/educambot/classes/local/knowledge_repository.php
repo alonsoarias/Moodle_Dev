@@ -320,8 +320,110 @@ class knowledge_repository {
         $sql = 'SELECT DISTINCT k.id FROM {local_educambot_knowledge} k' . $joins . ' WHERE ' . implode(' AND ', $conditions) .
             ' ORDER BY k.timemodified DESC';
         $records = $this->db->get_records_sql($sql, $params, 0, $limit);
+        $ids = array_map('intval', array_keys($records));
 
-        return array_map('intval', array_keys($records));
+        if (!empty($ids) || ($normalizedquestion === '' && empty($tokens))) {
+            return $ids;
+        }
+
+        // Fall back to a PHP based scan when the database LIKE comparison fails (e.g. accent
+        // sensitive collations in PostgreSQL). This ensures we still return candidates instead of
+        // always falling back to the generic "no answer" branch.
+        $fallbackids = $this->fallback_candidate_scan(
+            $normalizedquestion,
+            $tokens,
+            $courseid,
+            $normalizedpage,
+            $limit
+        );
+
+        if (!empty($fallbackids)) {
+            return $fallbackids;
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Fallback selector that scans cached entries using normalised comparisons.
+     *
+     * This is used when the SQL LIKE checks fail to return any match because of accent-sensitive
+     * collations (common in PostgreSQL installations).
+     *
+     * @param string $normalizedquestion
+     * @param array<int,string> $questiontokens
+     * @param int|null $courseid
+     * @param string|null $normalizedpage
+     * @param int $limit
+     * @return array<int,int>
+     */
+    protected function fallback_candidate_scan(
+        string $normalizedquestion,
+        array $questiontokens,
+        ?int $courseid,
+        ?string $normalizedpage,
+        int $limit
+    ): array {
+        $entries = $this->get_entries();
+        if (empty($entries)) {
+            return [];
+        }
+
+        $limit = max(1, $limit);
+        $contextmap = $this->get_context_map();
+        $questiontokens = array_values(array_filter(array_map([text_helper::class, 'normalize'], $questiontokens)));
+
+        $candidateids = [];
+        foreach ($entries as $entry) {
+            $context = $contextmap[$entry->id] ?? ['courseids' => [], 'contexts' => []];
+            if ($courseid && !empty($context['courseids']) && !in_array($courseid, $context['courseids'], true)) {
+                continue;
+            }
+            if ($normalizedpage && !empty($context['contexts'])) {
+                $matchpage = false;
+                foreach ($context['contexts'] as $pagecontext) {
+                    $normalizedcontext = text_helper::normalize($pagecontext);
+                    if ($normalizedcontext !== '' && str_contains($normalizedpage, $normalizedcontext)) {
+                        $matchpage = true;
+                        break;
+                    }
+                }
+                if (!$matchpage) {
+                    continue;
+                }
+            }
+
+            $haystack = text_helper::normalize((string)$entry->title);
+            $haystack .= ' ' . text_helper::normalize(strip_tags((string)$entry->summary));
+            $haystack .= ' ' . text_helper::normalize(strip_tags((string)$entry->content));
+            $haystack .= ' ' . text_helper::normalize((string)$entry->tags);
+            $haystack = trim($haystack);
+
+            if ($haystack === '') {
+                continue;
+            }
+
+            $matched = false;
+            if ($normalizedquestion !== '' && str_contains($haystack, $normalizedquestion)) {
+                $matched = true;
+            } else if (!empty($questiontokens)) {
+                foreach ($questiontokens as $token) {
+                    if ($token !== '' && str_contains($haystack, $token)) {
+                        $matched = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($matched) {
+                $candidateids[] = (int)$entry->id;
+                if (count($candidateids) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return array_values(array_unique($candidateids));
     }
 
     /**
