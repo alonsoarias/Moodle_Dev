@@ -34,6 +34,37 @@ define([], function() {
     };
 
     /**
+     * Sanitises HTML snippets before injecting them into the DOM.
+     *
+     * @param {String} html
+     * @returns {String}
+     */
+    const sanitizeHtml = (html) => {
+        const template = document.createElement('template');
+        template.innerHTML = html;
+        const blocked = ['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta'];
+        blocked.forEach(tag => {
+            template.content.querySelectorAll(tag).forEach(node => node.remove());
+        });
+        template.content.querySelectorAll('*').forEach(element => {
+            [...element.attributes].forEach(attr => {
+                const name = attr.name.toLowerCase();
+                if (name.startsWith('on') || ['formaction', 'srcdoc'].includes(name)) {
+                    element.removeAttribute(attr.name);
+                    return;
+                }
+                if (['href', 'src'].includes(name)) {
+                    const value = attr.value.trim().toLowerCase();
+                    if (value.startsWith('javascript:') || value.startsWith('data:')) {
+                        element.removeAttribute(attr.name);
+                    }
+                }
+            });
+        });
+        return template.innerHTML;
+    };
+
+    /**
      * Creates a message node.
      *
      * @param {HTMLElement} container
@@ -44,7 +75,7 @@ define([], function() {
         const message = document.createElement('div');
         message.classList.add('local-educambot__message', `local-educambot__message--${type}`);
         if (allowHtml) {
-            message.innerHTML = text;
+            message.innerHTML = sanitizeHtml(text);
         } else {
             message.textContent = text;
         }

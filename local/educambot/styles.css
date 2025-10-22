@@ -149,6 +149,11 @@
     cursor: pointer;
 }
 
+.local-educambot__send-icon img {
+    width: 1rem;
+    height: 1rem;
+}
+
 .local-educambot__status {
     padding: 0.5rem 1rem 1rem;
     color: rgba(15, 23, 42, 0.6);

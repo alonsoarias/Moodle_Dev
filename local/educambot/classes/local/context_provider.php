@@ -500,6 +500,14 @@ class context_provider {
             return $this->courses;
         }
 
+        $cache = \cache::make('local_educambot', 'user_courses');
+        $cachekey = 'user_' . $this->userid;
+        $cached = $cache->get($cachekey);
+        if ($cached !== false) {
+            $this->courses = $cached;
+            return $this->courses;
+        }
+
         require_once($CFG->libdir . '/enrollib.php');
         $courses = enrol_get_users_courses($this->userid, true, 'id, fullname, shortname, idnumber, visible');
         foreach ($courses as $course) {
@@ -511,6 +519,8 @@ class context_provider {
             }
             $this->courses[] = $course;
         }
+
+        $cache->set($cachekey, $this->courses);
 
         return $this->courses;
     }

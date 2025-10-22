@@ -68,7 +68,11 @@ class widget implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output): array {
-        $config = (array)get_config('local_educambot');
+        static $configcache = null;
+        if ($configcache === null) {
+            $configcache = (array)get_config('local_educambot');
+        }
+        $config = $configcache;
         $contextprovider = new context_provider($this->userid, $this->courseid, $this->pageidentifier);
 
         $botname = $contextprovider->get_bot_name($config);

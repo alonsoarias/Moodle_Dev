@@ -27,7 +27,7 @@
             <label for="educambot-input" class="sr-only">{{placeholder}}</label>
             <input id="educambot-input" type="text" placeholder="{{placeholder}}" autocomplete="off" />
             <button type="button" class="local-educambot__send" aria-label="{{#str}}send, local_educambot{{/str}}">
-                <span class="icon fa fa-paper-plane" aria-hidden="true"></span>
+                <span class="local-educambot__send-icon" aria-hidden="true">{{#pix}} i/send, core {{/pix}}</span>
             </button>
         </div>
         <div class="local-educambot__status" data-loading="{{strings.loading}}" data-confidence-label="{{strings.confidence}}"></div>

@@ -45,6 +45,14 @@ if ($hassiteconfig) {
         PARAM_INT
     ));
 
+    $settingspage->add(new admin_setting_configtext(
+        'local_educambot/historylimit',
+        get_string('historylimit', 'local_educambot'),
+        get_string('historylimit_desc', 'local_educambot'),
+        8,
+        PARAM_INT
+    ));
+
     $settingspage->add(new admin_setting_heading(
         'local_educambot_branding',
         get_string('brandingsettings', 'local_educambot'),
@@ -125,6 +133,12 @@ if ($hassiteconfig) {
         'local_educambot_manage',
         get_string('manageentries', 'local_educambot'),
         new moodle_url('/local/educambot/manage.php'),
+        'local/educambot:manage'
+    ));
+    $ADMIN->add('local_educambot', new admin_externalpage(
+        'local_educambot_manageknowledge',
+        get_string('manageknowledge', 'local_educambot'),
+        new moodle_url('/local/educambot/knowledge.php'),
         'local/educambot:manage'
     ));
 }
