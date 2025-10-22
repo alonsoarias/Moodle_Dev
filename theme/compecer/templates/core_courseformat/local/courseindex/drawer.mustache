@@ -1,29 +1,41 @@
 {{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Compecer (Moove child theme)
+    @package   theme_compecer
+    @copyright 2024
+    @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+{{!
     @template core_courseformat/local/courseindex/drawer
 
-    Custom course index drawer for theme Compecer with progress overview.
+    Course index drawer inspired by RemUI implementation.
 }}
-<nav id="courseindex" class="course-index-drawer" data-progress='{{{progress.dataset}}}'>
-  <div class="course-index-overview" aria-live="polite">
-    <div class="course-index-overview__header">
-      <p class="course-index-overview__title">{{progress.course.title}}</p>
-      <p class="course-index-overview__value" data-region="course-progress-value">{{progress.course.percentageformatted}}</p>
+<nav id="courseindex" class="courseindex">
+    <div class="p-mb-4">
+        <span class="course-heading h-bold-4" title="{{#str}} sidebarcoursemenuheading, theme_compecer {{/str}}">
+            {{#str}} sidebarcoursemenuheading, theme_compecer {{/str}}
+        </span>
     </div>
-    <p class="course-index-overview__description" data-region="course-progress-summary">{{progress.course.summary}}</p>
-    <div class="course-index-overview__bar" role="presentation">
-      <span class="course-index-overview__fill" style="--course-progress: {{#progress.course.percentage}}{{.}}%{{/progress.course.percentage}}{{^progress.course.percentage}}0%{{/progress.course.percentage}};" role="progressbar" aria-valuemin="0" aria-valuemax="100" {{#progress.course.percentage}}aria-valuenow="{{.}}"{{/progress.course.percentage}} aria-label="{{progress.course.aria}}"></span>
+    <div id="courseindex-content">
+        {{> core_courseformat/local/courseindex/placeholders }}
     </div>
-  </div>
-  <span class="course-heading" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
-    {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
-  </span>
-  <div id="courseindex-content" data-region="courseindex-content">
-    {{> core_courseformat/local/courseindex/placeholders}}
-  </div>
 </nav>
 {{#js}}
-require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progress) {
-  component.init('courseindex');
-  progress.init('courseindex');
+require(['core_courseformat/local/courseindex/drawer'], function(component) {
+    component.init('courseindex');
 });
 {{/js}}
