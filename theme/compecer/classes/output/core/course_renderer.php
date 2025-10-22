@@ -17,6 +17,8 @@ use coursecat_helper;
 use stdClass;
 use core_course_list_element;
 use theme_moove\util\extras;
+use theme_compecer\output\courseindex_progress;
+use core_courseformat\base as course_format;
 
 require_once(__DIR__ . '/../../../../moove/classes/output/core/course_renderer.php');
 
@@ -26,5 +28,26 @@ require_once(__DIR__ . '/../../../../moove/classes/output/core/course_renderer.p
  */
 class course_renderer extends \theme_moove\output\core\course_renderer {
 
+    /**
+     * Render the course index drawer with progress data.
+     *
+     * @param course_format $format
+     * @return string|null
+     */
+    public function course_index_drawer(course_format $format): ?string {
+        if (!$format->uses_course_index()) {
+            return '';
+        }
 
+        include_course_editor($format);
+
+        global $USER;
+        $progress = new courseindex_progress($format, $USER->id);
+
+        $context = [
+            'progress' => $progress->export_for_template($this),
+        ];
+
+        return $this->render_from_template('core_courseformat/local/courseindex/drawer', $context);
+    }
 }
