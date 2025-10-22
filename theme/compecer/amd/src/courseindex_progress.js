@@ -1,4 +1,5 @@
 // This file is part of Moodle - http://moodle.org/
+
 /**
  * Course index progress manager - Minimal and efficient
  *

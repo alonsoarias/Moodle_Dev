@@ -1603,10 +1603,12 @@ $ci-transition-speed: 0.15s !default;
     
     &::before {
         content: '\\f078';
-        font-family: 'Font Awesome 6 Free';
+        font-family: var(--fa-font-solid, 'Font Awesome 6 Free');
         font-weight: 900;
         color: $ci-gray-600;
         font-size: $ci-text-sm;
+        line-height: 1;
+        display: inline-block;
     }
     
     .courseindex-section__toggle--collapsed & {
