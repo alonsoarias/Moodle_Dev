@@ -1,38 +1,55 @@
 {{!
     @template core_courseformat/local/courseindex/drawer
-
-    This template renders the course index drawer.
-    Adaptado para theme compecer (child theme de Boost).
     
-    Example context (json):
-    {}
+    Course index drawer - Compecer minimal design inspired by Remui
+    
+    Context variables:
+    * progress - Progress data object with course, sections, activities
 }}
-<nav id="courseindex" class="courseindex courseindex--compecer" data-progress="{{{dataset}}}">
-    {{#course}}
-    <section class="courseindex-progress-card" data-region="course-progress-card">
-        <header class="courseindex-progress-card__header">
-            <span class="courseindex-progress-card__title">{{title}}</span>
-            <span class="courseindex-progress-card__value" data-region="course-progress-value">{{percentageformatted}}</span>
-        </header>
-        <p class="courseindex-progress-card__summary" data-region="course-progress-summary">{{summary}}</p>
-        <div class="courseindex-progress-bar"
-             role="progressbar"
-             aria-valuemin="0"
-             aria-valuemax="100"
-             aria-valuenow="{{#enabled}}{{percentage}}{{/enabled}}{{^enabled}}0{{/enabled}}"
-             aria-label="{{aria}}">
-            <span class="courseindex-progress-bar__fill {{^enabled}}is-disabled{{/enabled}}"
-                  style="--progress: {{#enabled}}{{percentage}}{{/enabled}}{{^enabled}}0{{/enabled}}%;"></span>
+<nav id="courseindex" class="courseindex-drawer" data-progress='{{{progress.dataset}}}'>
+    
+    {{! Progress overview header }}
+    {{#progress.enabled}}
+    <div class="courseindex-progress-header" role="region" aria-live="polite" aria-label="{{progress.course.title}}">
+        <div class="courseindex-progress-header__content">
+            <p class="courseindex-progress-header__title">{{progress.course.title}}</p>
+            <p class="courseindex-progress-header__value" data-region="course-progress-value">
+                {{progress.course.percentageformatted}}
+            </p>
         </div>
-    </section>
-    {{/course}}
-    <div class="courseindex-body" id="courseindex-content">
+        <p class="courseindex-progress-header__summary" data-region="course-progress-summary">
+            {{progress.course.summary}}
+        </p>
+        <div class="courseindex-progress-bar" role="presentation">
+            <div class="courseindex-progress-bar__fill" 
+                 style="--progress: {{#progress.course.percentage}}{{.}}%{{/progress.course.percentage}}{{^progress.course.percentage}}0%{{/progress.course.percentage}};"
+                 role="progressbar" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100" 
+                 {{#progress.course.percentage}}aria-valuenow="{{.}}"{{/progress.course.percentage}}
+                 aria-label="{{progress.course.aria}}">
+            </div>
+        </div>
+    </div>
+    {{/progress.enabled}}
+    
+    {{^progress.enabled}}
+    <div class="courseindex-progress-header courseindex-progress-header--disabled">
+        <p class="courseindex-progress-header__title">{{progress.course.title}}</p>
+        <p class="courseindex-progress-header__summary">{{progress.course.summary}}</p>
+    </div>
+    {{/progress.enabled}}
+    
+    {{! Course sections list }}
+    <div id="courseindex-content" class="courseindex-content" data-region="courseindex-content">
         {{> core_courseformat/local/courseindex/placeholders}}
     </div>
+    
 </nav>
+
 {{#js}}
 require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progress) {
-  component.init('courseindex');
-  progress.init('courseindex');
+    component.init('courseindex');
+    progress.init('courseindex');
 });
 {{/js}}

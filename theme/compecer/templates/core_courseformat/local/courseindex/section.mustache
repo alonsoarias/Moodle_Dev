@@ -1,79 +1,79 @@
 {{!
     @template core_courseformat/local/courseindex/section
-
-    Displays a course index section entry.
-    Adaptado para theme compecer.
-    Se utiliza un único icono de toggle (chevron) para controlar el colapso/expansión.
-    Por defecto, la sección se muestra cerrada.
     
-    Example context (json):
-    {
-      "title": "General",
-      "id": 23,
-      "uniqid": "0",
-      "number": 1,
-      "sectionurl": "#",
-      "indexcollapsed": 1,
-      "current": 1,
-      "visible": 1,
-      "hasrestrictions": 0,
-      "highlighted": "1",
-      "cms": [ ... ]
-    }
+    Course index section - Clean toggle-only design (NO navigation)
+    
+    Context variables:
+    * id - Section ID
+    * number - Section number
+    * title - Section title
+    * current - Boolean, is current section
+    * visible - Boolean, is visible
+    * indexcollapsed - Boolean, is collapsed
+    * cms - Array of course modules
 }}
-<div class="courseindex-section courseindex-section--compecer {{#current}}current{{/current}} {{#component}}delegated-section{{/component}}"
+<div class="courseindex-section {{#current}}courseindex-section--current{{/current}} {{#component}}courseindex-section--delegated{{/component}}"
      id="{{uniqid}}-course-index-section-{{id}}"
      data-for="section"
      data-id="{{id}}"
      data-number="{{number}}"
      role="treeitem"
-     aria-owns="course-index-collapse{{number}}">
-    <div class="courseindex-section__header courseindex-item {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
-         id="course-index-section{{number}}"
+     aria-owns="courseindex-section-content-{{number}}">
+    
+    {{! Section header - ONLY for toggle, NOT navigation }}
+    <div class="courseindex-section__header {{^visible}}courseindex-section__header--dimmed{{/visible}} {{#hasrestrictions}}courseindex-section__header--restricted{{/hasrestrictions}}"
+         id="courseindex-section-header-{{number}}"
          data-for="section_item">
-        <button class="courseindex-section__toggle courseindex-chevron {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
+        
+        <button type="button"
+                class="courseindex-section__toggle {{#indexcollapsed}}courseindex-section__toggle--collapsed{{/indexcollapsed}}"
+                data-action="togglecourseindexsection"
+                data-for="section_title"
                 data-toggle="collapse"
-                data-target="#course-index-collapse{{number}}"
+                data-target="#courseindex-section-content-{{number}}"
                 aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
-                aria-controls="course-index-collapse{{number}}"
-                type="button"
-                tabindex="-1">
-            <span class="courseindex-section__chevron" aria-hidden="true"></span>
-            <span class="sr-only">{{#str}}toggle section{{/str}}</span>
-        </button>
-        <div class="courseindex-section__title-wrapper">
-            <a href="{{{sectionurl}}}"
-               class="courseindex-section__title courseindex-link text-truncate"
-               data-action="togglecourseindexsection"
-               data-for="section_title"
-               tabindex="-1">
-                {{{title}}}
-            </a>
-            {{#current}}
-            <span class="courseindex-section__badge">{{highlighted}}</span>
-            {{/current}}
-            <span class="courseindex-locked" data-for="cm_name">
-                {{#pix}} t/locked, core {{/pix}}
+                aria-controls="courseindex-section-content-{{number}}">
+            
+            <span class="courseindex-section__chevron"></span>
+            
+            <span class="courseindex-section__title">{{{title}}}</span>
+            
+            <span class="courseindex-section__progress" data-region="section-progress" aria-hidden="true">
+                <span class="courseindex-section__progress-value" data-region="section-progress-value"></span>
             </span>
-        </div>
-        <div class="courseindex-section__progress" data-region="section-progress">
-            <span class="courseindex-section__progress-value" data-region="section-progress-value">—</span>
-            <span class="sr-only" data-region="section-progress-text">{{#str}}sectionprogressnotracked, theme_compecer{{/str}}</span>
-        </div>
+            
+            <span class="sr-only" data-region="section-progress-text"></span>
+            
+        </button>
+        
+        {{#current}}
+        <span class="courseindex-section__badge" aria-label="{{highlighted}}">{{highlighted}}</span>
+        {{/current}}
+        
+        {{#hasrestrictions}}
+        <span class="courseindex-section__locked" data-for="section_restrictions">
+            {{#pix}} t/locked, core {{/pix}}
+        </span>
+        {{/hasrestrictions}}
+        
     </div>
-    <div id="course-index-collapse{{number}}"
+    
+    {{! Section content - collapsible list }}
+    <div id="courseindex-section-content-{{number}}"
          class="courseindex-section__content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
-         aria-labelledby="course-index-section{{number}}"
+         aria-labelledby="courseindex-section-header-{{number}}" 
          role="group">
-        <ul class="courseindex-section__list unlist" data-for="cmlist" data-id="{{id}}" role="group">
+        <ul class="courseindex-section__list" data-for="cmlist" data-id="{{id}}" role="group">
             {{#cms}}
                 {{> core_courseformat/local/courseindex/cm}}
             {{/cms}}
         </ul>
     </div>
+    
 </div>
+
 {{#js}}
 require(['core_courseformat/local/courseindex/section'], function(component) {
-  component.init('{{uniqid}}-course-index-section-{{id}}');
+    component.init('{{uniqid}}-course-index-section-{{id}}');
 });
 {{/js}}

@@ -198,268 +198,6 @@ section#sidepre-blocks section.card {
   border-bottom: 2px dashed lighten($gray, 40%);
 }
 
-/*******************
-  Course index drawer
-*******************/
-.courseindex.courseindex--compecer {
-  padding: 1.5rem 1.25rem;
-
-  .courseindex-progress-card {
-    background-color: $white;
-    border: 1px solid lighten($gray, 35%);
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-    box-shadow: 0 10px 25px rgba($black, 0.04);
-    margin-bottom: 1.5rem;
-  }
-
-  .courseindex-progress-card__header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .courseindex-progress-card__title {
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-    color: lighten($gray, 20%);
-  }
-
-  .courseindex-progress-card__value {
-    font-size: 2rem;
-    font-weight: 600;
-    color: $primary-blue;
-    line-height: 1;
-  }
-
-  .courseindex-progress-card__summary {
-    margin-top: 0.35rem;
-    font-size: 0.875rem;
-    color: lighten($gray, 5%);
-  }
-
-  .courseindex-progress-bar {
-    position: relative;
-    margin-top: 1rem;
-    height: 0.5rem;
-    border-radius: 999px;
-    background-color: lighten($gray, 38%);
-    overflow: hidden;
-  }
-
-  .courseindex-progress-bar__fill {
-    display: block;
-    height: 100%;
-    width: var(--progress, 0%);
-    background: linear-gradient(90deg, lighten($primary-blue, 10%), $primary-blue);
-    transition: width 0.3s ease;
-  }
-
-  .courseindex-progress-bar__fill.is-disabled {
-    background: lighten($gray, 25%);
-  }
-
-  .courseindex-body {
-    margin-top: 0.5rem;
-  }
-
-  .courseindex-section {
-    & + .courseindex-section {
-      margin-top: 0.5rem;
-    }
-  }
-
-  .courseindex-section__header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid lighten($gray, 40%);
-  }
-
-  .courseindex-section__toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 999px;
-    border: 0;
-    background: transparent;
-    color: lighten($gray, 10%);
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-
-  .courseindex-section__toggle:hover,
-  .courseindex-section__toggle:focus {
-    background: rgba($primary-blue, 0.08);
-    color: $primary-blue;
-    outline: none;
-    box-shadow: 0 0 0 0.15rem rgba($primary-blue, 0.15);
-  }
-
-  .courseindex-section__toggle-icon {
-    display: inline-block;
-    width: 0.65rem;
-    height: 0.65rem;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: rotate(45deg);
-    transition: transform 0.25s ease;
-  }
-
-  .courseindex-section__toggle.collapsed .courseindex-section__toggle-icon {
-    transform: rotate(-45deg);
-  }
-
-  .courseindex-section__title {
-    flex: 1 1 auto;
-    font-weight: 600;
-    color: darken($gray, 20%);
-    margin-right: 0.5rem;
-  }
-
-  .courseindex-section__title:hover,
-  .courseindex-section__title:focus {
-    color: $primary-blue;
-  }
-
-  .courseindex-section__badge {
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: $primary-blue;
-    background-color: rgba($primary-blue, 0.12);
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
-  }
-
-  .courseindex-section__progress {
-    margin-left: auto;
-    text-align: right;
-    min-width: 3.5rem;
-  }
-
-  .courseindex-section__progress-value {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: lighten($gray, 5%);
-  }
-
-  .courseindex-section__content {
-    padding: 0.25rem 0 0.25rem 2.75rem;
-  }
-
-  .courseindex-section__list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .courseindex-item {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid lighten($gray, 45%);
-
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-
-  .courseindex-item__wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .courseindex-item__link {
-    flex: 1 1 auto;
-    color: darken($gray, 20%);
-    font-weight: 500;
-  }
-
-  .courseindex-item__link:hover,
-  .courseindex-item__link:focus {
-    color: $primary-blue;
-  }
-
-  .courseindex-item__status {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 999px;
-    border: 1.5px solid lighten($gray, 35%);
-    color: lighten($gray, 10%);
-    background-color: $white;
-    font-size: 0.9rem;
-    transition: color 0.2s ease, border-color 0.2s ease;
-  }
-
-  .courseindex-item__status::before {
-    content: '\25CB';
-  }
-
-  .courseindex-item__status--inprogress {
-    color: $primary-blue;
-    border-color: rgba($primary-blue, 0.4);
-  }
-
-  .courseindex-item__status--inprogress::before {
-    content: '\25D4';
-  }
-
-  .courseindex-item__status--completed {
-    color: $success;
-    border-color: rgba($success, 0.5);
-  }
-
-  .courseindex-item__status--completed::before {
-    content: '\2713';
-    font-weight: 700;
-  }
-
-  .courseindex-item__status--failed {
-    color: $danger;
-    border-color: rgba($danger, 0.45);
-  }
-
-  .courseindex-item__status--failed::before {
-    content: '\2715';
-  }
-
-  .courseindex-item__meta {
-    margin-left: calc(1.5rem + 0.75rem);
-    font-size: 0.75rem;
-    color: lighten($gray, 5%);
-    min-height: 1rem;
-  }
-
-  .courseindex-item__status-label {
-    display: inline-block;
-  }
-
-  .courseindex-item.active .courseindex-item__link {
-    color: $primary-blue;
-    font-weight: 600;
-  }
-
-  .courseindex-item:hover .courseindex-item__link {
-    color: $primary-blue;
-  }
-
-  .courseindex-item.dimmed .courseindex-item__link {
-    color: lighten($gray, 30%);
-  }
-
-  .courseindex-item.restrictions .courseindex-item__link {
-    color: lighten($gray, 15%);
-  }
-}
-
 .nav-tabs .nav-link {
   border: 2px solid transparent;
 }
@@ -1424,386 +1162,398 @@ section.node-category {
   /* Ajustes para dispositivos con anchura menor a 480px */
 }
 
-// -----------------------------------------------------------------------------
-// Course index redesign inspired by Remui
-// -----------------------------------------------------------------------------
+// ============================================================================
+// COURSE INDEX - Minimal Professional Design (Inspired by Remui)
+// ============================================================================
+//
+// ⚠️ IMPORTANTE: Este bloque se alinea con la implementación de Remui.
+// Referencias principales tomadas de theme/remui/scss/moodle/courseindex.scss
+// (líneas 1-110 aprox.) para paddings, colores base y comportamiento del
+// chevron/icons-collapse-expand.
+// ============================================================================
 
-// Adapted palette and type scale from project brief.
-$ci-white: #ffffff;
-$ci-gray-50: #f9fafb;
-$ci-gray-200: #e5e7eb;
-$ci-gray-600: #6b7280;
-$ci-gray-900: #111827;
-$ci-primary: #3b82f6;
-$ci-success: #10b981;
-$ci-danger: #ef4444;
+// ----------------------------------------------------------------------------
+// 1. Variables
+// ----------------------------------------------------------------------------
 
-$ci-text-xs: 0.75rem;
-$ci-text-sm: 0.875rem;
-$ci-text-base: 1rem;
-$ci-text-lg: 1.125rem;
+$ci-white: #ffffff !default;
+$ci-gray-50: #f9fafb !default;
+$ci-gray-200: #e5e7eb !default;
+$ci-gray-600: #6b7280 !default;
+$ci-gray-900: #111827 !default;
+$ci-primary: #3b82f6 !default;
+$ci-success: #10b981 !default;
+$ci-danger: #ef4444 !default;
 
-$ci-font-normal: 400;
-$ci-font-medium: 500;
-$ci-font-semibold: 600;
+$ci-text-xs: 0.75rem !default;
+$ci-text-sm: 0.875rem !default;
+$ci-text-base: 1rem !default;
+$ci-text-lg: 1.125rem !default;
 
-$ci-space-2: 0.5rem;
-$ci-space-3: 0.75rem;
-$ci-space-4: 1rem;
-$ci-space-5: 1.25rem;
-$ci-space-6: 1.5rem;
+$ci-font-normal: 400 !default;
+$ci-font-medium: 500 !default;
+$ci-font-semibold: 600 !default;
 
-// Adapted baseline paddings and hover behaviour from theme/remui/scss/moodle/courseindex.scss.
-.courseindex--compecer {
+$ci-space-2: 0.5rem !default; // Coincide con $courseindex-item-padding-y de Remui.
+$ci-space-3: 0.75rem !default;
+$ci-space-4: 1rem !default;
+$ci-space-5: 1.25rem !default;
+$ci-space-6: 1.5rem !default;
+
+$ci-border-radius: 0.5rem !default;
+$ci-transition-speed: 0.15s !default;
+
+// ----------------------------------------------------------------------------
+// 2. Drawer Base
+// ----------------------------------------------------------------------------
+
+.courseindex-drawer {
   background-color: $ci-white;
-  padding: $ci-space-4;
+  padding: $ci-space-5 $ci-space-4;
+}
+
+.courseindex-content {
+  margin-top: $ci-space-5;
+}
+
+// ----------------------------------------------------------------------------
+// 3. Progress Header
+// ----------------------------------------------------------------------------
+
+.courseindex-progress-header {
+  background-color: $ci-gray-50;
+  border: 1px solid $ci-gray-200;
+  border-radius: $ci-border-radius;
+  padding: $ci-space-5;
+  margin-bottom: $ci-space-5;
+}
+
+.courseindex-progress-header__content {
   display: flex;
-  flex-direction: column;
-  gap: $ci-space-4;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: $ci-space-2;
+}
 
-  .courseindex-body {
-    display: flex;
-    flex-direction: column;
-    gap: $ci-space-3;
-  }
+.courseindex-progress-header__title {
+  font-size: $ci-text-sm;
+  font-weight: $ci-font-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $ci-gray-600;
+  margin: 0;
+}
 
-  .courseindex-link {
-    color: $ci-gray-900;
-    font-size: $ci-text-sm;
-    font-weight: $ci-font-medium;
-    text-decoration: none;
+.courseindex-progress-header__value {
+  font-size: 1.75rem;
+  font-weight: $ci-font-semibold;
+  color: $ci-primary;
+  margin: 0;
+  line-height: 1;
+}
 
-    &:hover,
-    &:focus {
-      color: $ci-primary;
-      text-decoration: none;
-    }
-  }
+.courseindex-progress-header__summary {
+  font-size: $ci-text-sm;
+  color: $ci-gray-600;
+  margin: 0 0 $ci-space-4 0;
+}
 
-  .courseindex-progress-card {
-    background-color: $ci-gray-50;
-    border: 1px solid $ci-gray-200;
-    border-radius: $ci-space-4;
-    padding: $ci-space-4;
-    display: flex;
-    flex-direction: column;
-    gap: $ci-space-3;
+.courseindex-progress-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background-color: rgba($ci-primary, 0.15);
+  overflow: hidden;
+}
 
-    &__header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: $ci-space-3;
-    }
+.courseindex-progress-bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background-color: $ci-primary;
+  width: var(--progress, 0%);
+  transition: width 0.3s ease;
+}
 
-    &__title {
-      font-size: $ci-text-sm;
-      font-weight: $ci-font-semibold;
-      color: $ci-gray-600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
+.courseindex-progress-header--disabled {
+  background-color: transparent;
+  border: none;
+  padding: $ci-space-4 0;
+  margin-bottom: $ci-space-5;
+}
 
-    &__value {
-      font-size: $ci-text-lg;
-      font-weight: $ci-font-semibold;
-      color: $ci-gray-900;
-    }
+// ----------------------------------------------------------------------------
+// 4. Section Styles
+// ----------------------------------------------------------------------------
 
-    &__summary {
-      font-size: $ci-text-sm;
-      font-weight: $ci-font-normal;
-      color: $ci-gray-600;
-      margin: 0;
-    }
-  }
+.courseindex-section {
+  margin-bottom: $ci-space-2;
 
-  .courseindex-progress-bar {
-    position: relative;
-    width: 100%;
-    height: 0.5rem;
-    background-color: $ci-gray-200;
-    border-radius: 999px;
-    overflow: hidden;
-    transition: background-color 0.2s ease;
-
-    &__fill {
-      display: block;
-      width: var(--progress, 0%);
-      height: 100%;
-      background-color: $ci-primary;
-      border-radius: inherit;
-      transition: width 0.3s ease;
-
-      &.is-disabled {
-        background: rgba($ci-gray-600, 0.2);
-      }
-    }
-  }
-
-  .courseindex-section--compecer {
-    border: 1px solid $ci-gray-200;
-    border-radius: $ci-space-4;
-    background-color: $ci-white;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
-
-    &.current {
-      border-color: rgba($ci-primary, 0.45);
-      box-shadow: 0 6px 18px rgba($ci-primary, 0.08);
-    }
-
-    .courseindex-section__header {
-      display: flex;
-      align-items: center;
-      gap: $ci-space-3;
-      padding: $ci-space-3 $ci-space-4;
-    }
-
-    .courseindex-section__title-wrapper {
-      display: flex;
-      align-items: center;
-      gap: $ci-space-3;
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-
-    .courseindex-section__title {
-      font-size: $ci-text-base;
-      font-weight: $ci-font-semibold;
-      color: $ci-gray-900;
-      margin: 0;
-    }
-
-    .courseindex-section__badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 0 $ci-space-2;
-      border-radius: 999px;
-      background-color: rgba($ci-primary, 0.12);
-      color: $ci-primary;
-      font-size: $ci-text-xs;
-      font-weight: $ci-font-medium;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .courseindex-section__progress {
-      display: flex;
-      align-items: center;
-      gap: $ci-space-2;
-      font-size: $ci-text-sm;
-      color: $ci-gray-600;
-    }
-
-    .courseindex-section__progress-value {
-      font-weight: $ci-font-medium;
-      color: $ci-gray-900;
-    }
-
-    .courseindex-section__toggle {
-      // Chevron behaviour adapted from theme/remui/scss/moodle/courseindex.scss icons-collapse-expand block.
-      border: 0;
-      background: transparent;
-      padding: 0;
-      width: 2rem;
-      height: 2rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: $ci-gray-600;
-      transition: color 0.2s ease;
-
-      &:hover,
-      &:focus-visible {
-        color: $ci-primary;
-        outline: none;
-      }
-
-      .courseindex-section__chevron {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.15s ease;
-
-        &::before {
-          content: '\\f078';
-          font-family: 'Font Awesome 6 Free';
-          font-weight: 900;
-          font-size: $ci-text-sm;
-        }
-      }
-
-      &.collapsed .courseindex-section__chevron {
-        transform: rotate(-90deg);
-      }
-    }
-
-    .courseindex-section__content {
-      border-top: 1px solid $ci-gray-200;
-      padding: 0 $ci-space-4 $ci-space-4;
-    }
-
-    .courseindex-section__list {
-      list-style: none;
-      margin: 0;
-      padding: $ci-space-3 0 0;
-      display: flex;
-      flex-direction: column;
-      gap: $ci-space-2;
-    }
-  }
-
-  .courseindex-item--compecer {
-    border-radius: $ci-space-3;
-    padding: $ci-space-3;
-    display: flex;
-    align-items: center;
-    gap: $ci-space-3;
-    transition: background-color 0.15s ease, transform 0.15s ease;
-
-    &:hover,
-    &:focus-within {
-      background-color: $ci-gray-50;
-    }
-
-    &.active {
-      background-color: rgba($ci-primary, 0.08);
-      box-shadow: inset 2px 0 0 $ci-primary;
-    }
-
-    &.dimmed {
-      .courseindex-item__link {
-        color: $ci-gray-600;
-      }
-    }
-
-    &.restrictions {
-      .courseindex-locked {
-        display: inline-flex;
-      }
-    }
-
-    .courseindex-item__wrapper {
-      display: flex;
-      align-items: center;
-      gap: $ci-space-3;
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-
-    .courseindex-item__content {
-      display: flex;
-      align-items: center;
-      gap: $ci-space-2;
-      min-width: 0;
-      flex: 1 1 auto;
-    }
-
-    .courseindex-item__link {
-      flex: 1 1 auto;
-      min-width: 0;
-      font-size: $ci-text-sm;
-      font-weight: $ci-font-normal;
-      color: $ci-gray-900;
-      text-decoration: none;
-
-      &:hover,
-      &:focus {
-        color: $ci-primary;
-        text-decoration: none;
-      }
-    }
-
-    .courseindex-item__meta {
-      display: flex;
-      align-items: center;
-      gap: $ci-space-2;
-      min-width: 4.5rem;
-      justify-content: flex-end;
-    }
-
-    .courseindex-item__status-label {
-      font-size: $ci-text-xs;
-      font-weight: $ci-font-medium;
-      color: $ci-gray-600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .courseindex-locked {
-      display: none;
-      font-size: $ci-text-xs;
-      color: $ci-gray-600;
-    }
-  }
-
-  .courseindex-item__status {
-    width: 1.5rem;
-    height: 1.5rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    &::before {
-      font-family: 'Font Awesome 6 Free';
-      font-size: $ci-text-sm;
-      font-weight: 400;
-      content: '\\f111';
-      color: rgba($ci-gray-600, 0.4);
-    }
-
-    &.courseindex-item__status--inprogress::before {
-      content: '\\f252';
-      font-weight: 900;
-      color: $ci-primary;
-    }
-
-    &.courseindex-item__status--completed::before {
-      content: '\\f058';
-      font-weight: 900;
-      color: $ci-success;
-    }
-
-    &.courseindex-item__status--failed::before {
-      content: '\\f057';
-      font-weight: 900;
-      color: $ci-danger;
-    }
+  & + & {
+    border-top: 1px solid rgba($ci-gray-200, 0.6);
+    padding-top: $ci-space-3;
   }
 }
 
-@media (max-width: 768px) {
-  .courseindex--compecer {
-    padding: $ci-space-3;
+.courseindex-section__header {
+  display: flex;
+  align-items: center;
+  gap: $ci-space-3;
+}
 
-    .courseindex-section__header {
-      flex-wrap: wrap;
-    }
+.courseindex-section__toggle {
+  // Chevron behaviour adaptado del bloque icons-collapse-expand de Remui.
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: $ci-space-2;
+  background: none;
+  border: none;
+  border-radius: $ci-border-radius;
+  cursor: pointer;
+  transition: background-color $ci-transition-speed ease;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
 
-    .courseindex-section__progress {
-      width: 100%;
-      justify-content: space-between;
-      margin-top: $ci-space-2;
-    }
+  &:hover {
+    background-color: $ci-gray-50;
+  }
 
-    .courseindex-item--compecer {
-      flex-direction: column;
-      align-items: flex-start;
+  &:focus {
+    outline: 2px solid $ci-primary;
+    outline-offset: 2px;
+  }
+}
 
-      .courseindex-item__meta {
-        width: 100%;
-        justify-content: flex-start;
-      }
-    }
+.courseindex-section__chevron {
+  // Basado en el tamaño general de .courseindex-chevron de Remui.
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: $ci-space-2;
+  flex-shrink: 0;
+  transition: transform $ci-transition-speed ease;
+
+  &::before {
+    // Adaptado de icons-collapse-expand (Remui) usando Font Awesome sólido.
+    content: '\f078';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: $ci-gray-600;
+    font-size: $ci-text-sm;
+  }
+
+  .courseindex-section__toggle--collapsed & {
+    transform: rotate(-90deg);
+  }
+}
+
+.courseindex-section__title {
+  flex: 1;
+  font-size: $ci-text-lg;
+  font-weight: $ci-font-semibold;
+  color: $ci-gray-900;
+  margin-right: $ci-space-3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courseindex-section__progress {
+  font-size: $ci-text-sm;
+  color: $ci-gray-600;
+  white-space: nowrap;
+}
+
+.courseindex-section__badge {
+  margin-left: $ci-space-2;
+  padding: 0.25rem 0.5rem;
+  background-color: $ci-primary;
+  color: $ci-white;
+  font-size: $ci-text-xs;
+  font-weight: $ci-font-medium;
+  border-radius: 999px;
+}
+
+.courseindex-section__locked {
+  margin-left: $ci-space-2;
+  color: $ci-gray-600;
+  font-size: $ci-text-sm;
+}
+
+.courseindex-section__header--dimmed {
+  opacity: 0.55;
+}
+
+.courseindex-section__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  padding-left: $ci-space-6;
+}
+
+// ----------------------------------------------------------------------------
+// 5. Activity/CM Styles
+// ----------------------------------------------------------------------------
+
+.courseindex-item {
+  display: flex;
+  align-items: center;
+  padding: $ci-space-2 $ci-space-2; // Igual que $courseindex-item-padding de Remui.
+  border-radius: $ci-border-radius;
+  transition: background-color $ci-transition-speed ease;
+
+  &:hover {
+    background-color: $ci-gray-50;
+  }
+}
+
+.courseindex-item__content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.courseindex-item .completioninfo {
+  // Mantener oculto visualmente, tomado del patrón accesible clásico.
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.courseindex-item__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: $ci-space-3;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+// Estados de finalización inspirados en el uso de .completioninfo en Remui.
+.courseindex-item__status--notstarted::before,
+.courseindex-item__status--inprogress::before,
+.courseindex-item__status--completed::before,
+.courseindex-item__status--failed::before {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 400;
+}
+
+.courseindex-item__status--notstarted::before {
+  content: '\f111';
+  color: rgba($ci-gray-600, 0.4);
+}
+
+.courseindex-item__status--inprogress::before {
+  content: '\f252';
+  color: $ci-primary;
+}
+
+.courseindex-item__status--completed::before {
+  content: '\f058';
+  color: $ci-success;
+}
+
+.courseindex-item__status--failed::before {
+  content: '\f057';
+  color: $ci-danger;
+}
+
+.courseindex-item__link {
+  flex: 1;
+  min-width: 0;
+  color: $ci-gray-900;
+  text-decoration: none;
+
+  &:hover {
+    color: $ci-primary;
+  }
+
+  &:focus {
+    outline: 2px solid $ci-primary;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.courseindex-item__link--not-visible {
+  opacity: 0.6;
+}
+
+.courseindex-item__name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: $ci-text-base;
+  font-weight: $ci-font-normal;
+}
+
+.courseindex-item__locked {
+  margin-left: $ci-space-2;
+  color: $ci-gray-600;
+  font-size: $ci-text-sm;
+}
+
+.courseindex-item--active {
+  background-color: rgba($ci-primary, 0.08);
+  border-left: 3px solid $ci-primary;
+  padding-left: calc(#{$ci-space-2} - 3px);
+}
+
+.courseindex-item--dimmed {
+  opacity: 0.5;
+}
+
+.courseindex-item--indented {
+  padding-left: $ci-space-5;
+}
+
+// ----------------------------------------------------------------------------
+// 6. Responsive
+// ----------------------------------------------------------------------------
+
+@media (max-width: 767px) {
+  .courseindex-drawer {
+    padding: $ci-space-4;
+  }
+
+  .courseindex-progress-header {
+    padding: $ci-space-4;
+  }
+
+  .courseindex-progress-header__value {
+    font-size: 1.5rem;
+  }
+
+  .courseindex-section__title {
+    font-size: $ci-text-base;
+  }
+
+  .courseindex-section__list {
+    padding-left: $ci-space-4;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .courseindex--compecer {
-    *,
-    *::before,
-    *::after {
-      transition-duration: 0s !important;
-    }
+  .courseindex-drawer *,
+  .courseindex-drawer *::before,
+  .courseindex-drawer *::after {
+    transition-duration: 0s !important;
   }
 }
+// ============================================================================
+// END OF COURSE INDEX STYLES
+// ============================================================================
