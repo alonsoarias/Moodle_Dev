@@ -198,6 +198,19 @@ $string['icon_lightbulb'] = 'Light Bulb';
 $string['icon_chart'] = 'Chart Line';
 $string['icon_medal'] = 'Medal';
 $string['icon_certificate'] = 'Certificate';
+
+// Course index progress strings.
+$string['courseprogressheading'] = 'Course progress';
+$string['courseprogresssummary'] = '{$a->completed} of {$a->total} activities completed ({$a->percentage}%)';
+$string['courseprogressaria'] = 'Course progress: {$a->percentage}% complete';
+$string['courseprogressdisabled'] = 'Completion tracking disabled';
+$string['courseprogressdisabledsummary'] = 'This course does not track activity completion.';
+$string['sectionprogresssummary'] = '{$a->completed} of {$a->total} activities';
+$string['sectionprogressaria'] = 'Section progress: {$a->completed} of {$a->total} activities completed ({$a->percentage}% completed)';
+$string['completionstatus:notstarted'] = 'Not started';
+$string['completionstatus:inprogress'] = 'In progress';
+$string['completionstatus:completed'] = 'Completed';
+$string['completionstatus:failed'] = 'Failed';
 $string['icon_star'] = 'Star';
 $string['icon_rocket'] = 'Rocket';
 $string['icon_code'] = 'Code';
