@@ -97,13 +97,18 @@ class knowledge_repository {
         }
         $normalizedquestion = text_helper::normalize($question);
         $questiontokens = text_helper::tokenize($question);
+        $lowerquestion = core_text::strtolower(trim($question));
+        if ($lowerquestion !== '') {
+            $lowerquestion = preg_replace('/\s+/u', ' ', $lowerquestion);
+        }
+        $sqltokens = $this->build_search_tokens($lowerquestion, $questiontokens);
         $normalizedroles = array_filter(array_map(static function(string $role): string {
             return core_text::strtolower(trim($role));
         }, $roles));
 
         $scores = [];
 
-        $candidateids = $this->select_candidate_ids($normalizedquestion, $questiontokens, $courseid, $normalizedpage, max(30, $limit * 6));
+        $candidateids = $this->select_candidate_ids($lowerquestion, $normalizedquestion, $sqltokens, $courseid, $normalizedpage, max(30, $limit * 6));
         if (empty($candidateids)) {
             return [];
         }
@@ -273,7 +278,7 @@ class knowledge_repository {
      * @param int $limit
      * @return array<int,int>
      */
-    protected function select_candidate_ids(string $normalizedquestion, array $questiontokens, ?int $courseid, ?string $normalizedpage, int $limit): array {
+    protected function select_candidate_ids(string $lowerquestion, string $normalizedquestion, array $tokens, ?int $courseid, ?string $normalizedpage, int $limit): array {
         $joins = '';
         $conditions = ['k.enabled = 1'];
         $params = [];
@@ -295,8 +300,8 @@ class knowledge_repository {
         }
 
         $searchconditions = [];
-        if ($normalizedquestion !== '') {
-            $searchparam = '%' . $normalizedquestion . '%';
+        if ($lowerquestion !== '') {
+            $searchparam = '%' . $lowerquestion . '%';
             $searchconditions[] = $this->db->sql_like('LOWER(k.title)', ':searchtitle', false);
             $searchconditions[] = $this->db->sql_like('LOWER(k.summary)', ':searchsummary', false);
             $searchconditions[] = $this->db->sql_like('LOWER(k.tags)', ':searchtags', false);
@@ -304,8 +309,17 @@ class knowledge_repository {
             $params['searchsummary'] = $searchparam;
             $params['searchtags'] = $searchparam;
         }
+        if ($normalizedquestion !== '' && $normalizedquestion !== $lowerquestion) {
+            $searchparamnormalized = '%' . $normalizedquestion . '%';
+            $searchconditions[] = $this->db->sql_like('LOWER(k.title)', ':searchtitle_normalized', false);
+            $searchconditions[] = $this->db->sql_like('LOWER(k.summary)', ':searchsummary_normalized', false);
+            $searchconditions[] = $this->db->sql_like('LOWER(k.tags)', ':searchtags_normalized', false);
+            $params['searchtitle_normalized'] = $searchparamnormalized;
+            $params['searchsummary_normalized'] = $searchparamnormalized;
+            $params['searchtags_normalized'] = $searchparamnormalized;
+        }
 
-        $tokens = array_slice($questiontokens, 0, 6);
+        $tokens = array_slice($tokens, 0, 6);
         foreach ($tokens as $index => $token) {
             $paramname = 'token' . $index;
             $searchconditions[] = $this->db->sql_like('LOWER(k.content)', ':' . $paramname, false);
@@ -322,6 +336,51 @@ class knowledge_repository {
         $records = $this->db->get_records_sql($sql, $params, 0, $limit);
 
         return array_map('intval', array_keys($records));
+    }
+
+    /**
+     * Creates the pool of tokens used to build SQL LIKE filters preserving accents.
+     *
+     * @param string $lowerquestion
+     * @param array<int,string> $normalizedtokens
+     * @return array<int,string>
+     */
+    protected function build_search_tokens(string $lowerquestion, array $normalizedtokens): array {
+        $rawtokens = $this->extract_raw_tokens($lowerquestion);
+        $normalizedtokens = array_map(static function(string $token): string {
+            return core_text::strtolower(trim($token));
+        }, $normalizedtokens);
+        $pool = array_merge($rawtokens, $normalizedtokens);
+        $pool = array_filter($pool, static function($token): bool {
+            return is_string($token) && core_text::strlen(trim($token)) > 1;
+        });
+        $pool = array_map(static function(string $token): string {
+            return core_text::strtolower(trim($token));
+        }, $pool);
+
+        return array_values(array_unique($pool));
+    }
+
+    /**
+     * Splits the original question preserving accents for SQL matching.
+     *
+     * @param string $question
+     * @return array<int,string>
+     */
+    protected function extract_raw_tokens(string $question): array {
+        $question = trim($question);
+        if ($question === '') {
+            return [];
+        }
+
+        $tokens = preg_split('/[^\p{L}\p{N}]+/u', $question, -1, PREG_SPLIT_NO_EMPTY);
+        if (!$tokens) {
+            return [];
+        }
+
+        return array_values(array_map(static function(string $token): string {
+            return core_text::strtolower(trim($token));
+        }, $tokens));
     }
 
     /**
