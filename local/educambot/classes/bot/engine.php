@@ -277,8 +277,17 @@ class engine {
         if ($entries === false) {
             $entries = $this->db->get_records('local_educambot_rule', ['enabled' => 1], 'timemodified DESC');
             $cache->set('all', $entries);
+            return $entries;
         }
-        return $entries;
+
+        if (is_array($entries) && empty($entries)) {
+            if ($this->db->record_exists('local_educambot_rule', ['enabled' => 1])) {
+                $entries = $this->db->get_records('local_educambot_rule', ['enabled' => 1], 'timemodified DESC');
+                $cache->set('all', $entries);
+            }
+        }
+
+        return $entries ?: [];
     }
 
     /**
