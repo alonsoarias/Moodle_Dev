@@ -1426,3 +1426,387 @@ section.node-category {
 @media (max-width: 479px) {
   /* Ajustes para dispositivos con anchura menor a 480px */
 }
+// ============================================================================
+// COURSE INDEX - Minimal Professional Design (Inspired by Remui)
+// ============================================================================
+//
+// Philosophy: Minimalist, professional, clear hierarchy, generous spacing,
+//             limited colors, accessibility first
+//
+// Structure:
+// 1. Variables
+// 2. Drawer base
+// 3. Progress header
+// 4. Section styles
+// 5. Activity/CM styles
+// 6. States (hover, focus, active)
+// 7. Responsive
+//
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 1. Variables
+// ----------------------------------------------------------------------------
+
+// Colors
+$ci-white: #FFFFFF !default;
+$ci-gray-50: #F9FAFB !default;
+$ci-gray-200: #E5E7EB !default;
+$ci-gray-600: #6B7280 !default;
+$ci-gray-900: #111827 !default;
+$ci-primary: #3B82F6 !default;
+$ci-success: #10B981 !default;
+$ci-danger: #EF4444 !default;
+
+// Typography
+$ci-text-xs: 0.75rem !default;
+$ci-text-sm: 0.875rem !default;
+$ci-text-base: 1rem !default;
+$ci-text-lg: 1.125rem !default;
+
+$ci-font-normal: 400 !default;
+$ci-font-medium: 500 !default;
+$ci-font-semibold: 600 !default;
+
+// Spacing
+$ci-space-2: 0.5rem !default;
+$ci-space-3: 0.75rem !default;
+$ci-space-4: 1rem !default;
+$ci-space-5: 1.25rem !default;
+$ci-space-6: 1.5rem !default;
+
+// Other
+$ci-border-radius: 0.5rem !default;
+$ci-transition-speed: 0.15s !default;
+
+// ----------------------------------------------------------------------------
+// 2. Drawer Base
+// ----------------------------------------------------------------------------
+
+.courseindex-drawer {
+    background-color: $ci-white;
+    padding: $ci-space-5 $ci-space-4;
+}
+
+.courseindex-content {
+    margin-top: $ci-space-5;
+}
+
+// ----------------------------------------------------------------------------
+// 3. Progress Header
+// ----------------------------------------------------------------------------
+
+.courseindex-progress-header {
+    background-color: $ci-gray-50;
+    border: 1px solid $ci-gray-200;
+    border-radius: $ci-border-radius;
+    padding: $ci-space-5;
+    margin-bottom: $ci-space-5;
+}
+
+.courseindex-progress-header__content {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: $ci-space-2;
+}
+
+.courseindex-progress-header__title {
+    font-size: $ci-text-sm;
+    font-weight: $ci-font-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $ci-gray-600;
+    margin: 0;
+}
+
+.courseindex-progress-header__value {
+    font-size: 1.75rem;
+    font-weight: $ci-font-semibold;
+    color: $ci-primary;
+    margin: 0;
+    line-height: 1;
+}
+
+.courseindex-progress-header__summary {
+    font-size: $ci-text-sm;
+    color: $ci-gray-600;
+    margin: 0 0 $ci-space-4 0;
+}
+
+.courseindex-progress-bar {
+    width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    background-color: rgba($ci-primary, 0.15);
+    overflow: hidden;
+}
+
+.courseindex-progress-bar__fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background-color: $ci-primary;
+    width: var(--progress, 0%);
+    transition: width 0.3s ease;
+}
+
+.courseindex-progress-header--disabled {
+    background-color: transparent;
+    border: none;
+    padding: $ci-space-4 0;
+}
+
+// ----------------------------------------------------------------------------
+// 4. Section Styles
+// ----------------------------------------------------------------------------
+
+.courseindex-section {
+    margin-bottom: $ci-space-2;
+    
+    & + & {
+        border-top: 1px solid rgba($ci-gray-200, 0.6);
+        padding-top: $ci-space-3;
+    }
+}
+
+.courseindex-section__toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: $ci-space-3 $ci-space-2;
+    background: none;
+    border: none;
+    border-radius: $ci-border-radius;
+    cursor: pointer;
+    transition: background-color $ci-transition-speed ease;
+    font-family: inherit;
+    font-size: inherit;
+    text-align: left;
+    
+    &:hover {
+        background-color: $ci-gray-50;
+    }
+    
+    &:focus {
+        outline: 2px solid $ci-primary;
+        outline-offset: 2px;
+    }
+}
+
+.courseindex-section__chevron {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: $ci-space-2;
+    flex-shrink: 0;
+    
+    &::before {
+        content: '\\f078';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        color: $ci-gray-600;
+        font-size: $ci-text-sm;
+    }
+    
+    .courseindex-section__toggle--collapsed & {
+        transform: rotate(-90deg);
+    }
+    
+    transition: transform $ci-transition-speed ease;
+}
+
+.courseindex-section__title {
+    flex: 1;
+    font-size: $ci-text-lg;
+    font-weight: $ci-font-semibold;
+    color: $ci-gray-900;
+    margin-right: $ci-space-3;
+}
+
+.courseindex-section__progress {
+    font-size: $ci-text-sm;
+    color: $ci-gray-600;
+    white-space: nowrap;
+}
+
+.courseindex-section__badge {
+    margin-left: $ci-space-2;
+    padding: 0.25rem 0.5rem;
+    background-color: $ci-primary;
+    color: $ci-white;
+    font-size: $ci-text-xs;
+    font-weight: $ci-font-medium;
+    border-radius: 999px;
+}
+
+.courseindex-section__locked {
+    margin-left: $ci-space-2;
+    color: $ci-gray-600;
+    font-size: $ci-text-sm;
+}
+
+.courseindex-section__header--dimmed {
+    opacity: 0.5;
+}
+
+.courseindex-section__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    padding-left: $ci-space-6;
+}
+
+// ----------------------------------------------------------------------------
+// 5. Activity/CM Styles
+// ----------------------------------------------------------------------------
+
+.courseindex-item {
+    display: flex;
+    align-items: center;
+    padding: $ci-space-3 $ci-space-2;
+    border-radius: $ci-border-radius;
+    transition: background-color $ci-transition-speed ease;
+    
+    &:hover {
+        background-color: $ci-gray-50;
+    }
+}
+
+.courseindex-item__content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+// CRITICAL: Hide completioninfo visually but keep for core
+.courseindex-item .completioninfo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.courseindex-item__status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: $ci-space-3;
+    flex-shrink: 0;
+    font-size: 16px;
+}
+
+// Status icons
+.courseindex-item__status--notstarted::before {
+    content: '\\f111';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 400;
+    color: $ci-gray-600;
+    opacity: 0.4;
+}
+
+.courseindex-item__status--inprogress::before {
+    content: '\\f252';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 400;
+    color: $ci-primary;
+}
+
+.courseindex-item__status--completed::before {
+    content: '\\f058';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 400;
+    color: $ci-success;
+}
+
+.courseindex-item__status--failed::before {
+    content: '\\f057';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 400;
+    color: $ci-danger;
+}
+
+.courseindex-item__link {
+    flex: 1;
+    min-width: 0;
+    color: $ci-gray-900;
+    text-decoration: none;
+    
+    &:hover {
+        color: $ci-primary;
+    }
+    
+    &:focus {
+        outline: 2px solid $ci-primary;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+}
+
+.courseindex-item__name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: $ci-text-base;
+    font-weight: $ci-font-normal;
+}
+
+.courseindex-item__locked {
+    margin-left: $ci-space-2;
+    color: $ci-gray-600;
+    font-size: $ci-text-sm;
+}
+
+// States
+.courseindex-item--active {
+    background-color: rgba($ci-primary, 0.08);
+    border-left: 3px solid $ci-primary;
+    padding-left: calc(#{$ci-space-2} - 3px);
+}
+
+.courseindex-item--dimmed {
+    opacity: 0.5;
+}
+
+.courseindex-item--indented {
+    padding-left: $ci-space-5;
+}
+
+// ----------------------------------------------------------------------------
+// 6. Responsive
+// ----------------------------------------------------------------------------
+
+@media (max-width: 767px) {
+    .courseindex-drawer {
+        padding: $ci-space-4;
+    }
+    
+    .courseindex-progress-header {
+        padding: $ci-space-4;
+    }
+    
+    .courseindex-progress-header__value {
+        font-size: 1.5rem;
+    }
+    
+    .courseindex-section__title {
+        font-size: $ci-text-base;
+    }
+    
+    .courseindex-section__list {
+        padding-left: $ci-space-4;
+    }
+}
+
+// ============================================================================
+// END OF COURSE INDEX STYLES
+// ============================================================================
