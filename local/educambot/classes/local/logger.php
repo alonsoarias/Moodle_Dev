@@ -26,6 +26,7 @@ namespace local_educambot\local;
 
 use stdClass;
 use function clean_param;
+use function clean_text;
 use function purify_html;
 
 /**
@@ -58,7 +59,8 @@ class logger {
         if (!get_config('local_educambot', 'loggingenabled')) {
             return;
         }
-        $cleanquestion = clean_param($question, PARAM_TEXT);
+        $cleanquestion = clean_param($question, PARAM_RAW_TRIMMED);
+        $cleanquestion = clean_text($cleanquestion, FORMAT_PLAIN, ['trusted' => false]);
         $cleanpage = $page !== null ? clean_param($page, PARAM_NOTAGS) : null;
         $cleanresponse = $response !== null ? purify_html($response) : null;
 
@@ -87,7 +89,8 @@ class logger {
             return;
         }
 
-        $cleanquestion = clean_param($question, PARAM_TEXT);
+        $cleanquestion = clean_param($question, PARAM_RAW_TRIMMED);
+        $cleanquestion = clean_text($cleanquestion, FORMAT_PLAIN, ['trusted' => false]);
         $params = [
             'question' => $cleanquestion,
             'recent' => time() - DAYSECS,

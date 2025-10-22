@@ -33,6 +33,12 @@ $context = context_system::instance();
 require_capability('local/educambot:use', $context);
 
 $question = required_param('question', PARAM_RAW_TRIMMED);
+if ($question !== '') {
+    $maxquestionlength = 1000;
+    if (core_text::strlen($question) > $maxquestionlength) {
+        $question = core_text::substr($question, 0, $maxquestionlength);
+    }
+}
 $sessionid = optional_param('sessionid', '', PARAM_ALPHANUMEXT);
 $page = optional_param('page', '', PARAM_RAW_TRIMMED);
 
@@ -42,7 +48,7 @@ if ($sessionid === '') {
 
 $userid = isloggedin() && !isguestuser() ? (int)$USER->id : null;
 
-$engine = new \local_educambot\bot\engine($userid, $page);
+$engine = new \local_educambot\bot\engine($userid, $page, $sessionid);
 $result = $engine->respond($question);
 
 $response = $result['response'] ?? null;

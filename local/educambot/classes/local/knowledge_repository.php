@@ -38,6 +38,9 @@ class knowledge_repository {
     /** @var array<int,stdClass>|null */
     protected ?array $entries = null;
 
+    /** @var array<int,stdClass> */
+    protected array $entrybuffer = [];
+
     /** @var array<int,array>|null */
     protected ?array $topicsmap = null;
 
@@ -99,8 +102,19 @@ class knowledge_repository {
         }, $roles));
 
         $scores = [];
+
+        $candidateids = $this->select_candidate_ids($normalizedquestion, $questiontokens, $courseid, $normalizedpage, max(30, $limit * 6));
+        if (empty($candidateids)) {
+            return [];
+        }
+
+        $entries = $this->load_entries($candidateids);
         $contextmap = $this->get_context_map();
-        foreach ($this->get_entries() as $entry) {
+        foreach ($candidateids as $candidateid) {
+            if (!isset($entries[$candidateid])) {
+                continue;
+            }
+            $entry = $entries[$candidateid];
             $context = $contextmap[$entry->id] ?? ['courses' => [], 'courseids' => [], 'roles' => [], 'contexts' => []];
             if (!empty($context['roles'])) {
                 if (empty($normalizedroles)) {
@@ -145,22 +159,169 @@ class knowledge_repository {
     }
 
     /**
+     * Provides generic knowledge suggestions when no rule matches are available.
+     *
+     * @param int $limit
+     * @return array<int,stdClass>
+     */
+    public function get_top_suggestions(int $limit = 3): array {
+        $limit = max(1, $limit);
+        $sql = 'SELECT id FROM {local_educambot_knowledge} WHERE enabled = 1 ORDER BY timemodified DESC';
+        $records = $this->db->get_records_sql($sql, [], 0, $limit);
+        if (empty($records)) {
+            return [];
+        }
+        $ids = array_map('intval', array_keys($records));
+        $entries = $this->load_entries($ids);
+        $ordered = [];
+        foreach ($records as $record) {
+            $knowledgeid = (int)$record->id;
+            if (isset($entries[$knowledgeid])) {
+                $ordered[] = $entries[$knowledgeid];
+            }
+        }
+
+        return $ordered;
+    }
+
+    /**
      * Returns cached knowledge entries.
      *
      * @return array<int,stdClass>
      */
     protected function get_entries(): array {
+        return $this->load_entries();
+    }
+
+    /**
+     * Loads knowledge entries optionally restricted to a set of ids.
+     *
+     * @param array<int,int>|null $ids
+     * @return array<int,stdClass>
+     */
+    protected function load_entries(?array $ids = null): array {
+        if ($ids === null) {
+            if ($this->entries !== null) {
+                return $this->entries;
+            }
+            $cached = $this->entriescache->get('all');
+            if ($cached !== false) {
+                $this->entries = $cached;
+                return $this->entries;
+            }
+            $this->entries = $this->db->get_records('local_educambot_knowledge', ['enabled' => 1], 'timemodified DESC');
+            $this->entriescache->set('all', $this->entries);
+            return $this->entries;
+        }
+
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        if (empty($ids)) {
+            return [];
+        }
+
+        $results = [];
+        $missing = [];
+
         if ($this->entries !== null) {
-            return $this->entries;
+            foreach ($ids as $id) {
+                if (isset($this->entries[$id])) {
+                    $results[$id] = $this->entries[$id];
+                } else if (isset($this->entrybuffer[$id])) {
+                    $results[$id] = $this->entrybuffer[$id];
+                } else {
+                    $missing[] = $id;
+                }
+            }
+        } else {
+            foreach ($ids as $id) {
+                if (isset($this->entrybuffer[$id])) {
+                    $results[$id] = $this->entrybuffer[$id];
+                } else {
+                    $missing[] = $id;
+                }
+            }
         }
-        $cached = $this->entriescache->get('all');
-        if ($cached !== false) {
-            $this->entries = $cached;
-            return $this->entries;
+
+        if (!empty($missing)) {
+            $cachekey = 'subset_' . sha1(implode('_', $missing));
+            $cached = $this->entriescache->get($cachekey);
+            if ($cached !== false) {
+                foreach ($cached as $cachedid => $record) {
+                    $this->entrybuffer[$cachedid] = $record;
+                    $results[$cachedid] = $record;
+                }
+            } else {
+                $fetched = $this->db->get_records_list('local_educambot_knowledge', 'id', $missing);
+                $this->entriescache->set($cachekey, $fetched);
+                foreach ($fetched as $fetchedid => $record) {
+                    $this->entrybuffer[$fetchedid] = $record;
+                    $results[$fetchedid] = $record;
+                }
+            }
         }
-        $this->entries = $this->db->get_records('local_educambot_knowledge', ['enabled' => 1], 'timemodified DESC');
-        $this->entriescache->set('all', $this->entries);
-        return $this->entries;
+
+        return $results;
+    }
+
+    /**
+     * Selects candidate knowledge ids using basic text filtering.
+     *
+     * @param string $normalizedquestion
+     * @param array<int,string> $questiontokens
+     * @param int|null $courseid
+     * @param string|null $normalizedpage
+     * @param int $limit
+     * @return array<int,int>
+     */
+    protected function select_candidate_ids(string $normalizedquestion, array $questiontokens, ?int $courseid, ?string $normalizedpage, int $limit): array {
+        $joins = '';
+        $conditions = ['k.enabled = 1'];
+        $params = [];
+
+        $needscontextjoin = $courseid || $normalizedpage;
+        if ($needscontextjoin) {
+            $joins .= ' LEFT JOIN {local_educambot_kn_context} kc ON kc.knowledgeid = k.id';
+        }
+
+        if ($courseid) {
+            $conditions[] = '(kc.courseid IS NULL OR kc.courseid = :courseid)';
+            $params['courseid'] = $courseid;
+        }
+
+        if ($normalizedpage) {
+            $conditions[] = '(kc.pagecontext IS NULL OR kc.pagecontext = "" OR ' .
+                $this->db->sql_like('LOWER(kc.pagecontext)', ':pagecontext', false) . ')';
+            $params['pagecontext'] = '%' . core_text::strtolower($normalizedpage) . '%';
+        }
+
+        $searchconditions = [];
+        if ($normalizedquestion !== '') {
+            $searchparam = '%' . $normalizedquestion . '%';
+            $searchconditions[] = $this->db->sql_like('LOWER(k.title)', ':searchtitle', false);
+            $searchconditions[] = $this->db->sql_like('LOWER(k.summary)', ':searchsummary', false);
+            $searchconditions[] = $this->db->sql_like('LOWER(k.tags)', ':searchtags', false);
+            $params['searchtitle'] = $searchparam;
+            $params['searchsummary'] = $searchparam;
+            $params['searchtags'] = $searchparam;
+        }
+
+        $tokens = array_slice($questiontokens, 0, 6);
+        foreach ($tokens as $index => $token) {
+            $paramname = 'token' . $index;
+            $searchconditions[] = $this->db->sql_like('LOWER(k.content)', ':' . $paramname, false);
+            $params[$paramname] = '%' . core_text::strtolower($token) . '%';
+        }
+
+        if (!empty($searchconditions)) {
+            $conditions[] = '(' . implode(' OR ', $searchconditions) . ')';
+        }
+
+        $limit = max(10, $limit);
+        $sql = 'SELECT DISTINCT k.id FROM {local_educambot_knowledge} k' . $joins . ' WHERE ' . implode(' AND ', $conditions) .
+            ' ORDER BY k.timemodified DESC';
+        $records = $this->db->get_records_sql($sql, $params, 0, $limit);
+
+        return array_map('intval', array_keys($records));
     }
 
     /**
@@ -192,6 +353,36 @@ class knowledge_repository {
         }
         $this->topicscache->set('all', $this->topicsmap);
         return $this->topicsmap;
+    }
+
+    /**
+     * Returns topic names for a collection of knowledge ids.
+     *
+     * @param array<int,int> $ids
+     * @return array<int,array>
+     */
+    public function get_topics_for_ids(array $ids): array {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        if (empty($ids)) {
+            return [];
+        }
+
+        list($insql, $params) = $this->db->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+        $sql = 'SELECT kt.knowledgeid, t.name
+                  FROM {local_educambot_kn_topic} kt
+                  JOIN {local_educambot_topic} t ON t.id = kt.topicid
+                 WHERE kt.knowledgeid ' . $insql . '
+              ORDER BY t.name ASC';
+        $records = $this->db->get_records_sql($sql, $params);
+        $grouped = [];
+        foreach ($records as $record) {
+            $kid = (int)$record->knowledgeid;
+            $grouped[$kid][$record->name] = $record->name;
+        }
+        foreach ($grouped as $kid => $names) {
+            $grouped[$kid] = array_values($names);
+        }
+        return $grouped;
     }
 
     /**
@@ -349,7 +540,7 @@ class knowledge_repository {
                 if (isset($seen[$targetid])) {
                     continue;
                 }
-                $entries = $this->get_entries();
+                $entries = $this->load_entries([$targetid]);
                 if (!isset($entries[$targetid])) {
                     continue;
                 }

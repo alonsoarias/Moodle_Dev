@@ -25,12 +25,17 @@
 namespace local_educambot\bot;
 
 use cache;
+use context_system;
 use core_text;
 use local_educambot\bot\composite_reasoner;
 use local_educambot\bot\reasoner_interface;
+use local_educambot\context\session_memory;
+use local_educambot\inference\engine as inference_engine;
 use local_educambot\local\context_provider;
 use local_educambot\local\knowledge_repository;
 use local_educambot\local\text_helper;
+use local_educambot\matching\manager as matching_manager;
+use local_educambot\nlp\pipeline;
 use moodle_url;
 use stdClass;
 
@@ -38,6 +43,8 @@ use stdClass;
  * Implements a flexible rule engine with fuzzy matching heuristics.
  */
 class engine {
+    /** Number of proactive suggestions shown to the user. */
+    protected const SUGGESTION_LIMIT = 6;
     /** @var \moodle_database */
     protected $db;
 
@@ -62,6 +69,21 @@ class engine {
     /** @var reasoner_interface */
     protected reasoner_interface $reasoner;
 
+    /** @var inference_engine */
+    protected inference_engine $inference;
+
+    /** @var pipeline */
+    protected pipeline $pipeline;
+
+    /** @var matching_manager */
+    protected matching_manager $matcher;
+
+    /** @var session_memory */
+    protected session_memory $sessionmemory;
+
+    /** @var string|null */
+    protected ?string $sessionid;
+
     /** @var int|null Resolved course id from current page */
     protected ?int $courseid = null;
 
@@ -71,7 +93,7 @@ class engine {
      * @param int|null $userid
      * @param string|null $pageidentifier
      */
-    public function __construct(?int $userid, ?string $pageidentifier) {
+    public function __construct(?int $userid, ?string $pageidentifier, ?string $sessionid = null) {
         global $DB;
 
         $this->db = $DB;
@@ -82,7 +104,17 @@ class engine {
         $this->contextprovider = new context_provider($userid, $this->courseid, $pageidentifier);
         $this->knowledge = new knowledge_repository();
         $this->config = (array)get_config('local_educambot');
+        $this->sessionid = $sessionid;
+        $historylimit = (int)($this->config['historylimit'] ?? 8);
+        if ($historylimit <= 0) {
+            $historylimit = 8;
+        }
+        $historylimit = max(3, min(50, $historylimit));
+        $this->pipeline = new pipeline();
+        $this->matcher = new matching_manager($this->pipeline, $this->config);
+        $this->sessionmemory = new session_memory($this->sessionid, $historylimit);
         $this->reasoner = new composite_reasoner($this->contextprovider, $this->knowledge, $this->courseid, $this->normalizedpage);
+        $this->inference = new inference_engine($this->reasoner, $this->sessionmemory);
     }
 
     /**
@@ -97,20 +129,37 @@ class engine {
             return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => []];
         }
 
-        $scores = $this->rank_entries($question);
+        $analysis = $this->pipeline->process($question);
+        if ($this->sessionmemory->looks_like_followup($analysis['tokens'])) {
+            $historykeywords = $this->sessionmemory->aggregated_keywords();
+            if (!empty($historykeywords)) {
+                $analysis['keywords'] = array_values(array_unique(array_merge($analysis['keywords'], $historykeywords)));
+            }
+        }
+
+        $scores = $this->rank_entries($question, $analysis);
         $roles = $this->contextprovider->get_effective_roles();
         $knowledgehits = $this->knowledge->search($question, $this->courseid, $this->normalizedpage, $roles);
 
-        $decision = $this->reasoner->decide($question, $scores, $knowledgehits);
+        $decision = $this->inference->decide($question, $analysis, $scores, $knowledgehits);
         if ($decision) {
             if ($decision['type'] === 'rule') {
                 $winner = $decision['rule'];
-                $response = format_text($winner['entry']->response, FORMAT_HTML, ['filter' => true]);
+                $response = format_text($winner['entry']->response, FORMAT_HTML, [
+                    'filter' => true,
+                    'context' => context_system::instance(),
+                ]);
                 $response = $this->contextprovider->personalise_html($response, $this->config);
+                $confidence = round(min(1, $winner['score']), 4);
+                $this->sessionmemory->remember($question, $response, $analysis, [
+                    'ruleid' => (int)$winner['entry']->id,
+                    'knowledgeid' => null,
+                    'confidence' => $confidence,
+                ]);
                 return [
                     'response' => $response,
                     'ruleid' => (int)$winner['entry']->id,
-                    'confidence' => round(min(1, $winner['score']), 4),
+                    'confidence' => $confidence,
                     'suggestions' => $this->build_response_suggestions($scores, $question),
                 ];
             }
@@ -119,16 +168,31 @@ class engine {
                 $knowledgebundle = $decision['knowledge'];
                 $response = $this->build_knowledge_response($knowledgebundle);
                 $topscore = $knowledgebundle[0]['score'] ?? 0.5;
+                $confidence = round(min(1, max(0.35, $topscore)));
+                $knowledgeid = (int)($knowledgebundle[0]['record']->id ?? 0);
+                $this->sessionmemory->remember($question, $response, $analysis, [
+                    'ruleid' => null,
+                    'knowledgeid' => $knowledgeid ?: null,
+                    'confidence' => $confidence,
+                ]);
                 return [
                     'response' => $response,
                     'ruleid' => null,
-                    'confidence' => round(min(1, max(0.35, $topscore))),
+                    'confidence' => $confidence,
                     'suggestions' => $this->build_knowledge_suggestions($knowledgebundle),
                 ];
             }
         }
 
-        return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => $this->get_suggestions()];
+        $suggestions = $this->get_suggestions();
+        $fallback = get_string('noanswer', 'local_educambot');
+        $this->sessionmemory->remember($question, $fallback, $analysis, [
+            'ruleid' => null,
+            'knowledgeid' => null,
+            'confidence' => 0.0,
+        ]);
+
+        return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => $suggestions];
     }
 
     /**
@@ -136,48 +200,65 @@ class engine {
      *
      * @return array[]
      */
-    public function get_suggestions(): array {
-        $records = $this->db->get_records('local_educambot_rule', ['enabled' => 1, 'suggested' => 1], 'timemodified DESC');
+    public function get_suggestions(int $limit = self::SUGGESTION_LIMIT): array {
+        $limit = max(1, $limit);
+        $fetchlimit = min(120, max($limit * 6, 24));
+        $conditions = 'enabled = :enabled AND suggested = :suggested';
+        $params = ['enabled' => 1, 'suggested' => 1];
+        $fields = 'id, pattern, contexts, roles';
+        $records = $this->db->get_records_select('local_educambot_rule', $conditions, $params, 'timemodified DESC', $fields, 0, $fetchlimit);
+
         $suggestions = [];
         $normalizedpage = $this->normalizedpage ?? '';
-        foreach ($records as $record) {
-            if (!$this->entry_matches_roles($record)) {
-                continue;
-            }
-            if ($normalizedpage !== '' && !empty($record->contexts)) {
-                $contexts = $this->explode_lines($record->contexts);
-                $match = false;
-                foreach ($contexts as $context) {
-                    $normalizedcontext = text_helper::normalize($context);
-                    if ($normalizedcontext !== '' && str_contains($normalizedpage, $normalizedcontext)) {
-                        $match = true;
-                        break;
-                    }
-                }
-                if (!$match) {
-                    continue;
+        $addsuggestion = static function(array &$suggestions, string $id, string $text, int $limit): bool {
+            foreach ($suggestions as $existing) {
+                if ($existing['id'] === $id) {
+                    return count($suggestions) < $limit;
                 }
             }
             $suggestions[] = [
-                'id' => (int)$record->id,
-                'text' => format_string($record->pattern),
+                'id' => $id,
+                'text' => $text,
             ];
-            if (count($suggestions) >= 6) {
-                break;
+            return count($suggestions) < $limit;
+        };
+
+        if (!empty($records) && $normalizedpage !== '') {
+            foreach ($records as $record) {
+                if (empty($record->contexts) || !$this->entry_matches_roles($record)) {
+                    continue;
+                }
+                $contexts = $this->explode_lines($record->contexts);
+                foreach ($contexts as $context) {
+                    $normalizedcontext = text_helper::normalize($context);
+                    if ($normalizedcontext === '' || !str_contains($normalizedpage, $normalizedcontext)) {
+                        continue;
+                    }
+                    $continue = $addsuggestion($suggestions, 'rule-' . (int)$record->id, format_string($record->pattern), $limit);
+                    if (!$continue) {
+                        return $suggestions;
+                    }
+                    break;
+                }
             }
         }
 
-        if (empty($suggestions)) {
+        if (count($suggestions) < $limit && !empty($records)) {
             foreach ($records as $record) {
                 if (!$this->entry_matches_roles($record)) {
                     continue;
                 }
-                $suggestions[] = [
-                    'id' => (int)$record->id,
-                    'text' => format_string($record->pattern),
-                ];
-                if (count($suggestions) >= 6) {
-                    break;
+                if (!$addsuggestion($suggestions, 'rule-' . (int)$record->id, format_string($record->pattern), $limit)) {
+                    return $suggestions;
+                }
+            }
+        }
+
+        if (count($suggestions) < $limit) {
+            $needed = $limit - count($suggestions);
+            foreach ($this->knowledge->get_top_suggestions($needed) as $knowledge) {
+                if (!$addsuggestion($suggestions, 'knowledge-' . (int)$knowledge->id, format_string($knowledge->title), $limit)) {
+                    return $suggestions;
                 }
             }
         }
@@ -207,10 +288,8 @@ class engine {
      * @param bool $ignoreroles When true, role checks are skipped.
      * @return array
      */
-    protected function rank_entries(string $question, bool $ignoreroles = false): array {
+    protected function rank_entries(string $question, array $analysis, bool $ignoreroles = false): array {
         $entries = $this->get_entries();
-        $normalizedquestion = text_helper::normalize($question);
-        $questiontokens = text_helper::tokenize($question);
         $normalizedpage = $this->normalizedpage ?? '';
         $scores = [];
 
@@ -219,7 +298,8 @@ class engine {
                 continue;
             }
 
-            $score = $this->calculate_score($entry, $normalizedquestion, $question, $questiontokens, $normalizedpage);
+            $scoredata = $this->matcher->score_entry($entry, $analysis, $question, $normalizedpage);
+            $score = $scoredata['score'];
             if ($score <= 0) {
                 continue;
             }
@@ -227,6 +307,7 @@ class engine {
             $scores[] = [
                 'entry' => $entry,
                 'score' => min(1.5, $score),
+                'breakdown' => $scoredata['breakdown'],
             ];
         }
 
@@ -235,105 +316,6 @@ class engine {
         });
 
         return $scores;
-    }
-
-    /**
-     * Calculates the matching score for an entry.
-     *
-     * @param stdClass $entry
-     * @param string $normalizedquestion
-     * @param string $originalquestion
-     * @param array $questiontokens
-     * @param string $normalizedpage
-     * @return float
-     */
-    protected function calculate_score(
-        stdClass $entry,
-        string $normalizedquestion,
-        string $originalquestion,
-        array $questiontokens,
-        string $normalizedpage
-    ): float {
-        $score = 0.0;
-        $phrases = $this->get_phrases($entry);
-
-        foreach ($phrases as $phrase) {
-            $normalizedphrase = text_helper::normalize($phrase);
-            if ($normalizedphrase === '') {
-                continue;
-            }
-            if ($normalizedphrase === $normalizedquestion) {
-                $score += 1.0;
-                break;
-            }
-
-            $wildcardscore = $this->match_wildcard($phrase, $originalquestion, $normalizedquestion);
-            if ($wildcardscore !== null) {
-                if ($wildcardscore > 0) {
-                    $score += $wildcardscore;
-                    continue;
-                }
-            }
-
-            if (str_contains($normalizedquestion, $normalizedphrase)) {
-                $score += 0.85;
-            }
-
-            $phrasescore = text_helper::string_similarity($normalizedphrase, $normalizedquestion);
-            if ($phrasescore > 0.65) {
-                $score += $phrasescore * 0.7;
-            } else if ($phrasescore > 0.55) {
-                $score += $phrasescore * 0.4;
-            }
-
-            $phraseTokens = text_helper::tokenize($phrase);
-            $tokenoverlap = text_helper::token_overlap_score($phraseTokens, $questiontokens);
-            if ($tokenoverlap > 0) {
-                $score += $tokenoverlap * 0.6;
-            }
-        }
-
-        $keywords = $this->get_keywords($entry);
-        if (!empty($keywords)) {
-            $matchedkeywords = 0.0;
-            foreach ($keywords as $keyword) {
-                if (in_array($keyword, $questiontokens, true)) {
-                    $matchedkeywords++;
-                } else if ($keyword !== '' && str_contains($normalizedquestion, $keyword)) {
-                    $matchedkeywords += 0.5;
-                }
-            }
-            if ($matchedkeywords > 0) {
-                $score += min(0.3, ($matchedkeywords / max(1, count($keywords))) * 0.8);
-            }
-        }
-
-        if (!empty($entry->contexts)) {
-            $contexts = $this->explode_lines($entry->contexts);
-            foreach ($contexts as $context) {
-                $normalizedcontext = text_helper::normalize($context);
-                if ($normalizedcontext === '') {
-                    continue;
-                }
-                if ($normalizedpage !== '' && str_contains($normalizedpage, $normalizedcontext)) {
-                    $score += 0.15;
-                    break;
-                }
-                if (str_contains($normalizedquestion, $normalizedcontext)) {
-                    $score += 0.1;
-                    break;
-                }
-            }
-        }
-
-        if ($this->courseid && !empty($entry->contexts)) {
-            $course = $this->contextprovider->get_focus_course();
-            if ($course && str_contains(text_helper::normalize($course->fullname), $normalizedquestion)) {
-                $score += 0.1;
-            }
-        }
-
-        return $score;
     }
 
     /**
@@ -350,20 +332,26 @@ class engine {
         }
 
         $suggestions = [];
-        foreach (array_slice($scores, 0, 3) as $item) {
+        $usedids = [];
+        $addsuggestion = static function($id, string $text) use (&$suggestions, &$usedids): void {
+            $key = (string)$id;
+            if (isset($usedids[$key])) {
+                return;
+            }
             $suggestions[] = [
-                'id' => (int)$item['entry']->id,
-                'text' => format_string($item['entry']->pattern),
+                'id' => $id,
+                'text' => $text,
             ];
+            $usedids[$key] = true;
+        };
+
+        foreach (array_slice($scores, 0, 3) as $item) {
+            $addsuggestion('rule-' . (int)$item['entry']->id, format_string($item['entry']->pattern));
         }
 
         if (count($suggestions) < 3) {
             foreach ($this->get_suggestions() as $suggestion) {
-                $ids = array_column($suggestions, 'id');
-                if (in_array($suggestion['id'], $ids, true)) {
-                    continue;
-                }
-                $suggestions[] = $suggestion;
+                $addsuggestion($suggestion['id'], $suggestion['text']);
                 if (count($suggestions) >= 3) {
                     break;
                 }
@@ -377,43 +365,11 @@ class engine {
                 if (count($suggestions) >= 3) {
                     break;
                 }
-                $suggestions[] = [
-                    'id' => (int)$item['record']->id,
-                    'text' => format_string($item['record']->title),
-                ];
+                $addsuggestion('knowledge-' . (int)$item['record']->id, format_string($item['record']->title));
             }
         }
 
         return $suggestions;
-    }
-
-    /**
-     * Returns phrases including synonyms.
-     *
-     * @param stdClass $entry
-     * @return array
-     */
-    protected function get_phrases(stdClass $entry): array {
-        $phrases = [$entry->pattern];
-        if (!empty($entry->synonyms)) {
-            $phrases = array_merge($phrases, $this->explode_lines($entry->synonyms));
-        }
-        return array_filter(array_map('trim', $phrases));
-    }
-
-    /**
-     * Returns keywords array.
-     *
-     * @param stdClass $entry
-     * @return array
-     */
-    protected function get_keywords(stdClass $entry): array {
-        if (empty($entry->keywords)) {
-            return [];
-        }
-        $keywords = preg_split('/[,;]/', $entry->keywords, -1, PREG_SPLIT_NO_EMPTY);
-        $keywords = array_map(fn($keyword) => text_helper::normalize($keyword), $keywords);
-        return array_filter($keywords);
     }
 
     /**
@@ -459,34 +415,6 @@ class engine {
     }
 
     /**
-     * Attempts to match wildcard expressions from the knowledge base.
-     *
-     * @param string $phrase Original phrase as configured by the teacher.
-     * @param string $originalquestion Raw user question.
-     * @param string $normalizedquestion Normalised user question.
-     * @return float|null Matching score or null when the phrase does not contain wildcards.
-     */
-    protected function match_wildcard(string $phrase, string $originalquestion, string $normalizedquestion): ?float {
-        if (!str_contains($phrase, '*') && !str_contains($phrase, '?')) {
-            return null;
-        }
-
-        $pattern = preg_quote($phrase, '/');
-        $pattern = str_replace(['\\*', '\\?'], ['.*', '.'], $pattern);
-        $pattern = '/^' . $pattern . '$/iu';
-
-        if (preg_match($pattern, $originalquestion)) {
-            return 0.9;
-        }
-
-        if (preg_match($pattern, $normalizedquestion)) {
-            return 0.8;
-        }
-
-        return 0.0;
-    }
-
-    /**
      * Provides a preview of ranked entries for administrative tools.
      *
      * @param string $question
@@ -498,7 +426,8 @@ class engine {
         if (trim($question) === '') {
             return [];
         }
-        $scores = $this->rank_entries($question, $ignoreroles);
+        $analysis = $this->pipeline->process($question);
+        $scores = $this->rank_entries($question, $analysis, $ignoreroles);
         if ($limit > 0) {
             $scores = array_slice($scores, 0, $limit);
         }
@@ -577,7 +506,10 @@ class engine {
         foreach (array_slice($knowledge, 0, 3) as $item) {
             $record = $item['record'];
             $title = format_string($record->title);
-            $summary = format_text($record->summary, FORMAT_HTML, ['filter' => true]);
+            $summary = format_text($record->summary, FORMAT_HTML, [
+                'filter' => true,
+                'context' => context_system::instance(),
+            ]);
             $link = '';
             if (!empty($record->externalurl)) {
                 $link = \html_writer::link($record->externalurl, get_string('knowledgefallbackopen', 'local_educambot'));

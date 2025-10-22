@@ -113,7 +113,8 @@ function local_educambot_before_standard_html_head(?moodle_page $page = null, ?c
  * @return bool
  */
 function local_educambot_pluginfile($course, $cm, $context, string $filearea, array $args, bool $forcedownload, array $options = []) {
-    if ($context->contextlevel !== CONTEXT_SYSTEM || $filearea !== 'response') {
+    $allowedareas = ['response', 'knowledgecontent'];
+    if ($context->contextlevel !== CONTEXT_SYSTEM || !in_array($filearea, $allowedareas, true)) {
         return false;
     }
 
@@ -133,7 +134,7 @@ function local_educambot_pluginfile($course, $cm, $context, string $filearea, ar
     $filepath = empty($args) ? '/' : '/' . implode('/', $args) . '/';
 
     $fs = get_file_storage();
-    $file = $fs->get_file($context->id, 'local_educambot', 'response', $itemid, $filepath, $filename);
+    $file = $fs->get_file($context->id, 'local_educambot', $filearea, $itemid, $filepath, $filename);
     if (!$file || $file->is_directory()) {
         return false;
     }

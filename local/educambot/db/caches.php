@@ -54,4 +54,10 @@ $definitions = [
         'simpledata' => false,
         'ttl' => 900,
     ],
+    'user_courses' => [
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => false,
+        'ttl' => 300,
+    ],
 ];

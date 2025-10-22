@@ -123,7 +123,7 @@
                 <KEY NAME="targetfk" TYPE="foreign" FIELDS="targetid" REFTABLE="local_educambot_knowledge" REFFIELDS="id" />
             </KEYS>
             <INDEXES>
-                <INDEX NAME="relation_idx" UNIQUE="false" FIELDS="sourceid, targetid" />
+                <INDEX NAME="relation_idx" UNIQUE="true" FIELDS="sourceid, targetid" />
             </INDEXES>
         </TABLE>
         <TABLE NAME="local_educambot_kn_context" COMMENT="Context metadata associated to knowledge entries">

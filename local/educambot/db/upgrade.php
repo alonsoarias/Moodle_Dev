@@ -141,5 +141,74 @@ function xmldb_local_educambot_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2024060102, 'local', 'educambot');
     }
 
+    if ($oldversion < 2024060103) {
+        $table = new xmldb_table('local_educambot_relation');
+
+        $duplicates = $DB->get_records_sql('
+            SELECT MIN(id) AS keepid, sourceid, targetid
+              FROM {local_educambot_relation}
+          GROUP BY sourceid, targetid
+            HAVING COUNT(*) > 1
+        ');
+
+        foreach ($duplicates as $duplicate) {
+            $params = [
+                'sourceid' => $duplicate->sourceid,
+                'targetid' => $duplicate->targetid,
+                'keepid' => $duplicate->keepid,
+            ];
+            $DB->delete_records_select(
+                'local_educambot_relation',
+                'sourceid = :sourceid AND targetid = :targetid AND id <> :keepid',
+                $params
+            );
+        }
+
+        $oldindex = new xmldb_index('relation_idx', XMLDB_INDEX_NOTUNIQUE, ['sourceid', 'targetid']);
+        if ($dbman->index_exists($table, $oldindex)) {
+            $dbman->drop_index($table, $oldindex);
+        }
+
+        $index = new xmldb_index('relation_idx', XMLDB_INDEX_UNIQUE, ['sourceid', 'targetid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        upgrade_plugin_savepoint(true, 2024060103, 'local', 'educambot');
+    }
+
+    if ($oldversion < 2024060104) {
+        $dbfamily = $DB->get_dbfamily();
+        $prefix = $DB->get_prefix();
+
+        if ($dbfamily === 'mysql') {
+            $ruleindex = $DB->get_records_sql("SHOW INDEX FROM {$prefix}local_educambot_rule WHERE Key_name = 'rule_ft'");
+            if (empty($ruleindex)) {
+                $DB->execute("ALTER TABLE {$prefix}local_educambot_rule ADD FULLTEXT rule_ft (pattern, synonyms, keywords)");
+            }
+            $knowledgeindex = $DB->get_records_sql("SHOW INDEX FROM {$prefix}local_educambot_knowledge WHERE Key_name = 'knowledge_ft'");
+            if (empty($knowledgeindex)) {
+                $DB->execute("ALTER TABLE {$prefix}local_educambot_knowledge ADD FULLTEXT knowledge_ft (title, summary, content, tags)");
+            }
+        } else if ($dbfamily === 'postgres') {
+            $ruleidxname = $prefix . 'local_educambot_rule_ft_idx';
+            $knowledgeidxname = $prefix . 'local_educambot_kn_ft_idx';
+            $exists = $DB->record_exists_sql("SELECT 1 FROM pg_indexes WHERE indexname = ?", [$ruleidxname]);
+            if (!$exists) {
+                $DB->execute("CREATE INDEX {$ruleidxname} ON {$prefix}local_educambot_rule USING GIN (to_tsvector('simple', coalesce(pattern,'') || ' ' || coalesce(synonyms,'') || ' ' || coalesce(keywords,'')))");
+            }
+            $exists = $DB->record_exists_sql("SELECT 1 FROM pg_indexes WHERE indexname = ?", [$knowledgeidxname]);
+            if (!$exists) {
+                $DB->execute("CREATE INDEX {$knowledgeidxname} ON {$prefix}local_educambot_knowledge USING GIN (to_tsvector('simple', coalesce(title,'') || ' ' || coalesce(summary,'') || ' ' || coalesce(content,'') || ' ' || coalesce(tags,'')))");
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2024060104, 'local', 'educambot');
+    }
+
+    if ($oldversion < 2024060105) {
+        upgrade_plugin_savepoint(true, 2024060105, 'local', 'educambot');
+    }
+
     return true;
 }
