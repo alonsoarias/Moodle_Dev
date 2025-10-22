@@ -87,6 +87,20 @@ $string['enable_search_categoriesdesc'] = 'Habilita o deshabilita la sección de
 $string['enable_dashboard_cards'] = 'Habilitar Tarjetas del Panel';
 $string['enable_dashboard_cardsdesc'] = 'Habilita o deshabilita la sección de tarjetas del panel';
 
+// Índice del curso
+$string['courseprogressheading'] = 'Progreso del curso';
+$string['courseprogresssummary'] = '{$a->completed} de {$a->total} actividades ({$a->percentage}%)';
+$string['courseprogressaria'] = 'Curso completado al {$a->percentage}%';
+$string['courseprogressdisabled'] = 'Seguimiento desactivado';
+$string['courseprogressdisabledsummary'] = 'El seguimiento de finalización no está habilitado en este curso.';
+$string['sectionprogresssummary'] = '{$a->completed} de {$a->total} actividades completadas';
+$string['sectionprogressaria'] = 'Sección completada: {$a->completed} de {$a->total} actividades ({$a->percentage}%)';
+$string['sectionprogressnotracked'] = 'Sin seguimiento de progreso';
+$string['completionstatus:notstarted'] = 'No iniciada';
+$string['completionstatus:inprogress'] = 'En progreso';
+$string['completionstatus:completed'] = 'Completada';
+$string['completionstatus:failed'] = 'No superada';
+
 // Ajustes de Tarjetas del Panel
 $string['dashboard_card_heading'] = 'Tarjeta del Panel {$a}';
 $string['dashboard_card_visibility'] = 'Mostrar Tarjeta {$a}';

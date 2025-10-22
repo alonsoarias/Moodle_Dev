@@ -87,6 +87,20 @@ $string['enable_search_categoriesdesc'] = 'Enable or disable the search and cate
 $string['enable_dashboard_cards'] = 'Enable Dashboard Cards';
 $string['enable_dashboard_cardsdesc'] = 'Enable or disable the dashboard cards section';
 
+// Course index
+$string['courseprogressheading'] = 'Course progress';
+$string['courseprogresssummary'] = '{$a->completed} of {$a->total} activities ({$a->percentage}%)';
+$string['courseprogressaria'] = 'Course completed {$a->percentage}%';
+$string['courseprogressdisabled'] = 'Tracking disabled';
+$string['courseprogressdisabledsummary'] = 'Completion tracking is not enabled for this course.';
+$string['sectionprogresssummary'] = '{$a->completed} of {$a->total} activities completed';
+$string['sectionprogressaria'] = 'Section completion: {$a->completed} of {$a->total} activities ({$a->percentage}%)';
+$string['sectionprogressnotracked'] = 'Progress not tracked';
+$string['completionstatus:notstarted'] = 'Not started';
+$string['completionstatus:inprogress'] = 'In progress';
+$string['completionstatus:completed'] = 'Completed';
+$string['completionstatus:failed'] = 'Failed';
+
 // Dashboard Cards Settings
 $string['dashboard_card_heading'] = 'Dashboard Card {$a}';
 $string['dashboard_card_visibility'] = 'Show Card {$a}';

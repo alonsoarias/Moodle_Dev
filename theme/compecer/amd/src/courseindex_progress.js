@@ -8,7 +8,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
+define(['jquery', 'core/log'], function($, Log) {
     
     const SELECTORS = {
         statusIcon: '.courseindex-item__status',
