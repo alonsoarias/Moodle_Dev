@@ -207,6 +207,7 @@ $string['courseprogressdisabled'] = 'Completion tracking disabled';
 $string['courseprogressdisabledsummary'] = 'This course does not track activity completion.';
 $string['sectionprogresssummary'] = '{$a->completed} of {$a->total} activities';
 $string['sectionprogressaria'] = 'Section progress: {$a->completed} of {$a->total} activities completed ({$a->percentage}% completed)';
+$string['sectionprogressnotracked'] = 'No tracked activities in this section yet';
 $string['completionstatus:notstarted'] = 'Not started';
 $string['completionstatus:inprogress'] = 'In progress';
 $string['completionstatus:completed'] = 'Completed';

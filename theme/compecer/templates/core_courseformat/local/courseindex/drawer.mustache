@@ -24,19 +24,33 @@
 
     Course index drawer inspired by RemUI implementation.
 }}
-<nav id="courseindex" class="courseindex">
-    <div class="p-mb-4">
-        <span class="course-heading h-bold-4" title="{{#str}} sidebarcoursemenuheading, theme_compecer {{/str}}">
-            {{#str}} sidebarcoursemenuheading, theme_compecer {{/str}}
-        </span>
+<nav id="courseindex" class="courseindex courseindex--compecer" data-progress='{{progress.dataset}}'>
+    {{#progress}}
+    <div class="courseindex-drawer">
+        <div class="courseindex-progress-card {{^enabled}}courseindex-progress-card--disabled{{/enabled}}">
+            <div class="courseindex-progress-card__header">
+                <span class="courseindex-progress-card__title">{{course.title}}</span>
+                <span class="courseindex-progress-card__value" data-region="course-progress-value">{{course.percentageformatted}}</span>
+            </div>
+            <div class="courseindex-progress-card__summary" data-region="course-progress-summary">{{course.summary}}</div>
+            {{#enabled}}
+            <div class="courseindex-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{course.percentage}}" aria-label="{{course.aria}}">
+                <div class="courseindex-progress-bar__fill" style="--progress: {{course.percentage}}%;"></div>
+            </div>
+            {{/enabled}}
+        </div>
+        <div id="courseindex-content" class="courseindex-drawer__body">
+            {{> core_courseformat/local/courseindex/placeholders }}
+        </div>
     </div>
-    <div id="courseindex-content">
-        {{> core_courseformat/local/courseindex/placeholders }}
-    </div>
+    {{/progress}}
 </nav>
 
 {{#js}}
 require(['core_courseformat/local/courseindex/drawer'], function(component) {
     component.init('courseindex');
+});
+require(['theme_compecer/courseindex_progress'], function(progress) {
+    progress.init('courseindex');
 });
 {{/js}}

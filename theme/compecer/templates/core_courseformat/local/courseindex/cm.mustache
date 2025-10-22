@@ -29,38 +29,39 @@
         {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
         {{^accessvisible}}dimmed{{/accessvisible}}
         {{#indent}} indented {{/indent}}
-        {{#hasdelegatedsection}}py-0{{/hasdelegatedsection}}
-        {{#url}} d-flex {{/url}} {{^url}} d-flex-noedit {{/url}}"
+        {{#hasdelegatedsection}}py-0{{/hasdelegatedsection}}"
     id="{{uniqid}}-course-index-cm-{{id}}"
     data-for="cm"
     data-id="{{id}}"
     role="treeitem"
 >
     {{^hasdelegatedsection}}
-        <div class="edw-section-content-wrapper text-truncate align-items-center">
+        <div class="courseindex-item__main">
             <span class="completioninfo" data-for="cm_completion" data-value="NaN"></span>
+            <span class="courseindex-item__status" aria-hidden="true"></span>
             {{#uservisible}}
             <a
-                class="courseindex-link text-truncate text-link-regular"
+                class="courseindex-item__link text-truncate"
                 {{#url}} href="{{{url}}}" {{/url}}{{^url}} href="#{{{anchor}}}" data-anchor="true" {{/url}}
                 data-for="cm_name"
                 tabindex="-1"
             >
-                {{{name}}}
+                <span class="courseindex-item__name text-truncate">{{{name}}}</span>
             </a>
             {{/uservisible}}
             {{^uservisible}}
-            <a class="courseindex-link text-truncate text-link-regular"
+            <a class="courseindex-item__link text-truncate"
                 href="#{{{anchor}}}"
                 data-for="cm_name"
                 tabindex="-1"
                 data-anchor="true"
             >
-                {{{name}}}
+                <span class="courseindex-item__name text-truncate">{{{name}}}</span>
             </a>
             {{/uservisible}}
+            <span class="courseindex-item__status-text sr-only" data-region="cm-status-text"></span>
         </div>
-        <div class="edw-section-content-icon-wrapper align-items-center">
+        <div class="courseindex-item__meta">
             <span class="courseindex-locked" data-for="cm_restrictions">
                 {{#pix}} t/locked, core {{/pix}}
             </span>

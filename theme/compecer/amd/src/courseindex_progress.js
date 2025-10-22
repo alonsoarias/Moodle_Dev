@@ -11,7 +11,6 @@
 define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
     
     const SELECTORS = {
-        drawer: '.courseindex-drawer',
         statusIcon: '.courseindex-item__status',
         statusText: '[data-region="cm-status-text"]',
         courseProgressValue: '[data-region="course-progress-value"]',
@@ -67,17 +66,17 @@ define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
      * Update all indicators
      */
     const updateAll = (drawer, dataset) => {
-        updateCourseProgress(drawer, dataset.course);
-        updateSectionProgress(drawer, dataset.sections);
+        updateCourseProgress(drawer, dataset.course, dataset.strings);
+        updateSectionProgress(drawer, dataset.sections, dataset.strings);
         updateActivityStatus(drawer, dataset.activities, dataset.strings);
     };
-    
+
     /**
      * Update course progress
      */
-    const updateCourseProgress = (drawer, courseData) => {
+    const updateCourseProgress = (drawer, courseData, strings) => {
         if (!courseData) return;
-        
+
         const valueEl = drawer.querySelector(SELECTORS.courseProgressValue);
         const summaryEl = drawer.querySelector(SELECTORS.courseProgressSummary);
         const barEl = drawer.querySelector(SELECTORS.courseProgressBar);
@@ -86,41 +85,58 @@ define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
             valueEl.textContent = courseData.percentageformatted;
         }
         
-        if (summaryEl && courseData.summary) {
-            summaryEl.textContent = courseData.summary;
+        if (summaryEl) {
+            summaryEl.textContent = courseData.summary || strings?.courseprogressdisabled || '';
         }
-        
-        if (barEl && typeof courseData.percentage !== 'undefined') {
-            barEl.style.setProperty('--progress', courseData.percentage + '%');
-            barEl.setAttribute('aria-valuenow', courseData.percentage);
+
+        if (barEl) {
+            const percentage = typeof courseData.percentage !== 'undefined' && courseData.percentage !== null
+                ? courseData.percentage
+                : 0;
+            barEl.style.setProperty('--progress', percentage + '%');
+            barEl.setAttribute('aria-valuenow', percentage);
             if (courseData.aria) {
                 barEl.setAttribute('aria-label', courseData.aria);
             }
+            if (!courseData.percentage && courseData.percentage !== 0) {
+                barEl.classList.add('is-disabled');
+            } else {
+                barEl.classList.remove('is-disabled');
+            }
         }
     };
-    
+
     /**
      * Update section progress
      */
-    const updateSectionProgress = (drawer, sectionsData) => {
+    const updateSectionProgress = (drawer, sectionsData, strings) => {
         if (!sectionsData) return;
-        
+
         Object.keys(sectionsData).forEach(sectionId => {
             const sectionData = sectionsData[sectionId];
             const sectionEl = drawer.querySelector(`[data-id="${sectionId}"][data-for="section"]`);
-            
+
             if (!sectionEl) return;
-            
+
             const valueEl = sectionEl.querySelector(SELECTORS.sectionProgressValue);
             const textEl = sectionEl.querySelector(SELECTORS.sectionProgressText);
-            
-            if (valueEl && sectionData.tracked > 0) {
-                // Show percentage instead of "X/Y"
-                valueEl.textContent = sectionData.percentage + '%';
+
+            if (valueEl) {
+                if (sectionData.tracked > 0) {
+                    valueEl.textContent = sectionData.percentage + '%';
+                    valueEl.setAttribute('title', sectionData.summary);
+                } else {
+                    valueEl.textContent = '—';
+                    valueEl.removeAttribute('title');
+                }
             }
-            
-            if (textEl && sectionData.aria) {
-                textEl.textContent = sectionData.aria;
+
+            if (textEl) {
+                if (sectionData.tracked > 0 && sectionData.aria) {
+                    textEl.textContent = sectionData.aria;
+                } else {
+                    textEl.textContent = strings?.sectionnottracked || '';
+                }
             }
         });
     };
@@ -151,8 +167,8 @@ define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
                 }
             }
             
-            if (statusText && activityData.label) {
-                statusText.textContent = activityData.label;
+            if (statusText) {
+                statusText.textContent = activityData.label || '';
             }
         });
     };

@@ -69,7 +69,7 @@ class courseindex_progress implements renderable, templatable {
             'course' => [],
             'sections' => [],
             'activities' => [],
-            'strings' => $this->get_status_strings(),
+            'strings' => $this->get_frontend_strings(),
         ];
 
         if (!$this->completioninfo->is_enabled()) {
@@ -321,6 +321,18 @@ class courseindex_progress implements renderable, templatable {
             'inprogress' => get_string('completionstatus:inprogress', 'theme_compecer'),
             'completed' => get_string('completionstatus:completed', 'theme_compecer'),
             'failed' => get_string('completionstatus:failed', 'theme_compecer'),
+        ];
+    }
+
+    /**
+     * Provide front-end strings for the progress controller.
+     *
+     * @return array
+     */
+    protected function get_frontend_strings(): array {
+        return $this->get_status_strings() + [
+            'sectionnottracked' => get_string('sectionprogressnotracked', 'theme_compecer'),
+            'courseprogressdisabled' => get_string('courseprogressdisabledsummary', 'theme_compecer'),
         ];
     }
 }
