@@ -1,75 +1,95 @@
 {{!
-    @template core_courseformat/local/courseindex/section
-    
-    Course index section - Clean toggle-only design (NO navigation)
-    
-    Context variables:
-    * id - Section ID
-    * number - Section number
-    * title - Section title
-    * current - Boolean, is current section
-    * visible - Boolean, is visible
-    * indexcollapsed - Boolean, is collapsed
-    * cms - Array of course modules
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Compecer (Moove child theme)
+    @package   theme_compecer
+    @copyright 2024
+    @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
-<div class="courseindex-section {{#current}}courseindex-section--current{{/current}} {{#component}}courseindex-section--delegated{{/component}}"
-     id="{{uniqid}}-course-index-section-{{id}}"
-     data-for="section"
-     data-id="{{id}}"
-     data-number="{{number}}"
-     role="treeitem"
-     aria-owns="courseindex-section-content-{{number}}">
-    
-    {{! Section header - ONLY for toggle, NOT navigation }}
-    <div class="courseindex-section__header {{^visible}}courseindex-section__header--dimmed{{/visible}} {{#hasrestrictions}}courseindex-section__header--restricted{{/hasrestrictions}}"
-         id="courseindex-section-header-{{number}}"
-         data-for="section_item">
-        
-        <button type="button"
-                class="courseindex-section__toggle {{#indexcollapsed}}courseindex-section__toggle--collapsed{{/indexcollapsed}}"
-                data-action="togglecourseindexsection"
-                data-for="section_title"
-                data-toggle="collapse"
-                data-target="#courseindex-section-content-{{number}}"
-                aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
-                aria-controls="courseindex-section-content-{{number}}">
-            
-            <span class="courseindex-section__chevron" aria-hidden="true"></span>
-            
-            <span class="courseindex-section__title">{{{title}}}</span>
-            
-            <span class="courseindex-section__progress" data-region="section-progress" aria-hidden="true">
-                <span class="courseindex-section__progress-value" data-region="section-progress-value"></span>
+{{!
+    @template core_courseformat/local/courseindex/section
+
+    Course index section entry inspired by RemUI implementation.
+}}
+<div
+    class="courseindex-section w-100 {{#current}}current{{/current}} {{#component}}delegated-section{{/component}}"
+    id="{{uniqid}}-course-index-section-{{id}}"
+    data-for="section"
+    data-id="{{id}}"
+    data-number="{{number}}"
+    role="treeitem"
+    aria-owns="courseindexcollapse{{number}}"
+>
+    <div class="courseindex-item d-flex align-items-center
+            {{^visible}}dimmed{{/visible}}
+            {{#hasrestrictions}}restrictions{{/hasrestrictions}}
+            courseindex-section-title"
+        id="courseindexsection{{number}}"
+        data-for="section_item"
+    >
+        <a href="{{{sectionurl}}}"
+            class="courseindex-link text-truncate text-link-semibold"
+            data-action="togglecourseindexsection"
+            data-for="section_title"
+            tabindex="-1"
+            title="{{{title}}}"
+        >
+            {{{title}}}
+        </a>
+        <div class="edw-title-icon-wrapper">
+            <span class="current-badge badge badge-primary px-2 rounded-pill">
+                {{highlighted}}
             </span>
-            
-            <span class="sr-only" data-region="section-progress-text"></span>
-            
-        </button>
-        
-        {{#current}}
-        <span class="courseindex-section__badge" aria-label="{{highlighted}}">{{highlighted}}</span>
-        {{/current}}
-        
-        {{#hasrestrictions}}
-        <span class="courseindex-section__locked" data-for="section_restrictions">
-            {{#pix}} t/locked, core {{/pix}}
-        </span>
-        {{/hasrestrictions}}
-        
+            <span class="courseindex-locked" data-for="section_restrictions">
+                {{#pix}} t/locked, core {{/pix}}
+            </span>
+            <span class="dragicon">
+                <i class="fa fa-grip-vertical" aria-hidden="true"></i>
+                <span class="sr-only">{{#str}} move, core {{/str}}</span>
+            </span>
+            <a data-toggle="collapse"
+                href="#courseindexcollapse{{number}}"
+                class="courseindex-chevron icons-collapse-expand {{#indexcollapsed}}collapsed{{/indexcollapsed}} p-0"
+                aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
+                aria-controls="courseindexcollapse{{number}}"
+                tabindex="-1"
+            >
+                <span class="collapsed-icon icon-no-margin" title="{{#str}} expand, core {{/str}}">
+                    <span class="dir-rtl-hide"><i class="fa fa-chevron-down" aria-hidden="true"></i></span>
+                    <span class="dir-ltr-hide"><i class="fa fa-chevron-down" aria-hidden="true"></i></span>
+                    <span class="sr-only">{{#str}} expand, core {{/str}}</span>
+                </span>
+                <span class="expanded-icon icon-no-margin" title="{{#str}} collapse, core {{/str}}">
+                    <i class="fa fa-chevron-up" aria-hidden="true"></i>
+                    <span class="sr-only">{{#str}} collapse, core {{/str}}</span>
+                </span>
+            </a>
+        </div>
     </div>
-    
-    {{! Section content - collapsible list }}
-    <div id="courseindex-section-content-{{number}}"
-         class="courseindex-section__content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
-         aria-labelledby="courseindex-section-header-{{number}}" 
-         role="group">
-        <ul class="courseindex-section__list" data-for="cmlist" data-id="{{id}}" role="group">
+    <div id="courseindexcollapse{{number}}"
+        class="courseindex-item-content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
+        aria-labelledby="courseindexsection{{number}}"
+        role="group"
+    >
+        <ul class="courseindex-sectioncontent unlist" data-for="cmlist" data-id="{{id}}" role="group">
             {{#cms}}
-                {{> core_courseformat/local/courseindex/cm}}
+            {{> core_courseformat/local/courseindex/cm }}
             {{/cms}}
         </ul>
     </div>
-    
 </div>
 
 {{#js}}

@@ -1,83 +1,80 @@
 {{!
-    @template core_courseformat/local/courseindex/cm
-    
-    Course module in index - Minimal design with proper completion
-    
-    Context variables:
-    * id - Module ID
-    * name - Module name
-    * url - Module URL
-    * isactive - Boolean
-    * uservisible - Boolean
-    * accessvisible - Boolean
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
+    Compecer (Moove child theme)
+    @package   theme_compecer
+    @copyright 2024
+    @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
-<li class="courseindex-item 
-           {{#isactive}}courseindex-item--active{{/isactive}}
-           {{#hascmrestrictions}}courseindex-item--restricted{{/hascmrestrictions}}
-           {{^accessvisible}}courseindex-item--dimmed{{/accessvisible}}
-           {{#indent}}courseindex-item--indented{{/indent}}"
+{{!
+    @template core_courseformat/local/courseindex/cm
+
+    Course index module entry inspired by RemUI implementation.
+}}
+<li class="courseindex-item
+        {{#isactive}}active{{/isactive}}
+        {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
+        {{^accessvisible}}dimmed{{/accessvisible}}
+        {{#indent}} indented {{/indent}}
+        {{#hasdelegatedsection}}py-0{{/hasdelegatedsection}}
+        {{#url}} d-flex {{/url}} {{^url}} d-flex-noedit {{/url}}"
     id="{{uniqid}}-course-index-cm-{{id}}"
     data-for="cm"
     data-id="{{id}}"
-    role="treeitem">
-    
+    role="treeitem"
+>
     {{^hasdelegatedsection}}
-    
-    <div class="courseindex-item__content">
-        
-        {{! CRITICAL: Maintain completioninfo for core functionality }}
-        <span class="completioninfo" 
-              data-for="cm_completion" 
-              data-value="NaN"></span>
-        
-        {{! Status icon - updated by JS }}
-        <span class="courseindex-item__status" 
-              data-region="cm-status" 
-              aria-hidden="true"></span>
-        
-        {{! Activity link }}
-        {{#uservisible}}
-        <a class="courseindex-item__link"
-           {{#url}}href="{{{url}}}"{{/url}}
-           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-           data-for="cm_name" 
-           tabindex="-1" 
-           title="{{{name}}}">
-            <span class="courseindex-item__name">{{{name}}}</span>
-        </a>
-        {{/uservisible}}
-        
-        {{^uservisible}}
-        <a class="courseindex-item__link courseindex-item__link--not-visible"
-           href="#{{{anchor}}}" 
-           data-for="cm_name" 
-           tabindex="-1" 
-           data-anchor="true"
-           title="{{{name}}}">
-            <span class="courseindex-item__name">{{{name}}}</span>
-        </a>
-        {{/uservisible}}
-        
-        {{! Screen reader status text }}
-        <span class="sr-only" data-region="cm-status-text"></span>
-        
-        {{! Locked icon }}
-        {{#hascmrestrictions}}
-        <span class="courseindex-item__locked" data-for="cm_restrictions">
-            {{#pix}} t/locked, core {{/pix}}
-        </span>
-        {{/hascmrestrictions}}
-        
-    </div>
-    
+        <div class="edw-section-content-wrapper text-truncate align-items-center">
+            <span class="completioninfo" data-for="cm_completion" data-value="NaN"></span>
+            {{#uservisible}}
+            <a
+                class="courseindex-link text-truncate text-link-regular"
+                {{#url}} href="{{{url}}}" {{/url}}{{^url}} href="#{{{anchor}}}" data-anchor="true" {{/url}}
+                data-for="cm_name"
+                tabindex="-1"
+            >
+                {{{name}}}
+            </a>
+            {{/uservisible}}
+            {{^uservisible}}
+            <a class="courseindex-link text-truncate text-link-regular"
+                href="#{{{anchor}}}"
+                data-for="cm_name"
+                tabindex="-1"
+                data-anchor="true"
+            >
+                {{{name}}}
+            </a>
+            {{/uservisible}}
+        </div>
+        <div class="edw-section-content-icon-wrapper align-items-center">
+            <span class="courseindex-locked" data-for="cm_restrictions">
+                {{#pix}} t/locked, core {{/pix}}
+            </span>
+            <span class="dragicon">
+                <i class="fa fa-grip-vertical" aria-hidden="true"></i>
+                <span class="sr-only">{{#str}} move, core {{/str}}</span>
+            </span>
+        </div>
     {{/hasdelegatedsection}}
-    
     {{#hasdelegatedsection}}
         {{#sectioninfo}}
             {{> core_courseformat/local/courseindex/section}}
         {{/sectioninfo}}
     {{/hasdelegatedsection}}
-    
 </li>
 
 {{#js}}

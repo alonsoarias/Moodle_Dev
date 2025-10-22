@@ -1,55 +1,42 @@
 {{!
-    @template core_courseformat/local/courseindex/drawer
-    
-    Course index drawer - Compecer minimal design inspired by Remui
-    
-    Context variables:
-    * progress - Progress data object with course, sections, activities
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Compecer (Moove child theme)
+    @package   theme_compecer
+    @copyright 2024
+    @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
-<nav id="courseindex" class="courseindex-drawer" data-progress='{{{progress.dataset}}}'>
-    
-    {{! Progress overview header }}
-    {{#progress.enabled}}
-    <div class="courseindex-progress-header" role="region" aria-live="polite" aria-label="{{progress.course.title}}">
-        <div class="courseindex-progress-header__content">
-            <p class="courseindex-progress-header__title">{{progress.course.title}}</p>
-            <p class="courseindex-progress-header__value" data-region="course-progress-value">
-                {{progress.course.percentageformatted}}
-            </p>
-        </div>
-        <p class="courseindex-progress-header__summary" data-region="course-progress-summary">
-            {{progress.course.summary}}
-        </p>
-        <div class="courseindex-progress-bar" role="presentation">
-            <div class="courseindex-progress-bar__fill" 
-                 style="--progress: {{#progress.course.percentage}}{{.}}%{{/progress.course.percentage}}{{^progress.course.percentage}}0%{{/progress.course.percentage}};"
-                 role="progressbar" 
-                 aria-valuemin="0" 
-                 aria-valuemax="100" 
-                 {{#progress.course.percentage}}aria-valuenow="{{.}}"{{/progress.course.percentage}}
-                 aria-label="{{progress.course.aria}}">
-            </div>
-        </div>
+{{!
+    @template core_courseformat/local/courseindex/drawer
+
+    Course index drawer inspired by RemUI implementation.
+}}
+<nav id="courseindex" class="courseindex">
+    <div class="p-mb-4">
+        <span class="course-heading h-bold-4" title="{{#str}} sidebarcoursemenuheading, theme_compecer {{/str}}">
+            {{#str}} sidebarcoursemenuheading, theme_compecer {{/str}}
+        </span>
     </div>
-    {{/progress.enabled}}
-    
-    {{^progress.enabled}}
-    <div class="courseindex-progress-header courseindex-progress-header--disabled">
-        <p class="courseindex-progress-header__title">{{progress.course.title}}</p>
-        <p class="courseindex-progress-header__summary">{{progress.course.summary}}</p>
+    <div id="courseindex-content">
+        {{> core_courseformat/local/courseindex/placeholders }}
     </div>
-    {{/progress.enabled}}
-    
-    {{! Course sections list }}
-    <div id="courseindex-content" class="courseindex-content" data-region="courseindex-content">
-        {{> core_courseformat/local/courseindex/placeholders}}
-    </div>
-    
 </nav>
 
 {{#js}}
-require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progress) {
+require(['core_courseformat/local/courseindex/drawer'], function(component) {
     component.init('courseindex');
-    progress.init('courseindex');
 });
 {{/js}}
