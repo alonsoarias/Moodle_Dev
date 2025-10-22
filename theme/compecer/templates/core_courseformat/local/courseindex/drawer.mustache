@@ -8,29 +8,27 @@
     {}
 }}
 <nav id="courseindex" class="courseindex courseindex--compecer" data-progress="{{{dataset}}}">
-  {{#course}}
-  <div class="courseindex-progress-card" data-region="course-progress-card">
-    <div class="courseindex-progress-card__header">
-      <span class="courseindex-progress-card__title">{{title}}</span>
-      <span class="courseindex-progress-card__value" data-region="course-progress-value">{{percentageformatted}}</span>
+    {{#course}}
+    <section class="courseindex-progress-card" data-region="course-progress-card">
+        <header class="courseindex-progress-card__header">
+            <span class="courseindex-progress-card__title">{{title}}</span>
+            <span class="courseindex-progress-card__value" data-region="course-progress-value">{{percentageformatted}}</span>
+        </header>
+        <p class="courseindex-progress-card__summary" data-region="course-progress-summary">{{summary}}</p>
+        <div class="courseindex-progress-bar"
+             role="progressbar"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             aria-valuenow="{{#enabled}}{{percentage}}{{/enabled}}{{^enabled}}0{{/enabled}}"
+             aria-label="{{aria}}">
+            <span class="courseindex-progress-bar__fill {{^enabled}}is-disabled{{/enabled}}"
+                  style="--progress: {{#enabled}}{{percentage}}{{/enabled}}{{^enabled}}0{{/enabled}}%;"></span>
+        </div>
+    </section>
+    {{/course}}
+    <div class="courseindex-body" id="courseindex-content">
+        {{> core_courseformat/local/courseindex/placeholders}}
     </div>
-    <div class="courseindex-progress-card__summary" data-region="course-progress-summary">
-      {{summary}}
-    </div>
-    <div class="courseindex-progress-bar"
-         role="progressbar"
-         aria-valuemin="0"
-         aria-valuemax="100"
-         aria-valuenow="{{#enabled}}{{percentage}}{{/enabled}}{{^enabled}}0{{/enabled}}"
-         aria-label="{{aria}}">
-      <span class="courseindex-progress-bar__fill {{^enabled}}is-disabled{{/enabled}}"
-            style="--progress: {{#enabled}}{{percentage}}{{/enabled}}{{^enabled}}0{{/enabled}}%;"></span>
-    </div>
-  </div>
-  {{/course}}
-  <div class="courseindex-body" id="courseindex-content">
-    {{> core_courseformat/local/courseindex/placeholders}}
-  </div>
 </nav>
 {{#js}}
 require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progress) {

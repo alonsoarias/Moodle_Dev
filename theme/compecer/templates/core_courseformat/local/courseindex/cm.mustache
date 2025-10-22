@@ -17,7 +17,7 @@
       "hascmrestrictions": 0
     }
 }}
-<li class="courseindex-item {{#isactive}}active{{/isactive}}
+<li class="courseindex-item courseindex-item--compecer {{#isactive}}active{{/isactive}}
            {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
            {{^accessvisible}}dimmed{{/accessvisible}}
            {{#indent}} indented {{/indent}}"
@@ -25,39 +25,41 @@
     data-for="cm"
     data-id="{{id}}"
     role="treeitem">
-  {{^hasdelegatedsection}}
+    {{^hasdelegatedsection}}
     <div class="courseindex-item__wrapper">
-      <span class="courseindex-item__status courseindex-item__status--notstarted" aria-hidden="true"></span>
-      <span class="completioninfo" data-for="cm_completion" data-value="NaN"></span>
-      {{#uservisible}}
-        <a class="courseindex-item__link courseindex-link text-truncate"
-           {{#url}}href="{{{url}}}"{{/url}}
-           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-           data-for="cm_name"
-           tabindex="-1"
-           title="{{{name}}}">
-          {{{name}}}
-        </a>
-      {{/uservisible}}
-      {{^uservisible}}
-        <a class="courseindex-item__link courseindex-link text-truncate"
-           href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
-          {{{name}}}
-        </a>
-      {{/uservisible}}
-      <span class="courseindex-locked ms-1" data-for="cm_name">
-        {{#pix}} t/locked, core {{/pix}}
-      </span>
+        <span class="courseindex-item__status courseindex-item__status--notstarted" aria-hidden="true"></span>
+        <span class="completioninfo" data-for="cm_completion" data-value="NaN"></span>
+        <div class="courseindex-item__content">
+            {{#uservisible}}
+            <a class="courseindex-item__link courseindex-link text-truncate"
+               {{#url}}href="{{{url}}}"{{/url}}
+               {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
+               data-for="cm_name"
+               tabindex="-1"
+               title="{{{name}}}">
+                {{{name}}}
+            </a>
+            {{/uservisible}}
+            {{^uservisible}}
+            <a class="courseindex-item__link courseindex-link text-truncate"
+               href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+                {{{name}}}
+            </a>
+            {{/uservisible}}
+            <span class="courseindex-locked" data-for="cm_name">
+                {{#pix}} t/locked, core {{/pix}}
+            </span>
+        </div>
     </div>
     <div class="courseindex-item__meta">
-      <span class="courseindex-item__status-label" data-region="cm-status-text">—</span>
+        <span class="courseindex-item__status-label" data-region="cm-status-text">—</span>
     </div>
-  {{/hasdelegatedsection}}
-  {{#hasdelegatedsection}}
-    {{#sectioninfo}}
-      {{> core_courseformat/local/courseindex/section}}
-    {{/sectioninfo}}
-  {{/hasdelegatedsection}}
+    {{/hasdelegatedsection}}
+    {{#hasdelegatedsection}}
+        {{#sectioninfo}}
+            {{> core_courseformat/local/courseindex/section}}
+        {{/sectioninfo}}
+    {{/hasdelegatedsection}}
 </li>
 {{#js}}
 require(['core_courseformat/local/courseindex/cm'], function(component) {
