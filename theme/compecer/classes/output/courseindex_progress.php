@@ -200,7 +200,8 @@ class courseindex_progress implements renderable, templatable {
      */
     protected function get_sections_progress(): array {
         $sections = [];
-        $modinfo = get_fast_modinfo($this->format->get_course());
+        $course = $this->format->get_course();
+        $modinfo = get_fast_modinfo($course);
 
         foreach ($modinfo->get_section_info_all() as $section) {
             if (!$section->uservisible) {
@@ -212,7 +213,7 @@ class courseindex_progress implements renderable, templatable {
             $sectiondata->number = $section->section;
 
             // Calculate section completion.
-            $counts = $this->get_section_activity_counts($section);
+            $counts = $this->get_section_activity_counts($section, $modinfo);
             $sectiondata->completed = $counts->completed;
             $sectiondata->total = $counts->total;
 
@@ -361,7 +362,7 @@ class courseindex_progress implements renderable, templatable {
      * @param \section_info $section Section info
      * @return stdClass Object with completed and total counts
      */
-    protected function get_section_activity_counts(\section_info $section): stdClass {
+    protected function get_section_activity_counts(\section_info $section, \course_modinfo $modinfo): stdClass {
         $counts = new stdClass();
         $counts->completed = 0;
         $counts->total = 0;
@@ -370,7 +371,6 @@ class courseindex_progress implements renderable, templatable {
             return $counts;
         }
 
-        $modinfo = get_fast_modinfo($this->format->get_course());
         if (empty($modinfo->sections[$section->section])) {
             return $counts;
         }
