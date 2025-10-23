@@ -263,6 +263,12 @@ section#sidepre-blocks section.card {
     color: lighten($gray, 5%);
   }
 
+  .courseindex-progress-card__message {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: lighten($gray, 5%);
+  }
+
   .courseindex-progress-bar {
     margin-top: 1rem;
     padding-top: 0.25rem;
@@ -508,6 +514,29 @@ section#sidepre-blocks section.card {
 
   .courseindex-item.restrictions .courseindex-item__link {
     color: lighten($gray, 15%);
+  }
+}
+
+.courseindex--no-tracking {
+  .courseindex-progress-card__value {
+    color: lighten($gray, 20%);
+  }
+
+  .courseindex-progress-card__summary {
+    display: none;
+  }
+
+  .courseindex-progress-card__message {
+    color: lighten($gray, 10%);
+  }
+
+  .courseindex-section__progress {
+    display: none;
+  }
+
+  .courseindex-item__status,
+  .courseindex-item__meta {
+    display: none;
   }
 }
 

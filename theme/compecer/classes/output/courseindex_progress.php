@@ -109,7 +109,7 @@ class courseindex_progress implements renderable, templatable {
         if (!$this->completion->is_enabled()) {
             $data->summary = get_string('courseprogressdisabledsummary', 'theme_compecer');
             $data->percentage = 0;
-            $data->percentageformatted = '0%';
+            $data->percentageformatted = get_string('courseprogressnotavailable', 'theme_compecer');
             $data->completed = 0;
             $data->total = 0;
             $data->aria = get_string('courseprogressdisabled', 'theme_compecer');
@@ -265,6 +265,7 @@ class courseindex_progress implements renderable, templatable {
                 'completed' => $course->completed ?? 0,
                 'total' => $course->total ?? 0,
                 'percentage' => $course->percentage ?? 0,
+                'percentageformatted' => $course->percentageformatted ?? null,
                 'bar' => $course->bar ?? $this->render_progress_bar(0),
                 'summary' => $course->summary ?? '',
                 'aria' => $course->aria ?? '',

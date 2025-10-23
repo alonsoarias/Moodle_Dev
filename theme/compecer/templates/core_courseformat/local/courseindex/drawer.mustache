@@ -6,7 +6,7 @@
     Context variables:
     * progress - Progress data object with course, sections, activities
 }}
-<nav id="courseindex" class="courseindex courseindex--compecer" data-progress='{{{progress.dataset}}}'>
+<nav id="courseindex" class="courseindex courseindex--compecer{{^progress.enabled}} courseindex--no-tracking{{/progress.enabled}}" data-progress='{{{progress.dataset}}}'>
 
     <div class="courseindex-progress-card {{^progress.enabled}}courseindex-progress-card--disabled{{/progress.enabled}}"
          role="region"
@@ -23,6 +23,7 @@
                 {{progress.course.percentageformatted}}
             </span>
         </div>
+        {{#progress.enabled}}
         <div class="courseindex-progress-bar"
              role="progressbar"
              aria-valuemin="0"
@@ -33,6 +34,12 @@
                 {{progress.course.bar}}
             </span>
         </div>
+        {{/progress.enabled}}
+        {{^progress.enabled}}
+        <div class="courseindex-progress-card__message" data-region="course-progress-message">
+            {{progress.course.summary}}
+        </div>
+        {{/progress.enabled}}
         <span class="sr-only" data-region="course-progress-text">{{progress.course.aria}}</span>
     </div>
 

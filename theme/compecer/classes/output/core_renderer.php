@@ -38,6 +38,8 @@ use core_course_list_element;
 use core_courseformat\base as course_format;
 use theme_compecer\output\courseindex_progress;
 
+require_once($GLOBALS['CFG']->dirroot . '/course/lib.php');
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../../moove/classes/output/core_renderer.php');
 require_once(__DIR__ . '/../util/theme_settings.php');
@@ -62,10 +64,8 @@ class core_renderer extends \theme_moove\output\core_renderer {
             return '';
         }
 
-        // Include course editor if needed.
-        $course = $format->get_course();
-        $modinfo = get_fast_modinfo($course);
-        $format->get_output_classname('content');
+        // Ensure the reactive course editor is available so the course index works as expected.
+        include_course_editor($format);
 
         // Create progress calculator.
         $progress = new courseindex_progress($format, (int)$USER->id);
