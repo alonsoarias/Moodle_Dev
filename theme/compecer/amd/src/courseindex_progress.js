@@ -46,9 +46,6 @@ const CM_SELECTOR = '[data-for="cm"]';
 /** CSS class applied to the container when completion tracking is disabled. */
 const NO_TRACKING_CLASS = 'courseindex--no-tracking';
 
-/** Default number of characters used to represent progress bars. */
-const PROGRESS_BAR_LENGTH = 20;
-
 /** @type {WeakMap<HTMLElement, Object>} Metadata cache per course index container. */
 const containerMeta = new WeakMap();
 
@@ -74,19 +71,6 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const toNumber = (value) => {
     const number = Number(value);
     return Number.isFinite(number) ? number : 0;
-};
-
-/**
- * Render a textual progress bar using block characters.
- *
- * @param {number} percentage Progress percentage.
- * @param {number} length Number of characters.
- * @returns {string}
- */
-const createProgressBar = (percentage, length = PROGRESS_BAR_LENGTH) => {
-    const safePercentage = clamp(Math.round(toNumber(percentage)), 0, 100);
-    const blocks = clamp(Math.round((safePercentage / 100) * length), 0, length);
-    return `${'█'.repeat(blocks)}${'░'.repeat(length - blocks)}`;
 };
 
 /**
@@ -213,7 +197,6 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
         enabled = true,
         summaryOverride = null,
         ariaOverride = null,
-        barOverride = null,
         valueOverride = null,
     } = options;
 
@@ -243,7 +226,7 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
 
     const progressMessage = container.querySelector('[data-region="course-progress-message"]');
     if (progressMessage) {
-        progressMessage.textContent = summaryText;
+        progressMessage.textContent = enabled ? '' : summaryText;
     }
 
     const computedAria = formatString(strings.aria, {
@@ -258,10 +241,10 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
         progressText.textContent = ariaText;
     }
 
-    const barText = barOverride ?? createProgressBar(safePercentage);
-    const progressBar = container.querySelector('[data-region="course-progress-bar"]');
-    if (progressBar) {
-        progressBar.textContent = barText;
+    const progressFill = container.querySelector('[data-region="course-progress-bar"]');
+    if (progressFill) {
+        progressFill.style.width = `${safePercentage}%`;
+        progressFill.classList.toggle('is-empty', safePercentage === 0);
     }
 
     const progressBarContainer = container.querySelector('.courseindex-progress-bar');
@@ -272,15 +255,15 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
         } else {
             progressBarContainer.removeAttribute('aria-label');
         }
-        progressBarContainer.classList.toggle('is-disabled', !enabled);
+        progressBarContainer.classList.toggle('is-disabled', !enabled || total === 0);
     }
 
     data.course.completed = completed;
     data.course.total = total;
     data.course.percentage = safePercentage;
     data.course.percentageformatted = valueOverride ?? `${safePercentage}%`;
-    data.course.bar = barText;
     data.course.summary = summaryText;
+    data.course.summarydisplay = summaryOverride ?? summaryText;
     data.course.aria = ariaText;
 };
 
@@ -298,7 +281,6 @@ const setSectionProgress = (sectionElement, completed, total, percentage, string
     const {
         summaryOverride = null,
         ariaOverride = null,
-        barOverride = null,
     } = options;
 
     const safePercentage = clamp(Math.round(toNumber(percentage)), 0, 100);
@@ -317,10 +299,11 @@ const setSectionProgress = (sectionElement, completed, total, percentage, string
         progressSummary.textContent = summaryText;
     }
 
-    const barText = barOverride ?? createProgressBar(total > 0 ? safePercentage : 0);
     const progressBar = sectionElement.querySelector('[data-region="section-progress-bar"]');
     if (progressBar) {
-        progressBar.textContent = barText;
+        const width = total > 0 ? safePercentage : 0;
+        progressBar.style.width = `${width}%`;
+        progressBar.classList.toggle('is-empty', width === 0);
     }
 
     const ariaText = ariaOverride ?? (
@@ -337,8 +320,8 @@ const setSectionProgress = (sectionElement, completed, total, percentage, string
         completed,
         total,
         percentage: safePercentage,
-        bar: barText,
         summary: summaryText,
+        summarydisplay: summaryOverride ?? summaryText,
         aria: ariaText,
     });
 };
@@ -362,9 +345,8 @@ const applyDatasetProgress = (container) => {
             courseStrings,
             {
                 enabled: data.enabled !== false,
-                summaryOverride: data.course.summary ?? null,
+                summaryOverride: data.course.summarydisplay ?? data.course.summary ?? null,
                 ariaOverride: data.course.aria ?? null,
-                barOverride: data.course.bar ?? null,
                 valueOverride: data.course.percentageformatted ?? null,
             }
         );
@@ -376,17 +358,16 @@ const applyDatasetProgress = (container) => {
             if (!sectionElement) {
                 return;
             }
-            setSectionProgress(
-                sectionElement,
-                sectionData.completed ?? 0,
-                sectionData.total ?? 0,
-                sectionData.percentage ?? 0,
-                sectionStrings,
-                {
-                    summaryOverride: sectionData.summary ?? null,
+                setSectionProgress(
+                    sectionElement,
+                    sectionData.completed ?? 0,
+                    sectionData.total ?? 0,
+                    sectionData.percentage ?? 0,
+                    sectionStrings,
+                    {
+                    summaryOverride: sectionData.summarydisplay ?? sectionData.summary ?? null,
                     ariaOverride: sectionData.aria ?? null,
-                    barOverride: sectionData.bar ?? null,
-                }
+                    }
             );
         });
     }
@@ -436,6 +417,14 @@ const updateItemStatus = (item, strings = {}) => {
     if (mappedClass) {
         statusElement.classList.add(mappedClass);
     }
+
+    const icons = {
+        notstarted: '○',
+        inprogress: '◐',
+        completed: '✓',
+        failed: '✕',
+    };
+    statusElement.textContent = icons[statusKey] ?? icons.notstarted;
 
     const label = strings.status?.[statusKey] ?? '';
     srStatus.textContent = label;

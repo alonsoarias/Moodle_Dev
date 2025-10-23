@@ -198,6 +198,23 @@ $string['icon_lightbulb'] = 'Bombilla';
 $string['icon_chart'] = 'Gráfico';
 $string['icon_medal'] = 'Medalla';
 $string['icon_certificate'] = 'Certificado';
+
+// Índice del curso.
+$string['courseindex_progress_heading'] = 'Progreso del curso';
+$string['courseindex_progress_summary'] = '{$a->completed} de {$a->total} actividades completadas';
+$string['courseindex_progress_count'] = '{$a->completed} de {$a->total} actividades completadas';
+$string['courseindex_progress_aria'] = 'Progreso del curso: {$a->percentage}% completado. {$a->completed} de {$a->total} actividades finalizadas.';
+$string['courseindex_notracking'] = 'El seguimiento de finalización no está habilitado en este curso.';
+$string['courseindex_section_summary'] = '{$a->completed} de {$a->total} actividades completadas en esta sección ({$a->percentage}%)';
+$string['courseindex_section_aria'] = 'Progreso de la sección: {$a->percentage}% completado. {$a->completed} de {$a->total} actividades finalizadas.';
+$string['courseindex_section_nottracked'] = 'Esta sección no tiene actividades con seguimiento de finalización.';
+$string['courseindex_legend_notstarted'] = 'No iniciada';
+$string['courseindex_legend_inprogress'] = 'En progreso';
+$string['courseindex_legend_completed'] = 'Completada';
+$string['activitystatusnotstarted'] = 'No iniciada';
+$string['activitystatusinprogress'] = 'En progreso';
+$string['activitystatuscompleted'] = 'Completada';
+$string['activitystatusfailed'] = 'Fallida';
 $string['icon_star'] = 'Estrella';
 $string['icon_rocket'] = 'Cohete';
 $string['icon_code'] = 'Código';
