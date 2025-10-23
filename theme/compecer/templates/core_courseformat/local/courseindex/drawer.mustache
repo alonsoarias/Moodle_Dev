@@ -13,24 +13,27 @@
          aria-live="polite"
          aria-label="{{progress.course.title}}">
         <div class="courseindex-progress-card__header">
-            <p class="courseindex-progress-card__title">{{progress.course.title}}</p>
-            <p class="courseindex-progress-card__value" data-region="course-progress-value">
+            <div class="courseindex-progress-card__heading">
+                <p class="courseindex-progress-card__title">{{progress.course.title}}</p>
+                <p class="courseindex-progress-card__summary" data-region="course-progress-summary">
+                    {{progress.course.summary}}
+                </p>
+            </div>
+            <span class="courseindex-progress-card__value" data-region="course-progress-value">
                 {{progress.course.percentageformatted}}
-            </p>
-        </div>
-        <p class="courseindex-progress-card__summary" data-region="course-progress-summary">
-            {{progress.course.summary}}
-        </p>
-        <div class="courseindex-progress-bar" role="presentation">
-            <span class="courseindex-progress-bar__fill {{^progress.enabled}}is-disabled{{/progress.enabled}}"
-                  style="--progress: {{#progress.course.percentage}}{{.}}%{{/progress.course.percentage}}{{^progress.course.percentage}}0%{{/progress.course.percentage}};"
-                  role="progressbar"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  {{#progress.course.percentage}}aria-valuenow="{{.}}"{{/progress.course.percentage}}
-                  aria-label="{{progress.course.aria}}">
             </span>
         </div>
+        <div class="courseindex-progress-bar"
+             role="progressbar"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             {{#progress.course.percentage}}aria-valuenow="{{.}}"{{/progress.course.percentage}}
+             aria-label="{{progress.course.aria}}">
+            <span class="courseindex-progress-bar__visual" data-region="course-progress-bar" aria-hidden="true">
+                {{progress.course.bar}}
+            </span>
+        </div>
+        <span class="sr-only" data-region="course-progress-text">{{progress.course.aria}}</span>
     </div>
 
     <div class="courseindex-body">
