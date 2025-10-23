@@ -6,45 +6,39 @@
     Context variables:
     * progress - Progress data object with course, sections, activities
 }}
-<nav id="courseindex" class="courseindex-drawer" data-progress='{{{progress.dataset}}}'>
-    
-    {{! Progress overview header }}
-    {{#progress.enabled}}
-    <div class="courseindex-progress-header" role="region" aria-live="polite" aria-label="{{progress.course.title}}">
-        <div class="courseindex-progress-header__content">
-            <p class="courseindex-progress-header__title">{{progress.course.title}}</p>
-            <p class="courseindex-progress-header__value" data-region="course-progress-value">
+<nav id="courseindex" class="courseindex courseindex--compecer" data-progress='{{{progress.dataset}}}'>
+
+    <div class="courseindex-progress-card {{^progress.enabled}}courseindex-progress-card--disabled{{/progress.enabled}}"
+         role="region"
+         aria-live="polite"
+         aria-label="{{progress.course.title}}">
+        <div class="courseindex-progress-card__header">
+            <p class="courseindex-progress-card__title">{{progress.course.title}}</p>
+            <p class="courseindex-progress-card__value" data-region="course-progress-value">
                 {{progress.course.percentageformatted}}
             </p>
         </div>
-        <p class="courseindex-progress-header__summary" data-region="course-progress-summary">
+        <p class="courseindex-progress-card__summary" data-region="course-progress-summary">
             {{progress.course.summary}}
         </p>
         <div class="courseindex-progress-bar" role="presentation">
-            <div class="courseindex-progress-bar__fill" 
-                 style="--progress: {{#progress.course.percentage}}{{.}}%{{/progress.course.percentage}}{{^progress.course.percentage}}0%{{/progress.course.percentage}};"
-                 role="progressbar" 
-                 aria-valuemin="0" 
-                 aria-valuemax="100" 
-                 {{#progress.course.percentage}}aria-valuenow="{{.}}"{{/progress.course.percentage}}
-                 aria-label="{{progress.course.aria}}">
-            </div>
+            <span class="courseindex-progress-bar__fill {{^progress.enabled}}is-disabled{{/progress.enabled}}"
+                  style="--progress: {{#progress.course.percentage}}{{.}}%{{/progress.course.percentage}}{{^progress.course.percentage}}0%{{/progress.course.percentage}};"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  {{#progress.course.percentage}}aria-valuenow="{{.}}"{{/progress.course.percentage}}
+                  aria-label="{{progress.course.aria}}">
+            </span>
         </div>
     </div>
-    {{/progress.enabled}}
-    
-    {{^progress.enabled}}
-    <div class="courseindex-progress-header courseindex-progress-header--disabled">
-        <p class="courseindex-progress-header__title">{{progress.course.title}}</p>
-        <p class="courseindex-progress-header__summary">{{progress.course.summary}}</p>
+
+    <div class="courseindex-body">
+        <div id="courseindex-content" class="courseindex-content" data-region="courseindex-content">
+            {{> core_courseformat/local/courseindex/placeholders}}
+        </div>
     </div>
-    {{/progress.enabled}}
-    
-    {{! Course sections list }}
-    <div id="courseindex-content" class="courseindex-content" data-region="courseindex-content">
-        {{> core_courseformat/local/courseindex/placeholders}}
-    </div>
-    
+
 </nav>
 
 {{#js}}
