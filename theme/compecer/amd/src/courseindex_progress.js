@@ -621,9 +621,9 @@ const initProgressDisplay = (container) => {
  *
  * @param {string} courseIndexId Course index container ID.
  */
-export const init = (courseIndexId) => {
-    const courseEditor = getCurrentCourseEditor();
-    if (!courseEditor) {
+export const init = (courseIndexId, courseEditor = null) => {
+    const editor = courseEditor ?? getCurrentCourseEditor();
+    if (!editor) {
         return;
     }
 
@@ -634,7 +634,7 @@ export const init = (courseIndexId) => {
 
     initProgressDisplay(container);
 
-    const target = courseEditor.target ?? document;
+    const target = editor.target ?? document;
     target.addEventListener('cm.completionstate:updated', ({detail}) => {
         const data = getContainerData(container);
         if (data.enabled === false) {

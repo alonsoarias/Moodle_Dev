@@ -28,7 +28,7 @@
              role="progressbar"
              aria-valuemin="0"
              aria-valuemax="100"
-             {{#progress.course.percentage}}aria-valuenow="{{.}}"{{/progress.course.percentage}}
+             aria-valuenow="{{progress.course.percentage}}"
              aria-label="{{progress.course.aria}}">
             <span class="courseindex-progress-bar__visual" data-region="course-progress-bar" aria-hidden="true">
                 {{progress.course.bar}}
@@ -52,8 +52,14 @@
 </nav>
 
 {{#js}}
-require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progress) {
-    component.init('courseindex');
-    progress.init('courseindex');
+require(['core_courseformat/courseeditor'], function(courseeditor) {
+    const editor = courseeditor?.getCurrentCourseEditor?.();
+    if (!editor) {
+        return;
+    }
+    require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progress) {
+        component.init('courseindex');
+        progress.init('courseindex', editor);
+    });
 });
 {{/js}}
