@@ -198,6 +198,23 @@ $string['icon_lightbulb'] = 'Light Bulb';
 $string['icon_chart'] = 'Chart Line';
 $string['icon_medal'] = 'Medal';
 $string['icon_certificate'] = 'Certificate';
+
+// Course index.
+$string['courseindex_progress_heading'] = 'Course progress';
+$string['courseindex_progress_summary'] = '{$a->completed} of {$a->total} activities completed';
+$string['courseindex_progress_count'] = '{$a->completed} of {$a->total} activities completed';
+$string['courseindex_progress_aria'] = 'Course progress: {$a->percentage}% complete. {$a->completed} of {$a->total} activities finished.';
+$string['courseindex_notracking'] = 'Completion tracking is not enabled for this course.';
+$string['courseindex_section_summary'] = '{$a->completed} of {$a->total} activities in this section completed ({$a->percentage}%)';
+$string['courseindex_section_aria'] = 'Section progress: {$a->percentage}% complete. {$a->completed} of {$a->total} activities finished.';
+$string['courseindex_section_nottracked'] = 'No trackable activities in this section.';
+$string['courseindex_legend_notstarted'] = 'Not started';
+$string['courseindex_legend_inprogress'] = 'In progress';
+$string['courseindex_legend_completed'] = 'Completed';
+$string['activitystatusnotstarted'] = 'Not started';
+$string['activitystatusinprogress'] = 'In progress';
+$string['activitystatuscompleted'] = 'Completed';
+$string['activitystatusfailed'] = 'Failed';
 $string['icon_star'] = 'Star';
 $string['icon_rocket'] = 'Rocket';
 $string['icon_code'] = 'Code';
