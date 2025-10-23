@@ -309,3 +309,10 @@ $string['breadcrumb'] = 'Breadcrumb';
 $string['opendrawernav'] = 'Open navigation drawer';
 $string['closedrawernav'] = 'Close navigation drawer';
 $string['sidebarcoursemenuheading'] = 'Course index';
+
+// Course index progress strings.
+$string['completionprogressdetails'] = 'Progreso del curso';
+$string['completiondisabled'] = 'El seguimiento de finalización no está habilitado';
+$string['completionsummary'] = '{$a->completed} de {$a->total} actividades completadas';
+$string['completionaria'] = 'Progreso del curso: {$a->percentage}%, {$a->completed} de {$a->total} actividades completadas';
+$string['sectioncompletion'] = '{$a->completed}/{$a->total}';

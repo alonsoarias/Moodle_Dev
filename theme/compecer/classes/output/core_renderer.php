@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Core renderer file.
  *
@@ -22,9 +21,7 @@
  * @author     Pedro Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace theme_compecer\output;
-
 use html_writer;
 use custom_menu;
 use action_menu_filler;
@@ -42,10 +39,8 @@ use core_courseformat\base as course_format;
 use theme_compecer\output\courseindex_progress;
 
 defined('MOODLE_INTERNAL') || die();
-
 require_once(__DIR__ . '/../../../moove/classes/output/core_renderer.php');
 require_once(__DIR__ . '/../util/theme_settings.php');
-
 /**
  * Renderers to align Moodle's HTML with that expected by Bootstrap
  *
@@ -53,7 +48,7 @@ require_once(__DIR__ . '/../util/theme_settings.php');
  * @copyright  2024 IngeWeb https://www.ingeweb.co
  */
 class core_renderer extends \theme_moove\output\core_renderer {
-
+    
     /**
      * Render the course index drawer with progress information.
      *
@@ -67,8 +62,12 @@ class core_renderer extends \theme_moove\output\core_renderer {
             return '';
         }
 
-        include_course_editor($format);
+        // Include course editor if needed.
+        $course = $format->get_course();
+        $modinfo = get_fast_modinfo($course);
+        $format->get_output_classname('content');
 
+        // Create progress calculator.
         $progress = new courseindex_progress($format, (int)$USER->id);
         $context = $progress->export_for_template($this);
 
@@ -80,7 +79,6 @@ class core_renderer extends \theme_moove\output\core_renderer {
      * @var object
      */
     protected $themeConfig = null;
-
     /**
      * Get theme config with caching
      * @return object
@@ -91,7 +89,6 @@ class core_renderer extends \theme_moove\output\core_renderer {
         }
         return $this->themeConfig;
     }
-
     /**
      * Renders the login form.
      *
@@ -100,24 +97,18 @@ class core_renderer extends \theme_moove\output\core_renderer {
      */
     public function render_login(\core_auth\output\login $form) {
         global $SITE, $CFG;
-
         $context = $form->export_for_template($this);
-
         // Override because rendering is not supported in template yet.
         $context->cookieshelpiconformatted = $this->help_icon('cookiesenabled');
         $context->errorformatted = $this->error_text($context->error);
-
         $context->logourl = $this->get_logo();
         $context->sitename = format_string($SITE->fullname, true, ['context' => \context_course::instance(SITEID)]);
         $context->my_credit = get_string('credit', 'theme_compecer');
-
         if (file_exists(__DIR__ . "/../../templates/core/login-custom.mustache")) {
             return $this->render_from_template('core/login-custom', $context);
         }
-
         return $this->render_from_template('core/login', $context);
     }
-
     /**
      * Returns full header.
      *
@@ -125,11 +116,9 @@ class core_renderer extends \theme_moove\output\core_renderer {
      */
     public function full_header() {
         global $CFG, $USER, $PAGE, $COURSE;
-
         if ($USER->id != 2) {
             $CFG->perfdebug = 0;
         }
-
         $theme = $this->get_theme_config();
         
         // Prepare template context
@@ -154,7 +143,6 @@ class core_renderer extends \theme_moove\output\core_renderer {
                     '</div>';
             }
         }
-
         // Admin reminder for disabled notice
         if (is_siteadmin() && 
             (!empty($theme->settings->generalnoticemode) && 
@@ -182,12 +170,10 @@ class core_renderer extends \theme_moove\output\core_renderer {
             $header->hasnavbar = true;
             $header->navbar = $this->navbar();
         }
-
         $header->headeractions = $this->page->get_header_actions();
         
         return $this->render_from_template('theme_compecer/core/full_header', $header);
     }
-
     /**
      * Returns standard footer content.
      *
@@ -195,26 +181,21 @@ class core_renderer extends \theme_moove\output\core_renderer {
      */
     public function standard_footer_html() {
         global $CFG, $USER;
-
         $output = parent::standard_footer_html();
         $theme = $this->get_theme_config();
-
         // Add chat widget if enabled and user is logged in
         if (!empty($this->page->theme->settings->enable_chat) && isloggedin()) {
             $output .= $this->add_chat_widget();
         }
-
         // Add accessibility widget only if enabled and user is logged in
         if (isloggedin() && !empty($this->page->theme->settings->accessibility_widget)) {
             $output .= '<script src="https://website-widgets.pages.dev/dist/sienna.min.js" defer></script>';
             debugging('Accessibility widget loaded for user ID: ' . $USER->id, DEBUG_DEVELOPER);
         }
-
         // Add copy paste prevention if enabled
         if (!empty($this->page->theme->settings->copypaste_prevention)) {
             $this->add_copy_paste_prevention();
         }
-
         // Check if about text should be hidden
         if (isset($this->page->theme->settings->hideabouttext) && 
             $this->page->theme->settings->hideabouttext == 1) {
@@ -224,10 +205,8 @@ class core_renderer extends \theme_moove\output\core_renderer {
                 }
             </style>';
         }
-
         return $output;
     }
-
     /**
      * Get theme image URL.
      *
@@ -238,7 +217,6 @@ class core_renderer extends \theme_moove\output\core_renderer {
         $theme = $this->get_theme_config();
         return $theme->setting_file_url($img, $img);
     }
-
     /**
      * Adds chat widget if enabled.
      *
@@ -250,7 +228,6 @@ class core_renderer extends \theme_moove\output\core_renderer {
         if (empty($this->page->theme->settings->tawkto_embed_url)) {
             return '';
         }
-
         // Sanitize user data
         $userData = [
             'name' => clean_param($USER->firstname . " " . $USER->lastname, PARAM_TEXT),
@@ -258,7 +235,6 @@ class core_renderer extends \theme_moove\output\core_renderer {
             'username' => clean_param($USER->username, PARAM_USERNAME),
             'idnumber' => clean_param($USER->idnumber, PARAM_TEXT)
         ];
-
         return "<!--Start of Chat Script-->
         <script type=\"text/javascript\">
         var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
@@ -277,22 +253,18 @@ class core_renderer extends \theme_moove\output\core_renderer {
         </script>
         <!--End of Chat Script-->";
     }
-
     /**
      * Adds copy/paste prevention JavaScript for specified roles.
      */
     protected function add_copy_paste_prevention() {
         global $USER, $PAGE, $COURSE;
-
         try {
             // Get restricted roles from theme settings
             $restricted_roles = $this->page->theme->settings->copypaste_roles;
-
             // Return if no roles are restricted or user is admin
             if (empty($restricted_roles) || is_siteadmin()) {
                 return;
             }
-
             // Get appropriate context
             $context = null;
             if (!empty($COURSE->id) && $COURSE->id > 1) {
@@ -300,32 +272,26 @@ class core_renderer extends \theme_moove\output\core_renderer {
             } else if (!empty($PAGE->context)) {
                 $context = $PAGE->context;
             }
-
             if (!$context) {
                 return;
             }
-
             // Convert roles to array if needed
             if (!is_array($restricted_roles)) {
                 $restricted_roles = explode(',', $restricted_roles);
             }
-
             // Check user roles
             $has_restricted_role = false;
             $user_roles = get_user_roles($context, $USER->id);
-
             foreach ($user_roles as $role) {
                 if (in_array($role->roleid, $restricted_roles)) {
                     $has_restricted_role = true;
                     break;
                 }
             }
-
             // Apply restrictions if needed
             if (isloggedin() && $has_restricted_role) {
                 $PAGE->requires->js_call_amd('theme_compecer/prevent_copy_paste', 'init');
             }
-
         } catch (\moodle_exception $e) {
             debugging('Error in copy/paste prevention: ' . $e->getMessage(), DEBUG_DEVELOPER);
             return;

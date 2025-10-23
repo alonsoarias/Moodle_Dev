@@ -60,7 +60,7 @@
     
     {{! Section content - collapsible list }}
     <div id="courseindex-section-content-{{number}}"
-         class="courseindex-section__content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
+         class="courseindex-section__content collapse {{^indexcollapsed}}show{{/indexcollapsed}}{{#current}}show{{/current}}"
          aria-labelledby="courseindex-section-header-{{number}}" 
          role="group">
         <ul class="courseindex-section__list" data-for="cmlist" data-id="{{id}}" role="group">

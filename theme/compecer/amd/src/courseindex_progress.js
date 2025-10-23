@@ -1,188 +1,225 @@
 // This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Course index progress manager - Minimal and efficient
+ * Course index progress updater.
+ *
+ * Listens to completion state changes and updates progress indicators.
  *
  * @module     theme_compecer/courseindex_progress
- * @copyright  2024 Your Name
+ * @copyright  2024 IngeWeb https://www.ingeweb.co
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/str', 'core/log'], function($, Str, Log) {
-    
-    const SELECTORS = {
-        drawer: '.courseindex-drawer',
-        statusIcon: '.courseindex-item__status',
-        statusText: '[data-region="cm-status-text"]',
-        courseProgressValue: '[data-region="course-progress-value"]',
-        courseProgressSummary: '[data-region="course-progress-summary"]',
-        courseProgressBar: '.courseindex-progress-bar__fill',
-        sectionProgressValue: '[data-region="section-progress-value"]',
-        sectionProgressText: '[data-region="section-progress-text"]',
-    };
-    
-    const STATUS_CLASSES = {
-        notstarted: 'courseindex-item__status--notstarted',
-        inprogress: 'courseindex-item__status--inprogress',
-        completed: 'courseindex-item__status--completed',
-        failed: 'courseindex-item__status--failed',
-    };
-    
-    /**
-     * Initialize progress manager
-     */
-    const init = (drawerId) => {
-        const drawer = document.getElementById(drawerId);
-        if (!drawer) {
-            Log.debug('Course index drawer not found: ' + drawerId);
+import {getCurrentCourseEditor} from 'core_courseformat/courseeditor';
+import {eventTypes} from 'core_course/events';
+
+/**
+ * Initialize the progress updater.
+ *
+ * @param {string} courseIndexId The course index container ID
+ */
+export const init = (courseIndexId) => {
+    const courseEditor = getCurrentCourseEditor();
+    if (!courseEditor) {
+        return;
+    }
+
+    const container = document.getElementById(courseIndexId);
+    if (!container) {
+        return;
+    }
+
+    // Listen to completion state changes.
+    courseEditor.addEventListener(
+        eventTypes.cmCompletion,
+        (event) => {
+            updateProgress(container, event.detail);
+        }
+    );
+
+    // Initialize progress display.
+    initProgressDisplay(container);
+};
+
+/**
+ * Initialize progress display from dataset.
+ *
+ * @param {HTMLElement} container Course index container
+ */
+const initProgressDisplay = (container) => {
+    const dataset = container.dataset.progress;
+    if (!dataset) {
+        return;
+    }
+
+    try {
+        const data = JSON.parse(dataset);
+        if (!data.enabled) {
             return;
         }
-        
-        const datasetAttr = drawer.getAttribute('data-progress');
-        if (!datasetAttr) {
-            Log.debug('No progress data in drawer');
+
+        // Progress is already rendered in the template,
+        // this just ensures the display is correct on load.
+        updateSectionProgressDisplay(container);
+    } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error parsing progress dataset:', error);
+    }
+};
+
+/**
+ * Update progress indicators after completion change.
+ *
+ * @param {HTMLElement} container Course index container
+ * @param {Object} detail Event detail with completion data
+ */
+const updateProgress = (container, detail) => {
+    if (!detail || !detail.element) {
+        return;
+    }
+
+    // Update section progress for the affected section.
+    const sectionElement = detail.element.closest('.courseindex-section');
+    if (sectionElement) {
+        updateSectionProgress(sectionElement);
+    }
+
+    // Update course progress (debounced).
+    debounceUpdateCourseProgress(container);
+};
+
+/**
+ * Update progress display for a section.
+ *
+ * @param {HTMLElement} sectionElement Section element
+ */
+const updateSectionProgress = (sectionElement) => {
+    const progressValue = sectionElement.querySelector('[data-region="section-progress-value"]');
+    const progressText = sectionElement.querySelector('[data-region="section-progress-text"]');
+
+    if (!progressValue) {
+        return;
+    }
+
+    // Count completion states in this section.
+    const items = sectionElement.querySelectorAll('.courseindex-item');
+    let completed = 0;
+    let total = 0;
+
+    items.forEach(item => {
+        const completionInfo = item.querySelector('.completioninfo');
+        if (!completionInfo) {
             return;
         }
-        
-        let dataset;
-        try {
-            dataset = JSON.parse(datasetAttr);
-        } catch (e) {
-            Log.error('Failed to parse progress dataset', e);
+
+        total++;
+        const status = item.querySelector('[data-region="cm-status"]');
+        if (status && status.classList.contains('completion-enabled')) {
+            // Check if item shows as complete.
+            if (item.classList.contains('completion-complete')) {
+                completed++;
+            }
+        }
+    });
+
+    if (total > 0) {
+        const percentage = Math.round((completed / total) * 100);
+        progressValue.textContent = `${completed}/${total}`;
+
+        if (progressText) {
+            progressText.textContent = `${percentage}% completado`;
+        }
+    } else {
+        progressValue.textContent = '';
+        if (progressText) {
+            progressText.textContent = '';
+        }
+    }
+};
+
+/**
+ * Update progress display for all sections in container.
+ *
+ * @param {HTMLElement} container Course index container
+ */
+const updateSectionProgressDisplay = (container) => {
+    const sections = container.querySelectorAll('.courseindex-section');
+    sections.forEach(section => {
+        updateSectionProgress(section);
+    });
+};
+
+let courseProgressTimeout = null;
+
+/**
+ * Debounced update of course progress.
+ *
+ * @param {HTMLElement} container Course index container
+ */
+const debounceUpdateCourseProgress = (container) => {
+    if (courseProgressTimeout) {
+        clearTimeout(courseProgressTimeout);
+    }
+
+    courseProgressTimeout = setTimeout(() => {
+        updateCourseProgress(container);
+    }, 500);
+};
+
+/**
+ * Update course-level progress indicators.
+ *
+ * @param {HTMLElement} container Course index container
+ */
+const updateCourseProgress = (container) => {
+    const progressValue = container.querySelector('[data-region="course-progress-value"]');
+    const progressSummary = container.querySelector('[data-region="course-progress-summary"]');
+    const progressBar = container.querySelector('.courseindex-progress-bar__fill');
+
+    if (!progressValue || !progressBar) {
+        return;
+    }
+
+    // Count all completion states in course.
+    const items = container.querySelectorAll('.courseindex-item');
+    let completed = 0;
+    let total = 0;
+
+    items.forEach(item => {
+        const completionInfo = item.querySelector('.completioninfo');
+        if (!completionInfo) {
             return;
         }
-        
-        if (!dataset.enabled) {
-            Log.debug('Completion tracking disabled');
-            return;
-        }
-        
-        updateAll(drawer, dataset);
-        setupEventListeners(drawer, dataset);
-        
-        Log.debug('Course index progress initialized');
-    };
-    
-    /**
-     * Update all indicators
-     */
-    const updateAll = (drawer, dataset) => {
-        updateCourseProgress(drawer, dataset.course);
-        updateSectionProgress(drawer, dataset.sections);
-        updateActivityStatus(drawer, dataset.activities, dataset.strings);
-    };
-    
-    /**
-     * Update course progress
-     */
-    const updateCourseProgress = (drawer, courseData) => {
-        if (!courseData) return;
-        
-        const valueEl = drawer.querySelector(SELECTORS.courseProgressValue);
-        const summaryEl = drawer.querySelector(SELECTORS.courseProgressSummary);
-        const barEl = drawer.querySelector(SELECTORS.courseProgressBar);
-        
-        if (valueEl && courseData.percentageformatted) {
-            valueEl.textContent = courseData.percentageformatted;
-        }
-        
-        if (summaryEl && courseData.summary) {
-            summaryEl.textContent = courseData.summary;
-        }
-        
-        if (barEl && typeof courseData.percentage !== 'undefined') {
-            barEl.style.setProperty('--progress', courseData.percentage + '%');
-            barEl.setAttribute('aria-valuenow', courseData.percentage);
-            if (courseData.aria) {
-                barEl.setAttribute('aria-label', courseData.aria);
+
+        total++;
+        const status = item.querySelector('[data-region="cm-status"]');
+        if (status && status.classList.contains('completion-enabled')) {
+            if (item.classList.contains('completion-complete')) {
+                completed++;
             }
         }
-    };
-    
-    /**
-     * Update section progress
-     */
-    const updateSectionProgress = (drawer, sectionsData) => {
-        if (!sectionsData) return;
-        
-        Object.keys(sectionsData).forEach(sectionId => {
-            const sectionData = sectionsData[sectionId];
-            const sectionEl = drawer.querySelector(`[data-id="${sectionId}"][data-for="section"]`);
-            
-            if (!sectionEl) return;
-            
-            const valueEl = sectionEl.querySelector(SELECTORS.sectionProgressValue);
-            const textEl = sectionEl.querySelector(SELECTORS.sectionProgressText);
-            
-            if (valueEl && sectionData.tracked > 0) {
-                // Show percentage instead of "X/Y"
-                valueEl.textContent = sectionData.percentage + '%';
-            }
-            
-            if (textEl && sectionData.aria) {
-                textEl.textContent = sectionData.aria;
-            }
-        });
-    };
-    
-    /**
-     * Update activity status icons
-     */
-    const updateActivityStatus = (drawer, activitiesData, strings) => {
-        if (!activitiesData) return;
-        
-        Object.keys(activitiesData).forEach(cmId => {
-            const activityData = activitiesData[cmId];
-            const itemEl = drawer.querySelector(`[data-id="${cmId}"][data-for="cm"]`);
-            
-            if (!itemEl) return;
-            
-            const statusIcon = itemEl.querySelector(SELECTORS.statusIcon);
-            const statusText = itemEl.querySelector(SELECTORS.statusText);
-            
-            if (statusIcon) {
-                Object.values(STATUS_CLASSES).forEach(cls => {
-                    statusIcon.classList.remove(cls);
-                });
-                
-                const statusClass = STATUS_CLASSES[activityData.status];
-                if (statusClass) {
-                    statusIcon.classList.add(statusClass);
-                }
-            }
-            
-            if (statusText && activityData.label) {
-                statusText.textContent = activityData.label;
-            }
-        });
-    };
-    
-    /**
-     * Setup event listeners for live updates
-     */
-    const setupEventListeners = (drawer, dataset) => {
-        // Watch for completion changes
-        const completionObserver = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'data-value') {
-                    const cmId = mutation.target.closest('[data-for="cm"]')?.getAttribute('data-id');
-                    if (cmId) {
-                        Log.debug('Completion changed for cm: ' + cmId);
-                        // In production: fetch fresh data and update
-                    }
-                }
-            });
-        });
-        
-        drawer.querySelectorAll('.completioninfo').forEach(el => {
-            completionObserver.observe(el, {
-                attributes: true,
-                attributeFilter: ['data-value']
-            });
-        });
-    };
-    
-    return {
-        init: init
-    };
-});
+    });
+
+    if (total > 0) {
+        const percentage = Math.round((completed / total) * 100);
+        progressValue.textContent = `${percentage}%`;
+        progressBar.style.setProperty('--progress', `${percentage}%`);
+
+        if (progressSummary) {
+            progressSummary.textContent = `${completed} de ${total} actividades completadas`;
+        }
+    }
+};
