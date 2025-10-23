@@ -13,33 +13,39 @@
          aria-live="polite"
          aria-label="{{progress.course.title}}">
         <div class="courseindex-progress-card__header">
-            <div class="courseindex-progress-card__heading">
-                <p class="courseindex-progress-card__title">{{progress.course.title}}</p>
-                <p class="courseindex-progress-card__summary" data-region="course-progress-summary">
-                    {{progress.course.summary}}
-                </p>
-            </div>
+            <span class="courseindex-progress-card__title">{{progress.course.title}}</span>
             <span class="courseindex-progress-card__value" data-region="course-progress-value">
                 {{progress.course.percentageformatted}}
             </span>
         </div>
+
         {{#progress.enabled}}
-        <div class="courseindex-progress-bar"
-             role="progressbar"
-             aria-valuemin="0"
-             aria-valuemax="100"
-             aria-valuenow="{{progress.course.percentage}}"
-             aria-label="{{progress.course.aria}}">
-            <span class="courseindex-progress-bar__visual" data-region="course-progress-bar" aria-hidden="true">
-                {{progress.course.bar}}
-            </span>
-        </div>
+            <p class="courseindex-progress-card__summary" data-region="course-progress-summary">
+                {{progress.course.summary}}
+            </p>
+            <div class="courseindex-progress-bar"
+                 role="progressbar"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+                 aria-valuenow="{{progress.course.percentage}}"
+                 aria-label="{{progress.course.aria}}">
+                <span class="courseindex-progress-bar__visual" data-region="course-progress-bar" aria-hidden="true">
+                    {{progress.course.bar}}
+                </span>
+            </div>
+            <ul class="courseindex-progress-legend" aria-hidden="true">
+                <li class="courseindex-progress-legend__item courseindex-progress-legend__item--notstarted">○ {{#str}}completionstatus:notstarted, theme_compecer{{/str}}</li>
+                <li class="courseindex-progress-legend__item courseindex-progress-legend__item--inprogress">◐ {{#str}}completionstatus:inprogress, theme_compecer{{/str}}</li>
+                <li class="courseindex-progress-legend__item courseindex-progress-legend__item--completed">✓ {{#str}}completionstatus:completed, theme_compecer{{/str}}</li>
+            </ul>
         {{/progress.enabled}}
+
         {{^progress.enabled}}
-        <div class="courseindex-progress-card__message" data-region="course-progress-message">
-            {{progress.course.summary}}
-        </div>
+            <div class="courseindex-progress-card__message" data-region="course-progress-message">
+                {{progress.course.summary}}
+            </div>
         {{/progress.enabled}}
+
         <span class="sr-only" data-region="course-progress-text">{{progress.course.aria}}</span>
     </div>
 
