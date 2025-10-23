@@ -87,21 +87,6 @@ $string['enable_search_categoriesdesc'] = 'Enable or disable the search and cate
 $string['enable_dashboard_cards'] = 'Enable Dashboard Cards';
 $string['enable_dashboard_cardsdesc'] = 'Enable or disable the dashboard cards section';
 
-// Course index
-$string['courseprogressheading'] = 'Course progress';
-$string['courseprogresssummary'] = '{$a->completed} of {$a->total} activities ({$a->percentage}%)';
-$string['courseprogressaria'] = 'Course completed {$a->percentage}%';
-$string['courseprogressdisabled'] = 'Tracking disabled';
-$string['courseprogressdisabledsummary'] = 'Completion tracking is not enabled for this course.';
-$string['courseprogressnotavailable'] = 'N/A';
-$string['sectionprogresssummary'] = '{$a->completed} of {$a->total} activities completed';
-$string['sectionprogressaria'] = 'Section completion: {$a->completed} of {$a->total} activities ({$a->percentage}%)';
-$string['sectionprogressnotracked'] = 'Progress not tracked';
-$string['completionstatus:notstarted'] = 'Not started';
-$string['completionstatus:inprogress'] = 'In progress';
-$string['completionstatus:completed'] = 'Completed';
-$string['completionstatus:failed'] = 'Failed';
-
 // Dashboard Cards Settings
 $string['dashboard_card_heading'] = 'Dashboard Card {$a}';
 $string['dashboard_card_visibility'] = 'Show Card {$a}';
@@ -310,10 +295,3 @@ $string['breadcrumb'] = 'Breadcrumb';
 $string['opendrawernav'] = 'Open navigation drawer';
 $string['closedrawernav'] = 'Close navigation drawer';
 $string['sidebarcoursemenuheading'] = 'Course index';
-
-// Course index progress strings.
-$string['completionprogressdetails'] = 'Course progress';
-$string['completiondisabled'] = 'Completion tracking is not enabled';
-$string['completionsummary'] = '{$a->completed} of {$a->total} activities completed';
-$string['completionaria'] = 'Course progress: {$a->percentage}%, {$a->completed} of {$a->total} activities completed';
-$string['sectioncompletion'] = '{$a->completed}/{$a->total}';

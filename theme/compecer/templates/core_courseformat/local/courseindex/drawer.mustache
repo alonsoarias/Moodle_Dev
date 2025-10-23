@@ -1,71 +1,24 @@
 {{!
     @template core_courseformat/local/courseindex/drawer
+
+    This template renders the course index drawer.
+    Adaptado para theme compecer (child theme de Boost).
     
-    Course index drawer - Compecer minimal design inspired by Remui
-    
-    Context variables:
-    * progress - Progress data object with course, sections, activities
+    Example context (json):
+    {}
 }}
-<nav id="courseindex" class="courseindex courseindex--compecer{{^progress.enabled}} courseindex--no-tracking{{/progress.enabled}}" data-progress='{{{progress.dataset}}}'>
-
-    <div class="courseindex-progress-card {{^progress.enabled}}courseindex-progress-card--disabled{{/progress.enabled}}"
-         role="region"
-         aria-live="polite"
-         aria-label="{{progress.course.title}}">
-        <div class="courseindex-progress-card__header">
-            <span class="courseindex-progress-card__title">{{progress.course.title}}</span>
-            <span class="courseindex-progress-card__value" data-region="course-progress-value">
-                {{progress.course.percentageformatted}}
-            </span>
-        </div>
-
-        {{#progress.enabled}}
-            <p class="courseindex-progress-card__summary" data-region="course-progress-summary">
-                {{progress.course.summary}}
-            </p>
-            <div class="courseindex-progress-bar"
-                 role="progressbar"
-                 aria-valuemin="0"
-                 aria-valuemax="100"
-                 aria-valuenow="{{progress.course.percentage}}"
-                 aria-label="{{progress.course.aria}}">
-                <span class="courseindex-progress-bar__visual" data-region="course-progress-bar" aria-hidden="true">
-                    {{progress.course.bar}}
-                </span>
-            </div>
-            <ul class="courseindex-progress-legend" aria-hidden="true">
-                <li class="courseindex-progress-legend__item courseindex-progress-legend__item--notstarted">○ {{#str}}completionstatus:notstarted, theme_compecer{{/str}}</li>
-                <li class="courseindex-progress-legend__item courseindex-progress-legend__item--inprogress">◐ {{#str}}completionstatus:inprogress, theme_compecer{{/str}}</li>
-                <li class="courseindex-progress-legend__item courseindex-progress-legend__item--completed">✓ {{#str}}completionstatus:completed, theme_compecer{{/str}}</li>
-            </ul>
-        {{/progress.enabled}}
-
-        {{^progress.enabled}}
-            <div class="courseindex-progress-card__message" data-region="course-progress-message">
-                {{progress.course.summary}}
-            </div>
-        {{/progress.enabled}}
-
-        <span class="sr-only" data-region="course-progress-text">{{progress.course.aria}}</span>
-    </div>
-
-    <div class="courseindex-body">
-        <div id="courseindex-content" class="courseindex-content" data-region="courseindex-content">
-            {{> core_courseformat/local/courseindex/placeholders}}
-        </div>
-    </div>
-
+<nav id="courseindex" class="course-index-drawer">
+  <div class="mb-4">
+    <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
+      {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
+    </span>
+  </div>
+  <div id="courseindex-content">
+    {{> core_courseformat/local/courseindex/placeholders}}
+  </div>
 </nav>
-
 {{#js}}
-require(['core_courseformat/courseeditor'], function(courseeditor) {
-    const editor = courseeditor?.getCurrentCourseEditor?.();
-    if (!editor) {
-        return;
-    }
-    require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progress) {
-        component.init('courseindex');
-        progress.init('courseindex', editor);
-    });
+require(['core_courseformat/local/courseindex/drawer'], function(component) {
+  component.init('courseindex');
 });
 {{/js}}
