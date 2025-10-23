@@ -43,6 +43,9 @@ const STATUS_CLASSES = {
 /** Selector for course module nodes within the index. */
 const CM_SELECTOR = '[data-for="cm"]';
 
+/** CSS class applied to the container when completion tracking is disabled. */
+const NO_TRACKING_CLASS = 'courseindex--no-tracking';
+
 /** Default number of characters used to represent progress bars. */
 const PROGRESS_BAR_LENGTH = 20;
 
@@ -211,6 +214,7 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
         summaryOverride = null,
         ariaOverride = null,
         barOverride = null,
+        valueOverride = null,
     } = options;
 
     const data = getContainerData(container);
@@ -221,7 +225,8 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
     const safePercentage = clamp(Math.round(toNumber(percentage)), 0, 100);
     const progressValue = container.querySelector('[data-region="course-progress-value"]');
     if (progressValue) {
-        progressValue.textContent = `${safePercentage}%`;
+        const displayValue = valueOverride ?? `${safePercentage}%`;
+        progressValue.textContent = displayValue;
     }
 
     const computedSummary = formatString(strings.summary, {
@@ -234,6 +239,11 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
     const progressSummary = container.querySelector('[data-region="course-progress-summary"]');
     if (progressSummary) {
         progressSummary.textContent = summaryText;
+    }
+
+    const progressMessage = container.querySelector('[data-region="course-progress-message"]');
+    if (progressMessage) {
+        progressMessage.textContent = summaryText;
     }
 
     const computedAria = formatString(strings.aria, {
@@ -268,6 +278,7 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
     data.course.completed = completed;
     data.course.total = total;
     data.course.percentage = safePercentage;
+    data.course.percentageformatted = valueOverride ?? `${safePercentage}%`;
     data.course.bar = barText;
     data.course.summary = summaryText;
     data.course.aria = ariaText;
@@ -354,6 +365,7 @@ const applyDatasetProgress = (container) => {
                 summaryOverride: data.course.summary ?? null,
                 ariaOverride: data.course.aria ?? null,
                 barOverride: data.course.bar ?? null,
+                valueOverride: data.course.percentageformatted ?? null,
             }
         );
     }
@@ -507,6 +519,7 @@ const updateCourseProgress = (container) => {
                 summaryOverride: data.course?.summary ?? null,
                 ariaOverride: data.course?.aria ?? null,
                 barOverride: data.course?.bar ?? null,
+                valueOverride: data.course?.percentageformatted ?? null,
             }
         );
         return;
@@ -593,6 +606,11 @@ const initProgressDisplay = (container) => {
     parseDataset(container);
     applyDatasetProgress(container);
     const data = getContainerData(container);
+    if (data.enabled === false) {
+        container.classList.add(NO_TRACKING_CLASS);
+        return;
+    }
+    container.classList.remove(NO_TRACKING_CLASS);
     updateSectionProgressDisplay(container);
     updateItemStatuses(container, data.strings);
     updateCourseProgress(container);
@@ -618,10 +636,17 @@ export const init = (courseIndexId) => {
 
     const target = courseEditor.target ?? document;
     target.addEventListener('cm.completionstate:updated', ({detail}) => {
+        const data = getContainerData(container);
+        if (data.enabled === false) {
+            return;
+        }
         updateProgressForDetail(container, detail);
     });
     target.addEventListener('transaction:end', () => {
         const data = getContainerData(container);
+        if (data.enabled === false) {
+            return;
+        }
         updateItemStatuses(container, data.strings);
         updateSectionProgressDisplay(container);
         updateCourseProgress(container);

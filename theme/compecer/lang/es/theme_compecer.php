@@ -93,6 +93,7 @@ $string['courseprogresssummary'] = '{$a->completed} de {$a->total} actividades (
 $string['courseprogressaria'] = 'Curso completado al {$a->percentage}%';
 $string['courseprogressdisabled'] = 'Seguimiento desactivado';
 $string['courseprogressdisabledsummary'] = 'El seguimiento de finalización no está habilitado en este curso.';
+$string['courseprogressnotavailable'] = 'N/D';
 $string['sectionprogresssummary'] = '{$a->completed} de {$a->total} actividades completadas';
 $string['sectionprogressaria'] = 'Sección completada: {$a->completed} de {$a->total} actividades ({$a->percentage}%)';
 $string['sectionprogressnotracked'] = 'Sin seguimiento de progreso';
