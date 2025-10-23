@@ -19,49 +19,55 @@
      data-number="{{number}}"
      role="treeitem"
      aria-owns="courseindex-section-content-{{number}}">
-    
-    {{! Section header - ONLY for toggle, NOT navigation }}
+
     <div class="courseindex-section__header {{^visible}}courseindex-section__header--dimmed{{/visible}} {{#hasrestrictions}}courseindex-section__header--restricted{{/hasrestrictions}}"
          id="courseindex-section-header-{{number}}"
          data-for="section_item">
-        
+
         <button type="button"
-                class="courseindex-section__toggle {{#indexcollapsed}}courseindex-section__toggle--collapsed{{/indexcollapsed}}"
+                class="courseindex-section__toggle {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
                 data-action="togglecourseindexsection"
                 data-for="section_title"
                 data-toggle="collapse"
                 data-target="#courseindex-section-content-{{number}}"
                 aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
                 aria-controls="courseindex-section-content-{{number}}">
-            
-            <span class="courseindex-section__chevron"></span>
-            
-            <span class="courseindex-section__title">{{{title}}}</span>
-            
-            <span class="courseindex-section__progress" data-region="section-progress" aria-hidden="true">
-                <span class="courseindex-section__progress-value" data-region="section-progress-value"></span>
+            <span class="courseindex-section__toggle-icon" aria-hidden="true"></span>
+            <span class="sr-only">
+                {{#indexcollapsed}}{{#str}}expand, core{{/str}}{{/indexcollapsed}}{{^indexcollapsed}}{{#str}}collapse, core{{/str}}{{/indexcollapsed}}
+                {{{title}}}
             </span>
-            
-            <span class="sr-only" data-region="section-progress-text"></span>
-            
         </button>
-        
-        {{#current}}
-        <span class="courseindex-section__badge" aria-label="{{highlighted}}">{{highlighted}}</span>
-        {{/current}}
-        
+
+        <div class="courseindex-section__title-wrapper">
+            <a href="{{{sectionurl}}}"
+               class="courseindex-section__title"
+               data-action="togglecourseindexsection"
+               data-for="section_title"
+               tabindex="-1">
+                {{{title}}}
+            </a>
+            {{#current}}
+            <span class="courseindex-section__badge" aria-label="{{highlighted}}">{{highlighted}}</span>
+            {{/current}}
+        </div>
+
+        <div class="courseindex-section__progress" data-region="section-progress">
+            <span class="courseindex-section__progress-value" data-region="section-progress-value"></span>
+            <span class="sr-only" data-region="section-progress-text"></span>
+        </div>
+
         {{#hasrestrictions}}
         <span class="courseindex-section__locked" data-for="section_restrictions">
             {{#pix}} t/locked, core {{/pix}}
         </span>
         {{/hasrestrictions}}
-        
+
     </div>
-    
-    {{! Section content - collapsible list }}
+
     <div id="courseindex-section-content-{{number}}"
          class="courseindex-section__content collapse {{^indexcollapsed}}show{{/indexcollapsed}}{{#current}}show{{/current}}"
-         aria-labelledby="courseindex-section-header-{{number}}" 
+         aria-labelledby="courseindex-section-header-{{number}}"
          role="group">
         <ul class="courseindex-section__list" data-for="cmlist" data-id="{{id}}" role="group">
             {{#cms}}
@@ -69,7 +75,7 @@
             {{/cms}}
         </ul>
     </div>
-    
+
 </div>
 
 {{#js}}

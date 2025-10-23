@@ -213,6 +213,16 @@ section#sidepre-blocks section.card {
     margin-bottom: 1.5rem;
   }
 
+  .courseindex-progress-card--disabled {
+    .courseindex-progress-card__value {
+      color: lighten($gray, 25%);
+    }
+
+    .courseindex-progress-card__summary {
+      color: lighten($gray, 25%);
+    }
+  }
+
   .courseindex-progress-card__header {
     display: flex;
     align-items: baseline;
@@ -315,6 +325,14 @@ section#sidepre-blocks section.card {
     transform: rotate(-45deg);
   }
 
+  .courseindex-section__title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   .courseindex-section__title {
     flex: 1 1 auto;
     font-weight: 600;
@@ -359,6 +377,11 @@ section#sidepre-blocks section.card {
     list-style: none;
   }
 
+  .courseindex-section__locked {
+    color: lighten($gray, 15%);
+    display: inline-flex;
+  }
+
   .courseindex-item {
     padding: 0.5rem 0;
     border-bottom: 1px solid lighten($gray, 45%);
@@ -378,6 +401,10 @@ section#sidepre-blocks section.card {
     flex: 1 1 auto;
     color: darken($gray, 20%);
     font-weight: 500;
+  }
+
+  .courseindex-item__link--not-visible {
+    color: lighten($gray, 20%);
   }
 
   .courseindex-item__link:hover,
@@ -1769,6 +1796,10 @@ $ci-space-6: 1.5rem;
       font-weight: 900;
       color: $ci-danger;
     }
+  }
+
+  .completioninfo {
+    display: none;
   }
 }
 

@@ -81,16 +81,14 @@ class courseindex_progress implements renderable, templatable {
     protected function get_progress_data(): stdClass {
         $data = new stdClass();
         $data->enabled = $this->completion->is_enabled();
-        $data->dataset = json_encode([
-            'enabled' => $data->enabled,
-            'userid' => $this->userid,
-        ]);
 
         // Course-level progress.
         $data->course = $this->get_course_progress();
 
-        // Section-level progress (for future use).
+        // Section-level progress.
         $data->sections = $this->get_sections_progress();
+
+        $data->dataset = $this->encode_progress_dataset($data->course, $data->sections, $data->enabled);
 
         return $data;
     }
@@ -103,12 +101,15 @@ class courseindex_progress implements renderable, templatable {
     protected function get_course_progress(): stdClass {
         $course = $this->format->get_course();
         $data = new stdClass();
-        $data->title = get_string('completionprogressdetails', 'theme_compecer');
+        $data->title = get_string('courseprogressheading', 'theme_compecer');
 
         if (!$this->completion->is_enabled()) {
-            $data->summary = get_string('completiondisabled', 'theme_compecer');
+            $data->summary = get_string('courseprogressdisabledsummary', 'theme_compecer');
             $data->percentage = 0;
             $data->percentageformatted = '0%';
+            $data->completed = 0;
+            $data->total = 0;
+            $data->aria = get_string('courseprogressdisabled', 'theme_compecer');
             return $data;
         }
 
@@ -123,16 +124,19 @@ class courseindex_progress implements renderable, templatable {
 
         $data->percentage = round($percentage, 0);
         $data->percentageformatted = $data->percentage . '%';
+        $data->completed = $counts->completed;
+        $data->total = $counts->total;
         $data->summary = get_string(
-            'completionsummary',
+            'courseprogresssummary',
             'theme_compecer',
             [
                 'completed' => $counts->completed,
                 'total' => $counts->total,
+                'percentage' => $data->percentage,
             ]
         );
         $data->aria = get_string(
-            'completionaria',
+            'courseprogressaria',
             'theme_compecer',
             [
                 'percentage' => $data->percentage,
@@ -203,25 +207,118 @@ class courseindex_progress implements renderable, templatable {
 
             // Calculate section completion.
             $counts = $this->get_section_activity_counts($section);
+            $sectiondata->completed = $counts->completed;
+            $sectiondata->total = $counts->total;
+
             if ($counts->total > 0) {
                 $sectiondata->percentage = round(($counts->completed / $counts->total) * 100, 0);
                 $sectiondata->summary = get_string(
-                    'sectioncompletion',
+                    'sectionprogresssummary',
                     'theme_compecer',
                     [
                         'completed' => $counts->completed,
                         'total' => $counts->total,
+                        'percentage' => $sectiondata->percentage,
+                    ]
+                );
+                $sectiondata->aria = get_string(
+                    'sectionprogressaria',
+                    'theme_compecer',
+                    [
+                        'completed' => $counts->completed,
+                        'total' => $counts->total,
+                        'percentage' => $sectiondata->percentage,
                     ]
                 );
             } else {
                 $sectiondata->percentage = 0;
-                $sectiondata->summary = '';
+                $sectiondata->summary = get_string('sectionprogressnotracked', 'theme_compecer');
+                $sectiondata->aria = $sectiondata->summary;
             }
 
             $sections[] = $sectiondata;
         }
 
         return $sections;
+    }
+
+    /**
+     * Encode progress data for the drawer dataset.
+     *
+     * @param stdClass $course Course progress data.
+     * @param array $sections Section progress data.
+     * @param bool $enabled Whether completion tracking is enabled.
+     * @return string JSON encoded dataset.
+     */
+    protected function encode_progress_dataset(stdClass $course, array $sections, bool $enabled): string {
+        $dataset = [
+            'enabled' => $enabled,
+            'course' => [
+                'completed' => $course->completed ?? 0,
+                'total' => $course->total ?? 0,
+                'percentage' => $course->percentage ?? 0,
+            ],
+            'sections' => array_map(static function($section): array {
+                return [
+                    'id' => $section->id,
+                    'number' => $section->number,
+                    'completed' => $section->completed ?? 0,
+                    'total' => $section->total ?? 0,
+                    'percentage' => $section->percentage ?? 0,
+                ];
+            }, $sections),
+            'strings' => [
+                'course' => [
+                    'summary' => get_string(
+                        'courseprogresssummary',
+                        'theme_compecer',
+                        [
+                            'completed' => '{completed}',
+                            'total' => '{total}',
+                            'percentage' => '{percentage}',
+                        ]
+                    ),
+                    'aria' => get_string(
+                        'courseprogressaria',
+                        'theme_compecer',
+                        [
+                            'percentage' => '{percentage}',
+                            'completed' => '{completed}',
+                            'total' => '{total}',
+                        ]
+                    ),
+                ],
+                'section' => [
+                    'summary' => get_string(
+                        'sectionprogresssummary',
+                        'theme_compecer',
+                        [
+                            'completed' => '{completed}',
+                            'total' => '{total}',
+                            'percentage' => '{percentage}',
+                        ]
+                    ),
+                    'aria' => get_string(
+                        'sectionprogressaria',
+                        'theme_compecer',
+                        [
+                            'completed' => '{completed}',
+                            'total' => '{total}',
+                            'percentage' => '{percentage}',
+                        ]
+                    ),
+                    'nottracked' => get_string('sectionprogressnotracked', 'theme_compecer'),
+                ],
+                'status' => [
+                    'notstarted' => get_string('completionstatus:notstarted', 'theme_compecer'),
+                    'inprogress' => get_string('completionstatus:inprogress', 'theme_compecer'),
+                    'completed' => get_string('completionstatus:completed', 'theme_compecer'),
+                    'failed' => get_string('completionstatus:failed', 'theme_compecer'),
+                ],
+            ],
+        ];
+
+        return json_encode($dataset, JSON_UNESCAPED_UNICODE);
     }
 
     /**
