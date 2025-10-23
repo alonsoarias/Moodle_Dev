@@ -333,7 +333,7 @@ class courseindex_progress implements renderable, templatable {
             ],
         ];
 
-        return json_encode($dataset, JSON_UNESCAPED_UNICODE);
+        return json_encode($dataset, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**
