@@ -40,32 +40,51 @@ const STATUS_CLASSES = {
     failed: 'courseindex-item__status--failed',
 };
 
-/** @type {WeakMap<HTMLElement, Object>} Metadata cache per course index container. */
-const containerMeta = new WeakMap();
-
 /** Selector for course module nodes within the index. */
 const CM_SELECTOR = '[data-for="cm"]';
 
-/** @type {Object} Completion state constants. */
-const COMPLETION = {
-    INCOMPLETE: 0,
-    COMPLETE: 1,
-    COMPLETE_PASS: 2,
-    COMPLETE_FAIL: 3,
-};
-
-/** @type {Object} Mapping of status keys to CSS classes. */
-const STATUS_CLASSES = {
-    completed: 'courseindex-item__status--completed',
-    inprogress: 'courseindex-item__status--inprogress',
-    failed: 'courseindex-item__status--failed',
-};
+/** Default number of characters used to represent progress bars. */
+const PROGRESS_BAR_LENGTH = 20;
 
 /** @type {WeakMap<HTMLElement, Object>} Metadata cache per course index container. */
 const containerMeta = new WeakMap();
 
-/** Selector for course module nodes within the index. */
-const CM_SELECTOR = '[data-for="cm"]';
+/** @type {WeakMap<HTMLElement, number>} Debounce timers per container. */
+const courseProgressTimeouts = new WeakMap();
+
+/**
+ * Clamp a number between a minimum and maximum value.
+ *
+ * @param {number} value Value to clamp.
+ * @param {number} min Minimum value.
+ * @param {number} max Maximum value.
+ * @returns {number}
+ */
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+/**
+ * Normalise and convert a value to a finite number.
+ *
+ * @param {*} value Potential numeric value.
+ * @returns {number}
+ */
+const toNumber = (value) => {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+};
+
+/**
+ * Render a textual progress bar using block characters.
+ *
+ * @param {number} percentage Progress percentage.
+ * @param {number} length Number of characters.
+ * @returns {string}
+ */
+const createProgressBar = (percentage, length = PROGRESS_BAR_LENGTH) => {
+    const safePercentage = clamp(Math.round(toNumber(percentage)), 0, 100);
+    const blocks = clamp(Math.round((safePercentage / 100) * length), 0, length);
+    return `${'█'.repeat(blocks)}${'░'.repeat(length - blocks)}`;
+};
 
 /**
  * Replace tokens in a language string.
@@ -153,6 +172,108 @@ const parseCompletionState = (completionInfo) => {
 };
 
 /**
+ * Update dataset information for a section entry.
+ *
+ * @param {HTMLElement} sectionElement Section element.
+ * @param {Object} values Values to merge.
+ */
+const updateSectionMeta = (sectionElement, values) => {
+    const container = sectionElement.closest('#courseindex');
+    if (!container) {
+        return;
+    }
+    const data = getContainerData(container);
+    if (!Array.isArray(data.sections)) {
+        data.sections = [];
+    }
+    const sectionId = parseInt(sectionElement.dataset.id, 10);
+    let metaSection = data.sections.find((section) => parseInt(section.id, 10) === sectionId);
+    if (!metaSection) {
+        metaSection = {id: sectionId};
+        data.sections.push(metaSection);
+    }
+    Object.assign(metaSection, values);
+};
+
+/**
+ * Apply course progress values to the DOM.
+ *
+ * @param {HTMLElement} container Course index container.
+ * @param {number} completed Completed activities.
+ * @param {number} total Total activities.
+ * @param {number} percentage Progress percentage.
+ * @param {Object} strings Course language strings.
+ * @param {Object} options Additional options.
+ */
+const setCourseProgress = (container, completed, total, percentage, strings = {}, options = {}) => {
+    const {
+        enabled = true,
+        summaryOverride = null,
+        ariaOverride = null,
+        barOverride = null,
+    } = options;
+
+    const data = getContainerData(container);
+    if (!data.course) {
+        data.course = {};
+    }
+
+    const safePercentage = clamp(Math.round(toNumber(percentage)), 0, 100);
+    const progressValue = container.querySelector('[data-region="course-progress-value"]');
+    if (progressValue) {
+        progressValue.textContent = `${safePercentage}%`;
+    }
+
+    const computedSummary = formatString(strings.summary, {
+        completed,
+        total,
+        percentage: safePercentage,
+    }) || `${completed}/${total}`;
+    const summaryText = summaryOverride ?? computedSummary;
+
+    const progressSummary = container.querySelector('[data-region="course-progress-summary"]');
+    if (progressSummary) {
+        progressSummary.textContent = summaryText;
+    }
+
+    const computedAria = formatString(strings.aria, {
+        completed,
+        total,
+        percentage: safePercentage,
+    }) || summaryText;
+    const ariaText = ariaOverride ?? computedAria;
+
+    const progressText = container.querySelector('[data-region="course-progress-text"]');
+    if (progressText) {
+        progressText.textContent = ariaText;
+    }
+
+    const barText = barOverride ?? createProgressBar(safePercentage);
+    const progressBar = container.querySelector('[data-region="course-progress-bar"]');
+    if (progressBar) {
+        progressBar.textContent = barText;
+    }
+
+    const progressBarContainer = container.querySelector('.courseindex-progress-bar');
+    if (progressBarContainer) {
+        progressBarContainer.setAttribute('aria-valuenow', safePercentage);
+        if (ariaText) {
+            progressBarContainer.setAttribute('aria-label', ariaText);
+        } else {
+            progressBarContainer.removeAttribute('aria-label');
+        }
+        progressBarContainer.classList.toggle('is-disabled', !enabled);
+    }
+
+    data.course.completed = completed;
+    data.course.total = total;
+    data.course.percentage = safePercentage;
+    data.course.bar = barText;
+    data.course.summary = summaryText;
+    data.course.aria = ariaText;
+};
+
+/**
  * Apply section progress values to the DOM.
  *
  * @param {HTMLElement} sectionElement Section wrapper element.
@@ -160,27 +281,55 @@ const parseCompletionState = (completionInfo) => {
  * @param {number} total Total activities.
  * @param {number} percentage Progress percentage.
  * @param {Object} strings Section language strings.
+ * @param {Object} options Additional options.
  */
-const setSectionProgress = (sectionElement, completed, total, percentage, strings = {}) => {
+const setSectionProgress = (sectionElement, completed, total, percentage, strings = {}, options = {}) => {
+    const {
+        summaryOverride = null,
+        ariaOverride = null,
+        barOverride = null,
+    } = options;
+
+    const safePercentage = clamp(Math.round(toNumber(percentage)), 0, 100);
     const progressValue = sectionElement.querySelector('[data-region="section-progress-value"]');
-    const progressText = sectionElement.querySelector('[data-region="section-progress-text"]');
-
-    if (!progressValue) {
-        return;
+    if (progressValue) {
+        progressValue.textContent = `${safePercentage}%`;
     }
 
-    if (total > 0) {
-        progressValue.textContent = `${percentage}%`;
-        if (progressText) {
-            progressText.textContent = formatString(strings.aria, {completed, total, percentage}) ||
-                `${completed}/${total}`;
-        }
-    } else {
-        progressValue.textContent = '';
-        if (progressText) {
-            progressText.textContent = strings.nottracked ?? '';
-        }
+    const summaryText = summaryOverride ?? (
+        total > 0
+            ? (formatString(strings.summary, {completed, total, percentage: safePercentage}) || `${completed}/${total}`)
+            : (strings.nottracked ?? '')
+    );
+    const progressSummary = sectionElement.querySelector('[data-region="section-progress-summary"]');
+    if (progressSummary) {
+        progressSummary.textContent = summaryText;
     }
+
+    const barText = barOverride ?? createProgressBar(total > 0 ? safePercentage : 0);
+    const progressBar = sectionElement.querySelector('[data-region="section-progress-bar"]');
+    if (progressBar) {
+        progressBar.textContent = barText;
+    }
+
+    const ariaText = ariaOverride ?? (
+        total > 0
+            ? (formatString(strings.aria, {completed, total, percentage: safePercentage}) || summaryText)
+            : (strings.nottracked ?? summaryText)
+    );
+    const srText = sectionElement.querySelector('[data-region="section-progress-text"]');
+    if (srText) {
+        srText.textContent = ariaText;
+    }
+
+    updateSectionMeta(sectionElement, {
+        completed,
+        total,
+        percentage: safePercentage,
+        bar: barText,
+        summary: summaryText,
+        aria: ariaText,
+    });
 };
 
 /**
@@ -192,43 +341,41 @@ const applyDatasetProgress = (container) => {
     const data = getContainerData(container);
     const courseStrings = data.strings?.course ?? {};
     const sectionStrings = data.strings?.section ?? {};
-    const progressValue = container.querySelector('[data-region="course-progress-value"]');
-    const progressSummary = container.querySelector('[data-region="course-progress-summary"]');
-    const progressBar = container.querySelector('.courseindex-progress-bar__fill');
 
-    if (progressValue && data.course) {
-        const percentage = data.course.percentage ?? 0;
-        const completed = data.course.completed ?? 0;
-        const total = data.course.total ?? 0;
-
-        progressValue.textContent = `${percentage}%`;
-
-        if (progressSummary) {
-            progressSummary.textContent =
-                formatString(courseStrings.summary, {completed, total, percentage}) ||
-                `${completed}/${total}`;
-        }
-
-        if (progressBar) {
-            progressBar.style.setProperty('--progress', `${percentage}%`);
-            if (courseStrings.aria) {
-                progressBar.setAttribute('aria-label', formatString(courseStrings.aria, {completed, total, percentage}));
+    if (data.course) {
+        setCourseProgress(
+            container,
+            data.course.completed ?? 0,
+            data.course.total ?? 0,
+            data.course.percentage ?? 0,
+            courseStrings,
+            {
+                enabled: data.enabled !== false,
+                summaryOverride: data.course.summary ?? null,
+                ariaOverride: data.course.aria ?? null,
+                barOverride: data.course.bar ?? null,
             }
-            progressBar.classList.toggle('is-disabled', data.enabled === false);
-        }
+        );
     }
 
     if (Array.isArray(data.sections)) {
-        data.sections.forEach(sectionData => {
+        data.sections.forEach((sectionData) => {
             const sectionElement = container.querySelector(`[data-for="section"][data-id="${sectionData.id}"]`);
             if (!sectionElement) {
                 return;
             }
-
-            const completed = sectionData.completed ?? 0;
-            const total = sectionData.total ?? 0;
-            const percentage = sectionData.percentage ?? 0;
-            setSectionProgress(sectionElement, completed, total, percentage, sectionStrings);
+            setSectionProgress(
+                sectionElement,
+                sectionData.completed ?? 0,
+                sectionData.total ?? 0,
+                sectionData.percentage ?? 0,
+                sectionStrings,
+                {
+                    summaryOverride: sectionData.summary ?? null,
+                    ariaOverride: sectionData.aria ?? null,
+                    barOverride: sectionData.bar ?? null,
+                }
+            );
         });
     }
 };
@@ -247,7 +394,7 @@ const updateItemStatus = (item, strings = {}) => {
         return;
     }
 
-    Object.values(STATUS_CLASSES).forEach(className => statusElement.classList.remove(className));
+    Object.values(STATUS_CLASSES).forEach((className) => statusElement.classList.remove(className));
 
     let statusKey = 'notstarted';
     const completionInfo = item.querySelector('.completioninfo');
@@ -290,7 +437,7 @@ const updateItemStatus = (item, strings = {}) => {
  */
 const updateItemStatuses = (root, strings = {}) => {
     const items = root.querySelectorAll(CM_SELECTOR);
-    items.forEach(item => updateItemStatus(item, strings));
+    items.forEach((item) => updateItemStatus(item, strings));
 };
 
 /**
@@ -310,7 +457,7 @@ const updateSectionProgress = (sectionElement) => {
     let completed = 0;
     let total = 0;
 
-    items.forEach(item => {
+    items.forEach((item) => {
         const completionInfo = item.querySelector('.completioninfo');
         const state = parseCompletionState(completionInfo);
         if (state === null) {
@@ -325,16 +472,6 @@ const updateSectionProgress = (sectionElement) => {
 
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
     setSectionProgress(sectionElement, completed, total, percentage, sectionStrings);
-
-    if (Array.isArray(data.sections)) {
-        const sectionId = parseInt(sectionElement.dataset.id, 10);
-        const metaSection = data.sections.find(section => parseInt(section.id, 10) === sectionId);
-        if (metaSection) {
-            metaSection.completed = completed;
-            metaSection.total = total;
-            metaSection.percentage = percentage;
-        }
-    }
 };
 
 /**
@@ -344,26 +481,9 @@ const updateSectionProgress = (sectionElement) => {
  */
 const updateSectionProgressDisplay = (container) => {
     const sections = container.querySelectorAll('.courseindex-section');
-    sections.forEach(section => {
+    sections.forEach((section) => {
         updateSectionProgress(section);
     });
-};
-
-let courseProgressTimeout = null;
-
-/**
- * Debounce updates to the overall course progress.
- *
- * @param {HTMLElement} container Course index container.
- */
-const debounceUpdateCourseProgress = (container) => {
-    if (courseProgressTimeout) {
-        clearTimeout(courseProgressTimeout);
-    }
-
-    courseProgressTimeout = setTimeout(() => {
-        updateCourseProgress(container);
-    }, 300);
 };
 
 /**
@@ -372,21 +492,31 @@ const debounceUpdateCourseProgress = (container) => {
  * @param {HTMLElement} container Course index container.
  */
 const updateCourseProgress = (container) => {
-    const progressValue = container.querySelector('[data-region="course-progress-value"]');
-    const progressSummary = container.querySelector('[data-region="course-progress-summary"]');
-    const progressBar = container.querySelector('.courseindex-progress-bar__fill');
+    const data = getContainerData(container);
+    const courseStrings = data.strings?.course ?? {};
 
-    if (!progressValue || !progressBar) {
+    if (data.enabled === false) {
+        setCourseProgress(
+            container,
+            data.course?.completed ?? 0,
+            data.course?.total ?? 0,
+            data.course?.percentage ?? 0,
+            courseStrings,
+            {
+                enabled: false,
+                summaryOverride: data.course?.summary ?? null,
+                ariaOverride: data.course?.aria ?? null,
+                barOverride: data.course?.bar ?? null,
+            }
+        );
         return;
     }
 
-    const data = getContainerData(container);
-    const courseStrings = data.strings?.course ?? {};
     const items = container.querySelectorAll(CM_SELECTOR);
     let completed = 0;
     let total = 0;
 
-    items.forEach(item => {
+    items.forEach((item) => {
         const completionInfo = item.querySelector('.completioninfo');
         const state = parseCompletionState(completionInfo);
         if (state === null) {
@@ -400,26 +530,28 @@ const updateCourseProgress = (container) => {
     });
 
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+    setCourseProgress(container, completed, total, percentage, courseStrings, {
+        enabled: true,
+    });
+};
 
-    progressValue.textContent = `${percentage}%`;
-    progressBar.style.setProperty('--progress', `${percentage}%`);
-
-    if (progressSummary) {
-        progressSummary.textContent =
-            formatString(courseStrings.summary, {completed, total, percentage}) ||
-            `${completed}/${total}`;
+/**
+ * Debounce updates to the overall course progress.
+ *
+ * @param {HTMLElement} container Course index container.
+ */
+const debounceUpdateCourseProgress = (container) => {
+    const existingTimeout = courseProgressTimeouts.get(container);
+    if (existingTimeout) {
+        clearTimeout(existingTimeout);
     }
 
-    if (courseStrings.aria) {
-        progressBar.setAttribute('aria-label', formatString(courseStrings.aria, {completed, total, percentage}));
-    }
+    const timeout = setTimeout(() => {
+        courseProgressTimeouts.delete(container);
+        updateCourseProgress(container);
+    }, 300);
 
-    if (!data.course) {
-        data.course = {};
-    }
-    data.course.completed = completed;
-    data.course.total = total;
-    data.course.percentage = percentage;
+    courseProgressTimeouts.set(container, timeout);
 };
 
 /**
@@ -428,31 +560,28 @@ const updateCourseProgress = (container) => {
  * @param {HTMLElement} container Course index container.
  * @param {Object} detail Event detail payload.
  */
-const updateProgress = (container, detail) => {
+const updateProgressForDetail = (container, detail) => {
     if (!detail || !detail.element) {
         return;
     }
 
     const data = getContainerData(container);
-    const sectionElement = detail.element.closest('.courseindex-section');
-
-    if (sectionElement) {
-        updateSectionProgress(sectionElement);
-        updateItemStatuses(sectionElement, data.strings);
+    const cmId = detail.element.id ?? detail.element.cmid ?? null;
+    if (!cmId) {
+        debounceUpdateCourseProgress(container);
+        return;
     }
 
-    updateItemStatuses(container, data.strings);
-    debounceUpdateCourseProgress(container);
-};
+    const item = container.querySelector(`${CM_SELECTOR}[data-id="${cmId}"]`);
+    if (item) {
+        updateItemStatus(item, data.strings);
+        const sectionElement = item.closest('.courseindex-section');
+        if (sectionElement) {
+            updateSectionProgress(sectionElement);
+        }
+    }
 
-/**
- * Update all item statuses within the container.
- *
- * @param {HTMLElement} container Course index container.
- */
-const updateAllItemStatuses = (container) => {
-    const data = getContainerData(container);
-    updateItemStatuses(container, data.strings);
+    debounceUpdateCourseProgress(container);
 };
 
 /**
@@ -463,8 +592,9 @@ const updateAllItemStatuses = (container) => {
 const initProgressDisplay = (container) => {
     parseDataset(container);
     applyDatasetProgress(container);
+    const data = getContainerData(container);
     updateSectionProgressDisplay(container);
-    updateAllItemStatuses(container);
+    updateItemStatuses(container, data.strings);
     updateCourseProgress(container);
 };
 
@@ -484,12 +614,16 @@ export const init = (courseIndexId) => {
         return;
     }
 
-    courseEditor.addEventListener(
-        'cmCompletion',
-        (event) => {
-            updateProgress(container, event.detail);
-        }
-    );
-
     initProgressDisplay(container);
+
+    const target = courseEditor.target ?? document;
+    target.addEventListener('cm.completionstate:updated', ({detail}) => {
+        updateProgressForDetail(container, detail);
+    });
+    target.addEventListener('transaction:end', () => {
+        const data = getContainerData(container);
+        updateItemStatuses(container, data.strings);
+        updateSectionProgressDisplay(container);
+        updateCourseProgress(container);
+    });
 };

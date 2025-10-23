@@ -40,6 +40,9 @@ defined('MOODLE_INTERNAL') || die();
  */
 class courseindex_progress implements renderable, templatable {
 
+    /** @var int Default number of characters used for textual progress bars. */
+    protected const PROGRESS_BAR_LENGTH = 20;
+
     /** @var course_format Course format instance */
     protected $format;
 
@@ -110,6 +113,7 @@ class courseindex_progress implements renderable, templatable {
             $data->completed = 0;
             $data->total = 0;
             $data->aria = get_string('courseprogressdisabled', 'theme_compecer');
+            $data->bar = $this->render_progress_bar(0);
             return $data;
         }
 
@@ -144,6 +148,8 @@ class courseindex_progress implements renderable, templatable {
                 'total' => $counts->total,
             ]
         );
+
+        $data->bar = $this->render_progress_bar((int)$data->percentage);
 
         return $data;
     }
@@ -236,6 +242,8 @@ class courseindex_progress implements renderable, templatable {
                 $sectiondata->aria = $sectiondata->summary;
             }
 
+            $sectiondata->bar = $this->render_progress_bar((int)$sectiondata->percentage);
+
             $sections[] = $sectiondata;
         }
 
@@ -257,14 +265,20 @@ class courseindex_progress implements renderable, templatable {
                 'completed' => $course->completed ?? 0,
                 'total' => $course->total ?? 0,
                 'percentage' => $course->percentage ?? 0,
+                'bar' => $course->bar ?? $this->render_progress_bar(0),
+                'summary' => $course->summary ?? '',
+                'aria' => $course->aria ?? '',
             ],
-            'sections' => array_map(static function($section): array {
+            'sections' => array_map(function($section): array {
                 return [
                     'id' => $section->id,
                     'number' => $section->number,
                     'completed' => $section->completed ?? 0,
                     'total' => $section->total ?? 0,
                     'percentage' => $section->percentage ?? 0,
+                    'bar' => $section->bar ?? $this->render_progress_bar(0),
+                    'summary' => $section->summary ?? '',
+                    'aria' => $section->aria ?? '',
                 ];
             }, $sections),
             'strings' => [
@@ -319,6 +333,25 @@ class courseindex_progress implements renderable, templatable {
         ];
 
         return json_encode($dataset, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Render a textual progress bar using unicode block characters.
+     *
+     * @param int $percentage Completion percentage from 0 to 100.
+     * @param int $length Number of characters to represent the bar.
+     * @return string
+     */
+    protected function render_progress_bar(int $percentage, int $length = self::PROGRESS_BAR_LENGTH): string {
+        $percentage = max(0, min(100, $percentage));
+        $length = max(1, $length);
+        $filled = (int)round(($percentage / 100) * $length);
+        $filled = min($length, max(0, $filled));
+
+        $filledBlocks = str_repeat('█', $filled);
+        $emptyBlocks = str_repeat('░', $length - $filled);
+
+        return $filledBlocks . $emptyBlocks;
     }
 
     /**

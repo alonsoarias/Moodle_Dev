@@ -221,13 +221,24 @@ section#sidepre-blocks section.card {
     .courseindex-progress-card__summary {
       color: lighten($gray, 25%);
     }
+
+    .courseindex-progress-bar,
+    .courseindex-progress-bar__visual {
+      color: lighten($gray, 30%);
+    }
   }
 
   .courseindex-progress-card__header {
     display: flex;
-    align-items: baseline;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 0.75rem;
+  }
+
+  .courseindex-progress-card__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
   }
 
   .courseindex-progress-card__title {
@@ -236,6 +247,7 @@ section#sidepre-blocks section.card {
     letter-spacing: 0.08em;
     font-weight: 600;
     color: lighten($gray, 20%);
+    margin-bottom: 0;
   }
 
   .courseindex-progress-card__value {
@@ -246,30 +258,26 @@ section#sidepre-blocks section.card {
   }
 
   .courseindex-progress-card__summary {
-    margin-top: 0.35rem;
+    margin: 0;
     font-size: 0.875rem;
     color: lighten($gray, 5%);
   }
 
   .courseindex-progress-bar {
-    position: relative;
     margin-top: 1rem;
-    height: 0.5rem;
-    border-radius: 999px;
-    background-color: lighten($gray, 38%);
-    overflow: hidden;
+    padding-top: 0.25rem;
+    font-family: 'Fira Mono', 'Courier New', monospace;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    color: $primary-blue;
   }
 
-  .courseindex-progress-bar__fill {
+  .courseindex-progress-bar.is-disabled {
+    color: lighten($gray, 30%);
+  }
+
+  .courseindex-progress-bar__visual {
     display: block;
-    height: 100%;
-    width: var(--progress, 0%);
-    background: linear-gradient(90deg, lighten($primary-blue, 10%), $primary-blue);
-    transition: width 0.3s ease;
-  }
-
-  .courseindex-progress-bar__fill.is-disabled {
-    background: lighten($gray, 25%);
   }
 
   .courseindex-body {
@@ -358,12 +366,28 @@ section#sidepre-blocks section.card {
   .courseindex-section__progress {
     margin-left: auto;
     text-align: right;
-    min-width: 3.5rem;
+    min-width: 12rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    align-items: flex-end;
   }
 
   .courseindex-section__progress-value {
     font-size: 0.875rem;
     font-weight: 600;
+    color: lighten($gray, 5%);
+  }
+
+  .courseindex-section__progress-bar {
+    font-family: 'Fira Mono', 'Courier New', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: lighten($gray, 15%);
+  }
+
+  .courseindex-section__progress-summary {
+    font-size: 0.75rem;
     color: lighten($gray, 5%);
   }
 
