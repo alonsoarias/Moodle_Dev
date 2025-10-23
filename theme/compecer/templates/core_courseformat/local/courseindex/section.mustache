@@ -1,18 +1,9 @@
 {{!
     @template core_courseformat/local/courseindex/section
-    
-    Course index section - Clean toggle-only design (NO navigation)
-    
-    Context variables:
-    * id - Section ID
-    * number - Section number
-    * title - Section title
-    * current - Boolean, is current section
-    * visible - Boolean, is visible
-    * indexcollapsed - Boolean, is collapsed
-    * cms - Array of course modules
+
+    Course index section - Compecer enhanced layout with toggle and progress summary
 }}
-<div class="courseindex-section {{#current}}courseindex-section--current{{/current}} {{#component}}courseindex-section--delegated{{/component}}"
+<div class="courseindex-section courseindex-section--compecer {{#current}}courseindex-section--current{{/current}} {{#component}}courseindex-section--delegated{{/component}}"
      id="{{uniqid}}-course-index-section-{{id}}"
      data-for="section"
      data-id="{{id}}"
@@ -32,7 +23,7 @@
                 data-target="#courseindex-section-content-{{number}}"
                 aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
                 aria-controls="courseindex-section-content-{{number}}">
-            <span class="courseindex-section__toggle-icon" aria-hidden="true"></span>
+            <span class="courseindex-section__chevron" aria-hidden="true"></span>
             <span class="sr-only">
                 {{#indexcollapsed}}{{#str}}expand, core{{/str}}{{/indexcollapsed}}{{^indexcollapsed}}{{#str}}collapse, core{{/str}}{{/indexcollapsed}}
                 {{{title}}}

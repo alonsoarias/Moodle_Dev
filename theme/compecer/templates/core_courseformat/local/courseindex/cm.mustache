@@ -1,20 +1,12 @@
 {{!
     @template core_courseformat/local/courseindex/cm
-    
-    Course module in index - Minimal design with proper completion
-    
-    Context variables:
-    * id - Module ID
-    * name - Module name
-    * url - Module URL
-    * isactive - Boolean
-    * uservisible - Boolean
-    * accessvisible - Boolean
+
+    Course module in index - Compecer enhanced design with progress indicator
 }}
-<li class="courseindex-item
-           {{#isactive}}courseindex-item--active{{/isactive}}
-           {{#hascmrestrictions}}courseindex-item--restricted{{/hascmrestrictions}}
-           {{^accessvisible}}courseindex-item--dimmed{{/accessvisible}}
+<li class="courseindex-item courseindex-item--compecer
+           {{#isactive}}active courseindex-item--active{{/isactive}}
+           {{#hascmrestrictions}}restrictions courseindex-item--restricted{{/hascmrestrictions}}
+           {{^accessvisible}}dimmed courseindex-item--dimmed{{/accessvisible}}
            {{#indent}}courseindex-item--indented{{/indent}}"
     id="{{uniqid}}-course-index-cm-{{id}}"
     data-for="cm"
@@ -58,7 +50,7 @@
             {{/uservisible}}
 
             {{#hascmrestrictions}}
-            <span class="courseindex-item__locked" data-for="cm_restrictions">
+            <span class="courseindex-locked" data-for="cm_restrictions">
                 {{#pix}} t/locked, core {{/pix}}
             </span>
             {{/hascmrestrictions}}
