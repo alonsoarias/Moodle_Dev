@@ -24,7 +24,27 @@
  */
 
 import {getCurrentCourseEditor} from 'core_courseformat/courseeditor';
-import {eventTypes} from 'core_course/events';
+
+/** @type {Object} Completion state constants. */
+const COMPLETION = {
+    INCOMPLETE: 0,
+    COMPLETE: 1,
+    COMPLETE_PASS: 2,
+    COMPLETE_FAIL: 3,
+};
+
+/** @type {Object} Mapping of status keys to CSS classes. */
+const STATUS_CLASSES = {
+    completed: 'courseindex-item__status--completed',
+    inprogress: 'courseindex-item__status--inprogress',
+    failed: 'courseindex-item__status--failed',
+};
+
+/** @type {WeakMap<HTMLElement, Object>} Metadata cache per course index container. */
+const containerMeta = new WeakMap();
+
+/** Selector for course module nodes within the index. */
+const CM_SELECTOR = '[data-for="cm"]';
 
 /** @type {Object} Completion state constants. */
 const COMPLETION = {
@@ -465,7 +485,7 @@ export const init = (courseIndexId) => {
     }
 
     courseEditor.addEventListener(
-        eventTypes.cmCompletion,
+        'cmCompletion',
         (event) => {
             updateProgress(container, event.detail);
         }
