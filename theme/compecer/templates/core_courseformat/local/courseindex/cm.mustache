@@ -11,7 +11,7 @@
     * uservisible - Boolean
     * accessvisible - Boolean
 }}
-<li class="courseindex-item 
+<li class="courseindex-item
            {{#isactive}}courseindex-item--active{{/isactive}}
            {{#hascmrestrictions}}courseindex-item--restricted{{/hascmrestrictions}}
            {{^accessvisible}}courseindex-item--dimmed{{/accessvisible}}
@@ -20,64 +20,65 @@
     data-for="cm"
     data-id="{{id}}"
     role="treeitem">
-    
+
     {{^hasdelegatedsection}}
-    
-    <div class="courseindex-item__content">
-        
-        {{! CRITICAL: Maintain completioninfo for core functionality }}
-        <span class="completioninfo" 
-              data-for="cm_completion" 
-              data-value="NaN"></span>
-        
-        {{! Status icon - updated by JS }}
-        <span class="courseindex-item__status" 
-              data-region="cm-status" 
+
+    <div class="courseindex-item__wrapper">
+
+        <span class="courseindex-item__status"
+              data-region="cm-status"
               aria-hidden="true"></span>
-        
-        {{! Activity link }}
-        {{#uservisible}}
-        <a class="courseindex-item__link"
-           {{#url}}href="{{{url}}}"{{/url}}
-           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-           data-for="cm_name" 
-           tabindex="-1" 
-           title="{{{name}}}">
-            <span class="courseindex-item__name">{{{name}}}</span>
-        </a>
-        {{/uservisible}}
-        
-        {{^uservisible}}
-        <a class="courseindex-item__link courseindex-item__link--not-visible"
-           href="#{{{anchor}}}" 
-           data-for="cm_name" 
-           tabindex="-1" 
-           data-anchor="true"
-           title="{{{name}}}">
-            <span class="courseindex-item__name">{{{name}}}</span>
-        </a>
-        {{/uservisible}}
-        
-        {{! Screen reader status text }}
-        <span class="sr-only" data-region="cm-status-text"></span>
-        
-        {{! Locked icon }}
-        {{#hascmrestrictions}}
-        <span class="courseindex-item__locked" data-for="cm_restrictions">
-            {{#pix}} t/locked, core {{/pix}}
-        </span>
-        {{/hascmrestrictions}}
-        
+
+        <div class="courseindex-item__content">
+
+            <span class="completioninfo"
+                  data-for="cm_completion"
+                  data-value="NaN"></span>
+
+            {{#uservisible}}
+            <a class="courseindex-item__link"
+               {{#url}}href="{{{url}}}"{{/url}}
+               {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
+               data-for="cm_name"
+               tabindex="-1"
+               title="{{{name}}}">
+                <span class="courseindex-item__name">{{{name}}}</span>
+            </a>
+            {{/uservisible}}
+
+            {{^uservisible}}
+            <a class="courseindex-item__link courseindex-item__link--not-visible"
+               href="#{{{anchor}}}"
+               data-for="cm_name"
+               tabindex="-1"
+               data-anchor="true"
+               title="{{{name}}}">
+                <span class="courseindex-item__name">{{{name}}}</span>
+            </a>
+            {{/uservisible}}
+
+            {{#hascmrestrictions}}
+            <span class="courseindex-item__locked" data-for="cm_restrictions">
+                {{#pix}} t/locked, core {{/pix}}
+            </span>
+            {{/hascmrestrictions}}
+
+        </div>
+
     </div>
-    
+
+    <div class="courseindex-item__meta">
+        <span class="sr-only courseindex-item__status-label" data-region="cm-status-text"></span>
+    </div>
+
     {{/hasdelegatedsection}}
-    
+
     {{#hasdelegatedsection}}
         {{#sectioninfo}}
             {{> core_courseformat/local/courseindex/section}}
         {{/sectioninfo}}
     {{/hasdelegatedsection}}
-    
+
 </li>
 
 {{#js}}
