@@ -452,6 +452,10 @@ section#sidepre-blocks section.card {
     font-weight: 600;
   }
 
+  .courseindex-item__status--notstarted {
+    color: $gray-500;
+  }
+
   .courseindex-item__status--completed {
     color: $success;
   }

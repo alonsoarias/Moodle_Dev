@@ -42,12 +42,14 @@ class section_renderer extends \core_courseformat\output\section_renderer {
         include_course_editor($format);
 
         $dataset = progress_data::build($format);
+        $usertracked = $dataset['user']['istracked'] ?? true;
+        $progressenabled = $dataset['enabled'] && $usertracked;
         $context = [
             'progress' => [
-                'enabled' => $dataset['enabled'],
+                'enabled' => $progressenabled,
                 'json' => json_encode($dataset, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                'coursepercentage' => $dataset['course']['percentageformatted'],
-                'coursesummary' => $dataset['enabled'] ? $dataset['course']['summarydisplay'] : '',
+                'coursepercentage' => $progressenabled ? $dataset['course']['percentageformatted'] : '--',
+                'coursesummary' => $progressenabled ? $dataset['course']['summarydisplay'] : '',
                 'coursetitle' => get_string('courseindex_progress_heading', 'theme_compecer'),
                 'notracking' => $dataset['message']['notracking'],
             ],

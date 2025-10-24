@@ -38,6 +38,7 @@ const STATUS_CLASSES = {
     completed: 'courseindex-item__status--completed',
     inprogress: 'courseindex-item__status--inprogress',
     failed: 'courseindex-item__status--failed',
+    notstarted: 'courseindex-item__status--notstarted',
 };
 
 /** Selector for course module nodes within the index. */
@@ -95,6 +96,46 @@ const formatString = (template, replacements = {}) => {
 };
 
 /**
+ * Normalise the parsed dataset ensuring defaults are present.
+ *
+ * @param {Object} data Parsed data object.
+ * @returns {Object}
+ */
+function ensureModuleIndex(data) {
+    if (!data.modulesIndex) {
+        data.modulesIndex = {};
+        if (Array.isArray(data.modules)) {
+            data.modules.forEach((module) => {
+                if (!module || typeof module.id === 'undefined') {
+                    return;
+                }
+                data.modulesIndex[String(module.id)] = module;
+            });
+        }
+    }
+
+    return data.modulesIndex;
+}
+
+const prepareParsedData = (data = {}) => {
+    const normalised = data && typeof data === 'object' ? data : {};
+    if (!Array.isArray(normalised.sections)) {
+        normalised.sections = [];
+    }
+    if (!Array.isArray(normalised.modules)) {
+        normalised.modules = [];
+    }
+    if (!normalised.strings || typeof normalised.strings !== 'object') {
+        normalised.strings = {};
+    }
+    if (!normalised.user || typeof normalised.user !== 'object') {
+        normalised.user = {};
+    }
+    ensureModuleIndex(normalised);
+    return normalised;
+};
+
+/**
  * Parse the dataset associated with the course index container.
  *
  * @param {HTMLElement} container Course index container.
@@ -103,19 +144,20 @@ const formatString = (template, replacements = {}) => {
 const parseDataset = (container) => {
     const dataset = container.dataset.progress;
     if (!dataset) {
-        containerMeta.set(container, {});
+        containerMeta.set(container, prepareParsedData({}));
         return {};
     }
 
     try {
-        const data = JSON.parse(dataset);
+        const data = prepareParsedData(JSON.parse(dataset));
         containerMeta.set(container, data);
         return data;
     } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error parsing progress dataset:', error);
-        containerMeta.set(container, {});
-        return {};
+        const fallback = prepareParsedData({});
+        containerMeta.set(container, fallback);
+        return fallback;
     }
 };
 
@@ -125,7 +167,72 @@ const parseDataset = (container) => {
  * @param {HTMLElement} container Course index container.
  * @return {Object}
  */
-const getContainerData = (container) => containerMeta.get(container) ?? {};
+const getContainerData = (container) => containerMeta.get(container) ?? prepareParsedData({});
+
+/**
+ * Persist metadata for a specific course module.
+ *
+ * @param {HTMLElement} container Course index container.
+ * @param {Object} module Module metadata to merge.
+ * @returns {Object} The merged module metadata.
+ */
+const setModuleMeta = (container, module) => {
+    if (!module || typeof module.id === 'undefined') {
+        return module;
+    }
+
+    const data = getContainerData(container);
+    const index = ensureModuleIndex(data);
+    const key = String(module.id);
+    const existing = index[key] ?? {};
+    const merged = Object.assign({}, existing, module);
+    index[key] = merged;
+
+    if (!Array.isArray(data.modules)) {
+        data.modules = [];
+    }
+    const currentIndex = data.modules.findIndex((entry) => String(entry?.id) === key);
+    if (currentIndex === -1) {
+        data.modules.push(merged);
+    } else {
+        data.modules[currentIndex] = merged;
+    }
+
+    return merged;
+};
+
+/**
+ * Retrieve metadata for a course module by id.
+ *
+ * @param {HTMLElement} container Course index container.
+ * @param {number|string} cmId Course module id.
+ * @returns {Object|null}
+ */
+const getModuleMeta = (container, cmId) => {
+    if (!cmId) {
+        return null;
+    }
+
+    const data = getContainerData(container);
+    const index = ensureModuleIndex(data);
+    return index[String(cmId)] ?? null;
+};
+
+/**
+ * Retrieve stored metadata for a section id if available.
+ *
+ * @param {HTMLElement} container Course index container.
+ * @param {number} sectionId Section id.
+ * @returns {Object|null}
+ */
+const getSectionMeta = (container, sectionId) => {
+    const data = getContainerData(container);
+    if (!Array.isArray(data.sections)) {
+        return null;
+    }
+
+    return data.sections.find((section) => Number(section?.id) === Number(sectionId)) ?? null;
+};
 
 /**
  * Parse the completion state from a completion info element.
@@ -159,6 +266,36 @@ const parseCompletionState = (completionInfo) => {
 };
 
 /**
+ * Map a completion state value to a visual status key.
+ *
+ * @param {number|null} state Completion state.
+ * @param {Object} moduleData Existing module metadata.
+ * @returns {string}
+ */
+const mapCompletionStateToStatus = (state, moduleData = {}) => {
+    if (state === COMPLETION.COMPLETE || state === COMPLETION.COMPLETE_PASS) {
+        return 'completed';
+    }
+
+    if (state === COMPLETION.COMPLETE_FAIL) {
+        return 'failed';
+    }
+
+    if (state === COMPLETION.INCOMPLETE) {
+        if (moduleData.status === 'inprogress' || moduleData.viewed) {
+            return 'inprogress';
+        }
+        return 'notstarted';
+    }
+
+    if (typeof state === 'number') {
+        return moduleData.status ?? 'notstarted';
+    }
+
+    return moduleData.status ?? 'notstarted';
+};
+
+/**
  * Update dataset information for a section entry.
  *
  * @param {HTMLElement} sectionElement Section element.
@@ -180,6 +317,63 @@ const updateSectionMeta = (sectionElement, values) => {
         data.sections.push(metaSection);
     }
     Object.assign(metaSection, values);
+};
+
+/**
+ * Apply module metadata to a DOM element.
+ *
+ * @param {HTMLElement} item Course module element.
+ * @param {Object} moduleData Module metadata.
+ * @param {Object} strings Language strings metadata.
+ */
+const setItemStatusFromModule = (item, moduleData, strings = {}) => {
+    if (!item || !moduleData) {
+        return;
+    }
+
+    const completionInfo = item.querySelector('.completioninfo');
+    if (completionInfo) {
+        const classMap = {
+            completed: 'completion_complete',
+            failed: 'completion_fail',
+            inprogress: 'completion_incomplete',
+            notstarted: 'completion_none',
+        };
+        completionInfo.classList.remove('completion_complete', 'completion_fail', 'completion_incomplete', 'completion_none');
+        const status = moduleData.status ?? 'notstarted';
+        const completionClass = classMap[status] ?? 'completion_none';
+        completionInfo.classList.add(completionClass);
+        if (Number.isFinite(moduleData.state)) {
+            completionInfo.dataset.value = moduleData.state;
+        } else {
+            completionInfo.dataset.value = 'NaN';
+        }
+    }
+
+    updateItemStatus(item, strings, moduleData.status ?? 'notstarted');
+};
+
+/**
+ * Apply stored module metadata to the DOM tree.
+ *
+ * @param {HTMLElement} container Course index container.
+ */
+const applyModuleStatuses = (container) => {
+    const data = getContainerData(container);
+    if (!Array.isArray(data.modules) || data.modules.length === 0) {
+        return;
+    }
+
+    data.modules.forEach((module) => {
+        if (!module || typeof module.id === 'undefined') {
+            return;
+        }
+        const item = container.querySelector(`${CM_SELECTOR}[data-id="${module.id}"]`);
+        if (!item) {
+            return;
+        }
+        setItemStatusFromModule(item, module, data.strings ?? {});
+    });
 };
 
 /**
@@ -379,7 +573,7 @@ const applyDatasetProgress = (container) => {
  * @param {HTMLElement} item Course module element.
  * @param {Object} strings Language strings metadata.
  */
-const updateItemStatus = (item, strings = {}) => {
+const updateItemStatus = (item, strings = {}, statusOverride = null) => {
     const statusElement = item.querySelector('[data-region="cm-status"]');
     const srStatus = item.querySelector('[data-region="cm-status-text"]');
 
@@ -387,32 +581,41 @@ const updateItemStatus = (item, strings = {}) => {
         return;
     }
 
-    Object.values(STATUS_CLASSES).forEach((className) => statusElement.classList.remove(className));
+    Object.values(STATUS_CLASSES).forEach((className) => {
+        if (className) {
+            statusElement.classList.remove(className);
+        }
+    });
 
-    let statusKey = 'notstarted';
-    const completionInfo = item.querySelector('.completioninfo');
-    const completionState = parseCompletionState(completionInfo);
+    let statusKey = statusOverride;
 
-    if (completionInfo) {
-        if (completionInfo.classList.contains('completion_complete')) {
-            statusKey = 'completed';
-        } else if (completionInfo.classList.contains('completion_fail')) {
-            statusKey = 'failed';
-        } else if (completionInfo.classList.contains('completion_incomplete')) {
-            statusKey = 'inprogress';
-        } else if (completionInfo.classList.contains('completion_none')) {
-            statusKey = 'notstarted';
-        } else if (completionState !== null) {
-            if (completionState === COMPLETION.COMPLETE || completionState === COMPLETION.COMPLETE_PASS) {
+    if (!statusKey) {
+        statusKey = 'notstarted';
+        const completionInfo = item.querySelector('.completioninfo');
+        const completionState = parseCompletionState(completionInfo);
+
+        if (completionInfo) {
+            if (completionInfo.classList.contains('completion_complete')) {
                 statusKey = 'completed';
-            } else if (completionState === COMPLETION.COMPLETE_FAIL) {
+            } else if (completionInfo.classList.contains('completion_fail')) {
                 statusKey = 'failed';
-            } else if (completionState === COMPLETION.INCOMPLETE) {
+            } else if (completionInfo.classList.contains('completion_incomplete')) {
                 statusKey = 'inprogress';
+            } else if (completionInfo.classList.contains('completion_none')) {
+                statusKey = 'notstarted';
+            } else if (completionState !== null) {
+                if (completionState === COMPLETION.COMPLETE || completionState === COMPLETION.COMPLETE_PASS) {
+                    statusKey = 'completed';
+                } else if (completionState === COMPLETION.COMPLETE_FAIL) {
+                    statusKey = 'failed';
+                } else if (completionState === COMPLETION.INCOMPLETE) {
+                    statusKey = 'inprogress';
+                }
             }
         }
     }
 
+    statusKey = statusKey || 'notstarted';
     const mappedClass = STATUS_CLASSES[statusKey];
     if (mappedClass) {
         statusElement.classList.add(mappedClass);
@@ -454,6 +657,39 @@ const updateSectionProgress = (sectionElement) => {
 
     const data = getContainerData(container);
     const sectionStrings = data.strings?.section ?? {};
+    const sectionId = Number(sectionElement.dataset.id);
+    const modulesIndex = ensureModuleIndex(data);
+    const modules = Object.values(modulesIndex).filter((module) => {
+        if (!module || module.tracked === false) {
+            return false;
+        }
+        return Number(module.sectionid) === sectionId;
+    });
+
+    if (modules.length) {
+        const completed = modules.filter((module) => module.status === 'completed' || module.status === 'failed').length;
+        const total = modules.length;
+        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        setSectionProgress(sectionElement, completed, total, percentage, sectionStrings);
+        return;
+    }
+
+    const sectionMeta = getSectionMeta(container, sectionId);
+    if (sectionMeta) {
+        setSectionProgress(
+            sectionElement,
+            sectionMeta.completed ?? 0,
+            sectionMeta.total ?? 0,
+            sectionMeta.percentage ?? 0,
+            sectionStrings,
+            {
+                summaryOverride: sectionMeta.summarydisplay ?? sectionMeta.summary ?? null,
+                ariaOverride: sectionMeta.aria ?? null,
+            }
+        );
+        return;
+    }
+
     const items = sectionElement.querySelectorAll(CM_SELECTOR);
     let completed = 0;
     let total = 0;
@@ -496,7 +732,7 @@ const updateCourseProgress = (container) => {
     const data = getContainerData(container);
     const courseStrings = data.strings?.course ?? {};
 
-    if (data.enabled === false) {
+    if (data.enabled === false || data.user?.istracked === false) {
         setCourseProgress(
             container,
             data.course?.completed ?? 0,
@@ -509,6 +745,35 @@ const updateCourseProgress = (container) => {
                 ariaOverride: data.course?.aria ?? null,
                 barOverride: data.course?.bar ?? null,
                 valueOverride: data.course?.percentageformatted ?? null,
+            }
+        );
+        return;
+    }
+
+    const modulesIndex = ensureModuleIndex(data);
+    const modules = Object.values(modulesIndex).filter((module) => module && module.tracked !== false);
+    if (modules.length) {
+        const completed = modules.filter((module) => module.status === 'completed' || module.status === 'failed').length;
+        const total = modules.length;
+        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        setCourseProgress(container, completed, total, percentage, courseStrings, {
+            enabled: true,
+        });
+        return;
+    }
+
+    if (data.course) {
+        setCourseProgress(
+            container,
+            data.course.completed ?? 0,
+            data.course.total ?? 0,
+            data.course.percentage ?? 0,
+            courseStrings,
+            {
+                enabled: true,
+                summaryOverride: data.course.summarydisplay ?? data.course.summary ?? null,
+                ariaOverride: data.course.aria ?? null,
+                valueOverride: data.course.percentageformatted ?? null,
             }
         );
         return;
@@ -568,16 +833,34 @@ const updateProgressForDetail = (container, detail) => {
     }
 
     const data = getContainerData(container);
-    const cmId = detail.element.id ?? detail.element.cmid ?? null;
+    const cmId = detail.element.id ?? detail.element.cmid ?? detail.element.cmidnumber ?? null;
     if (!cmId) {
         debounceUpdateCourseProgress(container);
         return;
     }
 
     const item = container.querySelector(`${CM_SELECTOR}[data-id="${cmId}"]`);
+    const existing = getModuleMeta(container, cmId) ?? {};
+    const sectionElement = item ? item.closest('.courseindex-section') : null;
+    const sectionId = sectionElement
+        ? Number(sectionElement.dataset.id)
+        : existing.sectionid ?? detail.element.sectionid ?? null;
+    const rawState = typeof detail.element.completionstate === 'number'
+        ? detail.element.completionstate
+        : (item ? parseCompletionState(item.querySelector('.completioninfo')) : null);
+    const status = mapCompletionStateToStatus(rawState, existing);
+    const tracked = detail.element.istrackeduser !== false && (data.user?.istracked ?? true);
+
+    const merged = setModuleMeta(container, Object.assign({}, existing, {
+        id: Number(cmId),
+        sectionid: sectionId,
+        tracked,
+        state: typeof rawState === 'number' ? rawState : null,
+        status,
+    }));
+
     if (item) {
-        updateItemStatus(item, data.strings);
-        const sectionElement = item.closest('.courseindex-section');
+        setItemStatusFromModule(item, merged, data.strings ?? {});
         if (sectionElement) {
             updateSectionProgress(sectionElement);
         }
@@ -594,14 +877,15 @@ const updateProgressForDetail = (container, detail) => {
 const initProgressDisplay = (container) => {
     parseDataset(container);
     applyDatasetProgress(container);
+    applyModuleStatuses(container);
     const data = getContainerData(container);
-    if (data.enabled === false) {
+    updateItemStatuses(container, data.strings ?? {});
+    if (data.enabled === false || data.user?.istracked === false) {
         container.classList.add(NO_TRACKING_CLASS);
         return;
     }
     container.classList.remove(NO_TRACKING_CLASS);
     updateSectionProgressDisplay(container);
-    updateItemStatuses(container, data.strings);
     updateCourseProgress(container);
 };
 
@@ -611,11 +895,6 @@ const initProgressDisplay = (container) => {
  * @param {string} courseIndexId Course index container ID.
  */
 export const init = (courseIndexId, courseEditor = null) => {
-    const editor = courseEditor ?? getCurrentCourseEditor();
-    if (!editor) {
-        return;
-    }
-
     const container = document.getElementById(courseIndexId);
     if (!container) {
         return;
@@ -623,21 +902,28 @@ export const init = (courseIndexId, courseEditor = null) => {
 
     initProgressDisplay(container);
 
-    const target = editor.target ?? document;
-    target.addEventListener('cm.completionstate:updated', ({detail}) => {
+    const editor = courseEditor ?? getCurrentCourseEditor();
+    const target = editor?.target ?? document;
+
+    const handleCompletionUpdate = ({detail}) => {
         const data = getContainerData(container);
-        if (data.enabled === false) {
+        if (data.enabled === false || data.user?.istracked === false) {
             return;
         }
         updateProgressForDetail(container, detail);
-    });
-    target.addEventListener('transaction:end', () => {
+    };
+
+    const handleTransactionEnd = () => {
         const data = getContainerData(container);
-        if (data.enabled === false) {
+        if (data.enabled === false || data.user?.istracked === false) {
             return;
         }
-        updateItemStatuses(container, data.strings);
+        applyModuleStatuses(container);
+        updateItemStatuses(container, data.strings ?? {});
         updateSectionProgressDisplay(container);
         updateCourseProgress(container);
-    });
+    };
+
+    target.addEventListener('cm.completionstate:updated', handleCompletionUpdate);
+    target.addEventListener('transaction:end', handleTransactionEnd);
 };

@@ -48,6 +48,8 @@ class progress_data {
         $completioninfo = new completion_info($course);
         $enabled = $completioninfo->is_enabled();
 
+        $istrackeduser = $completioninfo->is_tracked_user($userid);
+
         $dataset = [
             'enabled' => $enabled === COMPLETION_ENABLED,
             'strings' => self::get_strings(),
@@ -64,8 +66,12 @@ class progress_data {
                 'aria' => get_string('courseindex_progress_aria', 'theme_compecer'),
             ],
             'sections' => [],
+            'modules' => [],
             'message' => [
                 'notracking' => get_string('courseindex_notracking', 'theme_compecer'),
+            ],
+            'user' => [
+                'istracked' => $istrackeduser,
             ],
         ];
 
@@ -85,13 +91,20 @@ class progress_data {
             if (!$sectioninfo->uservisible) {
                 continue;
             }
-            $sectiondata = self::build_section_data($sectioninfo, $modinfo, $completioninfo, $userid);
+            $sectiondata = self::build_section_data($sectioninfo, $modinfo, $completioninfo, $userid, $istrackeduser);
             if (!$sectiondata) {
                 continue;
             }
+            $sectionmodules = $sectiondata['modules'] ?? [];
+            unset($sectiondata['modules']);
             $coursetotal += $sectiondata['total'];
             $coursecompleted += $sectiondata['completed'];
             $dataset['sections'][] = $sectiondata;
+            if (!empty($sectionmodules)) {
+                foreach ($sectionmodules as $moduledata) {
+                    $dataset['modules'][] = $moduledata;
+                }
+            }
         }
 
         $percentage = self::normalise_percentage(
@@ -113,6 +126,14 @@ class progress_data {
             ]),
             'aria' => get_string('courseindex_progress_aria', 'theme_compecer'),
         ];
+
+        if (!$istrackeduser) {
+            $dataset['course']['percentage'] = 0;
+            $dataset['course']['percentageformatted'] = '--';
+            $dataset['course']['summary'] = get_string('courseindex_notracking', 'theme_compecer');
+            $dataset['course']['summarydisplay'] = $dataset['course']['summary'];
+            $dataset['course']['aria'] = $dataset['course']['summary'];
+        }
 
         return $dataset;
     }
@@ -155,11 +176,13 @@ class progress_data {
         \section_info $sectioninfo,
         \course_modinfo $modinfo,
         completion_info $completioninfo,
-        int $userid
+        int $userid,
+        bool $istrackeduser
     ): ?array {
         $sectionmodules = $modinfo->sections[$sectioninfo->section] ?? [];
         $total = 0;
         $completed = 0;
+        $modules = [];
 
         foreach ($sectionmodules as $cmid) {
             $cm = $modinfo->cms[$cmid];
@@ -167,14 +190,17 @@ class progress_data {
                 continue;
             }
 
-            if ($completioninfo->is_enabled($cm) == COMPLETION_TRACKING_NONE) {
+            $moduledata = self::build_module_data($sectioninfo, $cm, $completioninfo, $userid, $istrackeduser);
+            if ($moduledata === null) {
                 continue;
             }
 
-            $total++;
-            $completiondata = $completioninfo->get_data($cm, true, $userid);
-            if (self::is_completed($completiondata)) {
-                $completed++;
+            $modules[] = $moduledata;
+            if ($moduledata['tracked']) {
+                $total++;
+                if (self::is_completed($moduledata['state'])) {
+                    $completed++;
+                }
             }
         }
 
@@ -188,6 +214,7 @@ class progress_data {
                 'summary' => get_string('courseindex_section_nottracked', 'theme_compecer'),
                 'summarydisplay' => get_string('courseindex_section_nottracked', 'theme_compecer'),
                 'aria' => get_string('courseindex_section_nottracked', 'theme_compecer'),
+                'modules' => $modules,
             ];
         }
 
@@ -206,6 +233,53 @@ class progress_data {
                 'percentage' => $percentage,
             ]),
             'aria' => get_string('courseindex_section_aria', 'theme_compecer'),
+            'modules' => $modules,
+        ];
+    }
+
+    /**
+     * Build completion metadata for a single module.
+     *
+     * @param \section_info $sectioninfo Section info.
+     * @param cm_info $cm Module info.
+     * @param completion_info $completioninfo Completion helper.
+     * @param int $userid User id.
+     * @return array|null
+     */
+    protected static function build_module_data(
+        \section_info $sectioninfo,
+        cm_info $cm,
+        completion_info $completioninfo,
+        int $userid,
+        bool $istrackeduser
+    ): ?array {
+        $tracking = $completioninfo->is_enabled($cm);
+        if ($tracking == COMPLETION_TRACKING_NONE) {
+            return null;
+        }
+
+        if (!$istrackeduser) {
+            return [
+                'id' => $cm->id,
+                'sectionid' => $sectioninfo->id,
+                'sectionnumber' => $sectioninfo->section,
+                'tracked' => false,
+                'state' => null,
+                'status' => 'notstarted',
+                'viewed' => false,
+            ];
+        }
+
+        $completiondata = $completioninfo->get_data($cm, true, $userid);
+        $state = isset($completiondata->completionstate) ? (int)$completiondata->completionstate : null;
+        return [
+            'id' => $cm->id,
+            'sectionid' => $sectioninfo->id,
+            'sectionnumber' => $sectioninfo->section,
+            'tracked' => true,
+            'state' => $state,
+            'status' => self::map_completion_status($completiondata),
+            'viewed' => !empty($completiondata->viewed),
         ];
     }
 
@@ -225,9 +299,40 @@ class progress_data {
      * @param object $completiondata Completion record.
      * @return bool
      */
-    protected static function is_completed(object $completiondata): bool {
-        $state = (int)($completiondata->completionstate ?? 0);
+    protected static function is_completed($completiondata): bool {
+        if (is_object($completiondata)) {
+            $state = (int)($completiondata->completionstate ?? 0);
+        } else if (is_numeric($completiondata)) {
+            $state = (int)$completiondata;
+        } else {
+            $state = 0;
+        }
+
         return in_array($state, [COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS, COMPLETION_COMPLETE_FAIL], true);
+    }
+
+    /**
+     * Determine the visual status to display for a completion record.
+     *
+     * @param object $completiondata Completion information.
+     * @return string
+     */
+    protected static function map_completion_status(object $completiondata): string {
+        $state = isset($completiondata->completionstate) ? (int)$completiondata->completionstate : COMPLETION_INCOMPLETE;
+
+        if (in_array($state, [COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS], true)) {
+            return 'completed';
+        }
+
+        if ($state === COMPLETION_COMPLETE_FAIL) {
+            return 'failed';
+        }
+
+        if (!empty($completiondata->viewed) || !empty($completiondata->timemodified)) {
+            return 'inprogress';
+        }
+
+        return 'notstarted';
     }
 
     /**
