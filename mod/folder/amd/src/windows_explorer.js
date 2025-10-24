@@ -704,6 +704,73 @@ define(['jquery', 'core/str'], function($, Str) {
         }
     };
 
+    const logError = function(message, error) {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        if (window.console && typeof window.console.error === 'function') {
+            window.console.error(message, error);
+        }
+    };
+
+    const buildFallbackStrings = function(rootName) {
+        const fallback = {};
+
+        STRING_KEYS.forEach(function(key) {
+            fallback[key] = key === 'modulename' ? rootName : '';
+        });
+
+        return fallback;
+    };
+
+    const loadStrings = function(rootName) {
+        const resolvedRoot = rootName || '';
+        const fallbackStrings = buildFallbackStrings(resolvedRoot);
+
+        if (typeof require !== 'function') {
+            return Promise.resolve(fallbackStrings);
+        }
+
+        return new Promise(function(resolve) {
+            require(['core/str'], function(Str) {
+                if (!Str || typeof Str.get_strings !== 'function') {
+                    logError('mod_folder/windows_explorer: core/str module unavailable');
+                    resolve(fallbackStrings);
+                    return;
+                }
+
+                const requests = STRING_KEYS.map(function(key) {
+                    return {key: key, component: 'mod_folder'};
+                });
+
+                const requestPromise = Str.get_strings(requests);
+
+                Promise.resolve(requestPromise).then(function(results) {
+                    const strings = {};
+                    const values = Array.isArray(results) ? results :
+                        (typeof results === 'undefined' ? [] : [results]);
+
+                    STRING_KEYS.forEach(function(key, index) {
+                        strings[key] = values[index] || '';
+                    });
+
+                    if (!strings.modulename && resolvedRoot) {
+                        strings.modulename = resolvedRoot;
+                    }
+
+                    resolve(strings);
+                }).catch(function(error) {
+                    logError('mod_folder/windows_explorer: Failed to load strings', error);
+                    resolve(fallbackStrings);
+                });
+            }, function(error) {
+                logError('mod_folder/windows_explorer: Failed to require core/str', error);
+                resolve(fallbackStrings);
+            });
+        });
+    };
+
     const init = function(config) {
         const containerId = config && config.containerid;
         const container = containerId ? $('#' + containerId) : $();
@@ -716,32 +783,8 @@ define(['jquery', 'core/str'], function($, Str) {
         const rootNameSource = container.attr('data-root-name') || resolvedConfig.rootname || '';
         const resolvedRootName = decodeHtml(rootNameSource);
 
-        const requests = STRING_KEYS.map(function(key) {
-            return {key: key, component: 'mod_folder'};
-        });
-
-        return Str.get_strings(requests).then(function(results) {
-            const strings = {};
-            STRING_KEYS.forEach(function(key, index) {
-                strings[key] = results[index] || '';
-            });
-
-            if (!strings.modulename && resolvedRootName) {
-                strings.modulename = resolvedRootName;
-            }
-
+        return loadStrings(resolvedRootName).then(function(strings) {
             initialiseExplorer(container, resolvedConfig, resolvedRootName, strings);
-        }).catch(function(error) {
-            const fallbackStrings = {};
-            STRING_KEYS.forEach(function(key) {
-                fallbackStrings[key] = key === 'modulename' ? resolvedRootName : '';
-            });
-
-            initialiseExplorer(container, resolvedConfig, resolvedRootName, fallbackStrings);
-
-            if (typeof window !== 'undefined' && window.console && window.console.error) {
-                window.console.error('Failed to load mod_folder explorer strings', error);
-            }
         });
     };
 
