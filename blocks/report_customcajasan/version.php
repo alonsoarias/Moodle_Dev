@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025101702;        // Incrementado para filtros por instancia y restricciones de acceso
+$plugin->version   = 2025101703;        // Incrementado para habilitar acceso docente al bloque
 $plugin->requires  = 2022041900;        // Requires Moodle 4.0+
 $plugin->component = 'block_report_customcajasan'; // Full name of the plugin
 $plugin->maturity  = MATURITY_STABLE;
