@@ -33,6 +33,98 @@ require_once($CFG->libdir . '/csvlib.class.php');
 define('REPORT_CUSTOMCAJASAN_CHUNK_SIZE', 1000); // Tamaño de chunks para procesamiento por lotes
 
 /**
+ * Resolve the most relevant context for capability checks.
+ *
+ * When the block is evaluated inside a block context we need to rely on the
+ * parent context (course, system, user, etc.) to determine the permission
+ * required to access the report.
+ *
+ * @param context $context
+ * @return context
+ */
+function block_report_customcajasan_resolve_access_context(context $context): context {
+    $current = $context;
+
+    while ($current->contextlevel === CONTEXT_BLOCK) {
+        $parent = $current->get_parent_context();
+        if (!$parent) {
+            break;
+        }
+        $current = $parent;
+    }
+
+    return $current;
+}
+
+/**
+ * Determine whether the resolved context requires system-level capability.
+ *
+ * @param context $context
+ * @return bool
+ */
+function block_report_customcajasan_context_requires_system_capability(context $context): bool {
+    if ($context->contextlevel === CONTEXT_SYSTEM || $context->contextlevel === CONTEXT_USER) {
+        return true;
+    }
+
+    if ($context->contextlevel === CONTEXT_COURSE && (int)$context->instanceid === SITEID) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Get the capability identifier required for the provided context.
+ *
+ * @param context $context
+ * @return string
+ */
+function block_report_customcajasan_get_required_capability_for_context(context $context): string {
+    if (block_report_customcajasan_context_requires_system_capability($context)) {
+        return 'block/report_customcajasan:viewsystemreport';
+    }
+
+    return 'block/report_customcajasan:viewreport';
+}
+
+/**
+ * Check whether the current (or specified) user has access to the report in the given context.
+ *
+ * @param context $context
+ * @param int|null $userid
+ * @return bool
+ */
+function block_report_customcajasan_user_has_view_capability(context $context, ?int $userid = null): bool {
+    global $USER;
+
+    if ($userid === null) {
+        $userid = $USER->id ?? 0;
+    }
+
+    if (empty($userid)) {
+        return false;
+    }
+
+    $resolvedcontext = block_report_customcajasan_resolve_access_context($context);
+    $requiredcapability = block_report_customcajasan_get_required_capability_for_context($resolvedcontext);
+
+    return has_capability($requiredcapability, $resolvedcontext, $userid, false);
+}
+
+/**
+ * Require the capability that grants access to the report for the provided context.
+ *
+ * @param context $context
+ */
+function block_report_customcajasan_require_view_capability(context $context): void {
+    $resolvedcontext = block_report_customcajasan_resolve_access_context($context);
+    $requiredcapability = block_report_customcajasan_get_required_capability_for_context($resolvedcontext);
+
+    require_capability($requiredcapability, $resolvedcontext);
+}
+
+/**
  * Normalise course and category restrictions stored in block configuration.
  *
  * @param object|array|null $config Block configuration object or raw data.
@@ -120,7 +212,7 @@ function block_report_customcajasan_compute_restrictions($config = null, ?int $u
         }
 
         $coursecontext = context_course::instance($courseid, IGNORE_MISSING);
-        if ($coursecontext && has_capability('block/report_customcajasan:viewreport', $coursecontext, $userid, false)) {
+        if ($coursecontext && block_report_customcajasan_user_has_view_capability($coursecontext, $userid)) {
             $courses[$courseid] = $courseid;
         }
     }
@@ -137,7 +229,7 @@ function block_report_customcajasan_compute_restrictions($config = null, ?int $u
         $categorycontext = context_coursecat::instance($categoryid, IGNORE_MISSING);
         $categoryallowed = false;
 
-        if ($categorycontext && has_capability('block/report_customcajasan:viewreport', $categorycontext, $userid, false)) {
+        if ($categorycontext && block_report_customcajasan_user_has_view_capability($categorycontext, $userid)) {
             $categoryallowed = true;
         } else if (isset($accessiblecategories[$categoryid])) {
             $categoryallowed = true;
@@ -165,7 +257,7 @@ function block_report_customcajasan_compute_restrictions($config = null, ?int $u
 
                 if (!empty($accessiblecategories) && !isset($accessiblecategories[$childid])) {
                     $childcontext = context_coursecat::instance($childid, IGNORE_MISSING);
-                    if (!$childcontext || !has_capability('block/report_customcajasan:viewreport', $childcontext, $userid, false)) {
+                    if (!$childcontext || !block_report_customcajasan_user_has_view_capability($childcontext, $userid)) {
                         continue;
                     }
                 }
@@ -223,6 +315,10 @@ function block_report_customcajasan_get_block_restrictions(int $blockinstanceid,
 
     $parentcontext = context::instance_by_id($blockinstance->parentcontextid, IGNORE_MISSING);
     if (!$parentcontext || $parentcontext->contextlevel !== CONTEXT_COURSE) {
+        return $result;
+    }
+
+    if (!block_report_customcajasan_user_has_view_capability($parentcontext, $userid)) {
         return $result;
     }
 

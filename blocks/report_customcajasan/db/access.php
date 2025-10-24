@@ -49,7 +49,7 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/block:view',
     ],
@@ -60,7 +60,15 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+        ],
+    ],
+    'block/report_customcajasan:viewsystemreport' => [
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
         ],
     ],
 ];

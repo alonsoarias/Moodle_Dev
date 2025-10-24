@@ -33,6 +33,7 @@ $string['report_customcajasan:addinstance'] = 'Add a new Course Status and Track
 $string['report_customcajasan:myaddinstance'] = 'Add a new Course Status and Tracking Report block to the My Moodle page';
 $string['report_customcajasan:viewblock'] = 'View the Course Status and Tracking Report block';
 $string['report_customcajasan:viewreport'] = 'View Course Status and Tracking Report';
+$string['report_customcajasan:viewsystemreport'] = 'View Course Status and Tracking Report on system pages';
 
 // Table Headers
 $string['column_identificacion'] = 'IDENTIFICATION';
