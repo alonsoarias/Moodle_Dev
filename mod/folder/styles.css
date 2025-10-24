@@ -2,303 +2,94 @@ div.course-content div.generalbox.folderbuttons {
     padding-left: 35px;
 }
 
-.mod-folder-windows .folder-explorer-windows {
-    background: #f3f6fb;
-    border: 1px solid #cfd7e3;
-    border-radius: 6px;
+.mod-folder-windows .folder-explorer {
+    background: linear-gradient(180deg, #f7f9fc 0%, #eef2f9 100%);
+    border: 1px solid rgba(30, 41, 59, 0.08);
+    border-radius: 12px;
+    margin: 24px 0;
     padding: 0;
-    margin: 20px 0;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
     font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     color: #1f2937;
+    overflow: hidden;
 }
 
 .mod-folder-windows .folder-intro {
-    padding: 16px 20px 0 20px;
+    padding: 18px 24px 0 24px;
     font-size: 14px;
+    line-height: 1.6;
+    color: #374151;
 }
 
 .mod-folder-windows .folder-header-actions {
-    padding: 0 20px 16px 20px;
+    padding: 12px 24px 0 24px;
 }
 
 .mod-folder-windows .explorer-window {
     display: flex;
     flex-direction: column;
     background: #fff;
-    border-radius: 6px;
-    overflow: hidden;
 }
 
-.mod-folder-windows .explorer-title-bar {
+.mod-folder-windows .explorer-command-bar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
-    background: linear-gradient(90deg, #1a5fd2 0%, #2f75ec 60%, #3983f5 100%);
-    color: #f8fbff;
-    border-bottom: 1px solid #134a9f;
+    gap: 16px;
+    padding: 16px 24px 12px 24px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%);
+    color: #f8fafc;
 }
 
-.mod-folder-windows .title-bar-left {
+.mod-folder-windows .command-navigation {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.01em;
+    gap: 16px;
 }
 
-.mod-folder-windows .title-bar-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mod-folder-windows .title-bar-icon .fa {
-    font-size: 14px;
-}
-
-.mod-folder-windows .title-bar-controls {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.mod-folder-windows .window-button {
-    width: 32px;
-    height: 24px;
-    border: none;
-    background: transparent;
-    color: #f8fbff;
-    border-radius: 3px;
-    font-size: 14px;
-    cursor: default;
-    transition: background 0.15s ease, color 0.15s ease;
-}
-
-.mod-folder-windows .window-button:hover {
-    background: rgba(255, 255, 255, 0.25);
-    color: #fff;
-}
-
-.mod-folder-windows .window-button.window-close:hover {
-    background: #d13232;
-}
-
-.mod-folder-windows .explorer-ribbon {
-    background: linear-gradient(180deg, #fdfefe 0%, #f3f7fb 80%);
-    border-bottom: 1px solid #d3d9e6;
-    box-shadow: inset 0 -1px 0 rgba(13, 30, 56, 0.06);
-}
-
-.mod-folder-windows .ribbon-tablist {
-    display: flex;
-    gap: 4px;
-    padding: 6px 12px 0 12px;
-}
-
-.mod-folder-windows .ribbon-tab {
-    border: none;
-    background: transparent;
-    color: #1f3b70;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 14px 8px 14px;
-    border-radius: 6px 6px 0 0;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.mod-folder-windows .ribbon-tab.active {
-    background: #fff;
-    color: #134a9f;
-    box-shadow: 0 -1px 0 #fff;
-}
-
-.mod-folder-windows .ribbon-tab:not(.active):hover {
-    background: rgba(19, 74, 159, 0.08);
-}
-
-.mod-folder-windows .ribbon-panels {
-    display: flex;
-    flex-direction: column;
-    padding: 12px 16px 10px 16px;
-    border-top: 1px solid #cdd6e5;
-}
-
-.mod-folder-windows .ribbon-panel {
-    display: none;
-    gap: 24px;
-    align-items: stretch;
-}
-
-.mod-folder-windows .ribbon-panel.active {
-    display: flex;
-}
-
-.mod-folder-windows .ribbon-panel-inner {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-}
-
-.mod-folder-windows .ribbon-file-button {
-    border: none;
-    background: linear-gradient(180deg, #ebf2ff 0%, #d9e6ff 100%);
-    color: #174ea6;
-    padding: 10px 18px;
-    border-radius: 4px;
-    font-size: 13px;
+.mod-folder-windows .navigation-buttons {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    cursor: pointer;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.mod-folder-windows .ribbon-group {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(233, 239, 249, 0.9) 100%);
-    border: 1px solid #c9d4e6;
-    border-radius: 6px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-width: 150px;
-    box-shadow: 0 1px 2px rgba(20, 31, 56, 0.05);
-}
-
-.mod-folder-windows .ribbon-group-title {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #385a8f;
-    letter-spacing: 0.08em;
-}
-
-.mod-folder-windows .ribbon-group-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.mod-folder-windows .ribbon-button {
-    border: 1px solid transparent;
-    background: rgba(255, 255, 255, 0.7);
-    color: #1f3b70;
-    border-radius: 4px;
-    font-size: 12px;
-    padding: 6px 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.mod-folder-windows .ribbon-button .fa {
-    font-size: 14px;
-    width: 16px;
-}
-
-.mod-folder-windows .ribbon-button:hover {
-    background: #eff4ff;
-    border-color: #99b7f1;
-    color: #134a9f;
-}
-
-.mod-folder-windows .ribbon-button-large {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 10px 14px;
-}
-
-.mod-folder-windows .ribbon-button-large .fa {
-    font-size: 18px;
-}
-
-.mod-folder-windows .ribbon-button-stack {
-    display: grid;
-    gap: 6px;
-}
-
-.mod-folder-windows .ribbon-toggle.active {
-    background: #d8e6ff;
-    border-color: #8ab4ff;
-    color: #174ea6;
-}
-
-.mod-folder-windows .explorer-command-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    background: linear-gradient(180deg, #fdfefe 0%, #eef2f8 100%);
-    border-bottom: 1px solid #d2d9e6;
-}
-
-.mod-folder-windows .folder-navigation-buttons {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    background: rgba(15, 23, 42, 0.18);
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .mod-folder-windows .nav-button {
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
-    border: 1px solid #c0c8d9;
-    background: linear-gradient(180deg, #fefefe 0%, #e7edf7 100%);
-    color: #1f3b70;
-    display: flex;
+    width: 40px;
+    height: 36px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .mod-folder-windows .nav-button:disabled {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: default;
 }
 
 .mod-folder-windows .nav-button:not(:disabled):hover {
-    background: #dde6f7;
-    border-color: #9fb3d9;
-    color: #123a85;
+    background: rgba(15, 23, 42, 0.2);
+    transform: translateY(-1px);
 }
 
-.mod-folder-windows .address-bar {
+.mod-folder-windows .breadcrumb-wrapper {
+    min-width: 220px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 12px;
-    border-radius: 6px;
-    background: linear-gradient(180deg, #fff 0%, #f1f5fb 100%);
-    border: 1px solid #c5cfe0;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.mod-folder-windows .address-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #435c8a;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-.mod-folder-windows .address-field {
-    flex: 1;
-    display: flex;
-    align-items: center;
+    padding: 8px 12px;
+    background: rgba(15, 23, 42, 0.18);
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .mod-folder-windows .folder-breadcrumbs nav {
@@ -307,448 +98,415 @@ div.course-content div.generalbox.folderbuttons {
 
 .mod-folder-windows .folder-breadcrumb-list {
     list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
     margin: 0;
     padding: 0;
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 4px;
 }
 
 .mod-folder-windows .folder-breadcrumb-item {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 4px;
-    white-space: nowrap;
+    gap: 6px;
 }
 
 .mod-folder-windows .breadcrumb-button {
-    border: 1px solid transparent;
-    background: transparent;
-    color: #1f3b70;
-    padding: 4px 8px;
-    border-radius: 4px;
+    border: none;
+    background: rgba(248, 250, 252, 0.12);
+    color: #e2e8f0;
     font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.mod-folder-windows .breadcrumb-button::after {
-    content: '\25B8';
-    color: #8ba0c5;
-    margin-left: 6px;
-    font-size: 10px;
-}
-
-.mod-folder-windows .folder-breadcrumb-item:last-child .breadcrumb-button::after {
-    display: none;
+    transition: background 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
 }
 
 .mod-folder-windows .breadcrumb-button:hover:not(:disabled) {
-    background: #dde7fb;
-    border-color: #afc5f4;
+    background: rgba(248, 250, 252, 0.25);
+    color: #fff;
 }
 
 .mod-folder-windows .breadcrumb-button.is-active {
-    background: #d7e6ff;
-    border-color: #8fb1ef;
-    color: #134a9f;
+    background: rgba(15, 23, 42, 0.4);
+    color: #fff;
     cursor: default;
+}
+
+.mod-folder-windows .command-search {
+    margin-left: auto;
 }
 
 .mod-folder-windows .search-box {
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid #c5cfe0;
-    border-radius: 20px;
-    padding: 4px 10px;
-    min-width: 220px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    gap: 10px;
+    background: rgba(15, 23, 42, 0.18);
+    border-radius: 999px;
+    padding: 8px 16px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-.mod-folder-windows .search-box input {
-    flex: 1;
+.mod-folder-windows .search-icon {
+    color: rgba(226, 232, 240, 0.8);
+}
+
+.mod-folder-windows .folder-search-input {
     border: none;
-    outline: none;
-    padding: 4px;
+    background: transparent;
+    color: #fff;
     font-size: 13px;
-    background: transparent;
+    outline: none;
+    width: 200px;
 }
 
-.mod-folder-windows .search-box .search-clear {
+.mod-folder-windows .folder-search-input::placeholder {
+    color: rgba(226, 232, 240, 0.6);
+}
+
+.mod-folder-windows .search-clear {
     border: none;
     background: transparent;
-    color: #6b7c99;
+    color: rgba(226, 232, 240, 0.8);
     cursor: pointer;
-    padding: 0 4px;
-}
-
-.mod-folder-windows .explorer-toolbar {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 16px;
-    padding: 10px 16px;
-    background: #f5f7fb;
-    border-bottom: 1px solid #d0d8e5;
+    justify-content: center;
+    transition: color 0.2s ease;
 }
 
-.mod-folder-windows .toolbar-group {
+.mod-folder-windows .search-clear:hover {
+    color: #fff;
+}
+
+.mod-folder-windows .explorer-viewbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 24px;
+    background: #ffffff;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.mod-folder-windows .window-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
     display: flex;
     align-items: center;
     gap: 8px;
+    letter-spacing: 0.01em;
 }
 
-.mod-folder-windows .toolbar-group label {
-    font-size: 12px;
-    color: #405a8c;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+.mod-folder-windows .title-separator {
+    color: rgba(148, 163, 184, 0.8);
 }
 
-.mod-folder-windows .toolbar-group select {
-    border: 1px solid #bcc7db;
-    background: #fff;
-    border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 13px;
+.mod-folder-windows .view-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.04);
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.mod-folder-windows .view-toggle {
+    width: 38px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
     color: #1f2937;
-}
-
-.mod-folder-windows .view-group .btn {
-    border: 1px solid #bcc7db;
-    background: #fff;
-    color: #1f3b70;
-    border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 14px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
-.mod-folder-windows .view-group .btn.active,
-.mod-folder-windows .view-group .btn:hover {
-    background: #dce7fb;
-    border-color: #95b3f1;
-    color: #174ea6;
+.mod-folder-windows .view-toggle:hover {
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+}
+
+.mod-folder-windows .view-toggle.active {
+    background: #1d4ed8;
+    color: #fff;
+    box-shadow: 0 6px 12px rgba(29, 78, 216, 0.25);
 }
 
 .mod-folder-windows .explorer-body {
     display: flex;
-    background: #fff;
-    min-height: 460px;
+    gap: 0;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f6 100%);
 }
 
 .mod-folder-windows .folder-navigation {
     width: 260px;
-    border-right: 1px solid #d5dde8;
-    background: linear-gradient(180deg, #f7f9fc 0%, #eff4fb 100%);
-    padding: 16px;
+    min-width: 220px;
+    border-right: 1px solid rgba(15, 23, 42, 0.06);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(4px);
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
 
-.mod-folder-windows .navigation-header {
+.mod-folder-windows .navigation-title {
+    padding: 16px 20px 12px 20px;
     font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    color: #435c8a;
     letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
 }
 
 .mod-folder-windows .folder-tree-scroll {
     flex: 1;
     overflow-y: auto;
-    padding-right: 6px;
+    padding: 0 12px 16px 12px;
 }
 
 .mod-folder-windows .folder-tree-list {
     list-style: none;
     margin: 0;
     padding: 0;
+    display: grid;
+    gap: 2px;
 }
 
 .mod-folder-windows .folder-tree-node {
-    margin: 0;
+    display: block;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.mod-folder-windows .folder-tree-node.active {
+    background: rgba(37, 99, 235, 0.12);
+}
+
+.mod-folder-windows .folder-tree-node.active .folder-tree-label {
+    color: #1d4ed8;
+    font-weight: 600;
 }
 
 .mod-folder-windows .folder-tree-node-inner {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 6px;
-    border-radius: 4px;
-    transition: background 0.2s ease;
-}
-
-.mod-folder-windows .folder-tree-node-inner:hover {
-    background: rgba(147, 181, 242, 0.25);
-}
-
-.mod-folder-windows .folder-tree-node.active > .folder-tree-node-inner {
-    background: rgba(147, 181, 242, 0.4);
-    box-shadow: inset 0 0 0 1px rgba(41, 98, 203, 0.35);
+    gap: 8px;
+    padding: 6px 10px;
 }
 
 .mod-folder-windows .folder-tree-toggle {
-    width: 18px;
-    height: 18px;
+    width: 26px;
+    height: 26px;
     border: none;
-    background: transparent;
+    border-radius: 6px;
+    background: rgba(100, 116, 139, 0.1);
     position: relative;
     cursor: pointer;
-    padding: 0;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .mod-folder-windows .folder-tree-toggle::before {
-    content: '';
+    content: '\25B6';
     position: absolute;
-    left: 5px;
     top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 5px 0 5px 6px;
-    border-color: transparent transparent transparent #5b6f92;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px;
+    color: #475569;
     transition: transform 0.2s ease;
 }
 
 .mod-folder-windows .folder-tree-node.expanded > .folder-tree-node-inner .folder-tree-toggle::before {
-    transform: translateY(-50%) rotate(90deg);
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.mod-folder-windows .folder-tree-toggle:hover {
+    background: rgba(37, 99, 235, 0.2);
 }
 
 .mod-folder-windows .folder-tree-toggle.placeholder {
-    width: 18px;
-    height: 18px;
+    background: transparent;
+    cursor: default;
 }
 
-.mod-folder-windows .folder-tree-icon img,
-.mod-folder-windows .folder-tree-icon .icon {
-    width: 16px;
-    height: 16px;
+.mod-folder-windows .folder-tree-icon {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    color: #1d4ed8;
 }
 
 .mod-folder-windows .folder-tree-label {
-    flex: 1;
     border: none;
     background: transparent;
-    color: #1f3b70;
     text-align: left;
+    flex: 1;
+    color: #1f2937;
     font-size: 13px;
     cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.mod-folder-windows .folder-tree-label:hover {
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
 }
 
 .mod-folder-windows .folder-tree-children {
     list-style: none;
-    margin: 0 0 0 16px;
-    padding: 0;
+    margin: 0;
+    padding: 0 0 0 28px;
 }
 
 .mod-folder-windows .folder-tree-node.collapsed > .folder-tree-children {
     display: none;
 }
 
+.mod-folder-windows .folder-tree-toggle.placeholder {
+    opacity: 0;
+}
+
 .mod-folder-windows .folder-main-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #fff;
-    position: relative;
+    padding: 24px;
+    gap: 16px;
 }
 
-.mod-folder-windows .folder-content-views {
-    flex: 1;
-    display: block;
-    padding: 16px;
-    overflow: auto;
+.mod-folder-windows .folder-views {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+    padding: 24px;
+    transition: box-shadow 0.25s ease;
 }
 
-.mod-folder-windows .folder-content-grid,
-.mod-folder-windows .folder-content-list,
-.mod-folder-windows .folder-content-details {
+.mod-folder-windows .folder-view {
     display: none;
 }
 
-.mod-folder-windows .folder-content-grid.active,
-.mod-folder-windows .folder-content-list.active,
-.mod-folder-windows .folder-content-details.active {
+.mod-folder-windows .folder-view.active {
     display: block;
+    animation: explorerFadeIn 0.25s ease;
+}
+
+@keyframes explorerFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .mod-folder-windows .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 16px;
+    gap: 18px;
 }
 
 .mod-folder-windows .grid-item {
-    background: linear-gradient(180deg, #fefefe 0%, #f3f6fb 100%);
-    border: 1px solid #d3d9e6;
-    border-radius: 6px;
-    padding: 12px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.9) 0%, rgba(241, 245, 249, 0.9) 100%);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+.mod-folder-windows .grid-item .item-surface {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.mod-folder-windows .grid-item:hover {
-    border-color: #96b5f5;
-    box-shadow: 0 6px 12px rgba(30, 64, 130, 0.08);
-}
-
-.mod-folder-windows .grid-item.selected {
-    border-color: #2f6fe4;
-    box-shadow: 0 0 0 3px rgba(47, 111, 228, 0.15);
-    background: linear-gradient(180deg, #e8f0fe 0%, #d7e5ff 100%);
-}
-
-.mod-folder-windows .item-checkbox {
-    align-self: flex-end;
-}
-
-.mod-folder-windows .item-icon {
-    display: flex;
-    justify-content: center;
-}
-
-.mod-folder-windows .item-icon img,
-.mod-folder-windows .item-icon .icon,
-.mod-folder-windows .item-icon .fa {
-    width: 48px;
-    height: 48px;
-    font-size: 40px;
-    color: #2f6fe4;
-}
-
-.mod-folder-windows .item-details {
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px;
     text-align: center;
 }
 
-.mod-folder-windows .item-name {
+.mod-folder-windows .grid-item .item-icon img,
+.mod-folder-windows .grid-item .item-icon .icon,
+.mod-folder-windows .grid-item .item-icon [class*='fa'] {
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.mod-folder-windows .grid-item .item-name {
     font-weight: 600;
-    font-size: 13px;
-    margin-bottom: 4px;
+    color: #1e293b;
+    font-size: 14px;
     word-break: break-word;
 }
 
-.mod-folder-windows .item-meta {
-    font-size: 12px;
-    color: #6b7c99;
+.mod-folder-windows .grid-item .item-meta {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
+    font-size: 12px;
+    color: #64748b;
 }
 
-.mod-folder-windows .folder-table-list,
-.mod-folder-windows .folder-table-details {
+.mod-folder-windows .grid-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 28px rgba(29, 78, 216, 0.18);
+    border-color: rgba(37, 99, 235, 0.35);
+}
+
+.mod-folder-windows .grid-item.is-selected {
+    border-color: rgba(37, 99, 235, 0.8);
+    box-shadow: 0 18px 34px rgba(29, 78, 216, 0.25);
+}
+
+.mod-folder-windows .folder-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 0;
-    background: #fff;
-    border: 1px solid #d3d9e6;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 6px 16px rgba(15, 34, 71, 0.08);
+    border-spacing: 0 10px;
 }
 
-.mod-folder-windows .folder-table-list thead,
-.mod-folder-windows .folder-table-details thead {
-    background: linear-gradient(180deg, #eef2f9 0%, #e0e7f4 100%);
-    color: #1f3b70;
+.mod-folder-windows .folder-table thead th {
     font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    font-weight: 600;
+    padding: 0 16px 12px 16px;
 }
 
-.mod-folder-windows .folder-table-list th,
-.mod-folder-windows .folder-table-details th {
-    padding: 10px 12px;
-    border-bottom: 1px solid #c7d1e4;
-}
-
-.mod-folder-windows .folder-table-list td,
-.mod-folder-windows .folder-table-details td {
-    padding: 10px 12px;
-    vertical-align: middle;
-    border-bottom: 1px solid #e2e7f3;
-    font-size: 13px;
-}
-
-.mod-folder-windows .folder-table-list tr:hover,
-.mod-folder-windows .folder-table-details tr:hover {
-    background: #f0f5ff;
-}
-
-.mod-folder-windows .folder-table-list tr.selected,
-.mod-folder-windows .folder-table-details tr.selected {
-    background: #d7e5ff;
-}
-
-.mod-folder-windows .sortable {
+.mod-folder-windows .folder-table tbody tr {
+    background: rgba(248, 250, 252, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
-    user-select: none;
 }
 
-.mod-folder-windows .sortable .sort-icon {
-    margin-left: 6px;
-    font-size: 12px;
-    color: #6b7c99;
+.mod-folder-windows .folder-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(29, 78, 216, 0.18);
 }
 
-.mod-folder-windows .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6b7c99;
-}
-
-.mod-folder-windows .empty-state .fa {
-    color: #94a9d6;
-    margin-bottom: 12px;
-}
-
-.mod-folder-windows .explorer-status-bar {
-    display: grid;
-    grid-template-columns: 2fr 1fr 2fr;
-    align-items: center;
-    padding: 6px 16px;
-    background: linear-gradient(180deg, #fdfefe 0%, #eef2f8 100%);
-    border-top: 1px solid #d3d9e6;
-    font-size: 12px;
-    color: #425a85;
-}
-
-.mod-folder-windows .status-left {
-    justify-self: flex-start;
-}
-
-.mod-folder-windows .status-center {
-    justify-self: center;
-    font-weight: 500;
-}
-
-.mod-folder-windows .status-right {
-    justify-self: flex-end;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.mod-folder-windows .status-details {
-    color: #1f3b70;
-    font-weight: 500;
-}
-
-.mod-folder-windows .selection-count-display {
-    font-weight: 500;
+.mod-folder-windows .folder-table tbody td {
+    padding: 14px 16px;
+    font-size: 14px;
+    vertical-align: middle;
+    color: #1f2937;
 }
 
 .mod-folder-windows .list-icon,
@@ -756,59 +514,89 @@ div.course-content div.generalbox.folderbuttons {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    margin-right: 8px;
+    width: 28px;
+    margin-right: 10px;
+    color: #2563eb;
 }
 
-.mod-folder-windows .list-name,
-.mod-folder-windows .details-name {
-    font-weight: 500;
+.mod-folder-windows .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 48px 20px;
+    color: #64748b;
 }
 
-.mod-folder-windows .no-results-message,
-.mod-folder-windows .empty-folder-message {
-    padding: 60px 20px;
+.mod-folder-windows .empty-state i {
+    font-size: 48px;
+    color: rgba(37, 99, 235, 0.4);
 }
 
-.mod-folder-windows .folder-content-views,
-.mod-folder-windows .folder-content-grid,
-.mod-folder-windows .folder-content-list,
-.mod-folder-windows .folder-content-details {
-    background: transparent;
+.mod-folder-windows .empty-folder-message,
+.mod-folder-windows .no-results-message {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px dashed rgba(148, 163, 184, 0.4);
+    border-radius: 16px;
+    box-shadow: inset 0 0 20px rgba(148, 163, 184, 0.15);
 }
 
-.mod-folder-windows .grid-item .item-checkbox input,
-.mod-folder-windows .folder-table-list input,
-.mod-folder-windows .folder-table-details input {
-    cursor: pointer;
+.mod-folder-windows .no-results-message .btn {
+    margin-top: 12px;
 }
 
-.mod-folder-windows .folder-tree-node.active .folder-tree-label {
-    color: #174ea6;
-    font-weight: 600;
+.mod-folder-windows [hidden] {
+    display: none !important;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1200px) {
     .mod-folder-windows .explorer-body {
         flex-direction: column;
     }
 
     .mod-folder-windows .folder-navigation {
         width: 100%;
+        min-width: 100%;
         border-right: none;
-        border-bottom: 1px solid #d5dde8;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     }
 
-    .mod-folder-windows .explorer-command-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
+    .mod-folder-windows .folder-main-panel {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .mod-folder-windows .explorer-command-bar {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .mod-folder-windows .folder-content-views {
-        padding: 12px;
+    .mod-folder-windows .command-navigation {
+        width: 100%;
+        justify-content: space-between;
     }
 
-    .mod-folder-windows .grid-container {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    .mod-folder-windows .breadcrumb-wrapper {
+        flex: 1;
+    }
+
+    .mod-folder-windows .folder-search-input {
+        width: 100%;
+    }
+
+    .mod-folder-windows .explorer-viewbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .mod-folder-windows .folder-main-panel {
+        padding: 16px;
+    }
+
+    .mod-folder-windows .folder-views {
+        padding: 20px;
     }
 }

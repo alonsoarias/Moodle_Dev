@@ -1,12 +1,12 @@
 {{!
     This file is part of Moodle - http://moodle.org/
 
-    Windows Explorer style template for the core folder module.
+    Windows Explorer inspired template for the folder module.
     @template mod_folder/folder
     @package   mod_folder
 }}
 
-<div class="folder-explorer-windows" id="{{id}}" data-root-name="{{rootname}}">
+<div class="folder-explorer folder-explorer-windows" id="{{id}}" data-root-name="{{rootname}}">
 
     {{! Intro }}
     {{#intro}}
@@ -30,257 +30,58 @@
     {{/hasbuttons}}
 
     <div class="explorer-window" role="region" aria-label="{{strings.explorercontents}}">
-        <div class="explorer-title-bar">
-            <div class="title-bar-left">
-                <span class="title-bar-icon"><i class="fa fa-folder"></i></span>
-                <span class="title-bar-text">{{strings.explorertitle}} - {{rootname}}</span>
-            </div>
-            <div class="title-bar-controls">
-                <button type="button" class="window-button window-minimize" aria-label="{{strings.windowminimize}}">
-                    <span aria-hidden="true">—</span>
-                </button>
-                <button type="button" class="window-button window-maximize" aria-label="{{strings.windowmaximize}}">
-                    <span aria-hidden="true">□</span>
-                </button>
-                <button type="button" class="window-button window-close" aria-label="{{strings.windowclose}}">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="explorer-ribbon" role="navigation" aria-label="Ribbon">
-            <div class="ribbon-tablist" role="tablist">
-                <button type="button" class="ribbon-tab" data-panel="file" role="tab" aria-selected="false">{{strings.ribbontabfile}}</button>
-                <button type="button" class="ribbon-tab active" data-panel="home" role="tab" aria-selected="true">{{strings.ribbontabhome}}</button>
-                <button type="button" class="ribbon-tab" data-panel="share" role="tab" aria-selected="false">{{strings.ribbontabshare}}</button>
-                <button type="button" class="ribbon-tab" data-panel="view" role="tab" aria-selected="false">{{strings.ribbontabview}}</button>
-            </div>
-            <div class="ribbon-panels">
-                <div class="ribbon-panel" data-panel="file" hidden>
-                    <div class="ribbon-panel-inner">
-                        <button type="button" class="ribbon-file-button">
-                            <i class="fa fa-folder-open"></i>
-                            <span>{{strings.ribbonfilemenuopen}}</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="ribbon-panel active" data-panel="home">
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbonhomeclipboard}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button ribbon-button-large">
-                                <i class="fa fa-clipboard"></i>
-                                <span>{{strings.ribbonhomeclipboardpaste}}</span>
-                            </button>
-                            <div class="ribbon-button-stack">
-                                <button type="button" class="ribbon-button">
-                                    <i class="fa fa-scissors"></i>
-                                    <span>{{strings.ribbonhomeclipboardcut}}</span>
-                                </button>
-                                <button type="button" class="ribbon-button">
-                                    <i class="fa fa-copy"></i>
-                                    <span>{{strings.ribbonhomeclipboardcopy}}</span>
-                                </button>
-                                <button type="button" class="ribbon-button">
-                                    <i class="fa fa-folder-open"></i>
-                                    <span>{{strings.ribbonhomeclipboardcopyto}}</span>
-                                </button>
-                                <button type="button" class="ribbon-button">
-                                    <i class="fa fa-exchange"></i>
-                                    <span>{{strings.ribbonhomeclipboardmoveto}}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbonhomeorganize}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-trash"></i>
-                                <span>{{strings.ribbonhomeorganizedelete}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-i-cursor"></i>
-                                <span>{{strings.ribbonhomeorganizerename}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-info-circle"></i>
-                                <span>{{strings.ribbonhomeorganizeproperties}}</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbonhomenew}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button ribbon-button-large">
-                                <i class="fa fa-folder"></i>
-                                <span>{{strings.ribbonhomenewfolder}}</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbonhomeopen}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-external-link"></i>
-                                <span>{{strings.ribbonhomeopenopen}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-history"></i>
-                                <span>{{strings.ribbonhomeopenhistory}}</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbonhomeselect}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-check-square-o"></i>
-                                <span>{{strings.ribbonhomeselectall}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-square-o"></i>
-                                <span>{{strings.ribbonhomeselectnone}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-random"></i>
-                                <span>{{strings.ribbonhomeselectinvert}}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="ribbon-panel" data-panel="share" hidden>
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbongroupshare}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-envelope"></i>
-                                <span>{{strings.ribbonsharesendemail}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-file-archive-o"></i>
-                                <span>{{strings.ribbonsharesendzip}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-fire"></i>
-                                <span>{{strings.ribbonsharesendburn}}</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbonsharespecialshare}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-users"></i>
-                                <span>{{strings.ribbonsharespecialadvanced}}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="ribbon-panel" data-panel="view" hidden>
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbonviewlayout}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-th-large"></i>
-                                <span>{{strings.ribbonviewextraicons}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-list-ul"></i>
-                                <span>{{strings.ribbonviewlist}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-th-list"></i>
-                                <span>{{strings.ribbonviewdetails}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button">
-                                <i class="fa fa-clone"></i>
-                                <span>{{strings.ribbonviewtiles}}</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="ribbon-group">
-                        <div class="ribbon-group-title">{{strings.ribbonviewnavpane}}</div>
-                        <div class="ribbon-group-buttons">
-                            <button type="button" class="ribbon-button ribbon-toggle active">
-                                <i class="fa fa-check"></i>
-                                <span>{{strings.ribbonviewnavpane}}</span>
-                            </button>
-                            <button type="button" class="ribbon-button ribbon-toggle">
-                                <i class="fa fa-square-o"></i>
-                                <span>{{strings.ribbonviewpreviewpane}}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="explorer-command-row">
-            <div class="folder-navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
-                <button type="button" class="nav-button nav-button-back" title="{{strings.navbacktitle}}" aria-label="{{strings.navbackaria}}" disabled>
-                    <i class="fa fa-arrow-left"></i>
-                </button>
-                <button type="button" class="nav-button nav-button-forward" title="{{strings.navforwardtitle}}" aria-label="{{strings.navforwardaria}}" disabled>
-                    <i class="fa fa-arrow-right"></i>
-                </button>
-                <button type="button" class="nav-button nav-button-up" title="{{strings.navuptitle}}" aria-label="{{strings.navuparia}}" disabled>
-                    <i class="fa fa-level-up"></i>
-                </button>
-            </div>
-            <div class="address-bar" role="group">
-                <span class="address-label">{{strings.exploreraddress}}</span>
-                <div class="address-field">
-                    <div class="folder-breadcrumbs" role="navigation" aria-label="{{strings.breadcrumbsaria}}"></div>
-                </div>
-            </div>
-            <div class="search-box">
-                <input type="text"
-                       class="folder-search-input"
-                       placeholder="{{strings.searchplaceholder}}"
-                       aria-label="{{strings.searcharia}}">
-                <button class="search-clear" type="button" aria-label="{{strings.clearsearch}}" style="display:none;">
-                    <i class="fa fa-times"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="explorer-toolbar">
-            <div class="toolbar-group">
-                <label class="sort-label">{{strings.sortlabel}}</label>
-                <select class="folder-sort-select">
-                    <option value="name-asc">{{strings.sortnameasc}}</option>
-                    <option value="name-desc">{{strings.sortnamedesc}}</option>
-                    <option value="date-desc">{{strings.sortdatenewest}}</option>
-                    <option value="date-asc">{{strings.sortdateoldest}}</option>
-                    <option value="type-asc">{{strings.sorttypeasc}}</option>
-                    <option value="type-desc">{{strings.sorttypedesc}}</option>
-                    <option value="size-desc">{{strings.sortsizedesc}}</option>
-                    <option value="size-asc">{{strings.sortsizeasc}}</option>
-                </select>
-            </div>
-            <div class="toolbar-group">
-                <label class="filter-label">{{strings.filterlabel}}</label>
-                <select class="folder-filter-select">
-                    <option value="all">{{strings.filterall}}</option>
-                    <option value="folders">{{strings.filterfolders}}</option>
-                    <option value="files">{{strings.filterfiles}}</option>
-                    <option value="images">{{strings.filterimages}}</option>
-                    <option value="documents">{{strings.filterdocuments}}</option>
-                    <option value="videos">{{strings.filtervideos}}</option>
-                </select>
-            </div>
-            <div class="toolbar-group view-group">
-                <label class="view-label">{{strings.viewdetails}}</label>
-                <div class="view-buttons">
-                    <button class="btn view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
-                        <i class="fa fa-th-large"></i>
+        <header class="explorer-command-bar">
+            <div class="command-navigation">
+                <div class="navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
+                    <button type="button" class="nav-button nav-button-back" title="{{strings.navbacktitle}}" aria-label="{{strings.navbackaria}}" disabled>
+                        <span class="icon" aria-hidden="true"><i class="fa fa-arrow-left"></i></span>
                     </button>
-                    <button class="btn view-toggle" data-view="list" title="{{strings.viewlist}}">
-                        <i class="fa fa-list-ul"></i>
+                    <button type="button" class="nav-button nav-button-forward" title="{{strings.navforwardtitle}}" aria-label="{{strings.navforwardaria}}" disabled>
+                        <span class="icon" aria-hidden="true"><i class="fa fa-arrow-right"></i></span>
                     </button>
-                    <button class="btn view-toggle" data-view="details" title="{{strings.viewdetails}}">
-                        <i class="fa fa-th-list"></i>
+                    <button type="button" class="nav-button nav-button-up" title="{{strings.navuptitle}}" aria-label="{{strings.navuparia}}" disabled>
+                        <span class="icon" aria-hidden="true"><i class="fa fa-arrow-up"></i></span>
+                    </button>
+                </div>
+                <div class="breadcrumb-wrapper" role="navigation" aria-label="{{strings.folderbreadcrumbs}}">
+                    <div class="folder-breadcrumbs"></div>
+                </div>
+            </div>
+            <div class="command-search">
+                <div class="search-box">
+                    <span class="search-icon" aria-hidden="true"><i class="fa fa-search"></i></span>
+                    <input type="text"
+                           class="folder-search-input"
+                           placeholder="{{strings.searchplaceholder}}"
+                           aria-label="{{strings.searcharia}}">
+                    <button type="button" class="search-clear" aria-label="{{strings.clearsearch}}" hidden>
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="explorer-viewbar">
+            <div class="viewbar-left">
+                <div class="window-title" aria-live="polite">
+                    <span class="title-label">{{strings.explorertitle}}</span>
+                    <span class="title-separator" aria-hidden="true">/</span>
+                    <span class="title-value">{{rootname}}</span>
+                </div>
+            </div>
+            <div class="viewbar-right">
+                <div class="view-controls" role="group" aria-label="{{strings.viewdetails}}">
+                    <button class="view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
+                        <i class="fa fa-th-large" aria-hidden="true"></i>
+                        <span class="sr-only">{{strings.viewgrid}}</span>
+                    </button>
+                    <button class="view-toggle" data-view="list" title="{{strings.viewlist}}">
+                        <i class="fa fa-list" aria-hidden="true"></i>
+                        <span class="sr-only">{{strings.viewlist}}</span>
+                    </button>
+                    <button class="view-toggle" data-view="details" title="{{strings.viewdetails}}">
+                        <i class="fa fa-th-list" aria-hidden="true"></i>
+                        <span class="sr-only">{{strings.viewdetails}}</span>
                     </button>
                 </div>
             </div>
@@ -289,7 +90,7 @@
         <div class="explorer-body">
             {{#has_tree}}
             <aside class="folder-navigation" aria-label="{{strings.navigationaria}}">
-                <div class="navigation-header">{{strings.navigationheader}}</div>
+                <div class="navigation-title">{{strings.explorertree}}</div>
                 <div class="folder-tree-scroll">
                     <ul class="folder-tree-list">
                         {{#tree}}
@@ -300,9 +101,9 @@
             </aside>
             {{/has_tree}}
 
-            <div class="folder-main-panel">
-                <div class="folder-content-views">
-                    <div class="folder-content-grid active">
+            <section class="folder-main-panel">
+                <div class="folder-views">
+                    <div class="folder-view folder-view-grid active">
                         <div class="grid-container">
                             {{#items}}
                             <div class="grid-item {{#is_folder}}item-folder{{/is_folder}}{{#is_file}}item-file{{/is_file}}"
@@ -315,36 +116,32 @@
                                  data-parent-path="{{parent_path_encoded}}"
                                  {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
                                  {{#url}}data-url="{{{url}}}"{{/url}}>
-                                <div class="item-checkbox">
-                                    <input type="checkbox" aria-label="{{#str}}selectitem, mod_folder, {{name}}{{/str}}">
-                                </div>
-
-                                <div class="item-icon {{icon_class}}">
-                                    {{{icon}}}
-                                </div>
-
-                                <div class="item-details">
-                                    <div class="item-name" title="{{name}}">{{name}}</div>
-                                    {{#is_file}}
-                                    <div class="item-meta">
-                                        <span class="item-size">{{size}}</span>
-                                        <span class="item-modified">{{modified}}</span>
+                                <div class="item-surface">
+                                    <div class="item-icon {{icon_class}}">
+                                        {{{icon}}}
                                     </div>
-                                    {{/is_file}}
+                                    <div class="item-text">
+                                        <div class="item-name" title="{{name}}">{{name}}</div>
+                                        {{#is_file}}
+                                        <div class="item-meta">
+                                            <span class="item-size">{{size}}</span>
+                                            <span class="item-modified">{{modified}}</span>
+                                        </div>
+                                        {{/is_file}}
+                                    </div>
                                 </div>
                             </div>
                             {{/items}}
                         </div>
                     </div>
 
-                    <div class="folder-content-list">
-                        <table class="table table-hover folder-table-list">
+                    <div class="folder-view folder-view-list">
+                        <table class="folder-table folder-table-list">
                             <thead>
                                 <tr>
-                                    <th width="30"><input type="checkbox" class="select-all"></th>
                                     <th>{{strings.tableheadername}}</th>
-                                    <th width="150">{{strings.tableheadertype}}</th>
-                                    <th width="120">{{strings.tableheadersize}}</th>
+                                    <th>{{strings.tableheadertype}}</th>
+                                    <th>{{strings.tableheadersize}}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -359,7 +156,6 @@
                                     data-parent-path="{{parent_path_encoded}}"
                                     {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
                                     {{#url}}data-url="{{{url}}}"{{/url}}>
-                                    <td><input type="checkbox"></td>
                                     <td>
                                         <span class="list-icon {{icon_class}}">{{{icon}}}</span>
                                         <span class="list-name">{{name}}</span>
@@ -372,23 +168,14 @@
                         </table>
                     </div>
 
-                    <div class="folder-content-details">
-                        <table class="table table-hover folder-table-details">
+                    <div class="folder-view folder-view-details">
+                        <table class="folder-table folder-table-details">
                             <thead>
                                 <tr>
-                                    <th width="30"><input type="checkbox" class="select-all"></th>
-                                    <th class="sortable" data-sort="name">
-                                        {{strings.tableheadername}} <i class="fa fa-sort sort-icon"></i>
-                                    </th>
-                                    <th width="160" class="sortable" data-sort="date">
-                                        {{strings.tableheaderdatemodified}} <i class="fa fa-sort sort-icon"></i>
-                                    </th>
-                                    <th width="160" class="sortable" data-sort="type">
-                                        {{strings.tableheadertype}} <i class="fa fa-sort sort-icon"></i>
-                                    </th>
-                                    <th width="120" class="sortable" data-sort="size">
-                                        {{strings.tableheadersize}} <i class="fa fa-sort sort-icon"></i>
-                                    </th>
+                                    <th>{{strings.tableheadername}}</th>
+                                    <th>{{strings.tableheaderdatemodified}}</th>
+                                    <th>{{strings.tableheadertype}}</th>
+                                    <th>{{strings.tableheadersize}}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -403,7 +190,6 @@
                                     data-parent-path="{{parent_path_encoded}}"
                                     {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
                                     {{#url}}data-url="{{{url}}}"{{/url}}>
-                                    <td><input type="checkbox"></td>
                                     <td>
                                         <span class="details-icon {{icon_class}}">{{{icon}}}</span>
                                         <span class="details-name">{{name}}</span>
@@ -418,641 +204,21 @@
                     </div>
                 </div>
 
-                <div class="empty-folder-message" style="display:none;">
+                <div class="empty-folder-message" hidden>
                     <div class="empty-state">
-                        <i class="fa fa-folder-open-o fa-5x"></i>
+                        <i class="fa fa-folder-open-o" aria-hidden="true"></i>
                         <p>{{strings.emptyfolder}}</p>
                     </div>
                 </div>
 
-                <div class="no-results-message" style="display:none;">
+                <div class="no-results-message" hidden>
                     <div class="empty-state">
-                        <i class="fa fa-search fa-5x"></i>
+                        <i class="fa fa-search" aria-hidden="true"></i>
                         <p>{{strings.noresults}}</p>
-                        <button class="btn btn-secondary clear-search-btn">{{strings.clearsearch}}</button>
+                        <button class="btn btn-secondary clear-search-btn" type="button">{{strings.clearsearch}}</button>
                     </div>
                 </div>
-
-                <div class="explorer-status-bar">
-                    <div class="status-left selection-count-display"></div>
-                    <div class="status-center">{{strings.statusready}}</div>
-                    <div class="status-right">
-                        <span class="item-count-display"></span>
-                        <span class="status-details">{{strings.statusdetails}}</span>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
     </div>
 </div>
-
-{{#js}}
-require(['jquery'], function($) {
-    var containerId = '{{id}}';
-    var container = $('#' + containerId);
-    var currentView = 'grid';
-    var currentSort = 'name-asc';
-    var currentFilter = 'all';
-    var currentPath = '';
-    var searchTerm = '';
-    var rootName = decodeHtml(container.attr('data-root-name') || '');
-    var strings = {{{stringsjson}}};
-
-    var searchInput = container.find('.folder-search-input');
-    var searchClear = container.find('.search-clear');
-    var navButtonBack = container.find('.nav-button-back');
-    var navButtonForward = container.find('.nav-button-forward');
-    var navButtonUp = container.find('.nav-button-up');
-    var navigationHistory = [''];
-    var historyIndex = 0;
-
-    initialiseTree();
-    setCurrentPath('', {initial: true});
-
-    container.find('.ribbon-tab').on('click', function() {
-        var tab = $(this);
-        var panelName = tab.data('panel');
-        container.find('.ribbon-tab').removeClass('active').attr('aria-selected', false);
-        tab.addClass('active').attr('aria-selected', true);
-        container.find('.ribbon-panel').removeClass('active').attr('hidden', true);
-        container.find('.ribbon-panel[data-panel="' + panelName + '"]').addClass('active').attr('hidden', false);
-    });
-
-    container.find('.view-toggle').on('click', function() {
-        currentView = $(this).data('view');
-        container.find('.view-toggle').removeClass('active');
-        $(this).addClass('active');
-        applyFiltersAndSort();
-    });
-
-    searchInput.on('input', function() {
-        searchTerm = $(this).val().toLowerCase().trim();
-        if (searchTerm.length > 0) {
-            searchClear.show();
-        } else {
-            searchClear.hide();
-        }
-        applyFiltersAndSort();
-    });
-
-    searchClear.on('click', function() {
-        searchInput.val('');
-        searchTerm = '';
-        $(this).hide();
-        applyFiltersAndSort();
-    });
-
-    container.find('.clear-search-btn').on('click', function() {
-        searchInput.val('');
-        searchTerm = '';
-        searchClear.hide();
-        applyFiltersAndSort();
-    });
-
-    container.find('.folder-sort-select').on('change', function() {
-        currentSort = $(this).val();
-        applyFiltersAndSort();
-    });
-
-    container.find('.folder-filter-select').on('change', function() {
-        currentFilter = $(this).val();
-        applyFiltersAndSort();
-    });
-
-    container.on('click', '.folder-tree-toggle', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var node = $(this).closest('.folder-tree-node');
-        var willExpand = !node.hasClass('expanded');
-        node.toggleClass('expanded', willExpand).toggleClass('collapsed', !willExpand);
-        $(this).attr('aria-expanded', willExpand);
-    });
-
-    container.on('click', '.folder-tree-label', function(e) {
-        e.preventDefault();
-        var node = $(this).closest('.folder-tree-node');
-        var path = node.attr('data-path') || '';
-        if (node.hasClass('has-children')) {
-            node.addClass('expanded').removeClass('collapsed');
-            var toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
-            if (toggle.length) {
-                toggle.attr('aria-expanded', true);
-            }
-        }
-        setCurrentPath(path);
-    });
-
-    container.on('click', '.breadcrumb-button', function(e) {
-        e.preventDefault();
-        if ($(this).is(':disabled')) {
-            return;
-        }
-        var path = $(this).attr('data-path') || '';
-        setCurrentPath(path);
-    });
-
-    navButtonBack.on('click', function() {
-        if ($(this).is(':disabled')) {
-            return;
-        }
-        if (historyIndex > 0) {
-            historyIndex--;
-            setCurrentPath(navigationHistory[historyIndex], {fromHistory: true});
-        }
-    });
-
-    navButtonForward.on('click', function() {
-        if ($(this).is(':disabled')) {
-            return;
-        }
-        if (historyIndex < navigationHistory.length - 1) {
-            historyIndex++;
-            setCurrentPath(navigationHistory[historyIndex], {fromHistory: true});
-        }
-    });
-
-    navButtonUp.on('click', function() {
-        if ($(this).is(':disabled')) {
-            return;
-        }
-        var parentPath = getParentPath(currentPath);
-        setCurrentPath(parentPath);
-    });
-
-    function initialiseTree() {
-        container.find('.folder-tree-node.has-children').each(function() {
-            var node = $(this);
-            if (!node.hasClass('expanded')) {
-                node.addClass('collapsed');
-            }
-            var toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
-            if (toggle.length) {
-                toggle.attr('aria-expanded', node.hasClass('expanded'));
-            }
-        });
-    }
-
-    function setCurrentPath(path, options) {
-        options = options || {};
-        var normalisedPath = normalisePath(path);
-
-        if (options.initial) {
-            navigationHistory = [normalisedPath];
-            historyIndex = 0;
-        } else if (!options.fromHistory) {
-            var currentHistoryPath = navigationHistory[historyIndex];
-            if (currentHistoryPath !== normalisedPath) {
-                navigationHistory = navigationHistory.slice(0, historyIndex + 1);
-                navigationHistory.push(normalisedPath);
-                historyIndex = navigationHistory.length - 1;
-            }
-        }
-
-        currentPath = normalisedPath;
-        container.find('.grid-item, .list-item, .details-item').removeClass('selected');
-        container.find('input[type="checkbox"]').prop('checked', false);
-        updateBreadcrumbs();
-        highlightTreeSelection();
-        applyFiltersAndSort();
-        updateNavigationButtons();
-    }
-
-    function normalisePath(path) {
-        if (!path) {
-            return '';
-        }
-        return String(path);
-    }
-
-    function updateNavigationButtons() {
-        navButtonBack.prop('disabled', historyIndex <= 0);
-        navButtonForward.prop('disabled', historyIndex >= navigationHistory.length - 1);
-        navButtonUp.prop('disabled', !currentPath);
-    }
-
-    function getParentPath(path) {
-        var normalised = normalisePath(path);
-        if (!normalised) {
-            return '';
-        }
-        var segments = normalised.split('/').filter(function(segment) {
-            return segment !== '';
-        });
-        segments.pop();
-        return segments.join('/');
-    }
-
-    function applyFiltersAndSort() {
-        var allItems = container.find('.grid-item, .list-item, .details-item');
-        var uniqueVisibleItems = {};
-        var uniqueInPath = {};
-        var gridMatches = [];
-        var listMatches = [];
-        var detailMatches = [];
-
-        allItems.each(function() {
-            var item = $(this);
-            var parentPath = item.attr('data-parent-path') || '';
-            var keyBase = parentPath + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
-
-            if (parentPath === currentPath) {
-                uniqueInPath[keyBase] = true;
-            }
-
-            var matches = parentPath === currentPath;
-
-            if (matches && searchTerm) {
-                var itemName = (item.data('name') || '').toString().toLowerCase();
-                if (itemName.indexOf(searchTerm) === -1) {
-                    matches = false;
-                }
-            }
-
-            if (matches && currentFilter !== 'all') {
-                var itemType = item.data('type');
-                var itemCategory = item.data('file-category');
-                if (currentFilter === 'folders') {
-                    matches = itemType === 'folder';
-                } else if (currentFilter === 'files') {
-                    matches = itemType === 'file';
-                } else if (currentFilter === 'images') {
-                    matches = itemCategory === 'image';
-                } else if (currentFilter === 'documents') {
-                    matches = itemCategory === 'document';
-                } else if (currentFilter === 'videos') {
-                    matches = itemCategory === 'video';
-                }
-            }
-
-            item.data('matches', matches);
-
-            if (matches) {
-                item.show();
-                if (item.hasClass('grid-item')) {
-                    gridMatches.push(item[0]);
-                } else if (item.hasClass('list-item')) {
-                    listMatches.push(item[0]);
-                } else if (item.hasClass('details-item')) {
-                    detailMatches.push(item[0]);
-                }
-                uniqueVisibleItems[keyBase] = true;
-            } else {
-                if (item.hasClass('selected')) {
-                    item.removeClass('selected');
-                    item.find('input[type="checkbox"]').prop('checked', false);
-                }
-                item.hide();
-            }
-        });
-
-        var visibleCount = Object.keys(uniqueVisibleItems).length;
-        var totalInPath = Object.keys(uniqueInPath).length;
-
-        sortItems(gridMatches, listMatches, detailMatches);
-        updateViewState();
-        updateEmptyStates(visibleCount, totalInPath);
-        updateItemCount();
-        updateSelectionCount();
-        container.find('.select-all').prop('checked', false);
-    }
-
-    function sortItems(gridItems, listItems, detailItems) {
-        var comparator = getComparator(currentSort);
-
-        sortNodeList(gridItems, comparator);
-        sortNodeList(listItems, comparator);
-        sortNodeList(detailItems, comparator);
-    }
-
-    function sortNodeList(nodes, comparator) {
-        if (!nodes.length) {
-            return;
-        }
-
-        nodes.sort(comparator);
-
-        var parent = $(nodes[0]).parent();
-        nodes.forEach(function(node) {
-            parent.append(node);
-        });
-    }
-
-    function getComparator(sort) {
-        var parts = sort.split('-');
-        var field = parts[0];
-        var direction = parts[1] || 'asc';
-        var multiplier = direction === 'asc' ? 1 : -1;
-
-        return function(a, b) {
-            var elA = $(a);
-            var elB = $(b);
-
-            if (field === 'name') {
-                return compareStrings(elA.data('name'), elB.data('name')) * multiplier;
-            }
-            if (field === 'type') {
-                return compareStrings(elA.data('type'), elB.data('type')) * multiplier;
-            }
-            if (field === 'size') {
-                return compareNumbers(elA.data('size-bytes'), elB.data('size-bytes')) * multiplier;
-            }
-            if (field === 'date') {
-                return compareNumbers(elA.data('modified-timestamp'), elB.data('modified-timestamp')) * multiplier;
-            }
-
-            return 0;
-        };
-    }
-
-    function compareStrings(a, b) {
-        var strA = (a || '').toString().toLowerCase();
-        var strB = (b || '').toString().toLowerCase();
-        if (strA < strB) {
-            return -1;
-        }
-        if (strA > strB) {
-            return 1;
-        }
-        return 0;
-    }
-
-    function compareNumbers(a, b) {
-        var numA = Number(a) || 0;
-        var numB = Number(b) || 0;
-        return numA - numB;
-    }
-
-    function updateViewState() {
-        container.find('.folder-content-grid, .folder-content-list, .folder-content-details').removeClass('active');
-        if (currentView === 'grid') {
-            container.find('.folder-content-grid').addClass('active');
-        } else if (currentView === 'list') {
-            container.find('.folder-content-list').addClass('active');
-        } else {
-            container.find('.folder-content-details').addClass('active');
-        }
-    }
-
-    function updateEmptyStates(visibleCount, totalInPath) {
-        var emptyMessage = container.find('.empty-folder-message');
-        var noResultsMessage = container.find('.no-results-message');
-
-        if (totalInPath === 0) {
-            emptyMessage.show();
-            noResultsMessage.hide();
-            container.find('.folder-content-views').hide();
-            return;
-        }
-
-        if (visibleCount === 0) {
-            emptyMessage.hide();
-            noResultsMessage.show();
-            container.find('.folder-content-views').hide();
-        } else {
-            emptyMessage.hide();
-            noResultsMessage.hide();
-            container.find('.folder-content-views').show();
-        }
-    }
-
-    function updateItemCount() {
-        var matchedItems = container.find('.grid-item, .list-item, .details-item').filter(function() {
-            return $(this).data('matches');
-        });
-        var unique = {};
-
-        matchedItems.each(function() {
-            var item = $(this);
-            var key = (item.attr('data-parent-path') || '') + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
-            if (!unique[key]) {
-                unique[key] = true;
-            }
-        });
-
-        var count = Object.keys(unique).length;
-        var display = formatString(strings.itemcounts, count);
-        container.find('.item-count-display').text(display);
-    }
-
-    function updateSelectionCount() {
-        var selected = container.find('.grid-item.selected, .list-item.selected, .details-item.selected');
-        var unique = {};
-
-        selected.each(function() {
-            var item = $(this);
-            var key = (item.attr('data-parent-path') || '') + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
-            if (!unique[key]) {
-                unique[key] = true;
-            }
-        });
-
-        var count = Object.keys(unique).length;
-        var label = count === 0 ? '' : formatString(strings.selectedcount, count);
-
-        var indicator = container.find('.selection-count-display');
-        indicator.text(label);
-    }
-
-    container.on('click', '.grid-item, .list-item, .details-item', function(e) {
-        var target = $(e.target);
-        if (target.is('input[type="checkbox"]')) {
-            return;
-        }
-
-        var item = $(this);
-        var checkbox = item.find('input[type="checkbox"]');
-        var isSelected = item.hasClass('selected');
-
-        if (e.ctrlKey || e.metaKey) {
-            item.toggleClass('selected', !isSelected);
-            checkbox.prop('checked', !isSelected);
-        } else if (e.shiftKey) {
-            multiSelectTo(item);
-        } else {
-            container.find('.grid-item, .list-item, .details-item').removeClass('selected');
-            container.find('input[type="checkbox"]').prop('checked', false);
-            item.addClass('selected');
-            checkbox.prop('checked', true);
-        }
-
-        updateSelectionCount();
-    });
-
-    container.on('dblclick', '.grid-item, .list-item, .details-item', function() {
-        var item = $(this);
-        var type = item.data('type');
-        if (type === 'folder') {
-            var folderPath = item.data('folder-path') || '';
-            setCurrentPath(folderPath);
-            return;
-        }
-        var url = item.data('url');
-        if (url) {
-            window.open(url, '_blank');
-        }
-    });
-
-    container.on('click', '.sortable', function() {
-        var sortBy = $(this).data('sort');
-        var currentOrder = 'asc';
-
-        if (currentSort.indexOf(sortBy) === 0) {
-            currentOrder = currentSort.endsWith('asc') ? 'desc' : 'asc';
-        }
-
-        currentSort = sortBy + '-' + currentOrder;
-        container.find('.folder-sort-select').val(currentSort);
-        container.find('.sortable .sort-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
-        if (currentOrder === 'asc') {
-            $(this).find('.sort-icon').removeClass('fa-sort').addClass('fa-sort-asc');
-        } else {
-            $(this).find('.sort-icon').removeClass('fa-sort').addClass('fa-sort-desc');
-        }
-        applyFiltersAndSort();
-    });
-
-    function updateBreadcrumbs() {
-        var breadcrumbs = container.find('.folder-breadcrumbs');
-        breadcrumbs.empty();
-
-        var nav = $('<nav/>', {'aria-label': strings.breadcrumbsaria});
-        var list = $('<ol/>', {'class': 'folder-breadcrumb-list'});
-
-        list.append(createBreadcrumbItem(rootName || strings.modulename, '', currentPath === ''));
-
-        var segments = decodePathSegments(currentPath);
-        var encodedSegments = currentPath ? currentPath.split('/') : [];
-        var accumulated = [];
-
-        for (var i = 0; i < encodedSegments.length; i++) {
-            accumulated.push(encodedSegments[i]);
-            var label = segments[i] || '';
-            var encodedPath = accumulated.join('/');
-            list.append(createBreadcrumbItem(label, encodedPath, i === encodedSegments.length - 1));
-        }
-
-        nav.append(list);
-        breadcrumbs.append(nav);
-    }
-
-    function createBreadcrumbItem(label, pathValue, isActive) {
-        var item = $('<li/>', {'class': 'folder-breadcrumb-item'});
-        var button = $('<button/>', {
-            'type': 'button',
-            'class': 'breadcrumb-button' + (isActive ? ' is-active' : ''),
-            'data-path': pathValue
-        }).text(label || rootName || strings.modulename);
-        if (isActive) {
-            button.attr('disabled', true);
-        }
-        item.append(button);
-        return item;
-    }
-
-    function highlightTreeSelection() {
-        var nodes = container.find('.folder-tree-node');
-        nodes.removeClass('active');
-        var target = nodes.filter(function() {
-            var nodePath = $(this).attr('data-path') || '';
-            return nodePath === currentPath;
-        }).first();
-
-        if (target.length) {
-            target.addClass('active');
-            target.parents('.folder-tree-node').each(function() {
-                var parentNode = $(this);
-                parentNode.addClass('expanded').removeClass('collapsed');
-                var toggle = parentNode.find('> .folder-tree-node-inner .folder-tree-toggle');
-                if (toggle.length) {
-                    toggle.attr('aria-expanded', true);
-                }
-            });
-        } else {
-            container.find('.folder-tree-node.is-root').addClass('active');
-        }
-    }
-
-    function formatString(template, data) {
-        if (typeof template !== 'string') {
-            return '';
-        }
-
-        if (data === undefined || data === null) {
-            return template.replace(/\{\$a(?:->[a-zA-Z0-9_]+)?\}/g, '');
-        }
-
-        if (typeof data !== 'object') {
-            return template.replace(/\{\$a\}/g, data);
-        }
-
-        return template.replace(/\{\$a(?:->([a-zA-Z0-9_]+))?\}/g, function(match, key) {
-            if (!key) {
-                if (Object.prototype.hasOwnProperty.call(data, 'a')) {
-                    return data.a;
-                }
-                return '';
-            }
-            return Object.prototype.hasOwnProperty.call(data, key) ? data[key] : '';
-        });
-    }
-
-    function updateSelectionState(item, selected) {
-        item.toggleClass('selected', selected);
-        item.find('input[type="checkbox"]').prop('checked', selected);
-    }
-
-    function multiSelectTo(targetItem) {
-        var items = container.find('.grid-item:visible, .list-item:visible, .details-item:visible');
-        var firstSelected = items.filter('.selected').first();
-
-        if (!firstSelected.length) {
-            updateSelectionState(targetItem, true);
-            return;
-        }
-
-        var start = items.index(firstSelected);
-        var end = items.index(targetItem);
-
-        if (start > end) {
-            var temp = start;
-            start = end;
-            end = temp;
-        }
-
-        container.find('.grid-item, .list-item, .details-item').removeClass('selected');
-        container.find('input[type="checkbox"]').prop('checked', false);
-
-        items.slice(start, end + 1).each(function() {
-            updateSelectionState($(this), true);
-        });
-    }
-
-    container.on('change', '.select-all', function() {
-        var checked = $(this).is(':checked');
-        var visibleItems = container.find('.list-item:visible, .details-item:visible');
-        visibleItems.each(function() {
-            updateSelectionState($(this), checked);
-        });
-        updateSelectionCount();
-    });
-
-    function decodePathSegments(path) {
-        if (!path) {
-            return [];
-        }
-        return path.split('/').map(function(segment) {
-            try {
-                return decodeURIComponent(segment);
-            } catch (e) {
-                return segment;
-            }
-        });
-    }
-
-    function decodeHtml(html) {
-        var textarea = document.createElement('textarea');
-        textarea.innerHTML = html;
-        return textarea.value;
-    }
-});
-{{/js}}
