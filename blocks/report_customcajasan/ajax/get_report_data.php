@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AJAX endpoint to get report data - Optimizado para mejor rendimiento
+ * AJAX endpoint to get report data
  *
  * @package    block_report_customcajasan
  * @copyright  2025 Cajasan
@@ -27,59 +27,93 @@ define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->dirroot . '/blocks/report_customcajasan/lib.php');
 
-// Aumentar límites para permitir procesamiento de grandes conjuntos de datos
 if (function_exists('set_time_limit')) {
-    set_time_limit(300); // 5 minutos para AJAX
+    set_time_limit(300);
 }
-// Aumentar límite de memoria usando la configuración definida por el administrador
 raise_memory_limit(MEMORY_EXTRA);
 
-// Check user login
 require_login(null, false);
 
 global $SESSION;
 
-// Verify sesskey with better error handling
 if (!confirm_sesskey()) {
-    $error = array(
+    echo json_encode([
         'success' => false,
         'error' => get_string('invalidsesskey', 'error')
-    );
-    echo json_encode($error);
+    ]);
     die();
 }
 
-// Check capability according to the context hierarchy.
-$systemcontext = context_system::instance();
 $blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
 $blockrestrictions = block_report_customcajasan_get_block_restrictions($blockinstanceid);
 
-$permissioncontext = $blockrestrictions['parentcontext'] ?? null;
-$haspermission = false;
-
-if ($permissioncontext instanceof context) {
-    $haspermission = block_report_customcajasan_user_has_view_capability($permissioncontext);
+$courseid = optional_param('courseid', 0, PARAM_INT);
+if ($courseid && $courseid != SITEID) {
+    $context = context_course::instance($courseid, IGNORE_MISSING);
+} else if (!empty($blockrestrictions['parentcontext'])) {
+    $context = $blockrestrictions['parentcontext'];
+} else {
+    $context = context_system::instance();
 }
 
-if (!$haspermission) {
-    $permissioncontext = $systemcontext;
-    $haspermission = block_report_customcajasan_user_has_view_capability($permissioncontext);
+if (!$context) {
+    $context = context_system::instance();
 }
 
-if (!$haspermission) {
-    $requiredcapability = block_report_customcajasan_get_required_capability_for_context(
-        block_report_customcajasan_resolve_access_context($permissioncontext)
-    );
-    $error = array(
+$hasaccess = false;
+
+try {
+    if ($context->contextlevel == CONTEXT_SYSTEM) {
+        $hasaccess = has_capability('moodle/site:config', $context);
+    } else if ($context->contextlevel == CONTEXT_COURSE) {
+        $hasaccess = has_capability('moodle/course:update', $context) ||
+                     has_capability('moodle/course:manageactivities', $context);
+        
+        // Verify block restrictions
+        if ($hasaccess && !empty($courseid)) {
+            $allowedcourses = $blockrestrictions['courses'];
+            $allowedcategories = $blockrestrictions['expandedcategories'];
+            
+            if (!empty($allowedcourses)) {
+                $courseallowed = in_array((int)$courseid, $allowedcourses, true);
+                
+                if (!$courseallowed && !empty($allowedcategories)) {
+                    $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+                    if ($coursecategory !== false) {
+                        $courseallowed = in_array((int)$coursecategory, $allowedcategories, true);
+                    }
+                }
+                
+                $hasaccess = $courseallowed;
+            } else if (!empty($allowedcategories)) {
+                $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+                if ($coursecategory !== false) {
+                    $hasaccess = in_array((int)$coursecategory, $allowedcategories, true);
+                } else {
+                    $hasaccess = false;
+                }
+            }
+        }
+    }
+    
+    if (!$hasaccess) {
+        throw new required_capability_exception(
+            $context,
+            'block/report_customcajasan:viewreport',
+            'nopermissions',
+            ''
+        );
+    }
+    
+} catch (Exception $e) {
+    echo json_encode([
         'success' => false,
-        'error' => get_string('nopermissions', 'error', $requiredcapability)
-    );
-    echo json_encode($error);
+        'error' => get_string('nopermissions', 'error')
+    ]);
     die();
 }
 
 try {
-    // Get filter parameters with consistent pattern
     global $DB;
 
     $filters = array(
@@ -119,7 +153,6 @@ try {
         $filters['course'] = 0;
     }
 
-    // Process date parameters
     if (!empty($filters['startdate'])) {
         $filters['startdate'] = strtotime($filters['startdate']);
     }
@@ -132,22 +165,17 @@ try {
     $filters['allowedcategories'] = $allowedcategories;
     $filters['blockinstanceid'] = $blockinstanceid;
 
-    // Store filters in session for download use
     $SESSION->report_customcajasan_filters = $filters;
     
-    // Pagination parameters
     $page = optional_param('page', 0, PARAM_INT);
     $perpage = optional_param('perpage', 100, PARAM_INT);
     
-    // Si perpage es 0, limitar a un máximo razonable para AJAX para evitar problemas de rendimiento
     if ($perpage == 0) {
-        $perpage = 1000; // Límite razonable para AJAX - el usuario todavía puede descargar todos usando la funcionalidad de descarga
+        $perpage = 1000;
     }
     
-    // Get total count using optimized query
     $totalcount = report_customcajasan_count_data($filters);
     
-    // Get only the records for the current page
     $limitfrom = $page * $perpage;
     $enrollments = report_customcajasan_get_data($filters, $limitfrom, $perpage);
 
@@ -170,7 +198,6 @@ try {
         }
     }
     
-    // Prepare HTML table
     $html = '';
     if (empty($enrollments)) {
         $html = html_writer::tag('div', 
@@ -181,7 +208,6 @@ try {
             get_string('total_records', 'block_report_customcajasan') . ': ' . $totalcount, 
             array('class' => 'font-weight-bold mb-2'));
         
-        // Table with reorganized columns
         $table = new html_table();
         $table->head = array(
             get_string('column_identificacion', 'block_report_customcajasan'),
@@ -198,22 +224,18 @@ try {
         );
         $table->data = array();
         
-        // Prepare data with links to courses
         foreach ($enrollments as $enrollment) {
-            // Create course link
             $curso_link = html_writer::link(
                 new moodle_url('/course/view.php', array('id' => $enrollment->courseid)),
                 $enrollment->curso,
                 array('target' => '_blank')
             );
             
-            // Ajustar último acceso para estado NO INICIADO
             $ultimo_acceso = $enrollment->ultimo_acceso;
             if ($enrollment->estado === 'NO INICIADO' || empty($ultimo_acceso)) {
                 $ultimo_acceso = get_string('never', 'block_report_customcajasan');
             }
             
-            // Add row with link and reorganized columns
             $table->data[] = array(
                 $enrollment->identificacion,
                 $enrollment->nombres,
@@ -234,7 +256,6 @@ try {
         
         $html .= html_writer::table($table);
         
-        // Add pagination HTML with data attributes for easier handling
         $baseurl = new moodle_url('/blocks/report_customcajasan/report.php', [
             'categoryid' => $filters['category'],
             'courseid' => $filters['course'],
@@ -250,20 +271,17 @@ try {
         $html .= custom_paging_bar($totalcount, $page, $perpage, $baseurl);
     }
     
-    // JSON response optimizado para tamaño
     $response = array(
         'success' => true,
         'html' => $html,
         'count' => $totalcount
     );
     
-    // Send JSON response - sin formato adicional para reducir tamaño
     echo json_encode($response);
     
 } catch (Exception $e) {
-    $error = array(
+    echo json_encode([
         'success' => false,
         'error' => 'Error processing data: ' . $e->getMessage()
-    );
-    echo json_encode($error);
+    ]);
 }

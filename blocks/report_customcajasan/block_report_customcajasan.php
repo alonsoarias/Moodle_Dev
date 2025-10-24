@@ -46,18 +46,18 @@ class block_report_customcajasan extends block_base {
     /** @var string Option key for displaying the status legend. */
     public const INFO_STATUS_LEGEND = 'statuslegend';
 
+    /** @var string Option key for selected course filters. */
+    public const CONFIG_COURSES = 'coursefilters';
+
+    /** @var string Option key for selected category filters. */
+    public const CONFIG_CATEGORIES = 'categoryfilters';
+
     /**
      * Initialize the block.
      */
     public function init() {
         $this->title = get_string('pluginname', 'block_report_customcajasan');
     }
-
-    /** @var string Option key for selected course filters. */
-    public const CONFIG_COURSES = 'coursefilters';
-
-    /** @var string Option key for selected category filters. */
-    public const CONFIG_CATEGORIES = 'categoryfilters';
 
     /**
      * Get the block content.
@@ -215,13 +215,21 @@ class block_report_customcajasan extends block_base {
      * @return bool
      */
     protected function user_has_view_permission(): bool {
-        $blockcontext = $this->resolve_block_context();
+        $pagecontext = $this->page->context;
 
-        if (!has_capability('block/report_customcajasan:viewblock', $blockcontext)) {
-            return false;
+        // En contexto de SISTEMA (página principal)
+        if ($pagecontext->contextlevel == CONTEXT_SYSTEM) {
+            return has_capability('moodle/site:config', $pagecontext);
         }
 
-        return block_report_customcajasan_user_has_view_capability($blockcontext);
+        // En contexto de CURSO
+        if ($pagecontext->contextlevel == CONTEXT_COURSE) {
+            // Verificar capacidades de edición
+            return has_capability('moodle/course:update', $pagecontext) ||
+                   has_capability('moodle/course:manageactivities', $pagecontext);
+        }
+
+        return false;
     }
 
     /**
@@ -230,7 +238,7 @@ class block_report_customcajasan extends block_base {
      * @return bool
      */
     protected function can_view_report(): bool {
-        return block_report_customcajasan_user_has_view_capability($this->resolve_block_context());
+        return $this->user_has_view_permission();
     }
 
     /**
@@ -253,7 +261,6 @@ class block_report_customcajasan extends block_base {
         return context_system::instance();
     }
 
-
     /**
      * Require additional capability checks before displaying the block.
      *
@@ -268,7 +275,6 @@ class block_report_customcajasan extends block_base {
         return parent::get_content_for_output($output);
     }
 
-
     /**
      * Specify which page formats this block can be displayed in.
      *
@@ -276,11 +282,11 @@ class block_report_customcajasan extends block_base {
      */
     public function applicable_formats() {
         return [
-            'admin' => true,
             'site-index' => true,
-            'my' => true,
+            'course-view' => true,
             'course' => true,
-            'course-index' => true
+            'my' => false,
+            'admin' => false,
         ];
     }
 
@@ -455,4 +461,3 @@ class block_report_customcajasan extends block_base {
         ];
     }
 }
-

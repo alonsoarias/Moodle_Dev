@@ -31,71 +31,121 @@ require_login();
 $systemcontext = context_system::instance();
 global $DB, $SESSION;
 
-// Determine the most relevant context for permission checks.
+// Get parameters
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $categoryid = optional_param('categoryid', 0, PARAM_INT);
 $blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
 
+// Get block restrictions
 $blockrestrictions = block_report_customcajasan_get_block_restrictions($blockinstanceid);
 $allowedcourses = $blockrestrictions['courses'];
 $allowedcategories = $blockrestrictions['expandedcategories'];
 
+// Determine context
 if ($courseid && $courseid != SITEID) {
-    $context = context_course::instance($courseid, IGNORE_MISSING);
+    $context = context_course::instance($courseid, MUST_EXIST);
 } else if ($categoryid) {
-    $context = context_coursecat::instance($categoryid, IGNORE_MISSING);
+    $context = context_coursecat::instance($categoryid, MUST_EXIST);
 } else if (!empty($blockrestrictions['parentcontext'])) {
     $context = $blockrestrictions['parentcontext'];
 } else {
     $context = $systemcontext;
 }
 
-if (!$context) {
-    $context = $systemcontext;
+// Verification logic based on context
+$hasaccess = false;
+
+if ($context->contextlevel == CONTEXT_SYSTEM) {
+    // In system context: only site administrators
+    $hasaccess = has_capability('moodle/site:config', $context);
+    
+} else if ($context->contextlevel == CONTEXT_COURSE) {
+    // In course context: users with editing permissions
+    $hasaccess = has_capability('moodle/course:update', $context) ||
+                 has_capability('moodle/course:manageactivities', $context);
+    
+    // If block has restrictions, verify the course is allowed
+    if ($hasaccess && !empty($allowedcourses)) {
+        $courseallowed = in_array((int)$courseid, $allowedcourses, true);
+        
+        // If not in allowed courses, check if its category is allowed
+        if (!$courseallowed && !empty($allowedcategories)) {
+            $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+            if ($coursecategory !== false) {
+                $courseallowed = in_array((int)$coursecategory, $allowedcategories, true);
+            }
+        }
+        
+        $hasaccess = $courseallowed;
+    } else if ($hasaccess && !empty($allowedcategories)) {
+        // If only categories are restricted, verify course belongs to allowed category
+        $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+        if ($coursecategory !== false) {
+            $hasaccess = in_array((int)$coursecategory, $allowedcategories, true);
+        } else {
+            $hasaccess = false;
+        }
+    }
+    
+} else if ($context->contextlevel == CONTEXT_COURSECAT) {
+    // In category context: only administrators
+    $hasaccess = has_capability('moodle/site:config', $systemcontext);
 }
 
-if (!empty($allowedcategories) && !empty($categoryid) && !in_array((int)$categoryid, $allowedcategories, true)) {
+// Throw exception if no access
+if (!$hasaccess) {
+    throw new required_capability_exception(
+        $context,
+        'block/report_customcajasan:viewreport',
+        'nopermissions',
+        ''
+    );
+}
+
+// Apply additional filters based on restrictions
+if (!empty($allowedcategories) && !empty($categoryid) && 
+    !in_array((int)$categoryid, $allowedcategories, true)) {
     $categoryid = 0;
 }
 
 if (!empty($courseid) && (!empty($allowedcourses) || !empty($allowedcategories))) {
-    $courseallowed = in_array((int)$courseid, $allowedcourses, true);
+    $courseallowed = false;
+    
+    if (!empty($allowedcourses)) {
+        $courseallowed = in_array((int)$courseid, $allowedcourses, true);
+    }
+    
     if (!$courseallowed && !empty($allowedcategories)) {
         $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
         if ($coursecategory !== false) {
             $courseallowed = in_array((int)$coursecategory, $allowedcategories, true);
         }
     }
+    
     if (!$courseallowed) {
         $courseid = 0;
     }
 }
 
 if (!empty($categoryid) && !empty($courseid) &&
-        !report_customcajasan_course_matches_category($courseid, $categoryid)) {
+    !report_customcajasan_course_matches_category($courseid, $categoryid)) {
     $courseid = 0;
 }
 
 if (empty($courseid) && $context->contextlevel === CONTEXT_COURSE) {
-    $context = !empty($blockrestrictions['parentcontext']) ? $blockrestrictions['parentcontext'] : $systemcontext;
+    $context = !empty($blockrestrictions['parentcontext']) ? 
+               $blockrestrictions['parentcontext'] : $systemcontext;
 }
 
 if (empty($categoryid) && $context->contextlevel === CONTEXT_COURSECAT) {
-    $context = !empty($blockrestrictions['parentcontext']) ? $blockrestrictions['parentcontext'] : $systemcontext;
+    $context = !empty($blockrestrictions['parentcontext']) ? 
+               $blockrestrictions['parentcontext'] : $systemcontext;
 }
 
-$accesscontext = block_report_customcajasan_resolve_access_context($context);
-
-if (!block_report_customcajasan_user_has_view_capability($context)) {
-    $requiredcapability = block_report_customcajasan_get_required_capability_for_context($accesscontext);
-    throw new required_capability_exception($accesscontext, $requiredcapability, 'nopermissions', '');
-}
-
-// Aumentar límites para permitir la generación de reportes grandes
+// Increase limits for large reports
 if (function_exists('set_time_limit')) {
-    set_time_limit(0); // Sin límite de tiempo para procesar reportes grandes
+    set_time_limit(0);
 }
-// Aumentar límite de memoria usando el valor definido por el administrador
 raise_memory_limit(MEMORY_EXTRA);
 
 // Page setup
@@ -132,56 +182,47 @@ $filter_selected = !empty($categoryid) || !empty($courseid) || !empty($idnumber)
 if ($download) {
     require_sesskey();
 
-    // Primero, verificar si hay filtros en la sesión
     $session_filters = isset($SESSION->report_customcajasan_filters) ?
         $SESSION->report_customcajasan_filters : array();
     
-    // Prepare filter parameters - Priorizar valores de URL, después valores de sesión
     $filters = array();
     
-    // Categoría
     if (!empty($categoryid)) {
         $filters['category'] = $categoryid;
     } else if (!empty($session_filters['category'])) {
         $filters['category'] = $session_filters['category'];
     }
     
-    // Curso
     if (!empty($courseid)) {
         $filters['course'] = $courseid;
     } else if (!empty($session_filters['course'])) {
         $filters['course'] = $session_filters['course'];
     }
     
-    // ID
     if (!empty($idnumber)) {
         $filters['idnumber'] = $idnumber;
     } else if (!empty($session_filters['idnumber'])) {
         $filters['idnumber'] = $session_filters['idnumber'];
     }
     
-    // Nombres
     if (!empty($firstname)) {
         $filters['firstname'] = $firstname;
     } else if (!empty($session_filters['firstname'])) {
         $filters['firstname'] = $session_filters['firstname'];
     }
     
-    // Apellidos
     if (!empty($lastname)) {
         $filters['lastname'] = $lastname;
     } else if (!empty($session_filters['lastname'])) {
         $filters['lastname'] = $session_filters['lastname'];
     }
     
-    // Estado
     if (!empty($estado)) {
         $filters['estado'] = $estado;
     } else if (!empty($session_filters['estado'])) {
         $filters['estado'] = $session_filters['estado'];
     }
     
-    // Fechas
     if (!empty($startdate)) {
         $filters['startdate'] = strtotime($startdate);
     } else if (!empty($session_filters['startdate'])) {
@@ -203,7 +244,6 @@ if ($download) {
     $filters['allowedcategories'] = $allowedcategories;
     $filters['blockinstanceid'] = $blockinstanceid;
     
-    // Verificar que al menos un filtro esté aplicado
     $has_filter = false;
     foreach ($filters as $key => $filter_value) {
         if (in_array($key, ['allowedcourses', 'allowedcategories', 'blockinstanceid'], true)) {
@@ -216,7 +256,6 @@ if ($download) {
     }
     
     if (!$has_filter) {
-        // Redireccionar a la página del reporte con un mensaje de error
         redirect(
             new moodle_url('/blocks/report_customcajasan/report.php', ['blockinstanceid' => $blockinstanceid]),
             get_string('filters_required', 'block_report_customcajasan'),
@@ -226,7 +265,6 @@ if ($download) {
         exit;
     }
     
-    // Para descargas, ahora usamos las nuevas funciones optimizadas, sin cargar todos los datos en memoria primero
     if ($format === 'csv') {
         report_customcajasan_export_csv($filters, 'enrollment_report');
     } else {
@@ -237,14 +275,13 @@ if ($download) {
             get_string('report_title', 'block_report_customcajasan')
         );
     }
-    // La función de exportación ya incluye exit(), por lo que no es necesario aquí
 }
 
 // Display form and report
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('report_title', 'block_report_customcajasan'));
 
-// Color codes for status - updated for new status values
+// Color codes for status
 echo html_writer::start_tag('div', array('class' => 'alert alert-info'));
 echo html_writer::tag('strong', get_string('status_explanation', 'block_report_customcajasan') . ': ');
 echo html_writer::tag('span', get_string('state_aprobado', 'block_report_customcajasan'), array('class' => 'badge badge-success p-2 mr-2'));
@@ -255,7 +292,6 @@ echo html_writer::empty_tag('br');
 echo html_writer::tag('small', get_string('status_note', 'block_report_customcajasan'));
 echo html_writer::end_tag('div');
 
-// Info text explaining that filters are required
 echo html_writer::tag('div', 
     html_writer::tag('p', 
         html_writer::tag('strong', get_string('filters_required', 'block_report_customcajasan')),
@@ -264,7 +300,7 @@ echo html_writer::tag('div',
     ['class' => 'alert alert-warning']
 );
 
-// Filter form - Remove form submission handler and set id for JavaScript
+// Filter form
 echo html_writer::start_tag('form', array('id' => 'report-form', 'method' => 'get', 'class' => 'mb-4'));
 echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'blockinstanceid', 'value' => $blockinstanceid));
 echo html_writer::start_div('container-fluid');
@@ -297,14 +333,14 @@ foreach ($courses as $course) {
 echo html_writer::select($courseoptions, 'courseid', $courseid, false, array('class' => 'form-control', 'id' => 'courseid'));
 echo html_writer::end_div();
 
-// Estado filter - with updated state options
+// Estado filter
 echo html_writer::start_div('col-md-4 mb-3');
 echo html_writer::tag('label', get_string('option_estado', 'block_report_customcajasan'), array('for' => 'estado'));
 $estadoptions = report_customcajasan_get_states();
 echo html_writer::select($estadoptions, 'estado', $estado, false, array('class' => 'form-control', 'id' => 'estado'));
 echo html_writer::end_div();
 
-echo html_writer::end_div(); // End first row
+echo html_writer::end_div();
 
 // Second row of filters
 echo html_writer::start_div('row');
@@ -325,7 +361,6 @@ echo html_writer::end_div();
 echo html_writer::start_div('col-md-4 mb-3');
 echo html_writer::tag('label', get_string('option_firstname', 'block_report_customcajasan'), array('for' => 'firstname'));
 
-// Alphabet filter for first name
 echo html_writer::start_div('alphabet-filter mt-1 mb-2');
 echo html_writer::tag('span', get_string('option_filter_by_letter', 'block_report_customcajasan') . ': ', array('class' => 'mr-1 small'));
 echo html_writer::link('#', get_string('option_all', 'block_report_customcajasan'), 
@@ -350,7 +385,6 @@ echo html_writer::end_div();
 echo html_writer::start_div('col-md-4 mb-3');
 echo html_writer::tag('label', get_string('option_lastname', 'block_report_customcajasan'), array('for' => 'lastname'));
 
-// Alphabet filter for last name
 echo html_writer::start_div('alphabet-filter mt-1 mb-2');
 echo html_writer::tag('span', get_string('option_filter_by_letter', 'block_report_customcajasan') . ': ', array('class' => 'mr-1 small'));
 echo html_writer::link('#', get_string('option_all', 'block_report_customcajasan'), 
@@ -371,7 +405,7 @@ echo html_writer::empty_tag('input', array(
 ));
 echo html_writer::end_div();
 
-echo html_writer::end_div(); // End second row
+echo html_writer::end_div();
 
 // Third row with date filters and submit button
 echo html_writer::start_div('row');
@@ -409,21 +443,20 @@ echo html_writer::empty_tag('input', array(
 ));
 echo html_writer::end_div();
 
-echo html_writer::end_div(); // End third row
-echo html_writer::end_div(); // End container-fluid
+echo html_writer::end_div();
+echo html_writer::end_div();
 echo html_writer::end_tag('form');
 
-// Results container - This will be updated via AJAX
+// Results container
 echo html_writer::start_div('report-results mb-4', array('id' => 'report-results'));
 
-// Show initial message if no filters selected
 if (!$filter_selected) {
     echo html_writer::tag('div', get_string('select_filter_first', 'block_report_customcajasan'), array('class' => 'alert alert-info'));
 }
 
-echo html_writer::end_div(); // End report-results
+echo html_writer::end_div();
 
-// Añadir el selector de registros por página
+// Per page selector
 echo html_writer::start_div('per-page-selector mb-3');
 echo html_writer::tag('label', get_string('records_per_page', 'block_report_customcajasan') . ':', array('for' => 'perpage', 'class' => 'mr-2'));
 $perpageoptions = array(
@@ -438,7 +471,7 @@ $perpageoptions = array(
 echo html_writer::select($perpageoptions, 'perpage', $perpage, false, array('class' => 'form-control d-inline w-auto', 'id' => 'perpage'));
 echo html_writer::end_div();
 
-// Download options - This stays static since downloads need a page refresh
+// Download options
 echo html_writer::start_div('download-options mt-3');
 echo html_writer::start_tag('form', array('id' => 'downloadForm', 'method' => 'get'));
 echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'blockinstanceid', 'value' => $blockinstanceid));
@@ -454,7 +487,6 @@ echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'estado
 echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'startdate', 'value' => $startdate));
 echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'enddate', 'value' => $enddate));
 
-// Añadir mensaje de aviso para descargas grandes
 if ($filter_selected) {
     $total_records = report_customcajasan_count_data(array(
         'category' => $categoryid,
@@ -493,8 +525,8 @@ echo '<button type="submit" name="download" value="1" class="btn btn-primary ml-
 echo get_string('btn_download', 'block_report_customcajasan');
 echo '</button>';
 
-echo html_writer::end_div(); // End form-group
+echo html_writer::end_div();
 echo html_writer::end_tag('form');
-echo html_writer::end_div(); // End download-options
+echo html_writer::end_div();
 
 echo $OUTPUT->footer();

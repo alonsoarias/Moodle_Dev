@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025101704;        // Ajustes de filtros dependientes por categoría
+$plugin->version   = 2025102401;        // Corrección sistema de permisos basado en contexto
 $plugin->requires  = 2022041900;        // Requires Moodle 4.0+
-$plugin->component = 'block_report_customcajasan'; // Full name of the plugin
+$plugin->component = 'block_report_customcajasan';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.8.0';           // Controles de acceso refinados y filtros por instancia
+$plugin->release   = '1.9.0';           // Sistema de permisos corregido para cursos y sistema
