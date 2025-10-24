@@ -1,143 +1,856 @@
 {{!
     This file is part of Moodle - http://moodle.org/
 
-    Moodle is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Moodle is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-}}
-{{!
+    Windows Explorer style template for the core folder module.
     @template mod_folder/folder
-
-    Template for displaying folder resource.
-
-    Classes required for JS:
-    * none
-
-    Data attributes required for JS:
-    * none
-
-    Example context (json):
-    {
-        "id": 42,
-        "showexpanded": true,
-        "buttons": {
-           "edit_button": {
-                "id": "edit_button",
-                "label": "Edit",
-                "url": "/mod/folder/edit.php",
-                "classes": "navitem"
-            },
-            "download_button": {
-                "id": "download_button",
-                "label": "Download",
-                "url": "/mod/folder/download.php",
-                "classes": "navitem"
-            }
-        },
-        "dir": [
-            {
-                "name": "Folder",
-                "icon": "<img src='icon' alt='alt'>",
-                "hassubdirs": true,
-                "subdirs": [
-                    {
-                        "name": "File1",
-                        "icon": "<img src='icon' alt='alt'>",
-                        "hassubdirs": false,
-                        "subdirs": null
-                     }
-                ]
-            },
-            {
-                "name": "File2",
-                "icon": "<img src='icon' alt='alt'>",
-                "hassubdirs": false,
-                "subdirs": null
-            }
-        ]
-    }
+    @package   mod_folder
 }}
 
-<div class="flex-fill description-inner text-break folder-explorer">
-    <div class="explorer-titlebar">
-        <span class="explorer-title">{{#str}}explorertitle, mod_folder{{/str}}</span>
-        <span class="explorer-current">{{{name}}}</span>
+<div class="folder-container-onedrive folder-explorer-container" id="{{id}}" data-root-name="{{rootname}}">
+
+    {{! Intro }}
+    {{#intro}}
+    <div class="folder-intro">
+        {{{intro}}}
     </div>
-    {{{intro}}}
-    <div class="explorer-toolbar">
-        {{#hasbuttons}}
-            <div class="explorer-actions">
-                {{#edit_button}}
-                    {{>core/single_button}}
-                {{/edit_button}}
-                {{#download_button}}
-                    {{>core/single_button}}
-                {{/download_button}}
-            </div>
-        {{/hasbuttons}}
-        <div class="explorer-address-bar">
-            <span class="explorer-address-label">{{#str}}exploreraddress, mod_folder{{/str}}</span>
-            <span class="explorer-address">{{{address}}}</span>
+    {{/intro}}
+
+    {{! Buttons }}
+    {{#hasbuttons}}
+    <div class="folder-header-actions">
+        <div class="btn-group">
+            {{#edit_button}}
+                {{>core/single_button}}
+            {{/edit_button}}
+            {{#download_button}}
+                {{>core/single_button}}
+            {{/download_button}}
         </div>
     </div>
-    <div class="explorer-body">
-        <aside class="explorer-tree" aria-label="{{#str}}explorertree, mod_folder{{/str}}">
-            <div id="{{{id}}}" class="filemanager explorer-treeview">
-                {{#dir}}
-                    <ul>
-                        <li>
-                            {{>mod_folder/tree}}
-                        </li>
-                    </ul>
-                {{/dir}}
+    {{/hasbuttons}}
+
+    <div class="folder-explorer-shell">
+        {{#has_tree}}
+        <aside class="folder-navigation" aria-label="{{strings.navigationaria}}">
+            <div class="navigation-header">{{strings.navigationheader}}</div>
+            <div class="folder-tree-scroll">
+                <ul class="folder-tree-list">
+                    {{#tree}}
+                        {{> mod_folder/tree}}
+                    {{/tree}}
+                </ul>
             </div>
         </aside>
-        <section class="explorer-details" aria-label="{{#str}}explorercontents, mod_folder{{/str}}">
-            <header class="explorer-details-header">
-                <span class="column-name">{{#str}}explorercolumnname, mod_folder{{/str}}</span>
-                <span class="column-modified">{{#str}}explorercolumndate, mod_folder{{/str}}</span>
-                <span class="column-type">{{#str}}explorercolumntype, mod_folder{{/str}}</span>
-                <span class="column-size">{{#str}}explorercolumnsize, mod_folder{{/str}}</span>
-            </header>
-            <div class="explorer-details-body">
-                {{#items}}
-                    <div class="explorer-details-row{{#isdir}} is-directory{{/isdir}}">
-                        <span class="column-name">
-                            <span class="fp-icon">{{{icon}}}</span>
-                            <span class="fp-filename">
-                                {{#url}}
-                                    <a href="{{url}}">{{{name}}}</a>
-                                {{/url}}
-                                {{^url}}
-                                    {{{name}}}
-                                {{/url}}
-                            </span>
-                        </span>
-                        <span class="column-modified">{{modified}}</span>
-                        <span class="column-type">{{type}}</span>
-                        <span class="column-size">{{size}}</span>
-                    </div>
-                {{/items}}
-                {{^hasitems}}
-                    <div class="explorer-empty">{{#str}}explorerempty, mod_folder{{/str}}</div>
-                {{/hasitems}}
+        {{/has_tree}}
+
+        <div class="folder-main-panel">
+            <div class="folder-header-bar">
+                <div class="folder-navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
+                    <button type="button" class="nav-button nav-button-back" title="{{strings.navbacktitle}}" aria-label="{{strings.navbackaria}}" disabled>
+                        <i class="fa fa-arrow-left"></i>
+                    </button>
+                    <button type="button" class="nav-button nav-button-forward" title="{{strings.navforwardtitle}}" aria-label="{{strings.navforwardaria}}" disabled>
+                        <i class="fa fa-arrow-right"></i>
+                    </button>
+                    <button type="button" class="nav-button nav-button-up" title="{{strings.navuptitle}}" aria-label="{{strings.navuparia}}" disabled>
+                        <i class="fa fa-level-up"></i>
+                    </button>
+                </div>
+                <div class="folder-breadcrumbs" role="navigation" aria-label="{{strings.breadcrumbsaria}}"></div>
             </div>
-        </section>
+
+            {{! Search and Controls Bar }}
+            <div class="folder-controls-bar">
+                <div class="controls-left">
+                    <div class="search-box">
+                        <i class="fa fa-search"></i>
+                        <input type="text"
+                               class="folder-search-input"
+                               placeholder="{{strings.searchplaceholder}}"
+                               aria-label="{{strings.searcharia}}">
+                        <button class="search-clear" style="display:none;">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="controls-right">
+                    <div class="sort-controls">
+                        <label class="sort-label">{{strings.sortlabel}}</label>
+                        <select class="folder-sort-select">
+                            <option value="name-asc">{{strings.sortnameasc}}</option>
+                            <option value="name-desc">{{strings.sortnamedesc}}</option>
+                            <option value="date-desc">{{strings.sortdatenewest}}</option>
+                            <option value="date-asc">{{strings.sortdateoldest}}</option>
+                            <option value="type-asc">{{strings.sorttypeasc}}</option>
+                            <option value="type-desc">{{strings.sorttypedesc}}</option>
+                            <option value="size-desc">{{strings.sortsizedesc}}</option>
+                            <option value="size-asc">{{strings.sortsizeasc}}</option>
+                        </select>
+                    </div>
+                    <div class="filter-controls">
+                        <label class="filter-label">{{strings.filterlabel}}</label>
+                        <select class="folder-filter-select">
+                            <option value="all">{{strings.filterall}}</option>
+                            <option value="folders">{{strings.filterfolders}}</option>
+                            <option value="files">{{strings.filterfiles}}</option>
+                            <option value="images">{{strings.filterimages}}</option>
+                            <option value="documents">{{strings.filterdocuments}}</option>
+                            <option value="videos">{{strings.filtervideos}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {{! Toolbar }}
+            <div class="folder-toolbar-onedrive">
+                <div class="toolbar-left">
+                    <button class="btn btn-sm view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
+                        <i class="fa fa-th"></i>
+                    </button>
+                    <button class="btn btn-sm view-toggle" data-view="list" title="{{strings.viewlist}}">
+                        <i class="fa fa-list"></i>
+                    </button>
+                    <button class="btn btn-sm view-toggle" data-view="details" title="{{strings.viewdetails}}">
+                        <i class="fa fa-th-list"></i>
+                    </button>
+                </div>
+                <div class="toolbar-right">
+                    <span class="item-count-display"></span>
+                    <span class="selection-count-display" style="display:none;"></span>
+                </div>
+            </div>
+
+            <div class="folder-content-views">
+                <div class="folder-content-grid active">
+                    <div class="grid-container">
+                        {{#items}}
+                        <div class="grid-item {{#is_folder}}item-folder{{/is_folder}}{{#is_file}}item-file{{/is_file}}"
+                             data-name="{{name}}"
+                             data-type="{{type}}"
+                             data-extension="{{extension}}"
+                             data-size-bytes="{{size_bytes}}"
+                             data-modified-timestamp="{{modified_timestamp}}"
+                             data-file-category="{{file_category}}"
+                             data-parent-path="{{parent_path_encoded}}"
+                             {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
+                             {{#url}}data-url="{{{url}}}"{{/url}}>
+
+                            <div class="item-checkbox">
+                                <input type="checkbox" aria-label="{{#str}}selectitem, mod_folder, {{name}}{{/str}}">
+                            </div>
+
+                            <div class="item-icon {{icon_class}}">
+                                {{{icon}}}
+                            </div>
+
+                            <div class="item-details">
+                                <div class="item-name" title="{{name}}">{{name}}</div>
+                                {{#is_file}}
+                                <div class="item-meta">
+                                    <span class="item-size">{{size}}</span>
+                                    <span class="item-modified">{{modified}}</span>
+                                </div>
+                                {{/is_file}}
+                            </div>
+                        </div>
+                        {{/items}}
+                    </div>
+                </div>
+
+                <div class="folder-content-list">
+                    <table class="table table-hover folder-table-list">
+                        <thead>
+                            <tr>
+                                <th width="30"><input type="checkbox" class="select-all"></th>
+                                <th>{{strings.tableheadername}}</th>
+                                <th width="100">{{strings.tableheadertype}}</th>
+                                <th width="100">{{strings.tableheadersize}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#items}}
+                            <tr class="list-item"
+                                data-name="{{name}}"
+                                data-type="{{type}}"
+                                data-extension="{{extension}}"
+                                data-size-bytes="{{size_bytes}}"
+                                data-modified-timestamp="{{modified_timestamp}}"
+                                data-file-category="{{file_category}}"
+                                data-parent-path="{{parent_path_encoded}}"
+                                {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
+                                {{#url}}data-url="{{{url}}}"{{/url}}>
+                                <td><input type="checkbox"></td>
+                                <td>
+                                    <span class="list-icon {{icon_class}}">{{{icon}}}</span>
+                                    <span class="list-name">{{name}}</span>
+                                </td>
+                                <td>{{type}}</td>
+                                <td>{{size}}</td>
+                            </tr>
+                            {{/items}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="folder-content-details">
+                    <table class="table table-hover folder-table-details">
+                        <thead>
+                            <tr>
+                                <th width="30"><input type="checkbox" class="select-all"></th>
+                                <th class="sortable" data-sort="name">
+                                    {{strings.tableheadername}} <i class="fa fa-sort sort-icon"></i>
+                                </th>
+                                <th width="150" class="sortable" data-sort="date">
+                                    {{strings.tableheaderdatemodified}} <i class="fa fa-sort sort-icon"></i>
+                                </th>
+                                <th width="100" class="sortable" data-sort="type">
+                                    {{strings.tableheadertype}} <i class="fa fa-sort sort-icon"></i>
+                                </th>
+                                <th width="100" class="sortable" data-sort="size">
+                                    {{strings.tableheadersize}} <i class="fa fa-sort sort-icon"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#items}}
+                            <tr class="details-item"
+                                data-name="{{name}}"
+                                data-type="{{type}}"
+                                data-extension="{{extension}}"
+                                data-size-bytes="{{size_bytes}}"
+                                data-modified-timestamp="{{modified_timestamp}}"
+                                data-file-category="{{file_category}}"
+                                data-parent-path="{{parent_path_encoded}}"
+                                {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
+                                {{#url}}data-url="{{{url}}}"{{/url}}>
+                                <td><input type="checkbox"></td>
+                                <td>
+                                    <span class="details-icon {{icon_class}}">{{{icon}}}</span>
+                                    <span class="details-name">{{name}}</span>
+                                </td>
+                                <td class="text-muted">{{modified}}</td>
+                                <td class="text-muted">{{type}}</td>
+                                <td class="text-muted">{{size}}</td>
+                            </tr>
+                            {{/items}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="empty-folder-message" style="display:none;">
+                <div class="empty-state">
+                    <i class="fa fa-folder-open-o fa-5x"></i>
+                    <p>{{strings.emptyfolder}}</p>
+                </div>
+            </div>
+
+            <div class="no-results-message" style="display:none;">
+                <div class="empty-state">
+                    <i class="fa fa-search fa-5x"></i>
+                    <p>{{strings.noresults}}</p>
+                    <button class="btn btn-secondary clear-search-btn">{{strings.clearsearch}}</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 {{#js}}
-    // Init tree JS.
-    require(['mod_folder/folder'], function(Folder) {
-        Folder.initTree('{{{id}}}', '{{{showexpanded}}}');
+require(['jquery'], function($) {
+    var containerId = '{{id}}';
+    var container = $('#' + containerId);
+    var currentView = 'grid';
+    var currentSort = 'name-asc';
+    var currentFilter = 'all';
+    var currentPath = '';
+    var searchTerm = '';
+    var rootName = decodeHtml(container.attr('data-root-name') || '');
+    var strings = {{{stringsjson}}};
+
+    var searchInput = container.find('.folder-search-input');
+    var searchClear = container.find('.search-clear');
+    var navButtonBack = container.find('.nav-button-back');
+    var navButtonForward = container.find('.nav-button-forward');
+    var navButtonUp = container.find('.nav-button-up');
+    var navigationHistory = [''];
+    var historyIndex = 0;
+
+    initialiseTree();
+    setCurrentPath('', {initial: true});
+
+    // View toggle.
+    container.find('.view-toggle').on('click', function() {
+        currentView = $(this).data('view');
+        container.find('.view-toggle').removeClass('active');
+        $(this).addClass('active');
+        applyFiltersAndSort();
     });
+
+    // Search functionality.
+    searchInput.on('input', function() {
+        searchTerm = $(this).val().toLowerCase().trim();
+        if (searchTerm.length > 0) {
+            searchClear.show();
+        } else {
+            searchClear.hide();
+        }
+        applyFiltersAndSort();
+    });
+
+    searchClear.on('click', function() {
+        searchInput.val('');
+        searchTerm = '';
+        $(this).hide();
+        applyFiltersAndSort();
+    });
+
+    container.find('.clear-search-btn').on('click', function() {
+        searchInput.val('');
+        searchTerm = '';
+        searchClear.hide();
+        applyFiltersAndSort();
+    });
+
+    // Sort functionality.
+    container.find('.folder-sort-select').on('change', function() {
+        currentSort = $(this).val();
+        applyFiltersAndSort();
+    });
+
+    // Filter functionality.
+    container.find('.folder-filter-select').on('change', function() {
+        currentFilter = $(this).val();
+        applyFiltersAndSort();
+    });
+
+    // Tree interactions.
+    container.on('click', '.folder-tree-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var node = $(this).closest('.folder-tree-node');
+        var willExpand = !node.hasClass('expanded');
+        node.toggleClass('expanded', willExpand).toggleClass('collapsed', !willExpand);
+        $(this).attr('aria-expanded', willExpand);
+    });
+
+    container.on('click', '.folder-tree-label', function(e) {
+        e.preventDefault();
+        var node = $(this).closest('.folder-tree-node');
+        var path = node.attr('data-path') || '';
+        if (node.hasClass('has-children')) {
+            node.addClass('expanded').removeClass('collapsed');
+            var toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
+            if (toggle.length) {
+                toggle.attr('aria-expanded', true);
+            }
+        }
+        setCurrentPath(path);
+    });
+
+    // Breadcrumb navigation.
+    container.on('click', '.breadcrumb-button', function(e) {
+        e.preventDefault();
+        if ($(this).is(':disabled')) {
+            return;
+        }
+        var path = $(this).attr('data-path') || '';
+        setCurrentPath(path);
+    });
+
+    // Navigation buttons.
+    navButtonBack.on('click', function() {
+        if ($(this).is(':disabled')) {
+            return;
+        }
+        if (historyIndex > 0) {
+            historyIndex--;
+            setCurrentPath(navigationHistory[historyIndex], {fromHistory: true});
+        }
+    });
+
+    navButtonForward.on('click', function() {
+        if ($(this).is(':disabled')) {
+            return;
+        }
+        if (historyIndex < navigationHistory.length - 1) {
+            historyIndex++;
+            setCurrentPath(navigationHistory[historyIndex], {fromHistory: true});
+        }
+    });
+
+    navButtonUp.on('click', function() {
+        if ($(this).is(':disabled')) {
+            return;
+        }
+        var parentPath = getParentPath(currentPath);
+        setCurrentPath(parentPath);
+    });
+
+    function initialiseTree() {
+        container.find('.folder-tree-node.has-children').each(function() {
+            var node = $(this);
+            if (!node.hasClass('expanded')) {
+                node.addClass('collapsed');
+            }
+            var toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
+            if (toggle.length) {
+                toggle.attr('aria-expanded', node.hasClass('expanded'));
+            }
+        });
+    }
+
+    function setCurrentPath(path, options) {
+        options = options || {};
+        var normalisedPath = normalisePath(path);
+
+        if (options.initial) {
+            navigationHistory = [normalisedPath];
+            historyIndex = 0;
+        } else if (!options.fromHistory) {
+            var currentHistoryPath = navigationHistory[historyIndex];
+            if (currentHistoryPath !== normalisedPath) {
+                navigationHistory = navigationHistory.slice(0, historyIndex + 1);
+                navigationHistory.push(normalisedPath);
+                historyIndex = navigationHistory.length - 1;
+            }
+        }
+
+        currentPath = normalisedPath;
+        container.find('.grid-item, .list-item, .details-item').removeClass('selected');
+        container.find('input[type="checkbox"]').prop('checked', false);
+        updateBreadcrumbs();
+        highlightTreeSelection();
+        applyFiltersAndSort();
+        updateNavigationButtons();
+    }
+
+    function normalisePath(path) {
+        if (!path) {
+            return '';
+        }
+        return String(path);
+    }
+
+    function updateNavigationButtons() {
+        navButtonBack.prop('disabled', historyIndex <= 0);
+        navButtonForward.prop('disabled', historyIndex >= navigationHistory.length - 1);
+        navButtonUp.prop('disabled', !currentPath);
+    }
+
+    function getParentPath(path) {
+        var normalised = normalisePath(path);
+        if (!normalised) {
+            return '';
+        }
+        var segments = normalised.split('/').filter(function(segment) {
+            return segment !== '';
+        });
+        segments.pop();
+        return segments.join('/');
+    }
+
+    function applyFiltersAndSort() {
+        var allItems = container.find('.grid-item, .list-item, .details-item');
+        var uniqueVisibleItems = {};
+        var uniqueInPath = {};
+        var gridMatches = [];
+        var listMatches = [];
+        var detailMatches = [];
+
+        allItems.each(function() {
+            var item = $(this);
+            var parentPath = item.attr('data-parent-path') || '';
+            var keyBase = parentPath + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
+
+            if (parentPath === currentPath) {
+                uniqueInPath[keyBase] = true;
+            }
+
+            var matches = parentPath === currentPath;
+
+            if (matches && searchTerm) {
+                var itemName = (item.data('name') || '').toString().toLowerCase();
+                if (itemName.indexOf(searchTerm) === -1) {
+                    matches = false;
+                }
+            }
+
+            if (matches && currentFilter !== 'all') {
+                var itemType = item.data('type');
+                var itemCategory = item.data('file-category');
+                if (currentFilter === 'folders') {
+                    matches = itemType === 'folder';
+                } else if (currentFilter === 'files') {
+                    matches = itemType === 'file';
+                } else if (currentFilter === 'images') {
+                    matches = itemCategory === 'image';
+                } else if (currentFilter === 'documents') {
+                    matches = itemCategory === 'document';
+                } else if (currentFilter === 'videos') {
+                    matches = itemCategory === 'video';
+                }
+            }
+
+            item.data('matches', matches);
+
+            if (matches) {
+                item.show();
+                if (item.hasClass('grid-item')) {
+                    gridMatches.push(item[0]);
+                } else if (item.hasClass('list-item')) {
+                    listMatches.push(item[0]);
+                } else if (item.hasClass('details-item')) {
+                    detailMatches.push(item[0]);
+                }
+                uniqueVisibleItems[keyBase] = true;
+            } else {
+                if (item.hasClass('selected')) {
+                    item.removeClass('selected');
+                    item.find('input[type="checkbox"]').prop('checked', false);
+                }
+                item.hide();
+            }
+        });
+
+        var visibleCount = Object.keys(uniqueVisibleItems).length;
+        var totalInPath = Object.keys(uniqueInPath).length;
+
+        sortItems(gridMatches, listMatches, detailMatches);
+        updateEmptyStates(visibleCount, totalInPath);
+        updateItemCount();
+        updateSelectionCount();
+        container.find('.select-all').prop('checked', false);
+    }
+
+    function sortItems(gridItems, listItems, detailItems) {
+        var comparator = getComparator(currentSort);
+
+        sortNodeList(gridItems, comparator);
+        sortNodeList(listItems, comparator);
+        sortNodeList(detailItems, comparator);
+    }
+
+    function sortNodeList(nodes, comparator) {
+        if (!nodes.length) {
+            return;
+        }
+
+        nodes.sort(comparator);
+
+        var parent = $(nodes[0]).parent();
+        nodes.forEach(function(node) {
+            parent.append(node);
+        });
+    }
+
+    function getComparator(sort) {
+        var parts = sort.split('-');
+        var field = parts[0];
+        var direction = parts[1] || 'asc';
+        var multiplier = direction === 'asc' ? 1 : -1;
+
+        return function(a, b) {
+            var elA = $(a);
+            var elB = $(b);
+
+            if (field === 'name') {
+                return compareStrings(elA.data('name'), elB.data('name')) * multiplier;
+            }
+            if (field === 'type') {
+                return compareStrings(elA.data('type'), elB.data('type')) * multiplier;
+            }
+            if (field === 'size') {
+                return compareNumbers(elA.data('size-bytes'), elB.data('size-bytes')) * multiplier;
+            }
+            if (field === 'date') {
+                return compareNumbers(elA.data('modified-timestamp'), elB.data('modified-timestamp')) * multiplier;
+            }
+
+            return 0;
+        };
+    }
+
+    function compareStrings(a, b) {
+        var strA = (a || '').toString().toLowerCase();
+        var strB = (b || '').toString().toLowerCase();
+        if (strA < strB) {
+            return -1;
+        }
+        if (strA > strB) {
+            return 1;
+        }
+        return 0;
+    }
+
+    function compareNumbers(a, b) {
+        var numA = Number(a) || 0;
+        var numB = Number(b) || 0;
+        return numA - numB;
+    }
+
+    function updateEmptyStates(visibleCount, totalInPath) {
+        var emptyMessage = container.find('.empty-folder-message');
+        var noResultsMessage = container.find('.no-results-message');
+
+        if (totalInPath === 0) {
+            emptyMessage.show();
+            noResultsMessage.hide();
+            container.find('.folder-content-views').hide();
+            return;
+        }
+
+        if (visibleCount === 0) {
+            emptyMessage.hide();
+            noResultsMessage.show();
+            container.find('.folder-content-views').hide();
+        } else {
+            emptyMessage.hide();
+            noResultsMessage.hide();
+            container.find('.folder-content-views').show();
+        }
+    }
+
+    function updateItemCount() {
+        var matchedItems = container.find('.grid-item, .list-item, .details-item').filter(function() {
+            return $(this).data('matches');
+        });
+        var unique = {};
+
+        matchedItems.each(function() {
+            var item = $(this);
+            var key = (item.attr('data-parent-path') || '') + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
+            if (!unique[key]) {
+                unique[key] = true;
+            }
+        });
+
+        var count = Object.keys(unique).length;
+        var display = formatString(strings.itemcounts, count);
+        container.find('.item-count-display').text(display);
+    }
+
+    function updateSelectionCount() {
+        var selected = container.find('.grid-item.selected, .list-item.selected, .details-item.selected');
+        var unique = {};
+
+        selected.each(function() {
+            var item = $(this);
+            var key = (item.attr('data-parent-path') || '') + '::' + (item.data('name') || '') + '::' + (item.data('type') || '');
+            if (!unique[key]) {
+                unique[key] = true;
+            }
+        });
+
+        var count = Object.keys(unique).length;
+        var label = count === 0 ? '' : formatString(strings.selectedcount, count);
+
+        var indicator = container.find('.selection-count-display');
+        indicator.text(label);
+        indicator.toggle(count > 0);
+    }
+
+    container.on('click', '.grid-item, .list-item, .details-item', function(e) {
+        var target = $(e.target);
+        if (target.is('input[type="checkbox"]')) {
+            return;
+        }
+
+        var item = $(this);
+        var checkbox = item.find('input[type="checkbox"]');
+        var isSelected = item.hasClass('selected');
+
+        if (e.ctrlKey || e.metaKey) {
+            item.toggleClass('selected', !isSelected);
+            checkbox.prop('checked', !isSelected);
+        } else if (e.shiftKey) {
+            multiSelectTo(item);
+        } else {
+            container.find('.grid-item, .list-item, .details-item').removeClass('selected');
+            container.find('input[type="checkbox"]').prop('checked', false);
+            item.addClass('selected');
+            checkbox.prop('checked', true);
+        }
+
+        updateSelectionCount();
+    });
+
+    container.on('dblclick', '.grid-item, .list-item, .details-item', function(e) {
+        var item = $(this);
+        var type = item.data('type');
+        if (type === 'folder') {
+            var folderPath = item.data('folder-path') || '';
+            setCurrentPath(folderPath);
+            return;
+        }
+        var url = item.data('url');
+        if (url) {
+            window.open(url, '_blank');
+        }
+    });
+
+    // Details view header sorting.
+    container.on('click', '.sortable', function() {
+        var sortBy = $(this).data('sort');
+        var currentOrder = 'asc';
+
+        if (currentSort.indexOf(sortBy) === 0) {
+            currentOrder = currentSort.endsWith('asc') ? 'desc' : 'asc';
+        }
+
+        currentSort = sortBy + '-' + currentOrder;
+        container.find('.folder-sort-select').val(currentSort);
+        container.find('.sortable .sort-icon').removeClass('fa-sort-asc fa-sort-desc').addClass('fa-sort');
+        if (currentOrder === 'asc') {
+            $(this).find('.sort-icon').removeClass('fa-sort').addClass('fa-sort-asc');
+        } else {
+            $(this).find('.sort-icon').removeClass('fa-sort').addClass('fa-sort-desc');
+        }
+        applyFiltersAndSort();
+    });
+
+    function updateBreadcrumbs() {
+        var breadcrumbs = container.find('.folder-breadcrumbs');
+        breadcrumbs.empty();
+
+        var nav = $('<nav/>', {'aria-label': strings.breadcrumbsaria});
+        var list = $('<ol/>', {'class': 'folder-breadcrumb-list'});
+
+        list.append(createBreadcrumbItem(rootName || strings.modulename, '', currentPath === ''));
+
+        var segments = decodePathSegments(currentPath);
+        var encodedSegments = currentPath ? currentPath.split('/') : [];
+        var accumulated = [];
+
+        for (var i = 0; i < encodedSegments.length; i++) {
+            accumulated.push(encodedSegments[i]);
+            var label = segments[i] || '';
+            var encodedPath = accumulated.join('/');
+            list.append(createBreadcrumbItem(label, encodedPath, i === encodedSegments.length - 1));
+        }
+
+        nav.append(list);
+        breadcrumbs.append(nav);
+    }
+
+    function createBreadcrumbItem(label, pathValue, isActive) {
+        var item = $('<li/>', {'class': 'folder-breadcrumb-item'});
+        var button = $('<button/>', {
+            'type': 'button',
+            'class': 'breadcrumb-button' + (isActive ? ' is-active' : ''),
+            'data-path': pathValue
+        }).text(label || rootName || strings.modulename);
+        if (isActive) {
+            button.attr('disabled', true);
+        }
+        item.append(button);
+        return item;
+    }
+
+    function highlightTreeSelection() {
+        var nodes = container.find('.folder-tree-node');
+        nodes.removeClass('active');
+        var target = nodes.filter(function() {
+            var nodePath = $(this).attr('data-path') || '';
+            return nodePath === currentPath;
+        }).first();
+
+        if (target.length) {
+            target.addClass('active');
+            target.parents('.folder-tree-node').each(function() {
+                var parentNode = $(this);
+                parentNode.addClass('expanded').removeClass('collapsed');
+                var toggle = parentNode.find('> .folder-tree-node-inner .folder-tree-toggle');
+                if (toggle.length) {
+                    toggle.attr('aria-expanded', true);
+                }
+            });
+        } else {
+            container.find('.folder-tree-node.is-root').addClass('active');
+        }
+    }
+
+    function formatString(template, data) {
+        if (typeof template !== 'string') {
+            return '';
+        }
+
+        if (data === undefined || data === null) {
+            return template.replace(/\{\$a(?:->[a-zA-Z0-9_]+)?\}/g, '');
+        }
+
+        if (typeof data !== 'object') {
+            return template.replace(/\{\$a\}/g, data);
+        }
+
+        return template.replace(/\{\$a(?:->([a-zA-Z0-9_]+))?\}/g, function(match, key) {
+            if (!key) {
+                if (Object.prototype.hasOwnProperty.call(data, 'a')) {
+                    return data.a;
+                }
+                return '';
+            }
+            return Object.prototype.hasOwnProperty.call(data, key) ? data[key] : '';
+        });
+    }
+
+    function updateSelectionState(item, selected) {
+        item.toggleClass('selected', selected);
+        item.find('input[type="checkbox"]').prop('checked', selected);
+    }
+
+    function multiSelectTo(targetItem) {
+        var items = container.find('.grid-item:visible, .list-item:visible, .details-item:visible');
+        var firstSelected = items.filter('.selected').first();
+
+        if (!firstSelected.length) {
+            updateSelectionState(targetItem, true);
+            return;
+        }
+
+        var start = items.index(firstSelected);
+        var end = items.index(targetItem);
+
+        if (start > end) {
+            var temp = start;
+            start = end;
+            end = temp;
+        }
+
+        container.find('.grid-item, .list-item, .details-item').removeClass('selected');
+        container.find('input[type="checkbox"]').prop('checked', false);
+
+        items.slice(start, end + 1).each(function() {
+            updateSelectionState($(this), true);
+        });
+    }
+
+    container.on('change', '.select-all', function() {
+        var checked = $(this).is(':checked');
+        var visibleItems = container.find('.list-item:visible, .details-item:visible');
+        visibleItems.each(function() {
+            updateSelectionState($(this), checked);
+        });
+        updateSelectionCount();
+    });
+
+    function decodePathSegments(path) {
+        if (!path) {
+            return [];
+        }
+        return path.split('/').map(function(segment) {
+            try {
+                return decodeURIComponent(segment);
+            } catch (e) {
+                return segment;
+            }
+        });
+    }
+
+    function decodeHtml(html) {
+        var textarea = document.createElement('textarea');
+        textarea.innerHTML = html;
+        return textarea.value;
+    }
+});
 {{/js}}
