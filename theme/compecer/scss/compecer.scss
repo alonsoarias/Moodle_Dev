@@ -1163,3 +1163,295 @@ section.node-category {
 }
 
 
+
+/*******************
+  Course index redesign
+*******************/
+.compecer-courseindex-drawer {
+  padding: 1.5rem;
+  background-color: $white;
+  border-radius: 1rem;
+  border: 1px solid rgba($gray-400, 0.35);
+  box-shadow: 0 20px 40px rgba($black, 0.04);
+  color: $body-color;
+
+  .compecer-courseindex-drawer__title {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $title-blue;
+    margin-bottom: 0.25rem;
+  }
+
+  .compecer-courseindex-drawer__description {
+    margin: 0;
+    font-size: 0.875rem;
+    color: $gray-700;
+  }
+
+  .compecer-courseindex-drawer__content {
+    margin-top: 1.5rem;
+  }
+}
+
+.compecer-courseindex-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__header {
+    background: linear-gradient(135deg, rgba($primary-blue, 0.12), rgba($primary-blue, 0.04));
+    border-radius: 0.9rem;
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.compecer-courseindex-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__labels {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__title {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: $primary-blue;
+    font-weight: 600;
+  }
+
+  &__value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $title-blue;
+  }
+
+  .progress {
+    height: 0.65rem;
+    border-radius: 0.65rem;
+    overflow: hidden;
+    background-color: rgba($primary-blue, 0.2);
+
+    .progress-bar {
+      background: $primary-blue;
+      transition: width 0.3s ease;
+    }
+  }
+
+  &__summary {
+    font-size: 0.875rem;
+    color: $gray-700;
+  }
+}
+
+.compecer-courseindex-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .courseindex-section {
+    border-radius: 1rem;
+    background-color: $white;
+    border: 1px solid rgba($gray-400, 0.35);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &.current {
+      border-color: $primary-blue;
+      box-shadow: 0 18px 40px rgba($primary-blue, 0.12);
+    }
+  }
+
+  .courseindex-item {
+    padding: 1rem 1.25rem;
+  }
+
+  .compecer-courseindex-section__header {
+    gap: 1rem;
+
+    .courseindex-link {
+      font-weight: 600;
+      color: $title-blue;
+
+      &:hover,
+      &:focus {
+        color: darken($title-blue, 5%);
+        text-decoration: none;
+      }
+    }
+  }
+
+  .compecer-courseindex-section__toggle {
+    .courseindex-chevron {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 999px;
+      background-color: rgba($primary-blue, 0.12);
+      color: $primary-blue;
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      &:hover,
+      &:focus {
+        background-color: $primary-blue;
+        color: $white;
+      }
+
+      .collapsed-icon,
+      .expanded-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+
+        .icon {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  .compecer-courseindex-section__meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    .current-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+    }
+
+    .courseindex-locked {
+      display: inline-flex;
+      color: $gray-500;
+    }
+  }
+
+  .courseindex-item-content {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .courseindex-sectioncontent {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .courseindex-item {
+      border-radius: 0.85rem;
+      border: 1px solid rgba($gray-400, 0.3);
+      background-color: rgba($gray-100, 0.4);
+      padding: 0.9rem 1rem;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+
+      &:hover {
+        border-color: rgba($primary-blue, 0.4);
+        background-color: rgba($primary-blue, 0.08);
+      }
+    }
+  }
+
+  .compecer-courseindex-cm {
+    gap: 0.75rem;
+
+    &__status {
+      display: inline-flex;
+      align-items: center;
+
+      .completioninfo {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba($primary-blue, 0.12);
+        color: $primary-blue;
+        font-size: 1rem;
+
+        &.completion_incomplete {
+          background-color: rgba($warning, 0.2);
+          color: $warning;
+        }
+
+        &.completion_complete {
+          background-color: rgba($success, 0.18);
+          color: $success;
+        }
+
+        &.completion_fail {
+          background-color: rgba($danger, 0.16);
+          color: $danger;
+        }
+
+        img {
+          max-width: 1.1rem;
+        }
+      }
+    }
+
+    &__content .courseindex-link {
+      font-weight: 500;
+      color: $title-blue;
+
+      &:hover,
+      &:focus {
+        color: darken($title-blue, 5%);
+        text-decoration: none;
+      }
+    }
+
+    &__actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: $gray-500;
+
+      .dragicon {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+    }
+  }
+
+  .courseindex-item:hover .compecer-courseindex-cm__actions .dragicon,
+  &.editing .compecer-courseindex-cm__actions .dragicon {
+    opacity: 0.85;
+  }
+}
+
+.compecer-courseindex-empty {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  font-style: italic;
+  color: $gray-600;
+  background-color: rgba($gray-100, 0.5);
+  border-radius: 0.75rem;
+}
+
+@media (max-width: 767.98px) {
+  .compecer-courseindex-drawer {
+    padding: 1.25rem;
+  }
+
+  .compecer-courseindex-panel__header {
+    padding: 1rem 1.25rem;
+  }
+
+  .compecer-courseindex-progress__labels {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
