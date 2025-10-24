@@ -295,3 +295,10 @@ $string['breadcrumb'] = 'Breadcrumb';
 $string['opendrawernav'] = 'Open navigation drawer';
 $string['closedrawernav'] = 'Close navigation drawer';
 $string['sidebarcoursemenuheading'] = 'Course index';
+// Course index and progress strings.
+$string['courseindexoptions'] = 'Course index options';
+$string['courseprogresslabel'] = 'Course progress';
+$string['courseprogresssummary'] = 'Completed {$a->completed} of {$a->total} activities';
+$string['courseprogressaria'] = 'Course progress: {$a->percent}% complete. {$a->summary}';
+$string['courseprogressnotracked'] = 'Course completion tracking is not enabled for this course.';
+$string['courseprogressnoactivities'] = 'No activities in this course currently contribute to completion.';

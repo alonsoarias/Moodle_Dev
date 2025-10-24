@@ -1,46 +1,41 @@
 {{!
-    @template core_courseformat/local/courseindex/cm
-
-    Displays a course index module entry.
-    Adaptado para theme compecer.
-    Se han eliminado los iconos de las actividades.
-    
-    Example context (json):
-    {
-      "id": "12",
-      "name": "Announcements",
-      "url": "#",
-      "visible": 1,
-      "isactive": 1,
-      "uniqid": "0",
-      "accessvisible": 1,
-      "hascmrestrictions": 0
-    }
+    Refactored course index course module entry for theme Compecer.
 }}
-<li class="course-index-item {{#isactive}}active{{/isactive}}
-           {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
-           {{^accessvisible}}dimmed{{/accessvisible}}
-           {{#indent}} indented {{/indent}}"
-    id="{{uniqid}}-course-index-cm-{{id}}"
-    data-for="cm"
-    data-id="{{id}}"
-    role="treeitem">
+<li
+  class="c-courseindex__cm courseindex-item{{#isactive}} is-active{{/isactive}}{{#hascmrestrictions}} has-restrictions{{/hascmrestrictions}}{{^accessvisible}} is-dimmed{{/accessvisible}}{{#indent}} is-indented{{/indent}}{{#hasdelegatedsection}} has-delegated{{/hasdelegatedsection}}"
+  id="{{uniqid}}-course-index-cm-{{id}}"
+  data-for="cm"
+  data-id="{{id}}"
+  role="treeitem"
+>
   {{^hasdelegatedsection}}
-    <div class="d-flex align-items-center justify-content-between">
+    <div class="c-courseindex__cm-main">
+      <span class="c-courseindex__completion" data-for="cm_completion" data-value="NaN"></span>
       {{#uservisible}}
-        <a class="course-index-link text-truncate"
-           {{#url}}href="{{{url}}}"{{/url}}
-           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-           data-for="cm_name" tabindex="-1" title="{{{name}}}">
+        <a
+          class="c-courseindex__cm-link text-truncate"
+          {{#url}}href="{{{url}}}"{{/url}}{{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
+          data-for="cm_name"
+          tabindex="-1"
+        >
           {{{name}}}
         </a>
       {{/uservisible}}
       {{^uservisible}}
-        <a class="course-index-link text-truncate"
-           href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+        <a
+          class="c-courseindex__cm-link text-truncate"
+          href="#{{{anchor}}}"
+          data-for="cm_name"
+          tabindex="-1"
+          data-anchor="true"
+        >
           {{{name}}}
         </a>
       {{/uservisible}}
+    </div>
+    <div class="c-courseindex__cm-tools">
+      <span class="courseindex-locked" data-for="cm_name">{{#pix}} t/locked, core {{/pix}}</span>
+      <span class="dragicon"><span class="icon fa fa-arrows-alt" aria-hidden="true"></span></span>
     </div>
   {{/hasdelegatedsection}}
   {{#hasdelegatedsection}}

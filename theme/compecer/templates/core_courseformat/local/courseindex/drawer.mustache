@@ -1,24 +1,67 @@
 {{!
     @template core_courseformat/local/courseindex/drawer
 
-    This template renders the course index drawer.
-    Adaptado para theme compecer (child theme de Boost).
-    
-    Example context (json):
-    {}
+    Refactored course index drawer for theme Compecer.
 }}
-<nav id="courseindex" class="course-index-drawer">
-  <div class="mb-4">
-    <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
-      {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
-    </span>
+<nav id="courseindex" class="course-index-drawer" aria-label="{{heading}}">
+  <div class="course-index-drawer__header">
+    <div class="course-index-drawer__title">
+      <span class="course-index-drawer__heading" title="{{heading}}">{{heading}}</span>
+      {{> theme_compecer/courseindexdrawercontrols }}
+    </div>
+    <div
+      id="courseindex-progress"
+      class="course-index-progress{{^progress.available}} is-disabled{{/progress.available}}"
+      data-region="course-progress"
+      data-available="{{#progress.available}}1{{/progress.available}}{{^progress.available}}0{{/progress.available}}"
+      data-summary-component="theme_compecer"
+      data-summary-key="courseprogresssummary"
+      data-aria-component="theme_compecer"
+      data-aria-key="courseprogressaria"
+    >
+      {{#progress.available}}
+        <div class="course-index-progress__header">
+          <span class="course-index-progress__title">{{#str}}courseprogresslabel, theme_compecer{{/str}}</span>
+          <span class="course-index-progress__value" data-region="progress-percent">{{progress.percentage}}%</span>
+        </div>
+        <div class="course-index-progress__bar-wrapper">
+          <div
+            class="course-index-progress__bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="{{progress.percentage}}"
+            aria-label="{{progress.arialabel}}"
+            data-region="progress-track"
+          >
+            <span
+              class="course-index-progress__bar-fill"
+              data-region="progress-bar-fill"
+              style="width: {{progress.percentage}}%"
+            ></span>
+          </div>
+        </div>
+        <p
+          class="course-index-progress__summary"
+          data-region="progress-meta"
+          aria-live="polite"
+        >{{progress.summary}}</p>
+      {{/progress.available}}
+      {{^progress.available}}
+        <p class="course-index-progress__message">{{progress.message}}</p>
+      {{/progress.available}}
+    </div>
   </div>
-  <div id="courseindex-content">
+  <div class="course-index-drawer__body" id="courseindex-content">
     {{> core_courseformat/local/courseindex/placeholders}}
   </div>
 </nav>
 {{#js}}
-require(['core_courseformat/local/courseindex/drawer'], function(component) {
+require([
+  'core_courseformat/local/courseindex/drawer',
+  'theme_compecer/courseprogress'
+], function(component, courseProgress) {
   component.init('courseindex');
+  courseProgress.init('courseindex-progress');
 });
 {{/js}}
