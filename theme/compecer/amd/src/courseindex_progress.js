@@ -421,6 +421,7 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
     const progressMessage = container.querySelector('[data-region="course-progress-message"]');
     if (progressMessage) {
         progressMessage.textContent = enabled ? '' : summaryText;
+        progressMessage.toggleAttribute('hidden', enabled);
     }
 
     const computedAria = formatString(strings.aria, {
@@ -439,6 +440,11 @@ const setCourseProgress = (container, completed, total, percentage, strings = {}
     if (progressFill) {
         progressFill.style.width = `${safePercentage}%`;
         progressFill.classList.toggle('is-empty', safePercentage === 0);
+    }
+
+    const progressBarWrapper = container.querySelector('.courseindex-progress-card__bar');
+    if (progressBarWrapper) {
+        progressBarWrapper.toggleAttribute('hidden', !enabled);
     }
 
     const progressBarContainer = container.querySelector('.courseindex-progress-bar');
@@ -553,16 +559,16 @@ const applyDatasetProgress = (container) => {
             if (!sectionElement) {
                 return;
             }
-                setSectionProgress(
-                    sectionElement,
-                    sectionData.completed ?? 0,
-                    sectionData.total ?? 0,
-                    sectionData.percentage ?? 0,
-                    sectionStrings,
-                    {
+            setSectionProgress(
+                sectionElement,
+                sectionData.completed ?? 0,
+                sectionData.total ?? 0,
+                sectionData.percentage ?? 0,
+                sectionStrings,
+                {
                     summaryOverride: sectionData.summarydisplay ?? sectionData.summary ?? null,
                     ariaOverride: sectionData.aria ?? null,
-                    }
+                }
             );
         });
     }
