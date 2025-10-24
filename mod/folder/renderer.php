@@ -85,7 +85,11 @@ class mod_folder_renderer extends plugin_renderer_base {
 
         $data['id'] = 'folder_tree'. ($treecounter++);
         $data['showexpanded'] = !empty($foldertree->folder->showexpanded);
+        $data['name'] = format_string($folder->name, true, ['context' => $context]);
+        $data['address'] = $data['name'];
         $data['dir'] = $this->renderable_tree_elements($foldertree, ['files' => [], 'subdirs' => [$foldertree->dir]]);
+        $data['items'] = $this->prepare_directory_listing($foldertree, $foldertree->dir);
+        $data['hasitems'] = !empty($data['items']);
 
         return $this->render_from_template('mod_folder/folder', $data);
     }
@@ -191,6 +195,70 @@ class mod_folder_renderer extends plugin_renderer_base {
         }
 
         return $elements;
+    }
+
+    /**
+     * Prepare a flattened list of directory contents for the explorer template.
+     *
+     * @param folder_tree $tree The folder tree information.
+     * @param array $dir The current directory to list.
+     * @return array
+     */
+    protected function prepare_directory_listing(folder_tree $tree, array $dir): array {
+        global $CFG;
+
+        require_once($CFG->libdir . '/filelib.php');
+
+        $items = [];
+
+        foreach ($dir['subdirs'] as $subdir) {
+            $items[] = [
+                'name' => $subdir['dirname'],
+                'icon' => $this->output->pix_icon(file_folder_icon(), $subdir['dirname'], 'moodle'),
+                'modified' => '',
+                'type' => get_string('modulename', 'mod_folder'),
+                'size' => '',
+                'isdir' => true,
+            ];
+        }
+
+        foreach ($dir['files'] as $file) {
+            $filename = $file->get_filename();
+            $filenamedisplay = clean_filename($filename);
+
+            $url = moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $filename,
+                false
+            );
+
+            if ($tree->folder->forcedownload) {
+                $url->param('forcedownload', 1);
+            }
+
+            if (file_extension_in_typegroup($filename, 'web_image')) {
+                $icon = $url->out(false, ['preview' => 'tinyicon', 'oid' => $file->get_timemodified()]);
+                $icon = html_writer::empty_tag('img', ['src' => $icon, 'alt' => '']);
+            } else {
+                $icon = $this->output->pix_icon(file_file_icon($file), $filenamedisplay, 'moodle');
+            }
+
+            $items[] = [
+                'name' => $filenamedisplay,
+                'icon' => $icon,
+                'url' => $url,
+                'modified' => userdate($file->get_timemodified()),
+                'type' => get_mimetype_description($file->get_mimetype()),
+                'size' => display_size($file->get_filesize()),
+                'isdir' => false,
+            ];
+        }
+
+        return $items;
     }
 }
 
