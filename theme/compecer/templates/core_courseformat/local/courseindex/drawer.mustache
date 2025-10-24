@@ -13,22 +13,18 @@
       <span class="courseindex-progress-card__title">{{progress.coursetitle}}</span>
       <span class="courseindex-progress-card__value" data-region="course-progress-value">{{progress.coursepercentage}}</span>
     </div>
-    <div class="courseindex-progress-card__summary" data-region="course-progress-summary">
+    <div class="courseindex-progress-card__summary" data-region="course-progress-summary" aria-live="polite">
       {{progress.coursesummary}}
     </div>
-    {{#progress.enabled}}
-    <div class="courseindex-progress-card__bar" role="presentation">
+    <div class="courseindex-progress-card__bar" role="presentation" {{^progress.enabled}}hidden{{/progress.enabled}}>
       <div class="courseindex-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div class="courseindex-progress-bar__fill" data-region="course-progress-bar"></div>
       </div>
       <span class="sr-only" data-region="course-progress-text">{{progress.coursesummary}}</span>
     </div>
-    {{/progress.enabled}}
-    {{^progress.enabled}}
-    <div class="courseindex-progress-card__message" data-region="course-progress-message">
+    <div class="courseindex-progress-card__message" data-region="course-progress-message" aria-live="polite" {{#progress.enabled}}hidden{{/progress.enabled}}>
       {{progress.notracking}}
     </div>
-    {{/progress.enabled}}
     {{#progress.enabled}}
     <dl class="courseindex-progress-legend">
       <div class="courseindex-progress-legend__item">
