@@ -7,16 +7,13 @@
     Example context (json):
     {}
 }}
-<nav id="courseindex" class="compecer-courseindex-drawer" aria-label="{{#str}}courseindexdraweraria, theme_compecer{{/str}}">
-  <div class="compecer-courseindex-drawer__heading">
-    <span class="compecer-courseindex-drawer__title" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
+<nav id="courseindex" class="course-index-drawer">
+  <div class="mb-4">
+    <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
       {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
     </span>
-    <p class="compecer-courseindex-drawer__description">
-      {{#str}}courseindexdrawerdescription, theme_compecer{{/str}}
-    </p>
   </div>
-  <div id="courseindex-content" class="compecer-courseindex-drawer__content">
+  <div id="courseindex-content">
     {{> core_courseformat/local/courseindex/placeholders}}
   </div>
 </nav>
