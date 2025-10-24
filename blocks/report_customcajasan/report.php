@@ -71,6 +71,11 @@ if (!empty($courseid) && (!empty($allowedcourses) || !empty($allowedcategories))
     }
 }
 
+if (!empty($categoryid) && !empty($courseid) &&
+        !report_customcajasan_course_matches_category($courseid, $categoryid)) {
+    $courseid = 0;
+}
+
 if (empty($courseid) && $context->contextlevel === CONTEXT_COURSE) {
     $context = !empty($blockrestrictions['parentcontext']) ? $blockrestrictions['parentcontext'] : $systemcontext;
 }
@@ -190,6 +195,11 @@ if ($download) {
         $filters['enddate'] = strtotime($enddate . ' 23:59:59');
     } else if (!empty($session_filters['enddate'])) {
         $filters['enddate'] = $session_filters['enddate'];
+    }
+
+    if (!empty($filters['category']) && !empty($filters['course']) &&
+            !report_customcajasan_course_matches_category($filters['course'], $filters['category'])) {
+        $filters['course'] = 0;
     }
 
     $filters['allowedcourses'] = $allowedcourses;

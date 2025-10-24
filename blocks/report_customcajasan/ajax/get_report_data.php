@@ -106,7 +106,12 @@ try {
             $filters['course'] = 0;
         }
     }
-    
+
+    if (!empty($filters['category']) && !empty($filters['course']) &&
+            !report_customcajasan_course_matches_category($filters['course'], $filters['category'])) {
+        $filters['course'] = 0;
+    }
+
     // Process date parameters
     if (!empty($filters['startdate'])) {
         $filters['startdate'] = strtotime($filters['startdate']);
