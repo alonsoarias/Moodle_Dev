@@ -208,6 +208,7 @@ $string['courseindex_notracking'] = 'El seguimiento de finalización no está ha
 $string['courseindex_section_summary'] = '{$a->completed} de {$a->total} actividades completadas en esta sección ({$a->percentage}%)';
 $string['courseindex_section_aria'] = 'Progreso de la sección: {$a->percentage}% completado. {$a->completed} de {$a->total} actividades finalizadas.';
 $string['courseindex_section_nottracked'] = 'Esta sección no tiene actividades con seguimiento de finalización.';
+$string['courseindex_toggle_section'] = 'Expandir o contraer la sección';
 $string['courseindex_legend_notstarted'] = 'No iniciada';
 $string['courseindex_legend_inprogress'] = 'En progreso';
 $string['courseindex_legend_completed'] = 'Completada';
