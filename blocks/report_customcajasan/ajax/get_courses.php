@@ -46,22 +46,27 @@ if (!confirm_sesskey()) {
     die();
 }
 
-// Check capability or manager role
+// Check capability according to the context hierarchy.
 $systemcontext = context_system::instance();
-try {
-    // Verificar permisos - permitir acceso a gestores o usuarios con la capacidad específica
-    $can_view = has_capability('block/report_customcajasan:viewreport', $systemcontext);
-    $is_manager = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
-    $can_view_parent = !empty($blockrestrictions['parentcontext']) &&
-        has_capability('block/report_customcajasan:viewreport', $blockrestrictions['parentcontext']);
+$permissioncontext = $blockrestrictions['parentcontext'] ?? null;
+$haspermission = false;
 
-    if (!$can_view && !$is_manager && !$can_view_parent) {
-        throw new required_capability_exception($systemcontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
-    }
-} catch (Exception $e) {
+if ($permissioncontext instanceof context) {
+    $haspermission = block_report_customcajasan_user_has_view_capability($permissioncontext);
+}
+
+if (!$haspermission) {
+    $permissioncontext = $systemcontext;
+    $haspermission = block_report_customcajasan_user_has_view_capability($permissioncontext);
+}
+
+if (!$haspermission) {
+    $requiredcapability = block_report_customcajasan_get_required_capability_for_context(
+        block_report_customcajasan_resolve_access_context($permissioncontext)
+    );
     $error = array(
         'success' => false,
-        'error' => get_string('nopermissions', 'error', 'block/report_customcajasan:viewreport')
+        'error' => get_string('nopermissions', 'error', $requiredcapability)
     );
     echo json_encode($error);
     die();

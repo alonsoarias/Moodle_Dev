@@ -84,21 +84,11 @@ if (empty($categoryid) && $context->contextlevel === CONTEXT_COURSECAT) {
     $context = !empty($blockrestrictions['parentcontext']) ? $blockrestrictions['parentcontext'] : $systemcontext;
 }
 
-$canview = has_capability('block/report_customcajasan:viewreport', $context);
-$canviewsystem = has_capability('block/report_customcajasan:viewreport', $systemcontext);
-$canviewparent = !empty($blockrestrictions['parentcontext']) &&
-    has_capability('block/report_customcajasan:viewreport', $blockrestrictions['parentcontext']);
+$accesscontext = block_report_customcajasan_resolve_access_context($context);
 
-if (!$canview && !$canviewsystem && !$canviewparent) {
-    $courseswithaccess = get_user_capability_course('block/report_customcajasan:viewreport', null, true, 'id', '', 0, 1);
-    $canviewanycourse = !empty($courseswithaccess);
-
-    if (!$canviewanycourse) {
-        $managementaccess = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
-        if (!$managementaccess) {
-            throw new required_capability_exception($context, 'block/report_customcajasan:viewreport', 'nopermissions', '');
-        }
-    }
+if (!block_report_customcajasan_user_has_view_capability($context)) {
+    $requiredcapability = block_report_customcajasan_get_required_capability_for_context($accesscontext);
+    throw new required_capability_exception($accesscontext, $requiredcapability, 'nopermissions', '');
 }
 
 // Aumentar límites para permitir la generación de reportes grandes
