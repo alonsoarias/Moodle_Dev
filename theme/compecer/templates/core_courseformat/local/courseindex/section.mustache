@@ -52,22 +52,38 @@
                 </span>
             </a>
         </div>
-        <div class="compecer-courseindex-section__title flex-grow-1">
-            <a href="{{{sectionurl}}}"
-               class="courseindex-link text-truncate"
-               data-action="togglecourseindexsection"
-               data-for="section_title"
-               tabindex="-1"
-               title="{{{title}}}">
-                {{{title}}}
-            </a>
+        <div class="compecer-courseindex-section__body flex-grow-1">
+            <div class="compecer-courseindex-section__headline d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <a href="{{{sectionurl}}}"
+                   class="courseindex-link text-truncate"
+                   data-action="togglecourseindexsection"
+                   data-for="section_title"
+                   tabindex="-1"
+                   title="{{{title}}}">
+                    {{{title}}}
+                </a>
+                <div class="compecer-courseindex-section__progress"
+                     data-region="section-progress"
+                     data-empty-text="{{#str}}courseindexsectionprogressnone, theme_compecer{{/str}}"
+                     aria-live="polite">
+                    <span class="compecer-courseindex-section__progress-value" data-region="section-progress-value">0%</span>
+                    <span class="compecer-courseindex-section__progress-count" data-region="section-progress-count">0/0</span>
+                    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="progress-bar" data-region="section-progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
             <div class="compecer-courseindex-section__meta">
+                {{#highlighted}}
                 <span class="current-badge badge bg-primary text-white px-2 rounded-pill">
-                    {{highlighted}}
+                    {{.}}
                 </span>
+                {{/highlighted}}
+                {{#hasrestrictions}}
                 <span class="courseindex-locked" data-for="cm_name">
                     {{#pix}} t/locked, core {{/pix}}
                 </span>
+                {{/hasrestrictions}}
             </div>
         </div>
     </div>
