@@ -152,11 +152,13 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
         $('#categoryid').on('change', function() {
             var categoryId = $(this).val();
             state.filter.category = categoryId;
+            state.filter.course = '';
             state.currentPage = 0;
 
             // Clear course selection
             $('#courseid').empty();
-            
+            $('#courseid').prop('disabled', true);
+
             // Add default "All" option
             Str.get_string('option_all', 'block_report_customcajasan')
                 .then(function(allText) {
@@ -172,6 +174,8 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                         text: 'All'
                     }));
                 });
+
+            $('#courseid').val('');
 
             if (categoryId) {
                 // Get courses for the selected category
@@ -193,17 +197,20 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                                 }));
                             });
                         }
+                        $('#courseid').prop('disabled', false);
                         // Solo actualizar formulario de descarga, NO cargar datos
                         updateDownloadForm();
                     },
                     error: function(xhr, status) {
                         // Show error using Moodle's notification API
                         Notification.exception({message: 'Error loading courses: ' + status});
+                        $('#courseid').prop('disabled', false);
                         // Solo actualizar formulario de descarga, NO cargar datos
                         updateDownloadForm();
                     }
                 });
             } else {
+                $('#courseid').prop('disabled', false);
                 // Solo actualizar formulario de descarga, NO cargar datos
                 updateDownloadForm();
             }

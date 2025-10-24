@@ -939,6 +939,28 @@ function report_customcajasan_get_categories(array $allowedcategories = [], arra
 }
 
 /**
+ * Verify if the selected course belongs to the selected category.
+ *
+ * @param int $courseid Course identifier.
+ * @param int $categoryid Category identifier.
+ * @return bool True when the course is part of the category, false otherwise.
+ */
+function report_customcajasan_course_matches_category($courseid, $categoryid) {
+    global $DB;
+
+    if (empty($courseid) || empty($categoryid)) {
+        return true;
+    }
+
+    $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+    if ($coursecategory === false) {
+        return false;
+    }
+
+    return (int)$coursecategory === (int)$categoryid;
+}
+
+/**
  * Get visible courses by category
  *
  * @param int $categoryid Category ID
