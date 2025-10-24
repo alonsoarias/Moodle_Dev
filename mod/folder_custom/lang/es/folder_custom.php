@@ -15,29 +15,29 @@
 // junto con Moodle. En caso contrario, consulta <http://www.gnu.org/licenses/>.
 
 /**
- * Cadenas para el componente 'folder', idioma 'es'.
+ * Cadenas para el componente 'folder_custom', idioma 'es'.
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 o posterior
  */
 
 $string['clearsearch'] = 'Limpiar búsqueda';
-$string['emptyfolder'] = 'Esta carpeta está vacía';
+$string['emptyfolder_custom'] = 'Esta carpeta está vacía';
 $string['filecountplural'] = '{$a} archivos';
 $string['filecountsingular'] = '{$a} archivo';
 $string['filterall'] = 'Todos los elementos';
 $string['filterdocuments'] = 'Documentos';
 $string['filterfiles'] = 'Solo archivos';
-$string['filterfolders'] = 'Solo carpetas';
+$string['filterfolder_customs'] = 'Solo carpetas';
 $string['filterimages'] = 'Imágenes';
 $string['filterlabel'] = 'Mostrar:';
 $string['filtervideos'] = 'Vídeos';
-$string['folderbreadcrumbs'] = 'Ruta de navegación de la carpeta';
-$string['foldercountplural'] = '{$a} carpetas';
-$string['foldercountsingular'] = '{$a} carpeta';
-$string['folderfilecounts'] = '{$a->folders} carpetas, {$a->files} archivos';
-$string['foldernavigation'] = 'Navegación de la carpeta';
+$string['folder_custombreadcrumbs'] = 'Ruta de navegación de la carpeta';
+$string['folder_customcountplural'] = '{$a} carpetas';
+$string['folder_customcountsingular'] = '{$a} carpeta';
+$string['folder_customfilecounts'] = '{$a->folder_customs} carpetas, {$a->files} archivos';
+$string['folder_customnavigation'] = 'Navegación de la carpeta';
 $string['itemcounts'] = '{$a} elementos';
 $string['navigationback'] = 'Atrás';
 $string['navigationcontrols'] = 'Controles de navegación';
@@ -65,7 +65,7 @@ $string['tableheaderdatemodified'] = 'Fecha de modificación';
 $string['tableheadername'] = 'Nombre';
 $string['tableheadersize'] = 'Tamaño';
 $string['tableheadertype'] = 'Tipo';
-$string['togglefolder'] = 'Expandir o contraer carpeta';
+$string['togglefolder_custom'] = 'Expandir o contraer carpeta';
 $string['viewdetails'] = 'Vista de detalles';
 $string['viewgrid'] = 'Vista en cuadrícula';
 $string['viewlist'] = 'Vista en lista';

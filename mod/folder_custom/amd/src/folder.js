@@ -14,9 +14,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * OneDrive-style folder module interactions
+ * OneDrive-style folder_custom module interactions
  *
- * @module     mod_folder/folder
+ * @module     mod_folder_custom/folder_custom
  * @copyright  2009 Petr Skoda  {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -43,20 +43,20 @@ define(['jquery', 'core/log'], function($, Log) {
         Log.debug('Settings:', settings);
 
         // View switcher
-        container.find('.folder-view-button').on('click', function(e) {
+        container.find('.folder_custom-view-button').on('click', function(e) {
             e.preventDefault();
             var viewType = $(this).data('view');
             switchView(container, viewType);
         });
 
-        // File/folder card interactions
-        container.find('.folder-item-card').each(function() {
+        // File/folder_custom card interactions
+        container.find('.folder_custom-item-card').each(function() {
             var card = $(this);
 
             // Click handler
             card.on('click', function(e) {
                 // Ignore clicks on checkbox
-                if ($(e.target).hasClass('folder-item-checkbox')) {
+                if ($(e.target).hasClass('folder_custom-item-checkbox')) {
                     return;
                 }
                 e.preventDefault();
@@ -76,7 +76,7 @@ define(['jquery', 'core/log'], function($, Log) {
             });
 
             // Checkbox selection
-            card.find('.folder-item-checkbox').on('change', function() {
+            card.find('.folder_custom-item-checkbox').on('change', function() {
                 if ($(this).is(':checked')) {
                     card.addClass('selected');
                 } else {
@@ -87,22 +87,22 @@ define(['jquery', 'core/log'], function($, Log) {
         });
 
         // Select all checkbox
-        container.find('.folder-select-all').on('change', function() {
+        container.find('.folder_custom-select-all').on('change', function() {
             var checked = $(this).is(':checked');
-            container.find('.folder-item-checkbox').prop('checked', checked).trigger('change');
+            container.find('.folder_custom-item-checkbox').prop('checked', checked).trigger('change');
         });
 
         // Close context menu on outside click
         $(document).on('click', function(e) {
-            if (!$(e.target).closest('.folder-context-menu').length) {
-                container.find('.folder-context-menu').hide();
+            if (!$(e.target).closest('.folder_custom-context-menu').length) {
+                container.find('.folder_custom-context-menu').hide();
             }
         });
 
         // Context menu actions
-        container.find('.folder-context-item').on('click', function() {
+        container.find('.folder_custom-context-item').on('click', function() {
             var action = $(this).data('action');
-            var contextMenu = $(this).closest('.folder-context-menu');
+            var contextMenu = $(this).closest('.folder_custom-context-menu');
             var card = contextMenu.data('target-card');
 
             executeContextAction(action, card);
@@ -124,15 +124,15 @@ define(['jquery', 'core/log'], function($, Log) {
      * @param {string} viewType The view type (grid or list)
      */
     var switchView = function(container, viewType) {
-        container.find('.folder-view-button').removeClass('active');
-        container.find('.folder-view-button[data-view="' + viewType + '"]').addClass('active');
+        container.find('.folder_custom-view-button').removeClass('active');
+        container.find('.folder_custom-view-button[data-view="' + viewType + '"]').addClass('active');
 
         if (viewType === 'grid') {
-            container.find('.folder-grid-view').show();
-            container.find('.folder-list-view').hide();
+            container.find('.folder_custom-grid-view').show();
+            container.find('.folder_custom-list-view').hide();
         } else {
-            container.find('.folder-grid-view').hide();
-            container.find('.folder-list-view').show();
+            container.find('.folder_custom-grid-view').hide();
+            container.find('.folder_custom-list-view').show();
         }
     };
 
@@ -144,30 +144,30 @@ define(['jquery', 'core/log'], function($, Log) {
     var handleItemClick = function(card, event) {
         // Deselect all if not holding Ctrl/Cmd
         if (!event.ctrlKey && !event.metaKey) {
-            card.siblings('.folder-item-card').removeClass('selected');
-            card.siblings('.folder-item-card').find('.folder-item-checkbox').prop('checked', false);
+            card.siblings('.folder_custom-item-card').removeClass('selected');
+            card.siblings('.folder_custom-item-card').find('.folder_custom-item-checkbox').prop('checked', false);
         }
 
         // Toggle selection
         card.toggleClass('selected');
-        var checkbox = card.find('.folder-item-checkbox');
+        var checkbox = card.find('.folder_custom-item-checkbox');
         checkbox.prop('checked', !checkbox.prop('checked'));
 
-        updateSelectionCount(card.closest('.folder-onedrive-container'));
+        updateSelectionCount(card.closest('.folder_custom-onedrive-container'));
     };
 
     /**
-     * Open file or folder
+     * Open file or folder_custom
      * @param {jQuery} card The card element
      */
     var openItem = function(card) {
         var url = card.data('url');
         var type = card.data('type');
 
-        if (type === 'folder') {
+        if (type === 'folder_custom') {
             var subdirData = card.data('subdir');
             if (subdirData) {
-                Log.debug('Opening folder:', card.data('name'));
+                Log.debug('Opening folder_custom:', card.data('name'));
             }
         } else if (url) {
             window.open(url, '_blank');
@@ -181,7 +181,7 @@ define(['jquery', 'core/log'], function($, Log) {
      * @param {jQuery} container The container element
      */
     var showContextMenu = function(event, card, container) {
-        var contextMenu = container.find('.folder-context-menu');
+        var contextMenu = container.find('.folder_custom-context-menu');
 
         contextMenu.css({
             left: event.pageX + 'px',
@@ -223,9 +223,9 @@ define(['jquery', 'core/log'], function($, Log) {
      * @param {jQuery} container The container element
      */
     var updateSelectionCount = function(container) {
-        var selected = container.find('.folder-item-card.selected').length;
+        var selected = container.find('.folder_custom-item-card.selected').length;
         if (selected > 0) {
-            container.find('.folder-item-count').text(selected + ' selected');
+            container.find('.folder_custom-item-count').text(selected + ' selected');
         } else {
             updateItemCount(container);
         }
@@ -236,20 +236,20 @@ define(['jquery', 'core/log'], function($, Log) {
      * @param {jQuery} container The container element
      */
     var updateItemCount = function(container) {
-        var total = container.find('.folder-item-card').length;
-        var folders = container.find('.folder-item-card[data-type="folder"]').length;
-        var files = total - folders;
+        var total = container.find('.folder_custom-item-card').length;
+        var folder_customs = container.find('.folder_custom-item-card[data-type="folder_custom"]').length;
+        var files = total - folder_customs;
 
         var text = total + ' items';
-        if (folders > 0 && files > 0) {
-            text = folders + ' folders, ' + files + ' files';
-        } else if (folders > 0) {
-            text = folders + ' folders';
+        if (folder_customs > 0 && files > 0) {
+            text = folder_customs + ' folder_customs, ' + files + ' files';
+        } else if (folder_customs > 0) {
+            text = folder_customs + ' folder_customs';
         } else if (files > 0) {
             text = files + ' files';
         }
 
-        container.find('.folder-item-count').text(text);
+        container.find('.folder_custom-item-count').text(text);
     };
 
     /**
@@ -258,7 +258,7 @@ define(['jquery', 'core/log'], function($, Log) {
      */
     var setupKeyboardNavigation = function(container) {
         var keyHandler = function(e) {
-            var selected = container.find('.folder-item-card.selected').last();
+            var selected = container.find('.folder_custom-item-card.selected').last();
 
             if (!selected.length) {
                 return;
@@ -268,28 +268,28 @@ define(['jquery', 'core/log'], function($, Log) {
 
             switch (e.key) {
                 case 'ArrowRight':
-                    next = selected.next('.folder-item-card');
+                    next = selected.next('.folder_custom-item-card');
                     break;
                 case 'ArrowLeft':
-                    next = selected.prev('.folder-item-card');
+                    next = selected.prev('.folder_custom-item-card');
                     break;
                 case 'Enter':
                     openItem(selected);
                     return;
                 case 'Escape':
-                    container.find('.folder-item-card').removeClass('selected');
-                    container.find('.folder-item-checkbox').prop('checked', false);
+                    container.find('.folder_custom-item-card').removeClass('selected');
+                    container.find('.folder_custom-item-checkbox').prop('checked', false);
                     return;
             }
 
             if (next && next.length) {
                 e.preventDefault();
                 if (!e.shiftKey) {
-                    container.find('.folder-item-card').removeClass('selected');
-                    container.find('.folder-item-checkbox').prop('checked', false);
+                    container.find('.folder_custom-item-card').removeClass('selected');
+                    container.find('.folder_custom-item-checkbox').prop('checked', false);
                 }
                 next.addClass('selected');
-                next.find('.folder-item-checkbox').prop('checked', true);
+                next.find('.folder_custom-item-checkbox').prop('checked', true);
                 next[0].scrollIntoView({behavior: 'smooth', block: 'nearest'});
             }
         };

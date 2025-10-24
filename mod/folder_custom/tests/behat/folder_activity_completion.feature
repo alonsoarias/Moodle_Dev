@@ -1,8 +1,8 @@
-@mod @mod_folder @core_completion
-Feature: View activity completion information in the folder activity
-  In order to have visibility of folder completion requirements
+@mod @mod_folder_custom @core_completion
+Feature: View activity completion information in the folder_custom activity
+  In order to have visibility of folder_custom completion requirements
   As a student
-  I need to be able to view my folder completion progress
+  I need to be able to view my folder_custom completion progress
 
   Background:
     Given the following "users" exist:
@@ -19,9 +19,9 @@ Feature: View activity completion information in the folder activity
       | teacher1 | C1 | editingteacher |
       | student1 | C2 | student        |
 
-  Scenario: A folder is automatically completed when a student views it
+  Scenario: A folder_custom is automatically completed when a student views it
     Given the following "activity" exists:
-      | activity       | folder        |
+      | activity       | folder_custom        |
       | course         | C1            |
       | idnumber       | mh1           |
       | name           | Music history |
@@ -29,28 +29,28 @@ Feature: View activity completion information in the folder activity
       | completion     | 2             |
       | completionview | 1             |
     # Teacher view.
-    And I am on the "Music history" "folder activity" page logged in as teacher1
+    And I am on the "Music history" "folder_custom activity" page logged in as teacher1
     And "Music history" should have the "View" completion condition
     And I log out
     # Student view.
-    When I am on the "Music history" "folder activity" page logged in as student1
+    When I am on the "Music history" "folder_custom activity" page logged in as student1
     Then the "View" completion condition of "Music history" is displayed as "done"
 
   @javascript
-  Scenario: A student can manually mark the folder activity as done but a teacher cannot
+  Scenario: A student can manually mark the folder_custom activity as done but a teacher cannot
     Given the following "activity" exists:
-      | activity       | folder        |
+      | activity       | folder_custom        |
       | course         | C1            |
       | idnumber       | mh1           |
       | name           | Music history |
       | section        | 1             |
       | completion     | 1             |
-    And I am on the "Music history" "folder activity" page logged in as teacher1
+    And I am on the "Music history" "folder_custom activity" page logged in as teacher1
     # Teacher view.
     And the manual completion button for "Music history" should be disabled
     And I log out
     # Student view.
-    When I am on the "Music history" "folder activity" page logged in as student1
+    When I am on the "Music history" "folder_custom activity" page logged in as student1
     Then the manual completion button of "Music history" is displayed as "Mark as done"
     And I toggle the manual completion state of "Music history"
     And the manual completion button of "Music history" is displayed as "Done"
@@ -58,7 +58,7 @@ Feature: View activity completion information in the folder activity
   @javascript
   Scenario: The manual completion button will be shown on the course page for Inline on a course page display mode
     Given the following "activity" exists:
-      | activity   | folder        |
+      | activity   | folder_custom        |
       | course     | C2            |
       | idnumber   | mh2           |
       | name       | Music history |

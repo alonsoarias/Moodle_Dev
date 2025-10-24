@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Search area for mod_folder activities.
+ * Search area for mod_folder_custom activities.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @copyright  2015 David Monllao {@link http://www.davidmonllao.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_folder\search;
+namespace mod_folder_custom\search;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Search area for mod_folder activities.
+ * Search area for mod_folder_custom activities.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @copyright  2015 David Monllao {@link http://www.davidmonllao.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

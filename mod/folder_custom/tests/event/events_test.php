@@ -17,13 +17,13 @@
 /**
  * Events tests.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @category   test
  * @copyright  2013 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_folder\event;
+namespace mod_folder_custom\event;
 
 final class events_test extends \advanced_testcase {
 
@@ -36,23 +36,23 @@ final class events_test extends \advanced_testcase {
     }
 
     /**
-     * Test the folder updated event.
+     * Test the folder_custom updated event.
      *
-     * There is no external API for updating a folder, so the unit test will simply create
+     * There is no external API for updating a folder_custom, so the unit test will simply create
      * and trigger the event and ensure the legacy log data is returned as expected.
      */
-    public function test_folder_updated(): void {
+    public function test_folder_custom_updated(): void {
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id));
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id));
 
         $params = array(
-            'context' => \context_module::instance($folder->cmid),
-            'objectid' => $folder->id,
+            'context' => \context_module::instance($folder_custom->cmid),
+            'objectid' => $folder_custom->id,
             'courseid' => $course->id
         );
-        $event = \mod_folder\event\folder_updated::create($params);
-        $event->add_record_snapshot('folder', $folder);
+        $event = \mod_folder_custom\event\folder_custom_updated::create($params);
+        $event->add_record_snapshot('folder_custom', $folder_custom);
 
         // Trigger and capturing the event.
         $sink = $this->redirectEvents();
@@ -62,35 +62,35 @@ final class events_test extends \advanced_testcase {
         $event = reset($events);
 
         // Checking that the event contains the expected values.
-        $this->assertInstanceOf('\mod_folder\event\folder_updated', $event);
-        $this->assertEquals(\context_module::instance($folder->cmid), $event->get_context());
-        $this->assertEquals($folder->id, $event->objectid);
+        $this->assertInstanceOf('\mod_folder_custom\event\folder_custom_updated', $event);
+        $this->assertEquals(\context_module::instance($folder_custom->cmid), $event->get_context());
+        $this->assertEquals($folder_custom->id, $event->objectid);
     }
 
     /**
-     * Test the folder updated event.
+     * Test the folder_custom updated event.
      *
-     * There is no external API for updating a folder, so the unit test will simply create
+     * There is no external API for updating a folder_custom, so the unit test will simply create
      * and trigger the event and ensure the legacy log data is returned as expected.
      */
     public function test_all_files_downloaded(): void {
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course();
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id));
-        $context = \context_module::instance($folder->cmid);
-        $cm = get_coursemodule_from_id('folder', $folder->cmid, $course->id, true, MUST_EXIST);
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id));
+        $context = \context_module::instance($folder_custom->cmid);
+        $cm = get_coursemodule_from_id('folder_custom', $folder_custom->cmid, $course->id, true, MUST_EXIST);
 
         $sink = $this->redirectEvents();
-        folder_downloaded($folder, $course, $cm, $context);
+        folder_custom_downloaded($folder_custom, $course, $cm, $context);
         $events = $sink->get_events();
         $this->assertCount(1, $events);
         $event = reset($events);
 
         // Checking that the event contains the expected values.
-        $this->assertInstanceOf('\mod_folder\event\all_files_downloaded', $event);
-        $this->assertEquals(\context_module::instance($folder->cmid), $event->get_context());
-        $this->assertEquals($folder->id, $event->objectid);
-        $expected = array($course->id, 'folder', 'edit', 'edit.php?id=' . $folder->cmid, $folder->id, $folder->cmid);
+        $this->assertInstanceOf('\mod_folder_custom\event\all_files_downloaded', $event);
+        $this->assertEquals(\context_module::instance($folder_custom->cmid), $event->get_context());
+        $this->assertEquals($folder_custom->id, $event->objectid);
+        $expected = array($course->id, 'folder_custom', 'edit', 'edit.php?id=' . $folder_custom->cmid, $folder_custom->id, $folder_custom->cmid);
         $this->assertEventContextNotUsed($event);
     }
 }

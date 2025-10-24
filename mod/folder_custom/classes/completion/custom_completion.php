@@ -16,16 +16,16 @@
 
 declare(strict_types=1);
 
-namespace mod_folder\completion;
+namespace mod_folder_custom\completion;
 
 use core_completion\activity_custom_completion;
 
 /**
- * Activity custom completion subclass for the folder resource.
+ * Activity custom completion subclass for the folder_custom resource.
  *
- * Class for defining mod_folder's custom completion rules.
+ * Class for defining mod_folder_custom's custom completion rules.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @copyright  2022 David Woloszyn <david.woloszyn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -69,7 +69,7 @@ class custom_completion extends activity_custom_completion {
     public function manual_completion_always_shown(): bool {
         $display = $this->cm->customdata->display ?? null;
 
-        return ($display == FOLDER_DISPLAY_INLINE ?? false);
+        return ($display == folder_custom_DISPLAY_INLINE ?? false);
     }
 
     /**

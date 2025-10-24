@@ -1,6 +1,6 @@
 @mod @mod_resource @_file_upload
 Feature: Details of uploaded file in the resource can be changed
-  In order to change details of an uploaded file in a folder resource
+  In order to change details of an uploaded file in a folder_custom resource
   As a teacher
   I should be able to upload a file
 
@@ -16,13 +16,13 @@ Feature: Details of uploaded file in the resource can be changed
       | teacher1 | C1     | editingteacher |
     And the following "activities" exist:
       | activity | course | name    |
-      | folder   | C1     | Folder1 |
+      | folder_custom   | C1     | folder_custom1 |
 
   @javascript
   Scenario: Uploaded file details can be changed
-    Given I am on the "Folder1" "folder activity" page logged in as teacher1
+    Given I am on the "folder_custom1" "folder_custom activity" page logged in as teacher1
     And I click on "Edit" "button"
-    # Upload a file in folder resource
+    # Upload a file in folder_custom resource
     And I upload "lib/tests/fixtures/empty.txt" file to "Files" filemanager
     And I press "Save changes"
     And I click on "Edit" "button"

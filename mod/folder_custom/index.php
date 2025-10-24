@@ -16,9 +16,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * List of file folders in course
+ * List of file folder_customs in course
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2009 onwards Martin Dougiamas (http://dougiamas.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,28 +35,28 @@ $PAGE->set_pagelayout('incourse');
 $params = array(
     'context' => context_course::instance($course->id)
 );
-$event = \mod_folder\event\course_module_instance_list_viewed::create($params);
+$event = \mod_folder_custom\event\course_module_instance_list_viewed::create($params);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
-$strfolder       = get_string('modulename', 'folder');
-$strfolders      = get_string('modulenameplural', 'folder');
+$strfolder_custom       = get_string('modulename', 'folder_custom');
+$strfolder_customs      = get_string('modulenameplural', 'folder_custom');
 $strname         = get_string('name');
 $strintro        = get_string('moduleintro');
 $strlastmodified = get_string('lastmodified');
 
-$PAGE->set_url('/mod/folder/index.php', array('id' => $course->id));
-$PAGE->set_title($course->shortname.': '.$strfolders);
+$PAGE->set_url('/mod/folder_custom/index.php', array('id' => $course->id));
+$PAGE->set_title($course->shortname.': '.$strfolder_customs);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_secondary_active_tab('coursehome');
-$PAGE->navbar->add($strfolders);
+$PAGE->navbar->add($strfolder_customs);
 echo $OUTPUT->header();
 if (!$PAGE->has_secondary_navigation()) {
-    echo $OUTPUT->heading($strfolders);
+    echo $OUTPUT->heading($strfolder_customs);
 }
 
-if (!$folders = get_all_instances_in_course('folder', $course)) {
-    notice(get_string('thereareno', 'moodle', $strfolders), "$CFG->wwwroot/course/view.php?id=$course->id");
+if (!$folder_customs = get_all_instances_in_course('folder_custom', $course)) {
+    notice(get_string('thereareno', 'moodle', $strfolder_customs), "$CFG->wwwroot/course/view.php?id=$course->id");
     exit;
 }
 
@@ -76,28 +76,28 @@ if ($usesections) {
 
 $modinfo = get_fast_modinfo($course);
 $currentsection = '';
-foreach ($folders as $folder) {
-    $cm = $modinfo->cms[$folder->coursemodule];
+foreach ($folder_customs as $folder_custom) {
+    $cm = $modinfo->cms[$folder_custom->coursemodule];
     if ($usesections) {
         $printsection = '';
-        if ($folder->section !== $currentsection) {
-            if ($folder->section) {
-                $printsection = get_section_name($course, $folder->section);
+        if ($folder_custom->section !== $currentsection) {
+            if ($folder_custom->section) {
+                $printsection = get_section_name($course, $folder_custom->section);
             }
             if ($currentsection !== '') {
                 $table->data[] = 'hr';
             }
-            $currentsection = $folder->section;
+            $currentsection = $folder_custom->section;
         }
     } else {
-        $printsection = '<span class="smallinfo">'.userdate($folder->timemodified)."</span>";
+        $printsection = '<span class="smallinfo">'.userdate($folder_custom->timemodified)."</span>";
     }
 
-    $class = $folder->visible ? '' : 'class="dimmed"'; // hidden modules are dimmed
+    $class = $folder_custom->visible ? '' : 'class="dimmed"'; // hidden modules are dimmed
     $table->data[] = array (
         $printsection,
-        "<a $class href=\"view.php?id=$cm->id\">".format_string($folder->name)."</a>",
-        format_module_intro('folder', $folder, $cm->id));
+        "<a $class href=\"view.php?id=$cm->id\">".format_string($folder_custom->name)."</a>",
+        format_module_intro('folder_custom', $folder_custom, $cm->id));
 }
 
 echo html_writer::table($table);

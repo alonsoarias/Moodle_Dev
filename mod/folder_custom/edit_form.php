@@ -16,9 +16,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A moodle form to manage folder files
+ * A moodle form to manage folder_custom files
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2010 Dongsheng Cai <dongsheng@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
-class mod_folder_edit_form extends moodleform {
+class mod_folder_custom_edit_form extends moodleform {
     function definition() {
         $mform = $this->_form;
 

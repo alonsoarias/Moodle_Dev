@@ -16,9 +16,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Folder configuration form
+ * folder_custom configuration form
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2009 Petr Skoda  {@link http://skodak.org}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,12 +27,12 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 
-class mod_folder_mod_form extends moodleform_mod {
+class mod_folder_custom_mod_form extends moodleform_mod {
     function definition() {
         global $CFG;
         $mform = $this->_form;
 
-        $config = get_config('folder');
+        $config = get_config('folder_custom');
 
         //-------------------------------------------------------
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -47,31 +47,31 @@ class mod_folder_mod_form extends moodleform_mod {
         $this->standard_intro_elements();
 
         //-------------------------------------------------------
-        $mform->addElement('header', 'content', get_string('contentheader', 'folder'));
+        $mform->addElement('header', 'content', get_string('contentheader', 'folder_custom'));
         $mform->addElement('filemanager', 'files', get_string('files'), null, array('subdirs'=>1, 'accepted_types'=>'*'));
-        $mform->addElement('select', 'display', get_string('display', 'mod_folder'),
-                array(FOLDER_DISPLAY_PAGE => get_string('displaypage', 'mod_folder'),
-                    FOLDER_DISPLAY_INLINE => get_string('displayinline', 'mod_folder')));
-        $mform->addHelpButton('display', 'display', 'mod_folder');
+        $mform->addElement('select', 'display', get_string('display', 'mod_folder_custom'),
+                array(folder_custom_DISPLAY_PAGE => get_string('displaypage', 'mod_folder_custom'),
+                    folder_custom_DISPLAY_INLINE => get_string('displayinline', 'mod_folder_custom')));
+        $mform->addHelpButton('display', 'display', 'mod_folder_custom');
         if (!$this->courseformat->has_view_page()) {
-            $mform->setConstant('display', FOLDER_DISPLAY_PAGE);
+            $mform->setConstant('display', folder_custom_DISPLAY_PAGE);
             $mform->hardFreeze('display');
         }
         $mform->setExpanded('content');
 
-        // Adding option to show sub-folders expanded or collapsed by default.
-        $mform->addElement('advcheckbox', 'showexpanded', get_string('showexpanded', 'folder'));
-        $mform->addHelpButton('showexpanded', 'showexpanded', 'mod_folder');
+        // Adding option to show sub-folder_customs expanded or collapsed by default.
+        $mform->addElement('advcheckbox', 'showexpanded', get_string('showexpanded', 'folder_custom'));
+        $mform->addHelpButton('showexpanded', 'showexpanded', 'mod_folder_custom');
         $mform->setDefault('showexpanded', $config->showexpanded);
 
-        // Adding option to enable downloading archive of folder.
-        $mform->addElement('advcheckbox', 'showdownloadfolder', get_string('showdownloadfolder', 'folder'));
-        $mform->addHelpButton('showdownloadfolder', 'showdownloadfolder', 'mod_folder');
-        $mform->setDefault('showdownloadfolder', true);
+        // Adding option to enable downloading archive of folder_custom.
+        $mform->addElement('advcheckbox', 'showdownloadfolder_custom', get_string('showdownloadfolder_custom', 'folder_custom'));
+        $mform->addHelpButton('showdownloadfolder_custom', 'showdownloadfolder_custom', 'mod_folder_custom');
+        $mform->setDefault('showdownloadfolder_custom', true);
 
         // Adding option to enable viewing of individual files.
-        $mform->addElement('advcheckbox', 'forcedownload', get_string('forcedownload', 'folder'));
-        $mform->addHelpButton('forcedownload', 'forcedownload', 'mod_folder');
+        $mform->addElement('advcheckbox', 'forcedownload', get_string('forcedownload', 'folder_custom'));
+        $mform->addHelpButton('forcedownload', 'forcedownload', 'mod_folder_custom');
         $mform->setDefault('forcedownload', true);
 
         //-------------------------------------------------------
@@ -90,7 +90,7 @@ class mod_folder_mod_form extends moodleform_mod {
         if ($this->current->instance) {
             // editing existing instance - copy existing files into draft area
             $draftitemid = file_get_submitted_draft_itemid('files');
-            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_folder', 'content', 0, array('subdirs'=>true));
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_folder_custom', 'content', 0, array('subdirs'=>true));
             $default_values['files'] = $draftitemid;
         }
     }
@@ -104,8 +104,8 @@ class mod_folder_mod_form extends moodleform_mod {
                 array_key_exists('completion', $data) &&
                 $data['completion'] == COMPLETION_TRACKING_AUTOMATIC &&
                 !empty($data['completionview']) &&
-                $data['display'] == FOLDER_DISPLAY_INLINE) {
-            $errors['completion'] = get_string('noautocompletioninline', 'mod_folder');
+                $data['display'] == folder_custom_DISPLAY_INLINE) {
+            $errors['completion'] = get_string('noautocompletioninline', 'mod_folder_custom');
         }
 
         return $errors;

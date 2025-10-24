@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Folder module version information
+ * folder_custom module version information
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2009 Petr Skoda  {@link http://skodak.org}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,5 +26,5 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2024100700;       // The current module version (Date: YYYYMMDDXX).
 $plugin->requires  = 2024100100;    // Requires this Moodle version.
-$plugin->component = 'mod_folder';     // Full name of the plugin (used for diagnostics)
+$plugin->component = 'mod_folder_custom';     // Full name of the plugin (used for diagnostics)
 $plugin->cron      = 0;

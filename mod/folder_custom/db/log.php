@@ -18,7 +18,7 @@
 /**
  * Definition of log events
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @category   log
  * @copyright  2010 Petr Skoda (http://skodak.org)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,8 +27,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $logs = array(
-    array('module'=>'folder', 'action'=>'view', 'mtable'=>'folder', 'field'=>'name'),
-    array('module'=>'folder', 'action'=>'view all', 'mtable'=>'folder', 'field'=>'name'),
-    array('module'=>'folder', 'action'=>'update', 'mtable'=>'folder', 'field'=>'name'),
-    array('module'=>'folder', 'action'=>'add', 'mtable'=>'folder', 'field'=>'name'),
+    array('module'=>'folder_custom', 'action'=>'view', 'mtable'=>'folder_custom', 'field'=>'name'),
+    array('module'=>'folder_custom', 'action'=>'view all', 'mtable'=>'folder_custom', 'field'=>'name'),
+    array('module'=>'folder_custom', 'action'=>'update', 'mtable'=>'folder_custom', 'field'=>'name'),
+    array('module'=>'folder_custom', 'action'=>'add', 'mtable'=>'folder_custom', 'field'=>'name'),
 );

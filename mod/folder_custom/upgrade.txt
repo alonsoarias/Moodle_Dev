@@ -3,7 +3,7 @@
 This file has been replaced by UPGRADING.md. See MDL-81125 for further information.
 
 ===
-This files describes API changes in /mod/folder/*,
+This files describes API changes in /mod/folder_custom/*,
 information provided here is intended especially for developers.
 
 === 4.3 ===

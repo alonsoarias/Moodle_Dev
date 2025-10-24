@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * folder external functions and service definitions.
+ * folder_custom external functions and service definitions.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @category   external
  * @copyright  2015 Juan Leyva <juan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,21 +28,21 @@ defined('MOODLE_INTERNAL') || die;
 
 $functions = array(
 
-    'mod_folder_view_folder' => array(
-        'classname'     => 'mod_folder_external',
-        'methodname'    => 'view_folder',
-        'description'   => 'Simulate the view.php web interface folder: trigger events, completion, etc...',
+    'mod_folder_custom_view_folder_custom' => array(
+        'classname'     => 'mod_folder_custom_external',
+        'methodname'    => 'view_folder_custom',
+        'description'   => 'Simulate the view.php web interface folder_custom: trigger events, completion, etc...',
         'type'          => 'write',
-        'capabilities'  => 'mod/folder:view',
+        'capabilities'  => 'mod/folder_custom:view',
         'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
     ),
-    'mod_folder_get_folders_by_courses' => array(
-        'classname'     => 'mod_folder_external',
-        'methodname'    => 'get_folders_by_courses',
-        'description'   => 'Returns a list of folders in a provided list of courses, if no list is provided all folders that
-                            the user can view will be returned. Please note that this WS is not returning the folder contents.',
+    'mod_folder_custom_get_folder_customs_by_courses' => array(
+        'classname'     => 'mod_folder_custom_external',
+        'methodname'    => 'get_folder_customs_by_courses',
+        'description'   => 'Returns a list of folder_customs in a provided list of courses, if no list is provided all folder_customs that
+                            the user can view will be returned. Please note that this WS is not returning the folder_custom contents.',
         'type'          => 'read',
-        'capabilities'  => 'mod/folder:view',
+        'capabilities'  => 'mod/folder_custom:view',
         'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
     ),
 );

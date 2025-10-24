@@ -17,19 +17,19 @@
 /**
  * Activity base class.
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2017 onwards Ankit Agarwal <ankit.agrr@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_folder\analytics\indicator;
+namespace mod_folder_custom\analytics\indicator;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * Activity base class.
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2017 onwards Ankit Agarwal <ankit.agrr@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

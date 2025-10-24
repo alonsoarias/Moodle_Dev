@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_folder course module viewed event.
+ * The mod_folder_custom course module viewed event.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @copyright  2013 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_folder\event;
+namespace mod_folder_custom\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_folder course module viewed event class.
+ * The mod_folder_custom course module viewed event class.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @since      Moodle 2.7
  * @copyright  2013 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -42,10 +42,10 @@ class course_module_viewed extends \core\event\course_module_viewed {
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'folder';
+        $this->data['objecttable'] = 'folder_custom';
     }
 
     public static function get_objectid_mapping() {
-        return array('db' => 'folder', 'restore' => 'folder');
+        return array('db' => 'folder_custom', 'restore' => 'folder_custom');
     }
 }

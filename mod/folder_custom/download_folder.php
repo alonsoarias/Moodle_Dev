@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Folder download
+ * folder_custom download
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2015 Andrew Hancox <andrewdchancox@googlemail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,35 +25,35 @@
 require_once(__DIR__ . "/../../config.php");
 
 $id = required_param('id', PARAM_INT);  // Course module ID.
-$cm = get_coursemodule_from_id('folder', $id, 0, true, MUST_EXIST);
+$cm = get_coursemodule_from_id('folder_custom', $id, 0, true, MUST_EXIST);
 
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 
 require_course_login($course, true, $cm);
 $context = context_module::instance($cm->id);
-require_capability('mod/folder:view', $context);
+require_capability('mod/folder_custom:view', $context);
 
-$folder = $DB->get_record('folder', array('id' => $cm->instance), '*', MUST_EXIST);
+$folder_custom = $DB->get_record('folder_custom', array('id' => $cm->instance), '*', MUST_EXIST);
 
-$downloadable = folder_archive_available($folder, $cm);
+$downloadable = folder_custom_archive_available($folder_custom, $cm);
 if (!$downloadable) {
     throw new \moodle_exception('cannotdownloaddir', 'repository');
 }
 
 $fs = get_file_storage();
-$files = $fs->get_area_files($context->id, 'mod_folder', 'content');
+$files = $fs->get_area_files($context->id, 'mod_folder_custom', 'content');
 if (empty($files)) {
     throw new \moodle_exception('cannotdownloaddir', 'repository');
 }
 
 // Log zip as downloaded.
-folder_downloaded($folder, $course, $cm, $context);
+folder_custom_downloaded($folder_custom, $course, $cm, $context);
 
 // Close the session.
 \core\session\manager::write_close();
 
-$foldername = format_string($folder->name, true, ["context" => $context]);
-$filename = shorten_filename(clean_filename($foldername . "-" . date("Ymd")) . ".zip");
+$folder_customname = format_string($folder_custom->name, true, ["context" => $context]);
+$filename = shorten_filename(clean_filename($folder_customname . "-" . date("Ymd")) . ".zip");
 $zipwriter = \core_files\archive_writer::get_stream_writer($filename, \core_files\archive_writer::ZIP_WRITER);
 
 foreach ($files as $file) {

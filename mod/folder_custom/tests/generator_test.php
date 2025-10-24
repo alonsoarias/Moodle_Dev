@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_folder;
+namespace mod_folder_custom;
 
 /**
- * Generator tests class for mod_folder.
+ * Generator tests class for mod_folder_custom.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @category   test
  * @copyright  2013 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -33,19 +33,19 @@ final class generator_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
 
-        $this->assertFalse($DB->record_exists('folder', array('course' => $course->id)));
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course));
-        $records = $DB->get_records('folder', array('course' => $course->id), 'id');
+        $this->assertFalse($DB->record_exists('folder_custom', array('course' => $course->id)));
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course));
+        $records = $DB->get_records('folder_custom', array('course' => $course->id), 'id');
         $this->assertEquals(1, count($records));
-        $this->assertTrue(array_key_exists($folder->id, $records));
+        $this->assertTrue(array_key_exists($folder_custom->id, $records));
 
-        $params = array('course' => $course->id, 'name' => 'Another folder');
-        $folder = $this->getDataGenerator()->create_module('folder', $params);
-        $records = $DB->get_records('folder', array('course' => $course->id), 'id');
+        $params = array('course' => $course->id, 'name' => 'Another folder_custom');
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', $params);
+        $records = $DB->get_records('folder_custom', array('course' => $course->id), 'id');
         $this->assertEquals(2, count($records));
-        $this->assertEquals('Another folder', $records[$folder->id]->name);
+        $this->assertEquals('Another folder_custom', $records[$folder_custom->id]->name);
 
-        // Examples of adding a folder with files (do not validate anything, just check for exceptions).
+        // Examples of adding a folder_custom with files (do not validate anything, just check for exceptions).
         $params = array(
             'course' => $course->id,
             'files' => file_get_unused_draft_itemid()
@@ -56,6 +56,6 @@ final class generator_test extends \advanced_testcase {
                 'filename' => 'file1.txt', 'filepath' => '/');
         $fs = get_file_storage();
         $fs->create_file_from_string($filerecord, 'Test file contents');
-        $folder = $this->getDataGenerator()->create_module('folder', $params);
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', $params);
     }
 }

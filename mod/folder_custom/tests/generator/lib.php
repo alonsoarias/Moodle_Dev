@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * mod_folder data generator.
+ * mod_folder_custom data generator.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @category   test
  * @copyright  2013 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,20 +26,20 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * mod_folder data generator class.
+ * mod_folder_custom data generator class.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @category   test
  * @copyright  2013 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_folder_generator extends testing_module_generator {
+class mod_folder_custom_generator extends testing_module_generator {
 
     public function create_instance($record = null, ?array $options = null) {
-        // Add default values for folder.
+        // Add default values for folder_custom.
         $record = (array)$record + array('display' => 0);
         if (!isset($record['showexpanded'])) {
-            $record['showexpanded'] = get_config('folder', 'showexpanded');
+            $record['showexpanded'] = get_config('folder_custom', 'showexpanded');
         }
         if (!isset($record['files'])) {
             $record['files'] = file_get_unused_draft_itemid();

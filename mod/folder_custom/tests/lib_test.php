@@ -15,15 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for mod_folder lib
+ * Unit tests for mod_folder_custom lib
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @category   external
  * @copyright  2015 Juan Leyva <juan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 3.0
  */
-namespace mod_folder;
+namespace mod_folder_custom;
 
 use context_user;
 use context_module;
@@ -32,9 +32,9 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * Unit tests for mod_folder lib
+ * Unit tests for mod_folder_custom lib
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @category   external
  * @copyright  2015 Juan Leyva <juan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -57,30 +57,30 @@ final class lib_test extends \advanced_testcase {
      */
     public static function setUpBeforeClass(): void {
         global $CFG;
-        require_once($CFG->dirroot . '/mod/folder/lib.php');
+        require_once($CFG->dirroot . '/mod/folder_custom/lib.php');
         parent::setUpBeforeClass();
     }
 
     /**
-     * Test folder_view
+     * Test folder_custom_view
      * @return void
      */
-    public function test_folder_view(): void {
+    public function test_folder_custom_view(): void {
         global $CFG;
 
         $CFG->enablecompletion = 1;
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id),
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id),
                                                             array('completion' => 2, 'completionview' => 1));
-        $context = \context_module::instance($folder->cmid);
-        $cm = get_coursemodule_from_instance('folder', $folder->id);
+        $context = \context_module::instance($folder_custom->cmid);
+        $cm = get_coursemodule_from_instance('folder_custom', $folder_custom->id);
 
         // Trigger and capture the event.
         $sink = $this->redirectEvents();
 
-        folder_view($folder, $course, $cm, $context);
+        folder_custom_view($folder_custom, $course, $cm, $context);
 
         $events = $sink->get_events();
         // 2 additional events thanks to completion.
@@ -88,9 +88,9 @@ final class lib_test extends \advanced_testcase {
         $event = array_shift($events);
 
         // Checking that the event contains the expected values.
-        $this->assertInstanceOf('\mod_folder\event\course_module_viewed', $event);
+        $this->assertInstanceOf('\mod_folder_custom\event\course_module_viewed', $event);
         $this->assertEquals($context, $event->get_context());
-        $moodleurl = new \moodle_url('/mod/folder/view.php', array('id' => $cm->id));
+        $moodleurl = new \moodle_url('/mod/folder_custom/view.php', array('id' => $cm->id));
         $this->assertEquals($moodleurl, $event->get_url());
         $this->assertEventContextNotUsed($event);
         $this->assertNotEmpty($event->get_name());
@@ -101,20 +101,20 @@ final class lib_test extends \advanced_testcase {
         $this->assertEquals(1, $completiondata->completionstate);
     }
 
-    public function test_folder_core_calendar_provide_event_action(): void {
+    public function test_folder_custom_core_calendar_provide_event_action(): void {
         // Create the activity.
         $course = $this->getDataGenerator()->create_course();
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id));
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id));
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $folder->id,
+        $event = $this->create_action_event($course->id, $folder_custom->id,
             \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Create an action factory.
         $factory = new \core_calendar\action_factory();
 
         // Decorate action event.
-        $actionevent = mod_folder_core_calendar_provide_event_action($event, $factory);
+        $actionevent = mod_folder_custom_core_calendar_provide_event_action($event, $factory);
 
         // Confirm the event was decorated.
         $this->assertInstanceOf('\core_calendar\local\event\value_objects\action', $actionevent);
@@ -124,17 +124,17 @@ final class lib_test extends \advanced_testcase {
         $this->assertTrue($actionevent->is_actionable());
     }
 
-    public function test_folder_core_calendar_provide_event_action_for_non_user(): void {
+    public function test_folder_custom_core_calendar_provide_event_action_for_non_user(): void {
         global $CFG;
 
         // Create a course.
         $course = $this->getDataGenerator()->create_course();
 
         // Create the activity.
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id));
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id));
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $folder->id,
+        $event = $this->create_action_event($course->id, $folder_custom->id,
                 \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Now, log out.
@@ -145,13 +145,13 @@ final class lib_test extends \advanced_testcase {
         $factory = new \core_calendar\action_factory();
 
         // Decorate action event.
-        $actionevent = mod_folder_core_calendar_provide_event_action($event, $factory);
+        $actionevent = mod_folder_custom_core_calendar_provide_event_action($event, $factory);
 
         // Confirm the event is not shown at all.
         $this->assertNull($actionevent);
     }
 
-    public function test_folder_core_calendar_provide_event_action_in_hidden_section(): void {
+    public function test_folder_custom_core_calendar_provide_event_action_in_hidden_section(): void {
         // Create a course.
         $course = $this->getDataGenerator()->create_course();
 
@@ -159,10 +159,10 @@ final class lib_test extends \advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create the activity.
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id));
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id));
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $folder->id,
+        $event = $this->create_action_event($course->id, $folder_custom->id,
                 \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Set sections 0 as hidden.
@@ -172,13 +172,13 @@ final class lib_test extends \advanced_testcase {
         $factory = new \core_calendar\action_factory();
 
         // Decorate action event.
-        $actionevent = mod_folder_core_calendar_provide_event_action($event, $factory, $student->id);
+        $actionevent = mod_folder_custom_core_calendar_provide_event_action($event, $factory, $student->id);
 
         // Confirm the event is not shown at all.
         $this->assertNull($actionevent);
     }
 
-    public function test_folder_core_calendar_provide_event_action_for_user(): void {
+    public function test_folder_custom_core_calendar_provide_event_action_for_user(): void {
         // Create a course.
         $course = $this->getDataGenerator()->create_course();
 
@@ -186,10 +186,10 @@ final class lib_test extends \advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create the activity.
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id));
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id));
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $folder->id,
+        $event = $this->create_action_event($course->id, $folder_custom->id,
                 \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Now, log out.
@@ -199,7 +199,7 @@ final class lib_test extends \advanced_testcase {
         $factory = new \core_calendar\action_factory();
 
         // Decorate action event for the student.
-        $actionevent = mod_folder_core_calendar_provide_event_action($event, $factory, $student->id);
+        $actionevent = mod_folder_custom_core_calendar_provide_event_action($event, $factory, $student->id);
 
         // Confirm the event was decorated.
         $this->assertInstanceOf('\core_calendar\local\event\value_objects\action', $actionevent);
@@ -209,21 +209,21 @@ final class lib_test extends \advanced_testcase {
         $this->assertTrue($actionevent->is_actionable());
     }
 
-    public function test_folder_core_calendar_provide_event_action_already_completed(): void {
+    public function test_folder_custom_core_calendar_provide_event_action_already_completed(): void {
         global $CFG;
 
         $CFG->enablecompletion = 1;
 
         // Create the activity.
         $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id),
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id),
             array('completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS));
 
         // Get some additional data.
-        $cm = get_coursemodule_from_instance('folder', $folder->id);
+        $cm = get_coursemodule_from_instance('folder_custom', $folder_custom->id);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $folder->id,
+        $event = $this->create_action_event($course->id, $folder_custom->id,
             \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Mark the activity as completed.
@@ -234,13 +234,13 @@ final class lib_test extends \advanced_testcase {
         $factory = new \core_calendar\action_factory();
 
         // Decorate action event.
-        $actionevent = mod_folder_core_calendar_provide_event_action($event, $factory);
+        $actionevent = mod_folder_custom_core_calendar_provide_event_action($event, $factory);
 
         // Ensure result was null.
         $this->assertNull($actionevent);
     }
 
-    public function test_folder_core_calendar_provide_event_action_already_completed_for_user(): void {
+    public function test_folder_custom_core_calendar_provide_event_action_already_completed_for_user(): void {
         global $CFG;
 
         $CFG->enablecompletion = 1;
@@ -252,14 +252,14 @@ final class lib_test extends \advanced_testcase {
         $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create the activity.
-        $folder = $this->getDataGenerator()->create_module('folder', array('course' => $course->id),
+        $folder_custom = $this->getDataGenerator()->create_module('folder_custom', array('course' => $course->id),
                 array('completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS));
 
         // Get some additional data.
-        $cm = get_coursemodule_from_instance('folder', $folder->id);
+        $cm = get_coursemodule_from_instance('folder_custom', $folder_custom->id);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $folder->id,
+        $event = $this->create_action_event($course->id, $folder_custom->id,
                 \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Mark the activity as completed for the student.
@@ -273,7 +273,7 @@ final class lib_test extends \advanced_testcase {
         $factory = new \core_calendar\action_factory();
 
         // Decorate action event for the student.
-        $actionevent = mod_folder_core_calendar_provide_event_action($event, $factory, $student->id);
+        $actionevent = mod_folder_custom_core_calendar_provide_event_action($event, $factory, $student->id);
 
         // Ensure result was null.
         $this->assertNull($actionevent);
@@ -290,7 +290,7 @@ final class lib_test extends \advanced_testcase {
     private function create_action_event($courseid, $instanceid, $eventtype) {
         $event = new \stdClass();
         $event->name = 'Calendar event';
-        $event->modulename  = 'folder';
+        $event->modulename  = 'folder_custom';
         $event->courseid = $courseid;
         $event->instance = $instanceid;
         $event->type = CALENDAR_EVENT_TYPE_ACTION;
@@ -302,14 +302,14 @@ final class lib_test extends \advanced_testcase {
 
     /**
      * Test Get recent mod activity method.
-     * @covers ::folder_get_recent_mod_activity
-     * @dataProvider folder_get_recent_mod_activity_provider
+     * @covers ::folder_custom_get_recent_mod_activity
+     * @dataProvider folder_custom_get_recent_mod_activity_provider
      *
      * @param int $forcedownload The forcedownload option.
-     * @param bool $hascapability if the user has the mod/folder:view capability
+     * @param bool $hascapability if the user has the mod/folder_custom:view capability
      * @param int $count The expected recent activities entries.
      */
-    public function test_folder_get_recent_mod_activity(int $forcedownload, bool $hascapability, int $count): void {
+    public function test_folder_custom_get_recent_mod_activity(int $forcedownload, bool $hascapability, int $count): void {
         global $USER, $DB;
 
         $this->resetAfterTest();
@@ -335,33 +335,33 @@ final class lib_test extends \advanced_testcase {
 
         // Create the activity.
         $module = $this->getDataGenerator()->create_module(
-            'folder',
+            'folder_custom',
             ['course' => $course->id, 'forcedownload' => $forcedownload, 'files' => $filesitem]
         );
 
         // Get some additional data.
-        $cm = get_coursemodule_from_instance('folder', $module->id);
+        $cm = get_coursemodule_from_instance('folder_custom', $module->id);
         $context = context_module::instance($cm->id);
 
         // Add user with the specific capability.
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'editingteacher');
         if (!$hascapability) {
-            // The recent activiy uses "folder:view" capability which is allowed by default.
+            // The recent activiy uses "folder_custom:view" capability which is allowed by default.
             $role = $DB->get_record('role', ['shortname' => 'editingteacher'], '*', MUST_EXIST);
-            assign_capability('mod/folder:view', CAP_PROHIBIT, $role->id, $context->id, true);
+            assign_capability('mod/folder_custom:view', CAP_PROHIBIT, $role->id, $context->id, true);
         }
         $this->setUser($user);
 
         // Get the recent activity.
         $index = 1;
         $activities = [];
-        folder_get_recent_mod_activity($activities, $index, time() - HOURSECS, $course->id, $cm->id);
+        folder_custom_get_recent_mod_activity($activities, $index, time() - HOURSECS, $course->id, $cm->id);
 
         // Check recent activity.
         $this->assertCount($count, $activities);
         foreach ($activities as $index => $activity) {
-            $this->assertEquals('folder', $activity->type);
+            $this->assertEquals('folder_custom', $activity->type);
             $content = $activity->content;
             $this->assertEquals("file{$index}.txt", $content->filename);
             $urlparams = $content->url->params();
@@ -374,11 +374,11 @@ final class lib_test extends \advanced_testcase {
     }
 
     /**
-     * Data provider for test_folder_get_recent_mod_activity().
+     * Data provider for test_folder_custom_get_recent_mod_activity().
      *
      * @return array
      */
-    public static function folder_get_recent_mod_activity_provider(): array {
+    public static function folder_custom_get_recent_mod_activity_provider(): array {
         return [
             'Teacher with force download' => [
                 'forcedownload' => 1,

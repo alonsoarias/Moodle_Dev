@@ -16,31 +16,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @subpackage backup-moodle2
  * @copyright  2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
- * Define all the restore steps that will be used by the restore_folder_activity_task
+ * Define all the restore steps that will be used by the restore_folder_custom_activity_task
  */
 
 /**
- * Structure step to restore one folder activity
+ * Structure step to restore one folder_custom activity
  */
-class restore_folder_activity_structure_step extends restore_activity_structure_step {
+class restore_folder_custom_activity_structure_step extends restore_activity_structure_step {
 
     protected function define_structure() {
 
         $paths = array();
-        $paths[] = new restore_path_element('folder', '/activity/folder');
+        $paths[] = new restore_path_element('folder_custom', '/activity/folder_custom');
 
         // Return the paths wrapped into standard activity structure
         return $this->prepare_activity_structure($paths);
     }
 
-    protected function process_folder($data) {
+    protected function process_folder_custom($data) {
         global $DB;
 
         $data = (object)$data;
@@ -52,18 +52,18 @@ class restore_folder_activity_structure_step extends restore_activity_structure_
 
         // If showexpanded is not set, apply site default.
         if (!isset($data->showexpanded)) {
-            $data->showexpanded = get_config('folder', 'showexpanded');
+            $data->showexpanded = get_config('folder_custom', 'showexpanded');
         }
 
-        // insert the folder record
-        $newitemid = $DB->insert_record('folder', $data);
+        // insert the folder_custom record
+        $newitemid = $DB->insert_record('folder_custom', $data);
         // immediately after inserting "activity" record, call this
         $this->apply_activity_instance($newitemid);
     }
 
     protected function after_execute() {
-        // Add folder related files, no need to match by itemname (just internally handled context)
-        $this->add_related_files('mod_folder', 'intro', null);
-        $this->add_related_files('mod_folder', 'content', null);
+        // Add folder_custom related files, no need to match by itemname (just internally handled context)
+        $this->add_related_files('mod_folder_custom', 'intro', null);
+        $this->add_related_files('mod_folder_custom', 'content', null);
     }
 }

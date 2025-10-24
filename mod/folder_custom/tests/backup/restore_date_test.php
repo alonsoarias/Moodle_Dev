@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_folder\backup;
+namespace mod_folder_custom\backup;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -24,7 +24,7 @@ require_once($CFG->libdir . "/phpunit/classes/restore_date_testcase.php");
 /**
  * Restore date tests.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @copyright  2017 onwards Ankit Agarwal <ankit.agrr@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -33,11 +33,11 @@ final class restore_date_test extends \restore_date_testcase {
     public function test_restore_dates(): void {
         global $DB;
 
-        list($course, $folder) = $this->create_course_and_module('folder');
+        list($course, $folder_custom) = $this->create_course_and_module('folder_custom');
 
         // Do backup and restore.
         $newcourseid = $this->backup_and_restore($course);
-        $newfolder = $DB->get_record('folder', ['course' => $newcourseid]);
-        $this->assertFieldsNotRolledForward($folder, $newfolder, ['timemodified']);
+        $newfolder_custom = $DB->get_record('folder_custom', ['course' => $newcourseid]);
+        $this->assertFieldsNotRolledForward($folder_custom, $newfolder_custom, ['timemodified']);
     }
 }

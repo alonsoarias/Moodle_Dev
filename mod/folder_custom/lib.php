@@ -16,26 +16,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Mandatory public API of folder module
+ * Mandatory public API of folder_custom module
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2009 Petr Skoda  {@link http://skodak.org}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-/** Display folder contents on a separate page */
-define('FOLDER_DISPLAY_PAGE', 0);
-/** Display folder contents inline in a course */
-define('FOLDER_DISPLAY_INLINE', 1);
+/** Display folder_custom contents on a separate page */
+define('folder_custom_DISPLAY_PAGE', 0);
+/** Display folder_custom contents inline in a course */
+define('folder_custom_DISPLAY_INLINE', 1);
 
 /**
- * List of features supported in Folder module
+ * List of features supported in folder_custom module
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed True if module supports feature, false if not, null if doesn't know or string for the module purpose.
  */
-function folder_supports($feature) {
+function folder_custom_supports($feature) {
     switch($feature) {
         case FEATURE_MOD_ARCHETYPE:           return MOD_ARCHETYPE_RESOURCE;
         case FEATURE_GROUPS:                  return false;
@@ -57,7 +57,7 @@ function folder_supports($feature) {
  * @param $data the data submitted from the reset course.
  * @return array status array
  */
-function folder_reset_userdata($data) {
+function folder_custom_reset_userdata($data) {
 
     // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
     // See MDL-9367.
@@ -75,7 +75,7 @@ function folder_reset_userdata($data) {
  *
  * @return array
  */
-function folder_get_view_actions() {
+function folder_custom_get_view_actions() {
     return array('view', 'view all');
 }
 
@@ -89,17 +89,17 @@ function folder_get_view_actions() {
  *
  * @return array
  */
-function folder_get_post_actions() {
+function folder_custom_get_post_actions() {
     return array('update', 'add');
 }
 
 /**
- * Add folder instance.
+ * Add folder_custom instance.
  * @param object $data
  * @param object $mform
- * @return int new folder instance id
+ * @return int new folder_custom instance id
  */
-function folder_add_instance($data, $mform) {
+function folder_custom_add_instance($data, $mform) {
     global $DB;
 
     $cmid        = $data->coursemodule;
@@ -108,31 +108,31 @@ function folder_add_instance($data, $mform) {
     $data->timemodified = time();
     // If 'showexpanded' is not set, apply the site config.
     if (!isset($data->showexpanded)) {
-        $data->showexpanded = get_config('folder', 'showexpanded');
+        $data->showexpanded = get_config('folder_custom', 'showexpanded');
     }
-    $data->id = $DB->insert_record('folder', $data);
+    $data->id = $DB->insert_record('folder_custom', $data);
 
     // we need to use context now, so we need to make sure all needed info is already in db
     $DB->set_field('course_modules', 'instance', $data->id, array('id'=>$cmid));
     $context = context_module::instance($cmid);
 
     if ($draftitemid) {
-        file_save_draft_area_files($draftitemid, $context->id, 'mod_folder', 'content', 0, array('subdirs'=>true));
+        file_save_draft_area_files($draftitemid, $context->id, 'mod_folder_custom', 'content', 0, array('subdirs'=>true));
     }
 
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
-    \core_completion\api::update_completion_date_event($data->coursemodule, 'folder', $data->id, $completiontimeexpected);
+    \core_completion\api::update_completion_date_event($data->coursemodule, 'folder_custom', $data->id, $completiontimeexpected);
 
     return $data->id;
 }
 
 /**
- * Update folder instance.
+ * Update folder_custom instance.
  * @param object $data
  * @param object $mform
  * @return bool true
  */
-function folder_update_instance($data, $mform) {
+function folder_custom_update_instance($data, $mform) {
     global $CFG, $DB;
 
     $cmid        = $data->coursemodule;
@@ -142,37 +142,37 @@ function folder_update_instance($data, $mform) {
     $data->id           = $data->instance;
     $data->revision++;
 
-    $DB->update_record('folder', $data);
+    $DB->update_record('folder_custom', $data);
 
     $context = context_module::instance($cmid);
     if ($draftitemid = file_get_submitted_draft_itemid('files')) {
-        file_save_draft_area_files($draftitemid, $context->id, 'mod_folder', 'content', 0, array('subdirs'=>true));
+        file_save_draft_area_files($draftitemid, $context->id, 'mod_folder_custom', 'content', 0, array('subdirs'=>true));
     }
 
     $completiontimeexpected = !empty($data->completionexpected) ? $data->completionexpected : null;
-    \core_completion\api::update_completion_date_event($data->coursemodule, 'folder', $data->id, $completiontimeexpected);
+    \core_completion\api::update_completion_date_event($data->coursemodule, 'folder_custom', $data->id, $completiontimeexpected);
 
     return true;
 }
 
 /**
- * Delete folder instance.
+ * Delete folder_custom instance.
  * @param int $id
  * @return bool true
  */
-function folder_delete_instance($id) {
+function folder_custom_delete_instance($id) {
     global $DB;
 
-    if (!$folder = $DB->get_record('folder', array('id'=>$id))) {
+    if (!$folder_custom = $DB->get_record('folder_custom', array('id'=>$id))) {
         return false;
     }
 
-    $cm = get_coursemodule_from_instance('folder', $id);
-    \core_completion\api::update_completion_date_event($cm->id, 'folder', $folder->id, null);
+    $cm = get_coursemodule_from_instance('folder_custom', $id);
+    \core_completion\api::update_completion_date_event($cm->id, 'folder_custom', $folder_custom->id, null);
 
     // note: all context files are deleted automatically
 
-    $DB->delete_records('folder', array('id'=>$folder->id));
+    $DB->delete_records('folder_custom', array('id'=>$folder_custom->id));
 
     return true;
 }
@@ -180,24 +180,24 @@ function folder_delete_instance($id) {
 /**
  * Lists all browsable file areas
  *
- * @package  mod_folder
+ * @package  mod_folder_custom
  * @category files
  * @param stdClass $course course object
  * @param stdClass $cm course module object
  * @param stdClass $context context object
  * @return array
  */
-function folder_get_file_areas($course, $cm, $context) {
+function folder_custom_get_file_areas($course, $cm, $context) {
     $areas = array();
-    $areas['content'] = get_string('foldercontent', 'folder');
+    $areas['content'] = get_string('folder_customcontent', 'folder_custom');
 
     return $areas;
 }
 
 /**
- * File browsing support for folder module content area.
+ * File browsing support for folder_custom module content area.
  *
- * @package  mod_folder
+ * @package  mod_folder_custom
  * @category files
  * @param file_browser $browser file browser instance
  * @param array $areas file areas
@@ -210,44 +210,44 @@ function folder_get_file_areas($course, $cm, $context) {
  * @param string $filename file name
  * @return file_info instance or null if not found
  */
-function folder_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
+function folder_custom_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
     global $CFG;
 
 
     if ($filearea === 'content') {
-        if (!has_capability('mod/folder:view', $context)) {
+        if (!has_capability('mod/folder_custom:view', $context)) {
             return NULL;
         }
         $fs = get_file_storage();
 
         $filepath = is_null($filepath) ? '/' : $filepath;
         $filename = is_null($filename) ? '.' : $filename;
-        if (!$storedfile = $fs->get_file($context->id, 'mod_folder', 'content', 0, $filepath, $filename)) {
+        if (!$storedfile = $fs->get_file($context->id, 'mod_folder_custom', 'content', 0, $filepath, $filename)) {
             if ($filepath === '/' and $filename === '.') {
-                $storedfile = new virtual_root_file($context->id, 'mod_folder', 'content', 0);
+                $storedfile = new virtual_root_file($context->id, 'mod_folder_custom', 'content', 0);
             } else {
                 // not found
                 return null;
             }
         }
 
-        require_once("$CFG->dirroot/mod/folder/locallib.php");
+        require_once("$CFG->dirroot/mod/folder_custom/locallib.php");
         $urlbase = $CFG->wwwroot.'/pluginfile.php';
 
         // students may read files here
-        $canwrite = has_capability('mod/folder:managefiles', $context);
-        return new folder_content_file_info($browser, $context, $storedfile, $urlbase, $areas[$filearea], true, true, $canwrite, false);
+        $canwrite = has_capability('mod/folder_custom:managefiles', $context);
+        return new folder_custom_content_file_info($browser, $context, $storedfile, $urlbase, $areas[$filearea], true, true, $canwrite, false);
     }
 
-    // note: folder_intro handled in file_browser automatically
+    // note: folder_custom_intro handled in file_browser automatically
 
     return null;
 }
 
 /**
- * Serves the folder files.
+ * Serves the folder_custom files.
  *
- * @package  mod_folder
+ * @package  mod_folder_custom
  * @category files
  * @param stdClass $course course object
  * @param stdClass $cm course module
@@ -258,7 +258,7 @@ function folder_get_file_info($browser, $areas, $course, $cm, $context, $fileare
  * @param array $options additional options affecting the file serving
  * @return bool false if file not found, does not return if found - just send the file
  */
-function folder_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+function folder_custom_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $CFG, $DB;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -266,7 +266,7 @@ function folder_pluginfile($course, $cm, $context, $filearea, $args, $forcedownl
     }
 
     require_course_login($course, true, $cm);
-    if (!has_capability('mod/folder:view', $context)) {
+    if (!has_capability('mod/folder_custom:view', $context)) {
         return false;
     }
 
@@ -279,7 +279,7 @@ function folder_pluginfile($course, $cm, $context, $filearea, $args, $forcedownl
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
-    $fullpath = "/$context->id/mod_folder/content/0/$relativepath";
+    $fullpath = "/$context->id/mod_folder_custom/content/0/$relativepath";
     if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
         return false;
     }
@@ -299,24 +299,24 @@ function folder_pluginfile($course, $cm, $context, $filearea, $args, $forcedownl
  * @param stdClass $parentcontext Block's parent context
  * @param stdClass $currentcontext Current context of block
  */
-function folder_page_type_list($pagetype, $parentcontext, $currentcontext) {
-    $module_pagetype = array('mod-folder-*'=>get_string('page-mod-folder-x', 'folder'));
+function folder_custom_page_type_list($pagetype, $parentcontext, $currentcontext) {
+    $module_pagetype = array('mod-folder_custom-*'=>get_string('page-mod-folder_custom-x', 'folder_custom'));
     return $module_pagetype;
 }
 
 /**
- * Export folder resource contents
+ * Export folder_custom resource contents
  *
  * @return array of file content
  */
-function folder_export_contents($cm, $baseurl) {
+function folder_custom_export_contents($cm, $baseurl) {
     global $CFG, $DB;
     $contents = array();
     $context = context_module::instance($cm->id);
-    $folder = $DB->get_record('folder', array('id'=>$cm->instance), '*', MUST_EXIST);
+    $folder_custom = $DB->get_record('folder_custom', array('id'=>$cm->instance), '*', MUST_EXIST);
 
     $fs = get_file_storage();
-    $files = $fs->get_area_files($context->id, 'mod_folder', 'content', 0, 'sortorder DESC, id ASC', false);
+    $files = $fs->get_area_files($context->id, 'mod_folder_custom', 'content', 0, 'sortorder DESC, id ASC', false);
 
     foreach ($files as $fileinfo) {
         $file = array();
@@ -324,7 +324,7 @@ function folder_export_contents($cm, $baseurl) {
         $file['filename']     = $fileinfo->get_filename();
         $file['filepath']     = $fileinfo->get_filepath();
         $file['filesize']     = $fileinfo->get_filesize();
-        $file['fileurl']      = file_encode_url("$CFG->wwwroot/" . $baseurl, '/'.$context->id.'/mod_folder/content/'.$folder->revision.$fileinfo->get_filepath().$fileinfo->get_filename(), true);
+        $file['fileurl']      = file_encode_url("$CFG->wwwroot/" . $baseurl, '/'.$context->id.'/mod_folder_custom/content/'.$folder_custom->revision.$fileinfo->get_filepath().$fileinfo->get_filename(), true);
         $file['timecreated']  = $fileinfo->get_timecreated();
         $file['timemodified'] = $fileinfo->get_timemodified();
         $file['sortorder']    = $fileinfo->get_sortorder();
@@ -346,9 +346,9 @@ function folder_export_contents($cm, $baseurl) {
  * Register the ability to handle drag and drop file uploads
  * @return array containing details of the files / types the mod can handle
  */
-function folder_dndupload_register() {
+function folder_custom_dndupload_register() {
     return array('files' => array(
-                     array('extension' => 'zip', 'message' => get_string('dnduploadmakefolder', 'mod_folder'))
+                     array('extension' => 'zip', 'message' => get_string('dnduploadmakefolder_custom', 'mod_folder_custom'))
                  ));
 }
 
@@ -357,7 +357,7 @@ function folder_dndupload_register() {
  * @param object $uploadinfo details of the file / content that has been uploaded
  * @return int instance id of the newly created mod
  */
-function folder_dndupload_handle($uploadinfo) {
+function folder_custom_dndupload_handle($uploadinfo) {
     global $DB, $USER;
 
     // Gather the required info.
@@ -369,24 +369,24 @@ function folder_dndupload_handle($uploadinfo) {
     $data->coursemodule = $uploadinfo->coursemodule;
     $data->files = null; // We will unzip the file and sort out the contents below.
 
-    $data->id = folder_add_instance($data, null);
+    $data->id = folder_custom_add_instance($data, null);
 
     // Retrieve the file from the draft file area.
     $context = context_module::instance($uploadinfo->coursemodule);
-    file_save_draft_area_files($uploadinfo->draftitemid, $context->id, 'mod_folder', 'temp', 0, array('subdirs'=>true));
+    file_save_draft_area_files($uploadinfo->draftitemid, $context->id, 'mod_folder_custom', 'temp', 0, array('subdirs'=>true));
     $fs = get_file_storage();
-    $files = $fs->get_area_files($context->id, 'mod_folder', 'temp', 0, 'sortorder', false);
+    $files = $fs->get_area_files($context->id, 'mod_folder_custom', 'temp', 0, 'sortorder', false);
     // Only ever one file - extract the contents.
     $file = reset($files);
 
-    $success = $file->extract_to_storage(new zip_packer(), $context->id, 'mod_folder', 'content', 0, '/', $USER->id);
-    $fs->delete_area_files($context->id, 'mod_folder', 'temp', 0);
+    $success = $file->extract_to_storage(new zip_packer(), $context->id, 'mod_folder_custom', 'content', 0, '/', $USER->id);
+    $fs->delete_area_files($context->id, 'mod_folder_custom', 'temp', 0);
 
     if ($success) {
         return $data->id;
     }
 
-    $DB->delete_records('folder', array('id' => $data->id));
+    $DB->delete_records('folder_custom', array('id' => $data->id));
     return false;
 }
 
@@ -394,38 +394,38 @@ function folder_dndupload_handle($uploadinfo) {
  * Given a coursemodule object, this function returns the extra
  * information needed to print this activity in various places.
  *
- * If folder needs to be displayed inline we store additional information
- * in customdata, so functions {@link folder_cm_info_dynamic()} and
- * {@link folder_cm_info_view()} do not need to do DB queries
+ * If folder_custom needs to be displayed inline we store additional information
+ * in customdata, so functions {@link folder_custom_cm_info_dynamic()} and
+ * {@link folder_custom_cm_info_view()} do not need to do DB queries
  *
  * @param cm_info $cm
  * @return cached_cm_info info
  */
-function folder_get_coursemodule_info($cm) {
+function folder_custom_get_coursemodule_info($cm) {
     global $DB;
-    if (!($folder = $DB->get_record('folder', array('id' => $cm->instance),
-            'id, name, display, showexpanded, showdownloadfolder, forcedownload, intro, introformat'))) {
+    if (!($folder_custom = $DB->get_record('folder_custom', array('id' => $cm->instance),
+            'id, name, display, showexpanded, showdownloadfolder_custom, forcedownload, intro, introformat'))) {
         return NULL;
     }
     $cminfo = new cached_cm_info();
-    $cminfo->name = $folder->name;
-    if ($folder->display == FOLDER_DISPLAY_INLINE) {
-        // prepare folder object to store in customdata
+    $cminfo->name = $folder_custom->name;
+    if ($folder_custom->display == folder_custom_DISPLAY_INLINE) {
+        // prepare folder_custom object to store in customdata
         $fdata = new stdClass();
-        $fdata->showexpanded = $folder->showexpanded;
-        $fdata->showdownloadfolder = $folder->showdownloadfolder;
-        $fdata->forcedownload = $folder->forcedownload;
-        if ($cm->showdescription && strlen(trim($folder->intro))) {
-            $fdata->intro = $folder->intro;
-            if ($folder->introformat != FORMAT_MOODLE) {
-                $fdata->introformat = $folder->introformat;
+        $fdata->showexpanded = $folder_custom->showexpanded;
+        $fdata->showdownloadfolder_custom = $folder_custom->showdownloadfolder_custom;
+        $fdata->forcedownload = $folder_custom->forcedownload;
+        if ($cm->showdescription && strlen(trim($folder_custom->intro))) {
+            $fdata->intro = $folder_custom->intro;
+            if ($folder_custom->introformat != FORMAT_MOODLE) {
+                $fdata->introformat = $folder_custom->introformat;
             }
         }
         $cminfo->customdata = $fdata;
     } else {
         if ($cm->showdescription) {
             // Convert intro to html. Do not filter cached version, filters run at display time.
-            $cminfo->content = format_module_intro('folder', $folder, $cm->id, false);
+            $cminfo->content = format_module_intro('folder_custom', $folder_custom, $cm->id, false);
         }
     }
     return $cminfo;
@@ -435,11 +435,11 @@ function folder_get_coursemodule_info($cm) {
  * Sets dynamic information about a course module
  *
  * This function is called from cm_info when displaying the module
- * mod_folder can be displayed inline on course page and therefore have no course link
+ * mod_folder_custom can be displayed inline on course page and therefore have no course link
  *
  * @param cm_info $cm
  */
-function folder_cm_info_dynamic(cm_info $cm) {
+function folder_custom_cm_info_dynamic(cm_info $cm) {
     if ($cm->get_custom_data()) {
         // the field 'customdata' is not empty IF AND ONLY IF we display contens inline
         $cm->set_no_view_link();
@@ -447,58 +447,58 @@ function folder_cm_info_dynamic(cm_info $cm) {
 }
 
 /**
- * Overwrites the content in the course-module object with the folder files list
- * if folder.display == FOLDER_DISPLAY_INLINE
+ * Overwrites the content in the course-module object with the folder_custom files list
+ * if folder_custom.display == folder_custom_DISPLAY_INLINE
  *
  * @param cm_info $cm
  */
-function folder_cm_info_view(cm_info $cm) {
+function folder_custom_cm_info_view(cm_info $cm) {
     global $PAGE;
     if ($cm->uservisible && $cm->customdata &&
-            has_capability('mod/folder:view', $cm->context)) {
-        // Restore folder object from customdata.
-        $folder = $cm->customdata;
-        $folder->id = (int)$cm->instance;
-        $folder->course = (int)$cm->course;
-        $folder->display = FOLDER_DISPLAY_INLINE;
-        $folder->name = $cm->name;
-        if (empty($folder->intro)) {
-            $folder->intro = '';
+            has_capability('mod/folder_custom:view', $cm->context)) {
+        // Restore folder_custom object from customdata.
+        $folder_custom = $cm->customdata;
+        $folder_custom->id = (int)$cm->instance;
+        $folder_custom->course = (int)$cm->course;
+        $folder_custom->display = folder_custom_DISPLAY_INLINE;
+        $folder_custom->name = $cm->name;
+        if (empty($folder_custom->intro)) {
+            $folder_custom->intro = '';
         }
-        if (empty($folder->introformat)) {
-            $folder->introformat = FORMAT_MOODLE;
+        if (empty($folder_custom->introformat)) {
+            $folder_custom->introformat = FORMAT_MOODLE;
         }
         
         // Add OneDrive class to inline display
-        $PAGE->add_body_class('mod-folder-onedrive-inline');
+        $PAGE->add_body_class('mod-folder_custom-onedrive-inline');
         
-        // display folder
-        $renderer = $PAGE->get_renderer('mod_folder');
-        $cm->set_content($renderer->display_folder($folder), true);
+        // display folder_custom
+        $renderer = $PAGE->get_renderer('mod_folder_custom');
+        $cm->set_content($renderer->display_folder_custom($folder_custom), true);
     }
 }
 
 /**
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
- * @param  stdClass $folder     folder object
+ * @param  stdClass $folder_custom     folder_custom object
  * @param  stdClass $course     course object
  * @param  stdClass $cm         course module object
  * @param  stdClass $context    context object
  * @since Moodle 3.0
  */
-function folder_view($folder, $course, $cm, $context) {
+function folder_custom_view($folder_custom, $course, $cm, $context) {
 
     // Trigger course_module_viewed event.
     $params = array(
         'context' => $context,
-        'objectid' => $folder->id
+        'objectid' => $folder_custom->id
     );
 
-    $event = \mod_folder\event\course_module_viewed::create($params);
+    $event = \mod_folder_custom\event\course_module_viewed::create($params);
     $event->add_record_snapshot('course_modules', $cm);
     $event->add_record_snapshot('course', $course);
-    $event->add_record_snapshot('folder', $folder);
+    $event->add_record_snapshot('folder_custom', $folder_custom);
     $event->trigger();
 
     // Completion.
@@ -507,23 +507,23 @@ function folder_view($folder, $course, $cm, $context) {
 }
 
 /**
- * Check if the folder can be zipped and downloaded.
- * @param stdClass $folder
+ * Check if the folder_custom can be zipped and downloaded.
+ * @param stdClass $folder_custom
  * @param context_module $cm
- * @return bool True if the folder can be zipped and downloaded.
+ * @return bool True if the folder_custom can be zipped and downloaded.
  * @throws \dml_exception
  */
-function folder_archive_available($folder, $cm) {
-    if (!$folder->showdownloadfolder) {
+function folder_custom_archive_available($folder_custom, $cm) {
+    if (!$folder_custom->showdownloadfolder_custom) {
         return false;
     }
 
     $context = context_module::instance($cm->id);
     $fs = get_file_storage();
-    $dir = $fs->get_area_tree($context->id, 'mod_folder', 'content', 0);
+    $dir = $fs->get_area_tree($context->id, 'mod_folder_custom', 'content', 0);
 
-    $size = folder_get_directory_size($dir);
-    $maxsize = get_config('folder', 'maxsizetodownload') * 1024 * 1024;
+    $size = folder_custom_get_directory_size($dir);
+    $maxsize = get_config('folder_custom', 'maxsizetodownload') * 1024 * 1024;
 
     if ($size == 0) {
         return false;
@@ -541,7 +541,7 @@ function folder_archive_available($folder, $cm) {
  * @param array $directory
  * @return int size of directory contents in bytes
  */
-function folder_get_directory_size($directory) {
+function folder_custom_get_directory_size($directory) {
     $size = 0;
 
     foreach ($directory['files'] as $file) {
@@ -549,7 +549,7 @@ function folder_get_directory_size($directory) {
     }
 
     foreach ($directory['subdirs'] as $subdirectory) {
-        $size += folder_get_directory_size($subdirectory);
+        $size += folder_custom_get_directory_size($subdirectory);
     }
 
     return $size;
@@ -558,21 +558,21 @@ function folder_get_directory_size($directory) {
 /**
  * Mark the activity completed (if required) and trigger the all_files_downloaded event.
  *
- * @param  stdClass $folder     folder object
+ * @param  stdClass $folder_custom     folder_custom object
  * @param  stdClass $course     course object
  * @param  stdClass $cm         course module object
  * @param  stdClass $context    context object
  * @since Moodle 3.1
  */
-function folder_downloaded($folder, $course, $cm, $context) {
+function folder_custom_downloaded($folder_custom, $course, $cm, $context) {
     $params = array(
         'context' => $context,
-        'objectid' => $folder->id
+        'objectid' => $folder_custom->id
     );
-    $event = \mod_folder\event\all_files_downloaded::create($params);
+    $event = \mod_folder_custom\event\all_files_downloaded::create($params);
     $event->add_record_snapshot('course_modules', $cm);
     $event->add_record_snapshot('course', $course);
-    $event->add_record_snapshot('folder', $folder);
+    $event->add_record_snapshot('folder_custom', $folder_custom);
     $event->trigger();
 
     // Completion.
@@ -581,7 +581,7 @@ function folder_downloaded($folder, $course, $cm, $context) {
 }
 
 /**
- * Returns all uploads since a given time in specified folder.
+ * Returns all uploads since a given time in specified folder_custom.
  *
  * @param array $activities
  * @param int $index
@@ -591,22 +591,22 @@ function folder_downloaded($folder, $course, $cm, $context) {
  * @param int $userid
  * @param int $groupid not used, but required for compatibilty with other modules
  */
-function folder_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
+function folder_custom_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
     global $DB, $OUTPUT;
 
     $modinfo = get_fast_modinfo($courseid);
     $cm = $modinfo->cms[$cmid];
 
     $context = context_module::instance($cm->id);
-    if (!has_capability('mod/folder:view', $context)) {
+    if (!has_capability('mod/folder_custom:view', $context)) {
         return;
     }
-    $instance = $DB->get_record('folder', ['id' => $cm->instance], '*', MUST_EXIST);
+    $instance = $DB->get_record('folder_custom', ['id' => $cm->instance], '*', MUST_EXIST);
 
-    $files = folder_get_recent_activity($context, $timestart, $userid);
+    $files = folder_custom_get_recent_activity($context, $timestart, $userid);
     foreach ($files as $file) {
         $tmpactivity = (object) [
-            'type' => 'folder',
+            'type' => 'folder_custom',
             'cmid' => $cm->id,
             'sectionnum' => $cm->sectionnum,
             'timestamp' => $file->get_timemodified(),
@@ -615,7 +615,7 @@ function folder_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
 
         $url = moodle_url::make_pluginfile_url(
             $file->get_contextid(),
-            'mod_folder',
+            'mod_folder_custom',
             'content',
             $file->get_itemid(),
             $file->get_filepath(),
@@ -641,15 +641,15 @@ function folder_get_recent_mod_activity(&$activities, &$index, $timestart, $cour
 }
 
 /**
- * Outputs the folder uploads indicated by $activity.
+ * Outputs the folder_custom uploads indicated by $activity.
  *
- * @param object $activity      the activity object the folder resides in
- * @param int    $courseid      the id of the course the folder resides in
+ * @param object $activity      the activity object the folder_custom resides in
+ * @param int    $courseid      the id of the course the folder_custom resides in
  * @param bool   $detail        not used, but required for compatibilty with other modules
  * @param int    $modnames      not used, but required for compatibilty with other modules
  * @param bool   $viewfullnames not used, but required for compatibilty with other modules
  */
-function folder_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
+function folder_custom_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
     global $OUTPUT;
 
     $content = $activity->content;
@@ -673,7 +673,7 @@ function folder_print_recent_mod_activity($activity, $courseid, $detail, $modnam
     $by = new stdClass();
     $by->name = html_writer::link($userurl, $fullname);
     $by->date = userdate($activity->timestamp);
-    $authornamedate = get_string('bynameondate', 'folder', $by);
+    $authornamedate = get_string('bynameondate', 'folder_custom', $by);
     $output .= html_writer::div($authornamedate, 'user');
 
     // Finish up the table.
@@ -684,7 +684,7 @@ function folder_print_recent_mod_activity($activity, $courseid, $detail, $modnam
 }
 
 /**
- * Gets recent file uploads in a given folder. Does not perform security checks.
+ * Gets recent file uploads in a given folder_custom. Does not perform security checks.
  *
  * @param object $context
  * @param int $timestart
@@ -692,10 +692,10 @@ function folder_print_recent_mod_activity($activity, $courseid, $detail, $modnam
  *
  * @return array
  */
-function folder_get_recent_activity($context, $timestart, $userid=0) {
+function folder_custom_get_recent_activity($context, $timestart, $userid=0) {
     $newfiles = array();
     $fs = get_file_storage();
-    $files = $fs->get_area_files($context->id, 'mod_folder', 'content');
+    $files = $fs->get_area_files($context->id, 'mod_folder_custom', 'content');
     foreach ($files as $file) {
         if ($file->get_timemodified() <= $timestart) {
             continue;
@@ -713,7 +713,7 @@ function folder_get_recent_activity($context, $timestart, $userid=0) {
 
 /**
  * Given a course and a date, prints a summary of all the new
- * files posted in folder resources since that date
+ * files posted in folder_custom resources since that date
  *
  * @uses CONTEXT_MODULE
  * @param object $course
@@ -721,12 +721,12 @@ function folder_get_recent_activity($context, $timestart, $userid=0) {
  * @param int $timestart
  * @return bool success
  */
-function folder_print_recent_activity($course, $viewfullnames, $timestart) {
+function folder_custom_print_recent_activity($course, $viewfullnames, $timestart) {
     global $OUTPUT;
 
-    $folders = get_all_instances_in_course('folder', $course);
+    $folder_customs = get_all_instances_in_course('folder_custom', $course);
 
-    if (empty($folders)) {
+    if (empty($folder_customs)) {
         return false;
     }
 
@@ -736,18 +736,18 @@ function folder_print_recent_activity($course, $viewfullnames, $timestart) {
     $forcedownloads = [];
 
     $modinfo = get_fast_modinfo($course);
-    foreach ($folders as $folder) {
+    foreach ($folder_customs as $folder_custom) {
         // Skip resources if the user can't view them.
-        $cm = $modinfo->cms[$folder->coursemodule];
+        $cm = $modinfo->cms[$folder_custom->coursemodule];
         $context = context_module::instance($cm->id);
-        if (!has_capability('mod/folder:view', $context)) {
+        if (!has_capability('mod/folder_custom:view', $context)) {
             continue;
         }
 
         // Get the files uploaded in the current time frame.
-        $newfiles = array_merge($newfiles, folder_get_recent_activity($context, $timestart));
+        $newfiles = array_merge($newfiles, folder_custom_get_recent_activity($context, $timestart));
         if (!isset($forcedownloads[$context->id])) {
-            $forcedownloads[$context->id] = !empty($folder->forcedownload);
+            $forcedownloads[$context->id] = !empty($folder_custom->forcedownload);
         }
     }
 
@@ -756,14 +756,14 @@ function folder_print_recent_activity($course, $viewfullnames, $timestart) {
     }
 
     // Build list of files.
-    echo $OUTPUT->heading(get_string('newfoldercontent', 'folder') . ':', 6);
+    echo $OUTPUT->heading(get_string('newfolder_customcontent', 'folder_custom') . ':', 6);
     $list = html_writer::start_tag('ul', ['class' => 'unlist']);
     foreach ($newfiles as $file) {
         $filename = $file->get_filename();
         $contextid = $file->get_contextid();
         $url = moodle_url::make_pluginfile_url(
             $contextid,
-            'mod_folder',
+            'mod_folder_custom',
             'content',
             $file->get_itemid(),
             $file->get_filepath(), $filename,
@@ -795,7 +795,7 @@ function folder_print_recent_activity($course, $viewfullnames, $timestart) {
  * @return stdClass an object with the different type of areas indicating if they were updated or not
  * @since Moodle 3.2
  */
-function folder_check_updates_since(cm_info $cm, $from, $filter = array()) {
+function folder_custom_check_updates_since(cm_info $cm, $from, $filter = array()) {
     $updates = course_check_module_updates_since($cm, $from, array('content'), $filter);
     return $updates;
 }
@@ -811,7 +811,7 @@ function folder_check_updates_since(cm_info $cm, $from, $filter = array()) {
  * @param int $userid User id to use for all capability checks, etc. Set to 0 for current user (default).
  * @return \core_calendar\local\event\entities\action_interface|null
  */
-function mod_folder_core_calendar_provide_event_action(calendar_event $event,
+function mod_folder_custom_core_calendar_provide_event_action(calendar_event $event,
                                                        \core_calendar\action_factory $factory,
                                                        int $userid = 0) {
     global $USER;
@@ -820,7 +820,7 @@ function mod_folder_core_calendar_provide_event_action(calendar_event $event,
         $userid = $USER->id;
     }
 
-    $cm = get_fast_modinfo($event->courseid, $userid)->instances['folder'][$event->instance];
+    $cm = get_fast_modinfo($event->courseid, $userid)->instances['folder_custom'][$event->instance];
 
     if (!$cm->uservisible) {
         // The module is not visible to the user for any reason.
@@ -837,7 +837,7 @@ function mod_folder_core_calendar_provide_event_action(calendar_event $event,
 
     return $factory->create_instance(
         get_string('view'),
-        new \moodle_url('/mod/folder/view.php', ['id' => $cm->id]),
+        new \moodle_url('/mod/folder_custom/view.php', ['id' => $cm->id]),
         1,
         true
     );
@@ -850,8 +850,8 @@ function mod_folder_core_calendar_provide_event_action(calendar_event $event,
  * @param  array  $args The path (the part after the filearea and before the filename).
  * @return array The itemid and the filepath inside the $args path, for the defined filearea.
  */
-function mod_folder_get_path_from_pluginfile(string $filearea, array $args): array {
-    // Folder never has an itemid (the number represents the revision but it's not stored in database).
+function mod_folder_custom_get_path_from_pluginfile(string $filearea, array $args): array {
+    // folder_custom never has an itemid (the number represents the revision but it's not stored in database).
     array_shift($args);
 
     // Get the filepath.

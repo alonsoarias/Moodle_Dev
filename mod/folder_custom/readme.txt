@@ -17,10 +17,10 @@ copyright 2009 Petr Skoda (http://skodak.org)
 license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
 
-Folder module
+folder_custom module
 =============
 
-Folder module is a successor to original 'directory' type plugin of Resource module.
+folder_custom module is a successor to original 'directory' type plugin of Resource module.
 
 This module is intended for distribution of large number of documents.
 

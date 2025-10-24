@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Folder module upgrade code
+ * folder_custom module upgrade code
  *
  * This file keeps track of upgrades to
  * the resource module
@@ -37,12 +37,12 @@
  * Please do not forget to use upgrade_set_timeout()
  * before any action that may take longer time to finish.
  *
- * @package   mod_folder
+ * @package   mod_folder_custom
  * @copyright 2009 Petr Skoda  {@link http://skodak.org}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-function xmldb_folder_upgrade($oldversion) {
+function xmldb_folder_custom_upgrade($oldversion) {
     // Automatically generated Moodle v4.1.0 release upgrade line.
     // Put any upgrade step following this.
 

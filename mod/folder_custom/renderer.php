@@ -3,19 +3,19 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class mod_folder_renderer extends plugin_renderer_base {
+class mod_folder_custom_renderer extends plugin_renderer_base {
 
     /**
-     * Returns html to display the content of mod_folder
+     * Returns html to display the content of mod_folder_custom
      * OneDrive-style presentation with original data structure
      *
-     * @param stdClass $folder record from 'folder' table
+     * @param stdClass $folder_custom record from 'folder_custom' table
      * @return string
      */
-    public function display_folder(stdClass $folder) {
-        $folderinstances = get_fast_modinfo($folder->course)->get_instances_of('folder');
-        if (!isset($folderinstances[$folder->id]) ||
-                !($cm = $folderinstances[$folder->id]) ||
+    public function display_folder_custom(stdClass $folder_custom) {
+        $folder_custominstances = get_fast_modinfo($folder_custom->course)->get_instances_of('folder_custom');
+        if (!isset($folder_custominstances[$folder_custom->id]) ||
+                !($cm = $folder_custominstances[$folder_custom->id]) ||
                 !($context = context_module::instance($cm->id))) {
             return '';
         }
@@ -23,20 +23,20 @@ class mod_folder_renderer extends plugin_renderer_base {
         $data = [];
         
         // Intro
-        if (trim($folder->intro)) {
-            if ($folder->display == FOLDER_DISPLAY_INLINE && $cm->showdescription) {
-                $data['intro'] = format_module_intro('folder', $folder, $cm->id, false);
+        if (trim($folder_custom->intro)) {
+            if ($folder_custom->display == folder_custom_DISPLAY_INLINE && $cm->showdescription) {
+                $data['intro'] = format_module_intro('folder_custom', $folder_custom, $cm->id, false);
             }
         }
 
         // Buttons
         $buttons = [];
-        $canmanagefolderfiles = has_capability('mod/folder:managefiles', $context);
+        $canmanagefolder_customfiles = has_capability('mod/folder_custom:managefiles', $context);
         $canmanagecourseactivities = has_capability('moodle/course:manageactivities', $context);
         
         $modulebase = '/mod/' . $cm->modname;
 
-        if ($canmanagefolderfiles && ($folder->display != FOLDER_DISPLAY_INLINE || !$canmanagecourseactivities)) {
+        if ($canmanagefolder_customfiles && ($folder_custom->display != folder_custom_DISPLAY_INLINE || !$canmanagecourseactivities)) {
             $editbutton = new single_button(
                 new moodle_url($modulebase . '/edit.php', ['id' => $cm->id]),
                 get_string('edit'), 
@@ -48,11 +48,11 @@ class mod_folder_renderer extends plugin_renderer_base {
             $data['hasbuttons'] = true;
         }
 
-        $downloadable = folder_archive_available($folder, $cm);
+        $downloadable = folder_custom_archive_available($folder_custom, $cm);
         if ($downloadable) {
             $downloadbutton = new single_button(
-                new moodle_url($modulebase . '/download_folder.php', ['id' => $cm->id]),
-                get_string('downloadfolder', 'folder'), 
+                new moodle_url($modulebase . '/download_folder_custom.php', ['id' => $cm->id]),
+                get_string('downloadfolder_custom', 'folder_custom'), 
                 'get'
             );
             $downloadbutton->class = 'navitem ms-auto';
@@ -60,37 +60,37 @@ class mod_folder_renderer extends plugin_renderer_base {
             $data['hasbuttons'] = true;
         }
 
-        // Get folder tree (MANTENER LÓGICA ORIGINAL)
-        $foldertree = new folder_tree($folder, $cm);
-        if ($folder->display == FOLDER_DISPLAY_INLINE) {
-            $foldertree->dir['dirname'] = $cm->get_formatted_name(array('escape' => false));
+        // Get folder_custom tree (MANTENER LÓGICA ORIGINAL)
+        $folder_customtree = new folder_custom_tree($folder_custom, $cm);
+        if ($folder_custom->display == folder_custom_DISPLAY_INLINE) {
+            $folder_customtree->dir['dirname'] = $cm->get_formatted_name(array('escape' => false));
         }
 
-        $data['id'] = 'folder_tree_' . $cm->id;
-        $data['showexpanded'] = !empty($foldertree->folder->showexpanded);
+        $data['id'] = 'folder_custom_tree_' . $cm->id;
+        $data['showexpanded'] = !empty($folder_customtree->folder_custom->showexpanded);
 
-        $rootname = format_string($folder->name, true, ['context' => $context]);
+        $rootname = format_string($folder_custom->name, true, ['context' => $context]);
         $data['rootname'] = $rootname;
 
         // Convertir estructura a elementos planos para grid (NUEVA FUNCIÓN)
-        $data['items'] = $this->flatten_tree_for_grid($foldertree, $foldertree->dir);
+        $data['items'] = $this->flatten_tree_for_grid($folder_customtree, $folder_customtree->dir);
         $data['has_items'] = !empty($data['items']);
 
         // Construir estructura de navegación estilo explorador.
-        $data['tree'] = $this->build_tree_structure($foldertree, $rootname);
+        $data['tree'] = $this->build_tree_structure($folder_customtree, $rootname);
         $data['has_tree'] = !empty($data['tree']);
 
         $strings = $this->get_template_strings();
         $data['strings'] = $strings;
         $data['stringsjson'] = json_encode($strings, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 
-        return $this->render_from_template('mod_folder/folder', $data);
+        return $this->render_from_template('mod_folder_custom/folder_custom', $data);
     }
 
     /**
      * NUEVA FUNCIÓN: Aplanar árbol de archivos para vista grid
      * 
-     * @param folder_tree $tree
+     * @param folder_custom_tree $tree
      * @param array $dir
      * @param string $path
      * @return array
@@ -110,22 +110,22 @@ class mod_folder_renderer extends plugin_renderer_base {
 
                 $items[] = [
                     'name' => $displayname,
-                    'type' => 'folder',
-                    'icon' => $this->output->pix_icon(file_folder_icon(), $displayname, 'moodle', ['class' => 'icon-folder']),
-                    'icon_class' => 'folder-icon-folder',
+                    'type' => 'folder_custom',
+                    'icon' => $this->output->pix_icon(file_folder_custom_icon(), $displayname, 'moodle', ['class' => 'icon-folder_custom']),
+                    'icon_class' => 'folder_custom-icon-folder_custom',
                     'size' => '',
                     'size_bytes' => 0,
                     'modified' => '',
                     'modified_timestamp' => 0,
                     'extension' => '',
-                    'file_category' => 'folder',
+                    'file_category' => 'folder_custom',
                     'path' => $newpath,
                     'path_encoded' => $encodedpath,
                     'parent_path' => $path,
                     'parent_path_encoded' => $encodedparentpath,
-                    'folder_path' => $newpath,
-                    'folder_path_encoded' => $encodedpath,
-                    'is_folder' => true,
+                    'folder_custom_path' => $newpath,
+                    'folder_custom_path_encoded' => $encodedpath,
+                    'is_folder_custom' => true,
                     'has_items' => !empty($subdir['subdirs']) || !empty($subdir['files'])
                 ];
 
@@ -155,7 +155,7 @@ class mod_folder_renderer extends plugin_renderer_base {
                     false
                 );
 
-                if ($tree->folder->forcedownload) {
+                if ($tree->folder_custom->forcedownload) {
                     $url->param('forcedownload', 1);
                 }
 
@@ -206,23 +206,23 @@ class mod_folder_renderer extends plugin_renderer_base {
     /**
      * Build navigation structure for explorer view.
      *
-     * @param folder_tree $tree
+     * @param folder_custom_tree $tree
      * @param string $rootname
      * @return array
      */
-    protected function build_tree_structure(folder_tree $tree, string $rootname): array {
+    protected function build_tree_structure(folder_custom_tree $tree, string $rootname): array {
         $rooticon = $this->output->pix_icon(
-            file_folder_icon(),
+            file_folder_custom_icon(),
             $rootname,
             'moodle',
-            ['class' => 'tree-folder-icon']
+            ['class' => 'tree-folder_custom-icon']
         );
 
         $subdirs = $this->renderable_tree_elements(
             $tree,
             $tree->dir,
             '',
-            !empty($tree->folder->showexpanded)
+            !empty($tree->folder_custom->showexpanded)
         );
 
         return [[
@@ -240,7 +240,7 @@ class mod_folder_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Encode folder path segments for safe HTML attributes.
+     * Encode folder_custom path segments for safe HTML attributes.
      *
      * @param string $path
      * @return string
@@ -318,7 +318,7 @@ class mod_folder_renderer extends plugin_renderer_base {
         }
         $result = '<ul>';
         foreach ($dir['subdirs'] as $subdir) {
-            $image = $this->output->pix_icon(file_folder_icon(), $subdir['dirname'], 'moodle');
+            $image = $this->output->pix_icon(file_folder_custom_icon(), $subdir['dirname'], 'moodle');
             $filename = html_writer::tag('span', $image, array('class' => 'fp-icon')).
                 html_writer::tag('span', s($subdir['dirname']), array('class' => 'fp-filename'));
             $filename = html_writer::tag('div', $filename, array('class' => 'fp-filename-icon'));
@@ -338,7 +338,7 @@ class mod_folder_renderer extends plugin_renderer_base {
             $filename = html_writer::tag('span', $image, array('class' => 'fp-icon')).
                 html_writer::tag('span', $filenamedisplay, array('class' => 'fp-filename'));
             $urlparams = null;
-            if ($tree->folder->forcedownload) {
+            if ($tree->folder_custom->forcedownload) {
                 $urlparams = ['forcedownload' => 1];
             }
             $filename = html_writer::tag('span',
@@ -354,13 +354,13 @@ class mod_folder_renderer extends plugin_renderer_base {
     /**
      * Build directory nodes for navigation tree.
      *
-     * @param folder_tree $tree
+     * @param folder_custom_tree $tree
      * @param array $dir
      * @param string $path
      * @param bool $expanded
      * @return array
      */
-    protected function renderable_tree_elements(folder_tree $tree, array $dir, string $path = '', bool $expanded = false): array {
+    protected function renderable_tree_elements(folder_custom_tree $tree, array $dir, string $path = '', bool $expanded = false): array {
         if (empty($dir['subdirs'])) {
             return [];
         }
@@ -379,10 +379,10 @@ class mod_folder_renderer extends plugin_renderer_base {
             $elements[] = [
                 'name' => $displayname,
                 'icon' => $this->output->pix_icon(
-                    file_folder_icon(),
+                    file_folder_custom_icon(),
                     $displayname,
                     'moodle',
-                    ['class' => 'tree-folder-icon']
+                    ['class' => 'tree-folder_custom-icon']
                 ),
                 'path' => $newpath,
                 'path_encoded' => $encodedpath,
@@ -398,74 +398,74 @@ class mod_folder_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Returns the collection of strings required by the folder template.
+     * Returns the collection of strings required by the folder_custom template.
      *
      * @return array
      */
     protected function get_template_strings(): array {
         return [
-            'navigationaria' => get_string('foldernavigation', 'mod_folder'),
-            'navigationheader' => get_string('navigationheader', 'mod_folder'),
-            'navigationcontrols' => get_string('navigationcontrols', 'mod_folder'),
-            'navbacktitle' => get_string('navigationback', 'mod_folder'),
-            'navbackaria' => get_string('navigationgoback', 'mod_folder'),
-            'navforwardtitle' => get_string('navigationforward', 'mod_folder'),
-            'navforwardaria' => get_string('navigationgoforward', 'mod_folder'),
-            'navuptitle' => get_string('navigationup', 'mod_folder'),
-            'navuparia' => get_string('navigationgoup', 'mod_folder'),
-            'breadcrumbsaria' => get_string('folderbreadcrumbs', 'mod_folder'),
-            'searchplaceholder' => get_string('searchplaceholder', 'mod_folder'),
-            'searcharia' => get_string('searcharia', 'mod_folder'),
-            'sortlabel' => get_string('sortlabel', 'mod_folder'),
-            'sortnameasc' => get_string('sortnameasc', 'mod_folder'),
-            'sortnamedesc' => get_string('sortnamedesc', 'mod_folder'),
-            'sortdatenewest' => get_string('sortdatenewest', 'mod_folder'),
-            'sortdateoldest' => get_string('sortdateoldest', 'mod_folder'),
-            'sorttypeasc' => get_string('sorttypeasc', 'mod_folder'),
-            'sorttypedesc' => get_string('sorttypedesc', 'mod_folder'),
-            'sortsizedesc' => get_string('sortsizedesc', 'mod_folder'),
-            'sortsizeasc' => get_string('sortsizeasc', 'mod_folder'),
-            'filterlabel' => get_string('filterlabel', 'mod_folder'),
-            'filterall' => get_string('filterall', 'mod_folder'),
-            'filterfolders' => get_string('filterfolders', 'mod_folder'),
-            'filterfiles' => get_string('filterfiles', 'mod_folder'),
-            'filterimages' => get_string('filterimages', 'mod_folder'),
-            'filterdocuments' => get_string('filterdocuments', 'mod_folder'),
-            'filtervideos' => get_string('filtervideos', 'mod_folder'),
-            'viewgrid' => get_string('viewgrid', 'mod_folder'),
-            'viewlist' => get_string('viewlist', 'mod_folder'),
-            'viewdetails' => get_string('viewdetails', 'mod_folder'),
-            'tableheadername' => get_string('tableheadername', 'mod_folder'),
-            'tableheadertype' => get_string('tableheadertype', 'mod_folder'),
-            'tableheadersize' => get_string('tableheadersize', 'mod_folder'),
-            'tableheaderdatemodified' => get_string('tableheaderdatemodified', 'mod_folder'),
-            'emptyfolder' => get_string('emptyfolder', 'mod_folder'),
-            'noresults' => get_string('noresults', 'mod_folder'),
-            'clearsearch' => get_string('clearsearch', 'mod_folder'),
-            'togglefolder' => get_string('togglefolder', 'mod_folder'),
-            'selectedcount' => get_string('selectedcount', 'mod_folder'),
-            'itemcounts' => get_string('itemcounts', 'mod_folder'),
-            'foldercountsingular' => get_string('foldercountsingular', 'mod_folder'),
-            'foldercountplural' => get_string('foldercountplural', 'mod_folder'),
-            'filecountsingular' => get_string('filecountsingular', 'mod_folder'),
-            'filecountplural' => get_string('filecountplural', 'mod_folder'),
-            'folderfilecounts' => get_string('folderfilecounts', 'mod_folder'),
-            'modulename' => get_string('modulename', 'mod_folder'),
+            'navigationaria' => get_string('folder_customnavigation', 'mod_folder_custom'),
+            'navigationheader' => get_string('navigationheader', 'mod_folder_custom'),
+            'navigationcontrols' => get_string('navigationcontrols', 'mod_folder_custom'),
+            'navbacktitle' => get_string('navigationback', 'mod_folder_custom'),
+            'navbackaria' => get_string('navigationgoback', 'mod_folder_custom'),
+            'navforwardtitle' => get_string('navigationforward', 'mod_folder_custom'),
+            'navforwardaria' => get_string('navigationgoforward', 'mod_folder_custom'),
+            'navuptitle' => get_string('navigationup', 'mod_folder_custom'),
+            'navuparia' => get_string('navigationgoup', 'mod_folder_custom'),
+            'breadcrumbsaria' => get_string('folder_custombreadcrumbs', 'mod_folder_custom'),
+            'searchplaceholder' => get_string('searchplaceholder', 'mod_folder_custom'),
+            'searcharia' => get_string('searcharia', 'mod_folder_custom'),
+            'sortlabel' => get_string('sortlabel', 'mod_folder_custom'),
+            'sortnameasc' => get_string('sortnameasc', 'mod_folder_custom'),
+            'sortnamedesc' => get_string('sortnamedesc', 'mod_folder_custom'),
+            'sortdatenewest' => get_string('sortdatenewest', 'mod_folder_custom'),
+            'sortdateoldest' => get_string('sortdateoldest', 'mod_folder_custom'),
+            'sorttypeasc' => get_string('sorttypeasc', 'mod_folder_custom'),
+            'sorttypedesc' => get_string('sorttypedesc', 'mod_folder_custom'),
+            'sortsizedesc' => get_string('sortsizedesc', 'mod_folder_custom'),
+            'sortsizeasc' => get_string('sortsizeasc', 'mod_folder_custom'),
+            'filterlabel' => get_string('filterlabel', 'mod_folder_custom'),
+            'filterall' => get_string('filterall', 'mod_folder_custom'),
+            'filterfolder_customs' => get_string('filterfolder_customs', 'mod_folder_custom'),
+            'filterfiles' => get_string('filterfiles', 'mod_folder_custom'),
+            'filterimages' => get_string('filterimages', 'mod_folder_custom'),
+            'filterdocuments' => get_string('filterdocuments', 'mod_folder_custom'),
+            'filtervideos' => get_string('filtervideos', 'mod_folder_custom'),
+            'viewgrid' => get_string('viewgrid', 'mod_folder_custom'),
+            'viewlist' => get_string('viewlist', 'mod_folder_custom'),
+            'viewdetails' => get_string('viewdetails', 'mod_folder_custom'),
+            'tableheadername' => get_string('tableheadername', 'mod_folder_custom'),
+            'tableheadertype' => get_string('tableheadertype', 'mod_folder_custom'),
+            'tableheadersize' => get_string('tableheadersize', 'mod_folder_custom'),
+            'tableheaderdatemodified' => get_string('tableheaderdatemodified', 'mod_folder_custom'),
+            'emptyfolder_custom' => get_string('emptyfolder_custom', 'mod_folder_custom'),
+            'noresults' => get_string('noresults', 'mod_folder_custom'),
+            'clearsearch' => get_string('clearsearch', 'mod_folder_custom'),
+            'togglefolder_custom' => get_string('togglefolder_custom', 'mod_folder_custom'),
+            'selectedcount' => get_string('selectedcount', 'mod_folder_custom'),
+            'itemcounts' => get_string('itemcounts', 'mod_folder_custom'),
+            'folder_customcountsingular' => get_string('folder_customcountsingular', 'mod_folder_custom'),
+            'folder_customcountplural' => get_string('folder_customcountplural', 'mod_folder_custom'),
+            'filecountsingular' => get_string('filecountsingular', 'mod_folder_custom'),
+            'filecountplural' => get_string('filecountplural', 'mod_folder_custom'),
+            'folder_customfilecounts' => get_string('folder_customfilecounts', 'mod_folder_custom'),
+            'modulename' => get_string('modulename', 'mod_folder_custom'),
         ];
     }
 }
 
-class folder_tree implements renderable {
+class folder_custom_tree implements renderable {
     public $context;
-    public $folder;
+    public $folder_custom;
     public $cm;
     public $dir;
 
-    public function __construct($folder, $cm) {
-        $this->folder = $folder;
+    public function __construct($folder_custom, $cm) {
+        $this->folder_custom = $folder_custom;
         $this->cm     = $cm;
         $this->context = context_module::instance($cm->id);
         $fs = get_file_storage();
-        $this->dir = $fs->get_area_tree($this->context->id, 'mod_folder', 'content', 0);
+        $this->dir = $fs->get_area_tree($this->context->id, 'mod_folder_custom', 'content', 0);
     }
 }

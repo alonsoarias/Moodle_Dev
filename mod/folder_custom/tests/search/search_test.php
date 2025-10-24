@@ -15,15 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Folder search unit tests.
+ * folder_custom search unit tests.
  *
- * @package     mod_folder
+ * @package     mod_folder_custom
  * @category    test
  * @copyright   2016 Eric Merrill {@link http://www.merrilldigital.com}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_folder\search;
+namespace mod_folder_custom\search;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,7 +33,7 @@ require_once($CFG->dirroot . '/search/tests/fixtures/testable_core_search.php');
 /**
  * Provides the unit tests for forum search.
  *
- * @package     mod_folder
+ * @package     mod_folder_custom
  * @category    test
  * @copyright   2016 Eric Merrill {@link http://www.merrilldigital.com}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -43,21 +43,21 @@ final class search_test extends \advanced_testcase {
     /**
      * @var string Area id
      */
-    protected $folderareaid = null;
+    protected $folder_customareaid = null;
 
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
         set_config('enableglobalsearch', true);
 
-        $this->folderareaid = \core_search\manager::generate_areaid('mod_folder', 'activity');
+        $this->folder_customareaid = \core_search\manager::generate_areaid('mod_folder_custom', 'activity');
 
         // Set \core_search::instance to the mock_search_engine as we don't require the search engine to be working to test this.
         $search = \testable_core_search::instance();
     }
 
     /**
-     * Test for folder file attachments.
+     * Test for folder_custom file attachments.
      *
      * @return void
      */
@@ -87,19 +87,19 @@ final class search_test extends \advanced_testcase {
         // Attach 4 files.
         for ($i = 1; $i <= 4; $i++) {
             $filerecord['filename'] = 'myfile'.$i;
-            $fs->create_file_from_string($filerecord, 'Test folder file '.$i);
+            $fs->create_file_from_string($filerecord, 'Test folder_custom file '.$i);
         }
 
-        // And a fifth in a sub-folder.
+        // And a fifth in a sub-folder_custom.
         $filerecord['filename'] = 'myfile5';
-        $filerecord['filepath'] = '/subfolder/';
-        $fs->create_file_from_string($filerecord, 'Test folder file 5');
+        $filerecord['filepath'] = '/subfolder_custom/';
+        $fs->create_file_from_string($filerecord, 'Test folder_custom file 5');
 
-        $this->getDataGenerator()->create_module('folder', $record);
+        $this->getDataGenerator()->create_module('folder_custom', $record);
 
         // Returns the instance as long as the area is supported.
-        $searcharea = \core_search\manager::get_search_area($this->folderareaid);
-        $this->assertInstanceOf('\mod_folder\search\activity', $searcharea);
+        $searcharea = \core_search\manager::get_search_area($this->folder_customareaid);
+        $this->assertInstanceOf('\mod_folder_custom\search\activity', $searcharea);
 
         $recordset = $searcharea->get_recordset_by_timestamp(0);
         $nrecords = 0;
@@ -108,7 +108,7 @@ final class search_test extends \advanced_testcase {
             $searcharea->attach_files($doc);
             $files = $doc->get_files();
 
-            // Folder should return all files attached.
+            // folder_custom should return all files attached.
             $this->assertCount(5, $files);
 
             // We don't know the order, so get all the names, then sort, then check.

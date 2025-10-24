@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for mod_folder.
+ * Privacy Subsystem implementation for mod_folder_custom.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @copyright  2018 Zig Tan <zig@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_folder\privacy;
+namespace mod_folder_custom\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_folder module does not store any data.
+ * The mod_folder_custom module does not store any data.
  *
  * @copyright  2018 Zig Tan <zig@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_folder instance list viewed event.
+ * The mod_folder_custom instance list viewed event.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @copyright  2013 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_folder\event;
+namespace mod_folder_custom\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_folder instance list viewed event class.
+ * The mod_folder_custom instance list viewed event class.
  *
- * @package    mod_folder
+ * @package    mod_folder_custom
  * @since      Moodle 2.7
  * @copyright  2013 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
