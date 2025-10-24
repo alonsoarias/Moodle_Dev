@@ -90,9 +90,14 @@ $canviewparent = !empty($blockrestrictions['parentcontext']) &&
     has_capability('block/report_customcajasan:viewreport', $blockrestrictions['parentcontext']);
 
 if (!$canview && !$canviewsystem && !$canviewparent) {
-    $managementaccess = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
-    if (!$managementaccess) {
-        throw new required_capability_exception($context, 'block/report_customcajasan:viewreport', 'nopermissions', '');
+    $courseswithaccess = get_user_capability_course('block/report_customcajasan:viewreport', null, true, 'id', '', 0, 1);
+    $canviewanycourse = !empty($courseswithaccess);
+
+    if (!$canviewanycourse) {
+        $managementaccess = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
+        if (!$managementaccess) {
+            throw new required_capability_exception($context, 'block/report_customcajasan:viewreport', 'nopermissions', '');
+        }
     }
 }
 
