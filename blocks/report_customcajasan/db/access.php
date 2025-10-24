@@ -49,6 +49,7 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/block:view',
     ],
@@ -59,6 +60,7 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
         ],
     ],
 ];
