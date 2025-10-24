@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025102401;        // Corrección sistema de permisos basado en contexto
+$plugin->version   = 2025102400;        // Context-aware permission fixes
 $plugin->requires  = 2022041900;        // Requires Moodle 4.0+
 $plugin->component = 'block_report_customcajasan';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.9.0';           // Sistema de permisos corregido para cursos y sistema
+$plugin->release   = '1.9.1';           // Context-aware permission fixes for course and system

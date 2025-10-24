@@ -46,65 +46,40 @@ if (!confirm_sesskey()) {
 
 $blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
 $blockrestrictions = block_report_customcajasan_get_block_restrictions($blockinstanceid);
+$allowedcourses = $blockrestrictions['courses'];
+$allowedcategories = $blockrestrictions['expandedcategories'];
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
-if ($courseid && $courseid != SITEID) {
-    $context = context_course::instance($courseid, IGNORE_MISSING);
+$courseid = ($courseid == SITEID) ? 0 : $courseid;
+
+$context = context_system::instance();
+if ($courseid > 0) {
+    $context = context_course::instance($courseid, IGNORE_MISSING) ?: $context;
 } else if (!empty($blockrestrictions['parentcontext'])) {
     $context = $blockrestrictions['parentcontext'];
-} else {
-    $context = context_system::instance();
 }
 
-if (!$context) {
-    $context = context_system::instance();
-}
+$resolvedcontext = block_report_customcajasan_resolve_access_context($context);
+$applyrestrictions = !block_report_customcajasan_context_requires_system_capability($resolvedcontext);
 
-$hasaccess = false;
+if (!$applyrestrictions) {
+    $allowedcourses = [];
+    $allowedcategories = [];
+}
 
 try {
-    if ($context->contextlevel == CONTEXT_SYSTEM) {
-        $hasaccess = has_capability('moodle/site:config', $context);
-    } else if ($context->contextlevel == CONTEXT_COURSE) {
-        $hasaccess = has_capability('moodle/course:update', $context) ||
-                     has_capability('moodle/course:manageactivities', $context);
-        
-        // Verify block restrictions
-        if ($hasaccess && !empty($courseid)) {
-            $allowedcourses = $blockrestrictions['courses'];
-            $allowedcategories = $blockrestrictions['expandedcategories'];
-            
-            if (!empty($allowedcourses)) {
-                $courseallowed = in_array((int)$courseid, $allowedcourses, true);
-                
-                if (!$courseallowed && !empty($allowedcategories)) {
-                    $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
-                    if ($coursecategory !== false) {
-                        $courseallowed = in_array((int)$coursecategory, $allowedcategories, true);
-                    }
-                }
-                
-                $hasaccess = $courseallowed;
-            } else if (!empty($allowedcategories)) {
-                $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
-                if ($coursecategory !== false) {
-                    $hasaccess = in_array((int)$coursecategory, $allowedcategories, true);
-                } else {
-                    $hasaccess = false;
-                }
-            }
-        }
-    }
-    
-    if (!$hasaccess) {
+    block_report_customcajasan_require_view_capability($context);
+
+    if ($applyrestrictions && !empty($courseid) &&
+            !block_report_customcajasan_course_is_allowed($courseid, $allowedcourses, $allowedcategories)) {
         throw new required_capability_exception(
-            $context,
+            $resolvedcontext,
             'block/report_customcajasan:viewreport',
             'nopermissions',
             ''
         );
     }
-    
+
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
@@ -130,22 +105,14 @@ try {
     $allowedcourses = $blockrestrictions['courses'];
     $allowedcategories = $blockrestrictions['expandedcategories'];
 
-    if (!empty($allowedcategories) && !empty($filters['category']) &&
-        !in_array((int)$filters['category'], $allowedcategories, true)) {
+    if ($applyrestrictions && !empty($filters['category']) &&
+            !block_report_customcajasan_category_is_allowed($filters['category'], $allowedcategories)) {
         $filters['category'] = 0;
     }
 
-    if (!empty($filters['course']) && (!empty($allowedcourses) || !empty($allowedcategories))) {
-        $courseallowed = in_array((int)$filters['course'], $allowedcourses, true);
-        if (!$courseallowed && !empty($allowedcategories)) {
-            $coursecategory = $DB->get_field('course', 'category', ['id' => $filters['course']]);
-            if ($coursecategory !== false) {
-                $courseallowed = in_array((int)$coursecategory, $allowedcategories, true);
-            }
-        }
-        if (!$courseallowed) {
-            $filters['course'] = 0;
-        }
+    if ($applyrestrictions && !empty($filters['course']) &&
+            !block_report_customcajasan_course_is_allowed($filters['course'], $allowedcourses, $allowedcategories)) {
+        $filters['course'] = 0;
     }
 
     if (!empty($filters['category']) && !empty($filters['course']) &&

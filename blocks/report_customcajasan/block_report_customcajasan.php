@@ -86,7 +86,7 @@ class block_report_customcajasan extends block_base {
         $canviewreport = $this->can_view_report();
 
         $contentparts = [];
-        $selectedoptions = $this->config->displayoptions;
+        $selectedoptions = $this->config->displayoptions ?? [];
 
         $restrictionsummary = '';
         if ($this->is_course_parent_context()) {
@@ -98,11 +98,11 @@ class block_report_customcajasan extends block_base {
 
         if (in_array(self::INFO_REPORT_LINK, $selectedoptions, true) && $canviewreport) {
             $params = [];
-            $courseid = $this->page->course->id ?? 0;
-            if ($this->is_course_parent_context() && !empty($courseid) && $courseid != SITEID) {
+            $courseid = $this->get_parent_course_id();
+            if ($courseid > 0) {
                 $params['courseid'] = $courseid;
             }
-            if ($this->is_course_parent_context() && !empty($this->instance->id)) {
+            if (!empty($this->instance->id)) {
                 $params['blockinstanceid'] = $this->instance->id;
             }
             $reporturl = new moodle_url('/blocks/report_customcajasan/report.php', $params);
@@ -215,21 +215,19 @@ class block_report_customcajasan extends block_base {
      * @return bool
      */
     protected function user_has_view_permission(): bool {
-        $pagecontext = $this->page->context;
-
-        // En contexto de SISTEMA (página principal)
-        if ($pagecontext->contextlevel == CONTEXT_SYSTEM) {
-            return has_capability('moodle/site:config', $pagecontext);
+        if (!isloggedin() || isguestuser()) {
+            return false;
         }
 
-        // En contexto de CURSO
-        if ($pagecontext->contextlevel == CONTEXT_COURSE) {
-            // Verificar capacidades de edición
-            return has_capability('moodle/course:update', $pagecontext) ||
-                   has_capability('moodle/course:manageactivities', $pagecontext);
+        $context = $this->resolve_block_context();
+
+        if ($context instanceof context_block) {
+            if (!has_capability('block/report_customcajasan:viewblock', $context)) {
+                return false;
+            }
         }
 
-        return false;
+        return block_report_customcajasan_user_has_view_capability($context);
     }
 
     /**
@@ -367,7 +365,9 @@ class block_report_customcajasan extends block_base {
      */
     protected function is_course_parent_context(): bool {
         $parentcontext = $this->get_parent_context();
-        return $parentcontext && $parentcontext->contextlevel === CONTEXT_COURSE;
+        return $parentcontext &&
+            $parentcontext->contextlevel === CONTEXT_COURSE &&
+            (int)$parentcontext->instanceid !== SITEID;
     }
 
     /**
@@ -381,6 +381,22 @@ class block_report_customcajasan extends block_base {
         }
 
         return $this->page->context ?? null;
+    }
+
+    /**
+     * Get the course identifier associated with the block's parent context.
+     *
+     * @return int
+     */
+    protected function get_parent_course_id(): int {
+        $parentcontext = $this->get_parent_context();
+        if ($parentcontext &&
+                $parentcontext->contextlevel === CONTEXT_COURSE &&
+                (int)$parentcontext->instanceid !== SITEID) {
+            return (int)$parentcontext->instanceid;
+        }
+
+        return 0;
     }
 
     /**

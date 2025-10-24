@@ -309,18 +309,24 @@ function block_report_customcajasan_get_block_restrictions(int $blockinstanceid,
     }
 
     $blockcontext = context_block::instance($blockinstanceid, IGNORE_MISSING);
-    if (!$blockcontext || !has_capability('block/report_customcajasan:viewblock', $blockcontext, $userid, false)) {
+    if (!$blockcontext) {
+        return $result;
+    }
+
+    if (!has_capability('block/report_customcajasan:viewblock', $blockcontext, $userid, false)) {
         return $result;
     }
 
     $parentcontext = context::instance_by_id($blockinstance->parentcontextid, IGNORE_MISSING);
-    if (!$parentcontext || $parentcontext->contextlevel !== CONTEXT_COURSE) {
+    if (!$parentcontext) {
         return $result;
     }
 
-    if (!block_report_customcajasan_user_has_view_capability($parentcontext, $userid)) {
+    if (!block_report_customcajasan_user_has_view_capability($blockcontext, $userid)) {
         return $result;
     }
+
+    $resolvedcontext = block_report_customcajasan_resolve_access_context($parentcontext);
 
     $config = null;
     if (!empty($blockinstance->configdata)) {
@@ -335,24 +341,84 @@ function block_report_customcajasan_get_block_restrictions(int $blockinstanceid,
         }
     }
 
+    $result['parentcontext'] = $resolvedcontext;
+    $result['blockcontext'] = $blockcontext;
+    $result['config'] = $config;
+
+    if (block_report_customcajasan_context_requires_system_capability($resolvedcontext)) {
+        return $result;
+    }
+
+    if ($resolvedcontext->contextlevel !== CONTEXT_COURSE) {
+        return $result;
+    }
+
     $restrictions = block_report_customcajasan_compute_restrictions($config, $userid);
 
     $result['courses'] = $restrictions['courses'];
     $result['categories'] = $restrictions['categories'];
     $result['expandedcategories'] = $restrictions['expandedcategories'];
-    $result['parentcontext'] = $parentcontext;
-    $result['blockcontext'] = $blockcontext;
-    $result['config'] = $config;
 
-    if ($parentcontext->contextlevel === CONTEXT_COURSE &&
-        empty($result['courses']) && empty($result['categories'])) {
-        $courseid = $parentcontext->instanceid ?? 0;
+    if (empty($result['courses']) && empty($result['categories'])) {
+        $courseid = $resolvedcontext->instanceid ?? 0;
         if ($courseid > 0) {
             $result['courses'] = [$courseid];
         }
     }
 
     return $result;
+}
+
+/**
+ * Determine whether a course is within the configured restrictions.
+ *
+ * @param int $courseid Course identifier.
+ * @param array $allowedcourses List of allowed course identifiers.
+ * @param array $allowedcategories List of allowed category identifiers (expanded).
+ * @return bool
+ */
+function block_report_customcajasan_course_is_allowed(int $courseid, array $allowedcourses, array $allowedcategories): bool {
+    global $DB;
+
+    $courseid = (int)$courseid;
+    if ($courseid <= 0) {
+        return false;
+    }
+
+    $allowedcourses = array_map('intval', $allowedcourses);
+    if (in_array($courseid, $allowedcourses, true)) {
+        return true;
+    }
+
+    $allowedcategories = array_map('intval', $allowedcategories);
+    if (empty($allowedcategories)) {
+        return false;
+    }
+
+    $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+    if ($coursecategory === false) {
+        return false;
+    }
+
+    return in_array((int)$coursecategory, $allowedcategories, true);
+}
+
+/**
+ * Determine whether a category is within the configured restrictions.
+ *
+ * @param int $categoryid Category identifier.
+ * @param array $allowedcategories List of allowed category identifiers (expanded).
+ * @return bool
+ */
+function block_report_customcajasan_category_is_allowed(int $categoryid, array $allowedcategories): bool {
+    $categoryid = (int)$categoryid;
+    if ($categoryid <= 0) {
+        return false;
+    }
+
+    $allowedcategories = array_map('intval', $allowedcategories);
+
+    return in_array($categoryid, $allowedcategories, true);
 }
 
 /**
