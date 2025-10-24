@@ -83,8 +83,7 @@ class block_report_customcajasan extends block_base {
 
         $this->ensure_config_defaults();
 
-        $context = $this->page->context ?? context_system::instance();
-        $canviewreport = has_capability('block/report_customcajasan:viewreport', $context);
+        $canviewreport = $this->can_view_report();
 
         $contentparts = [];
         $selectedoptions = $this->config->displayoptions;
@@ -98,9 +97,9 @@ class block_report_customcajasan extends block_base {
         }
 
         if (in_array(self::INFO_REPORT_LINK, $selectedoptions, true) && $canviewreport) {
-            $courseid = $this->page->course->id ?? 0;
             $params = [];
-            if (!empty($courseid)) {
+            $courseid = $this->page->course->id ?? 0;
+            if ($this->is_course_parent_context() && !empty($courseid) && $courseid != SITEID) {
                 $params['courseid'] = $courseid;
             }
             if ($this->is_course_parent_context() && !empty($this->instance->id)) {
@@ -225,6 +224,51 @@ class block_report_customcajasan extends block_base {
         }
 
         return has_capability('block/report_customcajasan:viewblock', $context);
+    }
+
+    /**
+     * Determine whether the current user can access the report link.
+     *
+     * @return bool
+     */
+    protected function can_view_report(): bool {
+        global $USER;
+
+        if (empty($USER) || empty($USER->id)) {
+            return false;
+        }
+
+        $checkedcontexts = [];
+
+        if (!empty($this->page->context)) {
+            $checkedcontexts[$this->page->context->id] = $this->page->context;
+        }
+
+        if (!empty($this->context)) {
+            $checkedcontexts[$this->context->id] = $this->context;
+        } else if (!empty($this->instance->id)) {
+            $blockcontext = context_block::instance($this->instance->id, IGNORE_MISSING);
+            if ($blockcontext) {
+                $checkedcontexts[$blockcontext->id] = $blockcontext;
+            }
+        }
+
+        $parentcontext = $this->get_parent_context();
+        if ($parentcontext) {
+            $checkedcontexts[$parentcontext->id] = $parentcontext;
+        }
+
+        $systemcontext = context_system::instance();
+        $checkedcontexts[$systemcontext->id] = $systemcontext;
+
+        foreach ($checkedcontexts as $context) {
+            if ($context && has_capability('block/report_customcajasan:viewreport', $context)) {
+                return true;
+            }
+        }
+
+        $courses = get_user_capability_course('block/report_customcajasan:viewreport', $USER->id, true, 'id', '', 0, 1);
+        return !empty($courses);
     }
 
     /**
