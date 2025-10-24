@@ -17,22 +17,18 @@
       "hascmrestrictions": 0
     }
 }}
-<li class="courseindex-item
-        {{#isactive}}active{{/isactive}}
-        {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
-        {{^accessvisible}}dimmed{{/accessvisible}}
-        {{#indent}} indented {{/indent}}"
+<li class="course-index-item {{#isactive}}active{{/isactive}}
+           {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
+           {{^accessvisible}}dimmed{{/accessvisible}}
+           {{#indent}} indented {{/indent}}"
     id="{{uniqid}}-course-index-cm-{{id}}"
     data-for="cm"
     data-id="{{id}}"
     role="treeitem">
   {{^hasdelegatedsection}}
-    <div class="courseindex-item__inner">
-      <span class="courseindex-item__status" data-region="cm-status" aria-hidden="true">○</span>
-      <span class="sr-only" data-region="cm-status-text"></span>
-      <span class="completioninfo" data-for="cm_completion" data-value="NaN"></span>
+    <div class="d-flex align-items-center justify-content-between">
       {{#uservisible}}
-        <a class="courseindex-item__link text-truncate"
+        <a class="course-index-link text-truncate"
            {{#url}}href="{{{url}}}"{{/url}}
            {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
            data-for="cm_name" tabindex="-1" title="{{{name}}}">
@@ -40,14 +36,11 @@
         </a>
       {{/uservisible}}
       {{^uservisible}}
-        <a class="courseindex-item__link text-truncate"
+        <a class="course-index-link text-truncate"
            href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
           {{{name}}}
         </a>
       {{/uservisible}}
-      <span class="courseindex-item__lock" data-for="cm_name">
-        {{#pix}} t/locked, core {{/pix}}
-      </span>
     </div>
   {{/hasdelegatedsection}}
   {{#hasdelegatedsection}}

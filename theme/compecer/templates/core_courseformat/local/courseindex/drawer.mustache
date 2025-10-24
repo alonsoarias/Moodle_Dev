@@ -7,51 +7,18 @@
     Example context (json):
     {}
 }}
-<nav id="courseindex" class="{{classes}}" data-progress="{{progress.json}}">
-  <div class="courseindex-progress-card">
-    <div class="courseindex-progress-card__header">
-      <span class="courseindex-progress-card__title">{{progress.coursetitle}}</span>
-      <span class="courseindex-progress-card__value" data-region="course-progress-value">{{progress.coursepercentage}}</span>
-    </div>
-    <div class="courseindex-progress-card__summary" data-region="course-progress-summary" aria-live="polite">
-      {{progress.coursesummary}}
-    </div>
-    <div class="courseindex-progress-card__bar" role="presentation" {{^progress.enabled}}hidden{{/progress.enabled}}>
-      <div class="courseindex-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="courseindex-progress-bar__fill" data-region="course-progress-bar"></div>
-      </div>
-      <span class="sr-only" data-region="course-progress-text">{{progress.coursesummary}}</span>
-    </div>
-    <div class="courseindex-progress-card__message" data-region="course-progress-message" aria-live="polite" {{#progress.enabled}}hidden{{/progress.enabled}}>
-      {{progress.notracking}}
-    </div>
-    {{#progress.enabled}}
-    <dl class="courseindex-progress-legend">
-      <div class="courseindex-progress-legend__item">
-        <dt aria-hidden="true">○</dt>
-        <dd>{{#str}}courseindex_legend_notstarted, theme_compecer{{/str}}</dd>
-      </div>
-      <div class="courseindex-progress-legend__item">
-        <dt aria-hidden="true">◐</dt>
-        <dd>{{#str}}courseindex_legend_inprogress, theme_compecer{{/str}}</dd>
-      </div>
-      <div class="courseindex-progress-legend__item">
-        <dt aria-hidden="true">✓</dt>
-        <dd>{{#str}}courseindex_legend_completed, theme_compecer{{/str}}</dd>
-      </div>
-    </dl>
-    {{/progress.enabled}}
+<nav id="courseindex" class="course-index-drawer">
+  <div class="mb-4">
+    <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
+      {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
+    </span>
   </div>
   <div id="courseindex-content">
     {{> core_courseformat/local/courseindex/placeholders}}
   </div>
 </nav>
 {{#js}}
-require([
-  'core_courseformat/local/courseindex/drawer',
-  'theme_compecer/courseindex_progress'
-], function(component, progress) {
+require(['core_courseformat/local/courseindex/drawer'], function(component) {
   component.init('courseindex');
-  progress.init('courseindex');
 });
 {{/js}}
