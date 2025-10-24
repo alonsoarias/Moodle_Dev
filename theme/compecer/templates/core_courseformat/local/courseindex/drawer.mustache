@@ -3,48 +3,58 @@
 
     Custom drawer for the course index including a dynamic progress bar.
 }}
-<nav id="courseindex" class="courseindex courseindex--compecer" data-region="course-index">
+<nav id="courseindex" class="courseindex courseindex--compecer" data-region="course-index"{{#courseid}} data-courseid="{{.}}"{{/courseid}}>
     <header class="courseindex__header">
         <div class="courseindex__heading">
             <span class="course-heading h-bold-4" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
                 {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
             </span>
         </div>
-        <section class="courseindex-progress" data-region="course-progress" aria-live="polite">
+        <section class="courseindex-progress{{^progress}} courseindex-progress--disabled{{/progress}}"
+                 data-region="course-progress"
+                 aria-live="polite"
+                 data-progress-enabled="{{#progressenabled}}1{{/progressenabled}}{{^progressenabled}}0{{/progressenabled}}"
+                 {{#progress}}
+                 data-progress-percentage="{{percentage}}"
+                 data-progress-completed="{{completed}}"
+                 data-progress-incomplete="{{incomplete}}"
+                 data-progress-total="{{total}}"
+                 {{/progress}}>
             <div class="courseindex-progress__meta">
                 <span class="courseindex-progress__label">
                     {{#str}}courseprogresslabel, theme_compecer{{/str}}
                 </span>
-                <span class="courseindex-progress__value" data-region="progress-value" aria-hidden="true">0%</span>
+                <span class="courseindex-progress__value" data-region="progress-value" aria-hidden="true">{{#progress}}{{percentageformatted}}%{{/progress}}{{^progress}}--{{/progress}}</span>
             </div>
             <div class="progress courseindex-progress__track"
                  role="progressbar"
                  aria-label="{{#str}}courseprogresslabel, theme_compecer{{/str}}"
                  aria-valuemin="0"
                  aria-valuemax="100"
-                 aria-valuenow="0"
+                 aria-valuenow="{{#progress}}{{percentage}}{{/progress}}{{^progress}}0{{/progress}}"
                  data-region="progress-bar">
-                <div class="progress-bar" style="width: 0%;"></div>
+                <div class="progress-bar" style="width: {{#progress}}{{percentage}}{{/progress}}{{^progress}}0{{/progress}}%;"></div>
             </div>
-            <div class="courseindex-progress__details" data-region="progress-details">
+            <div class="courseindex-progress__details" data-region="progress-details" {{^progress}}hidden{{/progress}}>
                 <span class="courseindex-progress__stat courseindex-progress__stat--completed">
                     <span class="sr-only">{{#str}}courseprogresscompleted, theme_compecer{{/str}}</span>
-                    <span aria-hidden="true" data-region="progress-completed-value">0</span>
+                    <span aria-hidden="true" data-region="progress-completed-value">{{#progress}}{{completed}}{{/progress}}{{^progress}}0{{/progress}}</span>
                     <span class="courseindex-progress__stat-text" data-region="progress-completed-text">
-                        {{#str}}courseprogresscompletedshort, theme_compecer, 0{{/str}}
+                        {{#progress}}{{completedformatted}}{{/progress}}{{^progress}}{{#str}}courseprogresscompletedshort, theme_compecer, 0{{/str}}{{/progress}}
                     </span>
                 </span>
                 <span class="courseindex-progress__divider" aria-hidden="true">•</span>
                 <span class="courseindex-progress__stat courseindex-progress__stat--remaining">
                     <span class="sr-only">{{#str}}courseprogressremaining, theme_compecer{{/str}}</span>
-                    <span aria-hidden="true" data-region="progress-remaining-value">0</span>
+                    <span aria-hidden="true" data-region="progress-remaining-value">{{#progress}}{{incomplete}}{{/progress}}{{^progress}}0{{/progress}}</span>
                     <span class="courseindex-progress__stat-text" data-region="progress-remaining-text">
-                        {{#str}}courseprogressremainingshort, theme_compecer, 0{{/str}}
+                        {{#progress}}{{incompleteformatted}}{{/progress}}{{^progress}}{{#str}}courseprogressremainingshort, theme_compecer, 0{{/str}}{{/progress}}
                     </span>
                 </span>
             </div>
-            <p class="courseindex-progress__notice sr-only" data-region="progress-notice">
-                {{#str}}courseprogressloading, theme_compecer{{/str}}
+            <p class="courseindex-progress__notice{{#progress}} sr-only{{/progress}}" data-region="progress-notice">
+                {{#progress}}{{#str}}courseprogressloading, theme_compecer{{/str}}{{/progress}}
+                {{^progress}}{{#str}}courseprogressnotracking, theme_compecer{{/str}}{{/progress}}
             </p>
         </section>
     </header>

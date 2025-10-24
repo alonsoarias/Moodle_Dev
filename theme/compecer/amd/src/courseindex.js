@@ -166,6 +166,11 @@ const renderProgress = (container, data) => {
     container.classList.toggle(CLASSES.DISABLED, !hasTracking);
 
     if (!hasTracking) {
+        container.dataset.progressEnabled = '0';
+        delete container.dataset.progressPercentage;
+        delete container.dataset.progressCompleted;
+        delete container.dataset.progressIncomplete;
+        delete container.dataset.progressTotal;
         setText(progressValue, '--');
         if (progressBar) {
             progressBar.setAttribute('aria-valuenow', '0');
@@ -189,6 +194,12 @@ const renderProgress = (container, data) => {
     const percentage = Math.max(0, Math.min(Number(data.percentage) || 0, 100));
     const completed = Math.max(0, Number(data.completed) || 0);
     const remaining = Math.max(0, Number(data.incomplete) || 0);
+
+    container.dataset.progressEnabled = '1';
+    container.dataset.progressPercentage = String(percentage);
+    container.dataset.progressCompleted = String(completed);
+    container.dataset.progressIncomplete = String(remaining);
+    container.dataset.progressTotal = String(Number(data.total) || 0);
 
     setText(progressValue, `${percentage}%`);
     if (progressBar) {
@@ -282,13 +293,31 @@ export const init = async(config = {}) => {
         return;
     }
 
-    if (!courseId) {
-        // Without a course id we cannot compute progress; keep the notice visible.
-        updateNotice(progressContainer.querySelector(SELECTORS.PROGRESS_NOTICE), STRINGS.notracking, true);
-        return;
+    const enabled = progressContainer.dataset.progressEnabled !== '0';
+
+    if (!enabled) {
+        renderProgress(progressContainer, {
+            hascompletion: false,
+            percentage: 0,
+            total: 0,
+            completed: 0,
+            incomplete: 0,
+        });
+    } else if (progressContainer.dataset.progressPercentage !== undefined) {
+        renderProgress(progressContainer, {
+            hascompletion: true,
+            percentage: Number(progressContainer.dataset.progressPercentage),
+            total: Number(progressContainer.dataset.progressTotal || 0),
+            completed: Number(progressContainer.dataset.progressCompleted || 0),
+            incomplete: Number(progressContainer.dataset.progressIncomplete || 0),
+        });
     }
 
     root.dataset[CLASSES.INITIALISED] = '1';
+
+    if (!enabled || !courseId) {
+        return;
+    }
 
     const handler = () => scheduleRefresh(progressContainer, courseId);
 
