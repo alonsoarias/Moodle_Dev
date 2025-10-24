@@ -67,11 +67,15 @@
     }
 }}
 
-<div class="flex-fill description-inner text-break">
+<div class="flex-fill description-inner text-break folder-explorer">
+    <div class="explorer-titlebar">
+        <span class="explorer-title">{{#str}}explorertitle, mod_folder{{/str}}</span>
+        <span class="explorer-current">{{{name}}}</span>
+    </div>
     {{{intro}}}
-    {{#hasbuttons}}
-        <div class="container-fluid">
-            <div class="row">
+    <div class="explorer-toolbar">
+        {{#hasbuttons}}
+            <div class="explorer-actions">
                 {{#edit_button}}
                     {{>core/single_button}}
                 {{/edit_button}}
@@ -79,18 +83,55 @@
                     {{>core/single_button}}
                 {{/download_button}}
             </div>
+        {{/hasbuttons}}
+        <div class="explorer-address-bar">
+            <span class="explorer-address-label">{{#str}}exploreraddress, mod_folder{{/str}}</span>
+            <span class="explorer-address">{{{address}}}</span>
         </div>
-    {{/hasbuttons}}
-    <div class="box generalbox pt-0 pb-3 foldertree">
-        <div id="{{{id}}}" class="filemanager">
-            {{#dir}}
-                <ul>
-                    <li>
-                        {{>mod_folder/tree}}
-                    </li>
-                </ul>
-            {{/dir}}
-        </div>
+    </div>
+    <div class="explorer-body">
+        <aside class="explorer-tree" aria-label="{{#str}}explorertree, mod_folder{{/str}}">
+            <div id="{{{id}}}" class="filemanager explorer-treeview">
+                {{#dir}}
+                    <ul>
+                        <li>
+                            {{>mod_folder/tree}}
+                        </li>
+                    </ul>
+                {{/dir}}
+            </div>
+        </aside>
+        <section class="explorer-details" aria-label="{{#str}}explorercontents, mod_folder{{/str}}">
+            <header class="explorer-details-header">
+                <span class="column-name">{{#str}}explorercolumnname, mod_folder{{/str}}</span>
+                <span class="column-modified">{{#str}}explorercolumndate, mod_folder{{/str}}</span>
+                <span class="column-type">{{#str}}explorercolumntype, mod_folder{{/str}}</span>
+                <span class="column-size">{{#str}}explorercolumnsize, mod_folder{{/str}}</span>
+            </header>
+            <div class="explorer-details-body">
+                {{#items}}
+                    <div class="explorer-details-row{{#isdir}} is-directory{{/isdir}}">
+                        <span class="column-name">
+                            <span class="fp-icon">{{{icon}}}</span>
+                            <span class="fp-filename">
+                                {{#url}}
+                                    <a href="{{url}}">{{{name}}}</a>
+                                {{/url}}
+                                {{^url}}
+                                    {{{name}}}
+                                {{/url}}
+                            </span>
+                        </span>
+                        <span class="column-modified">{{modified}}</span>
+                        <span class="column-type">{{type}}</span>
+                        <span class="column-size">{{size}}</span>
+                    </div>
+                {{/items}}
+                {{^hasitems}}
+                    <div class="explorer-empty">{{#str}}explorerempty, mod_folder{{/str}}</div>
+                {{/hasitems}}
+            </div>
+        </section>
     </div>
 </div>
 
