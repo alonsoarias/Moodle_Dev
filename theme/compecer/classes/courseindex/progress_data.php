@@ -48,7 +48,7 @@ class progress_data {
         $completioninfo = new completion_info($course);
         $enabled = $completioninfo->is_enabled();
 
-        $istrackeduser = $completioninfo->is_tracked_user($userid);
+        $cancomplete = isloggedin() && !isguestuser();
 
         $dataset = [
             'enabled' => $enabled === COMPLETION_ENABLED,
@@ -71,7 +71,10 @@ class progress_data {
                 'notracking' => get_string('courseindex_notracking', 'theme_compecer'),
             ],
             'user' => [
-                'istracked' => $istrackeduser,
+                // Remui/Remuiformat only require the user to be logged in (non-guest)
+                // before exposing completion summaries. Mirror that behaviour so the
+                // drawer remains consistent with the reference implementation.
+                'istracked' => $cancomplete,
             ],
         ];
 
@@ -91,7 +94,13 @@ class progress_data {
             if (!$sectioninfo->uservisible) {
                 continue;
             }
-            $sectiondata = self::build_section_data($sectioninfo, $modinfo, $completioninfo, $userid, $istrackeduser);
+            $sectiondata = self::build_section_data(
+                $sectioninfo,
+                $modinfo,
+                $completioninfo,
+                $userid,
+                $cancomplete
+            );
             if (!$sectiondata) {
                 continue;
             }
@@ -127,7 +136,7 @@ class progress_data {
             'aria' => get_string('courseindex_progress_aria', 'theme_compecer'),
         ];
 
-        if (!$istrackeduser) {
+        if (!$cancomplete) {
             $dataset['course']['percentage'] = 0;
             $dataset['course']['percentageformatted'] = '--';
             $dataset['course']['summary'] = get_string('courseindex_notracking', 'theme_compecer');
@@ -177,7 +186,7 @@ class progress_data {
         \course_modinfo $modinfo,
         completion_info $completioninfo,
         int $userid,
-        bool $istrackeduser
+        bool $cancomplete
     ): ?array {
         $sectionmodules = $modinfo->sections[$sectioninfo->section] ?? [];
         $total = 0;
@@ -190,7 +199,13 @@ class progress_data {
                 continue;
             }
 
-            $moduledata = self::build_module_data($sectioninfo, $cm, $completioninfo, $userid, $istrackeduser);
+            $moduledata = self::build_module_data(
+                $sectioninfo,
+                $cm,
+                $completioninfo,
+                $userid,
+                $cancomplete
+            );
             if ($moduledata === null) {
                 continue;
             }
@@ -210,7 +225,7 @@ class progress_data {
                 'completed' => 0,
                 'total' => 0,
                 'percentage' => 0,
-                'percentageformatted' => '0%',
+                'percentageformatted' => '--',
                 'summary' => get_string('courseindex_section_nottracked', 'theme_compecer'),
                 'summarydisplay' => get_string('courseindex_section_nottracked', 'theme_compecer'),
                 'aria' => get_string('courseindex_section_nottracked', 'theme_compecer'),
@@ -251,14 +266,22 @@ class progress_data {
         cm_info $cm,
         completion_info $completioninfo,
         int $userid,
-        bool $istrackeduser
+        bool $cancomplete
     ): ?array {
         $tracking = $completioninfo->is_enabled($cm);
         if ($tracking == COMPLETION_TRACKING_NONE) {
-            return null;
+            return [
+                'id' => $cm->id,
+                'sectionid' => $sectioninfo->id,
+                'sectionnumber' => $sectioninfo->section,
+                'tracked' => false,
+                'state' => null,
+                'status' => 'notstarted',
+                'viewed' => false,
+            ];
         }
 
-        if (!$istrackeduser) {
+        if (!$cancomplete) {
             return [
                 'id' => $cm->id,
                 'sectionid' => $sectioninfo->id,
@@ -290,7 +313,15 @@ class progress_data {
      * @return bool
      */
     protected static function should_track_module(cm_info $cm): bool {
-        return $cm->uservisible && $cm->is_visible_on_course_page();
+        if ($cm->deletioninprogress) {
+            return false;
+        }
+
+        if ($cm->modname === 'label') {
+            return false;
+        }
+
+        return $cm->uservisible;
     }
 
     /**
@@ -308,7 +339,7 @@ class progress_data {
             $state = 0;
         }
 
-        return in_array($state, [COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS, COMPLETION_COMPLETE_FAIL], true);
+        return in_array($state, [COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS], true);
     }
 
     /**

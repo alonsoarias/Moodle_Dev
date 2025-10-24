@@ -529,6 +529,7 @@ const applyDatasetProgress = (container) => {
     const data = getContainerData(container);
     const courseStrings = data.strings?.course ?? {};
     const sectionStrings = data.strings?.section ?? {};
+    const datasetEnabled = data.enabled !== false && data.user?.istracked !== false;
 
     if (data.course) {
         setCourseProgress(
@@ -538,7 +539,7 @@ const applyDatasetProgress = (container) => {
             data.course.percentage ?? 0,
             courseStrings,
             {
-                enabled: data.enabled !== false,
+                enabled: datasetEnabled,
                 summaryOverride: data.course.summarydisplay ?? data.course.summary ?? null,
                 ariaOverride: data.course.aria ?? null,
                 valueOverride: data.course.percentageformatted ?? null,
@@ -667,7 +668,7 @@ const updateSectionProgress = (sectionElement) => {
     });
 
     if (modules.length) {
-        const completed = modules.filter((module) => module.status === 'completed' || module.status === 'failed').length;
+        const completed = modules.filter((module) => module.status === 'completed').length;
         const total = modules.length;
         const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
         setSectionProgress(sectionElement, completed, total, percentage, sectionStrings);
@@ -753,7 +754,7 @@ const updateCourseProgress = (container) => {
     const modulesIndex = ensureModuleIndex(data);
     const modules = Object.values(modulesIndex).filter((module) => module && module.tracked !== false);
     if (modules.length) {
-        const completed = modules.filter((module) => module.status === 'completed' || module.status === 'failed').length;
+        const completed = modules.filter((module) => module.status === 'completed').length;
         const total = modules.length;
         const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
         setCourseProgress(container, completed, total, percentage, courseStrings, {
