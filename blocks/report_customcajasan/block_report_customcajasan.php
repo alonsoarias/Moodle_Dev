@@ -303,51 +303,6 @@ class block_report_customcajasan extends block_base {
     }
 
     /**
-     * Determine whether the current user can access the report link.
-     *
-     * @return bool
-     */
-    protected function can_view_report(): bool {
-        global $USER;
-
-        if (empty($USER) || empty($USER->id)) {
-            return false;
-        }
-
-        $checkedcontexts = [];
-
-        if (!empty($this->page->context)) {
-            $checkedcontexts[$this->page->context->id] = $this->page->context;
-        }
-
-        if (!empty($this->context)) {
-            $checkedcontexts[$this->context->id] = $this->context;
-        } else if (!empty($this->instance->id)) {
-            $blockcontext = context_block::instance($this->instance->id, IGNORE_MISSING);
-            if ($blockcontext) {
-                $checkedcontexts[$blockcontext->id] = $blockcontext;
-            }
-        }
-
-        $parentcontext = $this->get_parent_context();
-        if ($parentcontext) {
-            $checkedcontexts[$parentcontext->id] = $parentcontext;
-        }
-
-        $systemcontext = context_system::instance();
-        $checkedcontexts[$systemcontext->id] = $systemcontext;
-
-        foreach ($checkedcontexts as $context) {
-            if ($context && has_capability('block/report_customcajasan:viewreport', $context)) {
-                return true;
-            }
-        }
-
-        $courses = get_user_capability_course('block/report_customcajasan:viewreport', $USER->id, true, 'id', '', 0, 1);
-        return !empty($courses);
-    }
-
-    /**
      * Require additional capability checks before displaying the block.
      *
      * @param renderer_base $output The renderer requesting the content.

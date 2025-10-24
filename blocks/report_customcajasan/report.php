@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/blocks/report_customcajasan/lib.php');
 // Verify login
 require_login();
 $systemcontext = context_system::instance();
-global $DB;
+global $DB, $SESSION;
 
 // Determine the most relevant context for permission checks.
 $courseid = optional_param('courseid', 0, PARAM_INT);
@@ -140,9 +140,11 @@ $filter_selected = !empty($categoryid) || !empty($courseid) || !empty($idnumber)
 
 // Handle download requests
 if ($download) {
+    require_sesskey();
+
     // Primero, verificar si hay filtros en la sesión
-    $session_filters = isset($_SESSION['report_customcajasan_filters']) ? 
-                       $_SESSION['report_customcajasan_filters'] : array();
+    $session_filters = isset($SESSION->report_customcajasan_filters) ?
+        $SESSION->report_customcajasan_filters : array();
     
     // Prepare filter parameters - Priorizar valores de URL, después valores de sesión
     $filters = array();
@@ -450,6 +452,7 @@ echo html_writer::end_div();
 echo html_writer::start_div('download-options mt-3');
 echo html_writer::start_tag('form', array('id' => 'downloadForm', 'method' => 'get'));
 echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'blockinstanceid', 'value' => $blockinstanceid));
+echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
 
 // Hidden fields to preserve filters
 echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'categoryid', 'value' => $categoryid));
