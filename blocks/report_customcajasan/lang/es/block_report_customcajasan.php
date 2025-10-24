@@ -33,6 +33,7 @@ $string['report_customcajasan:addinstance'] = 'Añadir un nuevo bloque de Inform
 $string['report_customcajasan:myaddinstance'] = 'Añadir un nuevo bloque de Informe de Seguimiento y Estado de Cursos a Mi Moodle';
 $string['report_customcajasan:viewblock'] = 'Ver el bloque de Informe de Seguimiento y Estado de Cursos';
 $string['report_customcajasan:viewreport'] = 'Ver Informe de Seguimiento y Estado de Cursos';
+$string['report_customcajasan:viewsystemreport'] = 'Ver el informe en páginas del sistema';
 
 // Cabeceras de tabla
 $string['column_identificacion'] = 'IDENTIFICACIÓN';
