@@ -22,6 +22,8 @@
  */
 
 define(['jquery'], function($) {
+    'use strict';
+
     const normalisePath = function(path) {
         if (!path) {
             return '';
@@ -61,6 +63,121 @@ define(['jquery'], function($) {
         return textarea.value;
     };
 
+    const parseSortField = function(value) {
+        const allowed = ['name', 'modified', 'type', 'size'];
+        if (allowed.indexOf(value) !== -1) {
+            return value;
+        }
+        return 'name';
+    };
+
+    const formatString = function(template, values) {
+        if (!template) {
+            return '';
+        }
+        let output = template;
+        const data = values || {};
+        if (typeof data.count !== 'undefined') {
+            output = output.replace(/\{\$a\}/g, data.count);
+        }
+        output = output.replace(/\{\$a->(\w+)\}/g, function(match, key) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                return data[key];
+            }
+            return match;
+        });
+        return output;
+    };
+
+    const getSortValue = function(item, field) {
+        switch (field) {
+            case 'modified':
+                return Number(item.data('modified-timestamp')) || 0;
+            case 'size':
+                return Number(item.data('size-bytes')) || 0;
+            case 'type': {
+                const type = (item.data('type') || '').toString().toLowerCase();
+                if (type === 'folder') {
+                    return '0_folder';
+                }
+                const category = (item.data('file-category') || '').toString().toLowerCase();
+                return '1_' + (category || type);
+            }
+            case 'name':
+            default:
+                return (item.data('name') || '').toString().toLowerCase();
+        }
+    };
+
+    const createComparator = function(field, direction) {
+        const sortField = parseSortField(field);
+        const multiplier = direction === 'desc' ? -1 : 1;
+
+        return function(a, b) {
+            const itemA = $(a);
+            const itemB = $(b);
+
+            const typeA = (itemA.data('type') || '').toString().toLowerCase();
+            const typeB = (itemB.data('type') || '').toString().toLowerCase();
+
+            if (sortField !== 'type') {
+                if (typeA === 'folder' && typeB !== 'folder') {
+                    return -1;
+                }
+                if (typeA !== 'folder' && typeB === 'folder') {
+                    return 1;
+                }
+            }
+
+            const valueA = getSortValue(itemA, sortField);
+            const valueB = getSortValue(itemB, sortField);
+
+            if (valueA < valueB) {
+                return -1 * multiplier;
+            }
+            if (valueA > valueB) {
+                return 1 * multiplier;
+            }
+
+            const nameA = (itemA.data('name') || '').toString().toLowerCase();
+            const nameB = (itemB.data('name') || '').toString().toLowerCase();
+
+            if (nameA < nameB) {
+                return -1 * multiplier;
+            }
+            if (nameA > nameB) {
+                return 1 * multiplier;
+            }
+
+            return 0;
+        };
+    };
+
+    const matchesFilter = function(item, filterValue) {
+        const filter = (filterValue || 'all').toString().toLowerCase();
+
+        if (filter === 'all') {
+            return true;
+        }
+
+        const type = (item.data('type') || '').toString().toLowerCase();
+        const category = (item.data('file-category') || '').toString().toLowerCase();
+
+        if (filter === 'folders') {
+            return type === 'folder';
+        }
+
+        if (filter === 'files') {
+            return type !== 'folder';
+        }
+
+        if (filter === 'other') {
+            return category === 'other' || (!category && type !== 'folder');
+        }
+
+        return category === filter;
+    };
+
     const init = function(config) {
         const containerId = config && config.containerid;
         const container = containerId ? $('#' + containerId) : $();
@@ -73,11 +190,16 @@ define(['jquery'], function($) {
             currentView: 'grid',
             currentPath: '',
             searchTerm: '',
+            sortField: 'name',
+            sortDirection: 'asc',
+            filterCategory: 'all',
             history: [''],
             historyIndex: 0,
         };
 
-        const strings = config && config.strings ? config.strings : {};
+        const strings = config && (config.langstrings || config.strings)
+            ? (config.langstrings || config.strings)
+            : {};
         const rootName = decodeHtml(config && config.rootname ? config.rootname : '');
 
         const elements = {
@@ -95,9 +217,25 @@ define(['jquery'], function($) {
             detailsView: container.find('.folder-view-details'),
             emptyMessage: container.find('.empty-folder-message'),
             noResultsMessage: container.find('.no-results-message'),
-            titleValue: container.find('.window-title .title-value'),
             folderViews: container.find('.folder-views'),
+            sortField: container.find('.folder-sort-field'),
+            sortDirectionButtons: container.find('.sort-direction'),
+            filterSelect: container.find('.folder-filter'),
+            resultSummary: container.find('.result-summary'),
+            gridContainer: container.find('.folder-view-grid .grid-container'),
+            listTableBody: container.find('.folder-view-list tbody'),
+            detailsTableBody: container.find('.folder-view-details tbody'),
         };
+
+        state.sortField = parseSortField(elements.sortField.val());
+        state.sortDirection = elements.sortDirectionButtons.filter('.active').first().data('direction') === 'desc' ? 'desc' : 'asc';
+        state.filterCategory = (elements.filterSelect.val() || 'all').toString();
+
+        elements.sortDirectionButtons.each(function() {
+            const button = $(this);
+            const isActive = button.hasClass('active');
+            button.attr('aria-pressed', isActive);
+        });
 
         initialiseTree(container, !!(config && config.showexpanded));
         attachEventHandlers();
@@ -107,6 +245,30 @@ define(['jquery'], function($) {
             elements.searchInput.on('input', handleSearchInput);
             elements.searchClear.on('click', clearSearch);
             elements.clearSearchButton.on('click', clearSearch);
+
+            elements.sortField.on('change', function() {
+                state.sortField = parseSortField($(this).val());
+                sortItems();
+                filterItems();
+            });
+
+            elements.sortDirectionButtons.on('click', function() {
+                const button = $(this);
+                const direction = button.data('direction');
+                if (!direction || direction === state.sortDirection) {
+                    return;
+                }
+                state.sortDirection = direction === 'desc' ? 'desc' : 'asc';
+                elements.sortDirectionButtons.removeClass('active').attr('aria-pressed', false);
+                button.addClass('active').attr('aria-pressed', true);
+                sortItems();
+                filterItems();
+            });
+
+            elements.filterSelect.on('change', function() {
+                state.filterCategory = ($(this).val() || 'all').toString();
+                filterItems();
+            });
 
             elements.viewToggles.on('click', function() {
                 const button = $(this);
@@ -152,7 +314,7 @@ define(['jquery'], function($) {
                 const node = $(this).closest('.folder-tree-node');
                 const willExpand = !node.hasClass('expanded');
                 node.toggleClass('expanded', willExpand).toggleClass('collapsed', !willExpand);
-                $(this).attr('aria-expanded', willExpand);
+                updateToggleIcon(node, willExpand);
             });
 
             container.on('click', '.folder-tree-label', function(event) {
@@ -181,7 +343,7 @@ define(['jquery'], function($) {
 
             container.on('dblclick', '.grid-item, .list-item, .details-item', function() {
                 const item = $(this);
-                const type = item.data('type');
+                const type = (item.data('type') || '').toString();
                 if (type === 'folder') {
                     const folderPath = item.data('folder-path') || '';
                     setCurrentPath(folderPath);
@@ -222,19 +384,25 @@ define(['jquery'], function($) {
                 const node = $(this);
                 const expanded = expandAll || node.hasClass('expanded');
                 node.toggleClass('expanded', expanded).toggleClass('collapsed', !expanded);
-                const toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
-                if (toggle.length) {
-                    toggle.attr('aria-expanded', expanded);
-                }
+                updateToggleIcon(node, expanded);
             });
+        }
+
+        function updateToggleIcon(node, expanded) {
+            const toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
+            if (toggle.length) {
+                toggle.attr('aria-expanded', expanded);
+                const icon = toggle.find('i');
+                if (icon.length) {
+                    icon.toggleClass('fa-chevron-down', expanded);
+                    icon.toggleClass('fa-chevron-right', !expanded);
+                }
+            }
         }
 
         function expandNode(node) {
             node.addClass('expanded').removeClass('collapsed');
-            const toggle = node.find('> .folder-tree-node-inner .folder-tree-toggle');
-            if (toggle.length) {
-                toggle.attr('aria-expanded', true);
-            }
+            updateToggleIcon(node, true);
         }
 
         function setCurrentPath(path, options) {
@@ -254,17 +422,20 @@ define(['jquery'], function($) {
             clearSelections();
             updateBreadcrumbs();
             highlightTree();
+            sortItems();
             filterItems();
             updateNavigationButtons();
         }
 
         function clearSelections() {
             container.find('.grid-item, .list-item, .details-item').removeClass('is-selected');
+            updateSelectionStyles();
         }
 
         function handleSelection(item, event) {
             if (event.ctrlKey || event.metaKey) {
                 item.toggleClass('is-selected');
+                updateSelectionStyles();
                 return;
             }
 
@@ -275,6 +446,7 @@ define(['jquery'], function($) {
 
             container.find('.grid-item, .list-item, .details-item').removeClass('is-selected');
             item.addClass('is-selected');
+            updateSelectionStyles();
         }
 
         function rangeSelect(targetItem) {
@@ -283,6 +455,7 @@ define(['jquery'], function($) {
 
             if (!firstSelected.length) {
                 targetItem.addClass('is-selected');
+                updateSelectionStyles();
                 return;
             }
 
@@ -293,6 +466,35 @@ define(['jquery'], function($) {
 
             container.find('.grid-item, .list-item, .details-item').removeClass('is-selected');
             visibleItems.slice(start, end + 1).addClass('is-selected');
+            updateSelectionStyles();
+        }
+
+        function sortItems() {
+            const comparator = createComparator(state.sortField, state.sortDirection);
+
+            if (elements.gridContainer.length) {
+                const gridItems = elements.gridContainer.children('.grid-item').get();
+                gridItems.sort(comparator);
+                gridItems.forEach(function(item) {
+                    elements.gridContainer.append(item);
+                });
+            }
+
+            if (elements.listTableBody.length) {
+                const listRows = elements.listTableBody.children('.list-item').get();
+                listRows.sort(comparator);
+                listRows.forEach(function(row) {
+                    elements.listTableBody.append(row);
+                });
+            }
+
+            if (elements.detailsTableBody.length) {
+                const detailRows = elements.detailsTableBody.children('.details-item').get();
+                detailRows.sort(comparator);
+                detailRows.forEach(function(row) {
+                    elements.detailsTableBody.append(row);
+                });
+            }
         }
 
         function filterItems() {
@@ -320,6 +522,10 @@ define(['jquery'], function($) {
                 }
 
                 if (matches) {
+                    matches = matchesFilter(item, state.filterCategory);
+                }
+
+                if (matches) {
                     item.show();
                     item.data('matches', true);
                     visibleKeys[keyBase] = true;
@@ -330,21 +536,47 @@ define(['jquery'], function($) {
                 }
             });
 
+            updateSelectionStyles();
+
             const visibleCount = Object.keys(visibleKeys).length;
             const totalInPath = Object.keys(totalKeys).length;
 
             updateEmptyStates(visibleCount, totalInPath);
             updateViewVisibility();
+            updateResultSummary(visibleCount, totalInPath);
+        }
+
+        function updateResultSummary(visibleCount, totalCount) {
+            if (!elements.resultSummary.length) {
+                return;
+            }
+
+            let message = '';
+
+            if (totalCount === 0) {
+                message = strings.emptyfolder || '';
+            } else if (visibleCount === 0) {
+                message = strings.noresults || '';
+            } else if (visibleCount === totalCount) {
+                message = formatString(strings.itemcounts, {count: totalCount});
+            } else {
+                message = formatString(strings.filterresults, {
+                    visible: visibleCount,
+                    total: totalCount,
+                });
+            }
+
+            elements.resultSummary.text(message);
         }
 
         function updateViewVisibility() {
-            elements.viewPanels.removeClass('active');
+            elements.viewPanels.removeClass('active').attr('aria-hidden', true);
             if (state.currentView === 'grid') {
-                elements.gridView.addClass('active');
+                elements.gridView.addClass('active').attr('aria-hidden', false);
             } else if (state.currentView === 'list') {
-                elements.listView.addClass('active');
+                elements.listView.addClass('active').attr('aria-hidden', false);
             } else {
-                elements.detailsView.addClass('active');
+                elements.detailsView.addClass('active').attr('aria-hidden', false);
             }
         }
 
@@ -369,7 +601,7 @@ define(['jquery'], function($) {
 
         function updateBreadcrumbs() {
             const breadcrumbs = $('<nav/>', {'aria-label': strings.folderbreadcrumbs || ''});
-            const list = $('<ol/>', {'class': 'folder-breadcrumb-list'});
+            const list = $('<ol/>', {'class': 'breadcrumb mb-0 folder-breadcrumb-list'});
             const segments = decodePathSegments(state.currentPath);
             const encodedSegments = state.currentPath ? state.currentPath.split('/') : [];
 
@@ -386,21 +618,22 @@ define(['jquery'], function($) {
 
             breadcrumbs.append(list);
             elements.breadcrumbHost.empty().append(breadcrumbs);
-
-            const titleText = segments.length ? segments[segments.length - 1] : (rootName || strings.modulename || '');
-            elements.titleValue.text(titleText);
         }
 
         function createBreadcrumbItem(label, pathValue, isActive) {
-            const item = $('<li/>', {'class': 'folder-breadcrumb-item'});
+            const item = $('<li/>', {'class': 'breadcrumb-item folder-breadcrumb-item'});
+            const buttonClasses = ['btn', 'btn-link', 'btn-sm', 'px-0', 'breadcrumb-button'];
+            if (isActive) {
+                buttonClasses.push('active');
+            }
             const button = $('<button/>', {
                 'type': 'button',
-                'class': 'breadcrumb-button' + (isActive ? ' is-active' : ''),
+                'class': buttonClasses.join(' '),
                 'data-path': pathValue,
             }).text(label || (rootName || strings.modulename || ''));
 
             if (isActive) {
-                button.attr('disabled', true);
+                button.attr('disabled', true).attr('aria-current', 'page');
             }
 
             item.append(button);
@@ -410,17 +643,23 @@ define(['jquery'], function($) {
         function highlightTree() {
             const nodes = container.find('.folder-tree-node');
             nodes.removeClass('active');
+            nodes.find('> .folder-tree-node-inner .folder-tree-label').removeClass('font-weight-bold text-primary');
             const target = nodes.filter(function() {
                 return ($(this).attr('data-path') || '') === state.currentPath;
             }).first();
 
             if (target.length) {
                 target.addClass('active');
+                target.find('> .folder-tree-node-inner .folder-tree-label').addClass('font-weight-bold text-primary');
                 target.parents('.folder-tree-node').each(function() {
-                    expandNode($(this));
+                    const parentNode = $(this);
+                    expandNode(parentNode);
+                    parentNode.find('> .folder-tree-node-inner .folder-tree-label').addClass('font-weight-bold text-primary');
                 });
             } else {
-                container.find('.folder-tree-node.is-root').first().addClass('active');
+                const rootNode = container.find('.folder-tree-node.is-root').first();
+                rootNode.addClass('active');
+                rootNode.find('> .folder-tree-node-inner .folder-tree-label').addClass('font-weight-bold text-primary');
             }
         }
 
@@ -428,6 +667,39 @@ define(['jquery'], function($) {
             elements.navBack.prop('disabled', state.historyIndex <= 0);
             elements.navForward.prop('disabled', state.historyIndex >= state.history.length - 1);
             elements.navUp.prop('disabled', !state.currentPath);
+        }
+
+        function updateSelectionStyles() {
+            elements.gridContainer.find('.grid-item').each(function() {
+                const item = $(this);
+                const card = item.find('.card').first();
+                if (!card.length) {
+                    return;
+                }
+                if (item.hasClass('is-selected')) {
+                    card.addClass('border-primary');
+                } else {
+                    card.removeClass('border-primary');
+                }
+            });
+
+            elements.listTableBody.find('.list-item').each(function() {
+                const row = $(this);
+                if (row.hasClass('is-selected')) {
+                    row.addClass('table-active');
+                } else {
+                    row.removeClass('table-active');
+                }
+            });
+
+            elements.detailsTableBody.find('.details-item').each(function() {
+                const row = $(this);
+                if (row.hasClass('is-selected')) {
+                    row.addClass('table-active');
+                } else {
+                    row.removeClass('table-active');
+                }
+            });
         }
     };
 
