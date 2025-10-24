@@ -23,6 +23,7 @@
  */
 
 $string['modulename'] = 'Carpeta';
+$string['downloadfolder'] = 'Descargar carpeta';
 $string['explorertitle'] = 'Explorador de archivos';
 $string['exploreraddress'] = 'Dirección';
 $string['explorertree'] = 'Panel de navegación';
