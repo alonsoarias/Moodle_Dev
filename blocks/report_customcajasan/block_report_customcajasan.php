@@ -215,15 +215,91 @@ class block_report_customcajasan extends block_base {
      * @return bool
      */
     protected function user_has_view_permission(): bool {
-        if (!empty($this->context)) {
-            $context = $this->context;
-        } else if (!empty($this->instance->id)) {
-            $context = context_block::instance($this->instance->id);
-        } else {
-            $context = context_system::instance();
+        $context = $this->resolve_block_context();
+
+        if (has_capability('block/report_customcajasan:viewblock', $context)) {
+            return true;
         }
 
-        return has_capability('block/report_customcajasan:viewblock', $context);
+        return $this->user_has_report_capability_anywhere();
+    }
+
+    /**
+     * Determine whether the current user can access the report link.
+     *
+     * @return bool
+     */
+    protected function can_view_report(): bool {
+        return $this->user_has_report_capability_anywhere();
+    }
+
+    /**
+     * Check whether the current user has report access in any relevant context.
+     *
+     * @return bool
+     */
+    protected function user_has_report_capability_anywhere(): bool {
+        global $USER;
+
+        if (empty($USER) || empty($USER->id)) {
+            return false;
+        }
+
+        foreach ($this->get_candidate_contexts_for_report() as $context) {
+            if ($context && has_capability('block/report_customcajasan:viewreport', $context)) {
+                return true;
+            }
+        }
+
+        $courses = get_user_capability_course('block/report_customcajasan:viewreport', $USER->id, true, 'id', '', 0, 1);
+
+        return !empty($courses);
+    }
+
+    /**
+     * Resolve the context that represents this block instance.
+     *
+     * @return context
+     */
+    protected function resolve_block_context(): context {
+        if (!empty($this->context)) {
+            return $this->context;
+        }
+
+        if (!empty($this->instance->id)) {
+            $blockcontext = context_block::instance($this->instance->id, IGNORE_MISSING);
+            if ($blockcontext) {
+                return $blockcontext;
+            }
+        }
+
+        return context_system::instance();
+    }
+
+    /**
+     * Collect contexts that are relevant when evaluating report access.
+     *
+     * @return context[]
+     */
+    protected function get_candidate_contexts_for_report(): array {
+        $contexts = [];
+
+        if (!empty($this->page->context)) {
+            $contexts[$this->page->context->id] = $this->page->context;
+        }
+
+        $blockcontext = $this->resolve_block_context();
+        $contexts[$blockcontext->id] = $blockcontext;
+
+        $parentcontext = $this->get_parent_context();
+        if ($parentcontext) {
+            $contexts[$parentcontext->id] = $parentcontext;
+        }
+
+        $systemcontext = context_system::instance();
+        $contexts[$systemcontext->id] = $systemcontext;
+
+        return array_values($contexts);
     }
 
     /**
