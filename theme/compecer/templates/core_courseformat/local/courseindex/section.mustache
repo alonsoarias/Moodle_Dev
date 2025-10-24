@@ -22,27 +22,27 @@
     }
 }}
 <div class="courseindex-section w-100 {{#current}}current{{/current}} {{#component}}delegated-section{{/component}}"
-     id="{{uniqid}}-course-index-section-{{id}}"
+     id="{{uniqid}}-courseindex-section-{{id}}"
      data-for="section"
      data-id="{{id}}"
      data-number="{{number}}"
      role="treeitem"
-     aria-owns="course-index-collapse{{number}}">
+     aria-owns="courseindexcollapse{{number}}">
   <div class="courseindex-section__header {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
-       id="course-index-section{{number}}"
+       id="courseindexsection{{number}}"
        data-for="section_item">
     <div class="courseindex-section__title">
       <button type="button"
               class="courseindex-section__toggle {{#indexcollapsed}}is-collapsed collapsed{{/indexcollapsed}}"
               data-action="togglecourseindexsection"
               data-toggle="collapse"
-              data-target="#course-index-collapse{{number}}"
+              data-target="#courseindexcollapse{{number}}"
               data-for="section_title"
-              aria-controls="course-index-collapse{{number}}"
+              aria-controls="courseindexcollapse{{number}}"
               aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
               tabindex="-1">
         <span class="courseindex-section__toggle-icon" aria-hidden="true"></span>
-        <span class="sr-only">{{#str}}toggle section{{/str}}</span>
+        <span class="sr-only">{{#str}}courseindex_toggle_section, theme_compecer{{/str}}</span>
       </button>
       <a href="{{{sectionurl}}}"
          class="courseindex-section__name text-truncate"
@@ -70,9 +70,9 @@
       </div>
     </div>
   </div>
-  <div id="course-index-collapse{{number}}"
+  <div id="courseindexcollapse{{number}}"
        class="courseindex-section__content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
-       aria-labelledby="course-index-section{{number}}" role="group">
+       aria-labelledby="courseindexsection{{number}}" role="group">
     <ul class="courseindex-section__list" data-for="cmlist" data-id="{{id}}" role="group">
       {{#cms}}
         {{> core_courseformat/local/courseindex/cm}}
@@ -82,6 +82,6 @@
 </div>
 {{#js}}
 require(['core_courseformat/local/courseindex/section'], function(component) {
-  component.init('{{uniqid}}-course-index-section-{{id}}');
+  component.init('{{uniqid}}-courseindex-section-{{id}}');
 });
 {{/js}}

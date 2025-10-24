@@ -45,6 +45,7 @@ class section_renderer extends \core_courseformat\output\section_renderer {
         $usertracked = $dataset['user']['istracked'] ?? true;
         $progressenabled = $dataset['enabled'] && $usertracked;
         $context = [
+            'classes' => trim('courseindex courseindex--enhanced ' . ($progressenabled ? '' : 'courseindex--no-tracking')),
             'progress' => [
                 'enabled' => $progressenabled,
                 'json' => json_encode(

@@ -208,6 +208,7 @@ $string['courseindex_notracking'] = 'Completion tracking is not enabled for this
 $string['courseindex_section_summary'] = '{$a->completed} of {$a->total} activities in this section completed ({$a->percentage}%)';
 $string['courseindex_section_aria'] = 'Section progress: {$a->percentage}% complete. {$a->completed} of {$a->total} activities finished.';
 $string['courseindex_section_nottracked'] = 'No trackable activities in this section.';
+$string['courseindex_toggle_section'] = 'Expand or collapse section';
 $string['courseindex_legend_notstarted'] = 'Not started';
 $string['courseindex_legend_inprogress'] = 'In progress';
 $string['courseindex_legend_completed'] = 'Completed';

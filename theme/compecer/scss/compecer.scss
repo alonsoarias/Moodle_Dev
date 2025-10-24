@@ -202,25 +202,25 @@ section#sidepre-blocks section.card {
 // Course index enhancements.
 // -----------------------------------------------------------------------------
 
-.course-index-drawer {
-  padding: 1.5rem;
+.courseindex.courseindex--enhanced {
+  padding: 1.25rem 1.5rem;
 
   &.courseindex--no-tracking {
     .courseindex-progress-card__value {
-      color: $gray-500;
+      color: $gray-600;
     }
 
-    .courseindex-progress-card {
-      border-style: dashed;
+    .courseindex-progress-card__message {
+      display: block;
     }
   }
 
   .courseindex-progress-card {
     background-color: $white;
-    border: 1px solid lighten($gray, 35%);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    box-shadow: 0 10px 25px rgba($black, 0.05);
+    border-radius: 0.75rem;
+    border: 1px solid rgba($gray-900, 0.08);
+    box-shadow: 0 6px 18px rgba($black, 0.06);
+    padding: 1.25rem;
     margin-bottom: 1.5rem;
   }
 
@@ -236,11 +236,11 @@ section#sidepre-blocks section.card {
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: $primary-blue;
+    color: $gray-600;
   }
 
   .courseindex-progress-card__value {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     font-weight: 700;
     color: $primary-blue;
     line-height: 1;
@@ -253,62 +253,61 @@ section#sidepre-blocks section.card {
   }
 
   .courseindex-progress-card__message {
+    display: none;
+    margin-top: 1rem;
     padding: 0.75rem 1rem;
     border-radius: 0.75rem;
     background-color: rgba($warning, 0.12);
     color: $warning;
     font-weight: 600;
-    margin-top: 1rem;
   }
 
   .courseindex-progress-bar {
     position: relative;
     width: 100%;
-    height: 0.75rem;
+    height: 0.6rem;
     border-radius: 999px;
-    background-color: lighten($gray, 40%);
+    background-color: rgba($primary-blue, 0.12);
     overflow: hidden;
-    margin-top: 1.25rem;
+    margin-top: 1rem;
   }
 
   .courseindex-progress-bar__fill {
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    inset: 0;
     width: 0;
     border-radius: inherit;
-    background: linear-gradient(90deg, $primary-blue, darken($primary-blue, 8%));
-    transition: width 0.35s ease;
+    background: linear-gradient(90deg, $primary-blue, darken($primary-blue, 6%));
+    transition: width 0.3s ease;
   }
 
   .courseindex-progress-bar__fill.is-empty {
-    background: lighten($gray, 35%);
+    background: rgba($gray-600, 0.35);
   }
 
   .courseindex-progress-bar.is-disabled {
-    opacity: 0.45;
+    opacity: 0.4;
   }
 
   .courseindex-progress-legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
-    margin: 1.5rem 0 0;
+    gap: 1rem 1.5rem;
+    margin: 1.25rem 0 0;
     padding: 0;
   }
 
   .courseindex-progress-legend__item {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     font-size: 0.85rem;
-    color: $gray-700;
+    color: $gray-600;
   }
 
   .courseindex-progress-legend__item dt {
-    font-size: 1rem;
     margin: 0;
+    font-size: 1rem;
   }
 
   .courseindex-progress-legend__item dd {
@@ -317,14 +316,18 @@ section#sidepre-blocks section.card {
 
   .courseindex-section {
     padding: 0.75rem 0;
-    border-bottom: 1px solid lighten($gray, 40%);
+    border-bottom: 1px solid rgba($gray-900, 0.08);
+  }
+
+  .courseindex-section:last-of-type {
+    border-bottom: none;
   }
 
   .courseindex-section__header {
     display: flex;
     justify-content: space-between;
-    gap: 0.75rem;
     align-items: flex-start;
+    gap: 0.75rem;
   }
 
   .courseindex-section__title {
@@ -336,50 +339,53 @@ section#sidepre-blocks section.card {
   }
 
   .courseindex-section__toggle {
-    background: transparent;
-    border: none;
-    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 999px;
-    transition: background-color 0.2s ease;
+    border: none;
+    background-color: transparent;
     color: $primary-blue;
+    padding: 0;
+    transition: background-color 0.2s ease;
   }
 
   .courseindex-section__toggle:hover,
   .courseindex-section__toggle:focus {
-    background-color: rgba($primary-blue, 0.1);
+    background-color: rgba($primary-blue, 0.12);
     outline: none;
   }
 
   .courseindex-section__toggle-icon::before {
-    content: "\25BC";
+    content: '\25BC';
     font-size: 0.95rem;
     transition: transform 0.3s ease;
   }
 
   .courseindex-section__toggle.is-collapsed .courseindex-section__toggle-icon::before {
     transform: rotate(-90deg);
-    content: "\25B6";
+    content: '\25B6';
   }
 
   .courseindex-section__name {
     font-weight: 600;
-    color: $primary-blue;
+    color: $gray-900;
   }
 
   .courseindex-section__name:hover,
   .courseindex-section__name:focus {
+    color: $primary-blue;
     text-decoration: none;
-    color: darken($primary-blue, 8%);
   }
 
   .courseindex-section__current {
     font-size: 0.75rem;
     padding: 0.15rem 0.6rem;
+    background-color: rgba($primary-blue, 0.12);
+    color: $primary-blue;
+    border-radius: 999px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -408,22 +414,21 @@ section#sidepre-blocks section.card {
     width: 100%;
     height: 0.35rem;
     border-radius: 999px;
-    background-color: lighten($gray, 45%);
+    background-color: rgba($gray-600, 0.2);
     overflow: hidden;
   }
 
   .courseindex-section__bar-fill {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     width: 0;
-    background-color: lighten($primary-blue, 10%);
-    transition: width 0.35s ease;
+    border-radius: inherit;
+    background-color: $primary-blue;
+    transition: width 0.3s ease;
   }
 
   .courseindex-section__bar-fill.is-empty {
-    background-color: lighten($gray, 35%);
+    background-color: rgba($gray-600, 0.35);
   }
 
   .courseindex-section__content {
@@ -444,15 +449,10 @@ section#sidepre-blocks section.card {
   }
 
   .courseindex-item__status {
-    font-size: 1rem;
-    line-height: 1;
     width: 1.75rem;
     text-align: center;
-    color: $gray-500;
+    font-size: 1rem;
     font-weight: 600;
-  }
-
-  .courseindex-item__status--notstarted {
     color: $gray-500;
   }
 
@@ -461,7 +461,7 @@ section#sidepre-blocks section.card {
   }
 
   .courseindex-item__status--inprogress {
-    color: $warning;
+    color: $info;
   }
 
   .courseindex-item__status--failed {
@@ -485,21 +485,13 @@ section#sidepre-blocks section.card {
     color: $gray-500;
   }
 
-  .courseindex-item__lock .icon {
-    font-size: 0.85rem;
-  }
-
   .courseindex-item__lock:empty {
-    display: none;
-  }
-
-  .completioninfo {
     display: none;
   }
 }
 
 @media (max-width: 768px) {
-  .course-index-drawer {
+  .courseindex.courseindex--enhanced {
     padding: 1rem;
 
     .courseindex-section__header {
