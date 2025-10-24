@@ -37,6 +37,8 @@ raise_memory_limit(MEMORY_EXTRA);
 // Check user login
 require_login(null, false);
 
+global $SESSION;
+
 // Verify sesskey with better error handling
 if (!confirm_sesskey()) {
     $error = array(
@@ -126,7 +128,7 @@ try {
     $filters['blockinstanceid'] = $blockinstanceid;
 
     // Store filters in session for download use
-    $_SESSION['report_customcajasan_filters'] = $filters;
+    $SESSION->report_customcajasan_filters = $filters;
     
     // Pagination parameters
     $page = optional_param('page', 0, PARAM_INT);
@@ -143,6 +145,25 @@ try {
     // Get only the records for the current page
     $limitfrom = $page * $perpage;
     $enrollments = report_customcajasan_get_data($filters, $limitfrom, $perpage);
+
+    $datetimeformat = get_string('strftimedatetime', 'langconfig');
+    foreach ($enrollments as $enrollment) {
+        $enrollment->fecha_matricula = !empty($enrollment->fecha_matricula)
+            ? userdate((int)$enrollment->fecha_matricula, $datetimeformat)
+            : get_string('never', 'block_report_customcajasan');
+
+        if (!empty($enrollment->ultimo_acceso)) {
+            $enrollment->ultimo_acceso = userdate((int)$enrollment->ultimo_acceso, $datetimeformat);
+        } else {
+            $enrollment->ultimo_acceso = '';
+        }
+
+        if (!empty($enrollment->fecha_certificado)) {
+            $enrollment->fecha_certificado = userdate((int)$enrollment->fecha_certificado, $datetimeformat);
+        } else {
+            $enrollment->fecha_certificado = '';
+        }
+    }
     
     // Prepare HTML table
     $html = '';
