@@ -105,7 +105,7 @@ class mod_folder_renderer extends plugin_renderer_base {
                 'containerid' => $data['id'],
                 'rootname' => $data['rootname'],
                 'showexpanded' => !empty($data['showexpanded']),
-                'strings' => $strings,
+                'langstrings' => $strings,
             ]
         ]);
 

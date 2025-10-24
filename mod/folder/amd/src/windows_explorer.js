@@ -197,7 +197,9 @@ define(['jquery'], function($) {
             historyIndex: 0,
         };
 
-        const strings = config && config.strings ? config.strings : {};
+        const strings = config && (config.langstrings || config.strings)
+            ? (config.langstrings || config.strings)
+            : {};
         const rootName = decodeHtml(config && config.rootname ? config.rootname : '');
 
         const elements = {
