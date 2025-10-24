@@ -1,0 +1,154 @@
+{{!
+    @template core_courseformat/local/courseindex/courseindex
+
+    Redesigned course index for theme compecer. Adds a dedicated
+    progress summary panel and refreshed section/module layout.
+}}
+<div class="compecer-courseindex-panel {{#editmode}}editing{{/editmode}}">
+    <div class="compecer-courseindex-panel__header">
+        <div class="compecer-courseindex-progress" data-region="course-progress">
+            <div class="compecer-courseindex-progress__labels">
+                <span class="compecer-courseindex-progress__title">{{#str}}courseindexprogresslabel, theme_compecer{{/str}}</span>
+                <span class="compecer-courseindex-progress__value" data-region="course-progress-value">0%</span>
+            </div>
+            <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="progress-bar" data-region="course-progress-bar" style="width: 0%;"></div>
+            </div>
+            <span class="compecer-courseindex-progress__summary" data-region="course-progress-status">
+                {{#str}}courseindexprogressplaceholder, theme_compecer{{/str}}
+            </span>
+        </div>
+    </div>
+    <div id="course-index" class="courseindex compecer-courseindex-tree {{#editmode}}editing{{/editmode}}" role="tree">
+        {{#sections}}
+            {{> core_courseformat/local/courseindex/section }}
+        {{/sections}}
+        {{^sections}}
+            <p class="compecer-courseindex-empty">{{#str}}courseindexempty, theme_compecer{{/str}}</p>
+        {{/sections}}
+    </div>
+</div>
+{{#js}}
+require(['core_courseformat/local/courseindex/courseindex', 'core/str'], function(component, str) {
+    component.init('course-index');
+
+    const root = document.getElementById('course-index');
+    if (!root || root.dataset.progressInitialised) {
+        return;
+    }
+    root.dataset.progressInitialised = 'true';
+
+    const panel = root.closest('.compecer-courseindex-panel');
+    if (!panel) {
+        return;
+    }
+
+    const progressBar = panel.querySelector('[data-region="course-progress-bar"]');
+    const progressValue = panel.querySelector('[data-region="course-progress-value"]');
+    const progressStatus = panel.querySelector('[data-region="course-progress-status"]');
+
+    str.get_strings([
+        {key: 'courseindexprogressnone', component: 'theme_compecer'},
+        {key: 'courseindexprogressstatus', component: 'theme_compecer'}
+    ]).then(function(strings) {
+        const noTracking = strings[0];
+        const statusTemplate = strings[1];
+
+        const renderStatus = function(completed, total) {
+            if (!progressStatus) {
+                return;
+            }
+            if (total === 0) {
+                progressStatus.textContent = noTracking;
+                return;
+            }
+            let text = statusTemplate;
+            text = text.replace('{$a->completed}', completed);
+            text = text.replace('{$a->total}', total);
+            progressStatus.textContent = text;
+        };
+
+        const updateProgress = function() {
+            const completionNodes = root.querySelectorAll('[data-for="cm_completion"]');
+            let total = 0;
+            let completed = 0;
+            completionNodes.forEach(function(node) {
+                const value = parseInt(node.dataset.value, 10);
+                if (Number.isNaN(value)) {
+                    return;
+                }
+                total++;
+                if (node.classList.contains('completion_complete')) {
+                    completed++;
+                }
+            });
+
+            const percent = total ? Math.round((completed / total) * 100) : 0;
+            if (progressBar) {
+                progressBar.style.width = percent + '%';
+                progressBar.setAttribute('aria-valuenow', percent);
+            }
+            if (progressValue) {
+                progressValue.textContent = percent + '%';
+            }
+            renderStatus(completed, total);
+        };
+
+        const observer = new MutationObserver(function(mutations) {
+            let shouldUpdate = false;
+            mutations.forEach(function() {
+                shouldUpdate = true;
+            });
+            if (shouldUpdate) {
+                updateProgress();
+            }
+        });
+
+        observer.observe(root, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['class', 'data-value']
+        });
+
+        updateProgress();
+    }).catch(function() {
+        const fallbackUpdate = function() {
+            const completionNodes = root.querySelectorAll('[data-for="cm_completion"]');
+            let total = 0;
+            let completed = 0;
+            completionNodes.forEach(function(node) {
+                const value = parseInt(node.dataset.value, 10);
+                if (Number.isNaN(value)) {
+                    return;
+                }
+                total++;
+                if (node.classList.contains('completion_complete')) {
+                    completed++;
+                }
+            });
+            const percent = total ? Math.round((completed / total) * 100) : 0;
+            if (progressBar) {
+                progressBar.style.width = percent + '%';
+                progressBar.setAttribute('aria-valuenow', percent);
+            }
+            if (progressValue) {
+                progressValue.textContent = percent + '%';
+            }
+        };
+
+        const observer = new MutationObserver(function() {
+            fallbackUpdate();
+        });
+
+        observer.observe(root, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['class', 'data-value']
+        });
+
+        fallbackUpdate();
+    });
+});
+{{/js}}
