@@ -6,7 +6,7 @@
     @package   mod_folder
 }}
 
-<div class="folder-container-onedrive folder-explorer-container" id="{{id}}" data-root-name="{{rootname}}">
+<div class="folder-explorer-windows" id="{{id}}" data-root-name="{{rootname}}">
 
     {{! Intro }}
     {{#intro}}
@@ -29,227 +29,417 @@
     </div>
     {{/hasbuttons}}
 
-    <div class="folder-explorer-shell">
-        {{#has_tree}}
-        <aside class="folder-navigation" aria-label="{{strings.navigationaria}}">
-            <div class="navigation-header">{{strings.navigationheader}}</div>
-            <div class="folder-tree-scroll">
-                <ul class="folder-tree-list">
-                    {{#tree}}
-                        {{> mod_folder/tree}}
-                    {{/tree}}
-                </ul>
+    <div class="explorer-window" role="region" aria-label="{{strings.explorercontents}}">
+        <div class="explorer-title-bar">
+            <div class="title-bar-left">
+                <span class="title-bar-icon"><i class="fa fa-folder"></i></span>
+                <span class="title-bar-text">{{strings.explorertitle}} - {{rootname}}</span>
             </div>
-        </aside>
-        {{/has_tree}}
-
-        <div class="folder-main-panel">
-            <div class="folder-header-bar">
-                <div class="folder-navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
-                    <button type="button" class="nav-button nav-button-back" title="{{strings.navbacktitle}}" aria-label="{{strings.navbackaria}}" disabled>
-                        <i class="fa fa-arrow-left"></i>
-                    </button>
-                    <button type="button" class="nav-button nav-button-forward" title="{{strings.navforwardtitle}}" aria-label="{{strings.navforwardaria}}" disabled>
-                        <i class="fa fa-arrow-right"></i>
-                    </button>
-                    <button type="button" class="nav-button nav-button-up" title="{{strings.navuptitle}}" aria-label="{{strings.navuparia}}" disabled>
-                        <i class="fa fa-level-up"></i>
-                    </button>
-                </div>
-                <div class="folder-breadcrumbs" role="navigation" aria-label="{{strings.breadcrumbsaria}}"></div>
+            <div class="title-bar-controls">
+                <button type="button" class="window-button window-minimize" aria-label="{{strings.windowminimize}}">
+                    <span aria-hidden="true">—</span>
+                </button>
+                <button type="button" class="window-button window-maximize" aria-label="{{strings.windowmaximize}}">
+                    <span aria-hidden="true">□</span>
+                </button>
+                <button type="button" class="window-button window-close" aria-label="{{strings.windowclose}}">
+                    <span aria-hidden="true">×</span>
+                </button>
             </div>
+        </div>
 
-            {{! Search and Controls Bar }}
-            <div class="folder-controls-bar">
-                <div class="controls-left">
-                    <div class="search-box">
-                        <i class="fa fa-search"></i>
-                        <input type="text"
-                               class="folder-search-input"
-                               placeholder="{{strings.searchplaceholder}}"
-                               aria-label="{{strings.searcharia}}">
-                        <button class="search-clear" style="display:none;">
-                            <i class="fa fa-times"></i>
+        <div class="explorer-ribbon" role="navigation" aria-label="Ribbon">
+            <div class="ribbon-tablist" role="tablist">
+                <button type="button" class="ribbon-tab" data-panel="file" role="tab" aria-selected="false">{{strings.ribbontabfile}}</button>
+                <button type="button" class="ribbon-tab active" data-panel="home" role="tab" aria-selected="true">{{strings.ribbontabhome}}</button>
+                <button type="button" class="ribbon-tab" data-panel="share" role="tab" aria-selected="false">{{strings.ribbontabshare}}</button>
+                <button type="button" class="ribbon-tab" data-panel="view" role="tab" aria-selected="false">{{strings.ribbontabview}}</button>
+            </div>
+            <div class="ribbon-panels">
+                <div class="ribbon-panel" data-panel="file" hidden>
+                    <div class="ribbon-panel-inner">
+                        <button type="button" class="ribbon-file-button">
+                            <i class="fa fa-folder-open"></i>
+                            <span>{{strings.ribbonfilemenuopen}}</span>
                         </button>
                     </div>
                 </div>
-                <div class="controls-right">
-                    <div class="sort-controls">
-                        <label class="sort-label">{{strings.sortlabel}}</label>
-                        <select class="folder-sort-select">
-                            <option value="name-asc">{{strings.sortnameasc}}</option>
-                            <option value="name-desc">{{strings.sortnamedesc}}</option>
-                            <option value="date-desc">{{strings.sortdatenewest}}</option>
-                            <option value="date-asc">{{strings.sortdateoldest}}</option>
-                            <option value="type-asc">{{strings.sorttypeasc}}</option>
-                            <option value="type-desc">{{strings.sorttypedesc}}</option>
-                            <option value="size-desc">{{strings.sortsizedesc}}</option>
-                            <option value="size-asc">{{strings.sortsizeasc}}</option>
-                        </select>
+                <div class="ribbon-panel active" data-panel="home">
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbonhomeclipboard}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button ribbon-button-large">
+                                <i class="fa fa-clipboard"></i>
+                                <span>{{strings.ribbonhomeclipboardpaste}}</span>
+                            </button>
+                            <div class="ribbon-button-stack">
+                                <button type="button" class="ribbon-button">
+                                    <i class="fa fa-scissors"></i>
+                                    <span>{{strings.ribbonhomeclipboardcut}}</span>
+                                </button>
+                                <button type="button" class="ribbon-button">
+                                    <i class="fa fa-copy"></i>
+                                    <span>{{strings.ribbonhomeclipboardcopy}}</span>
+                                </button>
+                                <button type="button" class="ribbon-button">
+                                    <i class="fa fa-folder-open"></i>
+                                    <span>{{strings.ribbonhomeclipboardcopyto}}</span>
+                                </button>
+                                <button type="button" class="ribbon-button">
+                                    <i class="fa fa-exchange"></i>
+                                    <span>{{strings.ribbonhomeclipboardmoveto}}</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="filter-controls">
-                        <label class="filter-label">{{strings.filterlabel}}</label>
-                        <select class="folder-filter-select">
-                            <option value="all">{{strings.filterall}}</option>
-                            <option value="folders">{{strings.filterfolders}}</option>
-                            <option value="files">{{strings.filterfiles}}</option>
-                            <option value="images">{{strings.filterimages}}</option>
-                            <option value="documents">{{strings.filterdocuments}}</option>
-                            <option value="videos">{{strings.filtervideos}}</option>
-                        </select>
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbonhomeorganize}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-trash"></i>
+                                <span>{{strings.ribbonhomeorganizedelete}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-i-cursor"></i>
+                                <span>{{strings.ribbonhomeorganizerename}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-info-circle"></i>
+                                <span>{{strings.ribbonhomeorganizeproperties}}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbonhomenew}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button ribbon-button-large">
+                                <i class="fa fa-folder"></i>
+                                <span>{{strings.ribbonhomenewfolder}}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbonhomeopen}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-external-link"></i>
+                                <span>{{strings.ribbonhomeopenopen}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-history"></i>
+                                <span>{{strings.ribbonhomeopenhistory}}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbonhomeselect}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-check-square-o"></i>
+                                <span>{{strings.ribbonhomeselectall}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-square-o"></i>
+                                <span>{{strings.ribbonhomeselectnone}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-random"></i>
+                                <span>{{strings.ribbonhomeselectinvert}}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="ribbon-panel" data-panel="share" hidden>
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbongroupshare}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-envelope"></i>
+                                <span>{{strings.ribbonsharesendemail}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-file-archive-o"></i>
+                                <span>{{strings.ribbonsharesendzip}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-fire"></i>
+                                <span>{{strings.ribbonsharesendburn}}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbonsharespecialshare}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-users"></i>
+                                <span>{{strings.ribbonsharespecialadvanced}}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="ribbon-panel" data-panel="view" hidden>
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbonviewlayout}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-th-large"></i>
+                                <span>{{strings.ribbonviewextraicons}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-list-ul"></i>
+                                <span>{{strings.ribbonviewlist}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-th-list"></i>
+                                <span>{{strings.ribbonviewdetails}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button">
+                                <i class="fa fa-clone"></i>
+                                <span>{{strings.ribbonviewtiles}}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ribbon-group">
+                        <div class="ribbon-group-title">{{strings.ribbonviewnavpane}}</div>
+                        <div class="ribbon-group-buttons">
+                            <button type="button" class="ribbon-button ribbon-toggle active">
+                                <i class="fa fa-check"></i>
+                                <span>{{strings.ribbonviewnavpane}}</span>
+                            </button>
+                            <button type="button" class="ribbon-button ribbon-toggle">
+                                <i class="fa fa-square-o"></i>
+                                <span>{{strings.ribbonviewpreviewpane}}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            {{! Toolbar }}
-            <div class="folder-toolbar-onedrive">
-                <div class="toolbar-left">
-                    <button class="btn btn-sm view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
-                        <i class="fa fa-th"></i>
+        <div class="explorer-command-row">
+            <div class="folder-navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
+                <button type="button" class="nav-button nav-button-back" title="{{strings.navbacktitle}}" aria-label="{{strings.navbackaria}}" disabled>
+                    <i class="fa fa-arrow-left"></i>
+                </button>
+                <button type="button" class="nav-button nav-button-forward" title="{{strings.navforwardtitle}}" aria-label="{{strings.navforwardaria}}" disabled>
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+                <button type="button" class="nav-button nav-button-up" title="{{strings.navuptitle}}" aria-label="{{strings.navuparia}}" disabled>
+                    <i class="fa fa-level-up"></i>
+                </button>
+            </div>
+            <div class="address-bar" role="group">
+                <span class="address-label">{{strings.exploreraddress}}</span>
+                <div class="address-field">
+                    <div class="folder-breadcrumbs" role="navigation" aria-label="{{strings.breadcrumbsaria}}"></div>
+                </div>
+            </div>
+            <div class="search-box">
+                <input type="text"
+                       class="folder-search-input"
+                       placeholder="{{strings.searchplaceholder}}"
+                       aria-label="{{strings.searcharia}}">
+                <button class="search-clear" type="button" aria-label="{{strings.clearsearch}}" style="display:none;">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="explorer-toolbar">
+            <div class="toolbar-group">
+                <label class="sort-label">{{strings.sortlabel}}</label>
+                <select class="folder-sort-select">
+                    <option value="name-asc">{{strings.sortnameasc}}</option>
+                    <option value="name-desc">{{strings.sortnamedesc}}</option>
+                    <option value="date-desc">{{strings.sortdatenewest}}</option>
+                    <option value="date-asc">{{strings.sortdateoldest}}</option>
+                    <option value="type-asc">{{strings.sorttypeasc}}</option>
+                    <option value="type-desc">{{strings.sorttypedesc}}</option>
+                    <option value="size-desc">{{strings.sortsizedesc}}</option>
+                    <option value="size-asc">{{strings.sortsizeasc}}</option>
+                </select>
+            </div>
+            <div class="toolbar-group">
+                <label class="filter-label">{{strings.filterlabel}}</label>
+                <select class="folder-filter-select">
+                    <option value="all">{{strings.filterall}}</option>
+                    <option value="folders">{{strings.filterfolders}}</option>
+                    <option value="files">{{strings.filterfiles}}</option>
+                    <option value="images">{{strings.filterimages}}</option>
+                    <option value="documents">{{strings.filterdocuments}}</option>
+                    <option value="videos">{{strings.filtervideos}}</option>
+                </select>
+            </div>
+            <div class="toolbar-group view-group">
+                <label class="view-label">{{strings.viewdetails}}</label>
+                <div class="view-buttons">
+                    <button class="btn view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
+                        <i class="fa fa-th-large"></i>
                     </button>
-                    <button class="btn btn-sm view-toggle" data-view="list" title="{{strings.viewlist}}">
-                        <i class="fa fa-list"></i>
+                    <button class="btn view-toggle" data-view="list" title="{{strings.viewlist}}">
+                        <i class="fa fa-list-ul"></i>
                     </button>
-                    <button class="btn btn-sm view-toggle" data-view="details" title="{{strings.viewdetails}}">
+                    <button class="btn view-toggle" data-view="details" title="{{strings.viewdetails}}">
                         <i class="fa fa-th-list"></i>
                     </button>
                 </div>
-                <div class="toolbar-right">
-                    <span class="item-count-display"></span>
-                    <span class="selection-count-display" style="display:none;"></span>
-                </div>
             </div>
+        </div>
 
-            <div class="folder-content-views">
-                <div class="folder-content-grid active">
-                    <div class="grid-container">
-                        {{#items}}
-                        <div class="grid-item {{#is_folder}}item-folder{{/is_folder}}{{#is_file}}item-file{{/is_file}}"
-                             data-name="{{name}}"
-                             data-type="{{type}}"
-                             data-extension="{{extension}}"
-                             data-size-bytes="{{size_bytes}}"
-                             data-modified-timestamp="{{modified_timestamp}}"
-                             data-file-category="{{file_category}}"
-                             data-parent-path="{{parent_path_encoded}}"
-                             {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                             {{#url}}data-url="{{{url}}}"{{/url}}>
+        <div class="explorer-body">
+            {{#has_tree}}
+            <aside class="folder-navigation" aria-label="{{strings.navigationaria}}">
+                <div class="navigation-header">{{strings.navigationheader}}</div>
+                <div class="folder-tree-scroll">
+                    <ul class="folder-tree-list">
+                        {{#tree}}
+                            {{> mod_folder/tree}}
+                        {{/tree}}
+                    </ul>
+                </div>
+            </aside>
+            {{/has_tree}}
 
-                            <div class="item-checkbox">
-                                <input type="checkbox" aria-label="{{#str}}selectitem, mod_folder, {{name}}{{/str}}">
-                            </div>
-
-                            <div class="item-icon {{icon_class}}">
-                                {{{icon}}}
-                            </div>
-
-                            <div class="item-details">
-                                <div class="item-name" title="{{name}}">{{name}}</div>
-                                {{#is_file}}
-                                <div class="item-meta">
-                                    <span class="item-size">{{size}}</span>
-                                    <span class="item-modified">{{modified}}</span>
+            <div class="folder-main-panel">
+                <div class="folder-content-views">
+                    <div class="folder-content-grid active">
+                        <div class="grid-container">
+                            {{#items}}
+                            <div class="grid-item {{#is_folder}}item-folder{{/is_folder}}{{#is_file}}item-file{{/is_file}}"
+                                 data-name="{{name}}"
+                                 data-type="{{type}}"
+                                 data-extension="{{extension}}"
+                                 data-size-bytes="{{size_bytes}}"
+                                 data-modified-timestamp="{{modified_timestamp}}"
+                                 data-file-category="{{file_category}}"
+                                 data-parent-path="{{parent_path_encoded}}"
+                                 {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
+                                 {{#url}}data-url="{{{url}}}"{{/url}}>
+                                <div class="item-checkbox">
+                                    <input type="checkbox" aria-label="{{#str}}selectitem, mod_folder, {{name}}{{/str}}">
                                 </div>
-                                {{/is_file}}
+
+                                <div class="item-icon {{icon_class}}">
+                                    {{{icon}}}
+                                </div>
+
+                                <div class="item-details">
+                                    <div class="item-name" title="{{name}}">{{name}}</div>
+                                    {{#is_file}}
+                                    <div class="item-meta">
+                                        <span class="item-size">{{size}}</span>
+                                        <span class="item-modified">{{modified}}</span>
+                                    </div>
+                                    {{/is_file}}
+                                </div>
                             </div>
+                            {{/items}}
                         </div>
-                        {{/items}}
+                    </div>
+
+                    <div class="folder-content-list">
+                        <table class="table table-hover folder-table-list">
+                            <thead>
+                                <tr>
+                                    <th width="30"><input type="checkbox" class="select-all"></th>
+                                    <th>{{strings.tableheadername}}</th>
+                                    <th width="150">{{strings.tableheadertype}}</th>
+                                    <th width="120">{{strings.tableheadersize}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#items}}
+                                <tr class="list-item"
+                                    data-name="{{name}}"
+                                    data-type="{{type}}"
+                                    data-extension="{{extension}}"
+                                    data-size-bytes="{{size_bytes}}"
+                                    data-modified-timestamp="{{modified_timestamp}}"
+                                    data-file-category="{{file_category}}"
+                                    data-parent-path="{{parent_path_encoded}}"
+                                    {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
+                                    {{#url}}data-url="{{{url}}}"{{/url}}>
+                                    <td><input type="checkbox"></td>
+                                    <td>
+                                        <span class="list-icon {{icon_class}}">{{{icon}}}</span>
+                                        <span class="list-name">{{name}}</span>
+                                    </td>
+                                    <td>{{type}}</td>
+                                    <td>{{size}}</td>
+                                </tr>
+                                {{/items}}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="folder-content-details">
+                        <table class="table table-hover folder-table-details">
+                            <thead>
+                                <tr>
+                                    <th width="30"><input type="checkbox" class="select-all"></th>
+                                    <th class="sortable" data-sort="name">
+                                        {{strings.tableheadername}} <i class="fa fa-sort sort-icon"></i>
+                                    </th>
+                                    <th width="160" class="sortable" data-sort="date">
+                                        {{strings.tableheaderdatemodified}} <i class="fa fa-sort sort-icon"></i>
+                                    </th>
+                                    <th width="160" class="sortable" data-sort="type">
+                                        {{strings.tableheadertype}} <i class="fa fa-sort sort-icon"></i>
+                                    </th>
+                                    <th width="120" class="sortable" data-sort="size">
+                                        {{strings.tableheadersize}} <i class="fa fa-sort sort-icon"></i>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#items}}
+                                <tr class="details-item"
+                                    data-name="{{name}}"
+                                    data-type="{{type}}"
+                                    data-extension="{{extension}}"
+                                    data-size-bytes="{{size_bytes}}"
+                                    data-modified-timestamp="{{modified_timestamp}}"
+                                    data-file-category="{{file_category}}"
+                                    data-parent-path="{{parent_path_encoded}}"
+                                    {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
+                                    {{#url}}data-url="{{{url}}}"{{/url}}>
+                                    <td><input type="checkbox"></td>
+                                    <td>
+                                        <span class="details-icon {{icon_class}}">{{{icon}}}</span>
+                                        <span class="details-name">{{name}}</span>
+                                    </td>
+                                    <td class="text-muted">{{modified}}</td>
+                                    <td class="text-muted">{{type}}</td>
+                                    <td class="text-muted">{{size}}</td>
+                                </tr>
+                                {{/items}}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="folder-content-list">
-                    <table class="table table-hover folder-table-list">
-                        <thead>
-                            <tr>
-                                <th width="30"><input type="checkbox" class="select-all"></th>
-                                <th>{{strings.tableheadername}}</th>
-                                <th width="100">{{strings.tableheadertype}}</th>
-                                <th width="100">{{strings.tableheadersize}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#items}}
-                            <tr class="list-item"
-                                data-name="{{name}}"
-                                data-type="{{type}}"
-                                data-extension="{{extension}}"
-                                data-size-bytes="{{size_bytes}}"
-                                data-modified-timestamp="{{modified_timestamp}}"
-                                data-file-category="{{file_category}}"
-                                data-parent-path="{{parent_path_encoded}}"
-                                {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                                {{#url}}data-url="{{{url}}}"{{/url}}>
-                                <td><input type="checkbox"></td>
-                                <td>
-                                    <span class="list-icon {{icon_class}}">{{{icon}}}</span>
-                                    <span class="list-name">{{name}}</span>
-                                </td>
-                                <td>{{type}}</td>
-                                <td>{{size}}</td>
-                            </tr>
-                            {{/items}}
-                        </tbody>
-                    </table>
+                <div class="empty-folder-message" style="display:none;">
+                    <div class="empty-state">
+                        <i class="fa fa-folder-open-o fa-5x"></i>
+                        <p>{{strings.emptyfolder}}</p>
+                    </div>
                 </div>
 
-                <div class="folder-content-details">
-                    <table class="table table-hover folder-table-details">
-                        <thead>
-                            <tr>
-                                <th width="30"><input type="checkbox" class="select-all"></th>
-                                <th class="sortable" data-sort="name">
-                                    {{strings.tableheadername}} <i class="fa fa-sort sort-icon"></i>
-                                </th>
-                                <th width="150" class="sortable" data-sort="date">
-                                    {{strings.tableheaderdatemodified}} <i class="fa fa-sort sort-icon"></i>
-                                </th>
-                                <th width="100" class="sortable" data-sort="type">
-                                    {{strings.tableheadertype}} <i class="fa fa-sort sort-icon"></i>
-                                </th>
-                                <th width="100" class="sortable" data-sort="size">
-                                    {{strings.tableheadersize}} <i class="fa fa-sort sort-icon"></i>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#items}}
-                            <tr class="details-item"
-                                data-name="{{name}}"
-                                data-type="{{type}}"
-                                data-extension="{{extension}}"
-                                data-size-bytes="{{size_bytes}}"
-                                data-modified-timestamp="{{modified_timestamp}}"
-                                data-file-category="{{file_category}}"
-                                data-parent-path="{{parent_path_encoded}}"
-                                {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                                {{#url}}data-url="{{{url}}}"{{/url}}>
-                                <td><input type="checkbox"></td>
-                                <td>
-                                    <span class="details-icon {{icon_class}}">{{{icon}}}</span>
-                                    <span class="details-name">{{name}}</span>
-                                </td>
-                                <td class="text-muted">{{modified}}</td>
-                                <td class="text-muted">{{type}}</td>
-                                <td class="text-muted">{{size}}</td>
-                            </tr>
-                            {{/items}}
-                        </tbody>
-                    </table>
+                <div class="no-results-message" style="display:none;">
+                    <div class="empty-state">
+                        <i class="fa fa-search fa-5x"></i>
+                        <p>{{strings.noresults}}</p>
+                        <button class="btn btn-secondary clear-search-btn">{{strings.clearsearch}}</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="empty-folder-message" style="display:none;">
-                <div class="empty-state">
-                    <i class="fa fa-folder-open-o fa-5x"></i>
-                    <p>{{strings.emptyfolder}}</p>
-                </div>
-            </div>
-
-            <div class="no-results-message" style="display:none;">
-                <div class="empty-state">
-                    <i class="fa fa-search fa-5x"></i>
-                    <p>{{strings.noresults}}</p>
-                    <button class="btn btn-secondary clear-search-btn">{{strings.clearsearch}}</button>
+                <div class="explorer-status-bar">
+                    <div class="status-left selection-count-display"></div>
+                    <div class="status-center">{{strings.statusready}}</div>
+                    <div class="status-right">
+                        <span class="item-count-display"></span>
+                        <span class="status-details">{{strings.statusdetails}}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -279,7 +469,15 @@ require(['jquery'], function($) {
     initialiseTree();
     setCurrentPath('', {initial: true});
 
-    // View toggle.
+    container.find('.ribbon-tab').on('click', function() {
+        var tab = $(this);
+        var panelName = tab.data('panel');
+        container.find('.ribbon-tab').removeClass('active').attr('aria-selected', false);
+        tab.addClass('active').attr('aria-selected', true);
+        container.find('.ribbon-panel').removeClass('active').attr('hidden', true);
+        container.find('.ribbon-panel[data-panel="' + panelName + '"]').addClass('active').attr('hidden', false);
+    });
+
     container.find('.view-toggle').on('click', function() {
         currentView = $(this).data('view');
         container.find('.view-toggle').removeClass('active');
@@ -287,7 +485,6 @@ require(['jquery'], function($) {
         applyFiltersAndSort();
     });
 
-    // Search functionality.
     searchInput.on('input', function() {
         searchTerm = $(this).val().toLowerCase().trim();
         if (searchTerm.length > 0) {
@@ -312,19 +509,16 @@ require(['jquery'], function($) {
         applyFiltersAndSort();
     });
 
-    // Sort functionality.
     container.find('.folder-sort-select').on('change', function() {
         currentSort = $(this).val();
         applyFiltersAndSort();
     });
 
-    // Filter functionality.
     container.find('.folder-filter-select').on('change', function() {
         currentFilter = $(this).val();
         applyFiltersAndSort();
     });
 
-    // Tree interactions.
     container.on('click', '.folder-tree-toggle', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -348,7 +542,6 @@ require(['jquery'], function($) {
         setCurrentPath(path);
     });
 
-    // Breadcrumb navigation.
     container.on('click', '.breadcrumb-button', function(e) {
         e.preventDefault();
         if ($(this).is(':disabled')) {
@@ -358,7 +551,6 @@ require(['jquery'], function($) {
         setCurrentPath(path);
     });
 
-    // Navigation buttons.
     navButtonBack.on('click', function() {
         if ($(this).is(':disabled')) {
             return;
@@ -517,6 +709,7 @@ require(['jquery'], function($) {
         var totalInPath = Object.keys(uniqueInPath).length;
 
         sortItems(gridMatches, listMatches, detailMatches);
+        updateViewState();
         updateEmptyStates(visibleCount, totalInPath);
         updateItemCount();
         updateSelectionCount();
@@ -589,6 +782,17 @@ require(['jquery'], function($) {
         return numA - numB;
     }
 
+    function updateViewState() {
+        container.find('.folder-content-grid, .folder-content-list, .folder-content-details').removeClass('active');
+        if (currentView === 'grid') {
+            container.find('.folder-content-grid').addClass('active');
+        } else if (currentView === 'list') {
+            container.find('.folder-content-list').addClass('active');
+        } else {
+            container.find('.folder-content-details').addClass('active');
+        }
+    }
+
     function updateEmptyStates(visibleCount, totalInPath) {
         var emptyMessage = container.find('.empty-folder-message');
         var noResultsMessage = container.find('.no-results-message');
@@ -647,7 +851,6 @@ require(['jquery'], function($) {
 
         var indicator = container.find('.selection-count-display');
         indicator.text(label);
-        indicator.toggle(count > 0);
     }
 
     container.on('click', '.grid-item, .list-item, .details-item', function(e) {
@@ -675,7 +878,7 @@ require(['jquery'], function($) {
         updateSelectionCount();
     });
 
-    container.on('dblclick', '.grid-item, .list-item, .details-item', function(e) {
+    container.on('dblclick', '.grid-item, .list-item, .details-item', function() {
         var item = $(this);
         var type = item.data('type');
         if (type === 'folder') {
@@ -689,7 +892,6 @@ require(['jquery'], function($) {
         }
     });
 
-    // Details view header sorting.
     container.on('click', '.sortable', function() {
         var sortBy = $(this).data('sort');
         var currentOrder = 'asc';

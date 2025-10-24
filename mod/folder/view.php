@@ -71,7 +71,7 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_activity_record($folder);
 
 $PAGE->add_body_class('limitedwidth');
-$PAGE->add_body_class('mod-folder-onedrive');
+$PAGE->add_body_class('mod-folder-windows');
 
 $output = $PAGE->get_renderer('mod_folder');
 
