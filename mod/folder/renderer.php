@@ -99,7 +99,15 @@ class mod_folder_renderer extends plugin_renderer_base {
 
         $strings = $this->get_template_strings();
         $data['strings'] = $strings;
-        $data['stringsjson'] = json_encode($strings, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+
+        $this->page->requires->js_call_amd('mod_folder/windows_explorer', 'init', [
+            [
+                'containerid' => $data['id'],
+                'rootname' => $data['rootname'],
+                'showexpanded' => !empty($data['showexpanded']),
+                'strings' => $strings,
+            ]
+        ]);
 
         return $this->render_from_template('mod_folder/folder', $data);
     }
