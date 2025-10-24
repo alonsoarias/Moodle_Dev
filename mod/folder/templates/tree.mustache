@@ -8,25 +8,23 @@
 
 <li class="folder-tree-node {{#isroot}}is-root{{/isroot}} {{#hassubdirs}}has-children{{/hassubdirs}} {{#expanded}}expanded{{/expanded}}{{^expanded}}collapsed{{/expanded}}"
     data-path="{{path_encoded}}">
-    <div class="folder-tree-node-inner d-flex align-items-center">
+    <div class="folder-tree-node-inner">
         {{#hassubdirs}}
         <button type="button"
-                class="btn btn-link btn-sm p-0 folder-tree-toggle"
+                class="folder-tree-toggle"
                 aria-label="{{strings.togglefolder}}"
                 aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}">
             <i class="fa {{#expanded}}fa-chevron-down{{/expanded}}{{^expanded}}fa-chevron-right{{/expanded}}" aria-hidden="true"></i>
         </button>
         {{/hassubdirs}}
         {{^hassubdirs}}
-        <span class="folder-tree-toggle placeholder btn btn-link btn-sm p-0 invisible" aria-hidden="true">
-            <i class="fa fa-chevron-right" aria-hidden="true"></i>
-        </span>
+        <span class="folder-tree-toggle placeholder" aria-hidden="true"></span>
         {{/hassubdirs}}
-        <span class="folder-tree-icon mr-2">{{{icon}}}</span>
-        <button type="button" class="btn btn-link btn-sm text-left px-0 flex-grow-1 folder-tree-label">{{name}}</button>
+        <span class="folder-tree-icon">{{{icon}}}</span>
+        <button type="button" class="folder-tree-label">{{name}}</button>
     </div>
     {{#hassubdirs}}
-    <ul class="folder-tree-children list-unstyled pl-3 mb-0">
+    <ul class="folder-tree-children">
         {{#subdirs}}
             {{> mod_folder/tree}}
         {{/subdirs}}
