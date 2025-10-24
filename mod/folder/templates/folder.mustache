@@ -1,23 +1,23 @@
 {{!
     This file is part of Moodle - http://moodle.org/
 
-    Windows Explorer inspired template for the folder module.
+    Windows Explorer inspired template for the folder module adapted to Moodle UI components.
     @template mod_folder/folder
     @package   mod_folder
 }}
 
-<div class="folder-explorer folder-explorer-windows" id="{{id}}" data-root-name="{{rootname}}">
+<div class="folder-explorer card shadow-sm" id="{{id}}" data-root-name="{{rootname}}">
 
     {{! Intro }}
     {{#intro}}
-    <div class="folder-intro">
+    <div class="card-body border-bottom">
         {{{intro}}}
     </div>
     {{/intro}}
 
     {{! Buttons }}
     {{#hasbuttons}}
-    <div class="folder-header-actions">
+    <div class="card-body border-bottom py-2">
         <div class="btn-group">
             {{#edit_button}}
                 {{>core/single_button}}
@@ -29,84 +29,148 @@
     </div>
     {{/hasbuttons}}
 
-    <div class="explorer-window" role="region" aria-label="{{strings.explorercontents}}">
-        <header class="explorer-command-bar">
-            <div class="command-navigation">
-                <div class="navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
-                    <button type="button" class="nav-button nav-button-back" title="{{strings.navbacktitle}}" aria-label="{{strings.navbackaria}}" disabled>
-                        <span class="icon" aria-hidden="true"><i class="fa fa-arrow-left"></i></span>
+    <div class="card-body">
+        <header class="bg-light border rounded px-3 py-3 mb-3">
+            <div class="d-flex flex-wrap align-items-center w-100">
+                <div class="btn-group btn-group-sm mr-2 mb-2" role="group" aria-label="{{strings.navigationcontrols}}">
+                    <button type="button"
+                            class="btn btn-outline-secondary nav-button nav-button-back"
+                            title="{{strings.navbacktitle}}"
+                            aria-label="{{strings.navbackaria}}"
+                            disabled>
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="nav-button nav-button-forward" title="{{strings.navforwardtitle}}" aria-label="{{strings.navforwardaria}}" disabled>
-                        <span class="icon" aria-hidden="true"><i class="fa fa-arrow-right"></i></span>
+                    <button type="button"
+                            class="btn btn-outline-secondary nav-button nav-button-forward"
+                            title="{{strings.navforwardtitle}}"
+                            aria-label="{{strings.navforwardaria}}"
+                            disabled>
+                        <i class="fa fa-arrow-right" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="nav-button nav-button-up" title="{{strings.navuptitle}}" aria-label="{{strings.navuparia}}" disabled>
-                        <span class="icon" aria-hidden="true"><i class="fa fa-arrow-up"></i></span>
+                    <button type="button"
+                            class="btn btn-outline-secondary nav-button nav-button-up"
+                            title="{{strings.navuptitle}}"
+                            aria-label="{{strings.navuparia}}"
+                            disabled>
+                        <i class="fa fa-arrow-up" aria-hidden="true"></i>
                     </button>
                 </div>
-                <div class="breadcrumb-wrapper" role="navigation" aria-label="{{strings.folderbreadcrumbs}}">
-                    <div class="folder-breadcrumbs"></div>
-                </div>
-            </div>
-            <div class="command-search">
-                <div class="search-box">
-                    <span class="search-icon" aria-hidden="true"><i class="fa fa-search"></i></span>
-                    <input type="text"
-                           class="folder-search-input"
-                           placeholder="{{strings.searchplaceholder}}"
-                           aria-label="{{strings.searcharia}}">
-                    <button type="button" class="search-clear" aria-label="{{strings.clearsearch}}" hidden>
-                        <i class="fa fa-times"></i>
-                    </button>
+
+                <div class="flex-grow-1 mb-2 folder-breadcrumbs" role="navigation" aria-label="{{strings.folderbreadcrumbs}}"></div>
+
+                <div class="command-search mb-2">
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-search" aria-hidden="true"></i></span>
+                        </div>
+                        <input type="text"
+                               class="form-control folder-search-input"
+                               placeholder="{{strings.searchplaceholder}}"
+                               aria-label="{{strings.searcharia}}">
+                        <div class="input-group-append">
+                            <button type="button"
+                                    class="btn btn-outline-secondary search-clear"
+                                    aria-label="{{strings.clearsearch}}"
+                                    hidden>
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <div class="explorer-viewbar">
-            <div class="viewbar-left">
-                <div class="window-title" aria-live="polite">
-                    <span class="title-label">{{strings.explorertitle}}</span>
-                    <span class="title-separator" aria-hidden="true">/</span>
-                    <span class="title-value">{{rootname}}</span>
-                </div>
-            </div>
-            <div class="viewbar-right">
-                <div class="view-controls" role="group" aria-label="{{strings.viewdetails}}">
-                    <button class="view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
-                        <i class="fa fa-th-large" aria-hidden="true"></i>
-                        <span class="sr-only">{{strings.viewgrid}}</span>
-                    </button>
-                    <button class="view-toggle" data-view="list" title="{{strings.viewlist}}">
-                        <i class="fa fa-list" aria-hidden="true"></i>
-                        <span class="sr-only">{{strings.viewlist}}</span>
-                    </button>
-                    <button class="view-toggle" data-view="details" title="{{strings.viewdetails}}">
-                        <i class="fa fa-th-list" aria-hidden="true"></i>
-                        <span class="sr-only">{{strings.viewdetails}}</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="explorer-body">
+        <div class="row">
             {{#has_tree}}
-            <aside class="folder-navigation" aria-label="{{strings.navigationaria}}">
-                <div class="navigation-title">{{strings.explorertree}}</div>
-                <div class="folder-tree-scroll">
-                    <ul class="folder-tree-list">
-                        {{#tree}}
-                            {{> mod_folder/tree}}
-                        {{/tree}}
-                    </ul>
+            <aside class="col-12 col-md-3 col-lg-2 mb-3">
+                <div class="card h-100">
+                    <div class="card-header py-2">{{strings.explorertree}}</div>
+                    <div class="card-body p-2">
+                        <div class="folder-tree-scroll overflow-auto">
+                            <ul class="folder-tree-list list-unstyled mb-0">
+                                {{#tree}}
+                                    {{> mod_folder/tree}}
+                                {{/tree}}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </aside>
             {{/has_tree}}
 
-            <section class="folder-main-panel">
+            <section class="col-12 {{#has_tree}}col-md-9 col-lg-10{{/has_tree}}">
+                <div class="mb-3">
+                    <div class="d-flex flex-wrap align-items-center">
+                        <div class="btn-group btn-group-sm mr-3 mb-2 view-controls" role="group" aria-label="{{strings.viewdetails}}">
+                            <button type="button" class="btn btn-outline-secondary view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
+                                <i class="fa fa-th-large" aria-hidden="true"></i>
+                                <span class="sr-only">{{strings.viewgrid}}</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary view-toggle" data-view="list" title="{{strings.viewlist}}">
+                                <i class="fa fa-list" aria-hidden="true"></i>
+                                <span class="sr-only">{{strings.viewlist}}</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary view-toggle" data-view="details" title="{{strings.viewdetails}}">
+                                <i class="fa fa-th-list" aria-hidden="true"></i>
+                                <span class="sr-only">{{strings.viewdetails}}</span>
+                            </button>
+                        </div>
+
+                        <div class="form-inline mr-3 mb-2">
+                            <label class="mr-2 mb-0 small" for="{{id}}-sort-field">{{strings.sortlabel}}</label>
+                            <select id="{{id}}-sort-field" class="custom-select custom-select-sm folder-sort-field">
+                                <option value="name">{{strings.sortbyname}}</option>
+                                <option value="modified">{{strings.sortbydate}}</option>
+                                <option value="type">{{strings.sortbytype}}</option>
+                                <option value="size">{{strings.sortbysize}}</option>
+                            </select>
+                        </div>
+
+                        <div class="btn-group btn-group-sm mr-3 mb-2 sort-direction-group" role="group" aria-label="{{strings.sortdirectionaria}}">
+                            <button type="button"
+                                    class="btn btn-outline-secondary sort-direction sort-direction-asc active"
+                                    data-direction="asc"
+                                    title="{{strings.sortascending}}"
+                                    aria-pressed="true">
+                                <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+                                <span class="sr-only">{{strings.sortascending}}</span>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-outline-secondary sort-direction sort-direction-desc"
+                                    data-direction="desc"
+                                    title="{{strings.sortdescending}}"
+                                    aria-pressed="false">
+                                <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                                <span class="sr-only">{{strings.sortdescending}}</span>
+                            </button>
+                        </div>
+
+                        <div class="form-inline mb-2 ml-auto">
+                            <label class="mr-2 mb-0 small" for="{{id}}-filter">{{strings.filterlabel}}</label>
+                            <select id="{{id}}-filter" class="custom-select custom-select-sm folder-filter">
+                                <option value="all">{{strings.filterall}}</option>
+                                <option value="folders">{{strings.filterfolders}}</option>
+                                <option value="files">{{strings.filterfiles}}</option>
+                                <option value="image">{{strings.filterimages}}</option>
+                                <option value="document">{{strings.filterdocuments}}</option>
+                                <option value="spreadsheet">{{strings.filterspreadsheets}}</option>
+                                <option value="presentation">{{strings.filterpresentations}}</option>
+                                <option value="video">{{strings.filtervideos}}</option>
+                                <option value="audio">{{strings.filteraudios}}</option>
+                                <option value="archive">{{strings.filterarchives}}</option>
+                                <option value="code">{{strings.filtercode}}</option>
+                                <option value="other">{{strings.filterother}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="small text-muted mb-0 mt-2 result-summary" role="status" aria-live="polite"></p>
+                </div>
+
                 <div class="folder-views">
                     <div class="folder-view folder-view-grid active">
-                        <div class="grid-container">
+                        <div class="row grid-container">
                             {{#items}}
-                            <div class="grid-item {{#is_folder}}item-folder{{/is_folder}}{{#is_file}}item-file{{/is_file}}"
+                            <div class="grid-item col-6 col-sm-4 col-lg-3 mb-3"
                                  data-name="{{name}}"
                                  data-type="{{type}}"
                                  data-extension="{{extension}}"
@@ -116,18 +180,20 @@
                                  data-parent-path="{{parent_path_encoded}}"
                                  {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
                                  {{#url}}data-url="{{{url}}}"{{/url}}>
-                                <div class="item-surface">
-                                    <div class="item-icon {{icon_class}}">
-                                        {{{icon}}}
-                                    </div>
-                                    <div class="item-text">
-                                        <div class="item-name" title="{{name}}">{{name}}</div>
-                                        {{#is_file}}
-                                        <div class="item-meta">
-                                            <span class="item-size">{{size}}</span>
-                                            <span class="item-modified">{{modified}}</span>
+                                <div class="card h-100 border">
+                                    <div class="card-body d-flex flex-column align-items-center text-center">
+                                        <div class="mb-2 {{icon_class}}">
+                                            {{{icon}}}
                                         </div>
-                                        {{/is_file}}
+                                        <div class="w-100">
+                                            <div class="item-name text-truncate" title="{{name}}">{{name}}</div>
+                                            {{#is_file}}
+                                            <div class="item-meta small text-muted mt-2">
+                                                <span class="d-block">{{size}}</span>
+                                                <span class="d-block">{{modified}}</span>
+                                            </div>
+                                            {{/is_file}}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -136,12 +202,12 @@
                     </div>
 
                     <div class="folder-view folder-view-list">
-                        <table class="folder-table folder-table-list">
-                            <thead>
+                        <table class="table table-hover table-sm folder-table folder-table-list mb-0">
+                            <thead class="thead-light">
                                 <tr>
-                                    <th>{{strings.tableheadername}}</th>
-                                    <th>{{strings.tableheadertype}}</th>
-                                    <th>{{strings.tableheadersize}}</th>
+                                    <th scope="col">{{strings.tableheadername}}</th>
+                                    <th scope="col">{{strings.tableheadertype}}</th>
+                                    <th scope="col">{{strings.tableheadersize}}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -157,11 +223,11 @@
                                     {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
                                     {{#url}}data-url="{{{url}}}"{{/url}}>
                                     <td>
-                                        <span class="list-icon {{icon_class}}">{{{icon}}}</span>
-                                        <span class="list-name">{{name}}</span>
+                                        <span class="mr-2 align-middle {{icon_class}}">{{{icon}}}</span>
+                                        <span class="align-middle">{{name}}</span>
                                     </td>
-                                    <td>{{type}}</td>
-                                    <td>{{size}}</td>
+                                    <td class="align-middle">{{type}}</td>
+                                    <td class="align-middle">{{size}}</td>
                                 </tr>
                                 {{/items}}
                             </tbody>
@@ -169,13 +235,13 @@
                     </div>
 
                     <div class="folder-view folder-view-details">
-                        <table class="folder-table folder-table-details">
-                            <thead>
+                        <table class="table table-hover table-sm folder-table folder-table-details mb-0">
+                            <thead class="thead-light">
                                 <tr>
-                                    <th>{{strings.tableheadername}}</th>
-                                    <th>{{strings.tableheaderdatemodified}}</th>
-                                    <th>{{strings.tableheadertype}}</th>
-                                    <th>{{strings.tableheadersize}}</th>
+                                    <th scope="col">{{strings.tableheadername}}</th>
+                                    <th scope="col">{{strings.tableheaderdatemodified}}</th>
+                                    <th scope="col">{{strings.tableheadertype}}</th>
+                                    <th scope="col">{{strings.tableheadersize}}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -191,12 +257,12 @@
                                     {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
                                     {{#url}}data-url="{{{url}}}"{{/url}}>
                                     <td>
-                                        <span class="details-icon {{icon_class}}">{{{icon}}}</span>
-                                        <span class="details-name">{{name}}</span>
+                                        <span class="mr-2 align-middle {{icon_class}}">{{{icon}}}</span>
+                                        <span class="align-middle">{{name}}</span>
                                     </td>
-                                    <td class="text-muted">{{modified}}</td>
-                                    <td class="text-muted">{{type}}</td>
-                                    <td class="text-muted">{{size}}</td>
+                                    <td class="text-muted align-middle">{{modified}}</td>
+                                    <td class="text-muted align-middle">{{type}}</td>
+                                    <td class="text-muted align-middle">{{size}}</td>
                                 </tr>
                                 {{/items}}
                             </tbody>
@@ -204,19 +270,15 @@
                     </div>
                 </div>
 
-                <div class="empty-folder-message" hidden>
-                    <div class="empty-state">
-                        <i class="fa fa-folder-open-o" aria-hidden="true"></i>
-                        <p>{{strings.emptyfolder}}</p>
-                    </div>
+                <div class="empty-folder-message alert alert-info text-center" hidden>
+                    <i class="fa fa-folder-open-o d-block mb-2" aria-hidden="true"></i>
+                    <p class="mb-0">{{strings.emptyfolder}}</p>
                 </div>
 
-                <div class="no-results-message" hidden>
-                    <div class="empty-state">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                        <p>{{strings.noresults}}</p>
-                        <button class="btn btn-secondary clear-search-btn" type="button">{{strings.clearsearch}}</button>
-                    </div>
+                <div class="no-results-message alert alert-warning text-center" hidden>
+                    <i class="fa fa-search d-block mb-2" aria-hidden="true"></i>
+                    <p class="mb-2">{{strings.noresults}}</p>
+                    <button class="btn btn-outline-secondary btn-sm clear-search-btn" type="button">{{strings.clearsearch}}</button>
                 </div>
             </section>
         </div>
