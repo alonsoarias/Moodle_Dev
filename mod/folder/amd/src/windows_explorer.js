@@ -21,8 +21,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(['jquery', 'core/str'], function($, Str) {
     'use strict';
+
+    const STRING_KEYS = [
+        'folderbreadcrumbs',
+        'modulename',
+        'emptyfolder',
+        'noresults',
+        'itemcounts',
+        'filterresults',
+    ];
 
     const normalisePath = function(path) {
         if (!path) {
@@ -178,13 +187,10 @@ define(['jquery'], function($) {
         return category === filter;
     };
 
-    const init = function(config) {
-        const containerId = config && config.containerid;
-        const container = containerId ? $('#' + containerId) : $();
-
-        if (!container.length) {
-            return;
-        }
+    const initialiseExplorer = function(container, config, rootName, strings) {
+        const resolvedConfig = config || {};
+        const resolvedStrings = strings || {};
+        const resolvedRootName = rootName || resolvedStrings.modulename || '';
 
         const state = {
             currentView: 'grid',
@@ -196,11 +202,6 @@ define(['jquery'], function($) {
             history: [''],
             historyIndex: 0,
         };
-
-        const strings = config && (config.langstrings || config.strings)
-            ? (config.langstrings || config.strings)
-            : {};
-        const rootName = decodeHtml(config && config.rootname ? config.rootname : '');
 
         const elements = {
             searchInput: container.find('.folder-search-input'),
@@ -237,7 +238,7 @@ define(['jquery'], function($) {
             button.attr('aria-pressed', isActive);
         });
 
-        initialiseTree(container, !!(config && config.showexpanded));
+        initialiseTree(container, !!resolvedConfig.showexpanded);
         attachEventHandlers();
         setCurrentPath('');
 
@@ -554,13 +555,13 @@ define(['jquery'], function($) {
             let message = '';
 
             if (totalCount === 0) {
-                message = strings.emptyfolder || '';
+                message = resolvedStrings.emptyfolder || '';
             } else if (visibleCount === 0) {
-                message = strings.noresults || '';
+                message = resolvedStrings.noresults || '';
             } else if (visibleCount === totalCount) {
-                message = formatString(strings.itemcounts, {count: totalCount});
+                message = formatString(resolvedStrings.itemcounts, {count: totalCount});
             } else {
-                message = formatString(strings.filterresults, {
+                message = formatString(resolvedStrings.filterresults, {
                     visible: visibleCount,
                     total: totalCount,
                 });
@@ -600,12 +601,12 @@ define(['jquery'], function($) {
         }
 
         function updateBreadcrumbs() {
-            const breadcrumbs = $('<nav/>', {'aria-label': strings.folderbreadcrumbs || ''});
+            const breadcrumbs = $('<nav/>', {'aria-label': resolvedStrings.folderbreadcrumbs || ''});
             const list = $('<ol/>', {'class': 'breadcrumb mb-0 folder-breadcrumb-list'});
             const segments = decodePathSegments(state.currentPath);
             const encodedSegments = state.currentPath ? state.currentPath.split('/') : [];
 
-            list.append(createBreadcrumbItem(rootName || strings.modulename || '', '', state.currentPath === ''));
+            list.append(createBreadcrumbItem(resolvedRootName || resolvedStrings.modulename || '', '', state.currentPath === ''));
 
             const accumulated = [];
             segments.forEach(function(segment, index) {
@@ -630,7 +631,7 @@ define(['jquery'], function($) {
                 'type': 'button',
                 'class': buttonClasses.join(' '),
                 'data-path': pathValue,
-            }).text(label || (rootName || strings.modulename || ''));
+            }).text(label || (resolvedRootName || resolvedStrings.modulename || ''));
 
             if (isActive) {
                 button.attr('disabled', true).attr('aria-current', 'page');
@@ -701,6 +702,47 @@ define(['jquery'], function($) {
                 }
             });
         }
+    };
+
+    const init = function(config) {
+        const containerId = config && config.containerid;
+        const container = containerId ? $('#' + containerId) : $();
+
+        if (!container.length) {
+            return;
+        }
+
+        const resolvedConfig = config || {};
+        const rootNameSource = container.attr('data-root-name') || resolvedConfig.rootname || '';
+        const resolvedRootName = decodeHtml(rootNameSource);
+
+        const requests = STRING_KEYS.map(function(key) {
+            return {key: key, component: 'mod_folder'};
+        });
+
+        return Str.get_strings(requests).then(function(results) {
+            const strings = {};
+            STRING_KEYS.forEach(function(key, index) {
+                strings[key] = results[index] || '';
+            });
+
+            if (!strings.modulename && resolvedRootName) {
+                strings.modulename = resolvedRootName;
+            }
+
+            initialiseExplorer(container, resolvedConfig, resolvedRootName, strings);
+        }).catch(function(error) {
+            const fallbackStrings = {};
+            STRING_KEYS.forEach(function(key) {
+                fallbackStrings[key] = key === 'modulename' ? resolvedRootName : '';
+            });
+
+            initialiseExplorer(container, resolvedConfig, resolvedRootName, fallbackStrings);
+
+            if (typeof window !== 'undefined' && window.console && window.console.error) {
+                window.console.error('Failed to load mod_folder explorer strings', error);
+            }
+        });
     };
 
     return {
