@@ -24,6 +24,15 @@
 define(['jquery'], function($) {
     'use strict';
 
+    const STRING_KEYS = [
+        'folderbreadcrumbs',
+        'modulename',
+        'emptyfolder',
+        'noresults',
+        'itemcounts',
+        'filterresults',
+    ];
+
     const normalisePath = function(path) {
         if (!path) {
             return '';
@@ -178,13 +187,10 @@ define(['jquery'], function($) {
         return category === filter;
     };
 
-    const init = function(config) {
-        const containerId = config && config.containerid;
-        const container = containerId ? $('#' + containerId) : $();
-
-        if (!container.length) {
-            return;
-        }
+    const initialiseExplorer = function(container, config, rootName, strings) {
+        const resolvedConfig = config || {};
+        const resolvedStrings = strings || {};
+        const resolvedRootName = rootName || resolvedStrings.modulename || '';
 
         const state = {
             currentView: 'grid',
@@ -196,11 +202,6 @@ define(['jquery'], function($) {
             history: [''],
             historyIndex: 0,
         };
-
-        const strings = config && (config.langstrings || config.strings)
-            ? (config.langstrings || config.strings)
-            : {};
-        const rootName = decodeHtml(config && config.rootname ? config.rootname : '');
 
         const elements = {
             searchInput: container.find('.folder-search-input'),
@@ -237,7 +238,7 @@ define(['jquery'], function($) {
             button.attr('aria-pressed', isActive);
         });
 
-        initialiseTree(container, !!(config && config.showexpanded));
+        initialiseTree(container, !!resolvedConfig.showexpanded);
         attachEventHandlers();
         setCurrentPath('');
 
@@ -554,13 +555,13 @@ define(['jquery'], function($) {
             let message = '';
 
             if (totalCount === 0) {
-                message = strings.emptyfolder || '';
+                message = resolvedStrings.emptyfolder || '';
             } else if (visibleCount === 0) {
-                message = strings.noresults || '';
+                message = resolvedStrings.noresults || '';
             } else if (visibleCount === totalCount) {
-                message = formatString(strings.itemcounts, {count: totalCount});
+                message = formatString(resolvedStrings.itemcounts, {count: totalCount});
             } else {
-                message = formatString(strings.filterresults, {
+                message = formatString(resolvedStrings.filterresults, {
                     visible: visibleCount,
                     total: totalCount,
                 });
@@ -600,12 +601,12 @@ define(['jquery'], function($) {
         }
 
         function updateBreadcrumbs() {
-            const breadcrumbs = $('<nav/>', {'aria-label': strings.folderbreadcrumbs || ''});
+            const breadcrumbs = $('<nav/>', {'aria-label': resolvedStrings.folderbreadcrumbs || ''});
             const list = $('<ol/>', {'class': 'breadcrumb mb-0 folder-breadcrumb-list'});
             const segments = decodePathSegments(state.currentPath);
             const encodedSegments = state.currentPath ? state.currentPath.split('/') : [];
 
-            list.append(createBreadcrumbItem(rootName || strings.modulename || '', '', state.currentPath === ''));
+            list.append(createBreadcrumbItem(resolvedRootName || resolvedStrings.modulename || '', '', state.currentPath === ''));
 
             const accumulated = [];
             segments.forEach(function(segment, index) {
@@ -630,7 +631,7 @@ define(['jquery'], function($) {
                 'type': 'button',
                 'class': buttonClasses.join(' '),
                 'data-path': pathValue,
-            }).text(label || (rootName || strings.modulename || ''));
+            }).text(label || (resolvedRootName || resolvedStrings.modulename || ''));
 
             if (isActive) {
                 button.attr('disabled', true).attr('aria-current', 'page');
@@ -701,6 +702,90 @@ define(['jquery'], function($) {
                 }
             });
         }
+    };
+
+    const logError = function(message, error) {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        if (window.console && typeof window.console.error === 'function') {
+            window.console.error(message, error);
+        }
+    };
+
+    const buildFallbackStrings = function(rootName) {
+        const fallback = {};
+
+        STRING_KEYS.forEach(function(key) {
+            fallback[key] = key === 'modulename' ? rootName : '';
+        });
+
+        return fallback;
+    };
+
+    const loadStrings = function(rootName) {
+        const resolvedRoot = rootName || '';
+        const fallbackStrings = buildFallbackStrings(resolvedRoot);
+
+        if (typeof require !== 'function') {
+            return Promise.resolve(fallbackStrings);
+        }
+
+        return new Promise(function(resolve) {
+            require(['core/str'], function(Str) {
+                if (!Str || typeof Str.get_strings !== 'function') {
+                    logError('mod_folder/windows_explorer: core/str module unavailable');
+                    resolve(fallbackStrings);
+                    return;
+                }
+
+                const requests = STRING_KEYS.map(function(key) {
+                    return {key: key, component: 'mod_folder'};
+                });
+
+                const requestPromise = Str.get_strings(requests);
+
+                Promise.resolve(requestPromise).then(function(results) {
+                    const strings = {};
+                    const values = Array.isArray(results) ? results :
+                        (typeof results === 'undefined' ? [] : [results]);
+
+                    STRING_KEYS.forEach(function(key, index) {
+                        strings[key] = values[index] || '';
+                    });
+
+                    if (!strings.modulename && resolvedRoot) {
+                        strings.modulename = resolvedRoot;
+                    }
+
+                    resolve(strings);
+                }).catch(function(error) {
+                    logError('mod_folder/windows_explorer: Failed to load strings', error);
+                    resolve(fallbackStrings);
+                });
+            }, function(error) {
+                logError('mod_folder/windows_explorer: Failed to require core/str', error);
+                resolve(fallbackStrings);
+            });
+        });
+    };
+
+    const init = function(config) {
+        const containerId = config && config.containerid;
+        const container = containerId ? $('#' + containerId) : $();
+
+        if (!container.length) {
+            return;
+        }
+
+        const resolvedConfig = config || {};
+        const rootNameSource = container.attr('data-root-name') || resolvedConfig.rootname || '';
+        const resolvedRootName = decodeHtml(rootNameSource);
+
+        return loadStrings(resolvedRootName).then(function(strings) {
+            initialiseExplorer(container, resolvedConfig, resolvedRootName, strings);
+        });
     };
 
     return {

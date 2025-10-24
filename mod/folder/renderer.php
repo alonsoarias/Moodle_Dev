@@ -100,14 +100,12 @@ class mod_folder_renderer extends plugin_renderer_base {
         $strings = $this->get_template_strings();
         $data['strings'] = $strings;
 
-        $this->page->requires->js_call_amd('mod_folder/windows_explorer', 'init', [
-            [
-                'containerid' => $data['id'],
-                'rootname' => $data['rootname'],
-                'showexpanded' => !empty($data['showexpanded']),
-                'langstrings' => $strings,
-            ]
-        ]);
+        $moduleconfig = [
+            'containerid' => $data['id'],
+            'showexpanded' => !empty($data['showexpanded']),
+        ];
+
+        $this->page->requires->js_call_amd('mod_folder/windows_explorer', 'init', [$moduleconfig]);
 
         return $this->render_from_template('mod_folder/folder', $data);
     }
