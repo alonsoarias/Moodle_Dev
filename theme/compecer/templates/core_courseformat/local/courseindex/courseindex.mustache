@@ -6,7 +6,11 @@
 }}
 <div class="compecer-courseindex-panel {{#editmode}}editing{{/editmode}}">
     <div class="compecer-courseindex-panel__header">
-        <div class="compecer-courseindex-progress" data-region="course-progress">
+        <div class="compecer-courseindex-progress"
+             data-region="course-progress"
+             data-status-template="{{#str}}courseindexprogressstatus, theme_compecer{{/str}}"
+             data-no-tracking="{{#str}}courseindexprogressnone, theme_compecer{{/str}}"
+             aria-live="polite">
             <div class="compecer-courseindex-progress__labels">
                 <span class="compecer-courseindex-progress__title">{{#str}}courseindexprogresslabel, theme_compecer{{/str}}</span>
                 <span class="compecer-courseindex-progress__value" data-region="course-progress-value">0%</span>
@@ -29,7 +33,7 @@
     </div>
 </div>
 {{#js}}
-require(['core_courseformat/local/courseindex/courseindex', 'core/str'], function(component, str) {
+require(['core_courseformat/local/courseindex/courseindex'], function(component) {
     component.init('course-index');
 
     const root = document.getElementById('course-index');
@@ -43,112 +47,166 @@ require(['core_courseformat/local/courseindex/courseindex', 'core/str'], functio
         return;
     }
 
-    const progressBar = panel.querySelector('[data-region="course-progress-bar"]');
-    const progressValue = panel.querySelector('[data-region="course-progress-value"]');
-    const progressStatus = panel.querySelector('[data-region="course-progress-status"]');
+    const progressContainer = panel.querySelector('[data-region="course-progress"]');
+    const progressBar = progressContainer ? progressContainer.querySelector('[data-region="course-progress-bar"]') : null;
+    const progressValue = progressContainer ? progressContainer.querySelector('[data-region="course-progress-value"]') : null;
+    const progressStatus = progressContainer ? progressContainer.querySelector('[data-region="course-progress-status"]') : null;
+    const statusTemplate = progressContainer ? progressContainer.dataset.statusTemplate || '' : '';
+    const noTrackingText = progressContainer ? progressContainer.dataset.noTracking || '' : '';
+    const placeholderText = progressStatus ? progressStatus.textContent.trim() : '';
 
-    str.get_strings([
-        {key: 'courseindexprogressnone', component: 'theme_compecer'},
-        {key: 'courseindexprogressstatus', component: 'theme_compecer'}
-    ]).then(function(strings) {
-        const noTracking = strings[0];
-        const statusTemplate = strings[1];
+    const getCompletionSummary = function(scope, owner) {
+        const completionNodes = scope.querySelectorAll('[data-for="cm_completion"]');
+        const seen = new Set();
+        let total = 0;
+        let completed = 0;
 
-        const renderStatus = function(completed, total) {
-            if (!progressStatus) {
-                return;
-            }
-            if (total === 0) {
-                progressStatus.textContent = noTracking;
-                return;
-            }
-            let text = statusTemplate;
-            text = text.replace('{$a->completed}', completed);
-            text = text.replace('{$a->total}', total);
-            progressStatus.textContent = text;
-        };
-
-        const updateProgress = function() {
-            const completionNodes = root.querySelectorAll('[data-for="cm_completion"]');
-            let total = 0;
-            let completed = 0;
-            completionNodes.forEach(function(node) {
-                const value = parseInt(node.dataset.value, 10);
-                if (Number.isNaN(value)) {
+        completionNodes.forEach(function(node) {
+            if (owner) {
+                const parentSection = node.closest('[data-for="section"]');
+                if (parentSection && parentSection !== owner) {
                     return;
                 }
-                total++;
-                if (node.classList.contains('completion_complete')) {
-                    completed++;
-                }
-            });
+            }
 
-            const percent = total ? Math.round((completed / total) * 100) : 0;
-            if (progressBar) {
-                progressBar.style.width = percent + '%';
-                progressBar.setAttribute('aria-valuenow', percent);
+            const cmItem = node.closest('[data-for="cm"]');
+            if (!cmItem) {
+                return;
             }
-            if (progressValue) {
-                progressValue.textContent = percent + '%';
+
+            const cmId = cmItem.dataset.id;
+            if (!cmId || seen.has(cmId)) {
+                return;
             }
-            renderStatus(completed, total);
+            seen.add(cmId);
+
+            const isTracked = node.classList.contains('completion_complete') ||
+                node.classList.contains('completion_incomplete') ||
+                node.classList.contains('completion_fail');
+
+            if (!isTracked) {
+                return;
+            }
+
+            total++;
+            if (node.classList.contains('completion_complete')) {
+                completed++;
+            }
+        });
+
+        return {
+            total,
+            completed
         };
+    };
 
-        const observer = new MutationObserver(function(mutations) {
-            let shouldUpdate = false;
-            mutations.forEach(function() {
-                shouldUpdate = true;
-            });
-            if (shouldUpdate) {
-                updateProgress();
+    const formatStatus = function(completed, total) {
+        if (!total) {
+            return noTrackingText || placeholderText;
+        }
+        if (!statusTemplate) {
+            return completed + ' / ' + total;
+        }
+        return statusTemplate
+            .replace('{$a->completed}', completed)
+            .replace('{$a->total}', total);
+    };
+
+    const updateCourseProgress = function() {
+        const summary = getCompletionSummary(root);
+        const total = summary.total;
+        const completed = summary.completed;
+        const percent = total ? Math.round((completed / total) * 100) : 0;
+
+        if (progressContainer) {
+            progressContainer.classList.toggle('is-empty', !total);
+            progressContainer.setAttribute('aria-label', formatStatus(completed, total));
+        }
+
+        if (progressBar) {
+            progressBar.style.width = percent + '%';
+            progressBar.setAttribute('aria-valuenow', percent);
+        }
+
+        if (progressValue) {
+            progressValue.textContent = percent + '%';
+        }
+
+        if (progressStatus) {
+            progressStatus.textContent = formatStatus(completed, total);
+        }
+    };
+
+    const updateSectionProgress = function() {
+        const sections = root.querySelectorAll('.courseindex-section');
+        sections.forEach(function(section) {
+            const progress = section.querySelector('[data-region="section-progress"]');
+            if (!progress) {
+                return;
             }
-        });
 
-        observer.observe(root, {
-            subtree: true,
-            childList: true,
-            attributes: true,
-            attributeFilter: ['class', 'data-value']
-        });
-
-        updateProgress();
-    }).catch(function() {
-        const fallbackUpdate = function() {
-            const completionNodes = root.querySelectorAll('[data-for="cm_completion"]');
-            let total = 0;
-            let completed = 0;
-            completionNodes.forEach(function(node) {
-                const value = parseInt(node.dataset.value, 10);
-                if (Number.isNaN(value)) {
-                    return;
-                }
-                total++;
-                if (node.classList.contains('completion_complete')) {
-                    completed++;
-                }
-            });
+            const sectionSummary = getCompletionSummary(section, section);
+            const total = sectionSummary.total;
+            const completed = sectionSummary.completed;
             const percent = total ? Math.round((completed / total) * 100) : 0;
-            if (progressBar) {
-                progressBar.style.width = percent + '%';
-                progressBar.setAttribute('aria-valuenow', percent);
+
+            const bar = progress.querySelector('[data-region="section-progress-bar"]');
+            const value = progress.querySelector('[data-region="section-progress-value"]');
+            const count = progress.querySelector('[data-region="section-progress-count"]');
+            const emptyText = progress.dataset.emptyText || '\u2014';
+
+            if (bar) {
+                bar.style.width = percent + '%';
+                bar.setAttribute('aria-valuenow', percent);
             }
-            if (progressValue) {
-                progressValue.textContent = percent + '%';
+
+            if (!total) {
+                progress.classList.add('is-empty');
+                progress.setAttribute('aria-label', emptyText);
+                if (value) {
+                    value.textContent = emptyText;
+                }
+                if (count) {
+                    count.textContent = '';
+                }
+                if (bar) {
+                    bar.style.width = '0%';
+                    bar.setAttribute('aria-valuenow', 0);
+                }
+                return;
             }
-        };
 
-        const observer = new MutationObserver(function() {
-            fallbackUpdate();
+            progress.classList.remove('is-empty');
+            progress.setAttribute('aria-label', percent + '% (' + completed + '/' + total + ')');
+
+            if (value) {
+                value.textContent = percent + '%';
+            }
+            if (count) {
+                count.textContent = completed + ' / ' + total;
+            }
         });
+    };
 
-        observer.observe(root, {
-            subtree: true,
-            childList: true,
-            attributes: true,
-            attributeFilter: ['class', 'data-value']
-        });
+    const updateAllProgress = function() {
+        updateCourseProgress();
+        updateSectionProgress();
+    };
 
-        fallbackUpdate();
+    const observer = new MutationObserver(function(mutations) {
+        if (!mutations.length) {
+            return;
+        }
+        updateAllProgress();
     });
+
+    observer.observe(root, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['class', 'data-value']
+    });
+
+    updateAllProgress();
 });
 {{/js}}

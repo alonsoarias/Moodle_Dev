@@ -300,5 +300,6 @@ $string['courseindexdrawerdescription'] = 'Browse the course structure and keep 
 $string['courseindexprogresslabel'] = 'Course progress';
 $string['courseindexprogressplaceholder'] = 'We are collecting completion data for this course.';
 $string['courseindexprogressnone'] = 'No activities with completion tracking are available yet.';
+$string['courseindexsectionprogressnone'] = 'Not tracked';
 $string['courseindexprogressstatus'] = 'Completed {$a->completed} of {$a->total} activities.';
 $string['courseindexempty'] = 'This course does not contain sections yet.';
