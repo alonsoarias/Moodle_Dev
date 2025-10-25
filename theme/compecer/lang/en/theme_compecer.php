@@ -295,26 +295,3 @@ $string['breadcrumb'] = 'Breadcrumb';
 $string['opendrawernav'] = 'Open navigation drawer';
 $string['closedrawernav'] = 'Close navigation drawer';
 $string['sidebarcoursemenuheading'] = 'Course index';
-// Course index progress strings.
-$string['courseprogresslabel'] = 'Course progress';
-$string['courseprogresscompleted'] = 'Activities completed';
-$string['courseprogresscompletedshort'] = '{$a} completed';
-$string['courseprogressremaining'] = 'Activities remaining';
-$string['courseprogressremainingshort'] = '{$a} to go';
-$string['courseprogressloading'] = 'Updating course progress…';
-$string['courseprogressnotracking'] = 'Activity completion is not enabled for this course.';
-$string['activitiescompletedcount'] = '{$a->completed} of {$a->total} activities completed';
-$string['allactivitiescompleted'] = 'All activities completed!';
-$string['noactivities'] = 'No activities with completion tracking';
-
-// Section progress strings.
-$string['sectionprogress'] = 'Section progress';
-$string['sectioncompleted'] = 'Section completed!';
-$string['sectionprogresscount'] = '{$a->completed} of {$a->total} completed';
-
-// Activity completion state strings (semaphore system).
-$string['activitystatecompleted'] = 'Completed';
-$string['activitystateinprogress'] = 'In progress';
-$string['activitystatenotstarted'] = 'Not started';
-$string['activitystatefailed'] = 'Failed';
-$string['activitystateunavailable'] = 'Unavailable';

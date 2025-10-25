@@ -1,126 +1,56 @@
 {{!
     @template core_courseformat/local/courseindex/cm
 
-    Redesigned course module entry for the course index with visual semaphore completion state.
-
-    Features:
-    - Traffic light completion indicator (red/yellow/green/gray)
-    - Modern card-like design with hover effects
-    - Clear visual hierarchy
-    - Improved accessibility
-    - Smooth animations
+    Displays a course index module entry.
+    Adaptado para theme compecer.
+    Se han eliminado los iconos de las actividades.
+    
+    Example context (json):
+    {
+      "id": "12",
+      "name": "Announcements",
+      "url": "#",
+      "visible": 1,
+      "isactive": 1,
+      "uniqid": "0",
+      "accessvisible": 1,
+      "hascmrestrictions": 0
+    }
 }}
-<li class="courseindex-item courseindex-item--modern
-        {{#isactive}}courseindex-item--active{{/isactive}}
-        {{#hascmrestrictions}}courseindex-item--restricted{{/hascmrestrictions}}
-        {{^accessvisible}}courseindex-item--dimmed{{/accessvisible}}
-        {{#indent}}courseindex-item--indented{{/indent}}
-        {{#hasdelegatedsection}}py-0{{/hasdelegatedsection}}
-        {{#hascompletionstate}}courseindex-item--state-{{completionstate.state}}{{/hascompletionstate}}"
+<li class="course-index-item {{#isactive}}active{{/isactive}}
+           {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
+           {{^accessvisible}}dimmed{{/accessvisible}}
+           {{#indent}} indented {{/indent}}"
     id="{{uniqid}}-course-index-cm-{{id}}"
     data-for="cm"
     data-id="{{id}}"
-    {{#hascompletionstate}}data-completion-state="{{completionstate.state}}"{{/hascompletionstate}}
     role="treeitem">
-    {{^hasdelegatedsection}}
-        <div class="courseindex-item__wrapper">
-            {{! Semaphore Completion Indicator }}
-            {{#hascompletionstate}}
-            <div class="courseindex-item__semaphore courseindex-item__semaphore--{{completionstate.color}}"
-                 title="{{completionstate.label}}"
-                 data-for="cm_completion"
-                 aria-label="{{completionstate.label}}">
-                <span class="courseindex-item__semaphore-dot"></span>
-                <svg class="courseindex-item__semaphore-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    {{#completionstate}}
-                    {{#state}}
-                    {{! Completed - Check Icon }}
-                    {{#is}}completed{{/is}}
-                    <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="currentColor"/>
-                    {{/is}}
-                    {{! In Progress - Clock Icon }}
-                    {{#is}}in-progress{{/is}}
-                    <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20ZM12.5 7H11V13L16.25 16.15L17 14.92L12.5 12.25V7Z" fill="currentColor"/>
-                    {{/is}}
-                    {{! Not Started - Circle Icon }}
-                    {{#is}}not-started{{/is}}
-                    <path d="M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/>
-                    {{/is}}
-                    {{! Failed - X Icon }}
-                    {{#is}}completed-fail{{/is}}
-                    <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="currentColor"/>
-                    {{/is}}
-                    {{! Unavailable - Lock Icon }}
-                    {{#is}}unavailable{{/is}}
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20Z" fill="currentColor"/>
-                    {{/is}}
-                    {{/state}}
-                    {{/completionstate}}
-                </svg>
-            </div>
-            {{/hascompletionstate}}
-            {{^hascompletionstate}}
-            <span class="completioninfo courseindex-item__completion" data-for="cm_completion" data-value="NaN"></span>
-            {{/hascompletionstate}}
-
-            {{! Activity Content }}
-            <div class="courseindex-item__content">
-                {{#uservisible}}
-                <a class="courseindex-link courseindex-item__link"
-                   {{#url}}href="{{{url}}}"{{/url}}{{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-                   data-for="cm_name"
-                   tabindex="-1"
-                   title="{{{name}}}">
-                    <span class="courseindex-item__name">{{{name}}}</span>
-                </a>
-                {{/uservisible}}
-                {{^uservisible}}
-                <a class="courseindex-link courseindex-item__link courseindex-item__link--notvisible"
-                   href="#{{{anchor}}}"
-                   data-for="cm_name"
-                   tabindex="-1"
-                   data-anchor="true">
-                    <span class="courseindex-item__name">{{{name}}}</span>
-                </a>
-                {{/uservisible}}
-
-                {{! Completion State Label (for screen readers and tooltip) }}
-                {{#hascompletionstate}}
-                <span class="courseindex-item__state-label sr-only">
-                    {{completionstate.label}}
-                </span>
-                {{/hascompletionstate}}
-            </div>
-
-            {{! Activity Metadata }}
-            <div class="courseindex-item__actions">
-                {{! Restrictions Lock }}
-                {{#hascmrestrictions}}
-                <span class="courseindex-item__restricted" data-for="cm_name" title="{{#str}}restricted, core{{/str}}">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 8H17V6C17 3.24 14.76 1 12 1C9.24 1 7 3.24 7 6V8H6C4.9 8 4 8.9 4 10V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V10C20 8.9 19.1 8 18 8ZM12 17C10.9 17 10 16.1 10 15C10 13.9 10.9 13 12 13C13.1 13 14 13.9 14 15C14 16.1 13.1 17 12 17ZM15.1 8H8.9V6C8.9 4.29 10.29 2.9 12 2.9C13.71 2.9 15.1 4.29 15.1 6V8Z" fill="currentColor"/>
-                    </svg>
-                </span>
-                {{/hascmrestrictions}}
-
-                {{! Drag Handle (for editing mode) }}
-                <span class="dragicon courseindex-item__drag" aria-hidden="true" title="{{#str}}move{{/str}}">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11 18C11 19.1 10.1 20 9 20C7.9 20 7 19.1 7 18C7 16.9 7.9 16 9 16C10.1 16 11 16.9 11 18ZM9 10C7.9 10 7 10.9 7 12C7 13.1 7.9 14 9 14C10.1 14 11 13.1 11 12C11 10.9 10.1 10 9 10ZM9 4C7.9 4 7 4.9 7 6C7 7.1 7.9 8 9 8C10.1 8 11 7.1 11 6C11 4.9 10.1 4 9 4ZM15 8C16.1 8 17 7.1 17 6C17 4.9 16.1 4 15 4C13.9 4 13 4.9 13 6C13 7.1 13.9 8 15 8ZM15 10C13.9 10 13 10.9 13 12C13 13.1 13.9 14 15 14C16.1 14 17 13.1 17 12C17 10.9 16.1 10 15 10ZM15 16C13.9 16 13 16.9 13 18C13 19.1 13.9 20 15 20C16.1 20 17 19.1 17 18C17 16.9 16.1 16 15 16Z" fill="currentColor"/>
-                    </svg>
-                </span>
-            </div>
-        </div>
-    {{/hasdelegatedsection}}
-    {{#hasdelegatedsection}}
-        {{#sectioninfo}}
-            {{> core_courseformat/local/courseindex/section}}
-        {{/sectioninfo}}
-    {{/hasdelegatedsection}}
+  {{^hasdelegatedsection}}
+    <div class="d-flex align-items-center justify-content-between">
+      {{#uservisible}}
+        <a class="course-index-link text-truncate"
+           {{#url}}href="{{{url}}}"{{/url}}
+           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
+           data-for="cm_name" tabindex="-1" title="{{{name}}}">
+          {{{name}}}
+        </a>
+      {{/uservisible}}
+      {{^uservisible}}
+        <a class="course-index-link text-truncate"
+           href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+          {{{name}}}
+        </a>
+      {{/uservisible}}
+    </div>
+  {{/hasdelegatedsection}}
+  {{#hasdelegatedsection}}
+    {{#sectioninfo}}
+      {{> core_courseformat/local/courseindex/section}}
+    {{/sectioninfo}}
+  {{/hasdelegatedsection}}
 </li>
-
 {{#js}}
 require(['core_courseformat/local/courseindex/cm'], function(component) {
-    component.init('{{uniqid}}-course-index-cm-{{id}}');
+  component.init('{{uniqid}}-course-index-cm-{{id}}');
 });
 {{/js}}
