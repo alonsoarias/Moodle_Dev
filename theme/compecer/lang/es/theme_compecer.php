@@ -304,3 +304,6 @@ $string['courseprogressremaining'] = 'Actividades pendientes';
 $string['courseprogressremainingshort'] = '{$a} por completar';
 $string['courseprogressloading'] = 'Actualizando el progreso del curso…';
 $string['courseprogressnotracking'] = 'El seguimiento de finalización no está habilitado en este curso.';
+$string['activitiescompletedcount'] = '{$a->completed} de {$a->total} actividades completadas';
+$string['allactivitiescompleted'] = '¡Todas las actividades completadas!';
+$string['noactivities'] = 'Sin actividades con seguimiento de finalización';

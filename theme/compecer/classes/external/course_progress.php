@@ -54,7 +54,7 @@ class course_progress extends external_api {
      * Return course progress summary for the current user.
      *
      * @param int $courseid Course identifier.
-     * @return array<string,int|bool>
+     * @return array<string,int|bool|string>
      */
     public static function execute(int $courseid): array {
         global $USER;
@@ -67,7 +67,8 @@ class course_progress extends external_api {
         $context = context_course::instance($course->id);
         self::validate_context($context);
 
-        $summary = course_progress_service::get_course_progress_summary($course, (int)$USER->id);
+        // Get progress summary (no cache for AJAX to ensure fresh data)
+        $summary = course_progress_service::get_course_progress_summary($course, (int)$USER->id, false);
 
         return [
             'hascompletion' => $summary['hascompletion'],
@@ -75,6 +76,7 @@ class course_progress extends external_api {
             'total' => $summary['total'],
             'completed' => $summary['completed'],
             'incomplete' => $summary['incomplete'],
+            'progresstext' => $summary['progresstext'] ?? '',
             'timeupdated' => time(),
         ];
     }
@@ -91,6 +93,7 @@ class course_progress extends external_api {
             'total' => new external_value(PARAM_INT, 'Total number of activities that count towards completion'),
             'completed' => new external_value(PARAM_INT, 'Activities completed by the current user'),
             'incomplete' => new external_value(PARAM_INT, 'Activities not completed yet'),
+            'progresstext' => new external_value(PARAM_TEXT, 'Human-readable progress text (e.g., "3 of 10 completed")'),
             'timeupdated' => new external_value(PARAM_INT, 'Server timestamp of the calculation'),
         ]);
     }

@@ -1234,11 +1234,27 @@ section.node-category {
       margin-bottom: 0.75rem;
       background-color: lighten($color-terciary, 55%);
       border-radius: 999px;
+      overflow: hidden;
 
       .progress-bar {
         background-image: linear-gradient(90deg, $color-primary, $color-secondary-dark);
         border-radius: 999px;
-        transition: width 0.35s ease;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: width;
+      }
+    }
+
+    .courseindex-progress__text {
+      margin-bottom: 0.65rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: $color-primary-dark;
+      text-align: center;
+      line-height: 1.4;
+      transition: opacity 0.3s ease;
+
+      &[hidden] {
+        display: none;
       }
     }
 

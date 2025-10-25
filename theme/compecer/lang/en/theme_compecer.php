@@ -303,3 +303,6 @@ $string['courseprogressremaining'] = 'Activities remaining';
 $string['courseprogressremainingshort'] = '{$a} to go';
 $string['courseprogressloading'] = 'Updating course progress…';
 $string['courseprogressnotracking'] = 'Activity completion is not enabled for this course.';
+$string['activitiescompletedcount'] = '{$a->completed} of {$a->total} activities completed';
+$string['allactivitiescompleted'] = 'All activities completed!';
+$string['noactivities'] = 'No activities with completion tracking';

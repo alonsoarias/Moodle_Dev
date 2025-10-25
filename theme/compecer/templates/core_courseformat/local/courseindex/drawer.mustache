@@ -32,8 +32,12 @@
                  aria-valuemin="0"
                  aria-valuemax="100"
                  aria-valuenow="{{#progress}}{{percentage}}{{/progress}}{{^progress}}0{{/progress}}"
+                 aria-describedby="courseindex-progress-text"
                  data-region="progress-bar">
                 <div class="progress-bar" style="width: {{#progress}}{{percentage}}{{/progress}}{{^progress}}0{{/progress}}%;"></div>
+            </div>
+            <div class="courseindex-progress__text" id="courseindex-progress-text" data-region="progress-text" {{^progress}}hidden{{/progress}}>
+                {{#progress}}{{progresstext}}{{/progress}}
             </div>
             <div class="courseindex-progress__details" data-region="progress-details" {{^progress}}hidden{{/progress}}>
                 <span class="courseindex-progress__stat courseindex-progress__stat--completed">
