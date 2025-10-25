@@ -55,7 +55,8 @@ class section_renderer extends \core_courseformat\output\section_renderer {
         ];
 
         if (isloggedin() && !isguestuser() && !empty($course->id)) {
-            $summary = course_progress_service::get_course_progress_summary($course, (int)$USER->id);
+            // Use cache for initial render to improve performance
+            $summary = course_progress_service::get_course_progress_summary($course, (int)$USER->id, true);
 
             if (!empty($summary['hascompletion'])) {
                 $context['progressenabled'] = true;
@@ -75,6 +76,7 @@ class section_renderer extends \core_courseformat\output\section_renderer {
                         $summary['incomplete']
                     ),
                     'total' => (int)$summary['total'],
+                    'progresstext' => $summary['progresstext'] ?? '',
                 ];
             }
         }

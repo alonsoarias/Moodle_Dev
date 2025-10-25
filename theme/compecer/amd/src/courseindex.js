@@ -32,6 +32,7 @@ const SELECTORS = {
     PROGRESS_VALUE: '[data-region="progress-value"]',
     PROGRESS_BAR: '[data-region="progress-bar"]',
     PROGRESS_BAR_FILL: '.progress-bar',
+    PROGRESS_TEXT: '[data-region="progress-text"]',
     PROGRESS_COMPLETED_VALUE: '[data-region="progress-completed-value"]',
     PROGRESS_COMPLETED_TEXT: '[data-region="progress-completed-text"]',
     PROGRESS_REMAINING_VALUE: '[data-region="progress-remaining-value"]',
@@ -146,15 +147,17 @@ const updateNotice = (noticeEl, message, visible = false) => {
 };
 
 /**
- * Apply progress data to the DOM.
+ * Apply progress data to the DOM with smooth animations.
  *
- * @param {HTMLElement} container
- * @param {Object} data
+ * @param {HTMLElement} container The progress container element.
+ * @param {Object} data Progress data from server.
+ * @param {boolean} animate Whether to animate the changes (default: true).
  */
-const renderProgress = (container, data) => {
+const renderProgress = (container, data, animate = true) => {
     const progressValue = container.querySelector(SELECTORS.PROGRESS_VALUE);
     const progressBar = container.querySelector(SELECTORS.PROGRESS_BAR);
     const progressBarFill = progressBar ? progressBar.querySelector(SELECTORS.PROGRESS_BAR_FILL) : null;
+    const progressText = container.querySelector(SELECTORS.PROGRESS_TEXT);
     const completedValue = container.querySelector(SELECTORS.PROGRESS_COMPLETED_VALUE);
     const completedText = container.querySelector(SELECTORS.PROGRESS_COMPLETED_TEXT);
     const remainingValue = container.querySelector(SELECTORS.PROGRESS_REMAINING_VALUE);
@@ -178,6 +181,9 @@ const renderProgress = (container, data) => {
         if (progressBarFill) {
             progressBarFill.style.width = '0%';
         }
+        if (progressText) {
+            progressText.setAttribute('hidden', 'hidden');
+        }
         if (details) {
             details.setAttribute('hidden', 'hidden');
         }
@@ -185,6 +191,10 @@ const renderProgress = (container, data) => {
         return;
     }
 
+    // Show progress elements if hidden
+    if (progressText && progressText.hasAttribute('hidden')) {
+        progressText.removeAttribute('hidden');
+    }
     if (details && details.hasAttribute('hidden')) {
         details.removeAttribute('hidden');
     }
@@ -194,21 +204,42 @@ const renderProgress = (container, data) => {
     const percentage = Math.max(0, Math.min(Number(data.percentage) || 0, 100));
     const completed = Math.max(0, Number(data.completed) || 0);
     const remaining = Math.max(0, Number(data.incomplete) || 0);
+    const total = Math.max(0, Number(data.total) || 0);
 
+    // Update dataset attributes
     container.dataset.progressEnabled = '1';
     container.dataset.progressPercentage = String(percentage);
     container.dataset.progressCompleted = String(completed);
     container.dataset.progressIncomplete = String(remaining);
-    container.dataset.progressTotal = String(Number(data.total) || 0);
+    container.dataset.progressTotal = String(total);
 
+    // Update percentage display
     setText(progressValue, `${percentage}%`);
+
+    // Update progress bar with animation
     if (progressBar) {
         progressBar.setAttribute('aria-valuenow', String(percentage));
     }
     if (progressBarFill) {
-        progressBarFill.style.width = `${percentage}%`;
+        if (!animate) {
+            // Disable transition temporarily for immediate update
+            const transition = progressBarFill.style.transition;
+            progressBarFill.style.transition = 'none';
+            progressBarFill.style.width = `${percentage}%`;
+            // Force reflow to apply the change
+            void progressBarFill.offsetWidth;
+            progressBarFill.style.transition = transition;
+        } else {
+            progressBarFill.style.width = `${percentage}%`;
+        }
     }
 
+    // Update progress text (human-readable)
+    if (progressText && data.progresstext) {
+        setText(progressText, data.progresstext);
+    }
+
+    // Update completed/remaining statistics
     if (completedValue) {
         setText(completedValue, String(completed));
     }
@@ -220,6 +251,12 @@ const renderProgress = (container, data) => {
     }
     if (remainingText) {
         setText(remainingText, STRINGS.remainingTemplate.replace('{$a}', String(remaining)));
+    }
+
+    // Trigger aria-live announcement for screen readers
+    if (progressBar && animate) {
+        progressBar.setAttribute('aria-live', 'polite');
+        progressBar.setAttribute('aria-atomic', 'true');
     }
 };
 
