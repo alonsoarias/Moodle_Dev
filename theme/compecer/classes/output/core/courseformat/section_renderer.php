@@ -25,7 +25,10 @@
 namespace theme_compecer\output\core\courseformat;
 
 use core_courseformat\base as course_format;
+use core_courseformat\output\local\courseindex\section as section_courseindex;
+use core_courseformat\output\local\courseindex\cm as cm_courseindex;
 use theme_compecer\course_progress_service;
+use theme_compecer\section_progress_service;
 
 /**
  * Extends the default section renderer to enrich the course index context.
@@ -82,5 +85,63 @@ class section_renderer extends \core_courseformat\output\section_renderer {
         }
 
         return $this->render_from_template('core_courseformat/local/courseindex/drawer', $context);
+    }
+
+    /**
+     * Export section data for the course index, enriched with progress information.
+     *
+     * @param section_courseindex $widget The section widget.
+     * @return array Context data for the section template.
+     */
+    protected function export_for_template($widget) {
+        global $USER;
+
+        $data = parent::export_for_template($widget);
+
+        // Only enrich data if it's a section in the course index.
+        if ($widget instanceof section_courseindex) {
+            $format = $widget->get_format();
+            $course = $format->get_course();
+            $section = $widget->get_section();
+
+            // Add section progress data.
+            if (isloggedin() && !isguestuser() && !empty($course->id) && !empty($section->id)) {
+                $sectionprogress = section_progress_service::get_section_progress(
+                    $course,
+                    $section->id,
+                    (int)$USER->id,
+                    true // Use cache
+                );
+
+                if (!empty($sectionprogress['hascompletion'])) {
+                    $data['sectionprogress'] = $sectionprogress;
+                    $data['hassectionprogress'] = true;
+                } else {
+                    $data['hassectionprogress'] = false;
+                }
+            }
+        }
+
+        // Enrich course module data with completion state (semaphore).
+        if ($widget instanceof cm_courseindex) {
+            $format = $widget->get_format();
+            $course = $format->get_course();
+            $cm = $widget->get_cm();
+
+            if (isloggedin() && !isguestuser() && !empty($course->id) && !empty($cm->id)) {
+                $completionstate = section_progress_service::get_activity_completion_state(
+                    $course,
+                    $cm->id,
+                    (int)$USER->id
+                );
+
+                $data['completionstate'] = $completionstate;
+                $data['hascompletionstate'] = true;
+            } else {
+                $data['hascompletionstate'] = false;
+            }
+        }
+
+        return $data;
     }
 }

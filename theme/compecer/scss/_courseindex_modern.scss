@@ -1,0 +1,754 @@
+// ==================================================================
+// COURSEINDEX MODERN REDESIGN - Theme Compecer
+// ==================================================================
+//
+// Complete redesign of the courseindex component with modern,
+// elegant design including:
+// - Global course progress with circular indicator
+// - Section progress bars
+// - Activity semaphore system (red/yellow/green/gray)
+// - Smooth animations and transitions
+// - Responsive design
+// - Accessibility features
+//
+// @package   theme_compecer
+// @copyright 2025 IngeWeb
+// @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+// ==================================================================
+
+// ==================================================================
+// VARIABLES
+// ==================================================================
+
+// Colors
+$courseindex-primary: #0f6cbf !default;
+$courseindex-success: #28a745 !default;
+$courseindex-warning: #ffc107 !default;
+$courseindex-danger: #dc3545 !default;
+$courseindex-secondary: #6c757d !default;
+$courseindex-gray: #adb5bd !default;
+
+$courseindex-bg: #ffffff !default;
+$courseindex-border: #dee2e6 !default;
+$courseindex-text: #212529 !default;
+$courseindex-text-muted: #6c757d !default;
+
+// Spacing
+$courseindex-padding: 1.25rem !default;
+$courseindex-gap: 1rem !default;
+$courseindex-gap-sm: 0.5rem !default;
+
+// Border radius
+$courseindex-radius: 12px !default;
+$courseindex-radius-sm: 8px !default;
+
+// Shadows
+$courseindex-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !default;
+$courseindex-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12) !default;
+
+// Transitions
+$courseindex-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !default;
+
+// ==================================================================
+// MAIN COURSEINDEX CONTAINER
+// ==================================================================
+
+.courseindex--modern {
+    background: transparent;
+    padding: 0;
+
+    .courseindex__header--modern {
+        padding: $courseindex-padding;
+        background: $courseindex-bg;
+        border-radius: $courseindex-radius;
+        box-shadow: $courseindex-shadow;
+        margin-bottom: $courseindex-gap;
+    }
+
+    .courseindex__content--modern {
+        padding: 0 $courseindex-gap-sm;
+    }
+}
+
+// ==================================================================
+// HEADER & TITLE
+// ==================================================================
+
+.courseindex__heading--modern {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: $courseindex-gap;
+    padding-bottom: $courseindex-gap;
+    border-bottom: 2px solid $courseindex-border;
+
+    .courseindex__heading-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, $courseindex-primary 0%, lighten($courseindex-primary, 10%) 100%);
+        border-radius: $courseindex-radius-sm;
+        color: white;
+    }
+
+    .courseindex__title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: $courseindex-text;
+        line-height: 1.4;
+    }
+}
+
+// ==================================================================
+// GLOBAL PROGRESS CARD
+// ==================================================================
+
+.courseindex-progress-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: $courseindex-radius;
+    padding: $courseindex-padding;
+    border: 1px solid $courseindex-border;
+    transition: $courseindex-transition;
+
+    &:hover {
+        box-shadow: $courseindex-shadow-hover;
+    }
+
+    // Header with circular progress
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: $courseindex-gap;
+    }
+
+    &__label-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        color: $courseindex-primary;
+    }
+
+    &__label {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: $courseindex-text;
+    }
+
+    // Linear progress bar
+    &__bar-wrapper {
+        margin-bottom: $courseindex-gap-sm;
+    }
+
+    &__text {
+        margin-bottom: $courseindex-gap-sm;
+    }
+
+    &__description {
+        margin: 0;
+        font-size: 0.875rem;
+        color: $courseindex-text-muted;
+        text-align: center;
+    }
+
+    // Statistics
+    &__stats {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        gap: $courseindex-gap-sm;
+        padding-top: $courseindex-gap-sm;
+        border-top: 1px solid $courseindex-border;
+    }
+
+    // Notice/Alert
+    &__notice {
+        margin-top: $courseindex-gap-sm;
+    }
+
+    // Disabled state
+    &--disabled {
+        opacity: 0.7;
+    }
+}
+
+// ==================================================================
+// CIRCULAR PROGRESS INDICATOR
+// ==================================================================
+
+.courseindex-progress-circle {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+
+    &__svg {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    &__bg {
+        fill: none;
+        stroke: $courseindex-border;
+        stroke-width: 8;
+    }
+
+    &__fill {
+        fill: none;
+        stroke: $courseindex-primary;
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-dasharray: 283; // 2 * PI * 45
+        transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    &__text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        align-items: baseline;
+        font-weight: 700;
+        color: $courseindex-primary;
+    }
+
+    &__percentage {
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+
+    &__symbol {
+        font-size: 1rem;
+        margin-left: 2px;
+        opacity: 0.7;
+    }
+}
+
+// ==================================================================
+// LINEAR PROGRESS BAR
+// ==================================================================
+
+.courseindex-progress-bar {
+    position: relative;
+    width: 100%;
+    height: 12px;
+    background: $courseindex-border;
+    border-radius: 100px;
+    overflow: hidden;
+
+    &__fill {
+        height: 100%;
+        background: linear-gradient(90deg, $courseindex-primary 0%, lighten($courseindex-primary, 15%) 100%);
+        border-radius: 100px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+
+        &--animated {
+            .courseindex-progress-bar__shine {
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+                animation: shine 2s infinite;
+            }
+        }
+    }
+}
+
+@keyframes shine {
+    0% {
+        left: -100%;
+    }
+    50%,
+    100% {
+        left: 200%;
+    }
+}
+
+// ==================================================================
+// PROGRESS STATISTICS
+// ==================================================================
+
+.courseindex-progress-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        flex-shrink: 0;
+
+        &--success {
+            background: rgba($courseindex-success, 0.1);
+            color: $courseindex-success;
+        }
+
+        &--pending {
+            background: rgba($courseindex-warning, 0.1);
+            color: darken($courseindex-warning, 20%);
+        }
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    &__value {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: $courseindex-text;
+        line-height: 1;
+    }
+
+    &__label {
+        font-size: 0.75rem;
+        color: $courseindex-text-muted;
+        line-height: 1;
+    }
+
+    &__divider {
+        width: 1px;
+        height: 32px;
+        background: $courseindex-border;
+        flex-shrink: 0;
+    }
+}
+
+// ==================================================================
+// SECTIONS
+// ==================================================================
+
+.courseindex-section--modern {
+    background: $courseindex-bg;
+    border-radius: $courseindex-radius-sm;
+    margin-bottom: $courseindex-gap-sm;
+    border: 1px solid $courseindex-border;
+    transition: $courseindex-transition;
+
+    &:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    &--current {
+        border-color: $courseindex-primary;
+        box-shadow: 0 0 0 2px rgba($courseindex-primary, 0.1);
+    }
+
+    .courseindex-section__header--modern {
+        display: flex;
+        align-items: flex-start;
+        gap: $courseindex-gap-sm;
+        padding: 0.875rem $courseindex-gap-sm;
+        cursor: pointer;
+    }
+
+    .courseindex-section__toggle {
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        border-radius: 4px;
+        transition: $courseindex-transition;
+        flex-shrink: 0;
+
+        &:hover {
+            background: rgba($courseindex-primary, 0.1);
+        }
+
+        &.collapsed {
+            .courseindex-section__chevron {
+                transform: rotate(-90deg);
+            }
+        }
+    }
+
+    .courseindex-section__chevron {
+        transition: transform 0.3s ease;
+    }
+
+    .courseindex-section__main {
+        flex: 1;
+        min-width: 0; // Allow flex item to shrink
+    }
+
+    .courseindex-section__link {
+        display: block;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        color: $courseindex-text;
+        text-decoration: none;
+        margin-bottom: $courseindex-gap-sm;
+
+        &:hover {
+            color: $courseindex-primary;
+            text-decoration: none;
+        }
+    }
+
+    .courseindex-section__name {
+        display: block;
+    }
+
+    .courseindex-section__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .courseindex-section__badge {
+        display: flex;
+        align-items: center;
+        color: $courseindex-warning;
+    }
+
+    .courseindex-section__locked {
+        display: flex;
+        align-items: center;
+        color: $courseindex-danger;
+    }
+
+    .courseindex-section__content {
+        padding: 0 $courseindex-gap-sm $courseindex-gap-sm;
+    }
+}
+
+// ==================================================================
+// SECTION PROGRESS
+// ==================================================================
+
+.courseindex-section-progress {
+    margin-top: 0.5rem;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
+    }
+
+    &__percentage {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: $courseindex-primary;
+    }
+
+    &__text {
+        font-size: 0.75rem;
+        color: $courseindex-text-muted;
+    }
+
+    &__bar {
+        height: 6px;
+        background: $courseindex-border;
+        border-radius: 100px;
+        overflow: hidden;
+    }
+
+    &__bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, $courseindex-primary 0%, lighten($courseindex-primary, 15%) 100%);
+        border-radius: 100px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+// ==================================================================
+// ACTIVITY ITEMS (COURSE MODULES)
+// ==================================================================
+
+.courseindex-item--modern {
+    margin-bottom: 0.25rem;
+    transition: $courseindex-transition;
+
+    .courseindex-item__wrapper {
+        display: flex;
+        align-items: center;
+        gap: $courseindex-gap-sm;
+        padding: 0.5rem 0.75rem;
+        border-radius: $courseindex-radius-sm;
+        transition: $courseindex-transition;
+
+        &:hover {
+            background: rgba($courseindex-primary, 0.05);
+        }
+    }
+
+    .courseindex-item__content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .courseindex-item__link {
+        display: block;
+        font-size: 0.875rem;
+        color: $courseindex-text;
+        text-decoration: none;
+        transition: $courseindex-transition;
+
+        &:hover {
+            color: $courseindex-primary;
+            text-decoration: none;
+        }
+
+        &--notvisible {
+            opacity: 0.6;
+        }
+    }
+
+    .courseindex-item__name {
+        display: block;
+        line-height: 1.4;
+    }
+
+    .courseindex-item__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .courseindex-item__restricted,
+    .courseindex-item__drag {
+        display: flex;
+        align-items: center;
+        color: $courseindex-text-muted;
+        opacity: 0.6;
+    }
+
+    &--active {
+        .courseindex-item__wrapper {
+            background: rgba($courseindex-primary, 0.1);
+        }
+
+        .courseindex-item__link {
+            color: $courseindex-primary;
+            font-weight: 600;
+        }
+    }
+
+    &--dimmed {
+        opacity: 0.5;
+    }
+}
+
+// ==================================================================
+// SEMAPHORE COMPLETION INDICATOR
+// ==================================================================
+
+.courseindex-item__semaphore {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: $courseindex-transition;
+
+    &-dot {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: currentColor;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    &-icon {
+        position: relative;
+        z-index: 1;
+    }
+
+    // Success / Completed (Green)
+    &--success {
+        background: rgba($courseindex-success, 0.15);
+        color: $courseindex-success;
+
+        .courseindex-item__semaphore-dot {
+            background: $courseindex-success;
+        }
+    }
+
+    // Warning / In Progress (Yellow)
+    &--warning {
+        background: rgba($courseindex-warning, 0.15);
+        color: darken($courseindex-warning, 20%);
+
+        .courseindex-item__semaphore-dot {
+            background: darken($courseindex-warning, 20%);
+        }
+    }
+
+    // Danger / Failed or Not Started (Red)
+    &--danger {
+        background: rgba($courseindex-danger, 0.15);
+        color: $courseindex-danger;
+
+        .courseindex-item__semaphore-dot {
+            background: $courseindex-danger;
+        }
+    }
+
+    // Secondary / Not Started (Gray)
+    &--secondary {
+        background: rgba($courseindex-secondary, 0.15);
+        color: $courseindex-secondary;
+
+        .courseindex-item__semaphore-dot {
+            background: $courseindex-secondary;
+        }
+    }
+
+    // Gray / Unavailable
+    &--gray {
+        background: rgba($courseindex-gray, 0.15);
+        color: $courseindex-gray;
+
+        .courseindex-item__semaphore-dot {
+            background: $courseindex-gray;
+        }
+    }
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+}
+
+// ==================================================================
+// RESPONSIVE DESIGN
+// ==================================================================
+
+@media (max-width: 768px) {
+    .courseindex--modern {
+        .courseindex__header--modern {
+            padding: 1rem;
+        }
+
+        .courseindex-progress-circle {
+            width: 60px;
+            height: 60px;
+
+            &__percentage {
+                font-size: 1.25rem;
+            }
+
+            &__symbol {
+                font-size: 0.875rem;
+            }
+        }
+
+        .courseindex-progress-card {
+            padding: 1rem;
+        }
+
+        .courseindex-progress-stat__value {
+            font-size: 1rem;
+        }
+    }
+}
+
+// ==================================================================
+// DARK MODE SUPPORT (if needed)
+// ==================================================================
+
+@media (prefers-color-scheme: dark) {
+    .courseindex--modern {
+        --courseindex-bg: #1e2125;
+        --courseindex-border: #343a40;
+        --courseindex-text: #f8f9fa;
+        --courseindex-text-muted: #adb5bd;
+
+        .courseindex__header--modern,
+        .courseindex-section--modern {
+            background: var(--courseindex-bg);
+            border-color: var(--courseindex-border);
+        }
+
+        .courseindex__title,
+        .courseindex-progress-card__label,
+        .courseindex-section__link,
+        .courseindex-item__link {
+            color: var(--courseindex-text);
+        }
+
+        .courseindex-progress-card__description,
+        .courseindex-section-progress__text,
+        .courseindex-progress-stat__label {
+            color: var(--courseindex-text-muted);
+        }
+    }
+}
+
+// ==================================================================
+// ACCESSIBILITY
+// ==================================================================
+
+.courseindex--modern {
+    // High contrast focus indicators
+    a:focus,
+    button:focus {
+        outline: 2px solid $courseindex-primary;
+        outline-offset: 2px;
+    }
+
+    // Screen reader only content
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+}
+
+// ==================================================================
+// PRINT STYLES
+// ==================================================================
+
+@media print {
+    .courseindex--modern {
+        .courseindex-item__drag,
+        .courseindex-section__toggle {
+            display: none !important;
+        }
+
+        .courseindex-section__content {
+            display: block !important;
+        }
+    }
+}

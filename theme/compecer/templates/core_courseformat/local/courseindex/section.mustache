@@ -1,57 +1,103 @@
 {{!
     @template core_courseformat/local/courseindex/section
 
-    Redesigned section entry for the course index drawer.
+    Redesigned section entry for the course index with modern design and section progress tracking.
+
+    Features:
+    - Section progress bar and percentage
+    - Modern card-like design
+    - Improved visual hierarchy
+    - Clear completion statistics
+    - Smooth animations and transitions
 }}
-<div class="courseindex-section {{#current}}current{{/current}} {{#component}}delegated-section{{/component}}"
+<div class="courseindex-section courseindex-section--modern {{#current}}courseindex-section--current{{/current}} {{#component}}delegated-section{{/component}}"
      id="{{uniqid}}-course-index-section-{{id}}"
      data-for="section"
      data-id="{{id}}"
      data-number="{{number}}"
      role="treeitem"
      aria-owns="{{uniqid}}-courseindexcollapse{{number}}">
-    <div class="courseindex-item courseindex-section__header d-flex align-items-center{{^visible}} dimmed{{/visible}}{{#hasrestrictions}} restrictions{{/hasrestrictions}}"
+
+    {{! Section Header }}
+    <div class="courseindex-item courseindex-section__header courseindex-section__header--modern{{^visible}} dimmed{{/visible}}{{#hasrestrictions}} restrictions{{/hasrestrictions}}"
          id="{{uniqid}}-courseindexsection{{number}}"
          data-for="section_item">
+
+        {{! Expand/Collapse Toggle }}
         <a data-toggle="collapse"
            href="#{{uniqid}}-courseindexcollapse{{number}}"
-           class="courseindex-chevron icons-collapse-expand courseindex-section__toggle {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
+           class="courseindex-section__toggle {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
            aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
            aria-controls="{{uniqid}}-courseindexcollapse{{number}}"
-           tabindex="-1">
-            <span class="collapsed-icon icon-no-margin me-1" title="{{#str}}expand, core{{/str}}">
-                <span class="dir-rtl-hide">{{#pix}} t/collapsedchevron, core {{/pix}}</span>
-                <span class="dir-ltr-hide">{{#pix}} t/collapsedchevron_rtl, core {{/pix}}</span>
-                <span class="sr-only">{{#str}}expand, core{{/str}}</span>
-            </span>
-            <span class="expanded-icon icon-no-margin me-1" title="{{#str}}collapse, core{{/str}}">
-                {{#pix}} t/expandedchevron, core {{/pix}}
-                <span class="sr-only">{{#str}}collapse, core{{/str}}</span>
+           tabindex="-1"
+           title="{{#indexcollapsed}}{{#str}}expand, core{{/str}}{{/indexcollapsed}}{{^indexcollapsed}}{{#str}}collapse, core{{/str}}{{/indexcollapsed}}">
+            <span class="courseindex-section__toggle-icon">
+                <svg class="courseindex-section__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.41 8.59L12 13.17L16.59 8.59L18 10L12 16L6 10L7.41 8.59Z" fill="currentColor"/>
+                </svg>
             </span>
         </a>
-        <a href="{{{sectionurl}}}"
-           class="courseindex-link courseindex-section__link text-truncate"
-           data-action="togglecourseindexsection"
-           data-for="section_title"
-           tabindex="-1">
-            <span class="courseindex-section__name">{{{title}}}</span>
-        </a>
-        {{#highlighted}}
-        <span class="courseindex-section__badge badge bg-primary text-white ms-2 px-2 rounded-pill">
-            {{{highlighted}}}
-        </span>
-        {{/highlighted}}
-        {{#hasrestrictions}}
-        <span class="courseindex-locked ms-2" data-for="cm_name">
-            {{#pix}} t/locked, core {{/pix}}
-        </span>
-        {{/hasrestrictions}}
+
+        {{! Section Content Wrapper }}
+        <div class="courseindex-section__main">
+            {{! Section Title }}
+            <a href="{{{sectionurl}}}"
+               class="courseindex-link courseindex-section__link"
+               data-action="togglecourseindexsection"
+               data-for="section_title"
+               tabindex="-1">
+                <span class="courseindex-section__name">{{{title}}}</span>
+            </a>
+
+            {{! Section Progress (if available) }}
+            {{#hassectionprogress}}
+            {{#sectionprogress}}
+            <div class="courseindex-section-progress" data-region="section-progress">
+                <div class="courseindex-section-progress__header">
+                    <span class="courseindex-section-progress__percentage">{{percentage}}%</span>
+                    <span class="courseindex-section-progress__text">{{progresstext}}</span>
+                </div>
+                <div class="courseindex-section-progress__bar"
+                     role="progressbar"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     aria-valuenow="{{percentage}}"
+                     aria-label="{{#str}}sectionprogress, theme_compecer{{/str}}">
+                    <div class="courseindex-section-progress__bar-fill" style="width: {{percentage}}%;"></div>
+                </div>
+            </div>
+            {{/sectionprogress}}
+            {{/hassectionprogress}}
+        </div>
+
+        {{! Section Metadata }}
+        <div class="courseindex-section__meta">
+            {{! Highlighted Badge (remove "destacado" text, just use icon or number) }}
+            {{#highlighted}}
+            <span class="courseindex-section__badge" title="{{#str}}highlighted, core{{/str}}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" fill="currentColor"/>
+                </svg>
+            </span>
+            {{/highlighted}}
+
+            {{! Restrictions Lock Icon }}
+            {{#hasrestrictions}}
+            <span class="courseindex-section__locked" data-for="cm_name" title="{{#str}}restricted, core{{/str}}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 8H17V6C17 3.24 14.76 1 12 1C9.24 1 7 3.24 7 6V8H6C4.9 8 4 8.9 4 10V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V10C20 8.9 19.1 8 18 8ZM9 6C9 4.34 10.34 3 12 3C13.66 3 15 4.34 15 6V8H9V6ZM18 20H6V10H18V20ZM12 17C13.1 17 14 16.1 14 15C14 13.9 13.1 13 12 13C10.9 13 10 13.9 10 15C10 16.1 10.9 17 12 17Z" fill="currentColor"/>
+                </svg>
+            </span>
+            {{/hasrestrictions}}
+        </div>
     </div>
+
+    {{! Section Content (Collapsible) }}
     <div id="{{uniqid}}-courseindexcollapse{{number}}"
-         class="courseindex-item-content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
+         class="courseindex-item-content courseindex-section__content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
          aria-labelledby="{{uniqid}}-courseindexsection{{number}}"
          role="group">
-        <ul class="courseindex-sectioncontent unlist"
+        <ul class="courseindex-sectioncontent courseindex-sectioncontent--modern unlist"
             data-for="cmlist"
             data-id="{{id}}"
             role="group">
@@ -61,6 +107,7 @@
         </ul>
     </div>
 </div>
+
 {{#js}}
 require(['core_courseformat/local/courseindex/section'], function(component) {
     component.init('{{uniqid}}-course-index-section-{{id}}');

@@ -1,18 +1,35 @@
 {{!
     @template core_courseformat/local/courseindex/drawer
 
-    Custom drawer for the course index including a dynamic progress bar.
+    Redesigned drawer for the course index with modern, elegant design and enhanced progress visualization.
+
+    Features:
+    - Modern card-based design with shadow and border-radius
+    - Circular progress indicator with percentage
+    - Linear progress bar with gradient
+    - Clear statistics display
+    - Accessibility-compliant markup
+    - Smooth animations and transitions
 }}
-<nav id="courseindex" class="courseindex courseindex--compecer" data-region="course-index"{{#courseid}} data-courseid="{{.}}"{{/courseid}}>
-    <header class="courseindex__header">
-        <div class="courseindex__heading">
-            <span class="course-heading h-bold-4" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
+<nav id="courseindex" class="courseindex courseindex--compecer courseindex--modern" data-region="course-index"{{#courseid}} data-courseid="{{.}}"{{/courseid}}>
+    <header class="courseindex__header courseindex__header--modern">
+        {{! Course Index Title }}
+        <div class="courseindex__heading courseindex__heading--modern">
+            <div class="courseindex__heading-icon">
+                <svg class="courseindex__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 3H5C3.89 3 3 3.89 3 5V19C3 20.11 3.89 21 5 21H19C20.11 21 21 20.11 21 19V5C21 3.89 20.11 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z" fill="currentColor"/>
+                </svg>
+            </div>
+            <h2 class="courseindex__title" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
                 {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
-            </span>
+            </h2>
         </div>
-        <section class="courseindex-progress{{^progress}} courseindex-progress--disabled{{/progress}}"
+
+        {{! Global Course Progress Card }}
+        <section class="courseindex-progress-card{{^progress}} courseindex-progress-card--disabled{{/progress}}"
                  data-region="course-progress"
                  aria-live="polite"
+                 aria-atomic="true"
                  data-progress-enabled="{{#progressenabled}}1{{/progressenabled}}{{^progressenabled}}0{{/progressenabled}}"
                  {{#progress}}
                  data-progress-percentage="{{percentage}}"
@@ -20,52 +37,124 @@
                  data-progress-incomplete="{{incomplete}}"
                  data-progress-total="{{total}}"
                  {{/progress}}>
-            <div class="courseindex-progress__meta">
-                <span class="courseindex-progress__label">
-                    {{#str}}courseprogresslabel, theme_compecer{{/str}}
-                </span>
-                <span class="courseindex-progress__value" data-region="progress-value" aria-hidden="true">{{#progress}}{{percentageformatted}}%{{/progress}}{{^progress}}--{{/progress}}</span>
-            </div>
-            <div class="progress courseindex-progress__track"
-                 role="progressbar"
-                 aria-label="{{#str}}courseprogresslabel, theme_compecer{{/str}}"
-                 aria-valuemin="0"
-                 aria-valuemax="100"
-                 aria-valuenow="{{#progress}}{{percentage}}{{/progress}}{{^progress}}0{{/progress}}"
-                 aria-describedby="courseindex-progress-text"
-                 data-region="progress-bar">
-                <div class="progress-bar" style="width: {{#progress}}{{percentage}}{{/progress}}{{^progress}}0{{/progress}}%;"></div>
-            </div>
-            <div class="courseindex-progress__text" id="courseindex-progress-text" data-region="progress-text" {{^progress}}hidden{{/progress}}>
-                {{#progress}}{{progresstext}}{{/progress}}
-            </div>
-            <div class="courseindex-progress__details" data-region="progress-details" {{^progress}}hidden{{/progress}}>
-                <span class="courseindex-progress__stat courseindex-progress__stat--completed">
-                    <span class="sr-only">{{#str}}courseprogresscompleted, theme_compecer{{/str}}</span>
-                    <span aria-hidden="true" data-region="progress-completed-value">{{#progress}}{{completed}}{{/progress}}{{^progress}}0{{/progress}}</span>
-                    <span class="courseindex-progress__stat-text" data-region="progress-completed-text">
-                        {{#progress}}{{completedformatted}}{{/progress}}{{^progress}}{{#str}}courseprogresscompletedshort, theme_compecer, 0{{/str}}{{/progress}}
+
+            {{! Progress Header with Circular Indicator }}
+            <div class="courseindex-progress-card__header">
+                <div class="courseindex-progress-card__label-wrapper">
+                    <span class="courseindex-progress-card__icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="currentColor"/>
+                        </svg>
                     </span>
-                </span>
-                <span class="courseindex-progress__divider" aria-hidden="true">•</span>
-                <span class="courseindex-progress__stat courseindex-progress__stat--remaining">
-                    <span class="sr-only">{{#str}}courseprogressremaining, theme_compecer{{/str}}</span>
-                    <span aria-hidden="true" data-region="progress-remaining-value">{{#progress}}{{incomplete}}{{/progress}}{{^progress}}0{{/progress}}</span>
-                    <span class="courseindex-progress__stat-text" data-region="progress-remaining-text">
-                        {{#progress}}{{incompleteformatted}}{{/progress}}{{^progress}}{{#str}}courseprogressremainingshort, theme_compecer, 0{{/str}}{{/progress}}
-                    </span>
-                </span>
+                    <h3 class="courseindex-progress-card__label">
+                        {{#str}}courseprogresslabel, theme_compecer{{/str}}
+                    </h3>
+                </div>
+
+                {{! Circular Progress Indicator }}
+                <div class="courseindex-progress-circle" data-region="progress-circle">
+                    <svg class="courseindex-progress-circle__svg" viewBox="0 0 100 100">
+                        <circle class="courseindex-progress-circle__bg" cx="50" cy="50" r="45"></circle>
+                        <circle class="courseindex-progress-circle__fill"
+                                cx="50" cy="50" r="45"
+                                data-region="progress-circle-fill"
+                                style="stroke-dashoffset: {{#progress}}calc(283 - (283 * {{percentage}} / 100)){{/progress}}{{^progress}}283{{/progress}};"></circle>
+                    </svg>
+                    <div class="courseindex-progress-circle__text">
+                        <span class="courseindex-progress-circle__percentage" data-region="progress-value" aria-hidden="true">
+                            {{#progress}}{{percentageformatted}}{{/progress}}{{^progress}}0{{/progress}}
+                        </span>
+                        <span class="courseindex-progress-circle__symbol">%</span>
+                    </div>
+                </div>
             </div>
-            <p class="courseindex-progress__notice{{#progress}} sr-only{{/progress}}" data-region="progress-notice">
+
+            {{! Linear Progress Bar }}
+            <div class="courseindex-progress-card__bar-wrapper">
+                <div class="courseindex-progress-bar"
+                     role="progressbar"
+                     aria-label="{{#str}}courseprogresslabel, theme_compecer{{/str}}"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     aria-valuenow="{{#progress}}{{percentage}}{{/progress}}{{^progress}}0{{/progress}}"
+                     aria-describedby="courseindex-progress-text"
+                     data-region="progress-bar">
+                    <div class="courseindex-progress-bar__fill courseindex-progress-bar__fill--animated"
+                         data-region="progress-bar-fill"
+                         style="width: {{#progress}}{{percentage}}{{/progress}}{{^progress}}0{{/progress}}%;">
+                        <span class="courseindex-progress-bar__shine"></span>
+                    </div>
+                </div>
+            </div>
+
+            {{! Progress Text }}
+            <div class="courseindex-progress-card__text" id="courseindex-progress-text" data-region="progress-text" {{^progress}}hidden{{/progress}}>
+                <p class="courseindex-progress-card__description">
+                    {{#progress}}{{progresstext}}{{/progress}}
+                </p>
+            </div>
+
+            {{! Progress Statistics }}
+            <div class="courseindex-progress-card__stats" data-region="progress-details" {{^progress}}hidden{{/progress}}>
+                <div class="courseindex-progress-stat courseindex-progress-stat--completed">
+                    <div class="courseindex-progress-stat__icon courseindex-progress-stat__icon--success">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="courseindex-progress-stat__content">
+                        <span class="courseindex-progress-stat__value" data-region="progress-completed-value">
+                            {{#progress}}{{completed}}{{/progress}}{{^progress}}0{{/progress}}
+                        </span>
+                        <span class="courseindex-progress-stat__label" data-region="progress-completed-text">
+                            {{#progress}}{{completedformatted}}{{/progress}}{{^progress}}{{#str}}courseprogresscompletedshort, theme_compecer, 0{{/str}}{{/progress}}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="courseindex-progress-stat__divider"></div>
+
+                <div class="courseindex-progress-stat courseindex-progress-stat--remaining">
+                    <div class="courseindex-progress-stat__icon courseindex-progress-stat__icon--pending">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="courseindex-progress-stat__content">
+                        <span class="courseindex-progress-stat__value" data-region="progress-remaining-value">
+                            {{#progress}}{{incomplete}}{{/progress}}{{^progress}}0{{/progress}}
+                        </span>
+                        <span class="courseindex-progress-stat__label" data-region="progress-remaining-text">
+                            {{#progress}}{{incompleteformatted}}{{/progress}}{{^progress}}{{#str}}courseprogressremainingshort, theme_compecer, 0{{/str}}{{/progress}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {{! Notice/Alert }}
+            <div class="courseindex-progress-card__notice{{#progress}} sr-only{{/progress}}"
+                 data-region="progress-notice"
+                 role="status"
+                 aria-live="polite">
                 {{#progress}}{{#str}}courseprogressloading, theme_compecer{{/str}}{{/progress}}
-                {{^progress}}{{#str}}courseprogressnotracking, theme_compecer{{/str}}{{/progress}}
-            </p>
+                {{^progress}}
+                <div class="alert alert-info mb-0">
+                    <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="currentColor"/>
+                    </svg>
+                    <span>{{#str}}courseprogressnotracking, theme_compecer{{/str}}</span>
+                </div>
+                {{/progress}}
+            </div>
         </section>
     </header>
-    <div id="courseindex-content">
+
+    {{! Course Content }}
+    <div id="courseindex-content" class="courseindex__content courseindex__content--modern">
         {{> core_courseformat/local/courseindex/placeholders }}
     </div>
 </nav>
+
 {{#js}}
 require(['core_courseformat/local/courseindex/drawer'], function(component) {
     component.init('courseindex');
