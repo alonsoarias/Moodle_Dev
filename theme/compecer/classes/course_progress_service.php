@@ -128,6 +128,9 @@ class course_progress_service {
             'completed' => $completed,
             'incomplete' => max($total - $completed, 0),
             'progresstext' => $progresstext,
+            'percentageformatted' => $percentage,
+            'completedformatted' => get_string('courseprogresscompletedshort', 'theme_compecer', $completed),
+            'incompleteformatted' => get_string('courseprogressremainingshort', 'theme_compecer', $incomplete),
             'timecalculated' => time(),
         ];
 

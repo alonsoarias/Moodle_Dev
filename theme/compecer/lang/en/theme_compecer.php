@@ -306,3 +306,15 @@ $string['courseprogressnotracking'] = 'Activity completion is not enabled for th
 $string['activitiescompletedcount'] = '{$a->completed} of {$a->total} activities completed';
 $string['allactivitiescompleted'] = 'All activities completed!';
 $string['noactivities'] = 'No activities with completion tracking';
+
+// Section progress strings.
+$string['sectionprogress'] = 'Section progress';
+$string['sectioncompleted'] = 'Section completed!';
+$string['sectionprogresscount'] = '{$a->completed} of {$a->total} completed';
+
+// Activity completion state strings (semaphore system).
+$string['activitystatecompleted'] = 'Completed';
+$string['activitystateinprogress'] = 'In progress';
+$string['activitystatenotstarted'] = 'Not started';
+$string['activitystatefailed'] = 'Failed';
+$string['activitystateunavailable'] = 'Unavailable';
