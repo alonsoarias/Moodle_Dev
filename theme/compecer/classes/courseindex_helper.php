@@ -60,23 +60,59 @@ class courseindex_helper {
 
         $result = [
             'percentage' => 0,
+            'completed' => 0,
+            'total' => 0,
             'enabled' => false,
         ];
 
-        // Check if completion is enabled in the course.
-        $completion = new \completion_info($course);
-        if (!$completion->is_enabled()) {
+        // Check if user can participate in completion tracking.
+        $cancomplete = isloggedin() && !isguestuser();
+        if (!$cancomplete) {
+            return $result;
+        }
+
+        $completioninfo = new \completion_info($course);
+        if (!$completioninfo->is_enabled()) {
             return $result;
         }
 
         $result['enabled'] = true;
 
-        // Use core completion API to get accurate percentage.
-        $coursepercentage = new \core_completion\progress();
-        $percentvalue = $coursepercentage->get_course_progress_percentage($course, $userid);
+        $modinfo = get_fast_modinfo($course);
 
-        if ($percentvalue !== null) {
-            $result['percentage'] = (int) $percentvalue;
+        foreach ($modinfo->get_cms() as $cm) {
+            // Skip labels (not completable) modules.
+            if ($cm->modname === 'label') {
+                continue;
+            }
+
+            if (!$cm->uservisible) {
+                continue;
+            }
+
+            if ($completioninfo->is_enabled($cm) == COMPLETION_TRACKING_NONE) {
+                continue;
+            }
+
+            $result['total']++;
+
+            $completiondata = $completioninfo->get_data($cm, true, $userid);
+            if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                $result['completed']++;
+            }
+        }
+
+        if ($result['total'] > 0) {
+            // Use the official API to keep consistency with course overview.
+            $coursepercentage = new \core_completion\progress();
+            $percentvalue = $coursepercentage->get_course_progress_percentage($course, $userid);
+
+            if ($percentvalue !== null) {
+                $result['percentage'] = (int) round($percentvalue);
+            } else {
+                $result['percentage'] = (int) round(($result['completed'] / $result['total']) * 100);
+            }
         }
 
         return $result;

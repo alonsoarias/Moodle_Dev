@@ -54,9 +54,16 @@ if (class_exists('\core_courseformat\output\local\content\courseindex')) {
 
             $data['courseid'] = $course->id;
             $data['courseprogress'] = $progress;
-            $data['hasprogress'] = $progress['enabled'] && $progress['percentage'] > 0;
+            $data['hasprogress'] = $progress['enabled'] && $progress['total'] > 0;
             $data['progresspercentage'] = $progress['percentage'];
             $data['progresswidth'] = $progress['percentage'];
+            $data['progresscompleted'] = $progress['completed'];
+            $data['progresstotal'] = $progress['total'];
+            $data['progresssummary'] = courseindex_helper::get_progress_text(
+                $progress['percentage'],
+                $progress['completed'],
+                $progress['total']
+            );
 
             return $data;
         }

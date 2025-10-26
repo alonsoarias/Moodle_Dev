@@ -97,6 +97,11 @@ class get_course_progress extends external_api {
                 'total' => $sectionProgress['total'],
                 'completed' => $sectionProgress['completed'],
                 'enabled' => $sectionProgress['enabled'],
+                'summary' => courseindex_helper::get_progress_text(
+                    $sectionProgress['percentage'],
+                    $sectionProgress['completed'],
+                    $sectionProgress['total']
+                ),
             ];
         }
 
@@ -105,6 +110,13 @@ class get_course_progress extends external_api {
             'global' => [
                 'percentage' => $globalProgress['percentage'],
                 'enabled' => $globalProgress['enabled'],
+                'total' => $globalProgress['total'],
+                'completed' => $globalProgress['completed'],
+                'summary' => courseindex_helper::get_progress_text(
+                    $globalProgress['percentage'],
+                    $globalProgress['completed'],
+                    $globalProgress['total']
+                ),
             ],
             'sections' => $sectionsProgress,
         ];
@@ -121,6 +133,9 @@ class get_course_progress extends external_api {
             'global' => new external_single_structure([
                 'percentage' => new external_value(PARAM_INT, 'Global course progress percentage'),
                 'enabled' => new external_value(PARAM_BOOL, 'Whether completion is enabled'),
+                'total' => new external_value(PARAM_INT, 'Total completable activities in the course'),
+                'completed' => new external_value(PARAM_INT, 'Completed activities in the course'),
+                'summary' => new external_value(PARAM_RAW, 'Human readable global progress summary'),
             ]),
             'sections' => new external_multiple_structure(
                 new external_single_structure([
@@ -130,6 +145,7 @@ class get_course_progress extends external_api {
                     'total' => new external_value(PARAM_INT, 'Total activities in section'),
                     'completed' => new external_value(PARAM_INT, 'Completed activities in section'),
                     'enabled' => new external_value(PARAM_BOOL, 'Whether section has completable activities'),
+                    'summary' => new external_value(PARAM_RAW, 'Human readable section progress summary'),
                 ])
             ),
         ]);

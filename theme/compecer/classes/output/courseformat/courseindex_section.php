@@ -57,6 +57,8 @@ if (class_exists('\core_courseformat\output\local\content\section\courseindex'))
             $data['hassectionprogress'] = $progress['enabled'] && $progress['total'] > 0;
             $data['sectionprogresspercentage'] = $progress['percentage'];
             $data['sectionprogresswidth'] = $progress['percentage'];
+            $data['sectionprogresscompleted'] = $progress['completed'];
+            $data['sectionprogresstotal'] = $progress['total'];
             $data['sectionprogresstext'] = courseindex_helper::get_progress_text(
                 $progress['percentage'],
                 $progress['completed'],

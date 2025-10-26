@@ -26,7 +26,7 @@
 
 import Ajax from 'core/ajax';
 import Log from 'core/log';
-import Notification from 'core/notification';
+import Str from 'core/str';
 
 /**
  * Initialize the courseindex progress enhancement
@@ -34,19 +34,23 @@ import Notification from 'core/notification';
  * @param {Number} courseid - The course ID
  */
 export const init = (courseid) => {
-    Log.debug('CourseIndex Progress: Initializing for course ' + courseid);
+    const resolvedCourseId = parseInt(courseid, 10);
+    if (!resolvedCourseId) {
+        Log.debug('CourseIndex Progress: Course id not provided, aborting');
+        return;
+    }
 
-    // Wait for courseindex to be ready
+    Log.debug('CourseIndex Progress: Initializing for course ' + resolvedCourseId);
+
     waitForCourseIndex().then(() => {
         Log.debug('CourseIndex Progress: CourseIndex detected, loading progress data');
-        return loadProgressData(courseid);
+        return loadProgressData(resolvedCourseId);
     }).then((data) => {
         Log.debug('CourseIndex Progress: Data loaded', data);
-        injectGlobalProgress(data.global);
-        injectSectionProgress(data.sections);
+        updateGlobalProgress(data.global);
+        updateSectionProgress(data.sections);
     }).catch((error) => {
-        Log.error('CourseIndex Progress: Error', error);
-        Notification.exception(error);
+        Log.debug('CourseIndex Progress: Unable to load progress data', error);
     });
 };
 
@@ -88,49 +92,47 @@ const loadProgressData = (courseid) => {
 };
 
 /**
- * Inject global course progress bar into courseindex
+ * Update the global course progress bar with fresh data
  *
  * @param {Object} globalProgress - Global progress data
  */
-const injectGlobalProgress = (globalProgress) => {
-    if (!globalProgress.enabled || globalProgress.percentage === 0) {
+const updateGlobalProgress = (globalProgress) => {
+    const container = document.querySelector('[data-region="course-progress"]');
+    if (!container) {
         return;
     }
 
-    const courseindex = document.getElementById('courseindex');
-    if (!courseindex) {
+    if (!globalProgress || !globalProgress.enabled || !globalProgress.total) {
+        container.classList.add('d-none');
         return;
     }
 
-    // Check if already injected
-    if (document.querySelector('.courseindex-progress-global')) {
+    container.classList.remove('d-none');
+    container.dataset.progressPercentage = globalProgress.percentage;
+    container.dataset.progressCompleted = globalProgress.completed;
+    container.dataset.progressTotal = globalProgress.total;
+
+    const percentageElement = container.querySelector('.progress-percentage');
+    if (percentageElement) {
+        percentageElement.textContent = `${globalProgress.percentage}%`;
+    }
+
+    const summaryElement = container.querySelector('.progress-summary');
+    if (summaryElement && globalProgress.summary) {
+        summaryElement.textContent = globalProgress.summary;
+    }
+
+    const progressBar = container.querySelector('.progress-bar');
+    if (!progressBar) {
         return;
     }
 
-    // Create global progress HTML
-    const progressHTML = `
-        <div class="courseindex-progress-global mt-3 mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="progress-label">${M.util.get_string('courseindexprogresslabel', 'theme_compecer')}</span>
-                <span class="progress-percentage">${globalProgress.percentage}%</span>
-            </div>
-            <div class="progress courseindex-progress-bar">
-                <div class="progress-bar bg-success"
-                     role="progressbar"
-                     style="width: ${globalProgress.percentage}%;"
-                     aria-valuenow="${globalProgress.percentage}"
-                     aria-valuemin="0"
-                     aria-valuemax="100">
-                    <span class="sr-only">${globalProgress.percentage}% Complete</span>
-                </div>
-            </div>
-        </div>
-    `;
+    progressBar.style.width = `${globalProgress.percentage}%`;
+    progressBar.setAttribute('aria-valuenow', globalProgress.percentage);
 
-    // Find insertion point (after title, before content)
-    const courseindexContent = courseindex.querySelector('#courseindex-content');
-    if (courseindexContent) {
-        courseindexContent.insertAdjacentHTML('beforebegin', progressHTML);
+    const srText = progressBar.querySelector('.sr-only');
+    if (srText) {
+        setCompletePercentString(srText, globalProgress.percentage);
     }
 };
 
@@ -139,50 +141,78 @@ const injectGlobalProgress = (globalProgress) => {
  *
  * @param {Array} sectionsProgress - Array of section progress data
  */
-const injectSectionProgress = (sectionsProgress) => {
+const updateSectionProgress = (sectionsProgress) => {
+    if (!Array.isArray(sectionsProgress)) {
+        return;
+    }
+
     sectionsProgress.forEach((sectionData) => {
-        if (!sectionData.enabled || sectionData.total === 0) {
+        const sectionContainer = document.querySelector(
+            `[data-region="section-progress"][data-section-number="${sectionData.sectionnumber}"]`
+        );
+
+        if (!sectionContainer) {
             return;
         }
 
-        // Find the section element
-        const sectionElement = document.querySelector(`[data-for="section"][data-number="${sectionData.sectionnumber}"]`);
-        if (!sectionElement) {
+        if (!sectionData.enabled || !sectionData.total) {
+            sectionContainer.classList.add('d-none');
             return;
         }
 
-        // Check if progress already injected
-        if (sectionElement.querySelector('.courseindex-section-progress')) {
-            return;
+        sectionContainer.classList.remove('d-none');
+        sectionContainer.dataset.progressPercentage = sectionData.percentage;
+        sectionContainer.dataset.progressCompleted = sectionData.completed;
+        sectionContainer.dataset.progressTotal = sectionData.total;
+
+        const percentageElement = sectionContainer.querySelector('.progress-percentage');
+        if (percentageElement) {
+            percentageElement.textContent = `${sectionData.percentage}%`;
         }
 
-        // Create progress text
-        const progressText = `${sectionData.completed} of ${sectionData.total} activities completed`;
+        const summaryElement = sectionContainer.querySelector('.progress-text');
+        if (summaryElement && sectionData.summary) {
+            summaryElement.textContent = sectionData.summary;
+        }
 
-        // Create section progress HTML
-        const progressHTML = `
-            <div class="courseindex-section-progress mt-2">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="progress-text">${progressText}</span>
-                    <span class="progress-percentage">${sectionData.percentage}%</span>
-                </div>
-                <div class="progress courseindex-progress-bar-sm">
-                    <div class="progress-bar bg-success"
-                         role="progressbar"
-                         style="width: ${sectionData.percentage}%;"
-                         aria-valuenow="${sectionData.percentage}"
-                         aria-valuemin="0"
-                         aria-valuemax="100">
-                        <span class="sr-only">${sectionData.percentage}% Complete</span>
-                    </div>
-                </div>
-            </div>
-        `;
+        const progressBar = sectionContainer.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = `${sectionData.percentage}%`;
+            progressBar.setAttribute('aria-valuenow', sectionData.percentage);
 
-        // Find the section header
-        const sectionHeader = sectionElement.querySelector('[data-for="section_item"]');
-        if (sectionHeader) {
-            sectionHeader.insertAdjacentHTML('beforeend', progressHTML);
+            const srText = progressBar.querySelector('.sr-only');
+            if (srText) {
+                setCompletePercentString(srText, sectionData.percentage);
+            }
         }
     });
+};
+
+/**
+ * Cache for formatted percentage strings.
+ *
+ * @type {Object.<number, string>}
+ */
+const percentStringCache = {};
+
+/**
+ * Update the "sr-only" text with the localised complete percent string.
+ *
+ * @param {HTMLElement} element - Element to update
+ * @param {number} percentage - Percentage value
+ */
+const setCompletePercentString = (element, percentage) => {
+    if (percentStringCache[percentage]) {
+        element.textContent = percentStringCache[percentage];
+        return;
+    }
+
+    Str.get_string('completepercent', 'theme_compecer', percentage)
+        .then((value) => {
+            percentStringCache[percentage] = value;
+            element.textContent = value;
+        })
+        .catch((error) => {
+            Log.debug('CourseIndex Progress: Failed to load string completepercent', error);
+        });
 };
