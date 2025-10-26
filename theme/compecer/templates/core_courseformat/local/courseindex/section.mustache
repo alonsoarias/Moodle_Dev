@@ -75,7 +75,29 @@
             </button>
         </div>
 
-        {{! Section Progress Bar - Injected dynamically by JavaScript }}
+        {{#hassectionprogress}}
+        <div class="courseindex-section-progress mt-2"
+             data-region="section-progress"
+             data-section-number="{{number}}"
+             data-progress-percentage="{{sectionprogresspercentage}}"
+             data-progress-completed="{{sectionprogresscompleted}}"
+             data-progress-total="{{sectionprogresstotal}}">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="progress-text small text-muted">{{sectionprogresstext}}</span>
+                <span class="progress-percentage small font-weight-bold">{{sectionprogresspercentage}}%</span>
+            </div>
+            <div class="progress courseindex-progress-bar-sm">
+                <div class="progress-bar bg-success"
+                     role="progressbar"
+                     style="width: {{sectionprogresswidth}}%;"
+                     aria-valuenow="{{sectionprogresspercentage}}"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                    <span class="sr-only">{{#str}}completepercent, theme_compecer, {{sectionprogresspercentage}}{{/str}}</span>
+                </div>
+            </div>
+        </div>
+        {{/hassectionprogress}}
     </div>
 
     {{! Section Content (Collapsible) }}

@@ -88,23 +88,28 @@ $indicator-size: 10px !default;
     // GLOBAL PROGRESS BAR
     // =============================
 
-    .courseindex-progress-global {
-        .progress-label {
-            font-size: $courseindex-font-size-sm;
-            font-weight: $courseindex-font-weight;
-            color: $courseindex-text-muted;
-        }
+        .courseindex-progress-global {
+            .progress-label {
+                font-size: $courseindex-font-size-sm;
+                font-weight: $courseindex-font-weight;
+                color: $courseindex-text-muted;
+            }
 
-        .progress-percentage {
-            font-size: $courseindex-font-size-sm;
-            font-weight: $courseindex-font-weight-bold;
-            color: $courseindex-text;
-        }
+            .progress-percentage {
+                font-size: $courseindex-font-size-sm;
+                font-weight: $courseindex-font-weight-bold;
+                color: $courseindex-text;
+            }
 
-        .courseindex-progress-bar {
-            height: $progress-bar-height;
-            background-color: $progress-bg;
-            border-radius: $courseindex-radius-sm;
+            .progress-summary {
+                font-size: $courseindex-font-size-sm;
+                color: $courseindex-text-muted;
+            }
+
+            .courseindex-progress-bar {
+                height: $progress-bar-height;
+                background-color: $progress-bg;
+                border-radius: $courseindex-radius-sm;
             overflow: hidden;
 
             .progress-bar {

@@ -13,7 +13,7 @@
         "progresswidth": 65
     }
 }}
-<nav id="courseindex" class="courseindex" aria-label="{{#str}}courseindex, core_courseformat{{/str}}">
+<nav id="courseindex" class="courseindex" aria-label="{{#str}}courseindex, core_courseformat{{/str}}" data-course-id="{{courseid}}">
     {{! Header Section }}
     <div class="courseindex-header">
         <div class="courseindex-title">
@@ -22,7 +22,11 @@
 
         {{! Global Course Progress - Server-side rendered }}
         {{#hasprogress}}
-        <div class="courseindex-progress-global mt-3 mb-3">
+        <div class="courseindex-progress-global mt-3 mb-3"
+             data-region="course-progress"
+             data-progress-percentage="{{progresspercentage}}"
+             data-progress-completed="{{progresscompleted}}"
+             data-progress-total="{{progresstotal}}">
             <div class="d-flex justify-content-between align-items-center mb-1">
                 <span class="progress-label">{{#str}}courseindexprogresslabel, theme_compecer{{/str}}</span>
                 <span class="progress-percentage">{{progresspercentage}}%</span>
@@ -34,9 +38,10 @@
                      aria-valuenow="{{progresspercentage}}"
                      aria-valuemin="0"
                      aria-valuemax="100">
-                    <span class="sr-only">{{progresspercentage}}% {{#str}}completepercent, theme_compecer, {{progresspercentage}}{{/str}}</span>
+                    <span class="sr-only">{{#str}}completepercent, theme_compecer, {{progresspercentage}}{{/str}}</span>
                 </div>
             </div>
+            <div class="progress-summary text-muted small mt-1">{{progresssummary}}</div>
         </div>
         {{/hasprogress}}
 
@@ -64,81 +69,146 @@
 </nav>
 
 {{#js}}
-require(['core_courseformat/local/courseindex/drawer'], function(drawer) {
+require([
+    'core_courseformat/local/courseindex/drawer',
+    'core/ajax',
+    'core/str',
+    'core/log'
+], function(drawer, Ajax, Str, Log) {
     drawer.init('courseindex');
-});
 
-// CourseIndex Progress Enhancement - Inline version (no AMD compilation needed)
-require(['core/ajax', 'core/str'], function(Ajax, Str) {
-    var courseId = M.cfg.courseId || {{courseid}};
+    const courseIndex = document.getElementById('courseindex');
+    const courseId = parseInt((courseIndex && courseIndex.dataset.courseId) || (M.cfg && M.cfg.courseId) || 0, 10);
+
     if (!courseId) {
+        Log.debug('CourseIndex Progress: Course id missing, skipping progress update');
         return;
     }
 
-    // Function to inject section progress bars
-    function injectSectionProgress(sectionsData) {
-        sectionsData.forEach(function(sectionData) {
-            if (!sectionData.enabled || sectionData.total === 0) {
+    const selectors = {
+        globalProgress: '[data-region="course-progress"]',
+        sectionProgress: '[data-region="section-progress"]'
+    };
+
+    const percentStringCache = {};
+
+    const setCompletePercentString = (element, percentage) => {
+        if (percentStringCache[percentage]) {
+            element.textContent = percentStringCache[percentage];
+            return;
+        }
+
+        Str.get_string('completepercent', 'theme_compecer', percentage)
+            .then((value) => {
+                percentStringCache[percentage] = value;
+                element.textContent = value;
+            })
+            .catch((error) => Log.debug('CourseIndex Progress: Failed to load string completepercent', error));
+    };
+
+    const updateGlobalProgress = (globalProgress) => {
+        const container = document.querySelector(selectors.globalProgress);
+        if (!container) {
+            return;
+        }
+
+        if (!globalProgress || !globalProgress.enabled || !globalProgress.total) {
+            container.classList.add('d-none');
+            return;
+        }
+
+        container.classList.remove('d-none');
+        container.dataset.progressPercentage = globalProgress.percentage;
+        container.dataset.progressCompleted = globalProgress.completed;
+        container.dataset.progressTotal = globalProgress.total;
+
+        const percentageElement = container.querySelector('.progress-percentage');
+        if (percentageElement) {
+            percentageElement.textContent = globalProgress.percentage + '%';
+        }
+
+        const summaryElement = container.querySelector('.progress-summary');
+        if (summaryElement && globalProgress.summary) {
+            summaryElement.textContent = globalProgress.summary;
+        }
+
+        const progressBar = container.querySelector('.progress-bar');
+        if (!progressBar) {
+            return;
+        }
+
+        progressBar.style.width = globalProgress.percentage + '%';
+        progressBar.setAttribute('aria-valuenow', globalProgress.percentage);
+
+        const srText = progressBar.querySelector('.sr-only');
+        if (srText) {
+            setCompletePercentString(srText, globalProgress.percentage);
+        }
+    };
+
+    const updateSectionProgress = (sections) => {
+        if (!Array.isArray(sections)) {
+            return;
+        }
+
+        sections.forEach((sectionData) => {
+            const selector = `${selectors.sectionProgress}[data-section-number="${sectionData.sectionnumber}"]`;
+            const container = document.querySelector(selector);
+
+            if (!container) {
                 return;
             }
 
-            // Find the section element
-            var sectionElement = document.querySelector('[data-for="section"][data-number="' + sectionData.sectionnumber + '"]');
-            if (!sectionElement) {
+            if (!sectionData.enabled || !sectionData.total) {
+                container.classList.add('d-none');
                 return;
             }
 
-            // Check if progress already injected
-            if (sectionElement.querySelector('.courseindex-section-progress')) {
-                return;
+            container.classList.remove('d-none');
+            container.dataset.progressPercentage = sectionData.percentage;
+            container.dataset.progressCompleted = sectionData.completed;
+            container.dataset.progressTotal = sectionData.total;
+
+            const percentageElement = container.querySelector('.progress-percentage');
+            if (percentageElement) {
+                percentageElement.textContent = sectionData.percentage + '%';
             }
 
-            // Create progress HTML
-            Str.get_string('activitiescompletedcount', 'theme_compecer', {
-                completed: sectionData.completed,
-                total: sectionData.total
-            }).done(function(progressText) {
-                var progressHTML = '<div class="courseindex-section-progress mt-2">' +
-                    '<div class="d-flex justify-content-between align-items-center mb-1">' +
-                    '<span class="progress-text small text-muted">' + progressText + '</span>' +
-                    '<span class="progress-percentage small font-weight-bold">' + sectionData.percentage + '%</span>' +
-                    '</div>' +
-                    '<div class="progress courseindex-progress-bar-sm" style="height: 6px;">' +
-                    '<div class="progress-bar bg-success" role="progressbar" ' +
-                    'style="width: ' + sectionData.percentage + '%;" ' +
-                    'aria-valuenow="' + sectionData.percentage + '" ' +
-                    'aria-valuemin="0" aria-valuemax="100">' +
-                    '<span class="sr-only">' + sectionData.percentage + '% Complete</span>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>';
+            const summaryElement = container.querySelector('.progress-text');
+            if (summaryElement && sectionData.summary) {
+                summaryElement.textContent = sectionData.summary;
+            }
 
-                // Find the section header
-                var sectionHeader = sectionElement.querySelector('[data-for="section_item"]');
-                if (sectionHeader) {
-                    sectionHeader.insertAdjacentHTML('beforeend', progressHTML);
+            const progressBar = container.querySelector('.progress-bar');
+            if (progressBar) {
+                progressBar.style.width = sectionData.percentage + '%';
+                progressBar.setAttribute('aria-valuenow', sectionData.percentage);
+
+                const srText = progressBar.querySelector('.sr-only');
+                if (srText) {
+                    setCompletePercentString(srText, sectionData.percentage);
                 }
-            });
+            }
         });
-    }
+    };
 
-    // Wait for courseindex to be loaded
-    setTimeout(function() {
-        // Call webservice to get progress data
-        Ajax.call([{
+    const loadProgressData = () => Ajax.call([
+        {
             methodname: 'theme_compecer_get_course_progress',
             args: {courseid: courseId}
-        }])[0].done(function(data) {
-            // Inject section progress
-            if (data.sections && data.sections.length > 0) {
-                injectSectionProgress(data.sections);
-            }
-        }).fail(function(error) {
-            // Silent fail - global progress still works from server-side
-            if (window.console && console.log) {
-                console.log('CourseIndex: Could not load section progress', error);
-            }
-        });
-    }, 500); // Wait 500ms for courseindex to be fully rendered
+        }
+    ])[0];
+
+    const refreshProgress = () => {
+        loadProgressData()
+            .then((data) => {
+                updateGlobalProgress(data.global);
+                updateSectionProgress(data.sections);
+            })
+            .catch((error) => Log.debug('CourseIndex Progress: Unable to refresh progress data', error));
+    };
+
+    // Initial refresh after the drawer has had time to render.
+    window.setTimeout(refreshProgress, 400);
 });
 {{/js}}
