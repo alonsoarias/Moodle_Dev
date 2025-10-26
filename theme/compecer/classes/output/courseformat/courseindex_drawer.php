@@ -52,6 +52,7 @@ if (class_exists('\core_courseformat\output\local\content\courseindex')) {
             $course = $this->format->get_course();
             $progress = courseindex_helper::get_course_progress($course);
 
+            $data['courseid'] = $course->id;
             $data['courseprogress'] = $progress;
             $data['hasprogress'] = $progress['enabled'] && $progress['percentage'] > 0;
             $data['progresspercentage'] = $progress['percentage'];
