@@ -295,3 +295,18 @@ $string['breadcrumb'] = 'Breadcrumb';
 $string['opendrawernav'] = 'Open navigation drawer';
 $string['closedrawernav'] = 'Close navigation drawer';
 $string['sidebarcoursemenuheading'] = 'Course index';
+
+// CourseIndex Progress Strings
+$string['courseindexprogresslabel'] = 'Course Progress';
+$string['courseindexprogressstatus'] = 'In Progress';
+$string['allactivitiescompleted'] = 'All activities completed';
+$string['noactivitiescompleted'] = 'No activities started';
+$string['activitiescompletedcount'] = '{$a->completed} of {$a->total} activities completed';
+$string['sectionprogresslabel'] = 'Section Progress';
+$string['activity_completed'] = 'Completed';
+$string['activity_inprogress'] = 'In Progress';
+$string['activity_pending'] = 'Pending';
+$string['activity_notavailable'] = 'Not Available';
+$string['completepercent'] = '{$a}% Complete';
+$string['expandall'] = 'Expand all sections';
+$string['collapseall'] = 'Collapse all sections';
