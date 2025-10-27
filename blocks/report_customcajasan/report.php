@@ -74,7 +74,6 @@ if ($blockinfo) {
 
 if ($incourse) {
     require_capability('moodle/course:update', $coursecontext);
-    require_capability('block/report_customcajasan:viewreport', $coursecontext);
 } else {
     require_capability('block/report_customcajasan:manageblock', $systemcontext);
     require_capability('block/report_customcajasan:viewreport', $systemcontext);

@@ -121,12 +121,28 @@ class block_report_customcajasan extends block_base {
         $systemcontext = context_system::instance();
         $coursecontext = $contextinfo['incourse'] ? context_course::instance($contextinfo['courseid']) : null;
 
+        $capabilitywarnings = [];
+
         if ($contextinfo['incourse']) {
             $blockcontext = context_block::instance($this->instance->id);
             $hasviewblock = has_capability('block/report_customcajasan:viewblock', $blockcontext);
             $hasviewreport = has_capability('block/report_customcajasan:viewreport', $coursecontext);
             $caneditcourse = has_capability('moodle/course:update', $coursecontext);
-            $hasrequiredpermissions = ($hasviewblock && $hasviewreport && $caneditcourse);
+
+            if ($caneditcourse) {
+                // Having edit permissions in the course is enough to surface the report entry point.
+                $hasrequiredpermissions = true;
+
+                // Capture soft warnings so administrators can fine tune custom roles if desired.
+                if (!$hasviewblock) {
+                    $capabilitywarnings[] = get_string('block_warning_missing_viewblock', 'block_report_customcajasan');
+                }
+                if (!$hasviewreport) {
+                    $capabilitywarnings[] = get_string('block_warning_missing_viewreport', 'block_report_customcajasan');
+                }
+            } else {
+                $hasrequiredpermissions = ($hasviewblock && $hasviewreport);
+            }
         } else {
             $hasviewreport = has_capability('block/report_customcajasan:viewreport', $systemcontext);
             $canmanage = has_capability('block/report_customcajasan:manageblock', $systemcontext);
@@ -185,6 +201,10 @@ class block_report_customcajasan extends block_base {
                 get_string('block_scope_coursecount', 'block_report_customcajasan', count($scope['courseids'])),
                 'small text-muted'
             );
+        }
+
+        if (!empty($capabilitywarnings)) {
+            $summarylines[] = html_writer::div(implode('<br>', $capabilitywarnings), 'alert alert-warning mt-3');
         }
 
         $this->content->text = html_writer::div(implode('', $summarylines), 'block_report_customcajasan-summary');
