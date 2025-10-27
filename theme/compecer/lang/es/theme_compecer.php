@@ -299,4 +299,8 @@ $string['sidebarcoursemenuheading'] = 'Índice del curso';
 // Cadenas de Progreso del Curso
 $string['courseprogress'] = 'Progreso del curso';
 $string['completedactivities'] = '{$a->completed} de {$a->total} actividades completadas';
+$string['notstarted'] = 'No iniciada';
+$string['inprogress'] = 'En progreso';
+$string['viewdetails'] = 'Ver detalles';
+$string['togglesection'] = 'Alternar sección';
 

@@ -1,10 +1,9 @@
 {{!
     @template core_courseformat/local/courseindex/cm
 
-    Displays a course index module entry.
-    Adaptado para theme compecer.
-    Se han eliminado los iconos de las actividades.
-    
+    Displays a course index module entry with completion state icon.
+    Adaptado para theme compecer con indicadores de estado de completado.
+
     Example context (json):
     {
       "id": "12",
@@ -12,37 +11,59 @@
       "url": "#",
       "visible": 1,
       "isactive": 1,
+      "uservisible": 1,
       "uniqid": "0",
-      "accessvisible": 1,
-      "hascmrestrictions": 0
+      "hascmrestrictions": 0,
+      "completionstate": "completed",
+      "completionicon": "✓",
+      "completioncolor": "text-success",
+      "completionlabel": "Completada"
     }
 }}
 <li class="course-index-item {{#isactive}}active{{/isactive}}
            {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}
-           {{^accessvisible}}dimmed{{/accessvisible}}
-           {{#indent}} indented {{/indent}}"
+           {{^uservisible}}dimmed{{/uservisible}}
+           {{#indent}} indented {{/indent}}
+           {{#completionstate}}completion-{{completionstate}}{{/completionstate}}"
     id="{{uniqid}}-course-index-cm-{{id}}"
     data-for="cm"
     data-id="{{id}}"
     role="treeitem">
   {{^hasdelegatedsection}}
-    <div class="d-flex align-items-center justify-content-between">
+    <div class="activity-item-content">
+
+      {{! Completion state icon }}
+      {{#completionicon}}
+      <span class="activity-completion-icon {{completioncolor}}"
+            aria-label="{{completionlabel}}"
+            title="{{completionlabel}}">
+        {{completionicon}}
+      </span>
+      {{/completionicon}}
+
+      {{! Activity link }}
       {{#uservisible}}
-        <a class="course-index-link text-truncate"
+        <a class="course-index-link activity-link text-truncate"
            {{#url}}href="{{{url}}}"{{/url}}
-           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-           data-for="cm_name" tabindex="-1" title="{{{name}}}">
+           {{^url}}href="#cm{{id}}" data-anchor="true"{{/url}}
+           data-for="cm_name"
+           tabindex="-1"
+           title="{{{name}}}">
           {{{name}}}
         </a>
       {{/uservisible}}
+
+      {{! Activity not visible to user }}
       {{^uservisible}}
-        <a class="course-index-link text-truncate"
-           href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+        <span class="activity-link-disabled text-truncate" title="{{{name}}}">
           {{{name}}}
-        </a>
+        </span>
       {{/uservisible}}
+
     </div>
   {{/hasdelegatedsection}}
+
+  {{! Delegated section (special case) }}
   {{#hasdelegatedsection}}
     {{#sectioninfo}}
       {{> core_courseformat/local/courseindex/section}}

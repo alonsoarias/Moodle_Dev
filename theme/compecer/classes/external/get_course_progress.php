@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * External function to get course progress data.
+ * External function to get course progress data with section and activity details.
  *
  * @package    theme_compecer
  * @copyright  2024 IngeWeb https://www.ingeweb.co
@@ -36,9 +36,10 @@ use external_multiple_structure;
 use external_value;
 use core_completion\progress;
 use context_course;
+use completion_info;
 
 /**
- * External function to get course progress data.
+ * External function to get course progress data with enhanced section and activity details.
  */
 class get_course_progress extends external_api {
 
@@ -54,10 +55,10 @@ class get_course_progress extends external_api {
     }
 
     /**
-     * Get course progress data.
+     * Get course progress data including sections and activities.
      *
      * @param int $courseid Course ID
-     * @return array Course progress data
+     * @return array Complete course progress data with sections and activities
      */
     public static function execute($courseid) {
         global $USER;
@@ -77,79 +78,339 @@ class get_course_progress extends external_api {
         // Get course object.
         $course = get_course($params['courseid']);
 
-        // Initialize output.
-        $output = [
+        // Get course progress data.
+        $courseprogress = self::get_course_progress_data($course);
+
+        // Get sections progress data.
+        $sections = self::get_sections_progress_data($course);
+
+        return [
             'courseid' => $course->id,
+            'coursename' => $course->fullname,
+            'courseprogress' => $courseprogress,
+            'sections' => $sections
+        ];
+    }
+
+    /**
+     * Get overall course progress data.
+     *
+     * @param stdClass $course Course object
+     * @return array Course progress data
+     */
+    private static function get_course_progress_data($course) {
+        global $USER;
+
+        $completion = new completion_info($course);
+
+        // Initialize with defaults.
+        $data = [
             'percentage' => 0,
-            'hascompletion' => false,
-            'activitycount' => 0,
             'completedcount' => 0,
+            'activitycount' => 0,
+            'hascompletion' => false,
+            'progresscolor' => 'bg-danger',
+            'progresstext' => '',
+            'showactivitylist' => true,
             'activitylist' => []
         ];
 
-        // Check if completion is enabled for the course.
-        $completion = new \completion_info($course);
+        // Check if completion is enabled.
         if (!$completion->is_enabled()) {
-            return $output;
+            return $data;
         }
 
-        $output['hascompletion'] = true;
+        $data['hascompletion'] = true;
 
-        // Get course progress percentage using core API.
+        // Get percentage using Moodle core API.
         $percentage = progress::get_course_progress_percentage($course, $USER->id);
-        if (!is_null($percentage)) {
-            $output['percentage'] = floor($percentage);
+        $data['percentage'] = !is_null($percentage) ? floor($percentage) : 0;
+
+        // Get detailed activity information.
+        $modinfo = get_fast_modinfo($course);
+        $activitycount = 0;
+        $completedcount = 0;
+        $activitytypes = [];
+
+        foreach ($modinfo->get_cms() as $cm) {
+            // Only count visible activities on course page.
+            if (!$cm->uservisible || !$cm->is_visible_on_course_page()) {
+                continue;
+            }
+
+            // Exclude labels.
+            if ($cm->modname == 'label') {
+                continue;
+            }
+
+            // Check if completion tracking is enabled.
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_NONE) {
+                continue;
+            }
+
+            $activitycount++;
+
+            // Count by type.
+            $modname = $cm->modfullname;
+            if (!isset($activitytypes[$modname])) {
+                $activitytypes[$modname] = 0;
+            }
+            $activitytypes[$modname]++;
+
+            // Check completion status.
+            $cmdata = $completion->get_data($cm, false, $USER->id);
+            if ($cmdata->completionstate == COMPLETION_COMPLETE ||
+                $cmdata->completionstate == COMPLETION_COMPLETE_PASS) {
+                $completedcount++;
+            }
         }
 
-        // Get activity statistics.
+        $data['activitycount'] = $activitycount;
+        $data['completedcount'] = $completedcount;
+
+        // Progress text.
+        $data['progresstext'] = sprintf(
+            '%d de %d actividades (%d%%)',
+            $completedcount,
+            $activitycount,
+            $data['percentage']
+        );
+
+        // Color based on percentage.
+        $data['progresscolor'] = self::get_progress_color($data['percentage']);
+
+        // Activity list by type.
+        foreach ($activitytypes as $type => $count) {
+            $data['activitylist'][] = "$count $type";
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get sections with progress data.
+     *
+     * @param stdClass $course Course object
+     * @return array Array of sections with progress info
+     */
+    private static function get_sections_progress_data($course) {
+        global $USER, $PAGE;
+
+        $completion = new completion_info($course);
         $modinfo = get_fast_modinfo($course);
         $sections = $modinfo->get_section_info_all();
+        $currentsection = $PAGE->context->get_course_context(false) ? 0 : 0;
 
-        $activitytypes = [];
-        $totalactivities = 0;
-        $completedactivities = 0;
+        $result = [];
 
-        // Count activities by type and completion status.
         foreach ($sections as $section) {
-            if (isset($modinfo->sections[$section->section])) {
-                foreach ($modinfo->sections[$section->section] as $cmid) {
-                    $cm = $modinfo->cms[$cmid];
+            // Basic section information.
+            $sectiondata = [
+                'id' => $section->id,
+                'number' => $section->section,
+                'title' => get_section_name($course, $section),
+                'sectionurl' => course_get_url($course, $section->section)->out(),
+                'current' => ($section->section == $currentsection),
+                'visible' => (bool)$section->visible,
+                'indexcollapsed' => !$section->uservisible,
+                'hasrestrictions' => !empty($section->availability),
+                'uniqid' => uniqid()
+            ];
 
-                    // Skip if not visible on course page.
-                    if (!$cm->is_visible_on_course_page()) {
-                        continue;
-                    }
+            // Calculate section progress.
+            $progressinfo = self::get_section_module_info($course, $section, $completion);
+            $sectiondata['progressinfo'] = $progressinfo;
 
-                    $totalactivities++;
+            // Get activities with completion state.
+            $sectiondata['cms'] = self::get_section_activities($course, $section, $completion, $modinfo);
 
-                    // Count by module type.
-                    if (!isset($activitytypes[$cm->modname])) {
-                        $activitytypes[$cm->modname] = [
-                            'name' => $cm->modfullname,
-                            'count' => 0
-                        ];
-                    }
-                    $activitytypes[$cm->modname]['count']++;
+            $result[] = $sectiondata;
+        }
 
-                    // Check completion status.
-                    $completiondata = $completion->get_data($cm, false, $USER->id);
-                    if ($completiondata->completionstate == COMPLETION_COMPLETE ||
-                        $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
-                        $completedactivities++;
+        return $result;
+    }
+
+    /**
+     * Calculate progress for a specific section.
+     *
+     * Based on format_remuiformat logic.
+     *
+     * @param stdClass $course Course object
+     * @param section_info $section Section info object
+     * @param completion_info $completion Completion info object
+     * @return array Section progress data
+     */
+    private static function get_section_module_info($course, $section, $completion) {
+        global $USER;
+
+        $total = 0;
+        $completed = 0;
+        $cancomplete = isloggedin() && !isguestuser();
+
+        $modinfo = get_fast_modinfo($course);
+
+        // Iterate through section modules.
+        if (!empty($modinfo->sections[$section->section])) {
+            foreach ($modinfo->sections[$section->section] as $cmid) {
+                $cm = $modinfo->cms[$cmid];
+
+                // Check visibility.
+                if (!$cm->uservisible || !$cm->is_visible_on_course_page()) {
+                    continue;
+                }
+
+                // Exclude labels.
+                if ($cm->modname == 'label') {
+                    continue;
+                }
+
+                // Check completion tracking.
+                if ($cancomplete && $completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
+                    $total++;
+
+                    $cmdata = $completion->get_data($cm, false, $USER->id);
+                    if ($cmdata->completionstate == COMPLETION_COMPLETE ||
+                        $cmdata->completionstate == COMPLETION_COMPLETE_PASS) {
+                        $completed++;
                     }
                 }
             }
         }
 
-        // Build activity list.
-        foreach ($activitytypes as $type) {
-            $output['activitylist'][] = $type['count'] . ' ' . $type['name'];
+        // Calculate percentage.
+        $percentage = ($total > 0) ? round(($completed / $total) * 100, 0) : 0;
+
+        return [
+            'percentage' => (int)$percentage,
+            'completed' => $completed,
+            'total' => $total,
+            'progresstext' => "$completed/$total",
+            'progresscolor' => self::get_progress_color($percentage),
+            'showminibar' => false
+        ];
+    }
+
+    /**
+     * Get activities for a section with completion states.
+     *
+     * @param stdClass $course Course object
+     * @param section_info $section Section info object
+     * @param completion_info $completion Completion info object
+     * @param course_modinfo $modinfo Course modinfo object
+     * @return array Array of activities with completion data
+     */
+    private static function get_section_activities($course, $section, $completion, $modinfo) {
+        global $USER;
+
+        $activities = [];
+
+        if (empty($modinfo->sections[$section->section])) {
+            return $activities;
         }
 
-        $output['activitycount'] = $totalactivities;
-        $output['completedcount'] = $completedactivities;
+        foreach ($modinfo->sections[$section->section] as $cmid) {
+            $cm = $modinfo->cms[$cmid];
 
-        return $output;
+            // Basic activity data.
+            $activitydata = [
+                'id' => $cm->id,
+                'name' => $cm->name,
+                'url' => $cm->url ? $cm->url->out() : '',
+                'modname' => $cm->modname,
+                'visible' => (bool)$cm->visible,
+                'uservisible' => (bool)$cm->uservisible,
+                'isactive' => false, // TODO: Detect current activity.
+                'hascmrestrictions' => !empty($cm->availability),
+                'uniqid' => uniqid()
+            ];
+
+            // Get completion state.
+            $state = self::get_activity_completion_state($cm, $completion);
+            $activitydata = array_merge($activitydata, $state);
+
+            $activities[] = $activitydata;
+        }
+
+        return $activities;
+    }
+
+    /**
+     * Determine completion state of an activity.
+     *
+     * @param cm_info $cm Course module info
+     * @param completion_info $completion Completion info object
+     * @return array Completion state data with icon, color, and label
+     */
+    private static function get_activity_completion_state($cm, $completion) {
+        global $USER;
+
+        // No completion tracking.
+        if ($completion->is_enabled($cm) == COMPLETION_TRACKING_NONE) {
+            return [
+                'completionstate' => '',
+                'completionicon' => '',
+                'completioncolor' => '',
+                'completionlabel' => ''
+            ];
+        }
+
+        // User cannot complete.
+        if (!isloggedin() || isguestuser()) {
+            return [
+                'completionstate' => 'notstarted',
+                'completionicon' => '○',
+                'completioncolor' => 'text-muted',
+                'completionlabel' => get_string('notstarted', 'theme_compecer')
+            ];
+        }
+
+        // Get completion data.
+        $cmdata = $completion->get_data($cm, false, $USER->id);
+
+        // Completed.
+        if ($cmdata->completionstate == COMPLETION_COMPLETE ||
+            $cmdata->completionstate == COMPLETION_COMPLETE_PASS) {
+            return [
+                'completionstate' => 'completed',
+                'completionicon' => '✓',
+                'completioncolor' => 'text-success',
+                'completionlabel' => get_string('completed', 'core_completion')
+            ];
+        }
+
+        // In progress (has interacted but not completed).
+        if ($cmdata->timemodified > 0) {
+            return [
+                'completionstate' => 'inprogress',
+                'completionicon' => '◐',
+                'completioncolor' => 'text-warning',
+                'completionlabel' => get_string('inprogress', 'theme_compecer')
+            ];
+        }
+
+        // Not started.
+        return [
+            'completionstate' => 'notstarted',
+            'completionicon' => '○',
+            'completioncolor' => 'text-muted',
+            'completionlabel' => get_string('notstarted', 'theme_compecer')
+        ];
+    }
+
+    /**
+     * Get progress bar color class based on percentage.
+     *
+     * @param float $percentage Progress percentage 0-100
+     * @return string Bootstrap color class
+     */
+    private static function get_progress_color($percentage) {
+        if ($percentage < 30) {
+            return 'bg-danger';
+        } else if ($percentage < 70) {
+            return 'bg-warning';
+        } else {
+            return 'bg-success';
+        }
     }
 
     /**
@@ -160,13 +421,60 @@ class get_course_progress extends external_api {
     public static function execute_returns() {
         return new external_single_structure([
             'courseid' => new external_value(PARAM_INT, 'Course ID'),
-            'percentage' => new external_value(PARAM_FLOAT, 'Course completion percentage'),
-            'hascompletion' => new external_value(PARAM_BOOL, 'Whether completion is enabled'),
-            'activitycount' => new external_value(PARAM_INT, 'Total activity count'),
-            'completedcount' => new external_value(PARAM_INT, 'Completed activity count'),
-            'activitylist' => new external_multiple_structure(
-                new external_value(PARAM_TEXT, 'Activity count details'),
-                'Activity count list'
+            'coursename' => new external_value(PARAM_TEXT, 'Course name'),
+
+            'courseprogress' => new external_single_structure([
+                'percentage' => new external_value(PARAM_FLOAT, 'Progress percentage'),
+                'completedcount' => new external_value(PARAM_INT, 'Completed activities count'),
+                'activitycount' => new external_value(PARAM_INT, 'Total activities count'),
+                'hascompletion' => new external_value(PARAM_BOOL, 'Has completion enabled'),
+                'progresscolor' => new external_value(PARAM_TEXT, 'Progress bar color class'),
+                'progresstext' => new external_value(PARAM_TEXT, 'Progress text description'),
+                'showactivitylist' => new external_value(PARAM_BOOL, 'Show activity list'),
+                'activitylist' => new external_multiple_structure(
+                    new external_value(PARAM_TEXT, 'Activity type and count')
+                )
+            ]),
+
+            'sections' => new external_multiple_structure(
+                new external_single_structure([
+                    'id' => new external_value(PARAM_INT, 'Section ID'),
+                    'number' => new external_value(PARAM_INT, 'Section number'),
+                    'title' => new external_value(PARAM_TEXT, 'Section title'),
+                    'sectionurl' => new external_value(PARAM_URL, 'Section URL'),
+                    'current' => new external_value(PARAM_BOOL, 'Is current section'),
+                    'visible' => new external_value(PARAM_BOOL, 'Is visible'),
+                    'indexcollapsed' => new external_value(PARAM_BOOL, 'Is collapsed'),
+                    'hasrestrictions' => new external_value(PARAM_BOOL, 'Has restrictions'),
+                    'uniqid' => new external_value(PARAM_TEXT, 'Unique ID'),
+
+                    'progressinfo' => new external_single_structure([
+                        'percentage' => new external_value(PARAM_INT, 'Section progress percentage'),
+                        'completed' => new external_value(PARAM_INT, 'Completed activities'),
+                        'total' => new external_value(PARAM_INT, 'Total activities'),
+                        'progresstext' => new external_value(PARAM_TEXT, 'Progress text'),
+                        'progresscolor' => new external_value(PARAM_TEXT, 'Progress color class'),
+                        'showminibar' => new external_value(PARAM_BOOL, 'Show mini progress bar')
+                    ]),
+
+                    'cms' => new external_multiple_structure(
+                        new external_single_structure([
+                            'id' => new external_value(PARAM_INT, 'CM ID'),
+                            'name' => new external_value(PARAM_TEXT, 'Activity name'),
+                            'url' => new external_value(PARAM_URL, 'Activity URL'),
+                            'modname' => new external_value(PARAM_TEXT, 'Module name'),
+                            'visible' => new external_value(PARAM_BOOL, 'Is visible'),
+                            'uservisible' => new external_value(PARAM_BOOL, 'Is visible to user'),
+                            'isactive' => new external_value(PARAM_BOOL, 'Is currently active'),
+                            'hascmrestrictions' => new external_value(PARAM_BOOL, 'Has restrictions'),
+                            'uniqid' => new external_value(PARAM_TEXT, 'Unique ID'),
+                            'completionstate' => new external_value(PARAM_TEXT, 'Completion state'),
+                            'completionicon' => new external_value(PARAM_TEXT, 'Completion icon'),
+                            'completioncolor' => new external_value(PARAM_TEXT, 'Completion color'),
+                            'completionlabel' => new external_value(PARAM_TEXT, 'Completion label')
+                        ])
+                    )
+                ])
             )
         ]);
     }
