@@ -30,18 +30,23 @@
      aria-owns="course-index-collapse{{number}}">
   <div class="course-index-header d-flex align-items-center {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
        id="course-index-section{{number}}"
-       data-for="section_item">
+       data-for="section_item"
+       data-section-id="{{id}}">
     <a href="{{{sectionurl}}}"
-       class="course-index-link text-truncate font-weight-bold"
+       class="course-index-link text-truncate font-weight-bold flex-grow-1"
        data-action="togglecourseindexsection"
        data-for="section_title"
        tabindex="-1"
        title="{{{title}}}">
       {{{title}}}
     </a>
+    {{! Badge de progreso de la sección }}
+    <span class="section-progress-badge ml-2" data-region="section-progress-{{id}}" style="display:none;">
+      <span data-region="section-percentage">0%</span>
+    </span>
     <a data-toggle="collapse"
        href="#course-index-collapse{{number}}"
-       class="course-index-toggle p-0 ml-auto {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
+       class="course-index-toggle p-0 ml-2 {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
        aria-expanded="false"
        aria-controls="course-index-collapse{{number}}"
        tabindex="-1">
