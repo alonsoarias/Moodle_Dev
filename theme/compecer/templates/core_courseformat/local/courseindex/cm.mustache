@@ -26,7 +26,7 @@
     data-id="{{id}}"
     role="treeitem">
   {{^hasdelegatedsection}}
-    <div class="activity-item d-flex align-items-center justify-content-between" data-activity-id="{{id}}">
+    <div class="activity-item d-flex align-items-center justify-content-between activity-status-notstarted" data-activity-id="{{id}}">
       <div class="activity-content flex-grow-1 d-flex align-items-center">
         {{#uservisible}}
           <a class="course-index-link activity-name text-truncate"
@@ -44,8 +44,11 @@
         {{/uservisible}}
       </div>
       {{! Indicador de estado de la actividad }}
-      <div class="activity-status-indicator" data-region="activity-status-{{id}}" data-state="notstarted">
-        <span class="sr-only">{{#str}}notstarted, core{{/str}}</span>
+      <div class="activity-status-indicator activity-status-notstarted"
+           data-region="activity-status-{{id}}"
+           data-state="notstarted">
+        <span class="sr-only" data-region="activity-status-sr">{{#str}}activitystate_notstarted, theme_compecer{{/str}}</span>
+        <i class="fa fa-circle text-muted" data-region="activity-status-icon" aria-hidden="true"></i>
       </div>
     </div>
   {{/hasdelegatedsection}}
