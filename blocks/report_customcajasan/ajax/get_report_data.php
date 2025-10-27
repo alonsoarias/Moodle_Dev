@@ -71,10 +71,12 @@ if ($blockinfo) {
         $incourse = true;
         $coursecontext = context_course::instance($blockinfo['courseid']);
     }
-} elseif ($coursecontextflag && $requestedcourse) {
+}
+
+if ($coursecontextflag && $requestedcourse) {
     try {
         $coursecontext = context_course::instance($requestedcourse);
-        $forcedcourseids[] = $requestedcourse;
+        $forcedcourseids[] = (int)$requestedcourse;
         $incourse = true;
     } catch (Exception $e) {
         $incourse = false;
@@ -84,7 +86,6 @@ if ($blockinfo) {
 try {
     if ($incourse) {
         require_capability('moodle/course:update', $coursecontext);
-        require_capability('block/report_customcajasan:viewreport', $coursecontext);
     } else {
         require_capability('block/report_customcajasan:manageblock', $systemcontext);
         require_capability('block/report_customcajasan:viewreport', $systemcontext);

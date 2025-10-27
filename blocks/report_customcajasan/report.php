@@ -63,10 +63,14 @@ if ($blockinfo) {
         $coursecontext = context_course::instance($blockinfo['courseid']);
         $course = $DB->get_record('course', ['id' => $blockinfo['courseid']], '*', MUST_EXIST);
     }
-} elseif ($coursecontextflag && $requestedcourse) {
-    $course = $DB->get_record('course', ['id' => $requestedcourse], '*', MUST_EXIST);
+}
+
+if ($coursecontextflag && $requestedcourse) {
+    if (!$course || $course->id !== (int)$requestedcourse) {
+        $course = $DB->get_record('course', ['id' => $requestedcourse], '*', MUST_EXIST);
+    }
     $coursecontext = context_course::instance($requestedcourse);
-    $forcedcourseids[] = $requestedcourse;
+    $forcedcourseids[] = (int)$requestedcourse;
     $incourse = true;
 }
 
