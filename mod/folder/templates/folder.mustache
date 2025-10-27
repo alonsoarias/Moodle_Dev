@@ -1,272 +1,102 @@
 {{!
     This file is part of Moodle - http://moodle.org/
 
-    Windows Explorer inspired template for the folder module adapted to Moodle UI components.
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
     @template mod_folder/folder
-    @package   mod_folder
+
+    Template for displaying folder resource.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Example context (json):
+    {
+        "id": 42,
+        "showexpanded": true,
+        "buttons": {
+           "edit_button": {
+                "id": "edit_button",
+                "label": "Edit",
+                "url": "/mod/folder/edit.php",
+                "classes": "navitem"
+            },
+            "download_button": {
+                "id": "download_button",
+                "label": "Download",
+                "url": "/mod/folder/download.php",
+                "classes": "navitem"
+            }
+        },
+        "dir": [
+            {
+                "name": "Folder",
+                "icon": "<img src='icon' alt='alt'>",
+                "hassubdirs": true,
+                "subdirs": [
+                    {
+                        "name": "File1",
+                        "icon": "<img src='icon' alt='alt'>",
+                        "hassubdirs": false,
+                        "subdirs": null
+                     }
+                ]
+            },
+            {
+                "name": "File2",
+                "icon": "<img src='icon' alt='alt'>",
+                "hassubdirs": false,
+                "subdirs": null
+            }
+        ]
+    }
 }}
 
-<div class="folder-explorer-container folder-container-onedrive" id="{{id}}" data-root-name="{{rootname}}">
-
-    {{! Intro }}
-    {{#intro}}
-    <div class="folder-intro">
-        {{{intro}}}
-    </div>
-    {{/intro}}
-
-    {{! Buttons }}
+<div class="flex-fill description-inner text-break">
+    {{{intro}}}
     {{#hasbuttons}}
-    <div class="folder-header-actions">
-        <div class="btn-group">
-            {{#edit_button}}
-                {{>core/single_button}}
-            {{/edit_button}}
-            {{#download_button}}
-                {{>core/single_button}}
-            {{/download_button}}
+        <div class="container-fluid">
+            <div class="row">
+                {{#edit_button}}
+                    {{>core/single_button}}
+                {{/edit_button}}
+                {{#download_button}}
+                    {{>core/single_button}}
+                {{/download_button}}
+            </div>
         </div>
-    </div>
     {{/hasbuttons}}
-
-    <div class="folder-explorer-shell">
-        {{#has_tree}}
-        <aside class="folder-navigation" aria-label="{{strings.navigationaria}}">
-            <div class="navigation-header">{{strings.navigationheader}}</div>
-            <div class="folder-tree-scroll">
-                <ul class="folder-tree-list">
-                    {{#tree}}
-                        {{> mod_folder/tree}}
-                    {{/tree}}
+    <div class="box generalbox pt-0 pb-3 foldertree">
+        <div id="{{{id}}}" class="filemanager">
+            {{#dir}}
+                <ul>
+                    <li>
+                        {{>mod_folder/tree}}
+                    </li>
                 </ul>
-            </div>
-        </aside>
-        {{/has_tree}}
-
-        <div class="folder-main-panel">
-            <div class="folder-header-bar">
-                <div class="folder-navigation-buttons" role="group" aria-label="{{strings.navigationcontrols}}">
-                    <button type="button"
-                            class="nav-button nav-button-back"
-                            title="{{strings.navbacktitle}}"
-                            aria-label="{{strings.navbackaria}}"
-                            disabled>
-                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                    </button>
-                    <button type="button"
-                            class="nav-button nav-button-forward"
-                            title="{{strings.navforwardtitle}}"
-                            aria-label="{{strings.navforwardaria}}"
-                            disabled>
-                        <i class="fa fa-arrow-right" aria-hidden="true"></i>
-                    </button>
-                    <button type="button"
-                            class="nav-button nav-button-up"
-                            title="{{strings.navuptitle}}"
-                            aria-label="{{strings.navuparia}}"
-                            disabled>
-                        <i class="fa fa-arrow-up" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <div class="folder-breadcrumbs" role="navigation" aria-label="{{strings.breadcrumbsaria}}"></div>
-            </div>
-
-            <div class="folder-controls-bar">
-                <div class="controls-left">
-                    <div class="search-box">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                        <input type="text"
-                               class="folder-search-input"
-                               placeholder="{{strings.searchplaceholder}}"
-                               aria-label="{{strings.searcharia}}">
-                        <button type="button"
-                                class="search-clear"
-                                aria-label="{{strings.clearsearch}}"
-                                hidden>
-                            <i class="fa fa-times" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="controls-right">
-                    <div class="sort-controls">
-                        <label class="sort-label" for="{{id}}-sort-field">{{strings.sortlabel}}</label>
-                        <select id="{{id}}-sort-field" class="folder-sort-field">
-                            <option value="name">{{strings.sortbyname}}</option>
-                            <option value="modified">{{strings.sortbydate}}</option>
-                            <option value="type">{{strings.sortbytype}}</option>
-                            <option value="size">{{strings.sortbysize}}</option>
-                        </select>
-                    </div>
-                    <div class="sort-direction-group" role="group" aria-label="{{strings.sortdirectionaria}}">
-                        <button type="button"
-                                class="sort-direction sort-direction-asc active"
-                                data-direction="asc"
-                                title="{{strings.sortascending}}"
-                                aria-pressed="true">
-                            <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
-                            <span class="sr-only">{{strings.sortascending}}</span>
-                        </button>
-                        <button type="button"
-                                class="sort-direction sort-direction-desc"
-                                data-direction="desc"
-                                title="{{strings.sortdescending}}"
-                                aria-pressed="false">
-                            <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
-                            <span class="sr-only">{{strings.sortdescending}}</span>
-                        </button>
-                    </div>
-                    <div class="filter-controls">
-                        <label class="filter-label" for="{{id}}-filter">{{strings.filterlabel}}</label>
-                        <select id="{{id}}-filter" class="folder-filter">
-                            <option value="all">{{strings.filterall}}</option>
-                            <option value="folders">{{strings.filterfolders}}</option>
-                            <option value="files">{{strings.filterfiles}}</option>
-                            <option value="image">{{strings.filterimages}}</option>
-                            <option value="document">{{strings.filterdocuments}}</option>
-                            <option value="spreadsheet">{{strings.filterspreadsheets}}</option>
-                            <option value="presentation">{{strings.filterpresentations}}</option>
-                            <option value="video">{{strings.filtervideos}}</option>
-                            <option value="audio">{{strings.filteraudios}}</option>
-                            <option value="archive">{{strings.filterarchives}}</option>
-                            <option value="code">{{strings.filtercode}}</option>
-                            <option value="other">{{strings.filterother}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="folder-toolbar">
-                <div class="toolbar-left">
-                    <button type="button" class="view-toggle active" data-view="grid" title="{{strings.viewgrid}}">
-                        <i class="fa fa-th-large" aria-hidden="true"></i>
-                        <span class="sr-only">{{strings.viewgrid}}</span>
-                    </button>
-                    <button type="button" class="view-toggle" data-view="list" title="{{strings.viewlist}}">
-                        <i class="fa fa-list" aria-hidden="true"></i>
-                        <span class="sr-only">{{strings.viewlist}}</span>
-                    </button>
-                    <button type="button" class="view-toggle" data-view="details" title="{{strings.viewdetails}}">
-                        <i class="fa fa-th-list" aria-hidden="true"></i>
-                        <span class="sr-only">{{strings.viewdetails}}</span>
-                    </button>
-                </div>
-                <div class="toolbar-right">
-                    <span class="item-count-display result-summary" role="status" aria-live="polite"></span>
-                </div>
-            </div>
-
-            <div class="folder-views folder-content-views">
-                <div class="folder-view folder-view-grid folder-content-grid active">
-                    <div class="grid-container">
-                        {{#items}}
-                        <div class="grid-item"
-                             data-name="{{name}}"
-                             data-type="{{type}}"
-                             data-extension="{{extension}}"
-                             data-size-bytes="{{size_bytes}}"
-                             data-modified-timestamp="{{modified_timestamp}}"
-                             data-file-category="{{file_category}}"
-                             data-parent-path="{{parent_path_encoded}}"
-                             {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                             {{#url}}data-url="{{{url}}}"{{/url}}>
-                            <div class="grid-card">
-                                <div class="item-icon {{icon_class}}">
-                                    {{{icon}}}
-                                </div>
-                                <div class="item-details">
-                                    <div class="item-name" title="{{name}}">{{name}}</div>
-                                    {{#is_file}}
-                                    <div class="item-meta">
-                                        <span>{{size}}</span>
-                                        <span>{{modified}}</span>
-                                    </div>
-                                    {{/is_file}}
-                                </div>
-                            </div>
-                        </div>
-                        {{/items}}
-                    </div>
-                </div>
-
-                <div class="folder-view folder-view-list folder-content-list">
-                    <table class="folder-table folder-table-list">
-                        <thead>
-                            <tr>
-                                <th scope="col">{{strings.tableheadername}}</th>
-                                <th scope="col">{{strings.tableheadertype}}</th>
-                                <th scope="col">{{strings.tableheadersize}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#items}}
-                            <tr class="list-item"
-                                data-name="{{name}}"
-                                data-type="{{type}}"
-                                data-extension="{{extension}}"
-                                data-size-bytes="{{size_bytes}}"
-                                data-modified-timestamp="{{modified_timestamp}}"
-                                data-file-category="{{file_category}}"
-                                data-parent-path="{{parent_path_encoded}}"
-                                {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                                {{#url}}data-url="{{{url}}}"{{/url}}>
-                                <td>
-                                    <span class="list-icon {{icon_class}}">{{{icon}}}</span>
-                                    <span class="list-name">{{name}}</span>
-                                </td>
-                                <td>{{type}}</td>
-                                <td>{{size}}</td>
-                            </tr>
-                            {{/items}}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="folder-view folder-view-details folder-content-details">
-                    <table class="folder-table folder-table-details">
-                        <thead>
-                            <tr>
-                                <th scope="col">{{strings.tableheadername}}</th>
-                                <th scope="col">{{strings.tableheaderdatemodified}}</th>
-                                <th scope="col">{{strings.tableheadertype}}</th>
-                                <th scope="col">{{strings.tableheadersize}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#items}}
-                            <tr class="details-item"
-                                data-name="{{name}}"
-                                data-type="{{type}}"
-                                data-extension="{{extension}}"
-                                data-size-bytes="{{size_bytes}}"
-                                data-modified-timestamp="{{modified_timestamp}}"
-                                data-file-category="{{file_category}}"
-                                data-parent-path="{{parent_path_encoded}}"
-                                {{#folder_path_encoded}}data-folder-path="{{folder_path_encoded}}"{{/folder_path_encoded}}
-                                {{#url}}data-url="{{{url}}}"{{/url}}>
-                                <td>
-                                    <span class="list-icon {{icon_class}}">{{{icon}}}</span>
-                                    <span class="list-name">{{name}}</span>
-                                </td>
-                                <td class="text-muted">{{modified}}</td>
-                                <td class="text-muted">{{type}}</td>
-                                <td class="text-muted">{{size}}</td>
-                            </tr>
-                            {{/items}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="empty-folder-message" hidden>
-                <i class="fa fa-folder-open-o" aria-hidden="true"></i>
-                <p>{{strings.emptyfolder}}</p>
-            </div>
-
-            <div class="no-results-message" hidden>
-                <i class="fa fa-search" aria-hidden="true"></i>
-                <p>{{strings.noresults}}</p>
-                <button class="btn btn-outline-secondary btn-sm clear-search-btn" type="button">{{strings.clearsearch}}</button>
-            </div>
+            {{/dir}}
         </div>
     </div>
 </div>
+
+{{#js}}
+    // Init tree JS.
+    require(['mod_folder/folder'], function(Folder) {
+        Folder.initTree('{{{id}}}', '{{{showexpanded}}}');
+    });
+{{/js}}
