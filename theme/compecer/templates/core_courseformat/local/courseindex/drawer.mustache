@@ -18,7 +18,11 @@
   </div>
 </nav>
 {{#js}}
-require(['core_courseformat/local/courseindex/drawer'], function(component) {
+require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progressLoader) {
   component.init('courseindex');
+  // Initialize progress loader with course ID from global Moodle config
+  if (M.cfg && M.cfg.courseId) {
+    progressLoader.init(M.cfg.courseId);
+  }
 });
 {{/js}}

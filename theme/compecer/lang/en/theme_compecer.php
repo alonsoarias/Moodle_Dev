@@ -295,3 +295,11 @@ $string['breadcrumb'] = 'Breadcrumb';
 $string['opendrawernav'] = 'Open navigation drawer';
 $string['closedrawernav'] = 'Close navigation drawer';
 $string['sidebarcoursemenuheading'] = 'Course index';
+
+// Course Progress Strings
+$string['progress'] = 'Progress';
+$string['completionprogress'] = 'Completion progress';
+$string['sectionprogress'] = 'Section progress';
+$string['activitiescompleted'] = 'activities completed';
+$string['nocompletion'] = 'No completion tracking';
+$string['completionenabled'] = 'Completion tracking enabled';

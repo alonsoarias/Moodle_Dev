@@ -295,3 +295,11 @@ $string['breadcrumb'] = 'Ruta de navegación';
 $string['opendrawernav'] = 'Abrir menú de navegación';
 $string['closedrawernav'] = 'Cerrar menú de navegación';
 $string['sidebarcoursemenuheading'] = 'Índice del curso';
+
+// Cadenas de Progreso del Curso
+$string['progress'] = 'Progreso';
+$string['completionprogress'] = 'Progreso de finalización';
+$string['sectionprogress'] = 'Progreso de la sección';
+$string['activitiescompleted'] = 'actividades completadas';
+$string['nocompletion'] = 'Sin seguimiento de finalización';
+$string['completionenabled'] = 'Seguimiento de finalización habilitado';
