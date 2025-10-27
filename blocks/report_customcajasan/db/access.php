@@ -15,11 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capabilities for the report_customcajasan block
+ * Capability definitions for the report_customcajasan block.
  *
  * @package    block_report_customcajasan
  * @copyright  2025 Cajasan
- * @author     Pedro Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,25 +31,54 @@ $capabilities = [
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => [
             'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW
         ],
         'clonepermissionsfrom' => 'moodle/site:manageblocks',
     ],
+
     'block/report_customcajasan:myaddinstance' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
         ],
     ],
-    'block/report_customcajasan:viewreport' => [
+
+    'block/report_customcajasan:viewblock' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSE,  // Cambiado a CONTEXT_COURSE para permitir permisos a nivel de curso
+        'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW
+        ],
+    ],
+
+    'block/report_customcajasan:manageblock' => [
+        'riskbitmask' => RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+
+    'block/report_customcajasan:configurecourse' => [
+        'riskbitmask' => RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+        ],
+    ],
+
+    'block/report_customcajasan:viewreport' => [
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
         ],
     ],
 ];
