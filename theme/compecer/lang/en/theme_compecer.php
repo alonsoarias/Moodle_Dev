@@ -295,11 +295,3 @@ $string['breadcrumb'] = 'Breadcrumb';
 $string['opendrawernav'] = 'Open navigation drawer';
 $string['closedrawernav'] = 'Close navigation drawer';
 $string['sidebarcoursemenuheading'] = 'Course index';
-
-// Course Progress Strings
-$string['courseprogress'] = 'Course Progress';
-$string['completedactivities'] = '{$a->completed} of {$a->total} activities completed';
-$string['notstarted'] = 'Not started';
-$string['inprogress'] = 'In progress';
-$string['viewdetails'] = 'View details';
-$string['togglesection'] = 'Toggle section';

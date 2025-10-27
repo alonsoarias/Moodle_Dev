@@ -3,12 +3,9 @@
 
     This template renders the course index drawer.
     Adaptado para theme compecer (child theme de Boost).
-    Incluye barra de progreso del curso.
-
+    
     Example context (json):
-    {
-        "courseid": 2
-    }
+    {}
 }}
 <nav id="courseindex" class="course-index-drawer">
   <div class="mb-4">
@@ -16,33 +13,12 @@
       {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
     </span>
   </div>
-
-  {{! Course Progress Bar }}
-  <div id="courseindex-progress" class="courseindex-progress-container mb-4" data-courseid="{{courseid}}" style="display: none;">
-    <div class="progress-header mb-2">
-      <h6 class="progress-title mb-1">
-        {{#str}}courseprogress, theme_compecer{{/str}}
-      </h6>
-      <div class="progress-stats">
-        <span class="progress-percentage font-weight-bold">0%</span>
-        <span class="progress-details text-muted"></span>
-      </div>
-    </div>
-    <div class="progress progress-rounded">
-      <div class="progress-bar bg-success" role="progressbar" style="width: 0%"
-           aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-      </div>
-    </div>
-    <ul class="progress-activity-list mt-2"></ul>
-  </div>
-
   <div id="courseindex-content">
     {{> core_courseformat/local/courseindex/placeholders}}
   </div>
 </nav>
 {{#js}}
-require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progressComponent) {
+require(['core_courseformat/local/courseindex/drawer'], function(component) {
   component.init('courseindex');
-  progressComponent.init({{courseid}});
 });
 {{/js}}
