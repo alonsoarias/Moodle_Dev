@@ -126,7 +126,7 @@ class block_report_customcajasan extends block_base {
         if ($contextinfo['incourse']) {
             $caneditcourse = has_capability('moodle/course:update', $coursecontext);
             $hasviewreport = has_capability('block/report_customcajasan:viewreport', $coursecontext);
-            $hasrequiredpermissions = ($caneditcourse && $hasviewreport);
+            $hasrequiredpermissions = ($caneditcourse || $hasviewreport);
         } else {
             $hasviewreport = has_capability('block/report_customcajasan:viewreport', $systemcontext);
             $canmanage = has_capability('block/report_customcajasan:manageblock', $systemcontext);
