@@ -48,6 +48,7 @@ $string['block_scope_current_course'] = 'Alcance: Curso actual – {$a}';
 $string['block_scope_categories'] = 'Categorías de curso incluidas:';
 $string['block_scope_course_only'] = 'El informe mostrará únicamente los datos de este curso.';
 $string['block_scope_none'] = 'No se han seleccionado categorías. Configura el bloque para elegir una o más categorías.';
+$string['block_scope_coursecount'] = 'Total de cursos actualmente en alcance: {$a}';
 $string['block_scope_configure_notice'] = 'Edita este bloque para seleccionar las categorías que deben alimentar el informe.';
 
 // Formulario de configuración.
@@ -56,6 +57,9 @@ $string['config_context_label'] = 'Ubicación del bloque';
 $string['config_context_system'] = 'Sitio principal (página de inicio). Solo los gestores del sitio pueden configurar o ver el informe aquí.';
 $string['config_context_my'] = 'Tablero personal. Solo los gestores del sitio pueden configurar o ver el informe aquí.';
 $string['config_context_course'] = 'Página del curso: {$a}';
+$string['config_context_system_note'] = 'El informe consolidado mostrará únicamente cursos pertenecientes a las categorías seleccionadas. Sin categorías no se visualizarán datos.';
+$string['config_context_my_note'] = 'Utiliza esta configuración para construir un resumen personalizado a partir de las categorías de curso seleccionadas.';
+$string['config_context_course_note'] = 'Por defecto el informe incluye el curso actual "{$a}". Las categorías que selecciones añadirán sus cursos sin duplicar información.';
 $string['config_categoryids'] = 'Categorías incluidas en el informe';
 $string['config_categoryids_help'] = 'Selecciona las categorías cuyos cursos deben incluirse al generar el informe. '
     . 'Cuando el bloque se ubica dentro de un curso, dicho curso siempre se incluye automáticamente.';
