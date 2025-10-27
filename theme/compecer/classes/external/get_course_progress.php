@@ -33,10 +33,8 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use external_multiple_structure;
-use core_completion\progress;
-use completion_info;
 use context_course;
-use stdClass;
+use theme_compecer\local\courseindex\progress_helper;
 
 /**
  * External service for getting course progress.
@@ -83,263 +81,8 @@ class get_course_progress extends external_api {
         require_capability('moodle/course:view', $context);
 
         // Initialize completion.
-        $completion = new completion_info($course);
-
-        // Check if completion is enabled.
-        if (!$completion->is_enabled()) {
-            return [
-                'courseid' => $courseid,
-                'percentage' => 0,
-                'hascompletion' => false,
-                'completedcount' => 0,
-                'activitycount' => 0,
-                'activitylist' => [],
-                'progresscolor' => 'bg-secondary',
-                'sections' => [],
-            ];
-        }
-
-        // Get course progress percentage using Moodle API.
-        $percentage = progress::get_course_progress_percentage($course, $USER->id);
-        if (is_null($percentage)) {
-            $percentage = 0;
-        } else {
-            $percentage = floor($percentage);
-        }
-
-        // Determine progress color.
-        $progresscolor = self::get_progress_color($percentage);
-
-        // Get fast modinfo.
-        $modinfo = get_fast_modinfo($course);
-        $sections = $modinfo->get_section_info_all();
-
-        // Count activities and get activity types.
-        $activitycount = 0;
-        $completedcount = 0;
-        $activitytypes = [];
-
-        foreach ($modinfo->get_cms() as $cm) {
-            if (!$cm->uservisible || !$cm->is_visible_on_course_page()) {
-                continue;
-            }
-
-            // Count for activity types.
-            $modname = get_string('modulename', $cm->modname);
-            if (!isset($activitytypes[$modname])) {
-                $activitytypes[$modname] = 0;
-            }
-            $activitytypes[$modname]++;
-
-            // Count for completion.
-            if ($completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
-                $activitycount++;
-                $data = $completion->get_data($cm, false, $USER->id);
-                if ($data->completionstate == COMPLETION_COMPLETE ||
-                    $data->completionstate == COMPLETION_COMPLETE_PASS) {
-                    $completedcount++;
-                }
-            }
-        }
-
-        // Build activity list.
-        $activitylist = [];
-        foreach ($activitytypes as $type => $count) {
-            $activitylist[] = "$count $type";
-        }
-
-        // Get section progress information.
-        $sectionsdata = [];
-        foreach ($sections as $section) {
-            // Skip section 0 if hidden.
-            if ($section->section == 0 && !$section->visible) {
-                continue;
-            }
-
-            $sectionprogress = self::get_section_module_info($course, $section, $completion, $modinfo);
-
-            $sectiondata = [
-                'id' => $section->id,
-                'number' => $section->section,
-                'name' => get_section_name($course, $section),
-                'visible' => (bool)$section->visible,
-                'sectionurl' => new \moodle_url('/course/view.php', [
-                    'id' => $courseid,
-                    'section' => $section->section,
-                ]),
-                'progressinfo' => [
-                    'percentage' => $sectionprogress->percentage,
-                    'completed' => $sectionprogress->completed,
-                    'total' => $sectionprogress->total,
-                    'progress' => $sectionprogress->progress,
-                    'progresscolor' => self::get_progress_color($sectionprogress->percentage),
-                ],
-                'activities' => self::get_section_activities($section, $modinfo, $completion),
-            ];
-
-            $sectionsdata[] = $sectiondata;
-        }
-
-        return [
-            'courseid' => $courseid,
-            'percentage' => $percentage,
-            'hascompletion' => true,
-            'completedcount' => $completedcount,
-            'activitycount' => $activitycount,
-            'activitylist' => $activitylist,
-            'progresscolor' => $progresscolor,
-            'sections' => $sectionsdata,
-        ];
-    }
-
-    /**
-     * Get progress information for a section.
-     *
-     * @param stdClass $course Course object
-     * @param stdClass $section Section info
-     * @param completion_info $completion Completion info object
-     * @param course_modinfo $modinfo Fast modinfo object
-     * @return stdClass Section progress info
-     */
-    private static function get_section_module_info($course, $section, $completion, $modinfo) {
-        global $USER;
-
-        $total = 0;
-        $complete = 0;
-        $cancomplete = isloggedin() && !isguestuser();
-
-        if (!empty($modinfo->sections[$section->section])) {
-            foreach ($modinfo->sections[$section->section] as $cmid) {
-                $thismod = $modinfo->cms[$cmid];
-
-                // Skip if not visible.
-                if (!$thismod->uservisible) {
-                    continue;
-                }
-
-                // Skip labels.
-                if ($thismod->modname == 'label') {
-                    continue;
-                }
-
-                // Skip if not visible on course page.
-                if (!$thismod->is_visible_on_course_page()) {
-                    continue;
-                }
-
-                // Check completion tracking.
-                if ($cancomplete && $completion->is_enabled($thismod) != COMPLETION_TRACKING_NONE) {
-                    $total++;
-
-                    $completiondata = $completion->get_data($thismod, true);
-                    if ($completiondata->completionstate == COMPLETION_COMPLETE ||
-                        $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
-                        $complete++;
-                    }
-                }
-            }
-        }
-
-        $percentage = ($total > 0) ? round(($complete / $total) * 100, 0) : 0;
-
-        $pinfo = new stdClass();
-        $pinfo->completed = $complete;
-        $pinfo->total = $total;
-        $pinfo->percentage = $percentage;
-        $pinfo->progress = "$complete/$total";
-
-        return $pinfo;
-    }
-
-    /**
-     * Get activities for a section with their completion states.
-     *
-     * @param stdClass $section Section info
-     * @param course_modinfo $modinfo Fast modinfo object
-     * @param completion_info $completion Completion info object
-     * @return array Activities data
-     */
-    private static function get_section_activities($section, $modinfo, $completion) {
-        $activities = [];
-
-        if (empty($modinfo->sections[$section->section])) {
-            return $activities;
-        }
-
-        foreach ($modinfo->sections[$section->section] as $cmid) {
-            $cm = $modinfo->cms[$cmid];
-
-            // Skip if not visible.
-            if (!$cm->uservisible) {
-                continue;
-            }
-
-            // Skip if not visible on course page.
-            if (!$cm->is_visible_on_course_page()) {
-                continue;
-            }
-
-            $activitystate = self::get_activity_state($cm, $completion);
-
-            $activities[] = [
-                'id' => $cm->id,
-                'name' => $cm->name,
-                'modname' => $cm->modname,
-                'url' => $cm->url ? $cm->url->out(false) : '',
-                'state' => $activitystate,
-            ];
-        }
-
-        return $activities;
-    }
-
-    /**
-     * Get activity completion state.
-     *
-     * @param cm_info $mod Course module info
-     * @param completion_info $completion Completion info object
-     * @return string Activity state (notstarted|inprogress|completed|notracking)
-     */
-    private static function get_activity_state($mod, $completion) {
-        global $USER;
-
-        if (!isloggedin() || isguestuser()) {
-            return 'notstarted';
-        }
-
-        if ($completion->is_enabled($mod) == COMPLETION_TRACKING_NONE) {
-            return 'notracking';
-        }
-
-        $data = $completion->get_data($mod, true, $USER->id);
-
-        if ($data->completionstate == COMPLETION_COMPLETE ||
-            $data->completionstate == COMPLETION_COMPLETE_PASS) {
-            return 'completed';
-        }
-
-        // Check if activity has been started (viewed or modified).
-        if ($data->timemodified > 0) {
-            return 'inprogress';
-        }
-
-        return 'notstarted';
-    }
-
-    /**
-     * Get progress bar color based on percentage.
-     *
-     * @param float $percentage Progress percentage
-     * @return string CSS class for color
-     */
-    private static function get_progress_color($percentage) {
-        if ($percentage < 30) {
-            return 'bg-danger';
-        } else if ($percentage < 70) {
-            return 'bg-warning';
-        } else {
-            return 'bg-success';
-        }
+        $payload = progress_helper::build_course_payload($course, $USER->id);
+        return $payload;
     }
 
     /**
@@ -354,12 +97,19 @@ class get_course_progress extends external_api {
             'hascompletion' => new external_value(PARAM_BOOL, 'Whether completion is enabled'),
             'completedcount' => new external_value(PARAM_INT, 'Number of completed activities'),
             'activitycount' => new external_value(PARAM_INT, 'Total number of activities'),
+            'activitysummary' => new external_value(PARAM_TEXT, 'Summary of completed vs total activities', VALUE_OPTIONAL),
             'activitylist' => new external_multiple_structure(
                 new external_value(PARAM_TEXT, 'Activity type and count'),
                 'List of activity types',
                 VALUE_OPTIONAL
             ),
             'progresscolor' => new external_value(PARAM_TEXT, 'Progress bar color class'),
+            'statelabels' => new external_single_structure([
+                'notstarted' => new external_value(PARAM_TEXT, 'Label for not started'),
+                'inprogress' => new external_value(PARAM_TEXT, 'Label for in progress'),
+                'completed' => new external_value(PARAM_TEXT, 'Label for completed'),
+                'notracking' => new external_value(PARAM_TEXT, 'Label for activities without tracking'),
+            ], 'Localized labels for activity states'),
             'sections' => new external_multiple_structure(
                 new external_single_structure([
                     'id' => new external_value(PARAM_INT, 'Section ID'),
@@ -371,7 +121,7 @@ class get_course_progress extends external_api {
                         'percentage' => new external_value(PARAM_FLOAT, 'Section completion percentage'),
                         'completed' => new external_value(PARAM_INT, 'Completed activities in section'),
                         'total' => new external_value(PARAM_INT, 'Total activities in section'),
-                        'progress' => new external_value(PARAM_TEXT, 'Progress string (e.g., "3/5")'),
+                        'summary' => new external_value(PARAM_TEXT, 'Summary string (e.g., "3 of 5 activities"), optional', VALUE_OPTIONAL),
                         'progresscolor' => new external_value(PARAM_TEXT, 'Progress color class'),
                     ], 'Section progress information'),
                     'activities' => new external_multiple_structure(
