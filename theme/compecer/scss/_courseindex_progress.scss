@@ -1,0 +1,716 @@
+// =====================================================================
+// _courseindex_progress.scss
+// Estilos para el courseindex con barras de progreso
+// Fase 4: Implementación según documento SYNTHESIS_COURSEINDEX_PROGRESS.md
+// =====================================================================
+
+// -----------------------------------------------------
+// Variables Locales (pueden sobrescribirse)
+// -----------------------------------------------------
+$progress-bg: rgba(0, 0, 0, 0.1) !default;
+$progress-height: 8px !default;
+$progress-border-radius: 10px !default;
+$progress-section-height: 6px !default;
+$progress-animation-duration: 0.6s !default;
+$progress-shimmer-duration: 2s !default;
+
+// Colores de progreso según porcentaje
+$progress-color-danger: #dc3545 !default;  // < 30%
+$progress-color-warning: #ffc107 !default; // 30-70%
+$progress-color-success: #28a745 !default; // > 70%
+
+// -----------------------------------------------------
+// 1. CONTENEDOR PRINCIPAL DE PROGRESO GLOBAL
+// -----------------------------------------------------
+.courseindex-progress-container {
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.95),
+        rgba(249, 250, 251, 0.95));
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 0 0.5rem 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid $primary-blue;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    // Ocultar si no hay completion habilitado
+    &.no-completion {
+        display: none;
+    }
+}
+
+// -----------------------------------------------------
+// 2. HEADER DE PROGRESO GLOBAL
+// -----------------------------------------------------
+.progress-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.progress-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: $primary-blue;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.progress-stats {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.progress-percentage {
+    font-size: 1.5rem;
+    color: $primary-blue;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.progress-details {
+    font-size: 0.75rem;
+    color: #666;
+    line-height: 1.2;
+}
+
+// -----------------------------------------------------
+// 3. BARRA DE PROGRESO GLOBAL
+// -----------------------------------------------------
+.progress {
+    height: $progress-height;
+    background-color: $progress-bg;
+    border-radius: $progress-border-radius;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: $progress-border-radius;
+    transition: width $progress-animation-duration cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+
+    // Animación shimmer
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent);
+        animation: shimmer $progress-shimmer-duration infinite;
+    }
+
+    // Colores según porcentaje
+    &.bg-danger {
+        background-color: $progress-color-danger;
+    }
+
+    &.bg-warning {
+        background-color: $progress-color-warning;
+    }
+
+    &.bg-success {
+        background-color: $progress-color-success;
+    }
+
+    &.bg-info {
+        background-color: #17a2b8;
+    }
+}
+
+// Animación shimmer para efecto visual
+@keyframes shimmer {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(200%);
+    }
+}
+
+// Variante redondeada
+.progress-rounded {
+    border-radius: $progress-border-radius;
+}
+
+// -----------------------------------------------------
+// 4. LISTA DE ACTIVIDADES (opcional)
+// -----------------------------------------------------
+.progress-activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 0 0;
+    font-size: 0.75rem;
+    color: #666;
+
+    li {
+        display: inline-block;
+        margin-right: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        background: rgba($primary-blue, 0.1);
+        border-radius: 4px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+// -----------------------------------------------------
+// 5. SECCIÓN CON PROGRESO
+// -----------------------------------------------------
+.course-index-section {
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    background: $white;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// -----------------------------------------------------
+// 6. HEADER DE SECCIÓN CON PROGRESO
+// -----------------------------------------------------
+.course-index-header {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: $primary-blue;
+    color: $white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    gap: 0.5rem;
+
+    &:hover {
+        background-color: darken($primary-blue, 5%);
+    }
+
+    .section-toggle {
+        background: none;
+        border: none;
+        color: $white;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        transition: transform 0.3s ease;
+
+        i {
+            transition: transform 0.3s ease;
+            font-size: 1rem;
+        }
+
+        &.collapsed i {
+            transform: rotate(0deg);
+        }
+
+        &:not(.collapsed) i {
+            transform: rotate(90deg);
+        }
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        &:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.3);
+            outline-offset: 2px;
+        }
+    }
+
+    .section-link {
+        flex: 1;
+        color: $white;
+        font-weight: 500;
+        text-decoration: none;
+        font-size: 0.95rem;
+
+        &:hover {
+            text-decoration: none;
+            color: $white;
+        }
+
+        &:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.3);
+            outline-offset: 2px;
+        }
+    }
+
+    .section-progress-badge {
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        margin-left: auto;
+        min-width: 3rem;
+        text-align: center;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    }
+}
+
+// -----------------------------------------------------
+// 7. CONTENIDO DE SECCIÓN
+// -----------------------------------------------------
+.course-index-content,
+.section-content {
+    padding: 0.75rem;
+    background: $white;
+
+    &.collapse:not(.show) {
+        display: none;
+    }
+
+    &.collapsing {
+        transition: height 0.35s ease;
+    }
+}
+
+// -----------------------------------------------------
+// 8. BARRA DE PROGRESO POR SECCIÓN (mini)
+// -----------------------------------------------------
+.section-progress-bar {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: $light-bg;
+    border-radius: 6px;
+
+    .progress {
+        height: $progress-section-height;
+        margin-bottom: 0.25rem;
+    }
+
+    .progress-text {
+        font-size: 0.7rem;
+        color: #666;
+        display: block;
+        text-align: right;
+    }
+}
+
+// -----------------------------------------------------
+// 9. LISTA DE ACTIVIDADES DE SECCIÓN
+// -----------------------------------------------------
+.course-index-section-content,
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+        margin-bottom: 0.5rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+// -----------------------------------------------------
+// 10. INDICADORES DE ESTADO DE ACTIVIDADES
+// -----------------------------------------------------
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    gap: 0.5rem;
+
+    &:hover {
+        background-color: $light-bg;
+    }
+
+    .activity-icon {
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: $light-bg;
+        flex-shrink: 0;
+
+        i {
+            font-size: 1rem;
+            color: $primary-blue;
+        }
+    }
+
+    .activity-name {
+        flex: 1;
+        font-size: 0.875rem;
+        color: $gray;
+    }
+
+    .activity-status-indicator {
+        width: 1.5rem;
+        height: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1rem;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+}
+
+// Estados de actividades
+// ○ No iniciada
+.activity-status-notstarted {
+    .activity-status-indicator {
+        border: 2px solid #ddd;
+        color: #ddd;
+
+        &::before {
+            content: '○';
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+    }
+}
+
+// ◐ En progreso
+.activity-status-inprogress {
+    .activity-status-indicator {
+        border: 2px solid $progress-color-warning;
+        color: $progress-color-warning;
+        background: linear-gradient(90deg,
+            $progress-color-warning 50%,
+            transparent 50%);
+
+        &::before {
+            content: '◐';
+            font-size: 1.2rem;
+            line-height: 1;
+            color: $progress-color-warning;
+            text-shadow: 1px 0 0 $white, -1px 0 0 $white;
+        }
+    }
+
+    .activity-name {
+        font-weight: 500;
+        color: darken($gray, 10%);
+    }
+}
+
+// ✓ Completada
+.activity-status-completed {
+    .activity-status-indicator {
+        background-color: $progress-color-success;
+        border: 2px solid $progress-color-success;
+        color: $white;
+
+        &::before {
+            content: '✓';
+            font-size: 1rem;
+            line-height: 1;
+            font-weight: bold;
+        }
+    }
+
+    .activity-name {
+        color: lighten($gray, 10%);
+        text-decoration: line-through;
+    }
+
+    &:hover .activity-name {
+        text-decoration: none;
+    }
+}
+
+// Sin tracking
+.activity-status-notracking {
+    .activity-status-indicator {
+        display: none;
+    }
+}
+
+// -----------------------------------------------------
+// 11. DRAWER DEL COURSEINDEX
+// -----------------------------------------------------
+#courseindex,
+.course-index-drawer {
+    background: $white;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    // Header del drawer
+    .drawer-header {
+        padding: 1rem;
+        background: $footer-blue;
+        color: $white;
+        border-bottom: 2px solid darken($footer-blue, 10%);
+
+        h5 {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    // Contenido del courseindex
+    #courseindex-content {
+        padding: 0.5rem 0;
+    }
+}
+
+// -----------------------------------------------------
+// 12. ESTADOS ESPECIALES
+// -----------------------------------------------------
+
+// Loading state
+.courseindex-progress-loading {
+    .progress-bar {
+        background: linear-gradient(90deg,
+            $light-bg 25%,
+            lighten($light-bg, 3%) 50%,
+            $light-bg 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+// Error state
+.courseindex-progress-error {
+    border-left-color: $progress-color-danger;
+
+    .progress-title {
+        color: $progress-color-danger;
+    }
+
+    .progress-bar {
+        background-color: $progress-color-danger;
+    }
+}
+
+// Empty state
+.courseindex-progress-empty {
+    opacity: 0.6;
+
+    .progress-percentage {
+        color: $gray;
+    }
+}
+
+// -----------------------------------------------------
+// 13. ANIMACIONES Y TRANSICIONES
+// -----------------------------------------------------
+
+// Fade in animation para el container
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.courseindex-progress-container {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+// Pulse animation para porcentaje actualizado
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.progress-percentage.updated {
+    animation: pulse 0.5s ease-in-out;
+}
+
+// -----------------------------------------------------
+// 14. ACCESIBILIDAD
+// -----------------------------------------------------
+
+// Focus visible para navegación por teclado
+.course-index-header .section-toggle:focus-visible,
+.course-index-header .section-link:focus-visible,
+.activity-item:focus-visible {
+    outline: 3px solid $primary-blue;
+    outline-offset: 2px;
+}
+
+// Skip to content para screen readers
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+// -----------------------------------------------------
+// 15. RESPONSIVE DESIGN
+// -----------------------------------------------------
+
+// Tablets (768px - 991px)
+@media (max-width: 991px) {
+    .courseindex-progress-container {
+        margin: 0 0.5rem 0.75rem;
+        padding: 0.875rem;
+    }
+
+    .progress-percentage {
+        font-size: 1.35rem;
+    }
+
+    .progress-activity-list li {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+// Mobile (max 767px)
+@media (max-width: 767px) {
+    .courseindex-progress-container {
+        margin: 0 0.25rem 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .progress-percentage {
+        font-size: 1.25rem;
+    }
+
+    .progress-details {
+        font-size: 0.7rem;
+    }
+
+    .progress-activity-list {
+        display: none; // Ocultar en móviles para ahorrar espacio
+    }
+
+    .course-index-header {
+        padding: 0.625rem;
+        font-size: 0.875rem;
+    }
+
+    .section-progress-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+        min-width: 2.5rem;
+    }
+
+    .activity-item {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+
+        .activity-icon {
+            width: 1.75rem;
+            height: 1.75rem;
+
+            i {
+                font-size: 0.875rem;
+            }
+        }
+
+        .activity-status-indicator {
+            width: 1.25rem;
+            height: 1.25rem;
+            font-size: 0.875rem;
+        }
+    }
+}
+
+// Small mobile (max 479px)
+@media (max-width: 479px) {
+    .courseindex-progress-container {
+        border-radius: 8px;
+        padding: 0.625rem;
+    }
+
+    .progress-title {
+        font-size: 0.75rem;
+    }
+
+    .progress-percentage {
+        font-size: 1.125rem;
+    }
+
+    .progress-header {
+        gap: 0.375rem;
+        margin-bottom: 0.625rem;
+    }
+
+    .course-index-header .section-link {
+        font-size: 0.8rem;
+    }
+}
+
+// -----------------------------------------------------
+// 16. PRINT STYLES
+// -----------------------------------------------------
+@media print {
+    .courseindex-progress-container {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    .progress-bar::after {
+        display: none; // Remover animación shimmer en impresión
+    }
+
+    .course-index-header .section-toggle {
+        display: none; // Ocultar toggles en impresión
+    }
+
+    .section-content {
+        display: block !important; // Mostrar todo el contenido
+    }
+}
+
+// =====================================================================
+// Fin de _courseindex_progress.scss
+// =====================================================================

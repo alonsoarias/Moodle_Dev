@@ -203,6 +203,17 @@ if (!empty($scope['categoryids'])) {
         }
     }
 }
+if (!empty($categorynames)) {
+    $scopeinfo .= html_writer::tag('div', get_string('report_scope_categories', 'block_report_customcajasan'));
+    $scopeinfo .= html_writer::alist($categorynames, [], 'ul');
+} else if (!$incourse) {
+    $scopeinfo .= html_writer::tag('div', get_string('report_scope_notice_frontpage', 'block_report_customcajasan'));
+}
+$scopeinfo .= html_writer::tag('div',
+    get_string('report_scope_effective_courses', 'block_report_customcajasan', count($scope['courseids'])));
+$scopeinfo .= html_writer::end_div();
+
+echo $scopeinfo;
 
 $scopeinfo = html_writer::start_div('alert alert-secondary');
 $scopeinfo .= html_writer::tag('strong', get_string('report_scope_heading', 'block_report_customcajasan'));
