@@ -295,3 +295,8 @@ $string['breadcrumb'] = 'Ruta de navegación';
 $string['opendrawernav'] = 'Abrir menú de navegación';
 $string['closedrawernav'] = 'Cerrar menú de navegación';
 $string['sidebarcoursemenuheading'] = 'Índice del curso';
+
+// Cadenas de Progreso del Curso
+$string['courseprogress'] = 'Progreso del curso';
+$string['completedactivities'] = '{$a->completed} de {$a->total} actividades completadas';
+
