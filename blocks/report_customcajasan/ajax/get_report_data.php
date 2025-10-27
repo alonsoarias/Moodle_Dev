@@ -71,11 +71,30 @@ if ($blockinfo) {
         $incourse = true;
         $coursecontext = context_course::instance($blockinfo['courseid']);
     }
-} elseif ($coursecontextflag && $requestedcourse) {
+}
+
+if ($coursecontextflag && $requestedcourse) {
     try {
         $coursecontext = context_course::instance($requestedcourse);
-        $forcedcourseids[] = $requestedcourse;
+        if (!in_array((int)$requestedcourse, $forcedcourseids, true)) {
+            $forcedcourseids[] = (int)$requestedcourse;
+        }
         $incourse = true;
+    } catch (Exception $e) {
+        $incourse = false;
+    }
+}
+
+if (!$incourse && $requestedcourse) {
+    try {
+        $fallbackcontext = context_course::instance($requestedcourse);
+        if (has_capability('moodle/course:update', $fallbackcontext)) {
+            $coursecontext = $fallbackcontext;
+            if (!in_array((int)$requestedcourse, $forcedcourseids, true)) {
+                $forcedcourseids[] = (int)$requestedcourse;
+            }
+            $incourse = true;
+        }
     } catch (Exception $e) {
         $incourse = false;
     }
@@ -84,7 +103,6 @@ if ($blockinfo) {
 try {
     if ($incourse) {
         require_capability('moodle/course:update', $coursecontext);
-        require_capability('block/report_customcajasan:viewreport', $coursecontext);
     } else {
         require_capability('block/report_customcajasan:manageblock', $systemcontext);
         require_capability('block/report_customcajasan:viewreport', $systemcontext);
@@ -92,7 +110,7 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'error' => get_string('nopermissions', 'error', 'block/report_customcajasan:viewreport')
+        'error' => get_string('nopermissions', 'error', $incourse ? 'moodle/course:update' : 'block/report_customcajasan:viewreport')
     ]);
     die();
 }

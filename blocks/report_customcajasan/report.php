@@ -25,8 +25,6 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/blocks/report_customcajasan/lib.php');
 
-require_login();
-
 $instanceid = optional_param('instanceid', 0, PARAM_INT);
 $coursecontextflag = optional_param('coursecontext', 0, PARAM_INT);
 $requestedcourse = optional_param('courseid', 0, PARAM_INT);
@@ -65,16 +63,45 @@ if ($blockinfo) {
         $coursecontext = context_course::instance($blockinfo['courseid']);
         $course = $DB->get_record('course', ['id' => $blockinfo['courseid']], '*', MUST_EXIST);
     }
-} elseif ($coursecontextflag && $requestedcourse) {
-    $course = $DB->get_record('course', ['id' => $requestedcourse], '*', MUST_EXIST);
+}
+
+if ($coursecontextflag && $requestedcourse) {
+    if (!$course || $course->id !== (int)$requestedcourse) {
+        $course = $DB->get_record('course', ['id' => $requestedcourse], '*', MUST_EXIST);
+    }
     $coursecontext = context_course::instance($requestedcourse);
-    $forcedcourseids[] = $requestedcourse;
+    if (!in_array((int)$requestedcourse, $forcedcourseids, true)) {
+        $forcedcourseids[] = (int)$requestedcourse;
+    }
     $incourse = true;
+}
+
+if (!$incourse && $requestedcourse) {
+    try {
+        $fallbackcontext = context_course::instance($requestedcourse);
+        if (has_capability('moodle/course:update', $fallbackcontext)) {
+            if (!$course || $course->id !== (int)$requestedcourse) {
+                $course = $DB->get_record('course', ['id' => $requestedcourse], '*', MUST_EXIST);
+            }
+            $coursecontext = $fallbackcontext;
+            if (!in_array((int)$requestedcourse, $forcedcourseids, true)) {
+                $forcedcourseids[] = (int)$requestedcourse;
+            }
+            $incourse = true;
+        }
+    } catch (Exception $e) {
+        // Ignore and continue with the existing system context handling.
+    }
+}
+
+if ($incourse && $course) {
+    require_login($course);
+} else {
+    require_login();
 }
 
 if ($incourse) {
     require_capability('moodle/course:update', $coursecontext);
-    require_capability('block/report_customcajasan:viewreport', $coursecontext);
 } else {
     require_capability('block/report_customcajasan:manageblock', $systemcontext);
     require_capability('block/report_customcajasan:viewreport', $systemcontext);
