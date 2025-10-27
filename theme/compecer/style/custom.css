@@ -1644,3 +1644,147 @@
     display: none;
   }
   
+  /* -------------------------------------------------------------------------
+     COURSE INDEX PROGRESS BAR - Compecer Theme
+     ------------------------------------------------------------------------- */
+  
+  /* Progress container */
+  .courseindex-progress-container {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.95));
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 0 0.5rem 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid #001f40;
+  }
+  
+  .courseindex-progress-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+  
+  /* Progress header */
+  .courseindex-progress-container .progress-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .courseindex-progress-container .progress-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #001f40;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .courseindex-progress-container .progress-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .courseindex-progress-container .progress-percentage {
+    font-size: 1.5rem;
+    color: #001f40;
+    font-weight: 700;
+  }
+  
+  .courseindex-progress-container .progress-details {
+    font-size: 0.75rem;
+    color: #666;
+  }
+  
+  /* Progress bar */
+  .courseindex-progress-container .progress {
+    height: 8px;
+    border-radius: 10px;
+    background-color: rgba(102, 102, 102, 0.15);
+    overflow: hidden;
+  }
+  
+  .courseindex-progress-container .progress-bar {
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Progress bar animation */
+  .courseindex-progress-container .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  /* Activity list */
+  .courseindex-progress-container .progress-activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 0 0;
+    font-size: 0.75rem;
+    color: #333;
+  }
+  
+  .courseindex-progress-container .progress-activity-list li {
+    padding: 0.25rem 0;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  
+  .courseindex-progress-container .progress-activity-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #001f40;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .courseindex-progress-container {
+      padding: 0.75rem;
+      margin: 0 0.25rem 0.75rem;
+    }
+  
+    .courseindex-progress-container .progress-percentage {
+      font-size: 1.25rem;
+    }
+  
+    .courseindex-progress-container .progress-title {
+      font-size: 0.8125rem;
+    }
+  }
+  
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    .courseindex-progress-container,
+    .courseindex-progress-container .progress-bar,
+    .courseindex-progress-container .progress-bar::after {
+      transition: none;
+      animation: none;
+    }
+  }
