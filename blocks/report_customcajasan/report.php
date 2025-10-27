@@ -395,7 +395,7 @@ if (!$scope['requiresselection'] || $incourse) {
         echo html_writer::div(
             '<i class="fa fa-info-circle"></i> ' .
             get_string('total_records', 'block_report_customcajasan') . ': ' . $downloadcount,
-            ['class' => 'alert alert-info download-warning mb-3 p-2']
+            'alert alert-info download-warning mb-3 p-2'
         );
     }
 }
