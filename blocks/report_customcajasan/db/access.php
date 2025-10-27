@@ -50,6 +50,7 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/course:update',
     ],
@@ -70,6 +71,7 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/course:update',
     ],
@@ -81,6 +83,7 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'moodle/course:update',
     ],
