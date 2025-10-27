@@ -34,4 +34,12 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'theme_compecer_get_course_progress' => [
+        'classname'   => 'theme_compecer\external\get_course_progress',
+        'methodname'  => 'execute',
+        'description' => 'Get overall progress information for a course',
+        'type'        => 'read',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
 ];

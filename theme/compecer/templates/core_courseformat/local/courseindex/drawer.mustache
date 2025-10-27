@@ -1,19 +1,50 @@
 {{!
     @template core_courseformat/local/courseindex/drawer
 
-    This template renders the course index drawer.
-    Adaptado para theme compecer (child theme de Boost).
-    
+    This template renders the course index drawer with overall course progress.
+    Redesigned for theme compecer with professional styling.
+
     Example context (json):
     {}
 }}
-<nav id="courseindex" class="course-index-drawer">
-  <div class="mb-4">
-    <span class="course-heading font-weight-bold" title="{{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}">
-      {{#str}}sidebarcoursemenuheading, theme_compecer{{/str}}
-    </span>
+<nav id="courseindex" class="courseindex-drawer-redesign">
+  {{! Course Overall Progress Header }}
+  <div class="courseindex-progress-header" id="courseindex-progress-header" style="display: none;">
+    <div class="progress-header-content">
+      <div class="progress-title-row">
+        <h3 class="progress-title">{{#str}}courseprogress, theme_compecer{{/str}}</h3>
+        <span class="progress-percentage-badge" data-region="course-percentage">0%</span>
+      </div>
+      <div class="progress-subtitle" data-region="course-activities-count">
+        <span class="activities-completed">0</span> {{#str}}of, core{{/str}} <span class="activities-total">0</span> {{#str}}activitiescompleted, theme_compecer{{/str}}
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" data-region="course-progress-bar" style="width: 0%;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <span class="progress-bar-label"></span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div id="courseindex-content">
+
+  {{! Message when completion tracking is not enabled }}
+  <div class="courseindex-no-tracking" id="courseindex-no-tracking" style="display: none;">
+    <div class="no-tracking-message">
+      <i class="fa fa-info-circle"></i>
+      <span>{{#str}}completionnotenabledcourse, theme_compecer{{/str}}</span>
+    </div>
+  </div>
+
+  {{! Course Index Title }}
+  <div class="courseindex-title-section">
+    <h4 class="courseindex-title">
+      {{#str}}courseindex, core_courseformat{{/str}}
+    </h4>
+  </div>
+
+  {{! Sections List }}
+  <div id="courseindex-content" class="courseindex-content-redesign">
     {{> core_courseformat/local/courseindex/placeholders}}
   </div>
 </nav>
