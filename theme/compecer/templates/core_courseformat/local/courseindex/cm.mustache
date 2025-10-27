@@ -26,21 +26,27 @@
     data-id="{{id}}"
     role="treeitem">
   {{^hasdelegatedsection}}
-    <div class="d-flex align-items-center justify-content-between">
-      {{#uservisible}}
-        <a class="course-index-link text-truncate"
-           {{#url}}href="{{{url}}}"{{/url}}
-           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-           data-for="cm_name" tabindex="-1" title="{{{name}}}">
-          {{{name}}}
-        </a>
-      {{/uservisible}}
-      {{^uservisible}}
-        <a class="course-index-link text-truncate"
-           href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
-          {{{name}}}
-        </a>
-      {{/uservisible}}
+    <div class="activity-item d-flex align-items-center justify-content-between" data-activity-id="{{id}}">
+      <div class="activity-content flex-grow-1 d-flex align-items-center">
+        {{#uservisible}}
+          <a class="course-index-link activity-name text-truncate"
+             {{#url}}href="{{{url}}}"{{/url}}
+             {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
+             data-for="cm_name" tabindex="-1" title="{{{name}}}">
+            {{{name}}}
+          </a>
+        {{/uservisible}}
+        {{^uservisible}}
+          <a class="course-index-link activity-name text-truncate"
+             href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+            {{{name}}}
+          </a>
+        {{/uservisible}}
+      </div>
+      {{! Indicador de estado de la actividad }}
+      <div class="activity-status-indicator" data-region="activity-status-{{id}}" data-state="notstarted">
+        <span class="sr-only">{{#str}}notstarted, core{{/str}}</span>
+      </div>
     </div>
   {{/hasdelegatedsection}}
   {{#hasdelegatedsection}}
