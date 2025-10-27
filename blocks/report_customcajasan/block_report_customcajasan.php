@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/lib.php');
+require_once(__DIR__ . '/lib.php');
 
 /**
  * Class block_report_customcajasan.
@@ -121,14 +122,18 @@ class block_report_customcajasan extends block_base {
         $coursecontext = $contextinfo['incourse'] ? context_course::instance($contextinfo['courseid']) : null;
 
         if ($contextinfo['incourse']) {
-            $hasviewblock = has_capability('block/report_customcajasan:viewblock', $coursecontext);
+            $blockcontext = context_block::instance($this->instance->id);
+            $caneditcourse = has_capability('moodle/course:update', $coursecontext);
+            $hasviewblock = has_capability('block/report_customcajasan:viewblock', $blockcontext);
             $hasviewreport = has_capability('block/report_customcajasan:viewreport', $coursecontext);
+            $hasrequiredpermissions = ($caneditcourse && $hasviewblock && $hasviewreport);
         } else {
-            $hasviewblock = has_capability('block/report_customcajasan:viewblock', $systemcontext);
             $hasviewreport = has_capability('block/report_customcajasan:viewreport', $systemcontext);
+            $canmanage = has_capability('block/report_customcajasan:manageblock', $systemcontext);
+            $hasrequiredpermissions = ($hasviewreport && $canmanage);
         }
 
-        if (!$hasviewblock || !$hasviewreport) {
+        if (!$hasrequiredpermissions) {
             $this->content->text = html_writer::div(
                 get_string('block_no_access', 'block_report_customcajasan'),
                 'alert alert-info'
@@ -137,6 +142,8 @@ class block_report_customcajasan extends block_base {
         }
 
         $categoryids = $this->get_configured_category_ids();
+        $forcedcourseids = $this->get_forced_course_ids($contextinfo);
+        $scope = report_customcajasan_effective_scope($categoryids, $forcedcourseids, null, null);
         $categorynames = [];
         if (!empty($categoryids)) {
             list($insql, $params) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED);
@@ -162,11 +169,21 @@ class block_report_customcajasan extends block_base {
             $summarylines[] = get_string('block_scope_categories', 'block_report_customcajasan');
             $summarylines[] = html_writer::alist($categorynames, [], 'ul');
         } else if ($contextinfo['incourse']) {
-            $summarylines[] = get_string('block_scope_course_only', 'block_report_customcajasan');
+            $summarylines[] = html_writer::div(
+                get_string('block_scope_course_only', 'block_report_customcajasan'),
+                'small text-muted'
+            );
         } else {
             $summarylines[] = html_writer::div(
                 get_string('block_scope_none', 'block_report_customcajasan'),
                 'alert alert-warning mb-2'
+            );
+        }
+
+        if (!empty($scope['courseids'])) {
+            $summarylines[] = html_writer::div(
+                get_string('block_scope_coursecount', 'block_report_customcajasan', count($scope['courseids'])),
+                'small text-muted'
             );
         }
 
@@ -196,6 +213,26 @@ class block_report_customcajasan extends block_base {
         }
 
         return $this->content;
+    }
+
+    /**
+     * Determine the list of courses that must be enforced for the report scope.
+     *
+     * @param array $contextinfo
+     * @return array
+     */
+    protected function get_forced_course_ids(array $contextinfo): array {
+        $courseids = [];
+
+        if (!empty($contextinfo['incourse']) && !empty($contextinfo['courseid'])) {
+            $courseids[] = (int)$contextinfo['courseid'];
+        }
+
+        if (!empty($this->config->courseid)) {
+            $courseids[] = (int)$this->config->courseid;
+        }
+
+        return report_customcajasan_normalize_id_list($courseids);
     }
 
     /**
