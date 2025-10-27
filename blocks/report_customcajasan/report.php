@@ -81,7 +81,14 @@ if ($incourse && $course) {
 }
 
 if ($incourse) {
-    require_capability('moodle/course:update', $coursecontext);
+    // Allow access if user can edit the course OR has the specific viewreport capability in the course context.
+    $canedit = has_capability('moodle/course:update', $coursecontext);
+    $canview = has_capability('block/report_customcajasan:viewreport', $coursecontext);
+
+    if (!$canedit && !$canview) {
+        // If neither capability is present, throw the standard error.
+        require_capability('moodle/course:update', $coursecontext);
+    }
 } else {
     require_capability('block/report_customcajasan:manageblock', $systemcontext);
     require_capability('block/report_customcajasan:viewreport', $systemcontext);
