@@ -26,30 +26,21 @@
     data-id="{{id}}"
     role="treeitem">
   {{^hasdelegatedsection}}
-    <div class="activity-item d-flex align-items-center justify-content-between activity-status-notstarted" data-activity-id="{{id}}">
-      <div class="activity-content flex-grow-1 d-flex align-items-center">
-        {{#uservisible}}
-          <a class="course-index-link activity-name text-truncate"
-             {{#url}}href="{{{url}}}"{{/url}}
-             {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
-             data-for="cm_name" tabindex="-1" title="{{{name}}}">
-            {{{name}}}
-          </a>
-        {{/uservisible}}
-        {{^uservisible}}
-          <a class="course-index-link activity-name text-truncate"
-             href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
-            {{{name}}}
-          </a>
-        {{/uservisible}}
-      </div>
-      {{! Indicador de estado de la actividad }}
-      <div class="activity-status-indicator activity-status-notstarted"
-           data-region="activity-status-{{id}}"
-           data-state="notstarted">
-        <span class="sr-only" data-region="activity-status-sr">{{#str}}activitystate_notstarted, theme_compecer{{/str}}</span>
-        <i class="fa fa-circle text-muted" data-region="activity-status-icon" aria-hidden="true"></i>
-      </div>
+    <div class="d-flex align-items-center justify-content-between">
+      {{#uservisible}}
+        <a class="course-index-link text-truncate"
+           {{#url}}href="{{{url}}}"{{/url}}
+           {{^url}}href="#{{{anchor}}}" data-anchor="true"{{/url}}
+           data-for="cm_name" tabindex="-1" title="{{{name}}}">
+          {{{name}}}
+        </a>
+      {{/uservisible}}
+      {{^uservisible}}
+        <a class="course-index-link text-truncate"
+           href="#{{{anchor}}}" data-for="cm_name" tabindex="-1" data-anchor="true">
+          {{{name}}}
+        </a>
+      {{/uservisible}}
     </div>
   {{/hasdelegatedsection}}
   {{#hasdelegatedsection}}

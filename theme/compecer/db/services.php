@@ -15,20 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Web service definitions.
+ * Web service definitions for theme_compecer
  *
  * @package    theme_compecer
  * @copyright  2024 IngeWeb https://www.ingeweb.co
+ * @author     Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'theme_compecer_get_course_progress' => [
-        'classname'   => 'theme_compecer\external\get_course_progress',
+    'theme_compecer_get_section_progress' => [
+        'classname'   => 'theme_compecer\external\get_section_progress',
         'methodname'  => 'execute',
-        'description' => 'Get course progress with section and activity details',
+        'description' => 'Get progress information for a course section',
         'type'        => 'read',
         'ajax'        => true,
         'loginrequired' => true,

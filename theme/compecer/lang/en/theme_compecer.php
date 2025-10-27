@@ -198,15 +198,6 @@ $string['icon_lightbulb'] = 'Light Bulb';
 $string['icon_chart'] = 'Chart Line';
 $string['icon_medal'] = 'Medal';
 $string['icon_certificate'] = 'Certificate';
-
-// Course index progress.
-$string['courseprogressheading'] = 'Course completion progress';
-$string['courseprogressactivitysummary'] = '{$a->completed} of {$a->total} activities completed';
-$string['sectionprogresssummary'] = '{$a->completed} of {$a->total} activities completed';
-$string['activitystate_notstarted'] = 'Not started';
-$string['activitystate_inprogress'] = 'In progress';
-$string['activitystate_completed'] = 'Completed';
-$string['activitystate_notracking'] = 'Not tracked';
 $string['icon_star'] = 'Star';
 $string['icon_rocket'] = 'Rocket';
 $string['icon_code'] = 'Code';
@@ -304,3 +295,11 @@ $string['breadcrumb'] = 'Breadcrumb';
 $string['opendrawernav'] = 'Open navigation drawer';
 $string['closedrawernav'] = 'Close navigation drawer';
 $string['sidebarcoursemenuheading'] = 'Course index';
+
+// Course Progress Strings
+$string['progress'] = 'Progress';
+$string['completionprogress'] = 'Completion progress';
+$string['sectionprogress'] = 'Section progress';
+$string['activitiescompleted'] = 'activities completed';
+$string['nocompletion'] = 'No completion tracking';
+$string['completionenabled'] = 'Completion tracking enabled';

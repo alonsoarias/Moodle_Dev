@@ -121,6 +121,8 @@ class block_report_customcajasan extends block_base {
         $systemcontext = context_system::instance();
         $coursecontext = $contextinfo['incourse'] ? context_course::instance($contextinfo['courseid']) : null;
 
+        $capabilitywarnings = [];
+
         if ($contextinfo['incourse']) {
             $blockcontext = context_block::instance($this->instance->id);
             $caneditcourse = has_capability('moodle/course:update', $coursecontext);

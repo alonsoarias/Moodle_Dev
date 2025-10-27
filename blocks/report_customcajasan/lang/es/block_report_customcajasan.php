@@ -50,6 +50,8 @@ $string['block_scope_course_only'] = 'El informe mostrará únicamente los datos
 $string['block_scope_none'] = 'No se han seleccionado categorías. Configura el bloque para elegir una o más categorías.';
 $string['block_scope_coursecount'] = 'Total de cursos actualmente en alcance: {$a}';
 $string['block_scope_configure_notice'] = 'Edita este bloque para seleccionar las categorías que deben alimentar el informe.';
+$string['block_warning_missing_viewblock'] = 'Tu rol no tiene la capacidad block/report_customcajasan:viewblock. El informe permanece disponible porque puedes editar este curso.';
+$string['block_warning_missing_viewreport'] = 'Tu rol no tiene la capacidad block/report_customcajasan:viewreport. El informe permanece disponible porque puedes editar este curso.';
 
 // Formulario de configuración.
 $string['config_header'] = 'Configuración del alcance del informe';
