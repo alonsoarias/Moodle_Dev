@@ -51,6 +51,7 @@ $capabilities = [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'moodle/course:update',
     ],
 
     'block/report_customcajasan:manageblock' => [
@@ -70,6 +71,7 @@ $capabilities = [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'moodle/course:update',
     ],
 
     'block/report_customcajasan:viewreport' => [
@@ -80,5 +82,6 @@ $capabilities = [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'moodle/course:update',
     ],
 ];

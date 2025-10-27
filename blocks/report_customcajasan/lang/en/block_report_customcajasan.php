@@ -48,7 +48,10 @@ $string['block_scope_current_course'] = 'Scope: Current course – {$a}';
 $string['block_scope_categories'] = 'Included course categories:';
 $string['block_scope_course_only'] = 'The report will display data from this course only.';
 $string['block_scope_none'] = 'No categories selected. Configure the block to select one or more categories.';
+$string['block_scope_coursecount'] = 'Total courses currently in scope: {$a}';
 $string['block_scope_configure_notice'] = 'Edit this block to choose the categories that should feed the report.';
+$string['block_warning_missing_viewblock'] = 'Your role is missing the capability block/report_customcajasan:viewblock. The report remains available because you have editing rights in this course.';
+$string['block_warning_missing_viewreport'] = 'Your role is missing the capability block/report_customcajasan:viewreport. The report remains available because you have editing rights in this course.';
 
 // Configuration form.
 $string['config_header'] = 'Report scope configuration';
@@ -56,6 +59,9 @@ $string['config_context_label'] = 'Block location';
 $string['config_context_system'] = 'Main site (front page). Only site managers can configure or view the report here.';
 $string['config_context_my'] = 'Personal dashboard. Only site managers can configure or view the report here.';
 $string['config_context_course'] = 'Course page: {$a}';
+$string['config_context_system_note'] = 'The consolidated report will only show courses that belong to the selected categories. Without categories no data will be displayed.';
+$string['config_context_my_note'] = 'Use this configuration to build a personalised overview sourced from the selected course categories.';
+$string['config_context_course_note'] = 'By default, the report includes the current course "{$a}". Any categories you select will add their courses on top of it without duplicates.';
 $string['config_categoryids'] = 'Categories included in the report';
 $string['config_categoryids_help'] = 'Select the course categories whose courses should be included when the report is generated. '
     . 'When the block is placed inside a course, the current course is always included automatically.';
