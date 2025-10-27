@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->libdir . '/outputcomponents.php');
 
 /**
  * Configuration form definition.
@@ -50,7 +51,7 @@ class block_report_customcajasan_edit_form extends block_edit_form {
         $iscoursecontext = ($parentcontext->contextlevel === CONTEXT_COURSE && $parentcontext->instanceid != SITEID);
 
         if ($iscoursecontext) {
-            require_capability('block/report_customcajasan:configurecourse', $parentcontext);
+            require_capability('moodle/course:update', $parentcontext);
         } else {
             require_capability('block/report_customcajasan:manageblock', $systemcontext);
         }
@@ -59,13 +60,18 @@ class block_report_customcajasan_edit_form extends block_edit_form {
 
         if ($iscoursecontext) {
             $course = get_course($parentcontext->instanceid);
-            $contextinfo = get_string('config_context_course', 'block_report_customcajasan', format_string($course->fullname));
+            $coursename = format_string($course->fullname);
+            $contextinfo = get_string('config_context_course', 'block_report_customcajasan', $coursename);
+            $contextnote = get_string('config_context_course_note', 'block_report_customcajasan', $coursename);
         } else if ($isuserscontext) {
             $contextinfo = get_string('config_context_my', 'block_report_customcajasan');
+            $contextnote = get_string('config_context_my_note', 'block_report_customcajasan');
         } else {
             $contextinfo = get_string('config_context_system', 'block_report_customcajasan');
+            $contextnote = get_string('config_context_system_note', 'block_report_customcajasan');
         }
         $mform->addElement('static', 'contextinfo', get_string('config_context_label', 'block_report_customcajasan'), $contextinfo);
+        $mform->addElement('static', 'contextnote', '', html_writer::div($contextnote, 'alert alert-info'));
 
         $categoryoptions = core_course_category::make_categories_list(null, 0, true, '\\-');
         $multiselectoptions = [
@@ -85,7 +91,7 @@ class block_report_customcajasan_edit_form extends block_edit_form {
         $mform->setDefault('config_categoryids', $defaultcategories);
 
         $mform->addElement('static', 'configcategoryhint', '',
-            get_string('config_categoryids_hint', 'block_report_customcajasan'));
+            html_writer::div(get_string('config_categoryids_hint', 'block_report_customcajasan'), 'text-muted'));
 
         $courseid = 0;
         if ($iscoursecontext) {

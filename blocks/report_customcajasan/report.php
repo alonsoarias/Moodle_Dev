@@ -73,20 +73,11 @@ if ($blockinfo) {
 }
 
 if ($incourse) {
-    $canview = $coursecontext && has_capability('block/report_customcajasan:viewreport', $coursecontext);
-    $ismanager = $coursecontext && has_any_capability([
-        'block/report_customcajasan:configurecourse',
-        'moodle/course:update'
-    ], $coursecontext);
-    if (!$canview && !$ismanager) {
-        throw new required_capability_exception($coursecontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
-    }
+    require_capability('moodle/course:update', $coursecontext);
+    require_capability('block/report_customcajasan:viewreport', $coursecontext);
 } else {
-    $canview = has_capability('block/report_customcajasan:viewreport', $systemcontext);
-    $ismanager = has_capability('block/report_customcajasan:manageblock', $systemcontext);
-    if (!$canview && !$ismanager) {
-        throw new required_capability_exception($systemcontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
-    }
+    require_capability('block/report_customcajasan:manageblock', $systemcontext);
+    require_capability('block/report_customcajasan:viewreport', $systemcontext);
 }
 
 if (function_exists('set_time_limit')) {
