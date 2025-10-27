@@ -298,8 +298,10 @@ $string['sidebarcoursemenuheading'] = 'Índice del curso';
 
 // Cadenas de Progreso del Curso
 $string['progress'] = 'Progreso';
+$string['courseprogress'] = 'Progreso del Curso';
 $string['completionprogress'] = 'Progreso de finalización';
 $string['sectionprogress'] = 'Progreso de la sección';
 $string['activitiescompleted'] = 'actividades completadas';
 $string['nocompletion'] = 'Sin seguimiento de finalización';
 $string['completionenabled'] = 'Seguimiento de finalización habilitado';
+$string['completionnotenabledcourse'] = 'El seguimiento de finalización no está habilitado para este curso';

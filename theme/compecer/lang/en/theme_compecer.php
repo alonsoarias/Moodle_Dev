@@ -298,8 +298,10 @@ $string['sidebarcoursemenuheading'] = 'Course index';
 
 // Course Progress Strings
 $string['progress'] = 'Progress';
+$string['courseprogress'] = 'Course Progress';
 $string['completionprogress'] = 'Completion progress';
 $string['sectionprogress'] = 'Section progress';
 $string['activitiescompleted'] = 'activities completed';
 $string['nocompletion'] = 'No completion tracking';
 $string['completionenabled'] = 'Completion tracking enabled';
+$string['completionnotenabledcourse'] = 'Completion tracking is not enabled for this course';

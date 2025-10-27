@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Web service to get section progress
+ * Web service to get course overall progress
  *
  * @package    theme_compecer
  * @copyright  2024 IngeWeb https://www.ingeweb.co
@@ -37,9 +37,9 @@ use context_course;
 use theme_compecer\util\course_progress;
 
 /**
- * External function to get section progress
+ * External function to get course overall progress
  */
-class get_section_progress extends external_api {
+class get_course_progress extends external_api {
 
     /**
      * Returns description of method parameters
@@ -48,24 +48,21 @@ class get_section_progress extends external_api {
      */
     public static function execute_parameters() {
         return new external_function_parameters([
-            'sectionid' => new external_value(PARAM_INT, 'Section ID', VALUE_REQUIRED),
             'courseid' => new external_value(PARAM_INT, 'Course ID', VALUE_REQUIRED),
         ]);
     }
 
     /**
-     * Get section progress
+     * Get course overall progress
      *
-     * @param int $sectionid Section ID
      * @param int $courseid Course ID
      * @return array Progress data
      */
-    public static function execute($sectionid, $courseid) {
+    public static function execute($courseid) {
         global $USER, $DB;
 
         // Validate parameters
         $params = self::validate_parameters(self::execute_parameters(), [
-            'sectionid' => $sectionid,
             'courseid' => $courseid,
         ]);
 
@@ -82,19 +79,42 @@ class get_section_progress extends external_api {
             return [
                 'hasprogress' => false,
                 'percentage' => 0,
-                'complete' => 0,
+                'completed' => 0,
                 'total' => 0
             ];
         }
 
         // Get progress data
-        $progress = course_progress::get_section_progress_by_id(
-            $params['courseid'],
-            $params['sectionid'],
-            $USER->id
-        );
+        $progress = course_progress::get_course_progress($course, $USER->id);
 
-        return $progress;
+        // Get detailed activity counts
+        $completion = new \completion_info($course);
+        $completed = 0;
+        $total = 0;
+
+        if ($completion->is_enabled()) {
+            $modinfo = get_fast_modinfo($course);
+            foreach ($modinfo->get_cms() as $cm) {
+                if ($cm->modname === 'label' || !$cm->uservisible) {
+                    continue;
+                }
+                if ($completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
+                    $total++;
+                    $completiondata = $completion->get_data($cm, true, $USER->id);
+                    if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                        $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                        $completed++;
+                    }
+                }
+            }
+        }
+
+        return [
+            'hasprogress' => $progress['hasprogress'],
+            'percentage' => $progress['percentage'],
+            'completed' => $completed,
+            'total' => $total
+        ];
     }
 
     /**
@@ -104,9 +124,9 @@ class get_section_progress extends external_api {
      */
     public static function execute_returns() {
         return new external_single_structure([
-            'hasprogress' => new external_value(PARAM_BOOL, 'Whether the section has progress tracking'),
+            'hasprogress' => new external_value(PARAM_BOOL, 'Whether the course has progress tracking'),
             'percentage' => new external_value(PARAM_INT, 'Completion percentage'),
-            'complete' => new external_value(PARAM_INT, 'Number of completed activities'),
+            'completed' => new external_value(PARAM_INT, 'Number of completed activities'),
             'total' => new external_value(PARAM_INT, 'Total number of activities with completion'),
         ]);
     }
