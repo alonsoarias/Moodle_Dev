@@ -15,18 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Version details for the report_customcajasan block.
  *
  * @package    block_report_customcajasan
  * @copyright  2025 Cajasan
- * @author     Pedro Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025101700;        // Incrementado - soporte para contexto de curso
-$plugin->requires  = 2022041900;        // Requires Moodle 4.0+
-$plugin->component = 'block_report_customcajasan'; // Full name of the plugin
+$plugin->version   = 2025102700; // YYYYMMDDVV.
+$plugin->requires  = 2022041900; // Moodle 4.0.
+$plugin->component = 'block_report_customcajasan';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.7.0';           // Soporte para mostrar bloque en cursos individuales</document_content>
+$plugin->release   = '1.8.0 (2025-10-27)';

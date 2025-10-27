@@ -15,11 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AJAX endpoint to get report data - Optimizado para mejor rendimiento
+ * AJAX endpoint to get report data - Optimizado para mejor rendimiento.
  *
  * @package    block_report_customcajasan
  * @copyright  2025 Cajasan
- * @author     Pedro Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,220 +26,239 @@ define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->dirroot . '/blocks/report_customcajasan/lib.php');
 
-// Aumentar límites para permitir procesamiento de grandes conjuntos de datos
 if (function_exists('set_time_limit')) {
-    set_time_limit(300); // 5 minutos para AJAX
+    set_time_limit(300);
 }
-// Aumentar límite de memoria usando la configuración definida por el administrador
 raise_memory_limit(MEMORY_EXTRA);
 
-// Check user login
 require_login(null, false);
 
-// Verify sesskey with better error handling
 if (!confirm_sesskey()) {
-    $error = array(
+    echo json_encode([
         'success' => false,
         'error' => get_string('invalidsesskey', 'error')
-    );
-    echo json_encode($error);
+    ]);
     die();
 }
 
-// Detectar si venimos de un contexto de curso
-$coursecontext_param = optional_param('coursecontext', 0, PARAM_INT);
-$courseid_from_context = optional_param('courseid', 0, PARAM_INT);
+$instanceid = optional_param('instanceid', 0, PARAM_INT);
+$coursecontextflag = optional_param('coursecontext', 0, PARAM_INT);
+$requestedcourse = optional_param('courseid', 0, PARAM_INT);
+$requestedcategory = optional_param('categoryid', 0, PARAM_INT);
 
-// Determinar el contexto apropiado para verificación de permisos
 $systemcontext = context_system::instance();
+$blockinfo = $instanceid ? report_customcajasan_load_block_instance($instanceid) : null;
+
+if ($instanceid && !$blockinfo) {
+    echo json_encode([
+        'success' => false,
+        'error' => get_string('invalidblockinstance', 'block_report_customcajasan')
+    ]);
+    die();
+}
+
 $incourse = false;
 $coursecontext = null;
+$forcedcourseids = [];
+$configcategories = [];
 
-if ($coursecontext_param && $courseid_from_context) {
+if ($blockinfo) {
+    $configcategories = $blockinfo['categoryids'];
+    if (!empty($blockinfo['courseid'])) {
+        $forcedcourseids[] = (int)$blockinfo['courseid'];
+    }
+    if ($blockinfo['incourse'] && !empty($blockinfo['courseid'])) {
+        $incourse = true;
+        $coursecontext = context_course::instance($blockinfo['courseid']);
+    }
+} elseif ($coursecontextflag && $requestedcourse) {
     try {
-        $coursecontext = context_course::instance($courseid_from_context);
+        $coursecontext = context_course::instance($requestedcourse);
+        $forcedcourseids[] = $requestedcourse;
         $incourse = true;
     } catch (Exception $e) {
-        // Si falla, usar contexto del sistema
         $incourse = false;
     }
 }
 
-// Check capability or manager role
 try {
     if ($incourse) {
-        // Verificar permisos en el contexto del curso
-        $can_view = has_capability('block/report_customcajasan:viewreport', $coursecontext);
-        $is_manager = has_any_capability(['moodle/course:update', 'moodle/course:manageactivities'], $coursecontext);
+        $canview = $coursecontext && has_capability('block/report_customcajasan:viewreport', $coursecontext);
+        $ismanager = $coursecontext && has_any_capability([
+            'block/report_customcajasan:configurecourse',
+            'moodle/course:update'
+        ], $coursecontext);
+        if (!$canview && !$ismanager) {
+            throw new required_capability_exception($coursecontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
+        }
     } else {
-        // Verificar permisos en el contexto del sistema
-        $can_view = has_capability('block/report_customcajasan:viewreport', $systemcontext);
-        $is_manager = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
-    }
-    
-    if (!$can_view && !$is_manager) {
-        throw new required_capability_exception(
-            $incourse ? $coursecontext : $systemcontext, 
-            'block/report_customcajasan:viewreport', 
-            'nopermissions', 
-            ''
-        );
+        $canview = has_capability('block/report_customcajasan:viewreport', $systemcontext);
+        $ismanager = has_capability('block/report_customcajasan:manageblock', $systemcontext);
+        if (!$canview && !$ismanager) {
+            throw new required_capability_exception($systemcontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
+        }
     }
 } catch (Exception $e) {
-    $error = array(
+    echo json_encode([
         'success' => false,
         'error' => get_string('nopermissions', 'error', 'block/report_customcajasan:viewreport')
-    );
-    echo json_encode($error);
+    ]);
     die();
 }
 
 try {
-    // Get filter parameters with consistent pattern
-    $filters = array(
-        'category' => optional_param('categoryid', 0, PARAM_INT),
-        'course' => optional_param('courseid', 0, PARAM_INT),
+    $filters = [
         'idnumber' => optional_param('idnumber', '', PARAM_TEXT),
         'firstname' => optional_param('firstname', '', PARAM_TEXT),
         'lastname' => optional_param('lastname', '', PARAM_TEXT),
         'estado' => optional_param('estado', '', PARAM_TEXT),
         'startdate' => optional_param('startdate', '', PARAM_TEXT),
         'enddate' => optional_param('enddate', '', PARAM_TEXT)
-    );
-    
-    // Si estamos en contexto de curso, forzar el filtro de curso
-    if ($incourse && $courseid_from_context) {
-        $filters['course'] = $courseid_from_context;
-    }
-    
-    // Process date parameters
+    ];
+
     if (!empty($filters['startdate'])) {
         $filters['startdate'] = strtotime($filters['startdate']);
     }
-    
     if (!empty($filters['enddate'])) {
         $filters['enddate'] = strtotime($filters['enddate'] . ' 23:59:59');
     }
-    
-    // Store filters in session for download use
+
+    $scope = report_customcajasan_effective_scope(
+        $configcategories,
+        $forcedcourseids,
+        $requestedcategory ?: null,
+        $incourse ? null : ($requestedcourse ?: null)
+    );
+
+    if ($incourse && empty($scope['courseids']) && !empty($forcedcourseids)) {
+        $scope['courseids'] = report_customcajasan_normalize_id_list($forcedcourseids);
+    }
+
+    if ($scope['requiresselection'] && !$incourse) {
+        echo json_encode([
+            'success' => true,
+            'html' => html_writer::div(
+                get_string('report_no_scope_configured', 'block_report_customcajasan'),
+                'alert alert-warning'
+            ),
+            'count' => 0
+        ]);
+        die();
+    }
+
+    $filters['courseids'] = $scope['courseids'];
+    $filters['categoryids'] = $scope['categoryids'];
+    $filters['category'] = $requestedcategory;
+    $filters['course'] = $requestedcourse;
+
     $_SESSION['report_customcajasan_filters'] = $filters;
-    
-    // Pagination parameters
+
     $page = optional_param('page', 0, PARAM_INT);
     $perpage = optional_param('perpage', 100, PARAM_INT);
-    
-    // Si perpage es 0, limitar a un máximo razonable para AJAX para evitar problemas de rendimiento
     if ($perpage == 0) {
-        $perpage = 1000; // Límite razonable para AJAX - el usuario todavía puede descargar todos usando la funcionalidad de descarga
+        $perpage = 1000;
     }
-    
-    // Get total count using optimized query
+
     $totalcount = report_customcajasan_count_data($filters);
-    
-    // Get only the records for the current page
     $limitfrom = $page * $perpage;
     $enrollments = report_customcajasan_get_data($filters, $limitfrom, $perpage);
-    
-    // Prepare HTML table
-    $html = '';
+
     if (empty($enrollments)) {
-        $html = html_writer::tag('div', 
-            get_string('no_data', 'block_report_customcajasan'), 
-            array('class' => 'alert alert-info'));
-    } else {
-        $html .= html_writer::tag('div', 
-            get_string('total_records', 'block_report_customcajasan') . ': ' . $totalcount, 
-            array('class' => 'font-weight-bold mb-2'));
-        
-        // Table with reorganized columns
-        $table = new html_table();
-        $table->head = array(
-            get_string('column_identificacion', 'block_report_customcajasan'),
-            get_string('column_nombres', 'block_report_customcajasan'),
-            get_string('column_apellidos', 'block_report_customcajasan'),
-            get_string('column_correo', 'block_report_customcajasan'),
-            get_string('column_curso', 'block_report_customcajasan'),
-            get_string('column_categoria', 'block_report_customcajasan'),
-            get_string('column_unidad', 'block_report_customcajasan'),
-            get_string('column_fecha_matricula', 'block_report_customcajasan'),
-            get_string('column_ultimo_acceso', 'block_report_customcajasan'),
-            get_string('column_fecha_certificado', 'block_report_customcajasan'),
-            get_string('column_estado', 'block_report_customcajasan')
-        );
-        $table->data = array();
-        
-        // Prepare data with links to courses
-        foreach ($enrollments as $enrollment) {
-            // Create course link
-            $curso_link = html_writer::link(
-                new moodle_url('/course/view.php', array('id' => $enrollment->courseid)),
-                $enrollment->curso,
-                array('target' => '_blank')
-            );
-            
-            // Ajustar último acceso para estado NO INICIADO
-            $ultimo_acceso = $enrollment->ultimo_acceso;
-            if ($enrollment->estado === 'NO INICIADO' || empty($ultimo_acceso)) {
-                $ultimo_acceso = get_string('never', 'block_report_customcajasan');
-            }
-            
-            // Add row with link and reorganized columns
-            $table->data[] = array(
-                $enrollment->identificacion,
-                $enrollment->nombres,
-                $enrollment->apellidos,
-                $enrollment->correo,
-                $curso_link,
-                $enrollment->categoria,
-                $enrollment->unidad,
-                $enrollment->fecha_matricula,
-                $ultimo_acceso,
-                $enrollment->fecha_certificado, 
-                $enrollment->estado
-            );
-        }
-        
-        $table->id = 'enrollment-report-table';
-        $table->attributes['class'] = 'table table-striped table-bordered table-hover';
-        
-        $html .= html_writer::table($table);
-        
-        // Add pagination HTML with data attributes for easier handling
-        $baseurl_params = [
-            'categoryid' => $filters['category'],
-            'courseid' => $filters['course'],
-            'idnumber' => $filters['idnumber'],
-            'firstname' => $filters['firstname'],
-            'lastname' => $filters['lastname'],
-            'estado' => $filters['estado'],
-            'startdate' => $filters['startdate'] ? date('Y-m-d', $filters['startdate']) : '',
-            'enddate' => $filters['enddate'] ? date('Y-m-d', $filters['enddate']) : ''
-        ];
-        
-        // Agregar parámetros de contexto de curso si aplica
-        if ($incourse) {
-            $baseurl_params['coursecontext'] = 1;
-        }
-        
-        $baseurl = new moodle_url('/blocks/report_customcajasan/report.php', $baseurl_params);
-        
-        $html .= custom_paging_bar($totalcount, $page, $perpage, $baseurl);
+        echo json_encode([
+            'success' => true,
+            'html' => html_writer::div(get_string('no_data', 'block_report_customcajasan'), ['class' => 'alert alert-info']),
+            'count' => 0
+        ]);
+        die();
     }
-    
-    // JSON response optimizado para tamaño
-    $response = array(
+
+    $html = html_writer::tag(
+        'div',
+        get_string('total_records', 'block_report_customcajasan') . ': ' . $totalcount,
+        ['class' => 'font-weight-bold mb-2']
+    );
+
+    $table = new html_table();
+    $table->head = [
+        get_string('column_identificacion', 'block_report_customcajasan'),
+        get_string('column_nombres', 'block_report_customcajasan'),
+        get_string('column_apellidos', 'block_report_customcajasan'),
+        get_string('column_correo', 'block_report_customcajasan'),
+        get_string('column_curso', 'block_report_customcajasan'),
+        get_string('column_categoria', 'block_report_customcajasan'),
+        get_string('column_unidad', 'block_report_customcajasan'),
+        get_string('column_fecha_matricula', 'block_report_customcajasan'),
+        get_string('column_ultimo_acceso', 'block_report_customcajasan'),
+        get_string('column_fecha_certificado', 'block_report_customcajasan'),
+        get_string('column_estado', 'block_report_customcajasan')
+    ];
+    $table->data = [];
+
+    foreach ($enrollments as $enrollment) {
+        $courselink = html_writer::link(
+            new moodle_url('/course/view.php', ['id' => $enrollment->courseid]),
+            $enrollment->curso,
+            ['target' => '_blank']
+        );
+
+        $ultimoacceso = $enrollment->ultimo_acceso;
+        if ($enrollment->estado === 'NO INICIADO' || empty($ultimoacceso)) {
+            $ultimoacceso = get_string('never', 'block_report_customcajasan');
+        }
+
+        $table->data[] = [
+            $enrollment->identificacion,
+            $enrollment->nombres,
+            $enrollment->apellidos,
+            $enrollment->correo,
+            $courselink,
+            $enrollment->categoria,
+            $enrollment->unidad,
+            $enrollment->fecha_matricula,
+            $ultimoacceso,
+            $enrollment->fecha_certificado,
+            $enrollment->estado
+        ];
+    }
+
+    $table->id = 'enrollment-report-table';
+    $table->attributes['class'] = 'table table-striped table-bordered table-hover';
+
+    $html .= html_writer::table($table);
+
+    $baseurlparams = [
+        'categoryid' => $requestedcategory,
+        'courseid' => $requestedcourse,
+        'idnumber' => $filters['idnumber'],
+        'firstname' => $filters['firstname'],
+        'lastname' => $filters['lastname'],
+        'estado' => $filters['estado'],
+        'startdate' => !empty($filters['startdate']) ? date('Y-m-d', $filters['startdate']) : '',
+        'enddate' => !empty($filters['enddate']) ? date('Y-m-d', $filters['enddate']) : ''
+    ];
+
+    if ($incourse) {
+        $baseurlparams['coursecontext'] = 1;
+        if (!empty($forcedcourseids)) {
+            $baseurlparams['courseid'] = reset($forcedcourseids);
+        }
+    }
+
+    if ($instanceid) {
+        $baseurlparams['instanceid'] = $instanceid;
+    }
+
+    $baseurl = new moodle_url('/blocks/report_customcajasan/report.php', $baseurlparams);
+    $html .= custom_paging_bar($totalcount, $page, $perpage, $baseurl);
+
+    echo json_encode([
         'success' => true,
         'html' => $html,
         'count' => $totalcount
-    );
-    
-    // Send JSON response - sin formato adicional para reducir tamaño
-    echo json_encode($response);
-    
+    ]);
 } catch (Exception $e) {
-    $error = array(
+    echo json_encode([
         'success' => false,
         'error' => 'Error processing data: ' . $e->getMessage()
-    );
-    echo json_encode($error);
+    ]);
 }

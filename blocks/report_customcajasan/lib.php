@@ -28,9 +28,146 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/excellib.class.php');
 require_once($CFG->libdir . '/odslib.class.php');
 require_once($CFG->libdir . '/csvlib.class.php');
+require_once($CFG->libdir . '/blocklib.php');
 
 // Constantes para la generación de informes
 define('REPORT_CUSTOMCAJASAN_CHUNK_SIZE', 1000); // Tamaño de chunks para procesamiento por lotes
+
+/**
+ * Normalise a list of IDs into a clean integer array.
+ *
+ * @param mixed $ids
+ * @return array
+ */
+function report_customcajasan_normalize_id_list($ids): array {
+    if (empty($ids)) {
+        return [];
+    }
+
+    if (!is_array($ids)) {
+        $ids = [$ids];
+    }
+
+    $ids = array_map('intval', $ids);
+    $ids = array_filter($ids, static function($id) {
+        return $id > 0;
+    });
+
+    return array_values(array_unique($ids));
+}
+
+/**
+ * Obtain all visible course IDs that belong to the provided categories.
+ *
+ * @param array $categoryids
+ * @return array
+ */
+function report_customcajasan_get_courseids_from_categories(array $categoryids): array {
+    global $DB;
+
+    $categoryids = report_customcajasan_normalize_id_list($categoryids);
+    if (empty($categoryids)) {
+        return [];
+    }
+
+    list($insql, $params) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED);
+    $courses = $DB->get_fieldset_sql("SELECT id FROM {course} WHERE category {$insql} AND visible = 1", $params);
+
+    return report_customcajasan_normalize_id_list($courses);
+}
+
+/**
+ * Load a block instance and expose its configuration for reuse.
+ *
+ * @param int $instanceid
+ * @return array|null
+ */
+function report_customcajasan_load_block_instance(int $instanceid): ?array {
+    global $DB;
+
+    static $cache = [];
+
+    if (isset($cache[$instanceid])) {
+        return $cache[$instanceid];
+    }
+
+    $instance = $DB->get_record('block_instances', ['id' => $instanceid], '*', IGNORE_MISSING);
+    if (!$instance || $instance->blockname !== 'report_customcajasan') {
+        return null;
+    }
+
+    $block = block_instance($instance->blockname, $instance);
+    if (!$block) {
+        return null;
+    }
+
+    $parentcontext = context::instance_by_id($instance->parentcontextid, IGNORE_MISSING);
+    $config = !empty($block->config) ? $block->config : new stdClass();
+    $categoryids = !empty($config->categoryids) ? report_customcajasan_normalize_id_list($config->categoryids) : [];
+    $courseid = !empty($config->courseid) ? (int)$config->courseid : 0;
+
+    if ($parentcontext && $parentcontext->contextlevel === CONTEXT_COURSE && $parentcontext->instanceid != SITEID) {
+        $courseid = $courseid ?: (int)$parentcontext->instanceid;
+    }
+
+    $info = [
+        'instance' => $instance,
+        'block' => $block,
+        'config' => $config,
+        'parentcontext' => $parentcontext,
+        'categoryids' => $categoryids,
+        'courseid' => $courseid,
+        'incourse' => ($parentcontext && $parentcontext->contextlevel === CONTEXT_COURSE && $parentcontext->instanceid != SITEID),
+    ];
+
+    $cache[$instanceid] = $info;
+    return $info;
+}
+
+/**
+ * Determine the effective course scope combining forced courses and configured categories.
+ *
+ * @param array $configcategories
+ * @param array $forcedcourseids
+ * @param int|null $requestedcategory
+ * @param int|null $requestedcourse
+ * @return array{courseids:array,categoryids:array,requiresselection:bool}
+ */
+function report_customcajasan_effective_scope(array $configcategories, array $forcedcourseids, ?int $requestedcategory, ?int $requestedcourse): array {
+    $configcategories = report_customcajasan_normalize_id_list($configcategories);
+    $forcedcourseids = report_customcajasan_normalize_id_list($forcedcourseids);
+
+    $activecategories = $configcategories;
+
+    if (!empty($configcategories) && !empty($requestedcategory)) {
+        $requestedcategory = (int)$requestedcategory;
+        if (in_array($requestedcategory, $configcategories, true)) {
+            $activecategories = report_customcajasan_normalize_id_list($requestedcategory);
+        }
+    }
+
+    $courseids = $forcedcourseids;
+    if (!empty($activecategories)) {
+        $courseids = array_merge($courseids, report_customcajasan_get_courseids_from_categories($activecategories));
+    }
+
+    $courseids = report_customcajasan_normalize_id_list($courseids);
+
+    if (!empty($requestedcourse)) {
+        $requestedcourse = (int)$requestedcourse;
+        if (!empty($courseids) && in_array($requestedcourse, $courseids, true)) {
+            $courseids = report_customcajasan_normalize_id_list($requestedcourse);
+        } else if (empty($courseids) && in_array($requestedcourse, $forcedcourseids, true)) {
+            $courseids = report_customcajasan_normalize_id_list($requestedcourse);
+        }
+    }
+
+    return [
+        'courseids' => $courseids,
+        'categoryids' => $activecategories,
+        'requiresselection' => empty($courseids) && empty($activecategories),
+    ];
+}
 
 /**
  * Get enrollment data based on filters with pagination support
@@ -201,16 +338,18 @@ function report_customcajasan_get_data_chunk($filters, $limitfrom, $limitnum, $c
     
     // Parameter collection
     $params = array();
-    
-    // Apply filters using clean, consistent pattern with optimized conditions
-    if (!empty($filters['category'])) {
-        $sql .= " AND c.category = :category";
-        $params['category'] = $filters['category'];
-    }
-    
-    if (!empty($filters['course'])) {
-        $sql .= " AND c.id = :course";
-        $params['course'] = $filters['course'];
+
+    $courseids = report_customcajasan_normalize_id_list($filters['courseids'] ?? ($filters['course'] ?? []));
+    $categoryids = report_customcajasan_normalize_id_list($filters['categoryids'] ?? ($filters['category'] ?? []));
+
+    if (!empty($courseids)) {
+        list($insql, $inparams) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED, 'crsid');
+        $sql .= " AND c.id {$insql}";
+        $params = array_merge($params, $inparams);
+    } else if (!empty($categoryids)) {
+        list($insql, $inparams) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED, 'catid');
+        $sql .= " AND c.category {$insql}";
+        $params = array_merge($params, $inparams);
     }
     
     if (!empty($filters['idnumber'])) {
@@ -330,16 +469,18 @@ function report_customcajasan_count_data($filters) {
     
     // Parameter collection
     $params = array();
-    
-    // Apply filters
-    if (!empty($filters['category'])) {
-        $sql .= " AND c.category = :category";
-        $params['category'] = $filters['category'];
-    }
-    
-    if (!empty($filters['course'])) {
-        $sql .= " AND c.id = :course";
-        $params['course'] = $filters['course'];
+
+    $courseids = report_customcajasan_normalize_id_list($filters['courseids'] ?? ($filters['course'] ?? []));
+    $categoryids = report_customcajasan_normalize_id_list($filters['categoryids'] ?? ($filters['category'] ?? []));
+
+    if (!empty($courseids)) {
+        list($insql, $inparams) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED, 'crsid');
+        $sql .= " AND c.id {$insql}";
+        $params = array_merge($params, $inparams);
+    } else if (!empty($categoryids)) {
+        list($insql, $inparams) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED, 'catid');
+        $sql .= " AND c.category {$insql}";
+        $params = array_merge($params, $inparams);
     }
     
     if (!empty($filters['idnumber'])) {
