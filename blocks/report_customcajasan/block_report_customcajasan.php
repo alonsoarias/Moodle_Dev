@@ -15,23 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Block definition class for report_customcajasan
+ * Block definition class for report_customcajasan.
  *
  * @package    block_report_customcajasan
  * @copyright  2025 Cajasan
- * @author     Pedro Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/course/lib.php');
+
 /**
- * Class block_report_customcajasan
- *
- * @package    block_report_customcajasan
- * @copyright  2025 Cajasan
- * @author     Pedro Arias <soporte@ingeweb.co>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Class block_report_customcajasan.
  */
 class block_report_customcajasan extends block_base {
 
@@ -43,143 +39,222 @@ class block_report_customcajasan extends block_base {
     }
 
     /**
-     * Get the block content.
+     * Ensure instance level configuration is enabled.
      *
-     * @return stdClass The block content.
+     * @return bool
      */
-    public function get_content() {
-        global $USER, $DB, $COURSE;
-
-        if ($this->content !== null) {
-            return $this->content;
-        }
-
-        $this->content = new stdClass;
-        $this->content->text = '';
-        $this->content->footer = '';
-
-        // No mostrar nada si el usuario no está autenticado
-        if (!isloggedin()) {
-            return $this->content;
-        }
-
-        // Detectar si estamos en un contexto de curso específico
-        $coursecontext = $this->page->context->get_course_context(false);
-        $incourse = false;
-        $courseid = null;
-        
-        if ($coursecontext && $coursecontext->contextlevel == CONTEXT_COURSE) {
-            $courseid = $coursecontext->instanceid;
-            // Verificar que no sea el sitio principal
-            if ($courseid != SITEID) {
-                $incourse = true;
-            }
-        }
-
-        $systemcontext = context_system::instance();
-
-        // Verificar permisos según el contexto
-        if ($incourse) {
-            // Estamos en un curso - verificar permisos en el contexto del curso
-            $can_view = has_capability('block/report_customcajasan:viewreport', $coursecontext);
-            $is_manager = has_any_capability(['moodle/course:update', 'moodle/course:manageactivities'], $coursecontext);
-        } else {
-            // Estamos en contexto del sistema
-            $can_view = has_capability('block/report_customcajasan:viewreport', $systemcontext);
-            $is_manager = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
-        }
-
-        if ($can_view || $is_manager) {
-            // El usuario tiene permiso - mostrar enlace al informe
-            $reportparams = array();
-            
-            // Si estamos en un curso, pasar el ID del curso como parámetro
-            if ($incourse && $courseid) {
-                $reportparams['courseid'] = $courseid;
-                $reportparams['coursecontext'] = 1; // Indicador de que venimos de un curso
-            }
-            
-            $reporturl = new moodle_url('/blocks/report_customcajasan/report.php', $reportparams);
-            
-            // Ajustar el texto del botón según el contexto
-            $buttontext = $incourse 
-                ? get_string('enrollment_report_course', 'block_report_customcajasan')
-                : get_string('enrollment_report', 'block_report_customcajasan');
-            
-            $this->content->text = html_writer::tag('div', 
-                html_writer::link($reporturl, 
-                    $buttontext, 
-                    ['class' => 'btn btn-primary btn-block mb-2']),
-                ['class' => 'report-links']);
-                
-            // Si estamos en un curso, mostrar información adicional
-            if ($incourse && $courseid) {
-                $course = $DB->get_record('course', array('id' => $courseid), 'fullname', MUST_EXIST);
-                $this->content->footer = html_writer::tag('div',
-                    html_writer::tag('small', 
-                        get_string('viewing_course_report', 'block_report_customcajasan', $course->fullname),
-                        ['class' => 'text-muted']
-                    ),
-                    ['class' => 'mt-2']
-                );
-            }
-            
-            // Si el usuario no tiene la capacidad explícita pero es gestor, mostrar mensaje explicativo
-            if ($is_manager && !$can_view && !$incourse) {
-                $this->content->footer .= html_writer::tag('div',
-                    'Acceso proporcionado por rol de gestión del sitio',
-                    ['class' => 'small text-muted mt-1']);
-            }
-        } else {
-            // El usuario no tiene permiso - mostrar mensaje informativo
-            $this->content->text = html_writer::tag('div',
-                get_string('access_denied', 'block_report_customcajasan'),
-                ['class' => 'alert alert-info']);
-        }
-
-        return $this->content;
+    public function instance_allow_config() {
+        return true;
     }
 
     /**
-     * Specify which page formats this block can be displayed in.
+     * Determine formats where the block is allowed.
      *
-     * @return array Array of page formats.
+     * @return array
      */
     public function applicable_formats() {
         return [
             'admin' => true,
             'site-index' => true,
             'my' => true,
-            'course-view' => true,  // Permitir en vista de curso
+            'course-view' => true,
             'course-index' => true,
             'mod' => false
         ];
     }
 
     /**
-     * Can multiple instances of this block be used on a page?
+     * Only one instance per page.
      *
-     * @return bool False means only one instance allowed.
+     * @return bool
      */
     public function instance_allow_multiple() {
         return false;
     }
 
     /**
-     * Does this block have global configuration?
+     * No global configuration page.
      *
-     * @return bool False as this block doesn't have config.
+     * @return bool
      */
     public function has_config() {
         return false;
     }
 
     /**
-     * Does this block have instance-specific configuration?
-     *
-     * @return bool True if the block can be configured.
+     * Persist the detected course id when the block lives inside a course.
      */
-    public function instance_allow_config() {
-        return false;
+    public function specialization() {
+        if (empty($this->config)) {
+            $this->config = new stdClass();
+        }
+
+        $contextinfo = $this->resolve_context_info();
+        if ($contextinfo['incourse'] && empty($this->config->courseid)) {
+            $this->config->courseid = $contextinfo['courseid'];
+            $this->instance_config_save($this->config);
+        }
+    }
+
+    /**
+     * Get the block content.
+     *
+     * @return stdClass
+     */
+    public function get_content() {
+        global $DB;
+
+        if ($this->content !== null) {
+            return $this->content;
+        }
+
+        $this->content = new stdClass();
+        $this->content->text = '';
+        $this->content->footer = '';
+
+        if (!isloggedin() || isguestuser()) {
+            return $this->content;
+        }
+
+        $contextinfo = $this->resolve_context_info();
+        $systemcontext = context_system::instance();
+        $coursecontext = $contextinfo['incourse'] ? context_course::instance($contextinfo['courseid']) : null;
+
+        if ($contextinfo['incourse']) {
+            $hasviewblock = has_capability('block/report_customcajasan:viewblock', $coursecontext);
+            $hasviewreport = has_capability('block/report_customcajasan:viewreport', $coursecontext);
+        } else {
+            $hasviewblock = has_capability('block/report_customcajasan:viewblock', $systemcontext);
+            $hasviewreport = has_capability('block/report_customcajasan:viewreport', $systemcontext);
+        }
+
+        if (!$hasviewblock || !$hasviewreport) {
+            $this->content->text = html_writer::div(
+                get_string('block_no_access', 'block_report_customcajasan'),
+                'alert alert-info'
+            );
+            return $this->content;
+        }
+
+        $categoryids = $this->get_configured_category_ids();
+        $categorynames = [];
+        if (!empty($categoryids)) {
+            list($insql, $params) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED);
+            $records = $DB->get_records_sql("SELECT id, name FROM {course_categories} WHERE id {$insql}", $params);
+            foreach ($categoryids as $cid) {
+                if (!empty($records[$cid])) {
+                    $categorynames[] = format_string($records[$cid]->name, true, ['context' => $systemcontext]);
+                }
+            }
+        }
+
+        $summarylines = [];
+        if ($contextinfo['incourse']) {
+            $summarylines[] = get_string('block_scope_current_course', 'block_report_customcajasan',
+                format_string($contextinfo['coursename'], true, ['context' => $coursecontext]));
+        } else if ($contextinfo['isuserscontext']) {
+            $summarylines[] = get_string('block_scope_my', 'block_report_customcajasan');
+        } else {
+            $summarylines[] = get_string('block_scope_system', 'block_report_customcajasan');
+        }
+
+        if (!empty($categorynames)) {
+            $summarylines[] = get_string('block_scope_categories', 'block_report_customcajasan');
+            $summarylines[] = html_writer::alist($categorynames, [], 'ul');
+        } else if ($contextinfo['incourse']) {
+            $summarylines[] = get_string('block_scope_course_only', 'block_report_customcajasan');
+        } else {
+            $summarylines[] = html_writer::div(
+                get_string('block_scope_none', 'block_report_customcajasan'),
+                'alert alert-warning mb-2'
+            );
+        }
+
+        $this->content->text = html_writer::div(implode('', $summarylines), 'block_report_customcajasan-summary');
+
+        $linkparams = ['instanceid' => $this->instance->id];
+        if ($contextinfo['incourse']) {
+            $linkparams['courseid'] = $contextinfo['courseid'];
+            $linkparams['coursecontext'] = 1;
+        }
+
+        $reporturl = new moodle_url('/blocks/report_customcajasan/report.php', $linkparams);
+        $linktext = $contextinfo['incourse']
+            ? get_string('block_link_label_course', 'block_report_customcajasan')
+            : get_string('block_link_label', 'block_report_customcajasan');
+
+        $this->content->text .= html_writer::div(
+            html_writer::link($reporturl, $linktext, ['class' => 'btn btn-primary w-100 mt-3']),
+            'block_report_customcajasan-actions'
+        );
+
+        if (!$contextinfo['incourse'] && empty($categorynames)) {
+            $this->content->footer = html_writer::div(
+                get_string('block_scope_configure_notice', 'block_report_customcajasan'),
+                'small text-muted mt-2'
+            );
+        }
+
+        return $this->content;
+    }
+
+    /**
+     * Resolve contextual information for the current block instance.
+     *
+     * @return array
+     */
+    protected function resolve_context_info(): array {
+        global $COURSE;
+
+        $parentcontext = context::instance_by_id($this->instance->parentcontextid, IGNORE_MISSING);
+        if (!$parentcontext) {
+            $parentcontext = $this->page->context;
+        }
+
+        $info = [
+            'parentcontext' => $parentcontext,
+            'contextlevel' => $parentcontext->contextlevel,
+            'courseid' => 0,
+            'coursename' => '',
+            'incourse' => false,
+            'isuserscontext' => ($parentcontext->contextlevel === CONTEXT_USER)
+        ];
+
+        if ($parentcontext->contextlevel === CONTEXT_COURSE) {
+            $info['courseid'] = (int)$parentcontext->instanceid;
+            $info['incourse'] = ($info['courseid'] !== SITEID);
+            if ($info['courseid'] && $info['courseid'] !== SITEID) {
+                if (!empty($COURSE) && $COURSE->id == $info['courseid']) {
+                    $info['coursename'] = $COURSE->fullname;
+                } else {
+                    $course = get_course($info['courseid']);
+                    $info['coursename'] = $course->fullname;
+                }
+            }
+        } else if (!empty($this->config->courseid)) {
+            $info['courseid'] = (int)$this->config->courseid;
+            $info['coursename'] = $info['courseid'] ? get_course($info['courseid'])->fullname : '';
+        }
+
+        return $info;
+    }
+
+    /**
+     * Normalise configured category ids.
+     *
+     * @return array
+     */
+    protected function get_configured_category_ids(): array {
+        if (empty($this->config) || empty($this->config->categoryids)) {
+            return [];
+        }
+
+        $ids = (array)$this->config->categoryids;
+        $ids = array_map('intval', $ids);
+        $ids = array_filter($ids, static function($id) {
+            return $id > 0;
+        });
+
+        return array_values(array_unique($ids));
     }
 }
