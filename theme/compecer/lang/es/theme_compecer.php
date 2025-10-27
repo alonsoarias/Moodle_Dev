@@ -271,15 +271,6 @@ $string['icon_userplus'] = 'Añadir Usuario';
 $string['icon_userscog'] = 'Ajustes de Usuario';
 $string['icon_peoplecarry'] = 'Personas que Llevan';
 
-// Progreso en courseindex.
-$string['courseprogressheading'] = 'Progreso de finalización del curso';
-$string['courseprogressactivitysummary'] = '{$a->completed} de {$a->total} actividades completadas';
-$string['sectionprogresssummary'] = '{$a->completed} de {$a->total} actividades completadas';
-$string['activitystate_notstarted'] = 'Sin comenzar';
-$string['activitystate_inprogress'] = 'En progreso';
-$string['activitystate_completed'] = 'Completada';
-$string['activitystate_notracking'] = 'Sin seguimiento';
-
 // Cadenas de Visibilidad
 $string['show'] = 'Mostrar';
 $string['hide'] = 'Ocultar';
@@ -304,3 +295,11 @@ $string['breadcrumb'] = 'Ruta de navegación';
 $string['opendrawernav'] = 'Abrir menú de navegación';
 $string['closedrawernav'] = 'Cerrar menú de navegación';
 $string['sidebarcoursemenuheading'] = 'Índice del curso';
+
+// Cadenas de Progreso del Curso
+$string['progress'] = 'Progreso';
+$string['completionprogress'] = 'Progreso de finalización';
+$string['sectionprogress'] = 'Progreso de la sección';
+$string['activitiescompleted'] = 'actividades completadas';
+$string['nocompletion'] = 'Sin seguimiento de finalización';
+$string['completionenabled'] = 'Seguimiento de finalización habilitado';

@@ -50,6 +50,8 @@ $string['block_scope_course_only'] = 'The report will display data from this cou
 $string['block_scope_none'] = 'No categories selected. Configure the block to select one or more categories.';
 $string['block_scope_coursecount'] = 'Total courses currently in scope: {$a}';
 $string['block_scope_configure_notice'] = 'Edit this block to choose the categories that should feed the report.';
+$string['block_warning_missing_viewblock'] = 'Your role is missing the capability block/report_customcajasan:viewblock. The report remains available because you have editing rights in this course.';
+$string['block_warning_missing_viewreport'] = 'Your role is missing the capability block/report_customcajasan:viewreport. The report remains available because you have editing rights in this course.';
 
 // Configuration form.
 $string['config_header'] = 'Report scope configuration';
