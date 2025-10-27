@@ -25,8 +25,6 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/blocks/report_customcajasan/lib.php');
 
-require_login();
-
 $instanceid = optional_param('instanceid', 0, PARAM_INT);
 $coursecontextflag = optional_param('coursecontext', 0, PARAM_INT);
 $requestedcourse = optional_param('courseid', 0, PARAM_INT);
@@ -72,9 +70,14 @@ if ($blockinfo) {
     $incourse = true;
 }
 
+if ($incourse && $course) {
+    require_login($course);
+} else {
+    require_login();
+}
+
 if ($incourse) {
     require_capability('moodle/course:update', $coursecontext);
-    require_capability('block/report_customcajasan:viewreport', $coursecontext);
 } else {
     require_capability('block/report_customcajasan:manageblock', $systemcontext);
     require_capability('block/report_customcajasan:viewreport', $systemcontext);
