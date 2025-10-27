@@ -166,7 +166,10 @@ try {
     if (empty($enrollments)) {
         echo json_encode([
             'success' => true,
-            'html' => html_writer::div(get_string('no_data', 'block_report_customcajasan'), ['class' => 'alert alert-info']),
+            'html' => html_writer::div(
+                get_string('no_data', 'block_report_customcajasan'),
+                'alert alert-info'
+            ),
             'count' => 0
         ]);
         die();

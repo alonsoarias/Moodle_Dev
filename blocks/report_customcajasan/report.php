@@ -203,17 +203,6 @@ if (!empty($scope['categoryids'])) {
         }
     }
 }
-if (!empty($categorynames)) {
-    $scopeinfo .= html_writer::tag('div', get_string('report_scope_categories', 'block_report_customcajasan'));
-    $scopeinfo .= html_writer::alist($categorynames, [], 'ul');
-} else if (!$incourse) {
-    $scopeinfo .= html_writer::tag('div', get_string('report_scope_notice_frontpage', 'block_report_customcajasan'));
-}
-$scopeinfo .= html_writer::tag('div',
-    get_string('report_scope_effective_courses', 'block_report_customcajasan', count($scope['courseids'])));
-$scopeinfo .= html_writer::end_div();
-
-echo $scopeinfo;
 
 $scopeinfo = html_writer::start_div('alert alert-secondary');
 $scopeinfo .= html_writer::tag('strong', get_string('report_scope_heading', 'block_report_customcajasan'));
@@ -408,10 +397,11 @@ if (!$scope['requiresselection'] || $incourse) {
     if ($downloadcount > 1000) {
         $downloadsummary = html_writer::span('', 'fa fa-info-circle', ['aria-hidden' => 'true']);
         $downloadsummary .= ' ' . get_string('total_records', 'block_report_customcajasan') . ': ' . (int)$downloadcount;
-        echo html_writer::tag('div', $downloadsummary, [
-            'class' => 'alert alert-info download-warning mb-3 p-2',
-            'role' => 'status'
-        ]);
+        echo html_writer::div(
+            $downloadsummary,
+            'alert alert-info download-warning mb-3 p-2',
+            ['role' => 'status']
+        );
     }
 }
 
