@@ -15,34 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version file.
+ * Web service definitions for theme_compecer
  *
  * @package    theme_compecer
  * @copyright  2024 IngeWeb https://www.ingeweb.co
- * @author     Pedro Arias <soporte@ingeweb.co>
+ * @author     Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-// This is the component name of the plugin - it always starts with 'theme_'
-// for themes and should be the same as the name of the folder.
-$plugin->component = 'theme_compecer';
-
-// This is the version of the plugin.
-$plugin->version = 2024103008;
-
-// This is the named version.
-$plugin->release = '4.5.1';
-
-// This is a stable release.
-$plugin->maturity = MATURITY_STABLE;
-
-// This is the version of Moodle this plugin requires.
-$plugin->requires = 2022041200;
-
-// This is a list of plugins, this plugin depends on (and their versions).
-$plugin->dependencies = [
-    'theme_boost' => 2022041900,
-    'theme_moove' => 2022062005
+$functions = [
+    'theme_compecer_get_section_progress' => [
+        'classname'   => 'theme_compecer\external\get_section_progress',
+        'methodname'  => 'execute',
+        'description' => 'Get progress information for a course section',
+        'type'        => 'read',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
 ];

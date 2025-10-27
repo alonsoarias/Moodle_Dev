@@ -1162,4 +1162,90 @@ section.node-category {
   /* Ajustes para dispositivos con anchura menor a 480px */
 }
 
+/* ===================================
+   Course Index Section Progress Bar
+   =================================== */
+
+.course-index-section-progress {
+  margin: 0.5rem 0.75rem;
+  background-color: lighten($gray, 50%);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+
+  .progress-info {
+    .progress-text {
+      color: $gray;
+      font-size: 0.8rem;
+
+      .progress-label {
+        font-weight: 600;
+      }
+
+      .progress-count {
+        color: darken($gray, 10%);
+      }
+    }
+
+    .progress-percentage {
+      color: $primary-blue;
+      font-size: 0.9rem;
+    }
+  }
+
+  .progress {
+    background-color: lighten($gray, 45%);
+    border-radius: 2px;
+    overflow: hidden;
+
+    .progress-bar {
+      transition: width 0.6s ease;
+      background-color: $primary-blue;
+
+      &.bg-success {
+        background-color: #28a745 !important;
+      }
+
+      &.bg-info {
+        background-color: $primary-blue !important;
+      }
+
+      &.bg-warning {
+        background-color: #ffc107 !important;
+      }
+
+      &.bg-danger {
+        background-color: $primary-red !important;
+      }
+    }
+  }
+}
+
+/* Hover effect for better UX */
+.course-index-section:hover .course-index-section-progress {
+  background-color: lighten($gray, 48%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Style adjustments when section is current */
+.course-index-section.current .course-index-section-progress {
+  background-color: lighten($primary-blue, 40%);
+  border: 1px solid lighten($primary-blue, 30%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .course-index-section-progress {
+    margin: 0.4rem 0.5rem;
+
+    .progress-info {
+      padding: 0.4rem 0.5rem !important;
+
+      .progress-text,
+      .progress-percentage {
+        font-size: 0.75rem;
+      }
+    }
+  }
+}
+
 
