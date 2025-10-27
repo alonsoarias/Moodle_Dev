@@ -31,9 +31,12 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
      */
     var init = function(courseId) {
 
+        // Load overall course progress first
+        loadCourseProgress(courseId);
+
         // Wait for the courseindex to be fully loaded
         var checkInterval = setInterval(function() {
-            var sections = $('.course-index-section');
+            var sections = $('.course-index-section, .courseindex-section-redesign');
             if (sections.length > 0) {
                 clearInterval(checkInterval);
                 loadAllSectionsProgress(courseId);
@@ -47,11 +50,93 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
     };
 
     /**
+     * Load overall course progress
+     *
+     * @param {Number} courseId The course ID
+     */
+    var loadCourseProgress = function(courseId) {
+        var promises = Ajax.call([{
+            methodname: 'theme_compecer_get_course_progress',
+            args: {
+                courseid: courseId
+            }
+        }]);
+
+        promises[0]
+            .then(function(response) {
+                if (response && response.hasprogress) {
+                    updateCourseProgressDisplay(response);
+                } else {
+                    showNoTrackingMessage();
+                }
+                return;
+            })
+            .catch(function(error) {
+                // Log only non-permission errors
+                if (error && error.errorcode !== 'nopermissions') {
+                    window.console && console.log('Error loading course progress:', error);
+                }
+            });
+    };
+
+    /**
+     * Update the course overall progress display
+     *
+     * @param {Object} data Progress data
+     */
+    var updateCourseProgressDisplay = function(data) {
+        var $header = $('#courseindex-progress-header');
+        if ($header.length === 0) return;
+
+        var percentage = data.percentage || 0;
+        var completed = data.completed || 0;
+        var total = data.total || 0;
+
+        // Update percentage badge
+        $header.find('[data-region="course-percentage"]').text(percentage + '%');
+
+        // Update activities count
+        $header.find('.activities-completed').text(completed);
+        $header.find('.activities-total').text(total);
+
+        // Update progress bar
+        var $progressBar = $header.find('[data-region="course-progress-bar"]');
+        if ($progressBar.length > 0) {
+            $progressBar.css('width', percentage + '%').attr('aria-valuenow', percentage);
+
+            // Add percentage class for color coding
+            $progressBar.removeClass('progress-0 progress-low progress-medium progress-high progress-complete');
+            if (percentage === 0) {
+                $progressBar.addClass('progress-0');
+            } else if (percentage < 40) {
+                $progressBar.addClass('progress-low');
+            } else if (percentage < 70) {
+                $progressBar.addClass('progress-medium');
+            } else if (percentage < 100) {
+                $progressBar.addClass('progress-high');
+            } else {
+                $progressBar.addClass('progress-complete');
+            }
+        }
+
+        // Show the header
+        $header.fadeIn(300);
+    };
+
+    /**
+     * Show message when completion tracking is not enabled
+     */
+    var showNoTrackingMessage = function() {
+        $('#courseindex-no-tracking').fadeIn(300);
+    };
+
+    /**
      * Load progress for all sections
      *
      * @param {Number} courseId The course ID
      */
     var loadAllSectionsProgress = function(courseId) {
+        // Old style progress bars
         $('.course-index-section-progress').each(function() {
             var $progressContainer = $(this);
             var sectionId = $progressContainer.data('section-id');
@@ -60,6 +145,51 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 loadSectionProgress(courseId, sectionId, $progressContainer);
             }
         });
+
+        // New redesigned style progress percentages
+        $('.section-progress-percentage').each(function() {
+            var $percentageBadge = $(this);
+            var sectionId = $percentageBadge.data('section-id');
+
+            if (sectionId && !$percentageBadge.data('loaded')) {
+                loadSectionProgressForBadge(courseId, sectionId, $percentageBadge);
+            }
+        });
+    };
+
+    /**
+     * Load progress for section percentage badge (redesigned version)
+     *
+     * @param {Number} courseId The course ID
+     * @param {Number} sectionId The section ID
+     * @param {jQuery} $badge The percentage badge element
+     */
+    var loadSectionProgressForBadge = function(courseId, sectionId, $badge) {
+        var promises = Ajax.call([{
+            methodname: 'theme_compecer_get_section_progress',
+            args: {
+                sectionid: sectionId,
+                courseid: courseId
+            }
+        }]);
+
+        promises[0]
+            .then(function(response) {
+                $badge.data('loaded', true);
+
+                if (response && response.hasprogress && response.total > 0) {
+                    var percentage = response.percentage || 0;
+                    $badge.find('.percentage-value').text(percentage + '%');
+                    $badge.fadeIn(200);
+                }
+                return;
+            })
+            .catch(function(error) {
+                $badge.data('loaded', true);
+                if (error && error.errorcode !== 'nopermissions') {
+                    window.console && console.log('Error loading section progress:', error);
+                }
+            });
     };
 
     /**
