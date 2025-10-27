@@ -32,7 +32,7 @@ $capabilities = [
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => [
             'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
         ],
         'clonepermissionsfrom' => 'moodle/site:manageblocks',
     ],
@@ -43,22 +43,14 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ],
     ],
-    'block/report_customcajasan:viewblock' => [
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-        ],
-        'clonepermissionsfrom' => 'moodle/block:view',
-    ],
     'block/report_customcajasan:viewreport' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSE,
+        'contextlevel' => CONTEXT_COURSE,  // Cambiado a CONTEXT_COURSE para permitir permisos a nivel de curso
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW
         ],
     ],
 ];

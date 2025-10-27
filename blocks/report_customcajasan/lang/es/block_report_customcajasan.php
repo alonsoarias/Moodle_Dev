@@ -27,13 +27,12 @@
 $string['pluginname'] = 'Informe de Seguimiento y Estado de Cursos';
 $string['report_customcajasan'] = 'Informe de Seguimiento y Estado de Cursos';
 $string['enrollment_report'] = 'Informe de Seguimiento y Estado de Cursos';
+$string['enrollment_report_course'] = 'Ver Informe del Curso';
 
 // Capacidades
 $string['report_customcajasan:addinstance'] = 'Añadir un nuevo bloque de Informe de Seguimiento y Estado de Cursos';
 $string['report_customcajasan:myaddinstance'] = 'Añadir un nuevo bloque de Informe de Seguimiento y Estado de Cursos a Mi Moodle';
-$string['report_customcajasan:viewblock'] = 'Ver el bloque de Informe de Seguimiento y Estado de Cursos';
 $string['report_customcajasan:viewreport'] = 'Ver Informe de Seguimiento y Estado de Cursos';
-$string['report_customcajasan:viewsystemreport'] = 'Ver el informe en páginas del sistema';
 
 // Cabeceras de tabla
 $string['column_identificacion'] = 'IDENTIFICACIÓN';
@@ -77,6 +76,7 @@ $string['all_records'] = 'Todos los registros';
 
 // Otros
 $string['report_title'] = 'Informe de Seguimiento y Estado de Cursos';
+$string['report_title_course'] = 'Informe del Curso: {$a}';
 $string['btn_download'] = 'Descargar';
 $string['total_records'] = 'Total de Registros';
 $string['idnumber'] = 'Número de Identificación';
@@ -89,26 +89,8 @@ $string['select_filter_first'] = 'Por favor, seleccione al menos un filtro para 
 $string['note_label'] = 'Nota';
 $string['status_note'] = 'Los cursos que no emiten certificados tienen el estado "SOLO CONSULTA".';
 $string['search'] = 'Buscar';
-$string['block_instructionstext'] = 'Utilice los filtros del informe para acotar la búsqueda y descargar solo la información necesaria.';
-
-// Configuración del bloque.
-$string['config_displayoptions'] = 'Información a mostrar';
-$string['config_displayoptions_help'] = 'Seleccione los elementos que deben ser visibles dentro de este bloque. Cada instancia puede presentar información distinta según las necesidades del curso o de la página.';
-$string['config_option_reportlink'] = 'Mostrar enlace al informe detallado';
-$string['config_option_instructions'] = 'Mostrar instrucciones de uso';
-$string['config_option_statuslegend'] = 'Mostrar leyenda de estados';
-$string['config_custommessage'] = 'Mensaje adicional';
-$string['config_custommessage_help'] = 'Texto opcional que se mostrará debajo de la información seleccionada. Puede utilizarlo para destacar fechas límite, datos de contacto u otra orientación relevante.';
-$string['config_restriction_heading'] = 'Filtros de cursos y categorías';
-$string['config_restriction_heading_help'] = 'Seleccione los cursos o categorías que estarán disponibles al consultar el reporte desde este bloque. Estas restricciones aplican únicamente para esta instancia.';
-$string['config_coursefilters'] = 'Limitar a cursos';
-$string['config_coursefilters_help'] = 'Elija uno o varios cursos que estarán disponibles en el reporte. Los usuarios solo podrán consultar la información de los cursos seleccionados.';
-$string['config_coursefilters_empty'] = 'No hay cursos disponibles con los permisos requeridos.';
-$string['config_categoryfilters'] = 'Limitar a categorías';
-$string['config_categoryfilters_help'] = 'Seleccione categorías completas para incluir en el reporte. Todos los cursos dentro de las categorías elegidas estarán disponibles.';
-$string['config_categoryfilters_empty'] = 'No hay categorías disponibles con los permisos requeridos.';
-$string['config_summary_courses'] = 'Cursos: {$a}';
-$string['config_summary_categories'] = 'Categorías: {$a}';
+$string['viewing_course_report'] = 'Viendo reporte de: {$a}';
+$string['viewing_course_report_full'] = 'Reporte del Curso';
 
 // Mensajes de error AJAX
 $string['ajax_error'] = 'Error al cargar datos. Por favor, inténtelo de nuevo.';

@@ -27,13 +27,12 @@
 $string['pluginname'] = 'Course Status and Tracking Report';
 $string['report_customcajasan'] = 'Course Status and Tracking Report';
 $string['enrollment_report'] = 'Course Status and Tracking Report';
+$string['enrollment_report_course'] = 'View Course Report';
 
 // Capabilities
 $string['report_customcajasan:addinstance'] = 'Add a new Course Status and Tracking Report block';
 $string['report_customcajasan:myaddinstance'] = 'Add a new Course Status and Tracking Report block to the My Moodle page';
-$string['report_customcajasan:viewblock'] = 'View the Course Status and Tracking Report block';
 $string['report_customcajasan:viewreport'] = 'View Course Status and Tracking Report';
-$string['report_customcajasan:viewsystemreport'] = 'View Course Status and Tracking Report on system pages';
 
 // Table Headers
 $string['column_identificacion'] = 'IDENTIFICATION';
@@ -77,6 +76,7 @@ $string['all_records'] = 'All records';
 
 // Other
 $string['report_title'] = 'Course Status and Tracking Report';
+$string['report_title_course'] = 'Course Report: {$a}';
 $string['btn_download'] = 'Download';
 $string['total_records'] = 'Total Records';
 $string['idnumber'] = 'ID Number';
@@ -89,26 +89,8 @@ $string['select_filter_first'] = 'Please select at least one filter to view the 
 $string['note_label'] = 'Note';
 $string['status_note'] = 'Courses that do not issue certificates have the "REFERENCE ONLY" status.';
 $string['search'] = 'Search';
-$string['block_instructionstext'] = 'Use the report filters to narrow the search and download only the information you need.';
-
-// Block configuration strings.
-$string['config_displayoptions'] = 'Information to display';
-$string['config_displayoptions_help'] = 'Choose which elements should be visible within this block. Each instance can present different information depending on the needs of the course or page.';
-$string['config_option_reportlink'] = 'Show link to the detailed report';
-$string['config_option_instructions'] = 'Show usage instructions';
-$string['config_option_statuslegend'] = 'Show status legend';
-$string['config_custommessage'] = 'Additional message';
-$string['config_custommessage_help'] = 'Optional text displayed beneath the selected information. This can be used to highlight deadlines, contact information or any other relevant guidance.';
-$string['config_restriction_heading'] = 'Course and category filters';
-$string['config_restriction_heading_help'] = 'Choose which courses or categories should be available when accessing the report from this block. The selection applies only to this block instance.';
-$string['config_coursefilters'] = 'Limit to courses';
-$string['config_coursefilters_help'] = 'Select one or more courses that should be available within the report. Users will only be able to see enrolments for the selected courses.';
-$string['config_coursefilters_empty'] = 'No courses are available with the required permissions.';
-$string['config_categoryfilters'] = 'Limit to categories';
-$string['config_categoryfilters_help'] = 'Select whole categories to include in the report. All courses inside the chosen categories will be available to users.';
-$string['config_categoryfilters_empty'] = 'No categories are available with the required permissions.';
-$string['config_summary_courses'] = 'Courses: {$a}';
-$string['config_summary_categories'] = 'Categories: {$a}';
+$string['viewing_course_report'] = 'Viewing report for: {$a}';
+$string['viewing_course_report_full'] = 'Course Report';
 
 // AJAX error messages
 $string['ajax_error'] = 'Error loading data. Please try again.';

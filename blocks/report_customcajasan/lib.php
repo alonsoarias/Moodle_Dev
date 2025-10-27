@@ -33,329 +33,6 @@ require_once($CFG->libdir . '/csvlib.class.php');
 define('REPORT_CUSTOMCAJASAN_CHUNK_SIZE', 1000); // Tamaño de chunks para procesamiento por lotes
 
 /**
- * Resolve the most relevant context for capability checks.
- *
- * When the block is evaluated inside a block context we need to rely on the
- * parent context (course, system, user, etc.) to determine the permission
- * required to access the report.
- *
- * @param context $context
- * @return context
- */
-function block_report_customcajasan_resolve_access_context(context $context): context {
-    $current = $context;
-
-    while ($current->contextlevel === CONTEXT_BLOCK) {
-        $parent = $current->get_parent_context();
-        if (!$parent) {
-            break;
-        }
-        $current = $parent;
-    }
-
-    return $current;
-}
-
-/**
- * Determine whether the resolved context requires system-level capability.
- *
- * @param context $context
- * @return bool
- */
-function block_report_customcajasan_context_requires_system_capability(context $context): bool {
-    if ($context->contextlevel === CONTEXT_SYSTEM || $context->contextlevel === CONTEXT_USER) {
-        return true;
-    }
-
-    if ($context->contextlevel === CONTEXT_COURSE && (int)$context->instanceid === SITEID) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * Get the capability identifier required for the provided context.
- *
- * @param context $context
- * @return string
- */
-function block_report_customcajasan_get_required_capability_for_context(context $context): string {
-    if (block_report_customcajasan_context_requires_system_capability($context)) {
-        return 'block/report_customcajasan:viewsystemreport';
-    }
-
-    return 'block/report_customcajasan:viewreport';
-}
-
-/**
- * Check whether the current (or specified) user has access to the report in the given context.
- *
- * @param context $context
- * @param int|null $userid
- * @return bool
- */
-function block_report_customcajasan_user_has_view_capability(context $context, ?int $userid = null): bool {
-    global $USER;
-
-    if ($userid === null) {
-        $userid = $USER->id ?? 0;
-    }
-
-    if (empty($userid)) {
-        return false;
-    }
-
-    $resolvedcontext = block_report_customcajasan_resolve_access_context($context);
-    $requiredcapability = block_report_customcajasan_get_required_capability_for_context($resolvedcontext);
-
-    return has_capability($requiredcapability, $resolvedcontext, $userid, false);
-}
-
-/**
- * Require the capability that grants access to the report for the provided context.
- *
- * @param context $context
- */
-function block_report_customcajasan_require_view_capability(context $context): void {
-    $resolvedcontext = block_report_customcajasan_resolve_access_context($context);
-    $requiredcapability = block_report_customcajasan_get_required_capability_for_context($resolvedcontext);
-
-    require_capability($requiredcapability, $resolvedcontext);
-}
-
-/**
- * Normalise course and category restrictions stored in block configuration.
- *
- * @param object|array|null $config Block configuration object or raw data.
- * @param int|null $userid User identifier used for capability checks.
- * @return array{courses: array<int>, categories: array<int>, expandedcategories: array<int>} Normalised restrictions.
- */
-function block_report_customcajasan_compute_restrictions($config = null, ?int $userid = null): array {
-    global $USER, $CFG;
-
-    $userid = $userid ?? $USER->id ?? 0;
-
-    require_once($CFG->dirroot . '/course/lib.php');
-
-    $courses = [];
-    $categories = [];
-    $expandedcategories = [];
-
-    $accessiblecourses = [];
-    $accessiblecategories = [];
-
-    if ($userid > 0) {
-        $usercourses = get_user_capability_course('block/report_customcajasan:viewreport', $userid, true, 'id, category');
-        foreach ($usercourses as $usercourse) {
-            $courseid = isset($usercourse->id) ? (int)$usercourse->id : 0;
-            if ($courseid <= 0) {
-                continue;
-            }
-            $accessiblecourses[$courseid] = $courseid;
-
-            $coursecategoryid = isset($usercourse->category) ? (int)$usercourse->category : 0;
-            if ($coursecategoryid <= 0) {
-                continue;
-            }
-
-            $accessiblecategories[$coursecategoryid] = $coursecategoryid;
-
-            try {
-                $coursecategory = core_course_category::get($coursecategoryid, IGNORE_MISSING);
-            } catch (moodle_exception $e) {
-                $coursecategory = null;
-            }
-
-            if (!$coursecategory || empty($coursecategory->path)) {
-                continue;
-            }
-
-            foreach (explode('/', trim($coursecategory->path, '/')) as $pathid) {
-                $pathid = (int)$pathid;
-                if ($pathid > 0) {
-                    $accessiblecategories[$pathid] = $pathid;
-                }
-            }
-        }
-    }
-
-    if ($config instanceof __PHP_Incomplete_Class) {
-        $config = (object)get_object_vars($config);
-    } else if (is_array($config)) {
-        $config = (object)$config;
-    }
-
-    if (empty($config) || !is_object($config)) {
-        return [
-            'courses' => [],
-            'categories' => [],
-            'expandedcategories' => [],
-        ];
-    }
-
-    $courseids = [];
-    if (!empty($config->coursefilters)) {
-        $courseids = array_map('intval', (array)$config->coursefilters);
-    }
-
-    foreach ($courseids as $courseid) {
-        if ($courseid <= 0) {
-            continue;
-        }
-
-        if (!empty($accessiblecourses)) {
-            if (isset($accessiblecourses[$courseid])) {
-                $courses[$courseid] = $courseid;
-            }
-            continue;
-        }
-
-        $coursecontext = context_course::instance($courseid, IGNORE_MISSING);
-        if ($coursecontext && block_report_customcajasan_user_has_view_capability($coursecontext, $userid)) {
-            $courses[$courseid] = $courseid;
-        }
-    }
-
-    $categoryids = [];
-    if (!empty($config->categoryfilters)) {
-        $categoryids = array_map('intval', (array)$config->categoryfilters);
-    }
-
-    foreach ($categoryids as $categoryid) {
-        if ($categoryid <= 0) {
-            continue;
-        }
-        $categorycontext = context_coursecat::instance($categoryid, IGNORE_MISSING);
-        $categoryallowed = false;
-
-        if ($categorycontext && block_report_customcajasan_user_has_view_capability($categorycontext, $userid)) {
-            $categoryallowed = true;
-        } else if (isset($accessiblecategories[$categoryid])) {
-            $categoryallowed = true;
-        }
-
-        if (!$categorycontext || !$categoryallowed) {
-            continue;
-        }
-
-        $categories[$categoryid] = $categoryid;
-        $expandedcategories[$categoryid] = $categoryid;
-
-        try {
-            $category = core_course_category::get($categoryid, IGNORE_MISSING);
-        } catch (moodle_exception $e) {
-            $category = null;
-        }
-
-        if ($category) {
-            foreach ($category->get_all_children_ids() as $childid) {
-                $childid = (int)$childid;
-                if ($childid <= 0) {
-                    continue;
-                }
-
-                if (!empty($accessiblecategories) && !isset($accessiblecategories[$childid])) {
-                    $childcontext = context_coursecat::instance($childid, IGNORE_MISSING);
-                    if (!$childcontext || !block_report_customcajasan_user_has_view_capability($childcontext, $userid)) {
-                        continue;
-                    }
-                }
-
-                $expandedcategories[$childid] = $childid;
-            }
-        }
-    }
-
-    return [
-        'courses' => array_values($courses),
-        'categories' => array_values($categories),
-        'expandedcategories' => array_values($expandedcategories),
-    ];
-}
-
-/**
- * Retrieve restrictions defined by a block instance, validating permissions.
- *
- * @param int $blockinstanceid Block instance identifier.
- * @param int|null $userid User identifier used for capability checks.
- * @return array{courses: array<int>, categories: array<int>, expandedcategories: array<int>, parentcontext: ?context, blockcontext: ?context, config: ?stdClass}
- */
-function block_report_customcajasan_get_block_restrictions(int $blockinstanceid, ?int $userid = null): array {
-    global $DB, $USER;
-
-    $userid = $userid ?? $USER->id ?? 0;
-
-    $result = [
-        'courses' => [],
-        'categories' => [],
-        'expandedcategories' => [],
-        'parentcontext' => null,
-        'blockcontext' => null,
-        'config' => null,
-    ];
-
-    if (empty($blockinstanceid)) {
-        return $result;
-    }
-
-    $blockinstance = $DB->get_record('block_instances', [
-        'id' => $blockinstanceid,
-        'blockname' => 'report_customcajasan',
-    ]);
-
-    if (!$blockinstance) {
-        return $result;
-    }
-
-    $blockcontext = context_block::instance($blockinstanceid, IGNORE_MISSING);
-    if (!$blockcontext || !has_capability('block/report_customcajasan:viewblock', $blockcontext, $userid, false)) {
-        return $result;
-    }
-
-    $parentcontext = context::instance_by_id($blockinstance->parentcontextid, IGNORE_MISSING);
-    if (!$parentcontext || $parentcontext->contextlevel !== CONTEXT_COURSE) {
-        return $result;
-    }
-
-    if (!block_report_customcajasan_user_has_view_capability($parentcontext, $userid)) {
-        return $result;
-    }
-
-    $config = null;
-    if (!empty($blockinstance->configdata)) {
-        $decoded = base64_decode($blockinstance->configdata, true);
-        if ($decoded !== false) {
-            $config = @unserialize($decoded, ['allowed_classes' => ['stdClass']]);
-            if ($config === false || !is_object($config)) {
-                $config = null;
-            } else if ($config instanceof __PHP_Incomplete_Class) {
-                $config = (object)get_object_vars($config);
-            }
-        }
-    }
-
-    $restrictions = block_report_customcajasan_compute_restrictions($config, $userid);
-
-    $result['courses'] = $restrictions['courses'];
-    $result['categories'] = $restrictions['categories'];
-    $result['expandedcategories'] = $restrictions['expandedcategories'];
-    $result['parentcontext'] = $parentcontext;
-    $result['blockcontext'] = $blockcontext;
-    $result['config'] = $config;
-
-    if ($parentcontext->contextlevel === CONTEXT_COURSE &&
-        empty($result['courses']) && empty($result['categories'])) {
-        $courseid = $parentcontext->instanceid ?? 0;
-        if ($courseid > 0) {
-            $result['courses'] = [$courseid];
-        }
-    }
-
-    return $result;
-}
-
-/**
  * Get enrollment data based on filters with pagination support
  * Optimized for large datasets with pagination and chunking
  *
@@ -370,8 +47,7 @@ function report_customcajasan_get_data($filters, $limitfrom = null, $limitnum = 
     
     // Check for required tables
     $dbman = $DB->get_manager();
-    $customcert_table_exists = $dbman->table_exists('customcert');
-    $customcert_issues_exists = $dbman->table_exists('customcert_issues');
+    $cert_table_exists = $dbman->table_exists('customcert_issues');
     $completion_table_exists = $dbman->table_exists('course_completions');
     
     // For count query, use the optimized count function
@@ -399,14 +75,7 @@ function report_customcajasan_get_data($filters, $limitfrom = null, $limitnum = 
                 break;
             }
             
-            $chunk_results = report_customcajasan_get_data_chunk(
-                $filters,
-                $chunk_start,
-                $chunk_size,
-                $customcert_table_exists,
-                $customcert_issues_exists,
-                $completion_table_exists
-            );
+            $chunk_results = report_customcajasan_get_data_chunk($filters, $chunk_start, $chunk_size, $cert_table_exists, $completion_table_exists);
             $combined_results = array_merge($combined_results, $chunk_results);
             
             // Si ya hemos obtenido suficientes registros, salir del ciclo
@@ -419,14 +88,7 @@ function report_customcajasan_get_data($filters, $limitfrom = null, $limitnum = 
         return $combined_results;
     } else {
         // Para consultas pequeñas, usar el método normal
-        return report_customcajasan_get_data_chunk(
-            $filters,
-            $limitfrom,
-            $limitnum,
-            $customcert_table_exists,
-            $customcert_issues_exists,
-            $completion_table_exists
-        );
+        return report_customcajasan_get_data_chunk($filters, $limitfrom, $limitnum, $cert_table_exists, $completion_table_exists);
     }
 }
 
@@ -436,327 +98,308 @@ function report_customcajasan_get_data($filters, $limitfrom = null, $limitnum = 
  * @param array $filters Filter parameters
  * @param int $limitfrom Starting point for records
  * @param int $limitnum Maximum number of records
- * @param bool $customcert_table_exists Whether the custom certificate table exists
- * @param bool $customcert_issues_exists Whether the custom certificate issues table exists
+ * @param bool $cert_table_exists Whether the certificate table exists
  * @param bool $completion_table_exists Whether the completion table exists
  * @return array Enrollment data for this chunk
  */
-function report_customcajasan_get_data_chunk(
-    $filters,
-    $limitfrom,
-    $limitnum,
-    $customcert_table_exists,
-    $customcert_issues_exists,
-    $completion_table_exists
-) {
+function report_customcajasan_get_data_chunk($filters, $limitfrom, $limitnum, $cert_table_exists, $completion_table_exists) {
     global $DB;
-
-    $parts = report_customcajasan_build_dataset_sql(
-        $filters,
-        $customcert_table_exists,
-        $customcert_issues_exists,
-        $completion_table_exists
-    );
-
-    $select = implode(",\n                ", $parts['select']);
-    $sql = "SELECT
-                {$select}
-            {$parts['from']}";
-
-    if (!empty($parts['where'])) {
-        $sql .= "\n            WHERE " . implode(' AND ', $parts['where']);
+    
+    // Optimización: Seleccionar solo las columnas necesarias para mejorar rendimiento
+    $sql = "SELECT 
+                CONCAT(u.id, '_', c.id) AS unique_id,
+                u.id AS userid,
+                c.id AS courseid,
+                u.idnumber AS identificacion,
+                u.firstname AS nombres,
+                u.lastname AS apellidos,
+                u.email AS correo,
+                c.fullname AS curso,
+                cat.name AS categoria,
+                u.department AS unidad,
+                FROM_UNIXTIME(ue.timestart) AS fecha_matricula";
+    
+    // Add last access to course - optimizado para utilizar el JOIN directo
+    $sql .= ", CASE WHEN la.timeaccess IS NOT NULL AND la.timeaccess > 0 
+                THEN FROM_UNIXTIME(la.timeaccess) 
+                ELSE NULL 
+              END AS ultimo_acceso";
+    
+    // Certificate columns - optimizar JOINs para certificados
+    $need_cert_joins = $cert_table_exists && 
+                     (!isset($filters['estado']) || 
+                      in_array($filters['estado'], ['', 'APROBADO']));
+    
+    if ($cert_table_exists) {
+        if ($need_cert_joins) {
+            $sql .= ",
+                    CASE WHEN cert.id IS NOT NULL THEN 1 ELSE 0 END AS has_certificate,
+                    CASE WHEN ci.timecreated IS NOT NULL THEN FROM_UNIXTIME(ci.timecreated) ELSE NULL END AS fecha_certificado";
+        } else {
+            $sql .= ",
+                    0 AS has_certificate,
+                    NULL AS fecha_certificado";
+        }
+    } else {
+        $sql .= ",
+                0 AS has_certificate,
+                NULL AS fecha_certificado";
     }
-
-    if (!empty($parts['groupby'])) {
-        $sql .= "\n            GROUP BY " . implode(', ', $parts['groupby']);
+    
+    // Status determination with updated and optimized logic - corregido para mantener consistencia con último acceso
+    $sql .= ",
+            CASE 
+                WHEN (cert.id IS NULL) THEN 'SOLO CONSULTA'
+                WHEN (ci.id IS NOT NULL OR cc.timecompleted IS NOT NULL) THEN 'APROBADO'
+                WHEN (la.timeaccess IS NOT NULL AND la.timeaccess > 0) THEN 'EN CURSO'
+                ELSE 'NO INICIADO'
+            END AS estado";
+    
+    // FROM clause with required tables - incluir solo cursos y categorías visibles
+    $sql .= "
+            FROM {user_enrolments} ue
+            JOIN {enrol} e ON ue.enrolid = e.id
+            JOIN {course} c ON e.courseid = c.id AND c.visible = 1
+            JOIN {course_categories} cat ON c.category = cat.id AND cat.visible = 1
+            JOIN {user} u ON ue.userid = u.id
+            LEFT JOIN {user_lastaccess} la ON la.userid = u.id AND la.courseid = c.id";
+    
+    // Solo incluir course modules si son necesarios
+    $need_cm_join = true; // Always needed for status determination
+    if ($need_cm_join) {
+        $sql .= " LEFT JOIN (
+                    SELECT course, COUNT(*) as has_completion
+                    FROM {course_modules}
+                    WHERE completion > 0
+                    GROUP BY course
+                ) hc ON hc.course = c.id
+                LEFT JOIN {course_modules} cm ON cm.course = c.id";
     }
-
-    if (!empty($parts['having'])) {
-        $sql .= "\n            HAVING " . implode(' AND ', $parts['having']);
+    
+    // Add conditional JOINs only if tables exist and needed
+    if ($completion_table_exists) {
+        $sql .= " LEFT JOIN {course_completions} cc ON cc.userid = u.id AND cc.course = c.id";
+    } else {
+        // Use a lightweight join that won't return data but keeps the query structure intact
+        $sql .= " LEFT JOIN (SELECT NULL AS timecompleted, NULL AS timestarted, NULL AS userid, NULL AS course) cc 
+                  ON cc.userid = u.id AND cc.course = c.id";
     }
-
-    if (!empty($parts['order'])) {
-        $sql .= "\n            ORDER BY " . implode(', ', $parts['order']);
+    
+    // Solo incluir certificados si son necesarios
+    if ($cert_table_exists) {
+        $sql .= " LEFT JOIN {customcert} cert ON cert.course = c.id";
+        if ($need_cert_joins) {
+            $sql .= " LEFT JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = cert.id";
+        } else {
+            $sql .= " LEFT JOIN (SELECT NULL AS id, NULL AS userid, NULL AS customcertid, NULL AS timecreated) ci 
+                      ON ci.userid = u.id AND ci.customcertid = cert.id";
+        }
     }
-
-    return $DB->get_records_sql($sql, $parts['params'], $limitfrom, $limitnum);
+    
+    // WHERE clause
+    $sql .= " WHERE u.deleted = 0";
+    
+    // Parameter collection
+    $params = array();
+    
+    // Apply filters using clean, consistent pattern with optimized conditions
+    if (!empty($filters['category'])) {
+        $sql .= " AND c.category = :category";
+        $params['category'] = $filters['category'];
+    }
+    
+    if (!empty($filters['course'])) {
+        $sql .= " AND c.id = :course";
+        $params['course'] = $filters['course'];
+    }
+    
+    if (!empty($filters['idnumber'])) {
+        $sql .= " AND u.idnumber LIKE :idnumber";
+        $params['idnumber'] = '%' . $filters['idnumber'] . '%';
+    }
+    
+    if (!empty($filters['firstname'])) {
+        $sql .= " AND u.firstname LIKE :firstname";
+        $params['firstname'] = $filters['firstname'] . '%';
+    }
+    
+    if (!empty($filters['lastname'])) {
+        $sql .= " AND u.lastname LIKE :lastname";
+        $params['lastname'] = $filters['lastname'] . '%';
+    }
+    
+    // Optimized filters for estado
+    if (!empty($filters['estado'])) {
+        if ($filters['estado'] === 'APROBADO') {
+            $sql .= " AND cert.id IS NOT NULL AND (ci.id IS NOT NULL OR cc.timecompleted IS NOT NULL)";
+        } else if ($filters['estado'] === 'EN CURSO') {
+            $sql .= " AND cert.id IS NOT NULL AND (la.timeaccess IS NOT NULL AND la.timeaccess > 0) 
+                     AND (cc.timecompleted IS NULL OR cc.timecompleted = 0) 
+                     AND (ci.id IS NULL)";
+        } else if ($filters['estado'] === 'NO INICIADO') {
+            $sql .= " AND cert.id IS NOT NULL AND (la.timeaccess IS NULL OR la.timeaccess = 0)
+                     AND (cc.timestarted IS NULL OR cc.timestarted = 0)
+                     AND (cc.timecompleted IS NULL OR cc.timecompleted = 0)
+                     AND (ci.id IS NULL)";
+        } else if ($filters['estado'] === 'SOLO CONSULTA') {
+            if ($cert_table_exists) {
+                $sql .= " AND cert.id IS NULL";
+            }
+        }
+    }
+    
+    // Date range filters
+    if (!empty($filters['startdate'])) {
+        $sql .= " AND ue.timestart >= :startdate";
+        $params['startdate'] = $filters['startdate'];
+    }
+    
+    if (!empty($filters['enddate'])) {
+        $sql .= " AND ue.timestart <= :enddate";
+        $params['enddate'] = $filters['enddate'];
+    }
+    
+    // Use simplified grouping when possible - this improves query performance
+    $sql .= " GROUP BY u.id, c.id, cat.name";
+    if ($cert_table_exists && $need_cert_joins) {
+        $sql .= ", cert.id, ci.id, ci.timecreated";
+    }
+    if ($completion_table_exists) {
+        $sql .= ", cc.timecompleted, cc.timestarted";
+    }
+    
+    // Optimized order by for mejor rendimiento de índices
+    $sql .= " ORDER BY u.lastname, u.firstname, c.fullname";
+    
+    // Get results with pagination if specified
+    $result = $DB->get_records_sql($sql, $params, $limitfrom, $limitnum);
+    
+    return $result;
 }
 
 /**
- * Optimized count of enrollment data based on filters.
- *
- * @param array $filters Filter parameters.
- * @return int Count of matching records.
+ * Optimized count of enrollment data based on filters
+ * 
+ * @param array $filters Filter parameters
+ * @return int Count of matching records
  */
 function report_customcajasan_count_data($filters) {
     global $DB;
-
+    
+    // Check for required tables
     $dbman = $DB->get_manager();
-    $customcert_table_exists = $dbman->table_exists('customcert');
-    $customcert_issues_exists = $dbman->table_exists('customcert_issues');
+    $cert_table_exists = $dbman->table_exists('customcert_issues');
     $completion_table_exists = $dbman->table_exists('course_completions');
-
-    $parts = report_customcajasan_build_dataset_sql(
-        $filters,
-        $customcert_table_exists,
-        $customcert_issues_exists,
-        $completion_table_exists
-    );
-
-    $select = implode(",\n                ", $parts['select']);
-    $sql = "SELECT
-                {$select}
-            {$parts['from']}";
-
-    if (!empty($parts['where'])) {
-        $sql .= "\n            WHERE " . implode(' AND ', $parts['where']);
-    }
-
-    if (!empty($parts['groupby'])) {
-        $sql .= "\n            GROUP BY " . implode(', ', $parts['groupby']);
-    }
-
-    if (!empty($parts['having'])) {
-        $sql .= "\n            HAVING " . implode(' AND ', $parts['having']);
-    }
-
-    $countsql = "SELECT COUNT(*) FROM ({$sql}) reportcount";
-
-    return $DB->count_records_sql($countsql, $parts['params']);
-}
-
-/**
- * Build the SQL fragments used by the enrollment report queries.
- *
- * @param array $filters Active filters for the report.
- * @param bool $customcert_table_exists Whether the custom certificate table is available.
- * @param bool $customcert_issues_exists Whether the custom certificate issues table is available.
- * @param bool $completion_table_exists Whether the completion table is available.
- * @return array Array with SQL parts for select, from, where, having, groupby, order and params.
- */
-function report_customcajasan_build_dataset_sql(
-    array $filters,
-    bool $customcert_table_exists,
-    bool $customcert_issues_exists,
-    bool $completion_table_exists
-): array {
-    global $DB;
-
-    $uniqueid = $DB->sql_concat_join("'_'", ['u.id', 'c.id']);
-
-    $select = [
-        "{$uniqueid} AS unique_id",
-        'u.id AS userid',
-        'c.id AS courseid',
-        'u.idnumber AS identificacion',
-        'u.firstname AS nombres',
-        'u.lastname AS apellidos',
-        'u.email AS correo',
-        'c.fullname AS curso',
-        'cat.name AS categoria',
-        'u.department AS unidad',
-        'MIN(ue.timestart) AS fecha_matricula',
-        'MAX(COALESCE(la.timeaccess, 0)) AS ultimo_acceso'
-    ];
-
-    $groupby = [
-        'u.id',
-        'c.id',
-        'u.idnumber',
-        'u.firstname',
-        'u.lastname',
-        'u.email',
-        'c.fullname',
-        'cat.name',
-        'u.department'
-    ];
-
-    if ($customcert_table_exists) {
-        $certtemplateexpr = 'MAX(CASE WHEN cert.id IS NOT NULL THEN 1 ELSE 0 END)';
-        $select[] = "{$certtemplateexpr} AS has_certificate";
-    } else {
-        $certtemplateexpr = '0';
-        $select[] = '0 AS has_certificate';
-    }
-
-    if ($customcert_table_exists && $customcert_issues_exists) {
-        $select[] = 'MAX(ci.timecreated) AS fecha_certificado';
-        $certissuedexpr = 'MAX(CASE WHEN ci.id IS NOT NULL THEN 1 ELSE 0 END)';
-    } else {
-        $select[] = 'NULL AS fecha_certificado';
-        $certissuedexpr = '0';
-    }
-
-    $completioncompletedexpr = $completion_table_exists ?
-        'MAX(CASE WHEN cc.timecompleted IS NOT NULL AND cc.timecompleted > 0 THEN 1 ELSE 0 END)' : '0';
-    $completionstartedexpr = $completion_table_exists ?
-        'MAX(CASE WHEN cc.timestarted IS NOT NULL AND cc.timestarted > 0 THEN 1 ELSE 0 END)' : '0';
-    $lastaccessedexpr = 'MAX(CASE WHEN la.timeaccess IS NOT NULL AND la.timeaccess > 0 THEN 1 ELSE 0 END)';
-
-    if ($customcert_table_exists) {
-        $select[] = "CASE
-                WHEN {$certtemplateexpr} = 0 THEN 'SOLO CONSULTA'
-                WHEN ({$certissuedexpr} = 1 OR {$completioncompletedexpr} = 1) THEN 'APROBADO'
-                WHEN {$lastaccessedexpr} = 1 THEN 'EN CURSO'
-                ELSE 'NO INICIADO'
-            END AS estado";
-    } else {
-        $select[] = "CASE
-                WHEN {$completioncompletedexpr} = 1 THEN 'APROBADO'
-                WHEN {$lastaccessedexpr} = 1 THEN 'EN CURSO'
-                ELSE 'NO INICIADO'
-            END AS estado";
-    }
-
-    $from = "FROM {user_enrolments} ue
+    
+    // Optimización: Usar una consulta simplificada solo para contar
+    $sql = "SELECT COUNT(DISTINCT CONCAT(u.id, '_', c.id)) 
+            FROM {user_enrolments} ue
             JOIN {enrol} e ON ue.enrolid = e.id
-            JOIN {course} c ON e.courseid = c.id
-            JOIN {course_categories} cat ON c.category = cat.id
+            JOIN {course} c ON e.courseid = c.id AND c.visible = 1
+            JOIN {course_categories} cat ON c.category = cat.id AND cat.visible = 1
             JOIN {user} u ON ue.userid = u.id
             LEFT JOIN {user_lastaccess} la ON la.userid = u.id AND la.courseid = c.id";
-
-    if ($completion_table_exists) {
-        $from .= "\n            LEFT JOIN {course_completions} cc ON cc.userid = u.id AND cc.course = c.id";
+    
+    // Solo incluir JOINs si son necesarios para los filtros
+    $need_cert_joins = $cert_table_exists && 
+                      (!empty($filters['estado']) && 
+                       in_array($filters['estado'], ['APROBADO', 'EN CURSO', 'NO INICIADO', 'SOLO CONSULTA']));
+                      
+    $need_completion_joins = $completion_table_exists && 
+                            (!empty($filters['estado']) && 
+                             in_array($filters['estado'], ['APROBADO', 'EN CURSO', 'NO INICIADO']));
+    
+    // Solo agregar JOINs si son realmente necesarios
+    if ($need_completion_joins) {
+        $sql .= " LEFT JOIN {course_completions} cc ON cc.userid = u.id AND cc.course = c.id";
     }
-
-    if ($customcert_table_exists) {
-        $from .= "\n            LEFT JOIN {customcert} cert ON cert.course = c.id";
-        if ($customcert_issues_exists) {
-            $from .= "\n            LEFT JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = cert.id";
-        }
-    }
-
-    $where = [
-        'u.deleted = 0',
-        'c.visible = 1',
-        'cat.visible = 1'
-    ];
-
-    $params = [];
-
-    $allowedcourses = !empty($filters['allowedcourses']) ? array_map('intval', (array)$filters['allowedcourses']) : [];
-    $allowedcategories = !empty($filters['allowedcategories']) ? array_map('intval', (array)$filters['allowedcategories']) : [];
-
-    if (!empty($allowedcourses) || !empty($allowedcategories)) {
-        $restrictions = [];
-        if (!empty($allowedcourses)) {
-            list($coursesql, $courseparams) = $DB->get_in_or_equal($allowedcourses, SQL_PARAMS_NAMED, 'alrc');
-            $restrictions[] = "c.id {$coursesql}";
-            $params = array_merge($params, $courseparams);
-        }
-        if (!empty($allowedcategories)) {
-            list($catsql, $catparams) = $DB->get_in_or_equal($allowedcategories, SQL_PARAMS_NAMED, 'alrg');
-            $restrictions[] = "cat.id {$catsql}";
-            $params = array_merge($params, $catparams);
-        }
-
-        if (!empty($restrictions)) {
-            $where[] = (count($restrictions) > 1) ? '(' . implode(' OR ', $restrictions) . ')' : $restrictions[0];
+    
+    if ($need_cert_joins) {
+        $sql .= " LEFT JOIN {customcert} cert ON cert.course = c.id";
+        
+        if (in_array($filters['estado'], ['APROBADO'])) {
+            $sql .= " LEFT JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = cert.id";
+        } else {
+            $sql .= " LEFT JOIN (SELECT NULL AS id, NULL AS userid, NULL AS customcertid) ci 
+                      ON ci.userid = u.id AND ci.customcertid = cert.id";
         }
     }
-
+    
+    // WHERE clause
+    $sql .= " WHERE u.deleted = 0";
+    
+    // Parameter collection
+    $params = array();
+    
+    // Apply filters
     if (!empty($filters['category'])) {
-        $where[] = 'c.category = :category';
-        $params['category'] = (int)$filters['category'];
+        $sql .= " AND c.category = :category";
+        $params['category'] = $filters['category'];
     }
-
+    
     if (!empty($filters['course'])) {
-        $where[] = 'c.id = :course';
-        $params['course'] = (int)$filters['course'];
+        $sql .= " AND c.id = :course";
+        $params['course'] = $filters['course'];
     }
-
+    
     if (!empty($filters['idnumber'])) {
-        $where[] = $DB->sql_like('u.idnumber', ':idnumber', false);
+        $sql .= " AND u.idnumber LIKE :idnumber";
         $params['idnumber'] = '%' . $filters['idnumber'] . '%';
     }
-
+    
     if (!empty($filters['firstname'])) {
-        $where[] = $DB->sql_like('u.firstname', ':firstname', false);
+        $sql .= " AND u.firstname LIKE :firstname";
         $params['firstname'] = $filters['firstname'] . '%';
     }
-
+    
     if (!empty($filters['lastname'])) {
-        $where[] = $DB->sql_like('u.lastname', ':lastname', false);
+        $sql .= " AND u.lastname LIKE :lastname";
         $params['lastname'] = $filters['lastname'] . '%';
     }
-
-    if (!empty($filters['startdate'])) {
-        $where[] = 'ue.timestart >= :startdate';
-        $params['startdate'] = (int)$filters['startdate'];
-    }
-
-    if (!empty($filters['enddate'])) {
-        $where[] = 'ue.timestart <= :enddate';
-        $params['enddate'] = (int)$filters['enddate'];
-    }
-
-    $having = [];
-
+    
+    // Optimized status filters
     if (!empty($filters['estado'])) {
-        switch ($filters['estado']) {
-            case 'APROBADO':
-                $statusconditions = [];
-                if ($customcert_table_exists) {
-                    $having[] = "{$certtemplateexpr} = 1";
-                }
-                if ($customcert_table_exists && $customcert_issues_exists) {
-                    $statusconditions[] = "{$certissuedexpr} = 1";
-                }
-                if ($completion_table_exists) {
-                    $statusconditions[] = "{$completioncompletedexpr} = 1";
-                }
-                if (empty($statusconditions)) {
-                    $where[] = '1=0';
-                } else {
-                    $having[] = '(' . implode(' OR ', $statusconditions) . ')';
-                }
-                break;
-            case 'EN CURSO':
-                $conditions = ["{$lastaccessedexpr} = 1"];
-                if ($customcert_table_exists) {
-                    $having[] = "{$certtemplateexpr} = 1";
-                    if ($customcert_issues_exists) {
-                        $conditions[] = "{$certissuedexpr} = 0";
-                    }
-                }
-                if ($completion_table_exists) {
-                    $conditions[] = "{$completioncompletedexpr} = 0";
-                }
-                $having[] = implode(' AND ', $conditions);
-                break;
-            case 'NO INICIADO':
-                $conditions = ["{$lastaccessedexpr} = 0"];
-                if ($customcert_table_exists) {
-                    $having[] = "{$certtemplateexpr} = 1";
-                    if ($customcert_issues_exists) {
-                        $conditions[] = "{$certissuedexpr} = 0";
-                    }
-                }
-                if ($completion_table_exists) {
-                    $conditions[] = "{$completionstartedexpr} = 0";
-                    $conditions[] = "{$completioncompletedexpr} = 0";
-                }
-                $having[] = implode(' AND ', $conditions);
-                break;
-            case 'SOLO CONSULTA':
-                if ($customcert_table_exists) {
-                    $having[] = "{$certtemplateexpr} = 0";
-                } else {
-                    $where[] = '1=0';
-                }
-                break;
+        if ($filters['estado'] === 'APROBADO') {
+            $sql .= " AND cert.id IS NOT NULL AND (ci.id IS NOT NULL OR cc.timecompleted IS NOT NULL)";
+        } else if ($filters['estado'] === 'EN CURSO') {
+            $sql .= " AND cert.id IS NOT NULL AND (la.timeaccess IS NOT NULL AND la.timeaccess > 0)";
+            if ($need_completion_joins) {
+                $sql .= " AND (cc.timecompleted IS NULL OR cc.timecompleted = 0)";
+            }
+            if ($need_cert_joins) {
+                $sql .= " AND (ci.id IS NULL)";
+            }
+        } else if ($filters['estado'] === 'NO INICIADO') {
+            $sql .= " AND cert.id IS NOT NULL AND (la.timeaccess IS NULL OR la.timeaccess = 0)";
+            if ($need_completion_joins) {
+                $sql .= " AND (cc.timestarted IS NULL OR cc.timestarted = 0) 
+                          AND (cc.timecompleted IS NULL OR cc.timecompleted = 0)";
+            }
+            if ($need_cert_joins) {
+                $sql .= " AND (ci.id IS NULL)";
+            }
+        } else if ($filters['estado'] === 'SOLO CONSULTA') {
+            if ($need_cert_joins) {
+                $sql .= " AND cert.id IS NULL";
+            }
         }
     }
-
-    return [
-        'select' => $select,
-        'from' => $from,
-        'where' => $where,
-        'having' => $having,
-        'groupby' => $groupby,
-        'order' => ['u.lastname', 'u.firstname', 'c.fullname'],
-        'params' => $params,
-    ];
+    
+    // Date range filters
+    if (!empty($filters['startdate'])) {
+        $sql .= " AND ue.timestart >= :startdate";
+        $params['startdate'] = $filters['startdate'];
+    }
+    
+    if (!empty($filters['enddate'])) {
+        $sql .= " AND ue.timestart <= :enddate";
+        $params['enddate'] = $filters['enddate'];
+    }
+    
+    // Usar COUNT optimizado específicamente para conteo
+    $count = $DB->count_records_sql($sql, $params);
+    
+    return $count;
 }
 
 /**
@@ -846,32 +489,20 @@ function report_customcajasan_export_spreadsheet($filters, $filename, $format, $
     $chunksize = REPORT_CUSTOMCAJASAN_CHUNK_SIZE;
     $offset = 0;
     $total = report_customcajasan_count_data($filters);
-    $datetimeformat = get_string('strftimedatetime', 'langconfig');
-    $never = get_string('never', 'block_report_customcajasan');
-
+    
     // Procesar los datos en chunks para evitar problemas de memoria
     while ($offset < $total) {
         $enrollments = report_customcajasan_get_data($filters, $offset, $chunksize);
-
+        
         foreach ($enrollments as $enrollment) {
             // Ajustar último acceso según el estado:
             // - Para "NO INICIADO", mostrar "Nunca"
             // - Para otros estados, mostrar la fecha normal
-            $fecha_matricula = !empty($enrollment->fecha_matricula)
-                ? userdate((int)$enrollment->fecha_matricula, $datetimeformat)
-                : $never;
-
-            $ultimo_acceso = !empty($enrollment->ultimo_acceso)
-                ? userdate((int)$enrollment->ultimo_acceso, $datetimeformat)
-                : '';
-            if ($enrollment->estado === 'NO INICIADO' || $ultimo_acceso === '') {
-                $ultimo_acceso = $never;
+            $ultimo_acceso = $enrollment->ultimo_acceso;
+            if ($enrollment->estado === 'NO INICIADO' || empty($ultimo_acceso)) {
+                $ultimo_acceso = get_string('never', 'block_report_customcajasan');
             }
-
-            $fecha_certificado = !empty($enrollment->fecha_certificado)
-                ? userdate((int)$enrollment->fecha_certificado, $datetimeformat)
-                : '';
-
+            
             $worksheet->write($row, 0, $enrollment->identificacion);
             $worksheet->write($row, 1, $enrollment->nombres);
             $worksheet->write($row, 2, $enrollment->apellidos);
@@ -879,9 +510,9 @@ function report_customcajasan_export_spreadsheet($filters, $filename, $format, $
             $worksheet->write($row, 4, $enrollment->curso);
             $worksheet->write($row, 5, $enrollment->categoria);
             $worksheet->write($row, 6, $enrollment->unidad);
-            $worksheet->write($row, 7, $fecha_matricula);
+            $worksheet->write($row, 7, $enrollment->fecha_matricula);
             $worksheet->write($row, 8, $ultimo_acceso);
-            $worksheet->write($row, 9, $fecha_certificado);
+            $worksheet->write($row, 9, $enrollment->fecha_certificado);
             $worksheet->write($row, 10, $enrollment->estado);
             $row++;
         }
@@ -939,32 +570,20 @@ function report_customcajasan_export_csv($filters, $filename) {
     $chunksize = REPORT_CUSTOMCAJASAN_CHUNK_SIZE;
     $offset = 0;
     $total = report_customcajasan_count_data($filters);
-    $datetimeformat = get_string('strftimedatetime', 'langconfig');
-    $never = get_string('never', 'block_report_customcajasan');
-
+    
     // Procesar los datos en chunks para evitar problemas de memoria
     while ($offset < $total) {
         $enrollments = report_customcajasan_get_data($filters, $offset, $chunksize);
-
+        
         foreach ($enrollments as $enrollment) {
             // Ajustar último acceso según el estado:
             // - Para "NO INICIADO", mostrar "Nunca"
             // - Para otros estados, mostrar la fecha normal
-            $fecha_matricula = !empty($enrollment->fecha_matricula)
-                ? userdate((int)$enrollment->fecha_matricula, $datetimeformat)
-                : $never;
-
-            $ultimo_acceso = !empty($enrollment->ultimo_acceso)
-                ? userdate((int)$enrollment->ultimo_acceso, $datetimeformat)
-                : '';
-            if ($enrollment->estado === 'NO INICIADO' || $ultimo_acceso === '') {
-                $ultimo_acceso = $never;
+            $ultimo_acceso = $enrollment->ultimo_acceso;
+            if ($enrollment->estado === 'NO INICIADO' || empty($ultimo_acceso)) {
+                $ultimo_acceso = get_string('never', 'block_report_customcajasan');
             }
-
-            $fecha_certificado = !empty($enrollment->fecha_certificado)
-                ? userdate((int)$enrollment->fecha_certificado, $datetimeformat)
-                : '';
-
+            
             fputcsv($output, array(
                 $enrollment->identificacion,
                 $enrollment->nombres,
@@ -973,9 +592,9 @@ function report_customcajasan_export_csv($filters, $filename) {
                 $enrollment->curso,
                 $enrollment->categoria,
                 $enrollment->unidad,
-                $fecha_matricula,
+                $enrollment->fecha_matricula,
                 $ultimo_acceso,
-                $fecha_certificado,
+                $enrollment->fecha_certificado,
                 $enrollment->estado
             ));
         }
@@ -999,77 +618,11 @@ function report_customcajasan_export_csv($filters, $filename) {
  *
  * @return array List of visible categories
  */
-function report_customcajasan_get_categories(array $allowedcategories = [], array $allowedcourses = []) {
+function report_customcajasan_get_categories() {
     global $DB;
-
-    $allowedcategories = array_filter(array_map('intval', $allowedcategories));
-    $allowedcourses = array_filter(array_map('intval', $allowedcourses));
-
-    if (empty($allowedcategories) && empty($allowedcourses)) {
-        return $DB->get_records('course_categories', ['visible' => 1], 'path ASC', 'id, name, depth, path');
-    }
-
-    $categoryids = $allowedcategories;
-
-    if (!empty($allowedcourses)) {
-        list($insql, $params) = $DB->get_in_or_equal($allowedcourses, SQL_PARAMS_NAMED, 'ccsel');
-        $coursecategories = $DB->get_fieldset_sql("SELECT DISTINCT category FROM {course} WHERE id {$insql}", $params);
-        $categoryids = array_merge($categoryids, array_map('intval', $coursecategories));
-    }
-
-    $categoryids = array_values(array_unique(array_filter($categoryids)));
-
-    if (empty($categoryids)) {
-        return [];
-    }
-
-    list($catsql, $params) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED, 'ccf');
-    $records = $DB->get_records_sql("SELECT id, name, depth, path FROM {course_categories} WHERE id {$catsql}", $params);
-
-    $allcategoryids = [];
-    foreach ($records as $record) {
-        $allcategoryids[$record->id] = $record->id;
-        if (!empty($record->path)) {
-            foreach (explode('/', trim($record->path, '/')) as $pathid) {
-                if ($pathid !== '') {
-                    $allcategoryids[(int)$pathid] = (int)$pathid;
-                }
-            }
-        }
-    }
-
-    if (empty($allcategoryids)) {
-        return [];
-    }
-
-    list($allsql, $allparams) = $DB->get_in_or_equal(array_values($allcategoryids), SQL_PARAMS_NAMED, 'ccvis');
-
-    return $DB->get_records_sql(
-        "SELECT id, name, depth, path FROM {course_categories} WHERE visible = 1 AND id {$allsql} ORDER BY path ASC",
-        $allparams
-    );
-}
-
-/**
- * Verify if the selected course belongs to the selected category.
- *
- * @param int $courseid Course identifier.
- * @param int $categoryid Category identifier.
- * @return bool True when the course is part of the category, false otherwise.
- */
-function report_customcajasan_course_matches_category($courseid, $categoryid) {
-    global $DB;
-
-    if (empty($courseid) || empty($categoryid)) {
-        return true;
-    }
-
-    $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
-    if ($coursecategory === false) {
-        return false;
-    }
-
-    return (int)$coursecategory === (int)$categoryid;
+    
+    // Modificado para devolver solo categorías visibles (no ocultas)
+    return $DB->get_records('course_categories', array('visible' => 1), 'name ASC', 'id, name, depth, path');
 }
 
 /**
@@ -1078,43 +631,26 @@ function report_customcajasan_course_matches_category($courseid, $categoryid) {
  * @param int $categoryid Category ID
  * @return array List of visible courses
  */
-function report_customcajasan_get_courses($categoryid, array $allowedcourses = [], array $allowedcategories = []) {
+function report_customcajasan_get_courses($categoryid) {
     global $DB;
-
-    $params = ['visible' => 1];
-    $sql = "SELECT id, fullname FROM {course} WHERE visible = :visible";
-
+    
+    $params = array();
+    
+    // Condición base: solo cursos visibles
+    $sql = "SELECT id, fullname FROM {course} WHERE visible = 1";
+    
     if (!empty($categoryid)) {
-        $categoryexists = $DB->record_exists('course_categories', ['id' => $categoryid, 'visible' => 1]);
-        if ($categoryexists) {
+        // Verificar que la categoría seleccionada sea visible
+        $category_exists = $DB->record_exists('course_categories', array('id' => $categoryid, 'visible' => 1));
+        
+        if ($category_exists) {
             $sql .= " AND category = :category";
             $params['category'] = $categoryid;
         }
     }
-
-    $allowedcourses = array_filter(array_map('intval', $allowedcourses));
-    $allowedcategories = array_filter(array_map('intval', $allowedcategories));
-
-    if (!empty($allowedcourses) || !empty($allowedcategories)) {
-        $restrictionsql = [];
-        if (!empty($allowedcourses)) {
-            list($coursesql, $courseparams) = $DB->get_in_or_equal($allowedcourses, SQL_PARAMS_NAMED, 'ccourse');
-            $restrictionsql[] = "id {$coursesql}";
-            $params = array_merge($params, $courseparams);
-        }
-        if (!empty($allowedcategories)) {
-            list($catsql, $catparams) = $DB->get_in_or_equal($allowedcategories, SQL_PARAMS_NAMED, 'ccat');
-            $restrictionsql[] = "category {$catsql}";
-            $params = array_merge($params, $catparams);
-        }
-
-        if (!empty($restrictionsql)) {
-            $sql .= ' AND (' . implode(' OR ', $restrictionsql) . ')';
-        }
-    }
-
+    
     $sql .= " ORDER BY fullname ASC";
-
+    
     return $DB->get_records_sql($sql, $params);
 }
 

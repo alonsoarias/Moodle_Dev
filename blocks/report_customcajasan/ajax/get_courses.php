@@ -28,70 +28,69 @@ define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->dirroot . '/blocks/report_customcajasan/lib.php');
 
+// Check user login
 require_login(null, false);
 
+// Verify AJAX parameters
 $categoryid = optional_param('categoryid', 0, PARAM_INT);
-$blockinstanceid = optional_param('blockinstanceid', 0, PARAM_INT);
-$blockrestrictions = block_report_customcajasan_get_block_restrictions($blockinstanceid);
 
+// Verify sesskey
 if (!confirm_sesskey()) {
-    echo json_encode([
+    $error = array(
         'success' => false,
         'error' => get_string('invalidsesskey', 'error')
-    ]);
+    );
+    echo json_encode($error);
     die();
 }
 
+// Check capability or manager role
 $systemcontext = context_system::instance();
-$hasaccess = false;
-
 try {
-    if (!empty($blockrestrictions['parentcontext']) && 
-        $blockrestrictions['parentcontext']->contextlevel == CONTEXT_COURSE) {
-        $context = $blockrestrictions['parentcontext'];
-        $hasaccess = has_capability('moodle/course:update', $context) ||
-                     has_capability('moodle/course:manageactivities', $context);
-    } else {
-        $hasaccess = has_capability('moodle/site:config', $systemcontext);
-    }
-
-    if (!$hasaccess) {
-        throw new required_capability_exception(
-            $systemcontext, 
-            'block/report_customcajasan:viewreport', 
-            'nopermissions', 
-            ''
-        );
+    // Verificar permisos - permitir acceso a gestores o usuarios con la capacidad específica
+    $can_view = has_capability('block/report_customcajasan:viewreport', $systemcontext);
+    $is_manager = has_any_capability(['moodle/site:config', 'moodle/course:update'], $systemcontext);
+    
+    if (!$can_view && !$is_manager) {
+        throw new required_capability_exception($systemcontext, 'block/report_customcajasan:viewreport', 'nopermissions', '');
     }
 } catch (Exception $e) {
-    echo json_encode([
+    $error = array(
         'success' => false,
-        'error' => get_string('nopermissions', 'error')
-    ]);
+        'error' => get_string('nopermissions', 'error', 'block/report_customcajasan:viewreport')
+    );
+    echo json_encode($error);
     die();
 }
 
 try {
-    $allowedcourses = $blockrestrictions['courses'];
-    $allowedcategories = $blockrestrictions['expandedcategories'];
-
-    if (!empty($allowedcategories) && !empty($categoryid) &&
-        !in_array((int)$categoryid, $allowedcategories, true)) {
-        $categoryid = 0;
-    }
-
-    $courses = report_customcajasan_get_courses($categoryid, $allowedcourses, $allowedcategories);
+    // Use safer parameter binding with get_in_or_equal when possible
+    $params = array();
+    $sql = "SELECT id, fullname FROM {course} WHERE 1=1";
     
+    if (!empty($categoryid)) {
+        $sql .= " AND category = :categoryid";
+        $params['categoryid'] = $categoryid;
+    }
+    
+    $sql .= " ORDER BY fullname ASC";
+    
+    // Get courses
+    $courses = $DB->get_records_sql($sql, $params);
+    
+    // Format response
     $response = array(
         'success' => true,
         'courses' => array_values($courses),
         'count' => count($courses)
     );
     
+    // Send JSON response
     echo json_encode($response);
 } catch (Exception $e) {
-    echo json_encode([
+    $error = array(
         'success' => false,
         'error' => 'Error getting courses: ' . $e->getMessage()
-    ]);
+    );
+    echo json_encode($error);
 }
