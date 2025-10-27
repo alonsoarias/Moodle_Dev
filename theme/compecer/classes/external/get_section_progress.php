@@ -61,7 +61,7 @@ class get_section_progress extends external_api {
      * @return array Progress data
      */
     public static function execute($sectionid, $courseid) {
-        global $USER;
+        global $USER, $DB;
 
         // Validate parameters
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -69,12 +69,23 @@ class get_section_progress extends external_api {
             'courseid' => $courseid,
         ]);
 
+        // Get course record
+        $course = $DB->get_record('course', ['id' => $params['courseid']], '*', MUST_EXIST);
+
         // Validate context
         $context = context_course::instance($params['courseid']);
         self::validate_context($context);
 
-        // Check capability to view the course
-        require_capability('moodle/course:view', $context);
+        // Check if user can access the course (enrolled or has viewhiddencourses capability)
+        if (!is_enrolled($context, $USER, '', true) && !has_capability('moodle/course:viewhiddencourses', $context)) {
+            // Return empty progress for users without access
+            return [
+                'hasprogress' => false,
+                'percentage' => 0,
+                'complete' => 0,
+                'total' => 0
+            ];
+        }
 
         // Get progress data
         $progress = course_progress::get_section_progress_by_id(
