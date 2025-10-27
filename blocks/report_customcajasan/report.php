@@ -203,6 +203,17 @@ if (!empty($scope['categoryids'])) {
         }
     }
 }
+if (!empty($categorynames)) {
+    $scopeinfo .= html_writer::tag('div', get_string('report_scope_categories', 'block_report_customcajasan'));
+    $scopeinfo .= html_writer::alist($categorynames, [], 'ul');
+} else if (!$incourse) {
+    $scopeinfo .= html_writer::tag('div', get_string('report_scope_notice_frontpage', 'block_report_customcajasan'));
+}
+$scopeinfo .= html_writer::tag('div',
+    get_string('report_scope_effective_courses', 'block_report_customcajasan', count($scope['courseids'])));
+$scopeinfo .= html_writer::end_div();
+
+echo $scopeinfo;
 
 $scopeinfo = html_writer::start_div('alert alert-secondary');
 $scopeinfo .= html_writer::tag('strong', get_string('report_scope_heading', 'block_report_customcajasan'));
@@ -235,9 +246,9 @@ echo html_writer::tag('small', get_string('status_note', 'block_report_customcaj
 echo html_writer::end_div();
 
 if ($scope['requiresselection'] && !$incourse) {
-    echo html_writer::div(
+    echo html_writer::tag('div',
         get_string('report_no_scope_configured', 'block_report_customcajasan'),
-        'alert alert-warning'
+        ['class' => 'alert alert-warning']
     );
 }
 
@@ -359,7 +370,10 @@ echo html_writer::end_tag('form');
 
 echo html_writer::start_div('report-results mb-4', ['id' => 'report-results']);
 if ($scope['requiresselection'] && !$incourse) {
-    echo html_writer::div(get_string('report_no_scope_configured', 'block_report_customcajasan'), 'alert alert-warning');
+    echo html_writer::tag('div',
+        get_string('report_no_scope_configured', 'block_report_customcajasan'),
+        ['class' => 'alert alert-warning']
+    );
 }
 echo html_writer::end_div();
 
@@ -392,11 +406,12 @@ echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'enddate', '
 if (!$scope['requiresselection'] || $incourse) {
     $downloadcount = report_customcajasan_count_data($filters);
     if ($downloadcount > 1000) {
-        echo html_writer::div(
-            '<i class="fa fa-info-circle"></i> ' .
-            get_string('total_records', 'block_report_customcajasan') . ': ' . $downloadcount,
-            'alert alert-info download-warning mb-3 p-2'
-        );
+        $downloadsummary = html_writer::span('', 'fa fa-info-circle', ['aria-hidden' => 'true']);
+        $downloadsummary .= ' ' . get_string('total_records', 'block_report_customcajasan') . ': ' . (int)$downloadcount;
+        echo html_writer::tag('div', $downloadsummary, [
+            'class' => 'alert alert-info download-warning mb-3 p-2',
+            'role' => 'status'
+        ]);
     }
 }
 
