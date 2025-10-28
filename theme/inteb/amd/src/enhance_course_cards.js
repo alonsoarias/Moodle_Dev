@@ -84,45 +84,32 @@ define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
             }
         }
 
-        // Update custom fields section
-        if (courseData.remuicustomfields && courseData.remuicustomfields.length > 0) {
-            var $customFieldsSection = $card.find('.remui-custom-fields');
+        // Update custom fields section in edw-card-design-ft
+        // La sección .remui-custom-fields-wrapper debe existir en el template
+        var $customFieldsWrapper = $card.find('.remui-custom-fields-wrapper');
 
-            // Create custom fields HTML if section doesn't exist
-            if ($customFieldsSection.length === 0) {
-                $customFieldsSection = $('<div class="remui-custom-fields d-flex flex-column flex-gap-1"></div>');
-                // Insert before course summary or at end of card body
-                var $insertBefore = $card.find('.coursesummary');
-                if ($insertBefore.length) {
-                    $insertBefore.before($customFieldsSection);
-                } else {
-                    $card.find('.edw-card-design-hd').append($customFieldsSection);
-                }
-            }
-
+        if ($customFieldsWrapper.length > 0) {
             // Clear existing content
-            $customFieldsSection.empty();
+            $customFieldsWrapper.empty();
 
             // Add course duration if available
-            if (courseData.hascourseduration) {
+            if (courseData.hascourseduration && courseData.courseduration) {
                 var durationHtml = '<div class="custom-field course-duration d-flex align-items-center flex-gap-d5">' +
                     '<span class="edw-icon edw-icon-Time field-icon" aria-hidden="true"></span>' +
-                    '<span class="field-label small-info-semibold">Duration:</span>' +
-                    '<span class="field-value small-info-regular">' + courseData.courseduration + '</span>' +
+                    '<span class="field-value small-info-semibold">' + courseData.courseduration + '</span>' +
                     '</div>';
-                $customFieldsSection.append(durationHtml);
+                $customFieldsWrapper.append(durationHtml);
             }
 
             // Add skill level if available
-            if (courseData.hascourseskilllevel) {
+            if (courseData.hascourseskilllevel && courseData.courseskilllevel) {
                 var skillClass = courseData.courseskillevelclass || '';
                 var skillHtml = '<div class="custom-field skill-level d-flex align-items-center flex-gap-d5">' +
                     '<span class="edw-icon edw-icon-Trophy field-icon" aria-hidden="true"></span>' +
-                    '<span class="field-label small-info-semibold">Skill Level:</span>' +
-                    '<span class="field-value small-info-regular skill-badge skill-' + skillClass + '">' +
+                    '<span class="field-value small-info-semibold skill-badge skill-' + skillClass + '">' +
                     courseData.courseskilllevel + '</span>' +
                     '</div>';
-                $customFieldsSection.append(skillHtml);
+                $customFieldsWrapper.append(skillHtml);
             }
         }
     };
