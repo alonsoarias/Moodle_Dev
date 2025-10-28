@@ -198,24 +198,31 @@ class theme_inteb_coursehandler extends theme_remui_coursehandler {
                 $coursedata['instructors'] = [];
 
                 $teachercount = 0;
+                $firstteacher = null;
 
+                // Count ALL teachers and save first one
                 foreach ($allteachers as $teacher) {
-                    $coursedata['instructors'][] = [
-                        'id' => $teacher->id,
-                        'name' => fullname($teacher, true),
-                        'url' => $CFG->wwwroot . '/user/profile.php?id=' . $teacher->id,
-                        'picture' => $OUTPUT->user_picture($teacher, ['size' => 35, 'link' => false])
-                    ];
                     $teachercount++;
 
-                    // Only show first instructor in some views, but count all
+                    // Save first teacher for display
                     if ($teachercount == 1) {
-                        // Keep first instructor for single display
+                        $firstteacher = [
+                            'id' => $teacher->id,
+                            'name' => fullname($teacher, true),
+                            'url' => $CFG->wwwroot . '/user/profile.php?id=' . $teacher->id,
+                            'picture' => $OUTPUT->user_picture($teacher, ['size' => 35, 'link' => false])
+                        ];
                     }
                 }
 
+                // Add ONLY first instructor to the array (like RemUI does)
+                // Templates iterate over this array, so we only want one element
+                if ($firstteacher) {
+                    $coursedata['instructors'][] = $firstteacher;
+                }
+
                 // Update instructor count (show +N for additional teachers)
-                // -1 because we show the first one separately
+                // -1 because we show the first one separately in the template
                 $coursedata['instructorcount'] = ($teachercount > 1) ? ($teachercount - 1) : '';
                 $coursedata['hasmultipleinstructors'] = ($teachercount > 1);
                 $coursedata['totalinstructors'] = $teachercount;
