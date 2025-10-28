@@ -336,4 +336,26 @@ class core_renderer extends \theme_remui\output\core_renderer
 
         return in_array($CFG->wwwroot, $allowed_urls);
     }
+
+    /**
+     * Sobrescritura de standard_end_of_body_html para cargar el módulo de mejora de course cards.
+     *
+     * Este método carga el módulo JavaScript enhance_course_cards que:
+     * - Agrega campos personalizados de RemUI a las tarjetas de cursos
+     * - Muestra TODOS los instructores (no solo los que tienen permisos de edición)
+     *
+     * @return string HTML para incluir al final del body
+     */
+    public function standard_end_of_body_html() {
+        global $PAGE;
+
+        // Obtener el output del padre primero
+        $output = parent::standard_end_of_body_html();
+
+        // Cargar el módulo de mejora de course cards en páginas relevantes
+        // Se carga en: dashboard, my, course index, etc.
+        $PAGE->requires->js_call_amd('theme_inteb/enhance_course_cards', 'init');
+
+        return $output;
+    }
 }
