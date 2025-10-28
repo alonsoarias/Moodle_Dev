@@ -25,9 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'theme_inteb';
-$plugin->version = 2025102808; // Fecha de la versión: 2025-10-28, incremento 08.
+$plugin->version = 2025021000; // Fecha de la versión: 2025-02-10, incremento 00.
 $plugin->requires = 2022041200; // Versión mínima de Moodle requerida.
-$plugin->release   = '4.5.8';
+$plugin->release   = '4.5.9';
 $plugin->dependencies = [
     'theme_remui' => 2024102300, // Dependencia del tema padre.
 ];
