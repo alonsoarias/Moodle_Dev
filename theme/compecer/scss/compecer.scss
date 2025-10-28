@@ -1535,96 +1535,102 @@ $ci-text-secondary: #757575;
    INVERSIÓN DE DRAWERS - Compecer Theme
    Course Index → DERECHA
    Bloques → IZQUIERDA
+   SOLO APLICADO A PÁGINAS DE CURSO (NO DASHBOARD)
    ============================================================================= */
 
-/* Override de Boost: Courseindex a la DERECHA */
-@include media-breakpoint-up(lg) {
-    #page.drawers {
-        &.show-drawer-right {
-            /* Cuando courseindex está abierto (ahora a la derecha) */
-            margin-right: $drawer-left-width;
-            margin-left: 0;
-            padding-right: 1rem;
+/* Aplicar inversión SOLO en páginas de curso e incourse */
+body.pagelayout-course,
+body.pagelayout-incourse {
+
+    /* Override de Boost: Courseindex a la DERECHA */
+    @include media-breakpoint-up(lg) {
+        #page.drawers {
+            &.show-drawer-right {
+                /* Cuando courseindex está abierto (ahora a la derecha) */
+                margin-right: $drawer-left-width;
+                margin-left: 0;
+                padding-right: 1rem;
+            }
+
+            &.show-drawer-left {
+                /* Cuando bloques están abiertos (ahora a la izquierda) */
+                margin-left: $drawer-right-width;
+                margin-right: 0;
+                padding-left: 1rem;
+            }
+
+            &.show-drawer-left.show-drawer-right {
+                /* Ambos abiertos */
+                margin-left: $drawer-right-width;
+                margin-right: $drawer-left-width;
+            }
         }
-
-        &.show-drawer-left {
-            /* Cuando bloques están abiertos (ahora a la izquierda) */
-            margin-left: $drawer-right-width;
-            margin-right: 0;
-            padding-left: 1rem;
-        }
-
-        &.show-drawer-left.show-drawer-right {
-            /* Ambos abiertos */
-            margin-left: $drawer-right-width;
-            margin-right: $drawer-left-width;
-        }
     }
-}
 
-/* Drawer Left (ahora BLOQUES) */
-.drawer-left {
-    left: 0;
-    right: auto;
-    width: $drawer-right-width;
-    box-shadow: 2px 0px 4px rgba(0, 0, 0, 0.15);
-}
-
-/* Drawer Right (ahora COURSEINDEX) */
-.drawer-right {
-    right: 0;
-    left: auto;
-    width: $drawer-left-width;
-    box-shadow: -2px 0px 4px rgba(0, 0, 0, 0.15);
-}
-
-/* Botones toggle */
-.drawer-left-toggle {
-    /* Botón para bloques (ahora a la izquierda) */
-    order: 1;
-}
-
-.drawer-right-toggle {
-    /* Botón para courseindex (ahora a la derecha) */
-    order: 2;
-    margin-left: auto;
-}
-
-/* Ajustes de sombras según posición */
-body.drawer-open-left [data-region="blocks-column"] {
-    box-shadow: 2px 0px 2px rgba(10, 10, 10, 0.07);
-}
-
-body.drawer-open-right #courseindex {
-    box-shadow: -3px 0px 2px rgba(10, 10, 10, 0.07);
-}
-
-/* Estados de body */
-body.drawer-open-left {
-    @include media-breakpoint-up(md) {
-        margin-left: $drawer-right-width;
-    }
-}
-
-body.drawer-open-right {
-    @include media-breakpoint-up(md) {
-        margin-right: $drawer-left-width;
-    }
-}
-
-/* Courseindex específico a la DERECHA */
-#courseindex {
-    &.drawer-right {
-        right: 0;
-        left: auto;
-    }
-}
-
-/* Bloques específico a la IZQUIERDA */
-[data-region="blocks-column"] {
-    &.drawer-left {
+    /* Drawer Left (ahora BLOQUES) */
+    .drawer-left {
         left: 0;
         right: auto;
+        width: $drawer-right-width;
+        box-shadow: 2px 0px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Drawer Right (ahora COURSEINDEX) */
+    .drawer-right {
+        right: 0;
+        left: auto;
+        width: $drawer-left-width;
+        box-shadow: -2px 0px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Botones toggle */
+    .drawer-left-toggle {
+        /* Botón para bloques (ahora a la izquierda) */
+        order: 1;
+    }
+
+    .drawer-right-toggle {
+        /* Botón para courseindex (ahora a la derecha) */
+        order: 2;
+        margin-left: auto;
+    }
+
+    /* Ajustes de sombras según posición */
+    &.drawer-open-left [data-region="blocks-column"] {
+        box-shadow: 2px 0px 2px rgba(10, 10, 10, 0.07);
+    }
+
+    &.drawer-open-right #courseindex {
+        box-shadow: -3px 0px 2px rgba(10, 10, 10, 0.07);
+    }
+
+    /* Estados de body */
+    &.drawer-open-left {
+        @include media-breakpoint-up(md) {
+            margin-left: $drawer-right-width;
+        }
+    }
+
+    &.drawer-open-right {
+        @include media-breakpoint-up(md) {
+            margin-right: $drawer-left-width;
+        }
+    }
+
+    /* Courseindex específico a la DERECHA */
+    #courseindex {
+        &.drawer-right {
+            right: 0;
+            left: auto;
+        }
+    }
+
+    /* Bloques específico a la IZQUIERDA */
+    [data-region="blocks-column"] {
+        &.drawer-left {
+            left: 0;
+            right: auto;
+        }
     }
 }
 
