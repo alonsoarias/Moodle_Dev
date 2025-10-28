@@ -1,31 +1,28 @@
 {{!
     @template core_courseformat/local/courseindex/drawer
 
-    This template renders the course index drawer with overall course progress.
-    Redesigned for theme compecer with professional styling.
+    Course index drawer - Complete Redesign for Theme Compecer
+    Professional and clean interface with simplified progress display
 
     Example context (json):
     {}
 }}
-<nav id="courseindex" class="courseindex-drawer-redesign">
-  {{! Course Overall Progress Header }}
+<nav id="courseindex" class="courseindex-new-design">
+
+  {{! Course Overall Progress Header - Simplified }}
   <div class="courseindex-progress-header" id="courseindex-progress-header" style="display: none;">
-    <div class="progress-header-content">
-      <div class="progress-title-row">
-        <h3 class="progress-title">{{#str}}courseprogress, theme_compecer{{/str}}</h3>
-        <span class="progress-percentage-badge" data-region="course-percentage">0%</span>
-      </div>
-      <div class="progress-subtitle" data-region="course-activities-count">
-        <span class="activities-completed">0</span> {{#str}}of, core{{/str}} <span class="activities-total">0</span> {{#str}}activitiescompleted, theme_compecer{{/str}}
-      </div>
-      <div class="progress-bar-container">
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" data-region="course-progress-bar" style="width: 0%;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <span class="progress-bar-label"></span>
-          </div>
-        </div>
+    <h3 class="progress-title">{{#str}}courseprogress, theme_compecer{{/str}}</h3>
+    <div class="progress-bar-wrapper">
+      <div class="progress-bar-fill"
+           data-region="course-progress-bar"
+           style="width: 0%;"
+           role="progressbar"
+           aria-valuenow="0"
+           aria-valuemin="0"
+           aria-valuemax="100">
       </div>
     </div>
+    <div class="progress-percentage-display" data-region="course-percentage">0%</div>
   </div>
 
   {{! Message when completion tracking is not enabled }}
@@ -36,22 +33,35 @@
     </div>
   </div>
 
-  {{! Course Index Title }}
-  <div class="courseindex-title-section">
-    <h4 class="courseindex-title">
-      {{#str}}courseindex, core_courseformat{{/str}}
-    </h4>
+  {{! Icon Legend }}
+  <div class="courseindex-icon-legend" id="courseindex-icon-legend" style="display: none;">
+    <div class="legend-title">{{#str}}iconlegend, theme_compecer{{/str}}</div>
+    <div class="legend-items">
+      <div class="legend-item">
+        <span class="legend-icon not-started">○</span>
+        <span>{{#str}}notstarted, theme_compecer{{/str}}</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-icon in-progress">◐</span>
+        <span>{{#str}}inprogress, theme_compecer{{/str}}</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-icon completed">✓</span>
+        <span>{{#str}}completed, core_completion{{/str}}</span>
+      </div>
+    </div>
   </div>
 
   {{! Sections List }}
-  <div id="courseindex-content" class="courseindex-content-redesign">
+  <div id="courseindex-content" class="courseindex-content">
     {{> core_courseformat/local/courseindex/placeholders}}
   </div>
+
 </nav>
 {{#js}}
 require(['core_courseformat/local/courseindex/drawer', 'theme_compecer/courseindex_progress'], function(component, progressLoader) {
   component.init('courseindex');
-  // Initialize progress loader with course ID from global Moodle config
+  // Initialize progress loader with course ID
   if (M.cfg && M.cfg.courseId) {
     progressLoader.init(M.cfg.courseId);
   }

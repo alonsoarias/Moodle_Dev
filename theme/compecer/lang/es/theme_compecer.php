@@ -305,3 +305,8 @@ $string['activitiescompleted'] = 'actividades completadas';
 $string['nocompletion'] = 'Sin seguimiento de finalización';
 $string['completionenabled'] = 'Seguimiento de finalización habilitado';
 $string['completionnotenabledcourse'] = 'El seguimiento de finalización no está habilitado para este curso';
+
+// Leyenda de Iconos
+$string['iconlegend'] = 'Leyenda de Estados de Actividad';
+$string['notstarted'] = 'No Iniciado';
+$string['inprogress'] = 'En Progreso';

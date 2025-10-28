@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Course index progress loader
+ * Course index progress loader - Complete Redesign
  *
  * @module     theme_compecer/courseindex_progress
  * @copyright  2024 IngeWeb https://www.ingeweb.co
@@ -22,30 +22,33 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+define(['jquery', 'core/ajax'], function($, Ajax) {
 
     /**
-     * Initialize the course index progress
+     * Initialize the course index progress system
      *
      * @param {Number} courseId The course ID
      */
     var init = function(courseId) {
-
-        // Load overall course progress first
+        // Load overall course progress
         loadCourseProgress(courseId);
 
-        // Wait for the courseindex to be fully loaded
+        // Load activities completion states
+        loadActivitiesCompletion(courseId);
+
+        // Wait for sections to be loaded, then load section percentages
         var checkInterval = setInterval(function() {
             var sections = $('.course-index-section, .courseindex-section-redesign');
             if (sections.length > 0) {
                 clearInterval(checkInterval);
-                loadAllSectionsProgress(courseId);
+                loadSectionsProgress(courseId);
             }
         }, 500);
 
-        // Also listen for courseindex updates
+        // Listen for state changes
         $(document).on('state-changed', function() {
-            loadAllSectionsProgress(courseId);
+            loadActivitiesCompletion(courseId);
+            loadSectionsProgress(courseId);
         });
     };
 
@@ -57,22 +60,20 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
     var loadCourseProgress = function(courseId) {
         var promises = Ajax.call([{
             methodname: 'theme_compecer_get_course_progress',
-            args: {
-                courseid: courseId
-            }
+            args: {courseid: courseId}
         }]);
 
         promises[0]
             .then(function(response) {
                 if (response && response.hasprogress) {
                     updateCourseProgressDisplay(response);
+                    showIconLegend();
                 } else {
                     showNoTrackingMessage();
                 }
                 return;
             })
             .catch(function(error) {
-                // Log only non-permission errors
                 if (error && error.errorcode !== 'nopermissions') {
                     window.console && console.log('Error loading course progress:', error);
                 }
@@ -80,7 +81,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
     };
 
     /**
-     * Update the course overall progress display
+     * Update the course overall progress display (simplified - no activities count)
      *
      * @param {Object} data Progress data
      */
@@ -89,22 +90,16 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         if ($header.length === 0) return;
 
         var percentage = data.percentage || 0;
-        var completed = data.completed || 0;
-        var total = data.total || 0;
 
-        // Update percentage badge
+        // Update percentage display
         $header.find('[data-region="course-percentage"]').text(percentage + '%');
-
-        // Update activities count
-        $header.find('.activities-completed').text(completed);
-        $header.find('.activities-total').text(total);
 
         // Update progress bar
         var $progressBar = $header.find('[data-region="course-progress-bar"]');
         if ($progressBar.length > 0) {
             $progressBar.css('width', percentage + '%').attr('aria-valuenow', percentage);
 
-            // Add percentage class for color coding
+            // Add color class based on progress
             $progressBar.removeClass('progress-0 progress-low progress-medium progress-high progress-complete');
             if (percentage === 0) {
                 $progressBar.addClass('progress-0');
@@ -124,6 +119,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
     };
 
     /**
+     * Show icon legend
+     */
+    var showIconLegend = function() {
+        $('#courseindex-icon-legend').fadeIn(300);
+    };
+
+    /**
      * Show message when completion tracking is not enabled
      */
     var showNoTrackingMessage = function() {
@@ -131,40 +133,82 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
     };
 
     /**
-     * Load progress for all sections
+     * Load activities completion states
      *
      * @param {Number} courseId The course ID
      */
-    var loadAllSectionsProgress = function(courseId) {
-        // Old style progress bars
-        $('.course-index-section-progress').each(function() {
-            var $progressContainer = $(this);
-            var sectionId = $progressContainer.data('section-id');
+    var loadActivitiesCompletion = function(courseId) {
+        var promises = Ajax.call([{
+            methodname: 'theme_compecer_get_activities_completion',
+            args: {courseid: courseId}
+        }]);
 
-            if (sectionId && !$progressContainer.data('loaded')) {
-                loadSectionProgress(courseId, sectionId, $progressContainer);
-            }
-        });
+        promises[0]
+            .then(function(response) {
+                if (response && response.activities) {
+                    updateActivitiesIcons(response.activities);
+                }
+                return;
+            })
+            .catch(function(error) {
+                if (error && error.errorcode !== 'nopermissions') {
+                    window.console && console.log('Error loading activities completion:', error);
+                }
+            });
+    };
 
-        // New redesigned style progress percentages
-        $('.section-progress-percentage').each(function() {
-            var $percentageBadge = $(this);
-            var sectionId = $percentageBadge.data('section-id');
+    /**
+     * Update activity status icons based on completion data
+     *
+     * @param {Array} activities Array of activity completion data
+     */
+    var updateActivitiesIcons = function(activities) {
+        activities.forEach(function(activity) {
+            var $icon = $('[data-cm-id="' + activity.cmid + '"]');
+            if ($icon.length === 0) return;
 
-            if (sectionId && !$percentageBadge.data('loaded')) {
-                loadSectionProgressForBadge(courseId, sectionId, $percentageBadge);
+            // Remove all status classes
+            $icon.removeClass('status-not-started status-in-progress status-completed');
+
+            // Add appropriate class based on state
+            // 0 = not started, 1 = in progress, 2 = completed
+            if (activity.state === 2) {
+                $icon.addClass('status-completed');
+                $icon.attr('aria-label', 'Completed');
+            } else if (activity.state === 1) {
+                $icon.addClass('status-in-progress');
+                $icon.attr('aria-label', 'In progress');
+            } else {
+                $icon.addClass('status-not-started');
+                $icon.attr('aria-label', 'Not started');
             }
         });
     };
 
     /**
-     * Load progress for section percentage badge (redesigned version)
+     * Load progress percentages for all sections
+     *
+     * @param {Number} courseId The course ID
+     */
+    var loadSectionsProgress = function(courseId) {
+        $('.section-percentage').each(function() {
+            var $badge = $(this);
+            var sectionId = $badge.data('section-id');
+
+            if (sectionId && !$badge.data('loaded')) {
+                loadSectionPercentage(courseId, sectionId, $badge);
+            }
+        });
+    };
+
+    /**
+     * Load progress percentage for a single section
      *
      * @param {Number} courseId The course ID
      * @param {Number} sectionId The section ID
      * @param {jQuery} $badge The percentage badge element
      */
-    var loadSectionProgressForBadge = function(courseId, sectionId, $badge) {
+    var loadSectionPercentage = function(courseId, sectionId, $badge) {
         var promises = Ajax.call([{
             methodname: 'theme_compecer_get_section_progress',
             args: {
@@ -179,7 +223,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
 
                 if (response && response.hasprogress && response.total > 0) {
                     var percentage = response.percentage || 0;
-                    $badge.find('.percentage-value').text(percentage + '%');
+                    $badge.text(percentage + '%');
                     $badge.fadeIn(200);
                 }
                 return;
@@ -190,97 +234,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     window.console && console.log('Error loading section progress:', error);
                 }
             });
-    };
-
-    /**
-     * Load progress for a specific section
-     *
-     * @param {Number} courseId The course ID
-     * @param {Number} sectionId The section ID
-     * @param {jQuery} $container The progress container element
-     */
-    var loadSectionProgress = function(courseId, sectionId, $container) {
-
-        // Call the web service
-        var promises = Ajax.call([{
-            methodname: 'theme_compecer_get_section_progress',
-            args: {
-                sectionid: sectionId,
-                courseid: courseId
-            }
-        }]);
-
-        promises[0]
-            .then(function(response) {
-                // Mark as loaded to prevent repeated attempts
-                $container.data('loaded', true);
-
-                if (response && response.hasprogress) {
-                    updateProgressDisplay($container, response);
-                }
-                return;
-            })
-            .catch(function(error) {
-                // Mark as loaded even on error to prevent repeated attempts
-                $container.data('loaded', true);
-
-                // Only log errors that are not permission-related
-                if (error && error.errorcode !== 'nopermissions') {
-                    window.console && console.log('Error loading section progress:', error);
-                }
-            });
-    };
-
-    /**
-     * Update the progress display
-     *
-     * @param {jQuery} $container The progress container element
-     * @param {Object} data Progress data
-     */
-    var updateProgressDisplay = function($container, data) {
-        // Verify container still exists in DOM
-        if (!$container || $container.length === 0) {
-            return;
-        }
-
-        var percentage = data.percentage || 0;
-        var complete = data.complete || 0;
-        var total = data.total || 0;
-
-        // Update progress bar
-        var $progressBar = $container.find('.progress-bar');
-        if ($progressBar.length > 0) {
-            $progressBar
-                .css('width', percentage + '%')
-                .attr('aria-valuenow', percentage);
-
-            // Color code based on progress
-            $progressBar.removeClass('bg-success bg-info bg-warning bg-danger');
-
-            if (percentage === 100) {
-                $progressBar.addClass('bg-success');
-            } else if (percentage >= 70) {
-                $progressBar.addClass('bg-info');
-            } else if (percentage >= 40) {
-                $progressBar.addClass('bg-warning');
-            } else if (percentage > 0) {
-                $progressBar.addClass('bg-danger');
-            }
-        }
-
-        // Update progress text
-        var $progressCount = $container.find('.progress-count');
-        if ($progressCount.length > 0) {
-            $progressCount.text(complete + ' / ' + total);
-        }
-
-        var $progressPercentage = $container.find('.progress-percentage');
-        if ($progressPercentage.length > 0) {
-            $progressPercentage.text(percentage + '%');
-        }
-
-        // Show the progress container with animation
-        $container.slideDown(300);
     };
 
     return {

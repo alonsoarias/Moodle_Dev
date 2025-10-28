@@ -1,11 +1,9 @@
 {{!
     @template core_courseformat/local/courseindex/section
 
-    Displays a course index section entry.
-    Adaptado para theme compecer.
-    Se utiliza un único icono de toggle (chevron) para controlar el colapso/expansión.
-    Por defecto, la sección se muestra cerrada.
-    
+    Course index section - Redesigned for Theme Compecer
+    Shows section name with percentage badge only (no progress bar)
+
     Example context (json):
     {
       "title": "General",
@@ -28,51 +26,51 @@
      data-number="{{number}}"
      role="treeitem"
      aria-owns="course-index-collapse{{number}}">
-  <div class="course-index-header d-flex align-items-center {{^visible}}dimmed{{/visible}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
+
+  {{! Section Header with toggle, title, and percentage }}
+  <div class="course-index-header {{^visible}}dimmed{{/visible}} {{#current}}current-section{{/current}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
        id="course-index-section{{number}}"
        data-for="section_item">
+
+    {{! Toggle icon (chevron) }}
     <a data-toggle="collapse"
        href="#course-index-collapse{{number}}"
-       class="course-index-toggle p-0 ml-auto {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
-       aria-expanded="false"
+       class="course-index-toggle {{#indexcollapsed}}collapsed{{/indexcollapsed}}"
+       aria-expanded="{{^indexcollapsed}}true{{/indexcollapsed}}{{#indexcollapsed}}false{{/indexcollapsed}}"
        aria-controls="course-index-collapse{{number}}"
        tabindex="-1">
       <i class="fa fa-chevron-down"></i>
       <span class="sr-only">{{#str}}toggle section{{/str}}</span>
     </a>
+
+    {{! Section title }}
+    <h4 class="section-title">
+      {{{title}}}
+    </h4>
+
+    {{! Section percentage badge }}
+    <span class="section-percentage"
+          data-section-id="{{id}}"
+          data-section-number="{{number}}"
+          style="display: none;">0%</span>
+
   </div>
-  <!-- Progress bar for section -->
-  <div class="course-index-section-progress"
-       data-section-id="{{id}}"
-       data-section-number="{{number}}"
-       style="display: none;">
-    <div class="progress-info d-flex justify-content-between align-items-center px-2 py-1">
-      <span class="progress-text small text-muted">
-        <span class="progress-label">{{#str}}progress, theme_compecer{{/str}}:</span>
-        <span class="progress-count"></span>
-      </span>
-      <span class="progress-percentage small font-weight-bold"></span>
-    </div>
-    <div class="progress" style="height: 4px;">
-      <div class="progress-bar bg-success"
-           role="progressbar"
-           style="width: 0%;"
-           aria-valuenow="0"
-           aria-valuemin="0"
-           aria-valuemax="100">
-      </div>
-    </div>
-  </div>
-  <!-- Por defecto, la sección se muestra cerrada (sin la clase "show") -->
+
+  {{! Section Content (activities list) }}
   <div id="course-index-collapse{{number}}"
-       class="course-index-content collapse"
-       aria-labelledby="course-index-section{{number}}" role="group">
-    <ul class="course-index-section-content list-unstyled" data-for="cmlist" data-id="{{id}}" role="group">
+       class="course-index-content collapse {{^indexcollapsed}}show{{/indexcollapsed}}"
+       aria-labelledby="course-index-section{{number}}"
+       role="group">
+    <ul class="course-index-section-content list-unstyled"
+        data-for="cmlist"
+        data-id="{{id}}"
+        role="group">
       {{#cms}}
         {{> core_courseformat/local/courseindex/cm}}
       {{/cms}}
     </ul>
   </div>
+
 </div>
 {{#js}}
 require(['core_courseformat/local/courseindex/section'], function(component) {

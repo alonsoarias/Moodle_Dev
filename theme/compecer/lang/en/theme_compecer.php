@@ -305,3 +305,8 @@ $string['activitiescompleted'] = 'activities completed';
 $string['nocompletion'] = 'No completion tracking';
 $string['completionenabled'] = 'Completion tracking enabled';
 $string['completionnotenabledcourse'] = 'Completion tracking is not enabled for this course';
+
+// Icon Legend
+$string['iconlegend'] = 'Activity Status Legend';
+$string['notstarted'] = 'Not Started';
+$string['inprogress'] = 'In Progress';
