@@ -57,6 +57,32 @@ class course_progress {
             ];
         }
 
+        // Verify that the course has at least one activity with completion tracking
+        // This ensures we only show the progress header when there's actually something to track
+        $modinfo = get_fast_modinfo($course);
+        $hasActivitiesWithTracking = false;
+
+        foreach ($modinfo->get_cms() as $cm) {
+            // Skip labels and non-visible activities (same logic as section progress)
+            if ($cm->modname === 'label' || !$cm->uservisible) {
+                continue;
+            }
+
+            // Check if this activity has completion tracking enabled
+            if ($completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
+                $hasActivitiesWithTracking = true;
+                break;
+            }
+        }
+
+        // If no activities with tracking found, return no progress
+        if (!$hasActivitiesWithTracking) {
+            return [
+                'hasprogress' => false,
+                'percentage' => 0
+            ];
+        }
+
         // Use Moodle's core API exactly as format_remuiformat does
         // Pass only the course object, NOT userid
         $percentage = progress::get_course_progress_percentage($course);
@@ -67,9 +93,6 @@ class course_progress {
         } else {
             $percentage = 0;
         }
-
-        // Calculate percentage
-        $percentage = floor(($completedactivities / $totalactivities) * 100);
 
         return [
             'hasprogress' => true,
