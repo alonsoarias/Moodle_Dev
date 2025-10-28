@@ -38,7 +38,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
         // Wait for sections to be loaded, then load section percentages
         var checkInterval = setInterval(function() {
-            var sections = $('.course-index-section');
+            var sections = $('.course-index-section, .courseindex-section-redesign');
             if (sections.length > 0) {
                 clearInterval(checkInterval);
                 loadSectionsProgress(courseId);
