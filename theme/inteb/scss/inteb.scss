@@ -916,17 +916,24 @@ span.badge.bg-secondary.text-dark {
     color: #0a1f22;
 }
 
-/* Quiz Centering */
+/* =========================================
+   Quiz Centering - REFORZADO Y OPTIMIZADO
+   Personalización INTEB para centrar botón principal y descripción del cuestionario
+   ========================================= */
 #page-mod-quiz-view {
+    /* Botón principal de inicio/continuar intento - Reforzado */
     .quizstartbuttondiv {
         text-align: center !important;
         margin: 2rem auto !important;
-        
+        display: block !important;
+        width: 100% !important;
+
         form {
             display: inline-block !important;
             margin: 0 auto !important;
+            text-align: center !important;
         }
-        
+
         .btn,
         button,
         input[type="submit"],
@@ -935,37 +942,103 @@ span.badge.bg-secondary.text-dark {
             margin: 0 auto !important;
         }
     }
-    
+
+    /* Navegación terciaria con botón - Nueva adición */
+    .tertiary-navigation {
+        text-align: center !important;
+        justify-content: center !important;
+
+        .row {
+            justify-content: center !important;
+            text-align: center !important;
+        }
+
+        .navitem {
+            display: inline-block !important;
+            margin: 0 auto !important;
+        }
+    }
+
+    /* Descripción de actividad - Mejorada */
     .activity-description {
         text-align: center !important;
         margin: 1.5rem auto !important;
         max-width: 900px !important;
-        
+        padding: 1rem !important;
+
         .no-overflow {
             text-align: center !important;
         }
-        
+
         p {
+            text-align: center !important;
+            margin: 0 auto !important;
+        }
+
+        * {
             text-align: center !important;
         }
     }
-    
+
+    /* Introducción general del quiz - Mejorada */
     #intro,
+    .generalbox#intro {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 900px !important;
+        padding: 1rem !important;
+
+        .no-overflow {
+            text-align: center !important;
+        }
+
+        p {
+            text-align: center !important;
+        }
+
+        * {
+            text-align: center !important;
+        }
+    }
+
+    /* Boxes generales */
     .generalbox {
         text-align: center !important;
         margin-left: auto !important;
         margin-right: auto !important;
         max-width: 900px !important;
-        
+
         .no-overflow {
             text-align: center !important;
         }
     }
-    
+
+    /* Información del quiz - Mejorada */
     .quizinfo {
         text-align: center !important;
         margin: 2rem auto !important;
         max-width: 900px !important;
+        padding: 1rem !important;
+    }
+
+    /* Box de intentos - Nueva adición */
+    .box.quizattempt {
+        text-align: center !important;
+        margin: 2rem auto !important;
+
+        .singlebutton {
+            display: inline-block !important;
+            margin: 0 auto !important;
+        }
+    }
+
+    /* Mensajes de acceso - Nueva adición */
+    .quizinfo p,
+    .generalbox p {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 }
 
