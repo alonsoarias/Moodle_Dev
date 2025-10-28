@@ -88,24 +88,9 @@ id="course-info-container-{{id}}-{{uniqid}}">
             {{!-- End instructors section --}}
         </div>
 	    <div class="edw-card-design-ft d-flex flex-column align-self-strech flex-gap-3">
-            {{!-- Custom fields section - Enhanced by theme_inteb JavaScript --}}
-            <div class="remui-custom-fields-wrapper d-flex flex-wrap flex-gap-2">
-                {{!-- Duration field --}}
-                {{#hascourseduration}}
-                <div class="custom-field course-duration d-flex align-items-center flex-gap-d5">
-                    <span class="edw-icon edw-icon-Time field-icon" aria-hidden="true"></span>
-                    <span class="field-value small-info-semibold">{{{courseduration}}}</span>
-                </div>
-                {{/hascourseduration}}
-
-                {{!-- Skill level field --}}
-                {{#hascourseskilllevel}}
-                <div class="custom-field skill-level d-flex align-items-center flex-gap-d5">
-                    <span class="edw-icon edw-icon-Trophy field-icon" aria-hidden="true"></span>
-                    <span class="field-value small-info-semibold">{{{courseskilllevel}}}</span>
-                </div>
-                {{/hascourseskilllevel}}
-            </div>
+            {{!-- Custom fields section - Will be populated by theme_inteb JavaScript --}}
+            {{!-- JavaScript busca este div y lo llena con duration y skill level --}}
+            <div class="remui-custom-fields-wrapper d-flex flex-wrap flex-gap-2"></div>
             {{!-- End custom fields section --}}
 
             {{!-- Progress bar --}}
