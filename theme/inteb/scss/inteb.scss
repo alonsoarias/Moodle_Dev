@@ -1403,3 +1403,154 @@ li.breadcrumb-item {
 @media (max-width: 576px) {}
 @media (max-width: 500px) {}
 @media (max-width: 479px) {}
+
+/* =========================================
+   SECCIÓN 24: MEJORAS DE COURSE CARDS - INTEB
+   Estilos para campos personalizados de RemUI y múltiples instructores
+   Agregado: 2025-10-28
+   ========================================= */
+
+/* Sección de campos personalizados RemUI en course cards */
+.remui-custom-fields {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+    .custom-field {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0;
+
+        .field-icon {
+            font-size: 1rem;
+            color: $color-primary;
+            min-width: 1.25rem;
+        }
+
+        .field-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: fit-content;
+        }
+
+        .field-value {
+            color: #6c757d;
+        }
+
+        // Estilos específicos para duración del curso
+        &.course-duration {
+            .field-icon {
+                color: #7FC8F8; // Color secundario
+            }
+        }
+
+        // Estilos específicos para nivel de habilidad
+        &.skill-level {
+            .field-icon {
+                color: #FFB800; // Dorado para trophy
+            }
+
+            .skill-badge {
+                padding: 0.125rem 0.5rem;
+                border-radius: 0.25rem;
+                font-weight: 600;
+
+                // Colores según nivel
+                &.skill-beginner {
+                    background-color: #d4edda;
+                    color: #155724;
+                }
+
+                &.skill-intermediate {
+                    background-color: #fff3cd;
+                    color: #856404;
+                }
+
+                &.skill-advanced {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                }
+            }
+        }
+    }
+}
+
+/* Sección de instructores mejorada */
+.instructors-section {
+    margin-top: 0.5rem;
+
+    .instructor-item {
+        padding: 0.25rem 0;
+
+        .instructor-img {
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+
+            &:hover {
+                opacity: 0.8;
+            }
+
+            img {
+                width: 35px;
+                height: 35px;
+                object-fit: cover;
+            }
+        }
+
+        .course-instructors {
+            font-size: 0.875rem;
+            color: #495057;
+            line-height: 1.4;
+        }
+    }
+
+    // Contador de instructores adicionales
+    .instructorscount {
+        min-width: 2rem;
+        height: 2rem;
+        background-color: $color-primary;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.75rem;
+    }
+}
+
+/* Ajustes para page-header con múltiples instructores */
+.header-sub-section {
+    .instructor-info {
+        .position-relative {
+            margin-bottom: 0.5rem;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+/* Responsive adjustments para campos personalizados */
+@media (max-width: 768px) {
+    .remui-custom-fields {
+        .custom-field {
+            font-size: 0.875rem;
+
+            .field-icon {
+                font-size: 0.875rem;
+            }
+        }
+    }
+
+    .instructors-section {
+        .instructor-item {
+            .instructor-img img {
+                width: 30px;
+                height: 30px;
+            }
+
+            .course-instructors {
+                font-size: 0.8125rem;
+            }
+        }
+    }
+}

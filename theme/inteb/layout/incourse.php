@@ -55,7 +55,9 @@ if ($PAGE->pagetype == "enrol-index" & get_config('theme_remui', 'enrolment_page
     $extraclasses[] = 'page-enrolment';
     $template = 'theme_remui/enrolpage';
 
-    $eh = new \theme_remui\EnrolmentPageHandler();
+    // Usar EnrolmentPageHandler de inteb que muestra TODOS los profesores
+    // (no solo los que tienen permisos de edición)
+    $eh = new \theme_inteb\EnrolmentPageHandler();
     $templatecontext['enrolment'] = $eh->generate_enrolment_page_context($templatecontext);
 }
 
