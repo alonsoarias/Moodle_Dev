@@ -42,4 +42,12 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'theme_compecer_get_activities_completion' => [
+        'classname'   => 'theme_compecer\external\get_activities_completion',
+        'methodname'  => 'execute',
+        'description' => 'Get completion states for all activities in a course',
+        'type'        => 'read',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
 ];
