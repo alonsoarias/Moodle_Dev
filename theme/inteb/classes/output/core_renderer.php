@@ -101,33 +101,7 @@ class core_renderer extends \theme_remui\output\core_renderer
             $this->add_copy_paste_prevention();
         }
 
-        // 3) INTEB CUSTOMIZATION: Load course card enhancement script
-        $this->load_course_card_enhancement();
-
         return $output;
-    }
-
-    /**
-     * Load JavaScript module to enhance course cards with custom fields and all instructors.
-     *
-     * This loads the enhance_course_cards AMD module on pages that display course cards,
-     * which then enhances them with data from theme_inteb's webservice.
-     *
-     * @return void
-     */
-    protected function load_course_card_enhancement() {
-        global $PAGE;
-
-        // Only load on relevant pages
-        $relevant_pages = [
-            'my-index',           // Dashboard
-            'course-index',       // All courses page
-            'course-index-category', // Category course listing
-        ];
-
-        if (in_array($PAGE->pagetype, $relevant_pages)) {
-            $PAGE->requires->js_call_amd('theme_inteb/enhance_course_cards', 'init');
-        }
     }
 
     /**

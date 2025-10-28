@@ -129,11 +129,3 @@ $string['devtools_access_disabled'] = 'Developer tools access is disabled on thi
 // Additional dashboard strings
 $string['dashboardpersonalizerinfo'] = 'Dashboard personalizer info';
 $string['defaultheader'] = 'Default header';
-
-// Course cards - Instructors and custom fields
-$string['noinstructors'] = 'No instructors assigned';
-$string['duration'] = 'Duration';
-$string['skilllevel'] = 'Skill Level';
-$string['allinstructors'] = 'All Instructors';
-$string['courseduration'] = 'Course Duration';
-$string['courseintrovideo'] = 'Course Intro Video';

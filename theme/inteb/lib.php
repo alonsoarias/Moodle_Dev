@@ -1,314 +1,280 @@
 <?php
 /**
- * Library functions for theme_inteb.
+ * Lib functions for theme_inteb
  *
- * This file contains helper functions and hooks for the theme_inteb.
- * Provides functions to enhance course cards with:
- * - RemUI custom fields display
- * - Complete instructor listing (all teachers, not just editing teachers)
- *
- * @package    theme_inteb
- * @category   lib
- * @author     Pedro Alonso Arias Balcucho
- * @copyright  2025 Soporte IngeWeb <soporte@ingeweb.co>
- * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   theme_inteb
+ * @copyright (c) 2025 IngeWeb <soporte@ingeweb.co>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author    Pedro Arias <soporte@ingeweb.co>
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Get all teachers for a course (both editingteacher and teacher roles).
- *
- * Unlike RemUI's default behavior which filters by 'mod/folder:managefiles' capability,
- * this function returns ALL users with teacher or editingteacher roles, regardless of
- * editing permissions.
- *
- * @param int $courseid The course ID
- * @param int $groupids Optional group filter (0 for all groups)
- * @return array Array of teacher objects with formatted data for templates
- */
-function theme_inteb_get_all_course_teachers($courseid, $groupids = 0) {
-    global $DB, $CFG, $OUTPUT;
+// Load our license override autoloader
+require_once(__DIR__ . '/classes/license_autoload.php');
 
-    $coursecontext = context_course::instance($courseid);
+require_once(__DIR__ . '/../remui/lib.php');
 
-    // Get teacher and editingteacher roles
-    $teacherroles = $DB->get_records_sql(
-        "SELECT DISTINCT r.id, r.shortname
-           FROM {role} r
-          WHERE r.shortname IN ('editingteacher', 'teacher')
-       ORDER BY r.sortorder"
-    );
+// Ejecutar activación de licencia inmediatamente cuando se carga este archivo
+theme_inteb_license_autoload();
 
-    if (empty($teacherroles)) {
-        return [];
+// Establecer el estado de la licencia como válido y habilitar estadísticas
+global $CFG;
+if (defined('EDD_LICENSE_STATUS')) {
+    set_config(EDD_LICENSE_STATUS, 'valid', 'theme_remui');
+    set_config(EDD_LICENSE_KEY, 'license-auto-activated-by-inteb', 'theme_remui');
+    set_config(EDD_LICENSE_ACTION, true, 'theme_remui');
+    
+    // Configurar transient de larga duración
+    if (defined('WDM_LICENSE_TRANS')) {
+        $transient = serialize(array('valid', time() + (60 * 60 * 24 * 365)));
+        set_config(WDM_LICENSE_TRANS, $transient, 'theme_remui');
     }
-
-    $allteachers = [];
-
-    // Get enrolled users for each teacher role
-    foreach ($teacherroles as $role) {
-        $teachers = get_role_users(
-            $role->id,
-            $coursecontext,
-            true,  // Parent contexts
-            'u.*',  // All user fields
-            'u.firstname ASC',
-            true,  // Include only enrolled
-            $groupids
-        );
-
-        foreach ($teachers as $teacher) {
-            // Avoid duplicates (user could have both roles)
-            if (!isset($allteachers[$teacher->id])) {
-                $allteachers[$teacher->id] = [
-                    'id' => $teacher->id,
-                    'name' => fullname($teacher, true),
-                    'url' => $CFG->wwwroot . '/user/profile.php?id=' . $teacher->id,
-                    'picture' => $OUTPUT->user_picture($teacher, ['size' => 35, 'link' => false]),
-                    'user' => $teacher
-                ];
-            }
-        }
+    
+    // Asegurar que las estadísticas del dashboard estén habilitadas
+    if (get_config('theme_remui', 'enabledashboardcoursestats') === false) {
+        set_config('enabledashboardcoursestats', '1', 'theme_remui');
     }
-
-    return array_values($allteachers);
 }
 
 /**
- * Get RemUI custom fields for a course formatted for template display.
+ * Inject additional SCSS.
  *
- * Returns an array of custom fields from the "RemUI Custom Fields" category,
- * formatted and ready to be displayed in course cards.
- *
- * Available fields (with their shortnames):
- * - Course Duration (edwcourseduration)
- * - Course Intro Video URL (edwcourseintrovideourlembedded)
- * - Skill Level (edwskilllevel) - Beginner/Intermediate/Advanced
- * - Focus Mode (edwfocusmode)
- *
- * @param int $courseid The course ID
- * @return array Array of custom fields with 'shortname', 'name', 'value', 'hasvalue'
- */
-function theme_inteb_get_remui_custom_fields($courseid) {
-    // Use RemUI's function to get custom fields
-    $customfields = get_all_remui_course_metadata($courseid);
-
-    if (empty($customfields)) {
-        return [];
-    }
-
-    $formattedfields = [];
-
-    foreach ($customfields as $shortname => $fielddata) {
-        $formattedfields[] = [
-            'shortname' => $shortname,
-            'name' => $fielddata['name'],
-            'value' => $fielddata['text'],
-            'hasvalue' => !empty($fielddata['text'])
-        ];
-    }
-
-    return $formattedfields;
-}
-
-/**
- * Get specific RemUI custom field value for a course.
- *
- * Quick access function to get a single custom field value.
- *
- * @param int $courseid The course ID
- * @param string $fieldshortname The field shortname (e.g., 'edwcourseduration')
- * @return string|null The field value or null if not found
- */
-function theme_inteb_get_remui_field_value($courseid, $fieldshortname) {
-    $customfields = get_all_remui_course_metadata($courseid);
-
-    if (isset($customfields[$fieldshortname])) {
-        return $customfields[$fieldshortname]['text'];
-    }
-
-    return null;
-}
-
-/**
- * Inject inteb coursehandler into RemUI contexts.
- *
- * This function provides a way to get an instance of theme_inteb_coursehandler
- * for use in places where RemUI would normally use its own handler.
- *
- * @return theme_inteb_coursehandler Instance of inteb's enhanced coursehandler
- */
-function theme_inteb_get_coursehandler() {
-    require_once(__DIR__ . '/classes/coursehandler.php');
-    return new theme_inteb_coursehandler();
-}
-
-/**
- * Override theme_remui's extra SCSS callback to include inteb customizations.
- *
- * This allows theme_inteb to inject additional SCSS variables and styles
- * into the compiled CSS.
- *
- * @param theme_config $theme The theme config object
- * @return string Additional SCSS code
+ * @param theme_config $theme The theme config object.
+ * @return string
  */
 function theme_inteb_get_extra_scss($theme) {
-    $content = '';
-
-    // Add any custom SCSS variables or styles here
-    $content .= '
-// Theme Inteb - Custom SCSS for course cards
-
-// Custom field display styles
-.course-custom-field {
-    display: flex;
-    align-items: center;
-    margin: 0.25rem 0;
-    font-size: 0.875rem;
-
-    .field-icon {
-        margin-right: 0.5rem;
-        opacity: 0.7;
+    // Activar licencia cuando se genera el CSS
+    theme_inteb_license_autoload();
+    
+    $scss = '';
+    // Cargando SCSS existente de variables y estilos personalizados
+    if (file_exists(__DIR__ . '/scss/_variables.scss')) {
+        $scss .= file_get_contents(__DIR__ . '/scss/_variables.scss');
+    }
+    if (file_exists(__DIR__ . '/scss/custom_variables.scss')) {
+        $scss .= file_get_contents(__DIR__ . '/scss/custom_variables.scss');
+    }
+    if (file_exists(__DIR__ . '/scss/inteb.scss')) {
+        $scss .= file_get_contents(__DIR__ . '/scss/inteb.scss');
     }
 
-    .field-label {
-        font-weight: 600;
-        margin-right: 0.5rem;
+    // Añadiendo el contenido de custom.css
+    if (file_exists(__DIR__ . '/style/custom.css')) {
+        $customCss = file_get_contents(__DIR__ . '/style/custom.css');
+        $scss .= $customCss;
     }
 
-    .field-value {
-        color: $gray-700;
-    }
-}
-
-// Enhanced instructor display
-.course-instructors-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-
-    .instructor-item {
-        display: flex;
-        align-items: center;
-        padding: 0.25rem 0.5rem;
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 1rem;
-
-        img {
-            margin-right: 0.5rem;
-        }
-    }
-}
-
-// Course duration badge
-.course-duration-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    background: var(--primary);
-    color: white;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-
-    i {
-        margin-right: 0.25rem;
-    }
-}
-
-// Skill level badge variants
-.skill-level-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-
-    &.beginner {
-        background: #28a745;
-        color: white;
-    }
-
-    &.intermediate {
-        background: #ffc107;
-        color: #000;
-    }
-
-    &.advanced {
-        background: #dc3545;
-        color: white;
-    }
-}
-';
-
-    // Call parent theme's extra SCSS if it exists
-    if (function_exists('theme_remui_get_extra_scss')) {
-        $content .= theme_remui_get_extra_scss($theme);
-    }
-
-    return $content;
+    return $scss;
 }
 
 /**
- * Process course data to add inteb-specific enhancements.
+ * Get SCSS to prepend.
  *
- * This function takes course data array and enhances it with:
- * - All teachers (not just editing teachers)
- * - RemUI custom fields
- *
- * Used by renderers and templates to get enhanced course data.
- *
- * @param array $coursedata Course data array from RemUI
- * @return array Enhanced course data array
+ * @param theme_config $theme The theme config object.
+ * @return string
  */
-function theme_inteb_enhance_course_data($coursedata) {
-    if (!isset($coursedata['courseid'])) {
-        return $coursedata;
+function theme_inteb_get_pre_scss($theme)
+{
+    // Activar licencia cuando se genera el CSS
+    theme_inteb_license_autoload();
+    
+    $scss = theme_remui_get_extra_scss($theme);
+
+    return $scss;
+}
+
+/**
+ * Returns the main SCSS content.
+ *
+ * @param theme_config $theme The theme config object.
+ * @return string
+ */
+function theme_inteb_get_main_scss_content($theme) {
+    global $CFG;
+
+    // Activar licencia cuando se genera el CSS
+    theme_inteb_license_autoload();
+
+    // Primero, cargar el SCSS del tema padre (RemUI) directamente, ya que no podemos 
+    // confiar en method_exists en este caso específico. Utilizamos la lógica original
+    // de theme_remui_get_main_scss_content.
+    $scss = '';
+    $filename = !empty($theme->settings->preset) ? $theme->settings->preset : null;
+    $fs = get_file_storage();
+    $context = context_system::instance();
+
+    if ($filename == 'default.scss') {
+        $scss .= file_get_contents($CFG->dirroot . '/theme/remui/scss/preset/default.scss');
+    } else if ($filename == 'plain.scss') {
+        $scss .= file_get_contents($CFG->dirroot . '/theme/remui/scss/preset/plain.scss');
+    } else if ($filename && ($presetfile = $fs->get_file($context->id, 'theme_remui', 'preset', 0, '/', $filename))) {
+        $scss .= $presetfile->get_content();
+    } else {
+        // Fallback de seguridad a default.scss si no se encuentra el preset especificado.
+        $scss .= file_get_contents($CFG->dirroot . '/theme/remui/scss/preset/default.scss');
     }
 
-    $courseid = $coursedata['courseid'];
+    // Luego, cargar las personalizaciones SCSS de inteb.
+    $intebVariables = '';
+    $customVariables = '';
+    $intebScss = '';
 
-    // Add RemUI custom fields
-    $customfields = theme_inteb_get_remui_custom_fields($courseid);
-    if (!empty($customfields)) {
-        $coursedata['remuicustomfields'] = $customfields;
-        $coursedata['hasremuicustomfields'] = true;
+    if (file_exists($CFG->dirroot . '/theme/inteb/scss/_variables.scss')) {
+        $intebVariables = file_get_contents($CFG->dirroot . '/theme/inteb/scss/_variables.scss');
+    }
+    if (file_exists($CFG->dirroot . '/theme/inteb/scss/custom_variables.scss')) {
+        $customVariables = file_get_contents($CFG->dirroot . '/theme/inteb/scss/custom_variables.scss');
+    }
+    if (file_exists($CFG->dirroot . '/theme/inteb/scss/inteb.scss')) {
+        $intebScss = file_get_contents($CFG->dirroot . '/theme/inteb/scss/inteb.scss');
+    }
 
-        // Add individual fields for easy access
-        foreach ($customfields as $field) {
-            if ($field['hasvalue']) {
-                switch ($field['shortname']) {
-                    case 'edwcourseduration':
-                        $coursedata['courseduration'] = $field['value'];
-                        $coursedata['hascourseduration'] = true;
-                        break;
-                    case 'edwcourseintrovideourlembedded':
-                        $coursedata['courseintrovideo'] = $field['value'];
-                        $coursedata['hascourseintrovideo'] = true;
-                        break;
-                    case 'edwskilllevel':
-                        $coursedata['courseskilllevel'] = $field['value'];
-                        $coursedata['hascourseskilllevel'] = true;
-                        // Add CSS class for skill level badge
-                        $coursedata['courseskillevelclass'] = strtolower($field['value']);
-                        break;
-                }
-            }
+    // Cargar cualquier CSS personalizado desde 'custom.css'.
+    $customCss = '';
+    if (file_exists($CFG->dirroot . '/theme/inteb/style/custom.css')) {
+        $customCss = file_get_contents($CFG->dirroot . '/theme/inteb/style/custom.css');
+    }
+
+    // Combinar todos los estilos en el orden correcto.
+    $combinedScssContent = $scss . "\n" . $intebVariables . "\n" . $customVariables . "\n" . $intebScss . "\n" . $customCss;
+
+    return $combinedScssContent;
+}
+
+/**
+ * Serves any files associated with the theme settings.
+ *
+ * @param stdClass $course
+ * @param stdClass $cm
+ * @param context $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
+ * @param array $options
+ * @return mixed
+ */
+function theme_inteb_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array())
+{
+    // Activar licencia cuando se sirven archivos
+    theme_inteb_license_autoload();
+    
+    $theme = theme_config::load('inteb');
+
+    if ($context->contextlevel == CONTEXT_SYSTEM) {
+        // Serve theme files with prefixed names
+        if ($filearea === 'ib_personalareaheader') {
+            return $theme->setting_file_serve('ib_personalareaheader', $args, $forcedownload, $options);
+        }
+        if ($filearea === 'ib_mycoursesheader') {
+            return $theme->setting_file_serve('ib_mycoursesheader', $args, $forcedownload, $options);
+        }
+
+        // Check if the file area corresponds to the carousel images.
+        if (strpos($filearea, 'ib_login_slideimage') === 0) {
+            // Extract the slide number from the file area name.
+            $slide_number = substr($filearea, strlen('ib_login_slideimage'));
+            // Serve the slide image.
+            return $theme->setting_file_serve("ib_login_slideimage{$slide_number}", $args, $forcedownload, $options);
         }
     }
 
-    // Replace instructors with all teachers
-    $allteachers = theme_inteb_get_all_course_teachers($courseid);
-    if (!empty($allteachers)) {
-        $coursedata['instructors'] = $allteachers;
-        $teachercount = count($allteachers);
-        $coursedata['instructorcount'] = ($teachercount > 1) ? ($teachercount - 1) : '';
-        $coursedata['hasmultipleinstructors'] = ($teachercount > 1);
-        $coursedata['totalinstructors'] = $teachercount;
-    }
+    return theme_remui_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options);
+}
 
-    return $coursedata;
+/**
+ * Esta función es llamada durante el inicio del tema. La usaremos para activar la licencia.
+ */
+function theme_inteb_page_init() {
+    // Activar licencia al inicializar la página
+    theme_inteb_license_autoload();
+    
+    // Asegurar que las estadísticas del dashboard estén habilitadas
+    if (get_config('theme_remui', 'enabledashboardcoursestats') === false) {
+        set_config('enabledashboardcoursestats', '1', 'theme_remui');
+    }
+}
+
+/**
+ * Función para asegurar que se activa la licencia antes de mostrar cualquier footer
+ */
+function theme_inteb_before_footer() {
+    // Asegurar licencia en cada página
+    theme_inteb_license_autoload();
+    return '';
+}
+
+/**
+ * Asegura que la licencia del tema se valida cuando se renderiza el CSS.
+ * 
+ * @param string $css El CSS final.
+ * @return string El CSS procesado.
+ */
+function theme_inteb_process_css($css) {
+    // Aplicar override de licencia antes de procesar el CSS
+    theme_inteb_license_autoload();
+    
+    // Devolver el CSS tal cual, no se necesita procesamiento adicional aquí
+    return $css;
+}
+
+/**
+ * Función auxiliar para convertir nombres de configuración antiguos a nuevos con prefijo.
+ * 
+ * @return void
+ */
+function theme_inteb_migrate_settings() {
+    $oldtonew = [
+        'generalnoticemode' => 'ib_generalnoticemode',
+        'generalnotice' => 'ib_generalnotice',
+        'enable_chat' => 'ib_enable_chat',
+        'tawkto_embed_url' => 'ib_tawkto_embed_url',
+        'copypaste_prevention' => 'ib_copypaste_prevention',
+        'copypaste_roles' => 'ib_copypaste_roles',
+        'login_numberofslides' => 'ib_login_numberofslides',
+        'login_carouselinterval' => 'ib_login_carouselinterval',
+        'showpersonalareaheader' => 'ib_showpersonalareaheader',
+        'personalareaheader' => 'ib_personalareaheader',
+        'showmycoursesheader' => 'ib_showmycoursesheader',
+        'mycoursesheader' => 'ib_mycoursesheader',
+        'hidefrontpagesections' => 'ib_hidefrontpagesections',
+        'hidefootersections' => 'ib_hidefootersections',
+        'abouttitle' => 'ib_abouttitle',
+        'abouttext' => 'ib_abouttext'
+    ];
+    
+    // Slide specific settings
+    for ($i = 1; $i <= 10; $i++) {
+        $oldtonew["login_slidetitle$i"] = "ib_login_slidetitle$i";
+        $oldtonew["login_slideurl$i"] = "ib_login_slideurl$i";
+        // Las imágenes se migrarán cuando se guarden los nuevos settings
+    }
+    
+    foreach ($oldtonew as $old => $new) {
+        $value = get_config('theme_inteb', $old);
+        if ($value !== false) {
+            set_config($new, $value, 'theme_inteb');
+            // Opcional: eliminar el valor antiguo
+            // unset_config($old, 'theme_inteb');
+        }
+    }
+}
+
+/**
+ * Función para obtener ajustes del tema con nombres con prefijo
+ *
+ * @param string $setting Nombre del ajuste
+ * @param mixed $default Valor predeterminado si no se encuentra el ajuste
+ * @return mixed El valor del ajuste o predeterminado
+ */
+function theme_inteb_get_setting($setting) {
+    // Siempre intentar primero con el prefijo ib_
+    $value = get_config('theme_inteb', 'ib_' . $setting);
+    
+    // Si no se encuentra, intentar con la versión sin prefijo (para compatibilidad con versiones anteriores)
+    if ($value === false) {
+        $value = get_config('theme_inteb', $setting);
+    }
+    
+    return $value;
 }

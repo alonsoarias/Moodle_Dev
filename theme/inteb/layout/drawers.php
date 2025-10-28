@@ -24,17 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// ============================================================================
-// INTEB CUSTOMIZATION: Override coursehandler to use inteb's enhanced version
-// This makes remui use inteb's coursehandler with all teachers and custom fields
-// ============================================================================
-if (!class_exists('theme_inteb_coursehandler_loaded')) {
-    require_once($CFG->dirroot . '/theme/inteb/classes/coursehandler.php');
-
-    // Mark as loaded to avoid multiple includes
-    class theme_inteb_coursehandler_loaded {}
-}
-
 global $CFG, $PAGE, $COURSE;
 
 require_once($CFG->dirroot . '/theme/remui/layout/common.php');
