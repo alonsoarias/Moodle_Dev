@@ -94,9 +94,6 @@ class course_progress {
             $percentage = 0;
         }
 
-        // Calculate percentage
-        $percentage = floor(($completedactivities / $totalactivities) * 100);
-
         return [
             'hasprogress' => true,
             'percentage' => $percentage
