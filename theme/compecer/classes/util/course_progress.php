@@ -17,6 +17,8 @@
 /**
  * Course progress utility class
  *
+ * Based on format_remuiformat implementation for accurate progress calculation
+ *
  * @package    theme_compecer
  * @copyright  2024 IngeWeb https://www.ingeweb.co
  * @author     Alonso Arias <soporte@ingeweb.co>
@@ -38,20 +40,16 @@ class course_progress {
     /**
      * Get course overall progress percentage
      *
+     * Implementation based on format_remuiformat/classes/external/course_progress_data.php
+     * Uses Moodle's core API exactly as format_remuiformat does.
+     *
      * @param object $course Course object
-     * @param int $userid User ID (default: current user)
+     * @param int $userid User ID (not used - API uses current user)
      * @return array Array with 'percentage' and 'hasprogress' keys
      */
     public static function get_course_progress($course, $userid = null) {
-        global $USER;
-
-        if ($userid === null) {
-            $userid = $USER->id;
-        }
-
+        // Check if completion is enabled
         $completion = new completion_info($course);
-
-        // Check if completion is enabled at course level
         if (!$completion->is_enabled()) {
             return [
                 'hasprogress' => false,
@@ -59,37 +57,15 @@ class course_progress {
             ];
         }
 
-        // Count activities with completion tracking
-        $modinfo = get_fast_modinfo($course);
-        $totalactivities = 0;
-        $completedactivities = 0;
+        // Use Moodle's core API exactly as format_remuiformat does
+        // Pass only the course object, NOT userid
+        $percentage = progress::get_course_progress_percentage($course);
 
-        foreach ($modinfo->get_cms() as $cm) {
-            // Skip labels and non-visible activities
-            if ($cm->modname === 'label' || !$cm->uservisible) {
-                continue;
-            }
-
-            // Check if this activity has completion tracking enabled
-            if ($completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
-                $totalactivities++;
-
-                // Get completion data for this activity
-                $completiondata = $completion->get_data($cm, true, $userid);
-
-                if ($completiondata->completionstate == COMPLETION_COMPLETE ||
-                    $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
-                    $completedactivities++;
-                }
-            }
-        }
-
-        // If there are no activities with completion tracking, return no progress
-        if ($totalactivities === 0) {
-            return [
-                'hasprogress' => false,
-                'percentage' => 0
-            ];
+        // Handle NULL response - means 0% progress
+        if (!is_null($percentage)) {
+            $percentage = floor($percentage);
+        } else {
+            $percentage = 0;
         }
 
         // Calculate percentage
@@ -104,6 +80,9 @@ class course_progress {
     /**
      * Get section progress information
      *
+     * Implementation based on format_remuiformat/classes/course_format_data_common_trait.php
+     * Method: get_section_module_info() lines 305-325
+     *
      * @param object $course Course object
      * @param object $section Section info object
      * @param int $userid User ID (default: current user)
@@ -116,7 +95,7 @@ class course_progress {
             $userid = $USER->id;
         }
 
-        // Check if user is logged in and not a guest
+        // Check if user can complete activities
         $cancomplete = isloggedin() && !isguestuser();
         if (!$cancomplete) {
             return [
@@ -127,9 +106,8 @@ class course_progress {
             ];
         }
 
-        $completion = new completion_info($course);
-
         // Check if completion is enabled
+        $completion = new completion_info($course);
         if (!$completion->is_enabled()) {
             return [
                 'hasprogress' => false,
@@ -155,28 +133,32 @@ class course_progress {
         $total = 0;
         $complete = 0;
 
-        // Count completed activities in this section
+        // Count completed activities - EXACT implementation from format_remuiformat
         foreach ($modinfo->sections[$section->section] as $cmid) {
-            $cm = $modinfo->cms[$cmid];
+            $thismod = $modinfo->cms[$cmid];
 
-            // Skip labels and non-visible activities
-            if ($cm->modname === 'label' || !$cm->uservisible) {
+            // Skip labels (format_remuiformat line 292-294)
+            if ($thismod->modname == 'label') {
                 continue;
             }
 
-            // Check if completion tracking is enabled for this activity
-            if ($completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
-                $total++;
-                $completiondata = $completion->get_data($cm, true, $userid);
+            // Only count if user visible (format_remuiformat line 297)
+            if ($thismod->uservisible) {
+                // Check if completion tracking is enabled for this activity (format_remuiformat line 305)
+                if ($cancomplete && $completion->is_enabled($thismod) != COMPLETION_TRACKING_NONE) {
+                    $total++;
+                    $completiondata = $completion->get_data($thismod, true);
 
-                if ($completiondata->completionstate == COMPLETION_COMPLETE ||
-                    $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
-                    $complete++;
+                    // Check if completed (format_remuiformat lines 308-310)
+                    if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                        $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                        $complete++;
+                    }
                 }
             }
         }
 
-        // Calculate percentage
+        // Calculate percentage (format_remuiformat line 325)
         $percentage = 0;
         if ($total > 0) {
             $percentage = round(($complete / $total) * 100, 0);
