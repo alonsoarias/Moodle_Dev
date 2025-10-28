@@ -262,7 +262,9 @@ if ($incourse && !empty($forcedcourseids)) {
 echo html_writer::start_div('container-fluid');
 
 echo html_writer::start_div('row');
-if (!$incourse) {
+// Show selectors if not in course context OR if categories are configured in the block.
+$showSelectors = !$incourse || !empty($configcategories);
+if ($showSelectors) {
     $categories = report_customcajasan_get_categories();
     $categoryoptions = ['' => get_string('option_all', 'block_report_customcajasan')];
     foreach ($categories as $category) {
@@ -294,7 +296,7 @@ if (!$incourse) {
     echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'courseid', 'id' => 'courseid', 'value' => reset($forcedcourseids)]);
 }
 
-$estadocolclass = $incourse ? 'col-md-6 mb-3' : 'col-md-4 mb-3';
+$estadocolclass = $showSelectors ? 'col-md-4 mb-3' : 'col-md-6 mb-3';
 echo html_writer::start_div($estadocolclass);
 echo html_writer::tag('label', get_string('option_estado', 'block_report_customcajasan'), ['for' => 'estado']);
 $estadoptions = report_customcajasan_get_states();
@@ -304,13 +306,13 @@ echo html_writer::end_div();
 echo html_writer::end_div();
 
 echo html_writer::start_div('row');
-$idnumbercolclass = $incourse ? 'col-md-6 mb-3' : 'col-md-4 mb-3';
+$idnumbercolclass = $showSelectors ? 'col-md-4 mb-3' : 'col-md-6 mb-3';
 echo html_writer::start_div($idnumbercolclass);
 echo html_writer::tag('label', get_string('idnumber', 'block_report_customcajasan'), ['for' => 'idnumber']);
 echo html_writer::empty_tag('input', ['type' => 'text', 'id' => 'idnumber', 'name' => 'idnumber', 'value' => $idnumber, 'class' => 'form-control']);
 echo html_writer::end_div();
 
-$firstnamecolclass = $incourse ? 'col-md-6 mb-3' : 'col-md-4 mb-3';
+$firstnamecolclass = $showSelectors ? 'col-md-4 mb-3' : 'col-md-6 mb-3';
 echo html_writer::start_div($firstnamecolclass);
 echo html_writer::tag('label', get_string('option_firstname', 'block_report_customcajasan'), ['for' => 'firstname']);
 echo html_writer::start_div('alphabet-filter mt-1 mb-2');
@@ -324,7 +326,7 @@ echo html_writer::end_div();
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'id' => 'firstname', 'name' => 'firstname', 'value' => $firstname]);
 echo html_writer::end_div();
 
-if (!$incourse) {
+if ($showSelectors) {
     echo html_writer::start_div('col-md-4 mb-3');
     echo html_writer::tag('label', get_string('option_lastname', 'block_report_customcajasan'), ['for' => 'lastname']);
     echo html_writer::start_div('alphabet-filter mt-1 mb-2');
