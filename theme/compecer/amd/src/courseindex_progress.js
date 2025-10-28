@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Course index progress loader - Complete Redesign
+ * Course index progress loader - Complete Redesign with Activity Status Icons
  *
  * @module     theme_compecer/courseindex_progress
  * @copyright  2024 IngeWeb https://www.ingeweb.co
@@ -22,7 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax'], function($, Ajax) {
+define(['jquery', 'core/ajax', 'core/log'], function($, Ajax, Log) {
+
+    // Cache for activities completion data
+    var activitiesCompletionCache = null;
 
     /**
      * Initialize the course index progress system
@@ -30,11 +33,13 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
      * @param {Number} courseId The course ID
      */
     var init = function(courseId) {
+        Log.debug('courseindex_progress: Initializing for course ' + courseId);
+
         // Load overall course progress
         loadCourseProgress(courseId);
 
-        // Load activities completion states
-        loadActivitiesCompletion(courseId);
+        // Wait for activities to be loaded in the DOM, then load completion states
+        waitForActivitiesAndLoad(courseId);
 
         // Wait for sections to be loaded, then load section percentages
         var checkInterval = setInterval(function() {
@@ -45,11 +50,47 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             }
         }, 500);
 
-        // Listen for state changes
+        // Listen for state changes (when course index updates)
         $(document).on('state-changed', function() {
+            Log.debug('courseindex_progress: State changed event detected');
             loadActivitiesCompletion(courseId);
             loadSectionsProgress(courseId);
         });
+
+        // Also listen for completion updates
+        $(document).on('core_completion:activity_completed', function() {
+            Log.debug('courseindex_progress: Activity completion detected');
+            setTimeout(function() {
+                loadActivitiesCompletion(courseId);
+                loadCourseProgress(courseId);
+                loadSectionsProgress(courseId);
+            }, 500);
+        });
+    };
+
+    /**
+     * Wait for activities to be present in DOM, then load completion states
+     *
+     * @param {Number} courseId The course ID
+     */
+    var waitForActivitiesAndLoad = function(courseId) {
+        var attempts = 0;
+        var maxAttempts = 20; // 10 seconds max
+
+        var checkInterval = setInterval(function() {
+            attempts++;
+            var activities = $('.activity-status-icon[data-cm-id]');
+
+            if (activities.length > 0) {
+                Log.debug('courseindex_progress: Found ' + activities.length + ' activities in DOM');
+                clearInterval(checkInterval);
+                loadActivitiesCompletion(courseId);
+            } else if (attempts >= maxAttempts) {
+                Log.debug('courseindex_progress: Timeout waiting for activities, attempting load anyway');
+                clearInterval(checkInterval);
+                loadActivitiesCompletion(courseId);
+            }
+        }, 500);
     };
 
     /**
@@ -65,6 +106,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
         promises[0]
             .then(function(response) {
+                Log.debug('courseindex_progress: Course progress loaded', response);
                 if (response && response.hasprogress) {
                     updateCourseProgressDisplay(response);
                     showIconLegend();
@@ -75,7 +117,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             })
             .catch(function(error) {
                 if (error && error.errorcode !== 'nopermissions') {
-                    window.console && console.log('Error loading course progress:', error);
+                    Log.error('courseindex_progress: Error loading course progress: ' + error.message);
                 }
             });
     };
@@ -138,6 +180,8 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
      * @param {Number} courseId The course ID
      */
     var loadActivitiesCompletion = function(courseId) {
+        Log.debug('courseindex_progress: Loading activities completion for course ' + courseId);
+
         var promises = Ajax.call([{
             methodname: 'theme_compecer_get_activities_completion',
             args: {courseid: courseId}
@@ -145,14 +189,16 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
         promises[0]
             .then(function(response) {
+                Log.debug('courseindex_progress: Activities completion loaded', response);
                 if (response && response.activities) {
+                    activitiesCompletionCache = response.activities;
                     updateActivitiesIcons(response.activities);
                 }
                 return;
             })
             .catch(function(error) {
                 if (error && error.errorcode !== 'nopermissions') {
-                    window.console && console.log('Error loading activities completion:', error);
+                    Log.error('courseindex_progress: Error loading activities completion: ' + error.message);
                 }
             });
     };
@@ -163,26 +209,50 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
      * @param {Array} activities Array of activity completion data
      */
     var updateActivitiesIcons = function(activities) {
+        var updatedCount = 0;
+        var notFoundCount = 0;
+
         activities.forEach(function(activity) {
-            var $icon = $('[data-cm-id="' + activity.cmid + '"]');
-            if ($icon.length === 0) return;
+            var $icon = $('.activity-status-icon[data-cm-id="' + activity.cmid + '"]');
+
+            if ($icon.length === 0) {
+                notFoundCount++;
+                return;
+            }
 
             // Remove all status classes
             $icon.removeClass('status-not-started status-in-progress status-completed');
 
             // Add appropriate class based on state
             // 0 = not started, 1 = in progress, 2 = completed
+            var statusClass = '';
+            var ariaLabel = '';
+
             if (activity.state === 2) {
-                $icon.addClass('status-completed');
-                $icon.attr('aria-label', 'Completed');
+                statusClass = 'status-completed';
+                ariaLabel = 'Completed';
             } else if (activity.state === 1) {
-                $icon.addClass('status-in-progress');
-                $icon.attr('aria-label', 'In progress');
+                statusClass = 'status-in-progress';
+                ariaLabel = 'In progress';
             } else {
-                $icon.addClass('status-not-started');
-                $icon.attr('aria-label', 'Not started');
+                statusClass = 'status-not-started';
+                ariaLabel = 'Not started';
             }
+
+            $icon.addClass(statusClass);
+            $icon.attr('aria-label', ariaLabel);
+            updatedCount++;
         });
+
+        Log.debug('courseindex_progress: Updated ' + updatedCount + ' activity icons, ' +
+                 notFoundCount + ' not found in DOM');
+
+        // If some icons were not found, try again after a delay
+        if (notFoundCount > 0 && activitiesCompletionCache) {
+            setTimeout(function() {
+                updateActivitiesIcons(activitiesCompletionCache);
+            }, 1000);
+        }
     };
 
     /**
@@ -231,7 +301,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             .catch(function(error) {
                 $badge.data('loaded', true);
                 if (error && error.errorcode !== 'nopermissions') {
-                    window.console && console.log('Error loading section progress:', error);
+                    Log.error('courseindex_progress: Error loading section progress: ' + error.message);
                 }
             });
     };
