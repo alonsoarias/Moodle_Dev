@@ -38,6 +38,9 @@ class course_progress {
     /**
      * Get course overall progress percentage
      *
+     * Uses Moodle's core API for accurate percentage calculation,
+     * but verifies activity tracking independently for hasprogress detection.
+     *
      * @param object $course Course object
      * @param int $userid User ID (default: current user)
      * @return array Array with 'percentage' and 'hasprogress' keys
@@ -59,46 +62,61 @@ class course_progress {
             ];
         }
 
-        // Count activities with completion tracking
-        $modinfo = get_fast_modinfo($course);
-        $totalactivities = 0;
-        $completedactivities = 0;
+        // Check if there are any activities with completion tracking
+        $hasactivitieswithtracking = self::has_activities_with_completion($course, $completion);
 
-        foreach ($modinfo->get_cms() as $cm) {
-            // Skip labels and non-visible activities
-            if ($cm->modname === 'label' || !$cm->uservisible) {
-                continue;
-            }
-
-            // Check if this activity has completion tracking enabled
-            if ($completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
-                $totalactivities++;
-
-                // Get completion data for this activity
-                $completiondata = $completion->get_data($cm, true, $userid);
-
-                if ($completiondata->completionstate == COMPLETION_COMPLETE ||
-                    $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
-                    $completedactivities++;
-                }
-            }
-        }
-
-        // If there are no activities with completion tracking, return no progress
-        if ($totalactivities === 0) {
+        // If no activities have completion tracking, return no progress
+        if (!$hasactivitieswithtracking) {
             return [
                 'hasprogress' => false,
                 'percentage' => 0
             ];
         }
 
-        // Calculate percentage
-        $percentage = floor(($completedactivities / $totalactivities) * 100);
+        // Use Moodle's core API for accurate progress percentage calculation
+        // This handles all the complex logic: course completion criteria, aggregation, etc.
+        $percentage = progress::get_course_progress_percentage($course, $userid);
+
+        // If API returns null but we know there are activities with tracking,
+        // it means the user hasn't started yet (0% progress)
+        if ($percentage === null) {
+            $percentage = 0;
+        }
 
         return [
             'hasprogress' => true,
-            'percentage' => $percentage
+            'percentage' => floor($percentage)
         ];
+    }
+
+    /**
+     * Check if course has any activities with completion tracking enabled
+     *
+     * @param object $course Course object
+     * @param completion_info $completion Completion info object
+     * @return bool True if there are activities with completion tracking
+     */
+    private static function has_activities_with_completion($course, $completion) {
+        $modinfo = get_fast_modinfo($course);
+
+        foreach ($modinfo->get_cms() as $cm) {
+            // Skip labels (they don't have completion)
+            if ($cm->modname === 'label') {
+                continue;
+            }
+
+            // Skip non-visible activities
+            if (!$cm->uservisible) {
+                continue;
+            }
+
+            // Check if this activity has completion tracking enabled
+            if ($completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
