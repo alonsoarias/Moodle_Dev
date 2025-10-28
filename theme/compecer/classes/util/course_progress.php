@@ -51,7 +51,7 @@ class course_progress {
 
         $completion = new completion_info($course);
 
-        // Check if completion is enabled
+        // Check if completion is enabled at course level
         if (!$completion->is_enabled()) {
             return [
                 'hasprogress' => false,
@@ -59,19 +59,45 @@ class course_progress {
             ];
         }
 
-        // Get course progress percentage
-        $percentage = progress::get_course_progress_percentage($course, $userid);
+        // Count activities with completion tracking
+        $modinfo = get_fast_modinfo($course);
+        $totalactivities = 0;
+        $completedactivities = 0;
 
-        if ($percentage === null) {
+        foreach ($modinfo->get_cms() as $cm) {
+            // Skip labels and non-visible activities
+            if ($cm->modname === 'label' || !$cm->uservisible) {
+                continue;
+            }
+
+            // Check if this activity has completion tracking enabled
+            if ($completion->is_enabled($cm) != COMPLETION_TRACKING_NONE) {
+                $totalactivities++;
+
+                // Get completion data for this activity
+                $completiondata = $completion->get_data($cm, true, $userid);
+
+                if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                    $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                    $completedactivities++;
+                }
+            }
+        }
+
+        // If there are no activities with completion tracking, return no progress
+        if ($totalactivities === 0) {
             return [
                 'hasprogress' => false,
                 'percentage' => 0
             ];
         }
 
+        // Calculate percentage
+        $percentage = floor(($completedactivities / $totalactivities) * 100);
+
         return [
             'hasprogress' => true,
-            'percentage' => floor($percentage)
+            'percentage' => $percentage
         ];
     }
 
