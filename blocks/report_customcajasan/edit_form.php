@@ -26,7 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/course/lib.php');
-require_once($CFG->libdir . '/outputcomponents.php');
 
 /**
  * Configuration form definition.
