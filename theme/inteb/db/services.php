@@ -24,4 +24,16 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+
+    // OVERRIDE RemUI's get_myoverviewcourses to add custom fields
+    // This webservice is used by block_myoverview to display course cards
+    'theme_remui_get_myoverviewcourses' => [
+        'classname'   => 'theme_inteb\external\api',
+        'methodname'  => 'get_myoverviewcourses',
+        'description' => 'Get user courses with custom fields and all instructors - Enhanced for theme_inteb',
+        'type'        => 'read',
+        'ajax'        => true,
+        'loginrequired' => true,
+        'services'    => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 ];
