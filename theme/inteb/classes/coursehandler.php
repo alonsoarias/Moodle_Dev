@@ -71,9 +71,16 @@ class coursehandler extends \theme_remui_coursehandler {
             $groupids = $usergroups[0];
         }
 
+        // DEBUG: Log that we're using theme_inteb coursehandler
+        debugging('INTEB COURSEHANDLER: Using theme_inteb coursehandler for course ' . $courseid, DEBUG_DEVELOPER);
+
         // Get both editingteacher and teacher roles.
         $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
         $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
+
+        // DEBUG: Check if roles exist
+        debugging('INTEB COURSEHANDLER: editingteacher role ID: ' . ($editingteacherrole ? $editingteacherrole->id : 'NOT FOUND'), DEBUG_DEVELOPER);
+        debugging('INTEB COURSEHANDLER: teacher role ID: ' . ($teacherrole ? $teacherrole->id : 'NOT FOUND'), DEBUG_DEVELOPER);
 
         $teachers = array();
 
@@ -92,7 +99,11 @@ class coursehandler extends \theme_remui_coursehandler {
                 '',                 // Additional parameters
                 ''                  // Additional context
             );
+            debugging('INTEB COURSEHANDLER: Found ' . count($editingteachers) . ' editingteachers', DEBUG_DEVELOPER);
             if ($editingteachers) {
+                foreach ($editingteachers as $et) {
+                    debugging('INTEB COURSEHANDLER: - editingteacher: ' . fullname($et) . ' (ID: ' . $et->id . ')', DEBUG_DEVELOPER);
+                }
                 $teachers = array_merge($teachers, $editingteachers);
             }
         }
@@ -112,7 +123,11 @@ class coursehandler extends \theme_remui_coursehandler {
                 '',
                 ''
             );
+            debugging('INTEB COURSEHANDLER: Found ' . count($nonediting) . ' teachers (non-editing)', DEBUG_DEVELOPER);
             if ($nonediting) {
+                foreach ($nonediting as $t) {
+                    debugging('INTEB COURSEHANDLER: - teacher: ' . fullname($t) . ' (ID: ' . $t->id . ')', DEBUG_DEVELOPER);
+                }
                 $teachers = array_merge($teachers, $nonediting);
             }
         }
@@ -147,6 +162,11 @@ class coursehandler extends \theme_remui_coursehandler {
         // Build context array with teacher information.
         $context = array();
 
+        debugging('INTEB COURSEHANDLER: Total unique teachers after dedup: ' . count($teachers), DEBUG_DEVELOPER);
+        foreach ($teachers as $t) {
+            debugging('INTEB COURSEHANDLER: - Final list: ' . fullname($t) . ' (ID: ' . $t->id . ')', DEBUG_DEVELOPER);
+        }
+
         if ($teachers) {
             $namescount = 4;
             $profilecount = 0;
@@ -164,6 +184,7 @@ class coursehandler extends \theme_remui_coursehandler {
                     }
 
                     $context['instructors'][] = $instructor;
+                    debugging('INTEB COURSEHANDLER: Adding instructor to context: ' . fullname($teacher), DEBUG_DEVELOPER);
                 }
                 $profilecount++;
             }
@@ -175,6 +196,9 @@ class coursehandler extends \theme_remui_coursehandler {
 
             $context['participantspageurl'] = $CFG->wwwroot . '/user/index.php?id=' . $courseid . '&roleid=' . $roles->id;
             $context['hasteachers'] = true;
+            debugging('INTEB COURSEHANDLER: Context has ' . count($context['instructors']) . ' instructors', DEBUG_DEVELOPER);
+        } else {
+            debugging('INTEB COURSEHANDLER: NO TEACHERS FOUND!', DEBUG_DEVELOPER);
         }
 
         return $context;
