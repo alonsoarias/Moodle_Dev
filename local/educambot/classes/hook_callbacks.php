@@ -37,6 +37,8 @@ class hook_callbacks {
      * @return void
      */
     public static function before_footer_html_generation(before_footer_html_generation $hook): void {
+        global $PAGE;
+
         if (CLI_SCRIPT || AJAX_SCRIPT) {
             return;
         }
@@ -52,6 +54,10 @@ class hook_callbacks {
         if (!$page instanceof \moodle_page) {
             return;
         }
+
+        // Load CSS and JavaScript assets (similar to local_geniai).
+        $page->requires->css('/local/educambot/styles.css');
+        $page->requires->js_call_amd('local_educambot/widget', 'init');
 
         $content = local_educambot_render_widget($page, $renderer instanceof \core_renderer ? $renderer : null);
         if ($content !== '') {
