@@ -85,12 +85,12 @@ class coursehandler extends \theme_remui_coursehandler {
                 true,               // Check parent contexts
                 'u.*',              // Fields to return
                 'u.firstname',      // Sort order
-                true,               // Inherit from parent contexts
+                true,               // Active users only
                 $groupids,          // Group IDs (0 = all groups)
-                '',                 // Limit from
-                '',                 // Limit number
-                false,              // User custom fields
-                true                // Only active users
+                '',                 // Name filter
+                '',                 // Additional query
+                '',                 // Additional parameters
+                ''                  // Additional context
             );
             if ($editingteachers) {
                 $teachers = array_merge($teachers, $editingteachers);
@@ -102,15 +102,15 @@ class coursehandler extends \theme_remui_coursehandler {
             $nonediting = get_role_users(
                 $teacherrole->id,
                 $coursecontext,
-                true,               // Check parent contexts
-                'u.*',              // Fields to return
-                'u.firstname',      // Sort order
-                true,               // Inherit from parent contexts
-                $groupids,          // Group IDs (0 = all groups)
-                '',                 // Limit from
-                '',                 // Limit number
-                false,              // User custom fields
-                true                // Only active users
+                true,
+                'u.*',
+                'u.firstname',
+                true,
+                $groupids,
+                '',
+                '',
+                '',
+                ''
             );
             if ($nonediting) {
                 $teachers = array_merge($teachers, $nonediting);
