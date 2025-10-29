@@ -36,5 +36,74 @@ require_once(__DIR__ . '/../../../../remui/classes/output/core/course_renderer.p
  * add new methods to introduce new functionalities specific to theme_inteb.
  */
 class course_renderer extends \theme_remui\output\core\course_renderer {
-    // Custom rendering methods can be defined here to override or extend the parent functionality
+
+    /**
+     * Returns HTML to print list of available courses for the frontpage
+     *
+     * Overrides parent method to use theme_inteb_coursehandler instead of theme_remui_coursehandler.
+     * This ensures that custom fields (course duration, skill level) and all instructors are included.
+     *
+     * @return string HTML output for frontpage courses
+     */
+    public function frontpage_available_courses() {
+        global $CFG, $DB;
+        $contenthtml = '';
+        $chelper = new coursecat_helper();
+        $chelper->set_show_courses(self::COURSECAT_SHOW_COURSES_EXPANDED)->set_courses_display_options(array(
+                    'recursive' => true,
+                    'limit' => $CFG->frontpagecourselimit,
+                    'viewmoreurl' => new moodle_url('/course/index.php'),
+                    'viewmoretext' => new \lang_string('fulllistofcourses')));
+
+        $chelper->set_attributes(array('class' => 'frontpage-course-list-all'));
+
+        $courselength = $CFG->frontpagecourselimit;
+        $totalcount = core_course_category::get(0)->get_courses_count($chelper->get_courses_display_options());
+
+        if (!$totalcount &&
+            !$this->page->user_is_editing() &&
+            has_capability('moodle/course:create', \context_system::instance())
+        ) {
+            // Print link to create a new course, for the 1st available category.
+            return $this->add_new_course_button();
+        }
+
+        // INTEB ENHANCEMENT: Use theme_inteb_coursehandler to include custom fields
+        $coursehandler = new \theme_inteb_coursehandler();
+        $courses = $coursehandler->get_courses(
+            false,
+            null,
+            null,
+            0,
+            $courselength,
+            null,
+            null,
+            [],
+            false
+        );
+
+        if (!empty($courses)) {
+            $contenthtml .= "<div class='slick-slide-container'>";
+            foreach ($courses as $course) {
+                $contenthtml .= $this->render_from_template("theme_remui/frontpage_available_course", $course);
+            }
+            $contenthtml .= "</div>";
+            $contenthtml .= "<div class='available-courses button-container w-100 text-center mt-3'>
+                            <button type='button' class='btn btn-floating btn-primary btn-prev btn-sm'>
+                            <span class='edw-icon edw-icon-Left-Arrow' aria-hidden='true'></span>
+                            </button>
+                            <button type='button' class='btn btn-floating btn-primary btn-next btn-sm '>
+                            <span class='edw-icon edw-icon-Right-Arrow' aria-hidden='true'></span>
+                            </button>
+                            </div>";
+
+            $contenthtml .= "<div class='row'>
+                            <div class='col-12 text-right'>
+                             <a href='{$CFG->wwwroot}/course/index.php' class='btn btn-primary mt-2'>" . get_string('viewallcourses', 'core')."</a>
+                            </div>
+                            </div>";
+        }
+
+        return $contenthtml;
+    }
 }
