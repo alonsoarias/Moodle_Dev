@@ -241,6 +241,19 @@ class core_renderer extends \theme_remui\output\core_renderer
 
         $fullheader = $this->render_from_template($template, $header);
 
+        // DEBUG: Show rendered HTML for teachers section
+        if (isset($header->teachers) && is_array($header->teachers)) {
+            $teachersJson = json_encode($header->teachers, JSON_PRETTY_PRINT);
+            debugging('CORE_RENDERER: Full $header->teachers JSON: ' . $teachersJson, DEBUG_DEVELOPER);
+
+            // Try to extract just the teachers section from rendered HTML
+            if (strpos($fullheader, 'instructor-info') !== false) {
+                debugging('CORE_RENDERER: HTML contains "instructor-info" class - teachers section WAS rendered!', DEBUG_DEVELOPER);
+            } else {
+                debugging('CORE_RENDERER: HTML does NOT contain "instructor-info" class - teachers section NOT rendered!', DEBUG_DEVELOPER);
+            }
+        }
+
         return $output . $content . $fullheader;
         // ===== END: Custom implementation =====
     }

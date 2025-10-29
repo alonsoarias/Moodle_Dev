@@ -95,22 +95,38 @@
                         {{{rnrdesign}}}
                     </div>
                     {{/rnrdesign}}
-                    {{!-- Modified to use teachers.hasteachers as explicit condition --}}
+
+                    {{!-- DEBUG: Show if teachers context exists --}}
                     {{#teachers}}
+                        <div style="display:none" data-debug="teachers-context-exists">Teachers context EXISTS</div>
                         {{#hasteachers}}
-                        <div class="instructor-info stat-container position-relative">
-                            {{#instructors}}
-                                <div class="position-relative">
-                                 <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
-                                 {{{avatars}}}
-                                <span class="titles h-regular-6">{{name}}</span>
-                                </div>
-                            {{/instructors}}
-                            {{#teachercount}}
-                                <a class="view-all-instructorslink para-semibold-2" href="{{participantspageurl}}">{{#str}} viewalltext, theme_remui {{/str}}</a>
-                            {{/teachercount}}
-                        </div>
+                            <div style="display:none" data-debug="hasteachers-true">HasTeachers is TRUE</div>
+                            <div class="instructor-info stat-container position-relative" data-debug-instructors="active">
+                                {{#instructors}}
+                                    <div class="position-relative" data-debug-instructor="{{id}}">
+                                     <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
+                                     {{{avatars}}}
+                                    <span class="titles h-regular-6">{{name}}</span>
+                                    </div>
+                                {{/instructors}}
+                                {{^instructors}}
+                                    <div style="background:red;color:white;padding:10px;">DEBUG: instructors array is EMPTY!</div>
+                                {{/instructors}}
+                                {{#teachercount}}
+                                    <a class="view-all-instructorslink para-semibold-2" href="{{participantspageurl}}">{{#str}} viewalltext, theme_remui {{/str}}</a>
+                                {{/teachercount}}
+                            </div>
                         {{/hasteachers}}
+                        {{^hasteachers}}
+                            <div style="background:orange;color:black;padding:10px;border:2px solid red;">
+                                DEBUG: hasteachers is FALSE - teachers context exists but hasteachers=false
+                            </div>
+                        {{/hasteachers}}
+                    {{/teachers}}
+                    {{^teachers}}
+                        <div style="background:yellow;color:black;padding:10px;border:2px solid red;">
+                            DEBUG: teachers context does NOT exist!
+                        </div>
                     {{/teachers}}
                 </div>
             </div>
