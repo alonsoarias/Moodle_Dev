@@ -878,7 +878,7 @@ function format_remuiformat_check_plugin_available($component) {
      * Get Enrolled Teachers Context
      */
 function get_enrolled_teachers_context_formate($course, $frontlineteacher = false) {
-    global $OUTPUT, $CFG, $USER;
+    global $OUTPUT, $CFG, $USER, $DB;
 
     $courseid = $course->id;
 
@@ -890,7 +890,56 @@ function get_enrolled_teachers_context_formate($course, $frontlineteacher = fals
         $groupids = $usergroups[0];
     }
     $coursecontext = \context_course::instance($courseid);
-    $teachers = get_enrolled_users($coursecontext, 'mod/folder:managefiles', $groupids, '*', 'firstname', $limitfrom = 0, $limitnum = 0, $onlyactive = true);
+
+    // INTEB MODIFICATION: Get BOTH editingteacher AND teacher roles
+    // Instead of using capability 'mod/folder:managefiles' which excludes non-editing teachers,
+    // we explicitly get both roles by shortname
+    $teachers = array();
+
+    // Get editingteacher role
+    $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+    if ($editingteacherrole) {
+        $editingteachers = get_role_users(
+            $editingteacherrole->id,
+            $coursecontext,
+            true,  // Check parent contexts
+            'u.*',
+            'u.firstname',
+            true,  // Active users only
+            $groupids
+        );
+        $teachers = array_merge($teachers, $editingteachers);
+    }
+
+    // Get non-editing teacher role
+    $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
+    if ($teacherrole) {
+        $nonediting = get_role_users(
+            $teacherrole->id,
+            $coursecontext,
+            true,
+            'u.*',
+            'u.firstname',
+            true,
+            $groupids
+        );
+        $teachers = array_merge($teachers, $nonediting);
+    }
+
+    // Remove duplicates (in case a user has both roles)
+    $uniqueteachers = array();
+    foreach ($teachers as $teacher) {
+        if (!isset($uniqueteachers[$teacher->id])) {
+            $uniqueteachers[$teacher->id] = $teacher;
+        }
+    }
+    $teachers = array_values($uniqueteachers);
+
+    // Sort by firstname
+    usort($teachers, function($a, $b) {
+        return strcmp($a->firstname, $b->firstname);
+    });
+
     $roles =   new stdClass();
 
     $allroles = get_all_roles();
