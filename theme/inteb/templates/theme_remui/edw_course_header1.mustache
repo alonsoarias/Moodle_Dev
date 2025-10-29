@@ -127,6 +127,7 @@
 
                     {{!-- ACTUAL TEACHERS DISPLAY --}}
                     {{#teachers}}
+                        <div style="display:none" data-debug="teachers-context-exists">Teachers context EXISTS</div>
                         {{#hasteachers}}
                             <div class="instructor-info stat-container position-relative" data-debug-instructors="active">
                                 {{#instructors}}
@@ -141,6 +142,16 @@
                                 {{/teachercount}}
                             </div>
                         {{/hasteachers}}
+                        {{^hasteachers}}
+                            <div style="background:orange;color:black;padding:10px;border:2px solid red;">
+                                DEBUG: hasteachers is FALSE - teachers context exists but hasteachers=false
+                            </div>
+                        {{/hasteachers}}
+                    {{/teachers}}
+                    {{^teachers}}
+                        <div style="background:yellow;color:black;padding:10px;border:2px solid red;">
+                            DEBUG: teachers context does NOT exist!
+                        </div>
                     {{/teachers}}
                 </div>
             </div>
