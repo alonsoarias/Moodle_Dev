@@ -197,17 +197,23 @@ class core_renderer extends \theme_remui\output\core_renderer
             $header->courseimage = $coursehandler->get_course_image($COURSE);
             $header->classes = 'hasbackground' . ' design-' . $design;
             $header->categoryname = format_text($DB->get_record('course_categories', array('id' => $COURSE->category))->name);
-            $header->teachers = $coursehandler->get_enrolled_teachers_context($COURSE, true);
+
+            // Get teachers context and FLATTEN it into $header (for Mustache template access)
+            $teacherscontext = $coursehandler->get_enrolled_teachers_context($COURSE, true);
+            $header->instructors = isset($teacherscontext['instructors']) ? $teacherscontext['instructors'] : [];
+            $header->hasteachers = isset($teacherscontext['hasteachers']) ? $teacherscontext['hasteachers'] : false;
+            $header->participantspageurl = isset($teacherscontext['participantspageurl']) ? $teacherscontext['participantspageurl'] : '';
+            if (isset($teacherscontext['teachercount'])) {
+                $header->teachercount = $teacherscontext['teachercount'];
+            }
 
             // DEBUG: Show what we're passing to template
-            debugging('CORE_RENDERER: $header->teachers is: ' . (is_array($header->teachers) ? 'array with ' . count($header->teachers) . ' keys' : gettype($header->teachers)), DEBUG_DEVELOPER);
-            if (is_array($header->teachers)) {
-                debugging('CORE_RENDERER: teachers keys: ' . implode(', ', array_keys($header->teachers)), DEBUG_DEVELOPER);
-                if (isset($header->teachers['instructors'])) {
-                    debugging('CORE_RENDERER: instructors count: ' . count($header->teachers['instructors']), DEBUG_DEVELOPER);
-                }
-                if (isset($header->teachers['hasteachers'])) {
-                    debugging('CORE_RENDERER: hasteachers = ' . ($header->teachers['hasteachers'] ? 'true' : 'false'), DEBUG_DEVELOPER);
+            debugging('CORE_RENDERER: Flattened teachers context into $header', DEBUG_DEVELOPER);
+            debugging('CORE_RENDERER: hasteachers = ' . ($header->hasteachers ? 'true' : 'false'), DEBUG_DEVELOPER);
+            debugging('CORE_RENDERER: instructors count = ' . count($header->instructors), DEBUG_DEVELOPER);
+            if (!empty($header->instructors)) {
+                foreach ($header->instructors as $idx => $instructor) {
+                    debugging('CORE_RENDERER: instructors[' . $idx . '] = ' . $instructor['name'] . ' (ID: ' . $instructor['id'] . ')', DEBUG_DEVELOPER);
                 }
             }
 
