@@ -204,11 +204,7 @@ function theme_inteb_before_footer() {
     // Asegurar licencia en cada página
     theme_inteb_license_autoload();
 
-    // Load JavaScript to force show teachers in course header
-    if ($PAGE->pagelayout == 'course' || $PAGE->pagetype == 'course-view-topics' || $PAGE->pagetype == 'course-view-weeks') {
-        $PAGE->requires->js_call_amd('theme_inteb/force_show_teachers', 'init');
-    }
-
+    // JavaScript is now loaded in core_renderer::full_header() for earlier execution
     return '';
 }
 
