@@ -105,54 +105,35 @@
                     {{!-- VISIBLE DEBUG: Teachers Section Status --}}
                     <div style="background: #333; color: #0f0; padding: 15px; margin: 10px 0; border: 3px solid #0f0; font-family: monospace;">
                         <strong>🔍 DEBUG: Teachers Section</strong><br>
-                        {{#teachers}}
-                            ✓ teachers context exists<br>
-                            {{#hasteachers}}
-                                ✓ hasteachers = TRUE<br>
-                                {{#instructors}}
-                                    ✓ Instructor: {{name}} (ID: {{id}})<br>
-                                {{/instructors}}
-                                {{^instructors}}
-                                    ✗ ERROR: instructors array is EMPTY!<br>
-                                {{/instructors}}
-                            {{/hasteachers}}
-                            {{^hasteachers}}
-                                ✗ hasteachers = FALSE<br>
-                            {{/hasteachers}}
-                        {{/teachers}}
-                        {{^teachers}}
-                            ✗ ERROR: teachers context does NOT exist!<br>
-                        {{/teachers}}
+                        {{#hasteachers}}
+                            ✓ hasteachers = TRUE<br>
+                            {{#instructors}}
+                                ✓ Instructor: {{name}} (ID: {{id}})<br>
+                            {{/instructors}}
+                            {{^instructors}}
+                                ✗ ERROR: instructors array is EMPTY!<br>
+                            {{/instructors}}
+                        {{/hasteachers}}
+                        {{^hasteachers}}
+                            ✗ hasteachers = FALSE (no teachers to display)<br>
+                        {{/hasteachers}}
                     </div>
 
                     {{!-- ACTUAL TEACHERS DISPLAY --}}
-                    {{#teachers}}
-                        <div style="display:none" data-debug="teachers-context-exists">Teachers context EXISTS</div>
-                        {{#hasteachers}}
-                            <div class="instructor-info stat-container position-relative" data-debug-instructors="active">
-                                {{#instructors}}
-                                    <div class="position-relative" data-debug-instructor="{{id}}">
-                                     <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
-                                     {{{avatars}}}
-                                    <span class="titles h-regular-6">{{name}}</span>
-                                    </div>
-                                {{/instructors}}
-                                {{#teachercount}}
-                                    <a class="view-all-instructorslink para-semibold-2" href="{{participantspageurl}}">{{#str}} viewalltext, theme_remui {{/str}}</a>
-                                {{/teachercount}}
-                            </div>
-                        {{/hasteachers}}
-                        {{^hasteachers}}
-                            <div style="background:orange;color:black;padding:10px;border:2px solid red;">
-                                DEBUG: hasteachers is FALSE - teachers context exists but hasteachers=false
-                            </div>
-                        {{/hasteachers}}
-                    {{/teachers}}
-                    {{^teachers}}
-                        <div style="background:yellow;color:black;padding:10px;border:2px solid red;">
-                            DEBUG: teachers context does NOT exist!
+                    {{#hasteachers}}
+                        <div class="instructor-info stat-container position-relative" data-debug-instructors="active">
+                            {{#instructors}}
+                                <div class="position-relative" data-debug-instructor="{{id}}">
+                                 <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
+                                 {{{avatars}}}
+                                <span class="titles h-regular-6">{{name}}</span>
+                                </div>
+                            {{/instructors}}
+                            {{#teachercount}}
+                                <a class="view-all-instructorslink para-semibold-2" href="{{participantspageurl}}">{{#str}} viewalltext, theme_remui {{/str}}</a>
+                            {{/teachercount}}
                         </div>
-                    {{/teachers}}
+                    {{/hasteachers}}
                 </div>
             </div>
             <div class="header-actions-container " data-region="header-actions-container">
