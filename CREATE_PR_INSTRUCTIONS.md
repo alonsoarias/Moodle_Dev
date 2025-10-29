@@ -1,3 +1,46 @@
+# 🚀 Instrucciones para Crear el Pull Request
+
+## ✅ Estado: LISTO PARA CREAR PR
+
+Todos los cambios están commiteados y pusheados al branch:
+```
+claude/inteb-show-both-teacher-roles-011CUbuRXKwqmkNp9N5HmUy4
+```
+
+---
+
+## 🔗 Opción 1: Crear PR desde GitHub Web (RECOMENDADO)
+
+### Paso 1: Abre el Link de Comparación
+
+Haz clic en este link (o cópialo en tu navegador):
+
+```
+https://github.com/alonsoarias/Moodle_Dev/compare/main...claude/inteb-show-both-teacher-roles-011CUbuRXKwqmkNp9N5HmUy4
+```
+
+### Paso 2: Click en "Create Pull Request"
+
+Verás un botón verde "Create pull request" en la parte superior.
+
+### Paso 3: Título del PR
+
+Copia y pega este título:
+
+```
+Fix: Display both editingteacher and teacher roles in course header (with critical Mustache context fix)
+```
+
+### Paso 4: Descripción del PR
+
+Abre el archivo `PR_BODY.md` en la raíz del proyecto y **copia TODO su contenido** en la descripción del PR.
+
+O alternativamente, copia esto:
+
+<details>
+<summary>📋 Click para ver la descripción completa del PR</summary>
+
+```markdown
 ## Summary
 
 This PR ensures that the theme_inteb course header displays **BOTH** teacher roles (editingteacher and teacher), not just editingteachers like the parent Remui theme does.
@@ -250,8 +293,9 @@ This PR addresses the requirement to show both teacher types in the course heade
 ## Commits Included
 
 ```
+d68ca4f4 - Docs: Update PR body with critical Mustache context fix
+e17b0e3a - Merge branch 'main' into claude/inteb-show-both-teacher-roles...
 e3759658 - Fix: Flatten teachers context for correct Mustache template rendering (CRITICAL FIX)
-af57b0cd - Merge branch 'main' into claude/inteb-show-both-teacher-roles...
 eac9d4ca - Docs: Add PR body template with comprehensive change summary
 8e23c3df - Docs: Add comprehensive debugging instructions for template verification
 ad732490 - Add: Comprehensive template verification and cache purge script
@@ -267,3 +311,91 @@ da6f11a8 - Fix: Integrate theme_inteb coursehandler to show both teacher roles
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+</details>
+
+### Paso 5: Crear el PR
+
+Click en el botón verde "Create pull request" final.
+
+---
+
+## 📝 Opción 2: Desde tu Terminal (si tienes gh CLI instalado)
+
+Si tienes `gh` CLI configurado en tu máquina local, puedes ejecutar:
+
+```bash
+cd /ruta/a/tu/Moodle_Dev
+git fetch origin
+git checkout claude/inteb-show-both-teacher-roles-011CUbuRXKwqmkNp9N5HmUy4
+
+gh pr create \
+  --base main \
+  --head claude/inteb-show-both-teacher-roles-011CUbuRXKwqmkNp9N5HmUy4 \
+  --title "Fix: Display both editingteacher and teacher roles in course header (with critical Mustache context fix)" \
+  --body-file PR_BODY.md
+```
+
+---
+
+## 📊 Resumen de Cambios en el PR
+
+### 🔥 Cambio Crítico
+**Fix del contexto Mustache aplanado** (commit e3759658)
+- Corrige la estructura de contexto para que Mustache pueda acceder a los datos
+- Este es el cambio que hace que los teachers se muestren
+
+### 📁 Archivos Modificados (6 archivos)
+
+1. **theme/inteb/classes/output/core_renderer.php** - Aplana el contexto
+2. **theme/inteb/templates/theme_remui/edw_course_header1.mustache** - Usa contexto aplanado
+3. **theme/inteb/verify_template.php** - Script de verificación
+4. **theme/inteb/force_template_rebuild.php** - Script de purga de caché
+5. **DEBUGGING_INSTRUCTIONS.md** - Guía de debugging
+6. **PR_BODY.md** - Documentación del PR
+
+### 📈 Estadísticas
+- **+820 líneas** agregadas
+- **-4 líneas** removidas
+- **11 commits** incluidos
+- **1 FIX CRÍTICO** aplicado
+
+---
+
+## ✅ Checklist Pre-PR
+
+- [x] Todos los cambios están commiteados
+- [x] Todos los commits están pusheados al remoto
+- [x] Working tree está limpio
+- [x] PR_BODY.md está actualizado con el fix crítico
+- [x] DEBUGGING_INSTRUCTIONS.md incluido
+- [x] Scripts de verificación incluidos
+- [x] Test plan documentado
+
+---
+
+## 🎯 Siguiente Paso
+
+**Por favor, prueba el fix primero:**
+
+1. Ejecuta: `https://moodle45.localhost.com/theme/inteb/verify_template.php?courseid=206`
+2. Hard refresh del navegador (Ctrl+Shift+R)
+3. Visita el curso: `https://moodle45.localhost.com/course/view.php?id=206`
+4. Verifica que veas:
+   - ✅ Banner arcoíris
+   - ✅ Caja verde de debug
+   - ✅ Display del profesor
+
+**Una vez confirmado que funciona, crea el PR usando las instrucciones de arriba.**
+
+---
+
+## 📞 ¿Necesitas Ayuda?
+
+Si tienes problemas para crear el PR:
+1. Asegúrate de estar logueado en GitHub
+2. Verifica que tienes permisos en el repositorio
+3. Intenta la Opción 1 (GitHub Web) primero - es más fácil
+
+¡El PR está listo para ser creado! 🚀
