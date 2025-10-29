@@ -48,8 +48,8 @@ class cleanup extends scheduled_task {
             return;
         }
 
-        $treshold = time() - ($retention * DAYSECS);
-        $DB->delete_records_select('local_educambot_log', 'timecreated < :limit', ['limit' => $treshold]);
-        $DB->delete_records_select('local_educambot_unanswered', 'timecreated < :limit', ['limit' => $treshold]);
+        $threshold = time() - ($retention * DAYSECS);
+        $DB->delete_records_select('local_educambot_log', 'timecreated < :limit', ['limit' => $threshold]);
+        $DB->delete_records_select('local_educambot_unanswered', 'timecreated < :limit', ['limit' => $threshold]);
     }
 }
