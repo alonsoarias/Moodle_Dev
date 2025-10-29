@@ -102,38 +102,38 @@
                     </div>
                     {{/rnrdesign}}
 
-                    {{!-- VISIBLE DEBUG: INTEB Teachers Section Status (UNIQUE VARIABLES) --}}
-                    <div style="background: #333; color: #0f0; padding: 15px; margin: 10px 0; border: 3px solid #0f0; font-family: monospace; z-index: 9999; position: relative;">
-                        <strong>🔍 DEBUG: INTEB Teachers Section (UNIQUE VARS)</strong><br>
-                        {{#inteb_has_teachers_list}}
-                            ✓ inteb_has_teachers_list = TRUE<br>
-                            {{#inteb_teacher_list}}
-                                ✓ INTEB Teacher: {{inteb_teacher_name}} (ID: {{inteb_teacher_id}})<br>
-                            {{/inteb_teacher_list}}
-                            {{^inteb_teacher_list}}
-                                ✗ ERROR: inteb_teacher_list array is EMPTY!<br>
-                            {{/inteb_teacher_list}}
-                        {{/inteb_has_teachers_list}}
-                        {{^inteb_has_teachers_list}}
-                            ✗ inteb_has_teachers_list = FALSE (no teachers to display)<br>
-                        {{/inteb_has_teachers_list}}
+                    {{!-- VISIBLE DEBUG: Teachers Section Status --}}
+                    <div style="background: #333; color: #0f0; padding: 15px; margin: 10px 0; border: 3px solid #0f0; font-family: monospace;">
+                        <strong>🔍 DEBUG: Teachers Section</strong><br>
+                        {{#hasteachers}}
+                            ✓ hasteachers = TRUE<br>
+                            {{#instructors}}
+                                ✓ Instructor: {{name}} (ID: {{id}})<br>
+                            {{/instructors}}
+                            {{^instructors}}
+                                ✗ ERROR: instructors array is EMPTY!<br>
+                            {{/instructors}}
+                        {{/hasteachers}}
+                        {{^hasteachers}}
+                            ✗ hasteachers = FALSE (no teachers to display)<br>
+                        {{/hasteachers}}
                     </div>
 
-                    {{!-- ACTUAL INTEB TEACHERS DISPLAY (UNIQUE CLASS NAMES) --}}
-                    {{#inteb_has_teachers_list}}
-                        <div class="inteb-instructor-info inteb-stat-container position-relative" data-inteb-instructors="active" style="display: flex !important; visibility: visible !important; opacity: 1 !important;">
-                            {{#inteb_teacher_list}}
-                                <div class="position-relative inteb-instructor-item" data-inteb-instructor="{{inteb_teacher_id}}" style="display: block !important; visibility: visible !important;">
-                                 <a class="view-user-profile-link" href="{{inteb_teacher_profile_url}}" title="{{inteb_teacher_name}}"></a>
-                                 {{{inteb_teacher_avatar}}}
-                                <span class="titles h-regular-6 inteb-teacher-name">{{inteb_teacher_name}}</span>
+                    {{!-- ACTUAL TEACHERS DISPLAY --}}
+                    {{#hasteachers}}
+                        <div class="instructor-info stat-container position-relative" data-debug-instructors="active">
+                            {{#instructors}}
+                                <div class="position-relative" data-debug-instructor="{{id}}">
+                                 <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
+                                 {{{avatars}}}
+                                <span class="titles h-regular-6">{{name}}</span>
                                 </div>
-                            {{/inteb_teacher_list}}
-                            {{#inteb_show_all_link}}
-                                <a class="view-all-instructorslink para-semibold-2 inteb-view-all" href="{{inteb_participants_url}}">{{#str}} viewalltext, theme_remui {{/str}}</a>
-                            {{/inteb_show_all_link}}
+                            {{/instructors}}
+                            {{#teachercount}}
+                                <a class="view-all-instructorslink para-semibold-2" href="{{participantspageurl}}">{{#str}} viewalltext, theme_remui {{/str}}</a>
+                            {{/teachercount}}
                         </div>
-                    {{/inteb_has_teachers_list}}
+                    {{/hasteachers}}
                 </div>
             </div>
             <div class="header-actions-container " data-region="header-actions-container">

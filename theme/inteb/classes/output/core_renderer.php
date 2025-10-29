@@ -198,35 +198,22 @@ class core_renderer extends \theme_remui\output\core_renderer
             $header->classes = 'hasbackground' . ' design-' . $design;
             $header->categoryname = format_text($DB->get_record('course_categories', array('id' => $COURSE->category))->name);
 
-            // Get teachers context and FLATTEN it with UNIQUE INTEB variable names
+            // Get teachers context and FLATTEN it into $header (for Mustache template access)
             $teacherscontext = $coursehandler->get_enrolled_teachers_context($COURSE, true);
-
-            // Build INTEB-specific teacher list with unique variable names
-            $inteb_teacher_list = [];
-            if (isset($teacherscontext['instructors']) && is_array($teacherscontext['instructors'])) {
-                foreach ($teacherscontext['instructors'] as $instructor) {
-                    $inteb_teacher_list[] = [
-                        'inteb_teacher_id' => $instructor['id'],
-                        'inteb_teacher_name' => $instructor['name'],
-                        'inteb_teacher_avatar' => isset($instructor['avatars']) ? $instructor['avatars'] : '',
-                        'inteb_teacher_profile_url' => isset($instructor['teacherprofileurl']) ? $instructor['teacherprofileurl'] : ''
-                    ];
-                }
+            $header->instructors = isset($teacherscontext['instructors']) ? $teacherscontext['instructors'] : [];
+            $header->hasteachers = isset($teacherscontext['hasteachers']) ? $teacherscontext['hasteachers'] : false;
+            $header->participantspageurl = isset($teacherscontext['participantspageurl']) ? $teacherscontext['participantspageurl'] : '';
+            if (isset($teacherscontext['teachercount'])) {
+                $header->teachercount = $teacherscontext['teachercount'];
             }
 
-            // Set UNIQUE INTEB variables in header context
-            $header->inteb_teacher_list = $inteb_teacher_list;
-            $header->inteb_has_teachers_list = !empty($inteb_teacher_list);
-            $header->inteb_participants_url = isset($teacherscontext['participantspageurl']) ? $teacherscontext['participantspageurl'] : '';
-            $header->inteb_show_all_link = isset($teacherscontext['teachercount']) ? $teacherscontext['teachercount'] : 0;
-
-            // DEBUG: Show what we're passing to template with INTEB variables
-            debugging('CORE_RENDERER: Built INTEB-specific teachers context', DEBUG_DEVELOPER);
-            debugging('CORE_RENDERER: inteb_has_teachers_list = ' . ($header->inteb_has_teachers_list ? 'TRUE' : 'FALSE'), DEBUG_DEVELOPER);
-            debugging('CORE_RENDERER: inteb_teacher_list count = ' . count($header->inteb_teacher_list), DEBUG_DEVELOPER);
-            if (!empty($header->inteb_teacher_list)) {
-                foreach ($header->inteb_teacher_list as $idx => $teacher) {
-                    debugging('CORE_RENDERER: inteb_teacher_list[' . $idx . '] = ' . $teacher['inteb_teacher_name'] . ' (ID: ' . $teacher['inteb_teacher_id'] . ')', DEBUG_DEVELOPER);
+            // DEBUG: Show what we're passing to template
+            debugging('CORE_RENDERER: Flattened teachers context into $header', DEBUG_DEVELOPER);
+            debugging('CORE_RENDERER: hasteachers = ' . ($header->hasteachers ? 'true' : 'false'), DEBUG_DEVELOPER);
+            debugging('CORE_RENDERER: instructors count = ' . count($header->instructors), DEBUG_DEVELOPER);
+            if (!empty($header->instructors)) {
+                foreach ($header->instructors as $idx => $instructor) {
+                    debugging('CORE_RENDERER: instructors[' . $idx . '] = ' . $instructor['name'] . ' (ID: ' . $instructor['id'] . ')', DEBUG_DEVELOPER);
                 }
             }
 
@@ -266,15 +253,15 @@ class core_renderer extends \theme_remui\output\core_renderer
             debugging('CORE_RENDERER: Loaded force_show_teachers.js for course page', DEBUG_DEVELOPER);
         }
 
-        // DEBUG: Show rendered HTML for teachers section (INTEB variables)
-        if (isset($header->inteb_has_teachers_list) && $header->inteb_has_teachers_list) {
-            debugging('CORE_RENDERER: inteb_has_teachers_list = TRUE, teacher count = ' . (isset($header->inteb_teacher_list) ? count($header->inteb_teacher_list) : 0), DEBUG_DEVELOPER);
+        // DEBUG: Show rendered HTML for teachers section
+        if (isset($header->hasteachers) && $header->hasteachers) {
+            debugging('CORE_RENDERER: hasteachers = TRUE, instructors count = ' . (isset($header->instructors) ? count($header->instructors) : 0), DEBUG_DEVELOPER);
 
             // Try to extract just the teachers section from rendered HTML
-            if (strpos($fullheader, 'inteb-instructor-info') !== false) {
-                debugging('CORE_RENDERER: HTML contains "inteb-instructor-info" class - teachers section WAS rendered!', DEBUG_DEVELOPER);
+            if (strpos($fullheader, 'instructor-info') !== false) {
+                debugging('CORE_RENDERER: HTML contains "instructor-info" class - teachers section WAS rendered!', DEBUG_DEVELOPER);
             } else {
-                debugging('CORE_RENDERER: HTML does NOT contain "inteb-instructor-info" class - teachers section NOT rendered!', DEBUG_DEVELOPER);
+                debugging('CORE_RENDERER: HTML does NOT contain "instructor-info" class - teachers section NOT rendered!', DEBUG_DEVELOPER);
             }
         }
 
