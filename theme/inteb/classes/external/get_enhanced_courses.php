@@ -57,6 +57,13 @@ class get_enhanced_courses extends external_api {
     public static function get_courses($courseids) {
         global $CFG;
 
+        // Validate context
+        $context = \context_system::instance();
+        self::validate_context($context);
+
+        // Require login
+        require_login(null, false);
+
         $params = self::validate_parameters(self::get_courses_parameters(), [
             'courseids' => $courseids
         ]);
@@ -71,14 +78,19 @@ class get_enhanced_courses extends external_api {
         require_once($CFG->dirroot . '/theme/inteb/classes/coursehandler.php');
         $coursehandler = new \theme_inteb_coursehandler();
 
-        // Get course objects
+        // Get course objects and validate access
         $courses = [];
         foreach ($courseids as $courseid) {
             try {
                 $course = get_course($courseid);
-                $courses[] = $course;
+
+                // Check if user can view this course
+                $coursecontext = \context_course::instance($courseid);
+                if (is_enrolled($coursecontext) || has_capability('moodle/course:view', $coursecontext)) {
+                    $courses[] = $course;
+                }
             } catch (\Exception $e) {
-                // Skip invalid courses
+                // Skip invalid courses or courses user cannot access
                 continue;
             }
         }

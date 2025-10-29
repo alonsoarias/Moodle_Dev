@@ -41,7 +41,7 @@ class theme_inteb_coursehandler extends theme_remui_coursehandler {
      * @param int $groupids Group IDs filter (0 for all groups)
      * @return array Array of user objects representing all teachers
      */
-    protected function get_all_course_teachers($courseid, $groupids = 0) {
+    public function get_all_course_teachers($courseid, $groupids = 0) {
         global $DB;
 
         $coursecontext = \context_course::instance($courseid);
