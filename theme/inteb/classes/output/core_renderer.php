@@ -260,28 +260,9 @@ class core_renderer extends \theme_remui\output\core_renderer
 
         $fullheader = $this->render_from_template($template, $header);
 
-        // Load JavaScript to force teachers visibility EARLY in the page load
-        if ($this->page->pagelayout == 'course') {
-            $this->page->requires->js_call_amd('theme_inteb/force_show_teachers', 'init');
-            debugging('CORE_RENDERER: Loaded force_show_teachers.js for course page', DEBUG_DEVELOPER);
-
-            // INTEB: If course uses remuiformat, load our teacher fix to override the format's behavior
-            if ($COURSE->format == 'remuiformat') {
-                $this->page->requires->js_call_amd('theme_inteb/format_remuiformat_teacher_fix', 'init', [$COURSE->id]);
-                debugging('CORE_RENDERER: Loaded format_remuiformat_teacher_fix.js for course ' . $COURSE->id, DEBUG_DEVELOPER);
-            }
-        }
-
-        // DEBUG: Show rendered HTML for teachers section
-        if (isset($header->hasteachers) && $header->hasteachers) {
-            debugging('CORE_RENDERER: hasteachers = TRUE, instructors count = ' . (isset($header->instructors) ? count($header->instructors) : 0), DEBUG_DEVELOPER);
-
-            // Try to extract just the teachers section from rendered HTML
-            if (strpos($fullheader, 'inteb-instructor-info') !== false) {
-                debugging('CORE_RENDERER: HTML contains "inteb-instructor-info" class - teachers section WAS rendered!', DEBUG_DEVELOPER);
-            } else {
-                debugging('CORE_RENDERER: HTML does NOT contain "inteb-instructor-info" class - teachers section NOT rendered!', DEBUG_DEVELOPER);
-            }
+        // INTEB: If course uses remuiformat, load our teacher fix to override the format's behavior
+        if ($this->page->pagelayout == 'course' && $COURSE->format == 'remuiformat') {
+            $this->page->requires->js_call_amd('theme_inteb/format_remuiformat_teacher_fix', 'init', [$COURSE->id]);
         }
 
         return $output . $content . $fullheader;
