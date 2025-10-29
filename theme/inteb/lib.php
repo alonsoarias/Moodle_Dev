@@ -199,6 +199,8 @@ function theme_inteb_page_init() {
  * Función para asegurar que se activa la licencia antes de mostrar cualquier footer
  */
 function theme_inteb_before_footer() {
+    global $PAGE;
+
     // Asegurar licencia en cada página
     theme_inteb_license_autoload();
 
