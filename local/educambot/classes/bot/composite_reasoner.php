@@ -72,6 +72,9 @@ class composite_reasoner implements reasoner_interface {
         $decision = null;
         $bestknowledge = null;
 
+        // DEBUG: Log decision inputs.
+        debugging('composite_reasoner::decide - Rules: ' . count($rulematches) . ', Knowledge hits: ' . count($knowledgehits), DEBUG_DEVELOPER);
+
         if (!empty($knowledgehits)) {
             $knowledgehits = $this->decorate_knowledge_hits($knowledgehits);
             $bestknowledge = $knowledgehits[0] ?? null;
@@ -81,6 +84,9 @@ class composite_reasoner implements reasoner_interface {
         $rulescore = $bestrule['score'] ?? 0;
         $knowledgescore = $bestknowledge['score'] ?? 0;
 
+        // DEBUG: Log best scores.
+        debugging('composite_reasoner::decide - Best rule score: ' . $rulescore . ', Best knowledge score: ' . $knowledgescore, DEBUG_DEVELOPER);
+
         if ($bestknowledge !== null) {
             $knowledgescore = $this->apply_contextual_boosts($bestknowledge, $question);
         }
@@ -89,9 +95,13 @@ class composite_reasoner implements reasoner_interface {
             $rulescore = $this->stabilise_rule_score($rulescore, $bestrule, $question);
         }
 
+        // BUGFIX: Reduced threshold from 0.15 to 0.05 to give knowledge more chance to be selected.
+        // BUGFIX: Added minimum score threshold of 0.15 for knowledge to be considered valid.
+        $minknowledgescore = 0.15;
+
         if ($bestrule !== null && $bestknowledge !== null) {
-            // Allow knowledge to win only when it is clearly more relevant or when the rule has low coverage.
-            if ($knowledgescore > $rulescore + 0.15) {
+            // Knowledge wins if it has a better score OR if rule score is very low.
+            if ($knowledgescore >= $minknowledgescore && ($knowledgescore > $rulescore + 0.05 || $rulescore < 0.3)) {
                 $decision = [
                     'type' => 'knowledge',
                     'score' => $knowledgescore,
@@ -110,7 +120,8 @@ class composite_reasoner implements reasoner_interface {
                 'score' => $rulescore,
                 'rule' => $bestrule,
             ];
-        } else if ($bestknowledge !== null) {
+        } else if ($bestknowledge !== null && $knowledgescore >= $minknowledgescore) {
+            // BUGFIX: Only return knowledge if it meets minimum score threshold.
             $decision = [
                 'type' => 'knowledge',
                 'score' => $knowledgescore,
@@ -120,7 +131,15 @@ class composite_reasoner implements reasoner_interface {
 
         if ($decision && $decision['type'] === 'knowledge' && empty($decision['knowledge'])) {
             // Safeguard to avoid returning empty knowledge bundles.
+            debugging('composite_reasoner::decide - REJECTING knowledge decision due to empty bundle.', DEBUG_DEVELOPER);
             $decision = null;
+        }
+
+        // DEBUG: Log final decision.
+        if ($decision) {
+            debugging('composite_reasoner::decide - DECISION: ' . $decision['type'] . ' with score ' . $decision['score'], DEBUG_DEVELOPER);
+        } else {
+            debugging('composite_reasoner::decide - NO DECISION MADE (returning null)', DEBUG_DEVELOPER);
         }
 
         return $decision;
