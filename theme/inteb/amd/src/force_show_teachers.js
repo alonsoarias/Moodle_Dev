@@ -30,28 +30,20 @@ define(['jquery'], function($) {
     var observerInstance = null;
 
     /**
-     * Force INTEB instructor elements to be visible with extreme prejudice
+     * Force instructor-info to be visible with extreme prejudice
      */
     var forceVisible = function() {
-        // Target BOTH old and new INTEB-specific class names
-        var $allTargets = $(
-            '.instructor-info, ' +
-            '.inteb-instructor-info, ' +
-            '.inteb-instructor-item, ' +
-            '.inteb-stat-container, ' +
-            '.inteb-teacher-name, ' +
-            '[data-debug-instructors], ' +
-            '[data-inteb-instructors], ' +
-            '[data-inteb-instructor], ' +
-            '[style*="background: #333"], ' +
-            '[style*="background: #0f0"]'
-        );
+        var $instructorInfo = $('.instructor-info.stat-container');
+        var $debugBox = $('[style*="background: #333"]');
 
-        if ($allTargets.length > 0) {
+        if ($instructorInfo.length > 0 || $debugBox.length > 0) {
+            // Force ALL elements with instructor-info or debug styles to be visible
+            var $allTargets = $('.instructor-info, [data-debug-instructors], [style*="background: #333"], [style*="background: #0f0"]');
+
             $allTargets.each(function() {
                 var $el = $(this);
 
-                // Force inline styles with !important
+                // Force inline styles
                 $el.attr('style', function(i, style) {
                     if (!style) return 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
                     // Remove any display:none or visibility:hidden
@@ -85,7 +77,7 @@ define(['jquery'], function($) {
                 $el.attr('data-inteb-protected', 'true');
             });
 
-            console.log('[INTEB] Forced visibility on ' + $allTargets.length + ' INTEB teacher elements');
+            console.log('[INTEB] Forced visibility on ' + $allTargets.length + ' elements');
             return true;
         }
 

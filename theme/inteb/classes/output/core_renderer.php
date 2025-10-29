@@ -264,11 +264,17 @@ class core_renderer extends \theme_remui\output\core_renderer
         if ($this->page->pagelayout == 'course') {
             $this->page->requires->js_call_amd('theme_inteb/force_show_teachers', 'init');
             debugging('CORE_RENDERER: Loaded force_show_teachers.js for course page', DEBUG_DEVELOPER);
+
+            // INTEB: If course uses remuiformat, load our teacher fix to override the format's behavior
+            if ($COURSE->format == 'remuiformat') {
+                $this->page->requires->js_call_amd('theme_inteb/format_remuiformat_teacher_fix', 'init', [$COURSE->id]);
+                debugging('CORE_RENDERER: Loaded format_remuiformat_teacher_fix.js for course ' . $COURSE->id, DEBUG_DEVELOPER);
+            }
         }
 
-        // DEBUG: Show rendered HTML for teachers section (INTEB variables)
-        if (isset($header->inteb_has_teachers_list) && $header->inteb_has_teachers_list) {
-            debugging('CORE_RENDERER: inteb_has_teachers_list = TRUE, teacher count = ' . (isset($header->inteb_teacher_list) ? count($header->inteb_teacher_list) : 0), DEBUG_DEVELOPER);
+        // DEBUG: Show rendered HTML for teachers section
+        if (isset($header->hasteachers) && $header->hasteachers) {
+            debugging('CORE_RENDERER: hasteachers = TRUE, instructors count = ' . (isset($header->instructors) ? count($header->instructors) : 0), DEBUG_DEVELOPER);
 
             // Try to extract just the teachers section from rendered HTML
             if (strpos($fullheader, 'inteb-instructor-info') !== false) {
