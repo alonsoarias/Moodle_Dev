@@ -917,11 +917,92 @@ span.badge.bg-secondary.text-dark {
 }
 
 /* =========================================
-   Quiz Centering - REFORZADO Y OPTIMIZADO
+   SECCIÓN 14: QUIZ CENTERING - CENTRADO DE ELEMENTOS DEL CUESTIONARIO
    Personalización INTEB para centrar botón principal y descripción del cuestionario
+
+   Esta sección centra visualmente los siguientes elementos en la vista del quiz:
+   1. Botón principal de inicio/continuar intento
+   2. Descripción/introducción del cuestionario (activity header)
+   3. Mensajes informativos y cajas de contenido
+
+   Cambios aplicados en: 2025-10 (Optimización completa)
    ========================================= */
 #page-mod-quiz-view {
-    /* Botón principal de inicio/continuar intento - Reforzado */
+
+    /* ==========================================
+       1. ACTIVITY HEADER - Descripción del Quiz
+       Centra el header de actividad y la descripción del cuestionario
+       ========================================== */
+    .activity-header {
+        text-align: center !important;
+
+        .page-header-headings {
+            text-align: center !important;
+
+            h1, h2, h3, h4 {
+                text-align: center !important;
+            }
+        }
+
+        .description {
+            text-align: center !important;
+            margin: 1.5rem auto !important;
+            max-width: 900px !important;
+            padding: 0 1rem !important;
+
+            p, div, span {
+                text-align: center !important;
+            }
+        }
+    }
+
+    /* Descripción de actividad - Selector alternativo */
+    .activity-description {
+        text-align: center !important;
+        margin: 1.5rem auto !important;
+        max-width: 900px !important;
+        padding: 1rem !important;
+
+        .no-overflow {
+            text-align: center !important;
+        }
+
+        p, div, span {
+            text-align: center !important;
+            margin: 0 auto !important;
+        }
+
+        * {
+            text-align: center !important;
+        }
+    }
+
+    /* Introducción general del quiz - Selector adicional */
+    #intro,
+    .generalbox#intro {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 900px !important;
+        padding: 1rem !important;
+
+        .no-overflow {
+            text-align: center !important;
+        }
+
+        p, div, span {
+            text-align: center !important;
+        }
+
+        * {
+            text-align: center !important;
+        }
+    }
+
+    /* ==========================================
+       2. BOTÓN PRINCIPAL - Inicio/Continuar Intento
+       Centra el botón principal de acción del quiz
+       ========================================== */
     .quizstartbuttondiv {
         text-align: center !important;
         margin: 2rem auto !important;
@@ -943,66 +1024,33 @@ span.badge.bg-secondary.text-dark {
         }
     }
 
-    /* Navegación terciaria con botón - Nueva adición */
+    /* Navegación terciaria con botón - Contenedor del botón */
     .tertiary-navigation {
         text-align: center !important;
         justify-content: center !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
 
         .row {
             justify-content: center !important;
             text-align: center !important;
+            width: 100% !important;
         }
 
-        .navitem {
+        .navitem,
+        .singlebutton {
             display: inline-block !important;
             margin: 0 auto !important;
         }
     }
 
-    /* Descripción de actividad - Mejorada */
-    .activity-description {
-        text-align: center !important;
-        margin: 1.5rem auto !important;
-        max-width: 900px !important;
-        padding: 1rem !important;
+    /* ==========================================
+       3. ELEMENTOS DE CONTENIDO - Cajas y mensajes
+       Centra cajas generales, mensajes informativos y otros elementos
+       ========================================== */
 
-        .no-overflow {
-            text-align: center !important;
-        }
-
-        p {
-            text-align: center !important;
-            margin: 0 auto !important;
-        }
-
-        * {
-            text-align: center !important;
-        }
-    }
-
-    /* Introducción general del quiz - Mejorada */
-    #intro,
-    .generalbox#intro {
-        text-align: center !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        max-width: 900px !important;
-        padding: 1rem !important;
-
-        .no-overflow {
-            text-align: center !important;
-        }
-
-        p {
-            text-align: center !important;
-        }
-
-        * {
-            text-align: center !important;
-        }
-    }
-
-    /* Boxes generales */
+    /* Boxes generales del quiz */
     .generalbox {
         text-align: center !important;
         margin-left: auto !important;
@@ -1012,17 +1060,25 @@ span.badge.bg-secondary.text-dark {
         .no-overflow {
             text-align: center !important;
         }
+
+        p, div {
+            text-align: center !important;
+        }
     }
 
-    /* Información del quiz - Mejorada */
+    /* Información del quiz - Mensajes de acceso y restricciones */
     .quizinfo {
         text-align: center !important;
         margin: 2rem auto !important;
         max-width: 900px !important;
         padding: 1rem !important;
+
+        p, div, span {
+            text-align: center !important;
+        }
     }
 
-    /* Box de intentos - Nueva adición */
+    /* Box de intentos - Botones adicionales */
     .box.quizattempt {
         text-align: center !important;
         margin: 2rem auto !important;
@@ -1033,12 +1089,29 @@ span.badge.bg-secondary.text-dark {
         }
     }
 
-    /* Mensajes de acceso - Nueva adición */
+    /* Mensajes de acceso y párrafos en boxes */
     .quizinfo p,
     .generalbox p {
         text-align: center !important;
         margin-left: auto !important;
         margin-right: auto !important;
+    }
+
+    /* ==========================================
+       4. RESPONSIVE - Ajustes para móviles
+       ========================================== */
+    @media (max-width: 768px) {
+        .activity-description,
+        #intro,
+        .generalbox,
+        .quizinfo {
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+        }
+
+        .tertiary-navigation {
+            padding: 0 !important;
+        }
     }
 }
 
