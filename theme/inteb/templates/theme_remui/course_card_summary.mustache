@@ -25,22 +25,16 @@
     <div class="edw-course-img-wrapper">
         <div class="summaryimage card-img dashboard-list-img  p-p-4" style='background-image: url("{{{courseimage}}}");'>
             <a href="{{ courseurl }} " class="view-course-url"></a>
-
-            <div class="d-flex align-items-center justify-content-between">
-                {{#skillleveltag}}
-                    <p class="skilltag m-0 badge {{badge}}">{{{labeltag}}}</p>
-                {{/skillleveltag}}
-                <div class="card-img-icons-wrapper d-flex align-items-center flex-gap-2 ml-auto">
-                    {{^visible}}
-                        <div class="visibilityicon">
-                            <i class="hidden-icon edw-icon edw-icon-Hide" aria-hidden="true"
-                                title="{{#str}} hiddencourse, theme_remui {{/str}}"></i>
-                        </div>
-                    {{/visible}}
-                    {{#usercanmanage}}
-                        {{>theme_remui/coursearchive_menu-picker-select}}
-                    {{/usercanmanage}}
-                </div>
+            <div class="card-img-icons-wrapper d-flex align-items-center flex-gap-2 ml-auto">
+                {{^visible}}
+                    <div class="visibilityicon">
+                        <i class="hidden-icon edw-icon edw-icon-Hide" aria-hidden="true"
+                            title="{{#str}} hiddencourse, theme_remui {{/str}}"></i>
+                    </div>
+                {{/visible}}
+                {{#usercanmanage}}
+                    {{>theme_remui/coursearchive_menu-picker-select}}
+                {{/usercanmanage}}
             </div>
         </div>
     </div>

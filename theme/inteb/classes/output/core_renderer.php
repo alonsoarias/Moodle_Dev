@@ -105,143 +105,47 @@ class core_renderer extends \theme_remui\output\core_renderer
     }
 
     /**
-     * Sobrescribe el método full_header para:
-     * - Mostrar avisos generales y validación de URLs (específico de Inteb)
-     * - Usar theme_inteb_coursehandler para mostrar TODOS los instructores
-     *
-     * CRÍTICO: Este método sobrescribe completamente el full_header de RemUI
-     * para usar theme_inteb_coursehandler en lugar de theme_remui_coursehandler.
+     * Sobrescribe el método full_header para mostrar avisos generales u otros estilos en el header.
      *
      * @return string
      */
     public function full_header() {
-        global $COURSE, $DB, $CFG, $USER;
+        global $CFG, $USER, $PAGE;
 
-        // ===================================================
-        // PARTE 1: LÓGICA ESPECÍFICA DE INTEB (avisos, validaciones)
-        // ===================================================
         $theme = theme_config::load('inteb');
-        $prefix_output = '';
+        $output = '';
 
         // Ocultar secciones front page si está configurado
         if (!empty($theme->settings->ib_hidefrontpagesections)) {
-            $prefix_output .= '<style>.frontpage-sections { display: none; }</style>';
+            $output .= '<style>.frontpage-sections { display: none; }</style>';
         }
 
         // Aviso general (notice)
         if (!empty(trim($theme->settings->ib_generalnotice))) {
             $mode = $theme->settings->ib_generalnoticemode;
+            // 'info' => alert-info, 'danger' => alert-danger, 'off' => sin aviso
             if ($mode === 'info') {
-                $prefix_output .= '<div class="alert alert-info mt-4"><strong><i class="fa fa-info-circle"></i></strong> ' . $theme->settings->ib_generalnotice . '</div>';
+                $output .= '<div class="alert alert-info mt-4"><strong><i class="fa fa-info-circle"></i></strong> ' . $theme->settings->ib_generalnotice . '</div>';
             } else if ($mode === 'danger') {
-                $prefix_output .= '<div class="alert alert-danger mt-4"><strong><i class="fa fa-warning"></i></strong> ' . $theme->settings->ib_generalnotice . '</div>';
+                $output .= '<div class="alert alert-danger mt-4"><strong><i class="fa fa-warning"></i></strong> ' . $theme->settings->ib_generalnotice . '</div>';
             }
         }
 
-        // Recordatorio para admin
+        // Recordatorio para admin, si el aviso está en modo 'off'
         if (is_siteadmin() && (!empty($theme->settings->ib_generalnoticemode) && $theme->settings->ib_generalnoticemode === 'off')) {
-            $prefix_output .= '<div class="alert mt-4"><a href="' . $CFG->wwwroot . '/admin/settings.php?section=themesettinginteb#theme_inteb">' .
-                           '<strong><i class="fa fa-edit"></i></strong> ' . get_string('generalnotice_create', 'theme_inteb') . '</a></div>';
+            $output .= '<div class="alert mt-4"><a href="' . $CFG->wwwroot . '/admin/settings.php?section=themesettinginteb#theme_inteb">' .
+                       '<strong><i class="fa fa-edit"></i></strong> ' . get_string('generalnotice_create', 'theme_inteb') . '</a></div>';
         }
 
-        // Validación de URL
+        // Validación de URL (por ejemplo, para sitios de prueba)
         if (!$this->check_allowed_urls()) {
             $popup_id = bin2hex(random_bytes(8));
-            $prefix_output .= $this->show_unauthorized_access_overlay($popup_id);
+            $output .= $this->show_unauthorized_access_overlay($popup_id);
         }
 
-        // ===================================================
-        // PARTE 2: LÓGICA DE REMUI CON theme_inteb_coursehandler
-        // (Copiada de RemUI pero usando coursehandler de inteb)
-        // ===================================================
-        $template = 'core/full_header';
-        $pagetype = $this->page->pagetype;
-
-        $homepage = get_home_page();
-        $homepagetype = null;
-        if ($homepage == HOMEPAGE_MY || $homepage == HOMEPAGE_MYCOURSES) {
-            $homepagetype = 'my-index';
-        } else if ($homepage == HOMEPAGE_SITE) {
-            $homepagetype = 'site-index';
-        }
-
-        if ($this->page->include_region_main_settings_in_header_actions() &&
-                !$this->page->blocks->is_block_present('settings')) {
-            $this->page->add_header_action(html_writer::div(
-                $this->region_main_settings_menu(),
-                'd-print-none',
-                ['id' => 'region-main-settings-menu']
-            ));
-        }
-
-        $header = new \stdClass();
-        $header->settingsmenu = $this->context_header_settings_menu();
-        $header->contextheader = $this->context_header();
-        $header->hasnavbar = empty($this->page->layout_options['nonavbar']);
-        $header->navbar = $this->navbar();
-        $header->pageheadingbutton = $this->page_heading_button();
-        $header->courseheader = $this->course_header();
-        $header->headeractions = $this->page->get_header_actions();
-        if (!empty($pagetype) && !empty($homepagetype) && $pagetype == $homepagetype) {
-            $header->welcomemessage = \core_user::welcome_message();
-        }
-
-        // ===================================================
-        // SECCIÓN CRÍTICA: USAR theme_inteb_coursehandler
-        // ===================================================
-        if ($this->page->pagelayout == 'course' && $design = get_config('theme_remui', 'courseheaderdesign')) {
-            if (strpos($this->page->pagetype, 'course-view-section') !== false) {
-                $header->sectionpage = true;
-                $header->coursename = $COURSE->fullname;
-            }
-
-            // *** CAMBIO PRINCIPAL: Usar theme_inteb_coursehandler ***
-            // Esto permite mostrar TODOS los instructores (editingteacher + teacher)
-            $coursehandler = new \theme_inteb_coursehandler();
-
-            $header->edwcourseheader = true;
-            $template = 'theme_remui/edw_course_header' . $design;
-            $header->courseimage = $coursehandler->get_course_image($COURSE);
-            $header->classes = 'hasbackground' . ' design-' . $design;
-            $header->categoryname = format_text($DB->get_record('course_categories', array('id' => $COURSE->category))->name);
-
-            // get_enrolled_teachers_context() de theme_inteb obtiene TODOS los profesores
-            $header->teachers = $coursehandler->get_enrolled_teachers_context($COURSE, true);
-
-            if (is_plugin_available('block_edwiserratingreview')) {
-                $rnr = new \block_edwiserratingreview\ReviewManager();
-                $header->rnrdesign = $rnr->get_short_design_enrolmentpage($COURSE->id);
-            }
-        }
-
-        // Dashboard status area
-        $header->canaddblockandstatusarea = $this->page->pagelayout == 'mydashboard';
-
-        // Overlay opacity
-        $overlayopacity = get_config('theme_remui', 'headeroverlayopacity');
-        if (is_numeric($overlayopacity) && ($overlayopacity <= 100)) {
-            $overlayopacity = $overlayopacity / 100;
-            $header->overlayopacity = $overlayopacity;
-        } else {
-            $header->overlayopacity = 1;
-        }
-
-        // Enrollment buttons for managers
-        $content = "";
-        $coursecontext = $this->page->context;
-        $ismanager = \theme_remui\utility::check_user_admin_cap($USER);
-
-        if (($this->page->pagelayout == 'course' || ($COURSE->id != 1 && $this->page->pagetype == 'course-edit') || $this->page->pagetype == 'course-view-participants') && $ismanager) {
-            $header->enrollpageurl = $CFG->wwwroot . '/enrol/index.php?id=' . $COURSE->id;
-            $header->participantspageurl = $CFG->wwwroot . '/user/index.php?id=' . $COURSE->id;
-            $header->isenrolled = is_enrolled($coursecontext, $USER->id);
-            $content = $this->render_from_template("theme_remui/header_enrolpage_button_ui", $header);
-        }
-
-        $fullheader = $this->render_from_template($template, $header);
-
-        // Combinar: prefix de inteb + content + fullheader
-        return $prefix_output . $content . $fullheader;
+        // Continúa con el header normal.
+        $output .= parent::full_header();
+        return $output;
     }
 
     /**
@@ -431,27 +335,5 @@ class core_renderer extends \theme_remui\output\core_renderer
         ];
 
         return in_array($CFG->wwwroot, $allowed_urls);
-    }
-
-    /**
-     * Sobrescritura de standard_end_of_body_html para cargar el módulo de mejora de course cards.
-     *
-     * Este método carga el módulo JavaScript enhance_course_cards que:
-     * - Agrega campos personalizados de RemUI a las tarjetas de cursos
-     * - Muestra TODOS los instructores (no solo los que tienen permisos de edición)
-     *
-     * @return string HTML para incluir al final del body
-     */
-    public function standard_end_of_body_html() {
-        global $PAGE;
-
-        // Obtener el output del padre primero
-        $output = parent::standard_end_of_body_html();
-
-        // Cargar el módulo de mejora de course cards en páginas relevantes
-        // Se carga en: dashboard, my, course index, etc.
-        $PAGE->requires->js_call_amd('theme_inteb/enhance_course_cards', 'init');
-
-        return $output;
     }
 }
