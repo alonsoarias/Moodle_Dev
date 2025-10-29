@@ -199,8 +199,16 @@ function theme_inteb_page_init() {
  * Función para asegurar que se activa la licencia antes de mostrar cualquier footer
  */
 function theme_inteb_before_footer() {
+    global $PAGE;
+
     // Asegurar licencia en cada página
     theme_inteb_license_autoload();
+
+    // Load JavaScript to force show teachers in course header
+    if ($PAGE->pagelayout == 'course' || $PAGE->pagetype == 'course-view-topics' || $PAGE->pagetype == 'course-view-weeks') {
+        $PAGE->requires->js_call_amd('theme_inteb/force_show_teachers', 'init');
+    }
+
     return '';
 }
 
