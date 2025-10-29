@@ -19,255 +19,183 @@
  * @module     local_educambot/widget
  */
 
-define([], function() {
-    const SELECTORS = {
-        widget: '.local-educambot',
-        toggle: '.local-educambot__toggle',
-        panel: '.local-educambot__panel',
-        close: '.local-educambot__close',
-        messages: '.local-educambot__messages',
-        input: '#educambot-input',
-        send: '.local-educambot__send',
-        suggestions: '.local-educambot__suggestions',
-        status: '.local-educambot__status',
-        config: '.local-educambot__config'
-    };
+define(['jquery'], function($) {
+    var chat = {
 
-    /**
-     * Sanitises HTML snippets before injecting them into the DOM.
-     *
-     * @param {String} html
-     * @returns {String}
-     */
-    const sanitizeHtml = (html) => {
-        const template = document.createElement('template');
-        template.innerHTML = html;
-        const blocked = ['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta'];
-        blocked.forEach(tag => {
-            template.content.querySelectorAll(tag).forEach(node => node.remove());
-        });
-        template.content.querySelectorAll('*').forEach(element => {
-            [...element.attributes].forEach(attr => {
-                const name = attr.name.toLowerCase();
-                if (name.startsWith('on') || ['formaction', 'srcdoc'].includes(name)) {
-                    element.removeAttribute(attr.name);
-                    return;
-                }
-                if (['href', 'src'].includes(name)) {
-                    const value = attr.value.trim().toLowerCase();
-                    // eslint-disable-next-line no-script-url
-                    if (value.startsWith('javascript:') || value.startsWith('data:')) {
-                        element.removeAttribute(attr.name);
+        init: function() {
+
+            if ($("body.pagelayout-embedded").length) {
+                return;
+            }
+
+            var educambotchat = $("#educambot-chat");
+
+            if ($(".pagelayout-embedded, .pagelayout-maintenance").length) {
+                educambotchat.hide();
+                educambotchat.remove();
+                return;
+            }
+
+            var educambotscrollarea = document.getElementById("educambot-scrollarea");
+            var educambotareamessages = $("#educambot-area-messages");
+            var educambotsendarea = $("#educambot-sendarea");
+            var educambottextarea = $("#educambot-textarea");
+
+            educambotchat.show(200);
+
+            // Auto-resize textarea
+            educambottextarea
+                .keydown(function(e) {
+                    setTimeout(function() {
+                        var messagesend = educambottextarea.val();
+                        if (messagesend.length > 1) {
+                            educambotsendarea.addClass("educambot-active");
+                        } else {
+                            educambotsendarea.removeClass("educambot-active");
+                        }
+                    }, 10);
+
+                    var code = (e.keyCode ? e.keyCode : e.which);
+                    if (code == 13) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                })
+                .on("input", function(event) {
+                    event.currentTarget.style.height = "34px";
+                    event.currentTarget.style.height = (event.currentTarget.scrollHeight) + "px";
+                });
+
+            // Prevent HTML pasting
+            document.getElementById("educambot-textarea").addEventListener("paste", function(e) {
+                e.preventDefault();
+                var text = e.clipboardData.getData("text/plain");
+                document.execCommand("insertHTML", false, text);
+            });
+
+            $("#educambot-icon-send").click(sendMessage);
+
+            educambotsendarea.click(function() {
+                document.getElementById("educambot-textarea").focus();
+            });
+
+            // Toggle chat panel
+            $("#educambot-chat-btn").click(function() {
+                educambotchat.toggleClass("educambot-active");
+                if (educambotchat.hasClass("educambot-active")) {
+                    educambottextarea.focus();
+                    // Show initial message if exists
+                    var initialMessageEl = $("#educambot_initial_message");
+                    if (initialMessageEl.length && educambotareamessages.children().length === 0) {
+                        try {
+                            var config = JSON.parse(initialMessageEl.val() || "{}");
+                            if (config.initialMessage) {
+                                educambotareamessages.append(`
+                                    <div class="educambot-message educambot-server format-text">${config.initialMessage}</div>
+                                `);
+                                educambotscrollarea.scrollTop = 10000000000000;
+                            }
+                        } catch (error) {
+                            // eslint-disable-next-line no-console
+                            console.warn("Error parsing initial message config:", error);
+                        }
                     }
                 }
             });
-        });
-        return template.innerHTML;
-    };
 
-    /**
-     * Creates a message node.
-     *
-     * @param {HTMLElement} container
-     * @param {String} text
-     * @param {String} type
-     * @param {Boolean} allowHtml
-     */
-    const addMessage = (container, text, type, allowHtml = false) => {
-        const message = document.createElement('div');
-        message.classList.add('local-educambot__message', `local-educambot__message--${type}`);
-        if (allowHtml) {
-            message.innerHTML = sanitizeHtml(text);
-        } else {
-            message.textContent = text;
-        }
-        container.appendChild(message);
-        container.scrollTop = container.scrollHeight;
-    };
-
-    /**
-     * Updates suggestion buttons.
-     *
-     * @param {HTMLElement} container
-     * @param {Array} suggestions
-     */
-    const refreshSuggestions = (container, suggestions) => {
-        const list = container.querySelector('ul');
-        if (!list) {
-            return;
-        }
-        list.innerHTML = '';
-        if (!suggestions || !suggestions.length) {
-            container.setAttribute('hidden', 'hidden');
-            return;
-        }
-        container.removeAttribute('hidden');
-        suggestions.forEach(suggestion => {
-            const li = document.createElement('li');
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.dataset.question = suggestion.text;
-            button.textContent = suggestion.text;
-            li.appendChild(button);
-            list.appendChild(li);
-        });
-    };
-
-    /**
-     * Sends a message to the backend service.
-     *
-     * @param {HTMLElement} widget
-     * @param {HTMLElement} input
-     * @param {HTMLElement} messages
-     * @param {HTMLElement} status
-     * @param {HTMLElement} suggestionContainer
-     * @param {String} question
-     */
-    const sendMessage = async (widget, input, messages, status, suggestionContainer, question) => {
-        const serviceUrl = widget.dataset.serviceUrl;
-        const sessionKey = widget.dataset.sessionkey;
-        const page = widget.dataset.page || '';
-        const fallbackResponse = widget.dataset.noanswer || '';
-        const params = new URLSearchParams();
-        params.append('sesskey', sessionKey);
-        params.append('question', question);
-        params.append('sessionid', widget.dataset.session || '');
-        params.append('page', page);
-
-        status.textContent = '';
-        status.classList.add('is-loading');
-
-        try {
-            const response = await fetch(serviceUrl, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: params.toString(),
-                credentials: 'same-origin'
+            // Close button
+            $("#educambot-icon-close").click(function(e) {
+                e.preventDefault();
+                educambotchat.removeClass("educambot-active");
             });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const payload = await response.json();
-            if (payload.sessionid) {
-                widget.dataset.session = payload.sessionid;
-            }
-            const botReply = typeof payload.response === 'string' && payload.response.trim() !== ''
-                ? payload.response
-                : fallbackResponse;
-            addMessage(messages, botReply || fallbackResponse, 'bot', true);
-            const suggestions = Array.isArray(payload.suggestions) ? payload.suggestions : [];
-            refreshSuggestions(suggestionContainer, suggestions);
-            const confidenceLabel = status.dataset.confidenceLabel || '';
-            const rawConfidence = typeof payload.confidence === 'number' && !Number.isNaN(payload.confidence)
-                ? payload.confidence
-                : 0;
-            const confidence = Math.min(1, Math.max(0, rawConfidence));
-            if (confidenceLabel) {
-                status.textContent = `${confidenceLabel}: ${(confidence * 100).toFixed(0)}%`;
-            } else if (confidence > 0) {
-                status.textContent = `${(confidence * 100).toFixed(0)}%`;
-            } else {
-                status.textContent = '';
-            }
-        } catch (error) {
-            status.textContent = error.message;
-        } finally {
-            status.classList.remove('is-loading');
-            input.focus();
-        }
-    };
 
-    /**
-     * Initialises a single widget instance.
-     *
-     * @param {HTMLElement} widget
-     */
-    const initWidget = widget => {
-        const toggle = widget.querySelector(SELECTORS.toggle);
-        const panel = widget.querySelector(SELECTORS.panel);
-        const close = widget.querySelector(SELECTORS.close);
-        const messages = widget.querySelector(SELECTORS.messages);
-        const input = widget.querySelector(SELECTORS.input);
-        const send = widget.querySelector(SELECTORS.send);
-        const suggestionContainer = widget.querySelector(SELECTORS.suggestions);
-        const status = widget.querySelector(SELECTORS.status);
-        const configScript = widget.querySelector(SELECTORS.config);
+            /**
+             * Sends a message to the bot service.
+             */
+            function sendMessage() {
+                var messagesend = educambottextarea.val().trim();
+                if (messagesend.length > 1) {
+                    setTimeout(function() {
+                        educambottextarea.val("");
+                        educambottextarea.css({height: 34});
+                        educambotsendarea.removeClass("educambot-active");
+                    }, 20);
 
-        let widgetConfig = {};
-        if (configScript) {
-            try {
-                widgetConfig = JSON.parse(configScript.textContent || '{}');
-            } catch (error) {
-                // Ignore malformed configuration to avoid breaking the widget.
-            }
-            configScript.remove();
-        }
+                    var educambotServerId = "id-" + Math.random().toString(16).slice(2);
+                    educambotareamessages.append(`
+                        <div class="educambot-message" id="${educambotServerId}-send"></div>
+                        <div id="${educambotServerId}" class="educambot-message educambot-server">
+                            <svg height="40" class="educambot-loader">
+                                <circle class="dot" cx="10" cy="20" r="3" style="fill:#777;" />
+                                <circle class="dot" cx="20" cy="20" r="3" style="fill:#777;" />
+                                <circle class="dot" cx="30" cy="20" r="3" style="fill:#777;" />
+                            </svg>
+                        </div>`);
 
-        if (!toggle || !panel || !messages || !input || !send) {
-            return;
-        }
+                    $(`#${educambotServerId}-send`).html(messagesend);
+                    educambotscrollarea.scrollTop = 10000000000000;
 
-        const togglePanel = show => {
-            const shouldShow = typeof show === 'boolean' ? show : panel.hasAttribute('hidden');
-            if (shouldShow) {
-                panel.removeAttribute('hidden');
-                toggle.setAttribute('aria-expanded', 'true');
-                input.focus();
-            } else {
-                panel.setAttribute('hidden', 'hidden');
-                toggle.setAttribute('aria-expanded', 'false');
-            }
-        };
+                    var serviceUrl = educambotchat.data('service-url');
+                    var sessionKey = educambotchat.data('sessionkey');
+                    var page = educambotchat.data('page') || "";
+                    var noanswerText = educambotchat.data('noanswer') || "No encontr\u00e9 una respuesta.";
+                    var confidenceLabel = educambotchat.data('confidence-label') || "";
+                    var loadingText = educambotchat.data('loading') || "Procesando...";
 
-        toggle.addEventListener('click', () => togglePanel());
-        if (close) {
-            close.addEventListener('click', () => togglePanel(false));
-        }
+                    // Show loading status
+                    $("#educambot-status").text(loadingText).addClass("is-loading");
 
-        if (widgetConfig.initialMessage) {
-            addMessage(messages, widgetConfig.initialMessage, 'bot');
-        }
+                    $.ajax({
+                        url: serviceUrl,
+                        type: 'POST',
+                        data: {
+                            sesskey: sessionKey,
+                            question: messagesend,
+                            sessionid: educambotchat.data('session') || '',
+                            page: page
+                        },
+                        dataType: 'json',
+                        success: function(payload) {
+                            if (payload.sessionid) {
+                                educambotchat.data('session', payload.sessionid);
+                            }
 
-        const handleSend = () => {
-            const value = input.value.trim();
-            if (!value) {
-                return;
-            }
-            addMessage(messages, value, 'user');
-            input.value = '';
-            sendMessage(widget, input, messages, status, suggestionContainer, value);
-        };
+                            var botReply = (typeof payload.response === "string" && payload.response.trim() !== "")
+                                ? payload.response
+                                : noanswerText;
 
-        send.addEventListener('click', handleSend);
-        input.addEventListener('keydown', event => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                handleSend();
-            }
-        });
+                            $(`#${educambotServerId}`).html(botReply).addClass("format-text");
 
-        if (suggestionContainer) {
-            suggestionContainer.addEventListener('click', event => {
-                const target = event.target;
-                if (target instanceof HTMLButtonElement && target.dataset.question) {
-                    input.value = target.dataset.question;
-                    handleSend();
+                            var rawConfidence = (typeof payload.confidence === "number" && !isNaN(payload.confidence))
+                                ? payload.confidence
+                                : 0;
+                            var confidence = Math.min(1, Math.max(0, rawConfidence));
+
+                            if (confidenceLabel && confidence > 0) {
+                                $("#educambot-status").text(`${confidenceLabel}: ${(confidence * 100).toFixed(0)}%`);
+                            } else {
+                                $("#educambot-status").text("");
+                            }
+
+                            educambotscrollarea.scrollTop = 10000000000000;
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            // eslint-disable-next-line no-console
+                            console.error("Error en el chatbot:", textStatus, errorThrown);
+                            $(`#${educambotServerId}`)
+                                .html("Lo siento, ocurri\u00f3 un error al procesar tu pregunta. Por favor, intenta nuevamente.")
+                                .addClass("educambot-error");
+                            $("#educambot-status").text("Error: " + textStatus);
+                        },
+                        complete: function() {
+                            $("#educambot-status").removeClass("is-loading");
+                            educambottextarea.focus();
+                        }
+                    });
                 }
-            });
-        }
-    };
-
-    return {
-        init() {
-            const boot = () => {
-                document.querySelectorAll(SELECTORS.widget).forEach(initWidget);
-            };
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', boot, {once: true});
-            } else {
-                boot();
             }
         }
     };
+
+    return chat;
 });
