@@ -14,10 +14,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Force show teachers in course header
+ * AGGRESSIVELY force show teachers in course header
  *
- * This module prevents any JavaScript from hiding the instructor-info section
- * in the course header after it has been rendered.
+ * This module uses multiple strategies to prevent ANY code from hiding
+ * the instructor-info section in the course header.
  *
  * @module     theme_inteb/force_show_teachers
  * @copyright  2025 Claude Code
@@ -26,78 +26,179 @@
 
 define(['jquery'], function($) {
 
+    var intervalId = null;
+    var observerInstance = null;
+
     /**
-     * Make instructor-info section always visible
+     * Force instructor-info to be visible with extreme prejudice
      */
-    var forceShowTeachers = function() {
+    var forceVisible = function() {
+        var $instructorInfo = $('.instructor-info.stat-container');
+        var $debugBox = $('[style*="background: #333"]');
 
-        // Function to ensure instructor-info is visible
-        var ensureVisible = function() {
-            var $instructorInfo = $('.instructor-info.stat-container');
+        if ($instructorInfo.length > 0 || $debugBox.length > 0) {
+            // Force ALL elements with instructor-info or debug styles to be visible
+            var $allTargets = $('.instructor-info, [data-debug-instructors], [style*="background: #333"], [style*="background: #0f0"]');
 
-            if ($instructorInfo.length > 0) {
-                // Force display
-                $instructorInfo.css({
-                    'display': 'flex !important',
-                    'visibility': 'visible !important',
-                    'opacity': '1 !important'
+            $allTargets.each(function() {
+                var $el = $(this);
+
+                // Force inline styles
+                $el.attr('style', function(i, style) {
+                    if (!style) return 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
+                    // Remove any display:none or visibility:hidden
+                    style = style.replace(/display\s*:\s*none/gi, 'display: flex');
+                    style = style.replace(/visibility\s*:\s*hidden/gi, 'visibility: visible');
+                    style = style.replace(/opacity\s*:\s*0/gi, 'opacity: 1');
+                    // Ensure our properties are there
+                    if (!/display\s*:/i.test(style)) {
+                        style += '; display: flex !important';
+                    }
+                    if (!/visibility\s*:/i.test(style)) {
+                        style += '; visibility: visible !important';
+                    }
+                    if (!/opacity\s*:/i.test(style)) {
+                        style += '; opacity: 1 !important';
+                    }
+                    return style;
                 });
 
-                // Add a data attribute to mark it as protected
-                $instructorInfo.attr('data-inteb-protected', 'true');
+                // Also set via jQuery css() which adds inline styles
+                $el.css({
+                    'display': 'flex',
+                    'visibility': 'visible',
+                    'opacity': '1'
+                });
 
-                console.log('INTEB: Instructor info made visible:', $instructorInfo.length, 'elements');
-            }
-        };
+                // Remove any classes that might hide it
+                $el.removeClass('hidden d-none hide invisible');
 
-        // Run immediately
-        ensureVisible();
-
-        // Run after a short delay (in case something tries to hide it)
-        setTimeout(ensureVisible, 100);
-        setTimeout(ensureVisible, 500);
-        setTimeout(ensureVisible, 1000);
-        setTimeout(ensureVisible, 2000);
-
-        // Use MutationObserver to watch for any changes
-        var observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes') {
-                    var $target = $(mutation.target);
-                    if ($target.hasClass('instructor-info') ||
-                        $target.closest('.instructor-info').length > 0) {
-                        // Something tried to modify the instructor-info, re-apply our styles
-                        ensureVisible();
-                    }
-                }
+                // Mark as protected
+                $el.attr('data-inteb-protected', 'true');
             });
-        });
 
-        // Observe changes to the entire page header
-        var $header = $('#page-header');
-        if ($header.length > 0) {
-            observer.observe($header[0], {
-                attributes: true,
-                attributeFilter: ['style', 'class'],
-                subtree: true
-            });
+            console.log('[INTEB] Forced visibility on ' + $allTargets.length + ' elements');
+            return true;
         }
 
-        // Also watch for the instructor-info specifically
-        $('.instructor-info.stat-container').each(function() {
-            observer.observe(this, {
+        return false;
+    };
+
+    /**
+     * Setup MutationObserver to watch for DOM changes
+     */
+    var setupObserver = function() {
+        if (!window.MutationObserver) {
+            console.log('[INTEB] MutationObserver not supported');
+            return;
+        }
+
+        // Disconnect existing observer
+        if (observerInstance) {
+            observerInstance.disconnect();
+        }
+
+        observerInstance = new MutationObserver(function(mutations) {
+            var needsForce = false;
+
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' &&
+                    (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+                    var $target = $(mutation.target);
+
+                    // Check if it's our protected element or a parent
+                    if ($target.attr('data-inteb-protected') ||
+                        $target.hasClass('instructor-info') ||
+                        $target.closest('.instructor-info').length > 0 ||
+                        $target.find('.instructor-info').length > 0) {
+                        needsForce = true;
+                    }
+                }
+
+                // Check for removed nodes
+                if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
+                    mutation.removedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) { // Element node
+                            var $node = $(node);
+                            if ($node.hasClass('instructor-info') ||
+                                $node.find('.instructor-info').length > 0) {
+                                console.log('[INTEB] WARNING: instructor-info was REMOVED from DOM!');
+                                needsForce = true;
+                            }
+                        }
+                    });
+                }
+            });
+
+            if (needsForce) {
+                console.log('[INTEB] DOM change detected, re-forcing visibility');
+                forceVisible();
+            }
+        });
+
+        // Observe the entire page-header and page-content
+        var targets = $('#page-header, #page-content, #region-main');
+        targets.each(function() {
+            observerInstance.observe(this, {
                 attributes: true,
-                attributeFilter: ['style', 'class']
+                attributeFilter: ['style', 'class'],
+                childList: true,
+                subtree: true
             });
         });
 
-        console.log('INTEB: Force show teachers module initialized');
+        console.log('[INTEB] MutationObserver setup complete, watching ' + targets.length + ' elements');
+    };
+
+    /**
+     * Start aggressive monitoring
+     */
+    var startMonitoring = function() {
+        // Clear any existing interval
+        if (intervalId) {
+            clearInterval(intervalId);
+        }
+
+        // Force visible immediately
+        forceVisible();
+
+        // Setup observer
+        setupObserver();
+
+        // Run every 50ms for the first 5 seconds (very aggressive)
+        var count = 0;
+        intervalId = setInterval(function() {
+            forceVisible();
+            count++;
+
+            // After 5 seconds (100 iterations), switch to slower interval
+            if (count >= 100) {
+                clearInterval(intervalId);
+
+                // Continue with slower interval (every 500ms)
+                intervalId = setInterval(forceVisible, 500);
+                console.log('[INTEB] Switched to maintenance mode (500ms interval)');
+            }
+        }, 50);
+
+        console.log('[INTEB] Aggressive monitoring started (50ms interval for 5 seconds)');
     };
 
     return {
         init: function() {
+            // Start IMMEDIATELY - don't wait for document.ready
+            startMonitoring();
+
+            // Also run on document ready just in case
             $(document).ready(function() {
-                forceShowTeachers();
+                console.log('[INTEB] Document ready, re-initializing');
+                startMonitoring();
+            });
+
+            // And on window load for good measure
+            $(window).on('load', function() {
+                console.log('[INTEB] Window loaded, re-initializing');
+                startMonitoring();
             });
         }
     };

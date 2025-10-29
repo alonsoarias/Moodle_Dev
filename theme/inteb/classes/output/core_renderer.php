@@ -247,10 +247,15 @@ class core_renderer extends \theme_remui\output\core_renderer
 
         $fullheader = $this->render_from_template($template, $header);
 
+        // Load JavaScript to force teachers visibility EARLY in the page load
+        if ($this->page->pagelayout == 'course') {
+            $this->page->requires->js_call_amd('theme_inteb/force_show_teachers', 'init');
+            debugging('CORE_RENDERER: Loaded force_show_teachers.js for course page', DEBUG_DEVELOPER);
+        }
+
         // DEBUG: Show rendered HTML for teachers section
-        if (isset($header->teachers) && is_array($header->teachers)) {
-            $teachersJson = json_encode($header->teachers, JSON_PRETTY_PRINT);
-            debugging('CORE_RENDERER: Full $header->teachers JSON: ' . $teachersJson, DEBUG_DEVELOPER);
+        if (isset($header->hasteachers) && $header->hasteachers) {
+            debugging('CORE_RENDERER: hasteachers = TRUE, instructors count = ' . (isset($header->instructors) ? count($header->instructors) : 0), DEBUG_DEVELOPER);
 
             // Try to extract just the teachers section from rendered HTML
             if (strpos($fullheader, 'instructor-info') !== false) {
