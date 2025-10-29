@@ -251,6 +251,12 @@ class core_renderer extends \theme_remui\output\core_renderer
         if ($this->page->pagelayout == 'course') {
             $this->page->requires->js_call_amd('theme_inteb/force_show_teachers', 'init');
             debugging('CORE_RENDERER: Loaded force_show_teachers.js for course page', DEBUG_DEVELOPER);
+
+            // INTEB: If course uses remuiformat, load our teacher fix to override the format's behavior
+            if ($COURSE->format == 'remuiformat') {
+                $this->page->requires->js_call_amd('theme_inteb/format_remuiformat_teacher_fix', 'init', [$COURSE->id]);
+                debugging('CORE_RENDERER: Loaded format_remuiformat_teacher_fix.js for course ' . $COURSE->id, DEBUG_DEVELOPER);
+            }
         }
 
         // DEBUG: Show rendered HTML for teachers section
