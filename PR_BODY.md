@@ -46,6 +46,30 @@ $header->participantspageurl = '...';
 
 This fix allows Mustache to correctly access the teacher data and render both roles.
 
+## 🔥 Critical Fix #2: JavaScript Protection
+
+**Additional problem discovered:**
+After the Mustache fix, teachers would render correctly but then **get hidden when the page finished loading**. Something in the parent theme's JavaScript or an async operation was hiding the instructor-info section after initial render.
+
+**Solution:**
+Created a JavaScript module that **forces teachers to stay visible**:
+
+```javascript
+// force_show_teachers.js
+- Uses MutationObserver to watch for changes to instructor-info
+- Forces display:flex, visibility:visible, opacity:1 styles
+- Re-applies styles if anything tries to hide the section
+- Runs at multiple intervals (100ms, 500ms, 1s, 2s) to catch async operations
+- Protects against style/class attribute changes
+```
+
+**Implementation:**
+- `amd/src/force_show_teachers.js` - AMD module source
+- `amd/build/force_show_teachers.min.js` - Compiled module
+- `lib.php` - Loads module on course pages via `theme_inteb_before_footer()`
+
+This JavaScript fix ensures teachers remain visible **no matter what** tries to hide them.
+
 ## Changes
 
 ### Core Functionality
@@ -65,6 +89,25 @@ This fix allows Mustache to correctly access the teacher data and render both ro
   - Removed problematic `{{#teachers}}` wrapper
   - Now uses direct `{{#hasteachers}}` and `{{#instructors}}` access
   - This matches Mustache's expected property access pattern
+
+#### 3. theme/inteb/amd/src/force_show_teachers.js (NEW)
+- AMD JavaScript module to prevent teachers from being hidden
+- **108 lines** of JavaScript with comprehensive protection
+- Uses jQuery and MutationObserver API
+- Monitors instructor-info section for attribute changes
+- Forces visibility with inline styles (!important)
+- Runs at multiple intervals to catch async operations
+- Logs debug messages to console
+
+#### 4. theme/inteb/amd/build/force_show_teachers.min.js (NEW)
+- Compiled/minified version of the AMD module
+- Loaded automatically on course pages
+
+#### 5. theme/inteb/lib.php
+- **Lines 201-213:** Modified `theme_inteb_before_footer()`
+- Added JavaScript module loading for course pages
+- Checks page layout and page type
+- Calls AMD module init function
 
 ### Diagnostic Tools
 
@@ -158,13 +201,17 @@ If issues arise, the debug code can be easily removed:
 ## Files Modified
 
 ```
-DEBUGGING_INSTRUCTIONS.md                                    | 158 ++++++++++++
-PR_BODY.md                                                   | 270 ++++++++++++++++++++
-theme/inteb/classes/output/core_renderer.php                 |  18 ++ (critical fix)
-theme/inteb/force_template_rebuild.php                       | 143 +++++++++++
-theme/inteb/templates/theme_remui/edw_course_header1.mustache|  43 ++-- (critical fix)
-theme/inteb/verify_template.php                              | 192 +++++++++++++
-6 files changed, 820 insertions(+), 4 deletions(-)
+CREATE_PR_INSTRUCTIONS.md                                    | 401 ++++++++++++++++
+DEBUGGING_INSTRUCTIONS.md                                    | 158 +++++++
+PR_BODY.md                                                   | 300 ++++++++++++
+theme/inteb/amd/build/force_show_teachers.min.js             |   2 + (NEW - critical fix #2)
+theme/inteb/amd/src/force_show_teachers.js                   | 108 ++++ (NEW - critical fix #2)
+theme/inteb/classes/output/core_renderer.php                 |  18 + (critical fix #1)
+theme/inteb/force_template_rebuild.php                       | 143 ++++++
+theme/inteb/lib.php                                          |   9 + (loads JS module)
+theme/inteb/templates/theme_remui/edw_course_header1.mustache|  43 ++- (critical fix #1)
+theme/inteb/verify_template.php                              | 192 ++++++++
+10 files changed, 1,370 insertions(+), 4 deletions(-)
 ```
 
 ## Technical Details
