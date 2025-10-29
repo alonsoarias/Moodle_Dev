@@ -88,12 +88,15 @@ define(['jquery'], function($) {
                     var initialMessageEl = $("#educambot_initial_message");
                     if (initialMessageEl.length && educambotareamessages.children().length === 0) {
                         try {
-                            var config = JSON.parse(initialMessageEl.val() || "{}");
-                            if (config.initialMessage) {
-                                educambotareamessages.append(`
-                                    <div class="educambot-message educambot-server format-text">${config.initialMessage}</div>
-                                `);
-                                educambotscrollarea.scrollTop = 10000000000000;
+                            var configText = initialMessageEl.text().trim();
+                            if (configText) {
+                                var config = JSON.parse(configText);
+                                if (config.initialMessage) {
+                                    educambotareamessages.append(`
+                                        <div class="educambot-message educambot-server format-text">${config.initialMessage}</div>
+                                    `);
+                                    educambotscrollarea.scrollTop = 10000000000000;
+                                }
                             }
                         } catch (error) {
                             // eslint-disable-next-line no-console
