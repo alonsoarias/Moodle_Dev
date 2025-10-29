@@ -55,6 +55,7 @@ define([], function() {
                 }
                 if (['href', 'src'].includes(name)) {
                     const value = attr.value.trim().toLowerCase();
+                    // eslint-disable-next-line no-script-url
                     if (value.startsWith('javascript:') || value.startsWith('data:')) {
                         element.removeAttribute(attr.name);
                     }
@@ -70,6 +71,7 @@ define([], function() {
      * @param {HTMLElement} container
      * @param {String} text
      * @param {String} type
+     * @param {Boolean} allowHtml
      */
     const addMessage = (container, text, type, allowHtml = false) => {
         const message = document.createElement('div');
