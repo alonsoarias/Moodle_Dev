@@ -118,8 +118,8 @@ define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
      * Enhance all visible course cards on the page.
      */
     var enhanceCourseCards = function() {
-        // Find all course cards
-        var $cards = $('.course_card-0, .dashboard-card');
+        // Find all course cards including those in recently accessed courses block
+        var $cards = $('.course_card-0, .dashboard-card, [data-region="recentlyaccessedcourses-view"] .course_card-0');
 
         if ($cards.length === 0) {
             return;
@@ -135,7 +135,11 @@ define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
 
             if (courseId && !cardsByCourseId[courseId]) {
                 courseIds.push(courseId);
-                cardsByCourseId[courseId] = $card;
+                cardsByCourseId[courseId] = [];
+            }
+
+            if (courseId) {
+                cardsByCourseId[courseId].push($card);
             }
         });
 
@@ -148,9 +152,12 @@ define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
             .then(function(response) {
                 if (response.courses) {
                     response.courses.forEach(function(courseData) {
-                        var $card = cardsByCourseId[courseData.courseid];
-                        if ($card) {
-                            updateCourseCard($card, courseData);
+                        var $cardsForCourse = cardsByCourseId[courseData.courseid];
+                        if ($cardsForCourse) {
+                            // Update all instances of this course card
+                            $cardsForCourse.forEach(function($card) {
+                                updateCourseCard($card, courseData);
+                            });
                         }
                     });
                 }
@@ -174,7 +181,7 @@ define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
             enhanceCourseCards();
 
             // Re-enhance when new cards are loaded (for pagination, filtering, etc.)
-            // Watch for changes in the course view region
+            // Watch for changes in the course view regions
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.addedNodes.length > 0) {
@@ -187,14 +194,21 @@ define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
                 });
             });
 
-            // Observe the courses view container
-            var $coursesView = $('[data-region="courses-view"]');
-            if ($coursesView.length) {
-                observer.observe($coursesView[0], {
-                    childList: true,
-                    subtree: true
-                });
-            }
+            // Observe multiple course view containers
+            var regionsToObserve = [
+                '[data-region="courses-view"]',
+                '[data-region="recentlyaccessedcourses-view"]'
+            ];
+
+            regionsToObserve.forEach(function(selector) {
+                var $region = $(selector);
+                if ($region.length) {
+                    observer.observe($region[0], {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+            });
         });
     };
 
