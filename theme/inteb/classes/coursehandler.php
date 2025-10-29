@@ -160,16 +160,22 @@ class coursehandler extends \theme_remui_coursehandler {
         }
 
         // Build context array with teacher information.
-        $context = array();
+        // Initialize with empty structure to ensure consistency
+        $context = array(
+            'instructors' => array(),
+            'hasteachers' => false,
+            'participantspageurl' => $CFG->wwwroot . '/user/index.php?id=' . $courseid . '&roleid=' . $roles->id
+        );
 
         debugging('INTEB COURSEHANDLER: Total unique teachers after dedup: ' . count($teachers), DEBUG_DEVELOPER);
         foreach ($teachers as $t) {
             debugging('INTEB COURSEHANDLER: - Final list: ' . fullname($t) . ' (ID: ' . $t->id . ')', DEBUG_DEVELOPER);
         }
 
-        if ($teachers) {
+        if ($teachers && count($teachers) > 0) {
             $namescount = 4;
             $profilecount = 0;
+            $instructors = array();
 
             foreach ($teachers as $key => $teacher) {
                 if ($frontlineteacher && $profilecount < $namescount) {
@@ -183,22 +189,38 @@ class coursehandler extends \theme_remui_coursehandler {
                         $instructor['hasanother'] = true;
                     }
 
-                    $context['instructors'][] = $instructor;
+                    $instructors[] = $instructor;
                     debugging('INTEB COURSEHANDLER: Adding instructor to context: ' . fullname($teacher), DEBUG_DEVELOPER);
                 }
                 $profilecount++;
             }
 
-            // Add count of remaining teachers if more than namescount.
-            if ($profilecount > $namescount) {
-                $context['teachercount'] = $profilecount - $namescount;
-            }
+            // Only mark as having teachers if we actually added instructors
+            if (count($instructors) > 0) {
+                $context['instructors'] = $instructors;
+                $context['hasteachers'] = true;
 
-            $context['participantspageurl'] = $CFG->wwwroot . '/user/index.php?id=' . $courseid . '&roleid=' . $roles->id;
-            $context['hasteachers'] = true;
-            debugging('INTEB COURSEHANDLER: Context has ' . count($context['instructors']) . ' instructors', DEBUG_DEVELOPER);
+                // Add count of remaining teachers if more than namescount
+                if ($profilecount > $namescount) {
+                    $context['teachercount'] = $profilecount - $namescount;
+                }
+
+                debugging('INTEB COURSEHANDLER: Context has ' . count($context['instructors']) . ' instructors', DEBUG_DEVELOPER);
+            } else {
+                debugging('INTEB COURSEHANDLER: No instructors added to context (frontlineteacher filter?)', DEBUG_DEVELOPER);
+            }
         } else {
             debugging('INTEB COURSEHANDLER: NO TEACHERS FOUND!', DEBUG_DEVELOPER);
+        }
+
+        // DEBUG: Show final context structure
+        debugging('INTEB COURSEHANDLER: Final context keys: ' . implode(', ', array_keys($context)), DEBUG_DEVELOPER);
+        debugging('INTEB COURSEHANDLER: Context hasteachers: ' . ($context['hasteachers'] ? 'true' : 'false'), DEBUG_DEVELOPER);
+        debugging('INTEB COURSEHANDLER: Context instructors count: ' . count($context['instructors']), DEBUG_DEVELOPER);
+        if (count($context['instructors']) > 0) {
+            foreach ($context['instructors'] as $idx => $inst) {
+                debugging('INTEB COURSEHANDLER: - Instructor[' . $idx . ']: ' . $inst['name'], DEBUG_DEVELOPER);
+            }
         }
 
         return $context;

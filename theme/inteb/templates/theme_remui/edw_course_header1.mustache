@@ -95,19 +95,22 @@
                         {{{rnrdesign}}}
                     </div>
                     {{/rnrdesign}}
+                    {{!-- Modified to use teachers.hasteachers as explicit condition --}}
                     {{#teachers}}
-                    <div class="instructor-info stat-container position-relative">
-                        {{#instructors}}
-                            <div class="position-relative">
-                             <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
-                             {{{avatars}}}
-                            <span class="titles h-regular-6">{{name}}</span>
-                            </div>
-                        {{/instructors}}
-                        {{#teachercount}}
-                            <a class="view-all-instructorslink para-semibold-2" href="{{participantspageurl}}">{{#str}} viewalltext, theme_remui {{/str}}</a>
-                        {{/teachercount}}
-                    </div>
+                        {{#hasteachers}}
+                        <div class="instructor-info stat-container position-relative">
+                            {{#instructors}}
+                                <div class="position-relative">
+                                 <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
+                                 {{{avatars}}}
+                                <span class="titles h-regular-6">{{name}}</span>
+                                </div>
+                            {{/instructors}}
+                            {{#teachercount}}
+                                <a class="view-all-instructorslink para-semibold-2" href="{{participantspageurl}}">{{#str}} viewalltext, theme_remui {{/str}}</a>
+                            {{/teachercount}}
+                        </div>
+                        {{/hasteachers}}
                     {{/teachers}}
                 </div>
             </div>
