@@ -161,27 +161,33 @@ class theme_inteb_coursehandler extends theme_remui_coursehandler {
                 $coursedata['remuicustomfields'] = [];
 
                 foreach ($customfields as $shortname => $fielddata) {
+                    // Strip HTML tags from custom field values for webservice compatibility
+                    $cleanvalue = strip_tags($fielddata['text']);
+
                     $coursedata['remuicustomfields'][] = [
                         'shortname' => $shortname,
                         'name' => $fielddata['name'],
-                        'value' => $fielddata['text'],
-                        'hasvalue' => !empty($fielddata['text'])
+                        'value' => $cleanvalue,
+                        'hasvalue' => !empty($cleanvalue)
                     ];
                 }
 
                 // Add individual fields for easy template access
                 if (isset($customfields['edwcourseduration'])) {
-                    $coursedata['courseduration'] = $customfields['edwcourseduration']['text'];
+                    // Strip HTML tags for webservice compatibility
+                    $coursedata['courseduration'] = strip_tags($customfields['edwcourseduration']['text']);
                     $coursedata['hascourseduration'] = true;
                 }
 
                 if (isset($customfields['edwcourseintrovideourlembedded'])) {
-                    $coursedata['courseintrovideo'] = $customfields['edwcourseintrovideourlembedded']['text'];
+                    // Strip HTML tags for webservice compatibility
+                    $coursedata['courseintrovideo'] = strip_tags($customfields['edwcourseintrovideourlembedded']['text']);
                     $coursedata['hascourseintrovideo'] = true;
                 }
 
                 if (isset($customfields['edwskilllevel'])) {
-                    $coursedata['courseskilllevel'] = $customfields['edwskilllevel']['text'];
+                    // Strip HTML tags for webservice compatibility
+                    $coursedata['courseskilllevel'] = strip_tags($customfields['edwskilllevel']['text']);
                     $coursedata['hascourseskilllevel'] = true;
                 }
             }
