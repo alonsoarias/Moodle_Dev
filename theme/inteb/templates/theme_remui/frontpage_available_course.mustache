@@ -80,9 +80,23 @@
                         </div>
                         {{/showselecteddatesetting}}
                     </div>
-                                                            <div>
-                        <h1>Hola mundo</h1>
+                    {{!-- Custom fields section - RemUI custom fields --}}
+                    {{#hascourseduration,hascourseskilllevel}}
+                    <div class="remui-custom-fields-wrapper d-flex flex-wrap flex-gap-2">
+                        {{#hascourseduration}}
+                        <div class="custom-field course-duration d-flex align-items-center flex-gap-d5">
+                            <span class="edw-icon edw-icon-Time" aria-hidden="true"></span>
+                            <span class="small-info-semibold">{{courseduration}}</span>
+                        </div>
+                        {{/hascourseduration}}
+                        {{#hascourseskilllevel}}
+                        <div class="custom-field skill-level d-flex align-items-center flex-gap-d5">
+                            <span class="edw-icon edw-icon-Trophy" aria-hidden="true"></span>
+                            <span class="small-info-semibold skill-badge skill-{{courseskilllevel}}">{{courseskilllevel}}</span>
+                        </div>
+                        {{/hascourseskilllevel}}
                     </div>
+                    {{/hascourseduration,hascourseskilllevel}}
                     <div class="d-flex justify-content-between">
                         {{#ernrshortdesign}}
                             <div>{{{ernrshortdesign}}}</div>
