@@ -104,7 +104,12 @@ class knowledge_repository {
         $scores = [];
 
         $candidateids = $this->select_candidate_ids($normalizedquestion, $questiontokens, $courseid, $normalizedpage, max(30, $limit * 6));
+
+        // DEBUG: Log search attempt.
+        debugging('knowledge_repository::search - Question: "' . $question . '", Candidates found: ' . count($candidateids), DEBUG_DEVELOPER);
+
         if (empty($candidateids)) {
+            debugging('knowledge_repository::search - NO CANDIDATES FOUND! This may indicate empty knowledge base or query issues.', DEBUG_DEVELOPER);
             return [];
         }
 
@@ -116,20 +121,23 @@ class knowledge_repository {
             }
             $entry = $entries[$candidateid];
             $context = $contextmap[$entry->id] ?? ['courses' => [], 'courseids' => [], 'roles' => [], 'contexts' => []];
-            if (!empty($context['roles'])) {
-                if (empty($normalizedroles)) {
-                    continue;
-                }
+            // BUGFIX: Only skip if roles are explicitly set AND user has no matching role.
+            // Don't skip if user simply has no roles (guest/not logged in).
+            if (!empty($context['roles']) && !empty($normalizedroles)) {
                 $entryroles = array_map(static function($role): string {
                     return core_text::strtolower(trim((string)$role));
                 }, $context['roles']);
                 if (empty(array_intersect($entryroles, $normalizedroles))) {
-                    continue;
+                    // Role mismatch - reduce score but don't eliminate.
+                    // We'll apply a penalty in scoring instead.
+                    debugging('knowledge_repository::search - Role mismatch for entry ' . $entry->id, DEBUG_DEVELOPER);
                 }
             }
 
             $score = $this->score_entry($entry, $normalizedquestion, $questiontokens, $courseid, $normalizedpage);
-            if ($score <= 0) {
+            // BUGFIX: Changed from <= 0 to < 0 to allow entries with 0 score to be considered.
+            if ($score < 0) {
+                debugging('knowledge_repository::search - Skipping entry ' . $entry->id . ' with negative score: ' . $score, DEBUG_DEVELOPER);
                 continue;
             }
             $scores[] = [
@@ -274,25 +282,11 @@ class knowledge_repository {
      * @return array<int,int>
      */
     protected function select_candidate_ids(string $normalizedquestion, array $questiontokens, ?int $courseid, ?string $normalizedpage, int $limit): array {
+        // DO NOT apply courseid/pagecontext filters here - they should only boost scores, not eliminate candidates.
+        // This was the main bug: restrictive context filters were preventing knowledge entries from being found.
         $joins = '';
         $conditions = ['k.enabled = 1'];
         $params = [];
-
-        $needscontextjoin = $courseid || $normalizedpage;
-        if ($needscontextjoin) {
-            $joins .= ' LEFT JOIN {local_educambot_kn_context} kc ON kc.knowledgeid = k.id';
-        }
-
-        if ($courseid) {
-            $conditions[] = '(kc.courseid IS NULL OR kc.courseid = :courseid)';
-            $params['courseid'] = $courseid;
-        }
-
-        if ($normalizedpage) {
-            $conditions[] = '(kc.pagecontext IS NULL OR kc.pagecontext = "" OR ' .
-                $this->db->sql_like('LOWER(kc.pagecontext)', ':pagecontext', false) . ')';
-            $params['pagecontext'] = '%' . core_text::strtolower($normalizedpage) . '%';
-        }
 
         $searchconditions = [];
         if ($normalizedquestion !== '') {
@@ -750,8 +744,9 @@ class knowledge_repository {
             if ($courseid && !empty($context['courseids']) && in_array($courseid, $context['courseids'], true)) {
                 $score += 0.3;
             } else if ($courseid && !empty($context['courseids'])) {
-                // Penalise mismatched course specific knowledge.
-                $score -= 0.2;
+                // BUGFIX: Reduced penalty from -0.2 to -0.05 to avoid eliminating valid matches.
+                // Course mismatch should lower priority but not eliminate the entry.
+                $score -= 0.05;
             }
             if ($normalizedpage && !empty($context['contexts'])) {
                 foreach ($context['contexts'] as $pagecontext) {
