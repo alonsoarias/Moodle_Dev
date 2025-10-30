@@ -142,5 +142,27 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025103006, 'local', 'educambot');
     }
 
+    // Upgrade to version 2025103007 - REAL FIX: Bot now gives direct rule answers instead of knowledge.
+    // This version fixes TWO critical bugs discovered through diagnostic analysis:
+    // 1. Reasoner was preferring "knowledge" responses over direct "rule" answers
+    // 2. Seed script was failing on TEXT field comparison.
+    if ($oldversion < 2025103007) {
+        mtrace('  → v2025103007 (v2.1.4): CRITICAL FIXES APPLIED');
+        mtrace('     Bug 1: Reasoner now STRONGLY PREFERS direct rule answers over knowledge');
+        mtrace('            - Users now get direct answers instead of "related resources"');
+        mtrace('            - Rules with score >= 0.5 always chosen over knowledge');
+        mtrace('            - Rules with score >= 0.3 chosen unless knowledge is MUCH better (+0.3)');
+        mtrace('     Bug 2: Fixed seed script TEXT field comparison error');
+        mtrace('            - Now uses sql_compare_text() for pattern field lookup');
+        mtrace('            - Seed script will no longer fail on some database engines');
+
+        // Purge cache to ensure new reasoner logic is used immediately.
+        \cache::make('local_educambot', 'rules')->purge();
+        mtrace('  → Rules cache purged');
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025103007, 'local', 'educambot');
+    }
+
     return true;
 }
