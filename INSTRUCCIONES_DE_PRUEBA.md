@@ -168,9 +168,10 @@ La implementación es exitosa si:
 
 ```
 theme/inteb/
-├── renderers.php                          # Renderer override (NUEVO)
-├── config.php                             # Configuración del tema (MODIFICADO)
+├── config.php                             # Configuración del tema
 ├── classes/
+│   ├── output/
+│   │   └── format_remuiformat_renderer.php  # Renderer override (NUEVO)
 │   └── format_remuiformat_helper.php      # Helper con lógica dual capability
 ├── debug_teachers_display.php             # Script de debugging (NUEVO)
 └── lib.php                                # Funciones del tema
@@ -187,11 +188,11 @@ course/format/remuiformat/
 
 ### ¿Cómo Funciona?
 
-1. **Moodle detecta que theme_inteb tiene renderer override** (vía `config.php` → `rendererfactory`)
+1. **Moodle detecta que theme_inteb tiene renderer override** (vía autoloading PSR-4)
 
 2. **Cuando format_remuiformat necesita renderizar**, Moodle carga:
    - Original: `format_remuiformat_renderer`
-   - Override: `theme_inteb_format_remuiformat_renderer` (extiende el original)
+   - Override: `\theme_inteb\output\format_remuiformat_renderer` (extiende el original)
 
 3. **Nuestro renderer intercepta los métodos:**
    - `render_card_one_section()` para layout de tarjetas

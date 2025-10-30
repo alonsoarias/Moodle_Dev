@@ -178,18 +178,18 @@ echo "4️⃣ VERIFICACIÓN DE RENDERER OVERRIDE\n";
 echo str_repeat("=", 80) . "\n";
 
 // Verificar que existe el renderer override
-$renderer_file = __DIR__ . '/renderers.php';
+$renderer_file = __DIR__ . '/classes/output/format_remuiformat_renderer.php';
 if (!file_exists($renderer_file)) {
-    echo "❌ ERROR: No existe el archivo renderers.php en theme_inteb\n";
+    echo "❌ ERROR: No existe el archivo classes/output/format_remuiformat_renderer.php en theme_inteb\n";
 } else {
-    echo "✅ Archivo renderers.php existe\n";
+    echo "✅ Archivo classes/output/format_remuiformat_renderer.php existe\n";
 
     // Verificar que la clase existe
-    if (!class_exists('theme_inteb_format_remuiformat_renderer')) {
-        echo "⚠️  ADVERTENCIA: Clase theme_inteb_format_remuiformat_renderer no está cargada\n";
+    if (!class_exists('\\theme_inteb\\output\\format_remuiformat_renderer')) {
+        echo "⚠️  ADVERTENCIA: Clase theme_inteb\\output\\format_remuiformat_renderer no está cargada\n";
         echo "   Esto es NORMAL si no estás viendo una página con formato remuiformat\n";
     } else {
-        echo "✅ Clase theme_inteb_format_remuiformat_renderer está cargada\n";
+        echo "✅ Clase theme_inteb\\output\\format_remuiformat_renderer está cargada\n";
     }
 }
 
