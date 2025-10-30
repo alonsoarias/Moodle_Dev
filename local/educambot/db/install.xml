@@ -142,5 +142,21 @@
                 <INDEX NAME="course_idx" UNIQUE="false" FIELDS="courseid" />
             </INDEXES>
         </TABLE>
+        <TABLE NAME="local_educambot_feedback" COMMENT="User feedback on bot responses for adaptive learning">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <FIELD NAME="logid" TYPE="int" LENGTH="10" NOTNULL="true" />
+                <FIELD NAME="helpful" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" />
+                <FIELD NAME="comment" TYPE="text" NOTNULL="false" />
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+                <KEY NAME="logfk" TYPE="foreign" FIELDS="logid" REFTABLE="local_educambot_log" REFFIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="helpful_idx" UNIQUE="false" FIELDS="helpful" />
+            </INDEXES>
+        </TABLE>
     </TABLES>
 </XMLDB>
