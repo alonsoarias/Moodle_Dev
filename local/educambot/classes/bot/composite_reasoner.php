@@ -95,38 +95,78 @@ class composite_reasoner implements reasoner_interface {
             $rulescore = $this->stabilise_rule_score($rulescore, $bestrule, $question);
         }
 
-        // BUGFIX: Reduced threshold from 0.15 to 0.05 to give knowledge more chance to be selected.
-        // BUGFIX: Added minimum score threshold of 0.15 for knowledge to be considered valid.
+        // v2025103007: CRITICAL FIX - Prefer direct rule answers over knowledge resources.
+        // Users expect direct answers from rules, not "related resources" from knowledge.
+        // Rules require 0.3 minimum to avoid weak matches giving incorrect answers.
+        // Knowledge requires 0.15 minimum (lower due to different scoring mechanism).
+        $minrulescore = 0.3;
         $minknowledgescore = 0.15;
+        $goodrulescore = 0.5; // Threshold for "good" rule match.
+
+        // Log scores after adjustments for debugging.
+        debugging('composite_reasoner::decide - Adjusted scores: rule=' . $rulescore . ' (min=' . $minrulescore .
+                  '), knowledge=' . $knowledgescore . ' (min=' . $minknowledgescore . ')', DEBUG_DEVELOPER);
+
+        // Log scores after adjustments for debugging.
+        debugging('composite_reasoner::decide - Adjusted scores: rule=' . $rulescore . ' (min=' . $minrulescore .
+                  '), knowledge=' . $knowledgescore . ' (min=' . $minknowledgescore . ')', DEBUG_DEVELOPER);
 
         if ($bestrule !== null && $bestknowledge !== null) {
-            // Knowledge wins if it has a better score OR if rule score is very low.
-            if ($knowledgescore >= $minknowledgescore && ($knowledgescore > $rulescore + 0.05 || $rulescore < 0.3)) {
+            // v2025103007: CRITICAL LOGIC CHANGE - Strongly prefer rules over knowledge.
+            // Strategy:
+            // 1. If rule score >= 0.5 (good match), ALWAYS use rule (users expect direct answers).
+            // 2. If rule score >= 0.3 but < 0.5, only use knowledge if it's MUCH better (>0.3 margin).
+            // 3. If rule score < 0.3, don't use rule at all.
+            if ($rulescore >= $goodrulescore) {
+                // Good rule match - always prefer direct answer.
+                debugging('composite_reasoner::decide - Using rule (good match >= ' . $goodrulescore . ')', DEBUG_DEVELOPER);
+                $decision = [
+                    'type' => 'rule',
+                    'score' => $rulescore,
+                    'rule' => $bestrule,
+                ];
+            } else if ($rulescore >= $minrulescore && $knowledgescore < $rulescore + 0.3) {
+                // Acceptable rule match, and knowledge isn't significantly better - use rule.
+                debugging('composite_reasoner::decide - Using rule (acceptable match, knowledge not much better)', DEBUG_DEVELOPER);
+                $decision = [
+                    'type' => 'rule',
+                    'score' => $rulescore,
+                    'rule' => $bestrule,
+                ];
+            } else if ($knowledgescore >= $minknowledgescore) {
+                // Rule too weak or knowledge significantly better - use knowledge.
+                debugging('composite_reasoner::decide - Using knowledge (rule weak or knowledge much better)', DEBUG_DEVELOPER);
                 $decision = [
                     'type' => 'knowledge',
                     'score' => $knowledgescore,
                     'knowledge' => $knowledgehits,
                 ];
             } else {
-                $decision = [
-                    'type' => 'rule',
-                    'score' => $rulescore,
-                    'rule' => $bestrule,
-                ];
+                debugging('composite_reasoner::decide - Both scores too low (rule=' . $rulescore .
+                          ', knowledge=' . $knowledgescore . ')', DEBUG_DEVELOPER);
             }
-        } else if ($bestrule !== null) {
+        } else if ($bestrule !== null && $rulescore >= $minrulescore) {
+            // v2025103006: CRITICAL FIX - Only return rule if score meets minimum threshold.
+            // This prevents weak matches (score < 0.3) from being accepted as valid answers.
+            debugging('composite_reasoner::decide - Using rule (score=' . $rulescore . ')', DEBUG_DEVELOPER);
             $decision = [
                 'type' => 'rule',
                 'score' => $rulescore,
                 'rule' => $bestrule,
             ];
+        } else if ($bestrule !== null && $rulescore < $minrulescore) {
+            debugging('composite_reasoner::decide - Rejecting rule: score ' . $rulescore .
+                      ' below minimum ' . $minrulescore, DEBUG_DEVELOPER);
         } else if ($bestknowledge !== null && $knowledgescore >= $minknowledgescore) {
-            // BUGFIX: Only return knowledge if it meets minimum score threshold.
+            debugging('composite_reasoner::decide - Using knowledge (score=' . $knowledgescore . ')', DEBUG_DEVELOPER);
             $decision = [
                 'type' => 'knowledge',
                 'score' => $knowledgescore,
                 'knowledge' => $knowledgehits,
             ];
+        } else if ($bestknowledge !== null && $knowledgescore < $minknowledgescore) {
+            debugging('composite_reasoner::decide - Rejecting knowledge: score ' . $knowledgescore .
+                      ' below minimum ' . $minknowledgescore, DEBUG_DEVELOPER);
         }
 
         if ($decision && $decision['type'] === 'knowledge' && empty($decision['knowledge'])) {

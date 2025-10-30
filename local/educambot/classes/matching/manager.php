@@ -96,18 +96,32 @@ class manager {
                 }
             }
 
-            if ($normalizedquestion !== '' && str_contains($normalizedquestion, $normalizedphrase)) {
-                $breakdown['partial'] = max($breakdown['partial'], 0.85);
-                $score += 0.85;
+            // BUGFIX: Check both directions for partial match.
+            if ($normalizedquestion !== '' && $normalizedphrase !== '') {
+                if (str_contains($normalizedquestion, $normalizedphrase)) {
+                    $breakdown['partial'] = max($breakdown['partial'], 0.85);
+                    $score += 0.85;
+                } else if (str_contains($normalizedphrase, $normalizedquestion)) {
+                    $breakdown['partial'] = max($breakdown['partial'], 0.80);
+                    $score += 0.80;
+                }
             }
 
+            // BUGFIX: Lowered similarity thresholds from 0.65/0.55 to 0.45/0.35 for better matching.
             $similarity = text_helper::string_similarity($normalizedphrase, $normalizedquestion);
-            if ($similarity > 0.65) {
-                $contribution = $similarity * 0.7;
+            if ($similarity > 0.45) {
+                // Increased weight from 0.7 to 0.85 for high similarity.
+                $contribution = $similarity * 0.85;
                 $breakdown['partial'] = max($breakdown['partial'], $contribution);
                 $score += $contribution;
-            } else if ($similarity > 0.55) {
-                $contribution = $similarity * 0.4;
+            } else if ($similarity > 0.35) {
+                // Increased weight from 0.4 to 0.5 for medium similarity.
+                $contribution = $similarity * 0.5;
+                $breakdown['partial'] = max($breakdown['partial'], $contribution);
+                $score += $contribution;
+            } else if ($similarity > 0.25) {
+                // NEW: Added low similarity tier to capture more distant matches.
+                $contribution = $similarity * 0.3;
                 $breakdown['partial'] = max($breakdown['partial'], $contribution);
                 $score += $contribution;
             }
@@ -116,7 +130,8 @@ class manager {
             if (!empty($phraseTokens)) {
                 $overlap = text_helper::token_overlap_score($phraseTokens, $questiontokens);
                 if ($overlap > 0) {
-                    $contribution = $overlap * 0.6;
+                    // BUGFIX: Increased weight from 0.6 to 0.9 for token overlap.
+                    $contribution = $overlap * 0.9;
                     $breakdown['partial'] = max($breakdown['partial'], $contribution);
                     $score += $contribution;
                 }
@@ -145,15 +160,42 @@ class manager {
         $keywords = $this->get_keywords($entry);
         if (!empty($keywords)) {
             $matchedkeywords = 0.0;
+            $criticalmatches = 0; // v2025103008: Track critical keyword matches.
+
+            // v2025103008: Critical keywords that indicate main topic.
+            $criticalkeywords = [
+                'trabajo', 'tarea', 'assignment', 'entregar', 'subir',  // Assignment-related.
+                'calificacion', 'nota', 'grade', 'gradebook',  // Grades-related.
+                'curso', 'course', 'acceder', 'inscribir',  // Course-related.
+                'cuestionario', 'quiz', 'examen', 'test',  // Quiz-related.
+                'foro', 'forum', 'participar', 'publicar',  // Forum-related.
+            ];
+
             foreach ($keywords as $keyword) {
+                $iscritical = in_array($keyword, $criticalkeywords, true);
+
                 if (in_array($keyword, $questionkeywords, true)) {
-                    $matchedkeywords += 1.0;
+                    // v2025103008: Give MORE weight to critical keyword exact matches.
+                    $matchedkeywords += $iscritical ? 2.0 : 1.0;
+                    if ($iscritical) {
+                        $criticalmatches++;
+                    }
                 } else if ($keyword !== '' && str_contains($normalizedquestion, $keyword)) {
-                    $matchedkeywords += 0.5;
+                    // Partial keyword match.
+                    $matchedkeywords += $iscritical ? 1.4 : 0.7;
                 }
             }
+
             if ($matchedkeywords > 0) {
-                $contribution = min(0.35, ($matchedkeywords / max(1, count($keywords))) * 0.8);
+                // v2025103008: CRITICAL FIX - Increased keyword weight to 0.9 max (was 0.6).
+                // Give bonus for critical keyword matches to prefer semantically correct rules.
+                $contribution = min(0.9, ($matchedkeywords / max(1, count($keywords))) * 1.0);
+
+                // v2025103008: Bonus if question has critical keywords AND rule matches them.
+                if ($criticalmatches > 0) {
+                    $contribution = min(0.9, $contribution + ($criticalmatches * 0.15));
+                }
+
                 $breakdown['keywords'] = $contribution;
                 $score += $contribution;
             }
@@ -163,6 +205,24 @@ class manager {
         if ($contextscore > 0) {
             $breakdown['contextual'] = $contextscore;
             $score += $contextscore;
+        }
+
+        // DEBUG: Log matching details for debugging.
+        if ($score > 0) {
+            $pattern = $entry->pattern ?? 'N/A';
+            debugging(
+                sprintf(
+                    'matching_manager::score_entry - Pattern: "%s", Score: %.4f, Breakdown: [exact=%.2f, partial=%.2f, semantic=%.2f, keywords=%.2f, contextual=%.2f]',
+                    $pattern,
+                    $score,
+                    $breakdown['exact'],
+                    $breakdown['partial'],
+                    $breakdown['semantic'],
+                    $breakdown['keywords'],
+                    $breakdown['contextual']
+                ),
+                DEBUG_DEVELOPER
+            );
         }
 
         return [
