@@ -279,3 +279,37 @@ function theme_inteb_get_setting($setting) {
     return $value;
 }
 
+/**
+ * Función global para integración con format_remuiformat
+ *
+ * Esta función es llamada por el patch en format_remuiformat/lib.php
+ * cuando el tema activo es 'inteb'. Actúa como wrapper para delegar
+ * la lógica a la clase helper.
+ *
+ * IMPORTANTE: Esta función DEBE ser global (no en namespace) porque
+ * format_remuiformat la llama con function_exists() desde un contexto global.
+ *
+ * FUNCIONALIDAD:
+ * - Permite que format_remuiformat muestre TODOS los profesores (editing + non-editing)
+ * - Usa doble filtrado por capabilities:
+ *   1. mod/folder:managefiles (editing teachers)
+ *   2. moodle/course:viewhiddenactivities (non-editing teachers)
+ * - Combina ambos resultados eliminando duplicados
+ * - Agrega metadata sobre el tipo de profesor
+ *
+ * @param object $course Objeto del curso
+ * @param bool $frontlineteacher Si true, NO limita profesores (muestra todos)
+ * @return array Contexto con información de TODOS los profesores (editing y non-editing)
+ */
+function local_inteb_get_enrolled_teachers_context_formate($course, $frontlineteacher = false) {
+    // Verificar que la clase helper existe
+    if (class_exists('\\theme_inteb\\format_remuiformat_helper')) {
+        // Delegar a la clase helper que tiene toda la lógica implementada
+        return \theme_inteb\format_remuiformat_helper::get_enrolled_teachers_context($course, $frontlineteacher);
+    }
+
+    // Fallback: si por alguna razón el helper no existe, retornar array vacío
+    // Esto previene errores fatales y permite que la página se renderice
+    return array();
+}
+
