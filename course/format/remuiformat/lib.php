@@ -878,15 +878,8 @@ function format_remuiformat_check_plugin_available($component) {
      * Get Enrolled Teachers Context
      */
 function get_enrolled_teachers_context_formate($course, $frontlineteacher = false) {
-    global $OUTPUT, $CFG, $USER, $PAGE;
+    global $OUTPUT, $CFG, $USER;
 
-    // PATCH: Check if theme_inteb is active and use extended functionality
-    // This allows theme_inteb to show ALL teachers (editing + non-editing)
-    if ($PAGE->theme->name === 'inteb' && function_exists('local_inteb_get_enrolled_teachers_context_formate')) {
-        return local_inteb_get_enrolled_teachers_context_formate($course, $frontlineteacher);
-    }
-
-    // Original function code continues...
     $courseid = $course->id;
 
     $usergroups = groups_get_user_groups($courseid, $USER->id);
