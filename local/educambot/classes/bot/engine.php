@@ -125,21 +125,41 @@ class engine {
      */
     public function respond(string $question): array {
         $question = trim($question);
+
+        // v2025103006: Enhanced logging for debugging.
+        debugging('bot/engine::respond - START - Question: "' . substr($question, 0, 100) . '"', DEBUG_DEVELOPER);
+
         if ($question === '') {
+            debugging('bot/engine::respond - Empty question, returning null', DEBUG_DEVELOPER);
             return ['response' => null, 'ruleid' => null, 'confidence' => 0.0, 'suggestions' => []];
         }
 
         $analysis = $this->pipeline->process($question);
+        debugging('bot/engine::respond - NLP analysis complete. Keywords: ' . count($analysis['keywords'] ?? []) .
+                  ', Tokens: ' . count($analysis['tokens'] ?? []), DEBUG_DEVELOPER);
+
         if ($this->sessionmemory->looks_like_followup($analysis['tokens'])) {
             $historykeywords = $this->sessionmemory->aggregated_keywords();
             if (!empty($historykeywords)) {
                 $analysis['keywords'] = array_values(array_unique(array_merge($analysis['keywords'], $historykeywords)));
+                debugging('bot/engine::respond - Follow-up detected, merged history keywords', DEBUG_DEVELOPER);
             }
         }
 
         $scores = $this->rank_entries($question, $analysis);
+        debugging('bot/engine::respond - Ranking complete. Matches found: ' . count($scores), DEBUG_DEVELOPER);
+
+        if (!empty($scores)) {
+            $topscore = $scores[0]['score'] ?? 0;
+            $toppattern = substr($scores[0]['entry']->pattern ?? 'N/A', 0, 50);
+            debugging('bot/engine::respond - Top match: "' . $toppattern . '" with score ' . $topscore, DEBUG_DEVELOPER);
+        }
+
         $roles = $this->contextprovider->get_effective_roles();
+        debugging('bot/engine::respond - User roles: ' . implode(', ', $roles), DEBUG_DEVELOPER);
+
         $knowledgehits = $this->knowledge->search($question, $this->courseid, $this->normalizedpage, $roles);
+        debugging('bot/engine::respond - Knowledge search complete. Hits: ' . count($knowledgehits), DEBUG_DEVELOPER);
 
         $decision = $this->inference->decide($question, $analysis, $scores, $knowledgehits);
         if ($decision) {
@@ -299,11 +319,22 @@ class engine {
      */
     protected function rank_entries(string $question, array $analysis, bool $ignoreroles = false): array {
         $entries = $this->get_entries();
+
+        // v2025103006: CRITICAL - Log if no entries found (common cause of "no answer").
+        debugging('bot/engine::rank_entries - Total entries from DB/cache: ' . count($entries), DEBUG_DEVELOPER);
+
+        if (empty($entries)) {
+            debugging('bot/engine::rank_entries - WARNING: No rules found in database! Bot cannot answer any questions.', DEBUG_DEVELOPER);
+            debugging('bot/engine::rank_entries - ACTION REQUIRED: Execute seed script: php local/educambot/cli/seed_common_questions.php', DEBUG_DEVELOPER);
+        }
+
         $normalizedpage = $this->normalizedpage ?? '';
         $scores = [];
+        $skippedbyrole = 0;
 
         foreach ($entries as $entry) {
             if (!$ignoreroles && !$this->entry_matches_roles($entry)) {
+                $skippedbyrole++;
                 continue;
             }
 
@@ -319,6 +350,10 @@ class engine {
                 'breakdown' => $scoredata['breakdown'],
             ];
         }
+
+        // v2025103006: Log ranking results for debugging.
+        debugging('bot/engine::rank_entries - Skipped by role: ' . $skippedbyrole .
+                  ', Scored entries: ' . count($scores), DEBUG_DEVELOPER);
 
         usort($scores, static function(array $a, array $b) {
             return $b['score'] <=> $a['score'];

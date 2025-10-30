@@ -95,38 +95,60 @@ class composite_reasoner implements reasoner_interface {
             $rulescore = $this->stabilise_rule_score($rulescore, $bestrule, $question);
         }
 
-        // BUGFIX: Reduced threshold from 0.15 to 0.05 to give knowledge more chance to be selected.
-        // BUGFIX: Added minimum score threshold of 0.15 for knowledge to be considered valid.
+        // v2025103006: Added minimum score thresholds for both rules and knowledge.
+        // Rules require 0.3 minimum to avoid weak matches giving incorrect answers.
+        // Knowledge requires 0.15 minimum (lower due to different scoring mechanism).
+        $minrulescore = 0.3;
         $minknowledgescore = 0.15;
 
+        // Log scores after adjustments for debugging.
+        debugging('composite_reasoner::decide - Adjusted scores: rule=' . $rulescore . ' (min=' . $minrulescore .
+                  '), knowledge=' . $knowledgescore . ' (min=' . $minknowledgescore . ')', DEBUG_DEVELOPER);
+
         if ($bestrule !== null && $bestknowledge !== null) {
-            // Knowledge wins if it has a better score OR if rule score is very low.
-            if ($knowledgescore >= $minknowledgescore && ($knowledgescore > $rulescore + 0.05 || $rulescore < 0.3)) {
+            // Both rule and knowledge available - decide which one to use.
+            // Knowledge wins if: (1) meets minimum AND (2) beats rule by margin OR rule is weak.
+            if ($knowledgescore >= $minknowledgescore && ($knowledgescore > $rulescore + 0.05 || $rulescore < $minrulescore)) {
+                debugging('composite_reasoner::decide - Choosing knowledge over rule', DEBUG_DEVELOPER);
                 $decision = [
                     'type' => 'knowledge',
                     'score' => $knowledgescore,
                     'knowledge' => $knowledgehits,
                 ];
-            } else {
+            } else if ($rulescore >= $minrulescore) {
+                // v2025103006: CRITICAL FIX - Only accept rule if it meets minimum threshold.
+                debugging('composite_reasoner::decide - Choosing rule over knowledge', DEBUG_DEVELOPER);
                 $decision = [
                     'type' => 'rule',
                     'score' => $rulescore,
                     'rule' => $bestrule,
                 ];
+            } else {
+                debugging('composite_reasoner::decide - Both scores too low (rule=' . $rulescore .
+                          ', knowledge=' . $knowledgescore . ')', DEBUG_DEVELOPER);
             }
-        } else if ($bestrule !== null) {
+        } else if ($bestrule !== null && $rulescore >= $minrulescore) {
+            // v2025103006: CRITICAL FIX - Only return rule if score meets minimum threshold.
+            // This prevents weak matches (score < 0.3) from being accepted as valid answers.
+            debugging('composite_reasoner::decide - Using rule (score=' . $rulescore . ')', DEBUG_DEVELOPER);
             $decision = [
                 'type' => 'rule',
                 'score' => $rulescore,
                 'rule' => $bestrule,
             ];
+        } else if ($bestrule !== null && $rulescore < $minrulescore) {
+            debugging('composite_reasoner::decide - Rejecting rule: score ' . $rulescore .
+                      ' below minimum ' . $minrulescore, DEBUG_DEVELOPER);
         } else if ($bestknowledge !== null && $knowledgescore >= $minknowledgescore) {
-            // BUGFIX: Only return knowledge if it meets minimum score threshold.
+            debugging('composite_reasoner::decide - Using knowledge (score=' . $knowledgescore . ')', DEBUG_DEVELOPER);
             $decision = [
                 'type' => 'knowledge',
                 'score' => $knowledgescore,
                 'knowledge' => $knowledgehits,
             ];
+        } else if ($bestknowledge !== null && $knowledgescore < $minknowledgescore) {
+            debugging('composite_reasoner::decide - Rejecting knowledge: score ' . $knowledgescore .
+                      ' below minimum ' . $minknowledgescore, DEBUG_DEVELOPER);
         }
 
         if ($decision && $decision['type'] === 'knowledge' && empty($decision['knowledge'])) {

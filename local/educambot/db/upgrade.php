@@ -105,5 +105,42 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025103005, 'local', 'educambot');
     }
 
+    // Upgrade to version 2025103006 - Critical fix for decision threshold + enhanced logging.
+    // Ensures seed runs if no rules exist (again, for users who somehow still don't have rules).
+    if ($oldversion < 2025103006) {
+        require_once(__DIR__ . '/../classes/local/setup/common_questions_seed.php');
+
+        // Triple-check that rules exist.
+        $rulescount = $DB->count_records('local_educambot_rule', ['enabled' => 1]);
+
+        if ($rulescount == 0) {
+            mtrace('  → v2025103006: No enabled rules found. Executing common questions seed...');
+            try {
+                $result = \local_educambot\local\setup\common_questions_seed::seed();
+                mtrace('  → Seed executed: ' . $result['created'] . ' created, ' .
+                       $result['updated'] . ' updated (total: ' . $result['total'] . ')');
+
+                // Purge ALL caches to ensure fresh data.
+                \cache::make('local_educambot', 'rules')->purge();
+                \cache::make('local_educambot', 'knowledge')->purge();
+                \cache::make('local_educambot', 'knowledge_topics')->purge();
+                \cache::make('local_educambot', 'knowledge_context')->purge();
+                mtrace('  → All caches purged');
+            } catch (\Throwable $e) {
+                mtrace('  → WARNING: Seed failed: ' . $e->getMessage());
+            }
+        } else {
+            mtrace('  → v2025103006: Found ' . $rulescount . ' enabled rules. Seed not needed.');
+        }
+
+        mtrace('  → v2025103006: Applied critical fixes:');
+        mtrace('     - Added minimum score threshold (0.3) for rule acceptance');
+        mtrace('     - Enhanced debug logging throughout decision flow');
+        mtrace('     - Improved error messages for empty database');
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025103006, 'local', 'educambot');
+    }
+
     return true;
 }
