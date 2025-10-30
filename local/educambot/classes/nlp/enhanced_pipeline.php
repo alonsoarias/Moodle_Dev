@@ -335,7 +335,7 @@ class enhanced_pipeline extends pipeline {
      * @param string $text Text with abbreviations
      * @return string Text with expanded abbreviations
      */
-    protected function expand_abbreviations(string $text): array {
+    protected function expand_abbreviations(string $text): string {
         $expanded = $text;
 
         foreach ($this->abbreviations as $abbr => $full) {
