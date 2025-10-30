@@ -84,6 +84,10 @@ if ($action === 'delete' && $id) {
 if (in_array($action, ['add', 'edit'], true)) {
     if ($action === 'edit') {
         $record = $DB->get_record('local_educambot_rule', ['id' => $id], '*', MUST_EXIST);
+        // Ensure responseformat is set for file_prepare_standard_editor.
+        if (!isset($record->responseformat)) {
+            $record->responseformat = FORMAT_HTML;
+        }
         $record = file_prepare_standard_editor($record, 'response', $editoroptions, $context, 'local_educambot', 'response', $record->id);
     } else {
         $record = (object) [
@@ -92,6 +96,7 @@ if (in_array($action, ['add', 'edit'], true)) {
             'synonyms' => '',
             'keywords' => '',
             'response' => '',
+            'responseformat' => FORMAT_HTML,
             'roles' => [],
             'contexts' => '',
             'suggested' => 0,
