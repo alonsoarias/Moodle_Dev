@@ -210,5 +210,21 @@ function xmldb_local_educambot_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2024060105, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025103000) {
+        // Seed comprehensive knowledge base with 200+ entries for v2.0.0.
+        try {
+            $stats = \local_educambot\local\setup\comprehensive_seed::seed_all();
+            mtrace('Educam Bot v2.0.0: Seeded knowledge base with ' .
+                $stats['topics'] . ' topics, ' .
+                $stats['knowledge'] . ' knowledge entries, and ' .
+                $stats['relations'] . ' relations.');
+        } catch (\Exception $e) {
+            // Log error but don't fail upgrade.
+            mtrace('Warning: Could not seed knowledge base: ' . $e->getMessage());
+        }
+
+        upgrade_plugin_savepoint(true, 2025103000, 'local', 'educambot');
+    }
+
     return true;
 }
