@@ -160,16 +160,42 @@ class manager {
         $keywords = $this->get_keywords($entry);
         if (!empty($keywords)) {
             $matchedkeywords = 0.0;
+            $criticalmatches = 0; // v2025103008: Track critical keyword matches.
+
+            // v2025103008: Critical keywords that indicate main topic.
+            $criticalkeywords = [
+                'trabajo', 'tarea', 'assignment', 'entregar', 'subir',  // Assignment-related.
+                'calificacion', 'nota', 'grade', 'gradebook',  // Grades-related.
+                'curso', 'course', 'acceder', 'inscribir',  // Course-related.
+                'cuestionario', 'quiz', 'examen', 'test',  // Quiz-related.
+                'foro', 'forum', 'participar', 'publicar',  // Forum-related.
+            ];
+
             foreach ($keywords as $keyword) {
+                $iscritical = in_array($keyword, $criticalkeywords, true);
+
                 if (in_array($keyword, $questionkeywords, true)) {
-                    $matchedkeywords += 1.0;
+                    // v2025103008: Give MORE weight to critical keyword exact matches.
+                    $matchedkeywords += $iscritical ? 2.0 : 1.0;
+                    if ($iscritical) {
+                        $criticalmatches++;
+                    }
                 } else if ($keyword !== '' && str_contains($normalizedquestion, $keyword)) {
-                    $matchedkeywords += 0.7;
+                    // Partial keyword match.
+                    $matchedkeywords += $iscritical ? 1.4 : 0.7;
                 }
             }
+
             if ($matchedkeywords > 0) {
-                // BUGFIX: Increased keyword weight from 0.35 to 0.6 max, and multiplier from 0.8 to 1.0.
-                $contribution = min(0.6, ($matchedkeywords / max(1, count($keywords))) * 1.0);
+                // v2025103008: CRITICAL FIX - Increased keyword weight to 0.9 max (was 0.6).
+                // Give bonus for critical keyword matches to prefer semantically correct rules.
+                $contribution = min(0.9, ($matchedkeywords / max(1, count($keywords))) * 1.0);
+
+                // v2025103008: Bonus if question has critical keywords AND rule matches them.
+                if ($criticalmatches > 0) {
+                    $contribution = min(0.9, $contribution + ($criticalmatches * 0.15));
+                }
+
                 $breakdown['keywords'] = $contribution;
                 $score += $contribution;
             }
