@@ -2,6 +2,87 @@
 
 All notable changes to the Educam Bot plugin will be documented in this file.
 
+## [2.1.2-hotfix1] - 2025-10-30 (Version 2025103005 - HOTFIX)
+
+### 🚨 CRITICAL HOTFIX: Seed Now Executes Correctly
+
+**User Report After v2.1.2:** "A pesar de haber aplicado los cambios, sigue respondiendo 'No encontré una respuesta.'"
+
+#### 🔥 Root Cause (NUEVA)
+
+**The seed was STILL not executing!** The upgrade logic had a fatal flaw:
+
+- If you had v2.1.1 (2025103004) and upgraded to v2.1.2 (2025103005)
+- The seed execution was in the `if ($oldversion < 2025103004)` block
+- That block NEVER ran because you already had 2025103004
+- Result: **Database had 0 rules** → Bot had no answers
+
+#### ✅ Fixes in This Hotfix
+
+**1. Fixed `db/upgrade.php` Logic**
+```php
+// NEW: Added block for v2025103005
+if ($oldversion < 2025103005) {
+    $rulescount = $DB->count_records('local_educambot_rule', ['enabled' => 1]);
+
+    if ($rulescount == 0) {
+        // Execute seed + purge cache
+    }
+}
+```
+
+**2. Created CLI Tools for Manual Execution**
+- `cli/seed_common_questions.php` - Execute seed manually
+- `cli/diagnose_bot.php` - Full diagnostic of bot status
+
+**3. Created URGENT_FIX.md**
+- Step-by-step instructions for immediate fix
+- 3 different options to execute seed
+- Troubleshooting guide
+
+#### ⚡ IMMEDIATE FIX (For Current Users)
+
+**Run this command NOW:**
+```bash
+php local/educambot/cli/seed_common_questions.php
+```
+
+**Or via upgrade:**
+1. Visit: Site Administration → Notifications
+2. Moodle will run upgrade and execute seed automatically
+
+See [URGENT_FIX.md](URGENT_FIX.md) for complete instructions.
+
+#### 📁 New Files
+
+- `cli/seed_common_questions.php` - Manual seed execution script
+- `cli/diagnose_bot.php` - Diagnostic script
+- `URGENT_FIX.md` - Complete troubleshooting guide
+
+#### 📝 Files Modified
+
+- `db/upgrade.php` - Added v2025103005 block with smart seed execution
+- `CHANGELOG.md` - This documentation
+
+#### 🧪 Verification
+
+After applying fix, run:
+```bash
+php local/educambot/cli/diagnose_bot.php
+```
+
+Expected output:
+```
+2. RULES TABLE
+   Enabled rules: 9
+   ✅ Rules found
+
+5. TEST QUESTION
+   Response found: ✅ YES
+```
+
+---
+
 ## [2.1.2] - 2025-10-30 (Version 2025103005)
 
 ### 🐛 CRITICAL BUG FIXES: Bot Now Answers Questions Correctly

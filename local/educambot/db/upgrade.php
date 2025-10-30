@@ -76,5 +76,34 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025103003, 'local', 'educambot');
     }
 
+    // Upgrade to version 2025103005 - Ensure common questions seed is executed.
+    // This fixes installations that upgraded from v2025103004 where seed wasn't run.
+    if ($oldversion < 2025103005) {
+        require_once(__DIR__ . '/../classes/local/setup/common_questions_seed.php');
+
+        // Check if rules exist - if not, definitely run seed.
+        $rulescount = $DB->count_records('local_educambot_rule', ['enabled' => 1]);
+
+        if ($rulescount == 0) {
+            mtrace('  → No enabled rules found. Executing common questions seed...');
+            try {
+                $result = \local_educambot\local\setup\common_questions_seed::seed();
+                mtrace('  → Common questions seed executed: ' . $result['created'] . ' created, ' .
+                       $result['updated'] . ' updated (total: ' . $result['total'] . ')');
+
+                // Purge cache to ensure fresh data.
+                \cache::make('local_educambot', 'rules')->purge();
+                mtrace('  → Rules cache purged');
+            } catch (\Throwable $e) {
+                mtrace('  → WARNING: Common questions seed failed: ' . $e->getMessage());
+            }
+        } else {
+            mtrace('  → Skipping seed: ' . $rulescount . ' enabled rules already exist');
+        }
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025103005, 'local', 'educambot');
+    }
+
     return true;
 }
