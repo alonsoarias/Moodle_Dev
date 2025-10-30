@@ -28,6 +28,9 @@ defined('MOODLE_INTERNAL') || die();
 // Load our license override autoloader first
 require_once(__DIR__ . '/classes/license_autoload.php');
 
+// Load format_remuiformat override autoloader to show ALL teachers
+require_once(__DIR__ . '/classes/format_remuiformat_override_autoload.php');
+
 require_once(__DIR__ . '/lib.php');
 
 $THEME->name = 'inteb';
