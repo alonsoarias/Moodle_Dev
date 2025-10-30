@@ -1533,53 +1533,64 @@ $ci-text-secondary: #757575;
 
 /* =============================================================================
    INVERSIÓN DE DRAWERS - Compecer Theme
-   Course Index → DERECHA
-   Bloques → IZQUIERDA
+   Course Index → DERECHA (320px - 12% más ancho)
+   Bloques → IZQUIERDA (285px)
    SOLO APLICADO A PÁGINAS DE CURSO (NO DASHBOARD)
    ============================================================================= */
+
+// ========================================
+// DEFINIR ANCHOS CORRECTOS PARA DRAWERS
+// ========================================
+// Sobrescribir variables de Boost para anchos personalizados
+// Bloques (izquierda): 285px
+// Courseindex (derecha): 320px (12% más ancho que bloques)
+$drawer-left-width: 285px !default;   // Bloques en la izquierda
+$drawer-right-width: 320px !default;  // Courseindex en la derecha (12% más ancho)
 
 /* Aplicar inversión SOLO en páginas de curso e incourse */
 body.pagelayout-course,
 body.pagelayout-incourse {
 
-    /* Override de Boost: Courseindex a la DERECHA */
+    /* Override de Boost: Ajustar márgenes del #page cuando drawers están abiertos */
     @include media-breakpoint-up(lg) {
         #page.drawers {
             &.show-drawer-right {
-                /* Cuando courseindex está abierto (ahora a la derecha) */
-                margin-right: $drawer-left-width;
+                /* Cuando courseindex está abierto (ahora a la derecha con 320px) */
+                margin-right: $drawer-right-width;
                 margin-left: 0;
                 padding-right: 1rem;
             }
 
             &.show-drawer-left {
-                /* Cuando bloques están abiertos (ahora a la izquierda) */
-                margin-left: $drawer-right-width;
+                /* Cuando bloques están abiertos (ahora a la izquierda con 285px) */
+                margin-left: $drawer-left-width;
                 margin-right: 0;
                 padding-left: 1rem;
             }
 
             &.show-drawer-left.show-drawer-right {
-                /* Ambos abiertos */
-                margin-left: $drawer-right-width;
-                margin-right: $drawer-left-width;
+                /* Ambos drawers abiertos */
+                margin-left: $drawer-left-width;
+                margin-right: $drawer-right-width;
             }
         }
     }
 
-    /* Drawer Left (ahora BLOQUES) */
+    /* Drawer Left (BLOQUES) - 285px */
     .drawer-left {
         left: 0;
         right: auto;
-        width: $drawer-right-width;
+        width: $drawer-left-width;
+        max-width: $drawer-left-width;
         box-shadow: 2px 0px 4px rgba(0, 0, 0, 0.15);
     }
 
-    /* Drawer Right (ahora COURSEINDEX) */
+    /* Drawer Right (COURSEINDEX) - 320px */
     .drawer-right {
         right: 0;
         left: auto;
-        width: $drawer-left-width;
+        width: $drawer-right-width;
+        max-width: $drawer-right-width;
         box-shadow: -2px 0px 4px rgba(0, 0, 0, 0.15);
     }
 
@@ -1607,13 +1618,13 @@ body.pagelayout-incourse {
     /* Estados de body */
     &.drawer-open-left {
         @include media-breakpoint-up(md) {
-            margin-left: $drawer-right-width;
+            margin-left: $drawer-left-width;
         }
     }
 
     &.drawer-open-right {
         @include media-breakpoint-up(md) {
-            margin-right: $drawer-left-width;
+            margin-right: $drawer-right-width;
         }
     }
 
@@ -1622,6 +1633,8 @@ body.pagelayout-incourse {
         &.drawer-right {
             right: 0;
             left: auto;
+            width: $drawer-right-width;
+            max-width: $drawer-right-width;
         }
     }
 
@@ -1630,6 +1643,8 @@ body.pagelayout-incourse {
         &.drawer-left {
             left: 0;
             right: auto;
+            width: $drawer-left-width;
+            max-width: $drawer-left-width;
         }
     }
 }
