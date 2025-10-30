@@ -1915,3 +1915,83 @@ li.breadcrumb-item {
     /* En vista summary, similar a list pero con más espacio vertical */
     margin-top: 0.6rem;
 }
+
+/* =========================================
+   SECCIÓN 26: FORMAT_REMUIFORMAT - PROFESORES
+   Ajustes específicos para profesores en
+   format_remuiformat course headers
+   ========================================= */
+
+/* --- Ajustes para rmuiformate-header-wrapper --- */
+.rmuiformate-header-wrapper {
+    /* Los estilos de SECCIÓN 24 ya funcionan, pero agregamos especificidad */
+
+    .instructor-info {
+        &.stat-container {
+            /* En format_remuiformat, el fondo debe ser más sutil por el gradient del header */
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+
+    /* Ajustar badges para mejor visibilidad en header oscuro */
+    .editing-teacher-badge,
+    .non-editing-teacher-badge {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Ajustar indicadores de tipo en avatares */
+    .teacher-type-indicator {
+        border-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Nombres de profesores en color claro para contraste con fondo oscuro */
+    .instructor-name-label,
+    .titles {
+        color: #ffffff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Link de "view all" */
+    .view-all-instructorslink {
+        color: #ffffff;
+        text-decoration: underline;
+
+        &:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+}
+
+/* --- Responsive para format_remuiformat --- */
+@media (max-width: 768px) {
+    .rmuiformate-header-wrapper {
+        .instructor-info {
+            &.stat-container {
+                padding: 0.75rem;
+            }
+        }
+
+        .instructors-list-wrapper {
+            gap: 0.75rem;
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .rmuiformate-header-wrapper {
+        .instructor-info {
+            &.stat-container {
+                padding: 0.5rem;
+            }
+        }
+
+        .instructors-header-label {
+            .badge {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.45rem;
+            }
+        }
+    }
+}
