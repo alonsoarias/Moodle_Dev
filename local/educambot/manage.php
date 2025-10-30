@@ -25,7 +25,6 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/editorlib.php');
-require_once($CFG->libdir . '/outputcomponents.php');
 require_once(__DIR__ . '/classes/form/entry_form.php');
 
 $context = context_system::instance();
