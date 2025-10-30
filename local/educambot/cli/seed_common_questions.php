@@ -35,10 +35,18 @@ try {
     echo "  - Updated: {$result['updated']} existing rules\n";
     echo "  - Total: {$result['total']} rules processed\n\n";
 
-    // Purge cache.
-    echo "Purging rules cache...\n";
+    // v2025103008: Purge ALL caches to ensure new rules are loaded immediately.
+    echo "Purging all Educam Bot caches...\n";
     \cache::make('local_educambot', 'rules')->purge();
-    echo "✅ Cache purged\n\n";
+    \cache::make('local_educambot', 'knowledge')->purge();
+    \cache::make('local_educambot', 'knowledge_topics')->purge();
+    \cache::make('local_educambot', 'knowledge_context')->purge();
+    echo "✅ All Educam Bot caches purged\n\n";
+
+    // v2025103008: Also purge Moodle's application cache for this component.
+    echo "Purging Moodle component cache...\n";
+    \cache_helper::purge_by_definition('local_educambot', 'rules');
+    echo "✅ Component cache purged\n\n";
 
     echo "========================================\n";
     echo "NEXT STEPS\n";

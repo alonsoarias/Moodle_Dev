@@ -164,5 +164,37 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025103007, 'local', 'educambot');
     }
 
+    // Upgrade to version 2025103008 - MATCHING FIX: Bot now selects semantically correct rules.
+    // Previous fix (v2.1.4) made bot prefer rules over knowledge ✅
+    // But bot was selecting WRONG rules (e.g., "correo masivo" instead of "tarea" for "trabajo")
+    // This version improves keyword matching to understand SEMANTIC CONTEXT.
+    if ($oldversion < 2025103008) {
+        mtrace('  → v2025103008 (v2.1.5): SEMANTIC MATCHING FIX APPLIED');
+        mtrace('     Problem: Bot chose wrong rules due to word overlap without context');
+        mtrace('              Example: "¿Cómo enviar un trabajo?" matched "correo masivo" (0.75)');
+        mtrace('              instead of "tarea" (0.68) - wrong semantic context');
+        mtrace('');
+        mtrace('     Solution: Enhanced keyword matching with critical keyword detection');
+        mtrace('              - Critical keywords: trabajo/tarea, calificación/nota, curso, quiz, foro');
+        mtrace('              - 2x weight for critical keyword exact matches');
+        mtrace('              - Max keyword contribution increased from 0.6 to 0.9');
+        mtrace('              - Bonus (+0.15) for each critical keyword match');
+        mtrace('');
+        mtrace('     Expected improvement:');
+        mtrace('              - Question: "¿Cómo enviar un trabajo?"');
+        mtrace('              - OLD: "correo masivo" rule (0.75) - WRONG context');
+        mtrace('              - NEW: "tarea" rule (0.85+) - CORRECT context ✅');
+
+        // Purge ALL caches to ensure new matching logic takes effect.
+        \cache::make('local_educambot', 'rules')->purge();
+        \cache::make('local_educambot', 'knowledge')->purge();
+        \cache::make('local_educambot', 'knowledge_topics')->purge();
+        \cache::make('local_educambot', 'knowledge_context')->purge();
+        mtrace('  → All caches purged');
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025103008, 'local', 'educambot');
+    }
+
     return true;
 }
