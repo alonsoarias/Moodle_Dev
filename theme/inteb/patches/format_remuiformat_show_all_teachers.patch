@@ -1,0 +1,18 @@
+--- a/course/format/remuiformat/lib.php
++++ b/course/format/remuiformat/lib.php
+@@ -878,8 +878,15 @@
+  * @return context array
+  */
+ function get_enrolled_teachers_context_formate($course, $frontlineteacher = false) {
+-    global $OUTPUT, $CFG, $USER;
++    global $OUTPUT, $CFG, $USER, $PAGE;
+
++    // PATCH: Si theme_inteb está activo, usar helper extendido
++    if ($PAGE->theme->name === 'inteb' && class_exists('\\theme_inteb\\format_remuiformat_helper')) {
++        return \theme_inteb\format_remuiformat_helper::get_enrolled_teachers_context($course, $frontlineteacher);
++    }
++
++    // Código original continúa sin cambios...
+     $courseid = $course->id;
+
+     $usergroups = groups_get_user_groups($courseid, $USER->id);
