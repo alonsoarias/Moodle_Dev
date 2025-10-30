@@ -201,14 +201,48 @@ class coursehandler extends \theme_remui_coursehandler {
      * Sobrescribe get_courses() para mostrar TODOS los profesores en course cards
      * (no solo el primero como hace remui)
      *
-     * @param array $filters Filtros para los cursos
+     * @param bool $totalcount Si es true, retorna el total de cursos
+     * @param string|null $search Término de búsqueda
+     * @param int|null $category ID de la categoría
+     * @param int $limitfrom Offset para paginación
+     * @param int $limitto Límite de resultados
+     * @param string|null $mycourses Filtro de mis cursos
+     * @param string|null $categorysort Orden de categorías
+     * @param array $courses Array de cursos pre-filtrados
+     * @param bool $filtermodified Si los filtros fueron modificados
+     * @param array $filteredcourseids IDs de cursos filtrados
+     * @param bool $isfilterapplied Si hay filtros aplicados
      * @return array Cursos con información completa de profesores
      */
-    public function get_courses($filters = array()) {
+    public function get_courses(
+        $totalcount = false,
+        $search = null,
+        $category = null,
+        $limitfrom = 0,
+        $limitto = 0,
+        $mycourses = null,
+        $categorysort = null,
+        $courses = [],
+        $filtermodified = false,
+        $filteredcourseids = [],
+        $isfilterapplied = false
+    ) {
         global $CFG, $DB, $OUTPUT;
 
-        // Obtener el resultado del método padre
-        $parentresult = parent::get_courses($filters);
+        // Obtener el resultado del método padre con los parámetros correctos
+        $parentresult = parent::get_courses(
+            $totalcount,
+            $search,
+            $category,
+            $limitfrom,
+            $limitto,
+            $mycourses,
+            $categorysort,
+            $courses,
+            $filtermodified,
+            $filteredcourseids,
+            $isfilterapplied
+        );
 
         // Si no hay courses en el resultado, retornar tal cual
         if (!isset($parentresult['courses']) || empty($parentresult['courses'])) {
