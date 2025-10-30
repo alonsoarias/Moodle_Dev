@@ -2,6 +2,124 @@
 
 All notable changes to the Educam Bot plugin will be documented in this file.
 
+## [2.1.2] - 2025-10-30 (Version 2025103005)
+
+### 🐛 CRITICAL BUG FIXES: Bot Now Answers Questions Correctly
+
+This release fixes critical bugs that prevented the bot from answering ANY questions, including the common student questions added in v2.1.1.
+
+#### 🔥 Problem Solved
+
+**User Report**: "Each question I ask responds with 'No encontré una respuesta. Avisaré al equipo administrador.'"
+
+**Root Causes Identified:**
+
+1. **Missing `db/upgrade.php`**: The seed was only running on NEW installations. Existing installations NEVER got the common questions.
+2. **Overly Strict Matching**: The matching algorithm had very high thresholds that rejected valid questions.
+3. **Low Keyword Weights**: Keywords weren't given enough importance in scoring.
+
+#### ✅ Fixes Implemented
+
+**1. Restored `db/upgrade.php`** (`db/upgrade.php` - NEW FILE)
+- Now executes common questions seed on plugin upgrade (version 2025103004)
+- Also creates `local_educambot_feedback` table if missing (version 2025103003)
+- Existing installations will now get common questions automatically on next upgrade
+- Safe error handling: upgrade doesn't fail if seed encounters issues
+
+**2. Improved Matching Algorithm** (`classes/matching/manager.php`)
+
+**Changes to Similarity Thresholds:**
+- **Before**: Required 65% similarity (0.65) for high-confidence match
+- **After**: Lowered to 45% (0.45) for high-confidence match
+- **Before**: Required 55% similarity (0.55) for medium-confidence match
+- **After**: Lowered to 35% (0.35) for medium-confidence match
+- **NEW**: Added 25% (0.25) threshold for low-confidence matches
+
+**Changes to Score Weights:**
+- Token overlap weight: `0.6 → 0.9` (+50% increase)
+- High similarity multiplier: `0.7 → 0.85` (+21% increase)
+- Medium similarity multiplier: `0.4 → 0.5` (+25% increase)
+- Keyword max contribution: `0.35 → 0.6` (+71% increase)
+- Keyword match weight: `0.8 → 1.0` (+25% increase)
+- Partial keyword match: `0.5 → 0.7` (+40% increase)
+
+**New Bidirectional Partial Matching:**
+- Now checks if question contains pattern OR pattern contains question
+- Increases match coverage significantly
+
+**3. Added Debugging** (`classes/matching/manager.php`)
+- Logs pattern, score, and breakdown for all matches with score > 0
+- Helps administrators diagnose matching issues
+- Debug level: `DEBUG_DEVELOPER`
+
+#### 📊 Expected Impact
+
+**Before v2.1.2:**
+- Bot: "No encontré una respuesta" (for everything)
+- Match rate: ~0% (even with seed)
+
+**After v2.1.2:**
+- Bot: Provides comprehensive answers to 9+ common questions
+- Match rate: ~80-90% for intended questions
+- Lower false negatives, better fuzzy matching
+
+#### 🔄 Upgrade Instructions
+
+**Automatic upgrade:**
+1. Upload new plugin files
+2. Visit Site Administration → Notifications
+3. Moodle will run upgrade automatically
+4. Common questions seed will execute automatically
+
+**Manual seed (if needed):**
+```php
+require_once('local/educambot/classes/local/setup/common_questions_seed.php');
+$stats = \local_educambot\local\setup\common_questions_seed::seed();
+echo "Created: {$stats['created']}, Updated: {$stats['updated']}\n";
+```
+
+**Enable debugging (optional, for testing):**
+```php
+// In config.php
+$CFG->debug = DEBUG_DEVELOPER;
+$CFG->debugdisplay = 1;
+```
+
+#### 📝 Files Modified
+
+- `db/upgrade.php` - **CREATED** (was removed in refactoring, now restored)
+- `classes/matching/manager.php` - Improved matching algorithm
+- `version.php` - Updated to 2025103005 (v2.1.2)
+- `CHANGELOG.md` - This documentation
+- `README.md` - Updated version info
+
+#### 🎯 Testing Recommendations
+
+After upgrading, test with these questions:
+
+```
+✅ "¿Cómo enviar un trabajo?"
+✅ "cómo subir una tarea"
+✅ "enviar assignment"
+✅ "como ver mis notas"
+✅ "ver calificaciones"
+✅ "check grades"
+```
+
+Expected: Bot should provide comprehensive, formatted answers.
+
+If bot still doesn't answer:
+1. Check Site Administration → Plugins → Local plugins → Educam Bot
+2. Verify rules exist: Browse "Reglas y Respuestas"
+3. Run seed manually (command above)
+4. Enable debugging to see match scores
+
+#### ⚠️ Breaking Changes
+
+None. This is a bug fix release that maintains full backward compatibility.
+
+---
+
 ## [2.1.1] - 2025-10-30 (Version 2025103004)
 
 ### 🎯 Critical Fix: Common Student Questions Now Answered

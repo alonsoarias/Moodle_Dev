@@ -1,6 +1,6 @@
 # Educam Bot - Intelligent Educational Chatbot for Moodle
 
-**Version:** 2.1.1 (2025103004)
+**Version:** 2.1.2 (2025103005)
 **License:** GNU GPL v3 or later
 **Requires:** Moodle 4.0+
 **Maintainer:** Educam
