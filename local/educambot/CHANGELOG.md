@@ -2,6 +2,113 @@
 
 All notable changes to the Educam Bot plugin will be documented in this file.
 
+## [2.1.1] - 2025-10-30 (Version 2025103004)
+
+### 🎯 Critical Fix: Common Student Questions Now Answered
+
+This patch release solves a critical issue where the bot wasn't responding to common student questions like "¿Cómo enviar un trabajo?" (How to submit an assignment?).
+
+#### ✨ New Features
+
+**Common Questions Seed** (`classes/local/setup/common_questions_seed.php`)
+- Pre-configured answers for the 9 most frequent student questions
+- Comprehensive, step-by-step responses with screenshots references
+- Multiple language variations (Spanish + English)
+- Role-based responses (optimized for students)
+- Context-aware (linked to relevant Moodle pages)
+
+#### 📝 Questions Now Answered Out-of-the-Box
+
+1. **¿Cómo enviar un trabajo?** / How to submit assignment?
+   - Complete guide with 8 steps
+   - Tips and common pitfalls
+   - Multiple variations: enviar, entregar, subir tarea/trabajo/assignment
+
+2. **¿Cómo ver mis calificaciones?** / How to check grades?
+   - Two methods explained (Dashboard + Course)
+   - What students can see
+   - Important notes about grade availability
+
+3. **¿Cómo acceder a un curso?** / How to access a course?
+   - Two access methods
+   - Troubleshooting common access problems
+   - First-time access tips
+
+4. **¿Cómo cambiar mi contraseña?** / How to change password?
+   - Password recovery process
+   - Changing existing password
+   - Security requirements
+
+5. **¿Cómo participar en un foro?** / How to participate in forum?
+   - Creating new topics
+   - Replying to existing discussions
+   - Forum best practices
+
+6. **¿Cómo hacer un cuestionario?** / How to take a quiz?
+   - Step-by-step quiz completion
+   - Time management tips
+   - Technical troubleshooting
+
+7. **¿Cómo cambiar mi foto de perfil?** / How to change profile picture?
+   - Complete profile update process
+   - Image requirements
+   - Professional photo tips
+
+8. **¿Cómo enviar un mensaje a mi profesor?** / How to message teacher?
+   - Two messaging methods
+   - Professional communication tips
+   - Response time expectations
+
+9. **¿Cómo descargar materiales?** / How to download course materials?
+   - Downloading individual files
+   - Downloading folders
+   - Mobile device instructions
+
+#### 🔧 Technical Improvements
+
+- **Auto-installation**: Seeds run automatically on plugin install
+- **Update-friendly**: Existing installations can run seed manually
+- **Comprehensive synonyms**: Each question has 5-10 variations
+- **Rich responses**: HTML-formatted with emojis, lists, tips
+- **Context-aware**: Responses linked to relevant Moodle pages
+- **Suggested questions**: Marked for proactive display
+
+#### 📊 Impact
+
+- **Immediate value**: Bot works out-of-the-box for students
+- **Reduced support tickets**: Common questions answered automatically
+- **Better UX**: Students get help 24/7 without waiting
+- **Foundation**: Base for expanding knowledge with more questions
+
+#### 🔄 Upgrade Instructions
+
+**For new installations:**
+- Seeds run automatically during installation
+- No action required
+
+**For existing installations:**
+- Run from admin interface: Plugins → Educam Bot → Seed Common Questions
+- Or via CLI:
+  ```php
+  require_once('local/educambot/classes/local/setup/common_questions_seed.php');
+  $stats = \local_educambot\local\setup\common_questions_seed::seed();
+  ```
+
+#### 📝 Files Modified
+
+- `version.php` - Updated to 2025103004 (v2.1.1)
+- `db/install.php` - Added automatic common questions seeding
+- `classes/local/setup/common_questions_seed.php` - New file (800+ lines)
+
+#### 🎯 Backward Compatibility
+
+- ✅ Fully compatible with v2.1.0
+- ✅ No breaking changes
+- ✅ Safe to update
+- ✅ Existing knowledge preserved
+
+---
+
 ## [2.1.0] - 2025-10-30 (Version 2025103003)
 
 ### 🚀 Major Feature Release: Enhanced LOCAL AI Engine
