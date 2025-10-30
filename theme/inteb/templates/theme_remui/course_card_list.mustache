@@ -50,44 +50,18 @@
                     </div>
                 </div>
             </div>
-            {{! MODIFICADO: Mostrar TODOS los profesores con indicadores de tipo }}
-            <div class="course-card-instructors-wrapper d-flex flex-column flex-gap-1">
-                {{! Badges con conteos por tipo - Solo si hay profesores }}
-                {{#total_teachers_count}}
-                    <div class="d-flex flex-gap-0d5 align-items-center">
-                        {{#editing_teachers_count}}
-                            <span class="badge badge-sm badge-primary editing-teacher-badge-card" title="{{#str}}editingteachers,theme_inteb{{/str}}">
-                                <i class="fa fa-pencil"></i> {{editing_teachers_count}}
-                            </span>
-                        {{/editing_teachers_count}}
-                        {{#non_editing_teachers_count}}
-                            <span class="badge badge-sm badge-secondary non-editing-teacher-badge-card" title="{{#str}}noneditingteachers,theme_inteb{{/str}}">
-                                <i class="fa fa-user"></i> {{non_editing_teachers_count}}
-                            </span>
-                        {{/non_editing_teachers_count}}
-                    </div>
-                {{/total_teachers_count}}
-
-                {{! Lista completa de profesores }}
-                {{#instructors}}
-                    <div class="instructor-item-card {{teacher_type_class}}" title="{{teacher_type_title}}: {{name}}">
-                        <a href="{{url}}" class="d-flex align-items-center flex-gap-d5 instructor-link-card">
-                            <div class="instructor-avatar-card-wrapper position-relative">
-                                {{{picture}}}
-                                <span class="teacher-type-indicator-card {{teacher_type_class}}-indicator">
-                                    {{#is_editing_teacher}}
-                                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                                    {{/is_editing_teacher}}
-                                    {{^is_editing_teacher}}
-                                        <i class="fa fa-user-o" aria-hidden="true"></i>
-                                    {{/is_editing_teacher}}
-                                </span>
-                            </div>
-                            <span class="h-regular-6 course-instructors m-0 break-word ellipsis ellipsis-2" title="{{name}}">{{name}}</span>
-                        </a>
-                    </div>
-                {{/instructors}}
+            {{! MODIFICADO: Mostrar TODOS los profesores (no solo el primero) }}
+            {{#instructors}}
+            <div class="d-flex flex-row flex-gap-0d5 {{teacher_type_class}}">
+                <div class="d-flex flex-row instructor-info-wrapper">
+                    <a href="{{ url }}" class="d-flex align-items-center flex-gap-d5 instructor-img {{ imgStyle }}"
+                        aria-label="Instructor for {{coursename}} is - {{name}}" title="{{teacher_type_title}}: {{{name}}}">
+                        <img src="{{ picture }}" class="rounded-circle" alt="{{ name }}" loading="lazy"/>
+                        <h6 class="h-regular-6 course-instructors m-0 break-word ellipsis ellipsis-2" title="{{{name}}}">{{{name}}}</h6>
+                    </a>
+                </div>
             </div>
+            {{/instructors}}
 
             {{#coursesummary}}
             <p class="coursesummary ellipsis ellipsis-2 para-regular-3 m-0">{{{coursesummary}}}</p>
