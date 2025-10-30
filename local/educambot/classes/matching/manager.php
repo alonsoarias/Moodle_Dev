@@ -96,18 +96,32 @@ class manager {
                 }
             }
 
-            if ($normalizedquestion !== '' && str_contains($normalizedquestion, $normalizedphrase)) {
-                $breakdown['partial'] = max($breakdown['partial'], 0.85);
-                $score += 0.85;
+            // BUGFIX: Check both directions for partial match.
+            if ($normalizedquestion !== '' && $normalizedphrase !== '') {
+                if (str_contains($normalizedquestion, $normalizedphrase)) {
+                    $breakdown['partial'] = max($breakdown['partial'], 0.85);
+                    $score += 0.85;
+                } else if (str_contains($normalizedphrase, $normalizedquestion)) {
+                    $breakdown['partial'] = max($breakdown['partial'], 0.80);
+                    $score += 0.80;
+                }
             }
 
+            // BUGFIX: Lowered similarity thresholds from 0.65/0.55 to 0.45/0.35 for better matching.
             $similarity = text_helper::string_similarity($normalizedphrase, $normalizedquestion);
-            if ($similarity > 0.65) {
-                $contribution = $similarity * 0.7;
+            if ($similarity > 0.45) {
+                // Increased weight from 0.7 to 0.85 for high similarity.
+                $contribution = $similarity * 0.85;
                 $breakdown['partial'] = max($breakdown['partial'], $contribution);
                 $score += $contribution;
-            } else if ($similarity > 0.55) {
-                $contribution = $similarity * 0.4;
+            } else if ($similarity > 0.35) {
+                // Increased weight from 0.4 to 0.5 for medium similarity.
+                $contribution = $similarity * 0.5;
+                $breakdown['partial'] = max($breakdown['partial'], $contribution);
+                $score += $contribution;
+            } else if ($similarity > 0.25) {
+                // NEW: Added low similarity tier to capture more distant matches.
+                $contribution = $similarity * 0.3;
                 $breakdown['partial'] = max($breakdown['partial'], $contribution);
                 $score += $contribution;
             }
@@ -116,7 +130,8 @@ class manager {
             if (!empty($phraseTokens)) {
                 $overlap = text_helper::token_overlap_score($phraseTokens, $questiontokens);
                 if ($overlap > 0) {
-                    $contribution = $overlap * 0.6;
+                    // BUGFIX: Increased weight from 0.6 to 0.9 for token overlap.
+                    $contribution = $overlap * 0.9;
                     $breakdown['partial'] = max($breakdown['partial'], $contribution);
                     $score += $contribution;
                 }
@@ -149,11 +164,12 @@ class manager {
                 if (in_array($keyword, $questionkeywords, true)) {
                     $matchedkeywords += 1.0;
                 } else if ($keyword !== '' && str_contains($normalizedquestion, $keyword)) {
-                    $matchedkeywords += 0.5;
+                    $matchedkeywords += 0.7;
                 }
             }
             if ($matchedkeywords > 0) {
-                $contribution = min(0.35, ($matchedkeywords / max(1, count($keywords))) * 0.8);
+                // BUGFIX: Increased keyword weight from 0.35 to 0.6 max, and multiplier from 0.8 to 1.0.
+                $contribution = min(0.6, ($matchedkeywords / max(1, count($keywords))) * 1.0);
                 $breakdown['keywords'] = $contribution;
                 $score += $contribution;
             }
@@ -163,6 +179,24 @@ class manager {
         if ($contextscore > 0) {
             $breakdown['contextual'] = $contextscore;
             $score += $contextscore;
+        }
+
+        // DEBUG: Log matching details for debugging.
+        if ($score > 0) {
+            $pattern = $entry->pattern ?? 'N/A';
+            debugging(
+                sprintf(
+                    'matching_manager::score_entry - Pattern: "%s", Score: %.4f, Breakdown: [exact=%.2f, partial=%.2f, semantic=%.2f, keywords=%.2f, contextual=%.2f]',
+                    $pattern,
+                    $score,
+                    $breakdown['exact'],
+                    $breakdown['partial'],
+                    $breakdown['semantic'],
+                    $breakdown['keywords'],
+                    $breakdown['contextual']
+                ),
+                DEBUG_DEVELOPER
+            );
         }
 
         return [
