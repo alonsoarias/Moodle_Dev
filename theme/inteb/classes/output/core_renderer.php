@@ -105,12 +105,14 @@ class core_renderer extends \theme_remui\output\core_renderer
     }
 
     /**
-     * Sobrescribe el método full_header para mostrar avisos generales u otros estilos en el header.
+     * Sobrescribe el método full_header para:
+     * 1. Mostrar avisos generales u otros estilos en el header
+     * 2. Usar el coursehandler personalizado de inteb para mostrar TODOS los profesores
      *
      * @return string
      */
     public function full_header() {
-        global $CFG, $USER, $PAGE;
+        global $CFG, $USER, $PAGE, $COURSE, $DB;
 
         $theme = theme_config::load('inteb');
         $output = '';
@@ -143,9 +145,98 @@ class core_renderer extends \theme_remui\output\core_renderer
             $output .= $this->show_unauthorized_access_overlay($popup_id);
         }
 
-        // Continúa con el header normal.
-        $output .= parent::full_header();
-        return $output;
+        // ====================================================================
+        // MODIFICACIÓN PARA USAR COURSEHANDLER PERSONALIZADO DE INTEB
+        // ====================================================================
+
+        $template = 'core/full_header';
+
+        $pagetype = $this->page->pagetype;
+
+        $homepage = get_home_page();
+        $homepagetype = null;
+        // Add a special case since /my/courses is a part of the /my subsystem.
+        if ($homepage == HOMEPAGE_MY || $homepage == HOMEPAGE_MYCOURSES) {
+            $homepagetype = 'my-index';
+        } else if ($homepage == HOMEPAGE_SITE) {
+            $homepagetype = 'site-index';
+        }
+
+        if ($this->page->include_region_main_settings_in_header_actions() &&
+                !$this->page->blocks->is_block_present('settings')) {
+            // Only include the region main settings if the page has requested it and it doesn't already have
+            // the settings block on it. The region main settings are included in the settings block and
+            // duplicating the content causes behat failures.
+            $this->page->add_header_action(\html_writer::div(
+                $this->region_main_settings_menu(),
+                'd-print-none',
+                ['id' => 'region-main-settings-menu']
+            ));
+        }
+
+        $header = new \stdClass();
+        $header->settingsmenu = $this->context_header_settings_menu();
+        $header->contextheader = $this->context_header();
+        $header->hasnavbar = empty($this->page->layout_options['nonavbar']);
+        $header->navbar = $this->navbar();
+        $header->pageheadingbutton = $this->page_heading_button();
+        $header->courseheader = $this->course_header();
+        $header->headeractions = $this->page->get_header_actions();
+        if (!empty($pagetype) && !empty($homepagetype) && $pagetype == $homepagetype) {
+            $header->welcomemessage = \core_user::welcome_message();
+        }
+
+        // MODIFICACIÓN PRINCIPAL: Usar coursehandler de theme_inteb
+        if ($this->page->pagelayout == 'course' && $design = get_config('theme_remui', 'courseheaderdesign')) {
+            if (strpos($this->page->pagetype, 'course-view-section') !== false) {
+                // $header->contextheader = false;
+                $header->sectionpage = true;
+                $header->coursename = $COURSE->fullname;
+            }
+
+            // USAR COURSEHANDLER DE THEME_INTEB en lugar del de remui
+            $coursehandler = new \theme_inteb\coursehandler();
+
+            $header->edwcourseheader = true;
+            $template = 'theme_remui/edw_course_header' . $design;
+            $header->courseimage = $coursehandler->get_course_image($COURSE);
+            $header->classes = 'hasbackground' . ' design-' . $design;
+            $header->categoryname = format_text($DB->get_record('course_categories', array('id' => $COURSE->category))->name);
+
+            // AQUÍ SE USA EL MÉTODO SOBRESCRITO QUE OBTIENE TODOS LOS PROFESORES
+            $header->teachers = $coursehandler->get_enrolled_teachers_context($COURSE, true);
+
+            if (is_plugin_available('block_edwiserratingreview')) {
+                $rnr = new \block_edwiserratingreview\ReviewManager();
+                $header->rnrdesign = $rnr->get_short_design_enrolmentpage($COURSE->id);
+            }
+        }
+
+        // Used to display the status area  on dashoabard page only.
+        $header->canaddblockandstatusarea = $this->page->pagelayout == 'mydashboard';
+        $overlayopacity = get_config('theme_remui', 'headeroverlayopacity');
+
+        if (is_numeric($overlayopacity) && ($overlayopacity <= 100)) {
+            $overlayopacity = $overlayopacity / 100;
+            $header->overlayopacity = $overlayopacity;
+        } else {
+            $header->overlayopacity = 1;
+        }
+
+        $content = "";
+        $coursecontext = $this->page->context;
+        $ismanager = \theme_remui\utility::check_user_admin_cap($USER);
+
+        if (($this->page->pagelayout == 'course'  || ($COURSE->id != 1 && $this->page->pagetype == 'course-edit') || $this->page->pagetype == 'course-view-participants') && $ismanager) {
+            $header->enrollpageurl = $CFG->wwwroot.'/enrol/index.php?id='.$COURSE->id;
+            $header->participantspageurl = $CFG->wwwroot.'/user/index.php?id='.$COURSE->id;
+            $header->isenrolled = is_enrolled($coursecontext, $USER->id);
+            $content = $this->render_from_template("theme_remui/header_enrolpage_button_ui", $header);
+        }
+
+        $fullheader = $this->render_from_template($template, $header);
+
+        return $output . $content . $fullheader;
     }
 
     /**

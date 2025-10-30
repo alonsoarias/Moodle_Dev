@@ -1,0 +1,196 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    Theme INTEB - Sobrescritura de edw_course_header1
+    Modificado para mostrar TODOS los profesores (editing y non-editing)
+    @package theme_inteb
+    @copyright 2025 INTEB
+    @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+}}
+{{!
+    @template theme_inteb/edw_course_header1
+
+    This template renders the course header with ALL teachers (editing and non-editing).
+
+    Modificaciones respecto a theme_remui:
+    - Muestra TODOS los profesores (editing y non-editing teachers)
+    - Agrega clases CSS para diferenciar tipos de profesores
+    - Agrega tooltips descriptivos para cada tipo
+
+    Example context (json):
+    {
+        "contextheader": "context_header_html",
+        "settingsmenu": "settings_html",
+        "hasnavbar": false,
+        "navbar": "navbar_if_available",
+        "courseheader": "course_header_html",
+        "welcomemessage": "welcomemessage",
+        "categoryname": "category_name",
+        "coursename": "course_name",
+        "courseimage": "url_to_image",
+        "overlayopacity": "0-1",
+        "rnrdesign": "ratings_and_review_html",
+        "teachers": {
+            "instructors": [
+                {
+                    "name": "teacher_name",
+                    "avatars": "html_of_avatar",
+                    "teacherprofileurl": "url_to_profile",
+                    "is_editing_teacher": true,
+                    "teacher_type_class": "editing-teacher",
+                    "teacher_type_title": "Editing Teacher"
+                }
+            ],
+            "teachercount": 3,
+            "participantspageurl": "url_to_participants",
+            "editing_teachers_count": 2,
+            "non_editing_teachers_count": 1,
+            "total_teachers_count": 3
+        },
+        "headeractions": []
+    }
+}}
+
+
+{{#hasnavbar}}
+    <div class="p-mb-3 {{#headeractions}}has-actions{{/headeractions}}" style="font-size: 12px;">
+        {{{navbar}}}
+    </div>
+{{/hasnavbar}}
+
+{{#pageheadingbutton}}
+<div class="d-flex reset-pagebutton-wrapper">
+         {{{pageheadingbutton}}}
+</div>
+{{/pageheadingbutton}}
+<header{{!
+}} id="page-header"{{!
+}} class="header-maxwidth d-print-none {{classes}} position-relative "{{!
+}} style="background: url({{courseimage}});">
+    <div class = "position-absolute w-100 h-100" style="background: linear-gradient(180deg, rgba(0, 0, 0, 0.0)  -24.52%, #000000 97.67%);left:0%;bottom:0%; opacity:{{{overlayopacity}}};border-radius:inherit;"> </div>
+    <div class="w-100 header-wrapper" style="z-index:1;">
+        <div class="d-flex flex-wrap">
+            {{#hasnavbar}}
+            <div id="page-navbar">
+                {{{navbar}}}
+            </div>
+            {{/hasnavbar}}
+            {{#courseheader}}
+            <div id="course-header">
+                {{{courseheader}}}
+            </div>
+            {{/courseheader}}
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="dashboard-bar-wrapper">
+                <div class="header-main-section">
+                    {{#categoryname}}
+                    <div class="category">
+                        <span class="badge p-p-1 small-info-regular">
+                            {{{categoryname}}}
+                        </span>
+                    </div>
+                    {{/categoryname}}
+                    {{^welcomemessage}}
+                        {{#sectionpage}}
+                            <div class="page-context-header coursenamewrapper">
+                                <div class="page-header-headings">
+                                    <h1 class="h2 header-heading coursepage design-1">
+                                        {{{coursename}}}
+                                    </h1>
+                                </div>
+                            </div>
+                        {{/sectionpage}}
+                        {{#contextheader}}
+                            {{{contextheader}}}
+                        {{/contextheader}}
+                    {{/welcomemessage}}
+                    {{> core/welcome }}
+                </div>
+                <div class="header-sub-section">
+                    {{#rnrdesign}}
+                    <div class="edw-ratings-wrapper">
+                        {{{rnrdesign}}}
+                    </div>
+                    {{/rnrdesign}}
+                    {{!
+                        ===============================================================
+                        SECCIÓN MODIFICADA: Profesores con indicadores de tipo
+                        ===============================================================
+                    }}
+                    {{#teachers}}
+                    <div class="instructor-info stat-container position-relative">
+                        {{! Título descriptivo opcional }}
+                        <div class="instructors-header-label" title="Total: {{total_teachers_count}} profesores">
+                            <small class="text-muted">
+                                {{#editing_teachers_count}}
+                                    <span class="badge badge-primary editing-teacher-badge" title="Con permisos de edición">
+                                        <i class="fa fa-edit"></i> {{editing_teachers_count}}
+                                    </span>
+                                {{/editing_teachers_count}}
+                                {{#non_editing_teachers_count}}
+                                    <span class="badge badge-secondary non-editing-teacher-badge" title="Sin permisos de edición">
+                                        <i class="fa fa-user"></i> {{non_editing_teachers_count}}
+                                    </span>
+                                {{/non_editing_teachers_count}}
+                            </small>
+                        </div>
+
+                        {{! Lista de profesores con clases diferenciadas }}
+                        <div class="instructors-list-wrapper d-flex flex-wrap align-items-start">
+                            {{#instructors}}
+                                <div class="position-relative instructor-item {{teacher_type_class}}" title="{{teacher_type_title}}: {{name}}">
+                                    <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
+                                    <div class="instructor-avatar-wrapper">
+                                        {{{avatars}}}
+                                        {{! Indicador visual del tipo de profesor }}
+                                        <span class="teacher-type-indicator {{teacher_type_class}}-indicator">
+                                            {{#is_editing_teacher}}
+                                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                            {{/is_editing_teacher}}
+                                            {{^is_editing_teacher}}
+                                                <i class="fa fa-user-o" aria-hidden="true"></i>
+                                            {{/is_editing_teacher}}
+                                        </span>
+                                    </div>
+                                    <span class="titles h-regular-6 instructor-name-label">{{name}}</span>
+                                </div>
+                            {{/instructors}}
+                        </div>
+
+                        {{! Enlace para ver todos los profesores }}
+                        {{#teachercount}}
+                            <div class="view-all-instructors-wrapper mt-2">
+                                <a class="view-all-instructorslink para-semibold-2" href="{{participantspageurl}}">
+                                    {{#str}} viewalltext, theme_remui {{/str}} (+{{teachercount}})
+                                </a>
+                            </div>
+                        {{/teachercount}}
+                    </div>
+                    {{/teachers}}
+                    {{!
+                        ===============================================================
+                        FIN DE SECCIÓN MODIFICADA
+                        ===============================================================
+                    }}
+                </div>
+            </div>
+            <div class="header-actions-container " data-region="header-actions-container">
+                {{#headeractions}}
+                    <div class="header-action ">{{{.}}}</div>
+                {{/headeractions}}
+            </div>
+        </div>
+    </div>
+</header>

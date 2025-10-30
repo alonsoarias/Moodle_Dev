@@ -128,4 +128,16 @@ $string['devtools_access_disabled'] = 'Developer tools access is disabled on thi
 
 // Additional dashboard strings
 $string['dashboardpersonalizerinfo'] = 'Dashboard personalizer info';
+
+// Teacher types (for course headers and cards)
+$string['editingteacher'] = 'Editing Teacher';
+$string['teacher'] = 'Non-Editing Teacher';
+$string['allteachers'] = 'All Teachers';
+$string['editingteachers'] = 'Editing Teachers';
+$string['noneditingteachers'] = 'Non-Editing Teachers';
+$string['teacherswith'] = 'With editing permissions';
+$string['teacherswithout'] = 'Without editing permissions';
+$string['totalteachers'] = 'Total Teachers: {$a}';
+$string['editingteacherscount'] = 'Editing: {$a}';
+$string['noneditingteacherscount'] = 'Non-editing: {$a}';
 $string['defaultheader'] = 'Default header';
