@@ -2,6 +2,30 @@
 
 All notable changes to the Educam Bot plugin will be documented in this file.
 
+## [2.0.2] - 2025-10-30 (Version 2025103002)
+
+### 🔧 Technical Improvements & Bug Fixes
+
+This is a refactored release that maintains all the features of v2.0.0 while improving code quality and fixing technical issues.
+
+#### Fixed
+- **Type Declaration Error** in `classes/nlp/enhanced_pipeline.php`: Fixed return type of `expand_abbreviations()` method from `array` to `string` to match actual implementation (line 338)
+- **Version Management**: Updated version number from 2025103000 to 2025103002
+- **Clean Installation**: Removed `db/upgrade.php` as this version is designed for clean installations
+
+#### Improved
+- **Code Quality**: Enhanced type safety and PHPDoc comments
+- **Documentation**: Updated README.md and CHANGELOG.md to reflect current version
+- **Codebase Structure**: Cleaner separation of concerns in core files
+
+#### Technical Notes
+- This version (2025103002) is designed as a complete refactoring
+- No database schema changes from v2.0.0
+- All existing features and functionality preserved
+- Backward compatible with data from v2.0.0
+
+---
+
 ## [2.0.0] - 2025-10-30 (Version 2025103000)
 
 ### 🎯 Major Release: Enhanced LOCAL Intelligence
