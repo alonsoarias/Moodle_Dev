@@ -23,6 +23,7 @@
  */
 
 use local_educambot\local\setup\seed;
+use local_educambot\local\setup\common_questions_seed;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,5 +34,9 @@ defined('MOODLE_INTERNAL') || die();
  */
 function xmldb_local_educambot_install(): bool {
     seed::seed_initial_data();
+
+    // Seed common student questions for immediate functionality.
+    common_questions_seed::seed();
+
     return true;
 }
