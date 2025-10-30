@@ -198,21 +198,121 @@ class coursehandler extends \theme_remui_coursehandler {
     }
 
     /**
-     * MÉTODO OPCIONAL: Si se requiere personalizar otros aspectos
-     * Se puede sobrescribir get_courses() para modificar las course cards
+     * Sobrescribe get_courses() para mostrar TODOS los profesores en course cards
+     * (no solo el primero como hace remui)
      *
-     * Por ahora lo dejamos comentado y usamos solo el método anterior
+     * @param array $filters Filtros para los cursos
+     * @return array Cursos con información completa de profesores
      */
-
-    /*
     public function get_courses($filters = array()) {
-        // Llamar al método padre
-        $result = parent::get_courses($filters);
+        global $CFG, $DB, $OUTPUT;
 
-        // Aquí se pueden hacer modificaciones adicionales si se requieren
-        // Por ejemplo, agregar más información de profesores a cada curso
+        // Obtener el resultado del método padre
+        $parentresult = parent::get_courses($filters);
 
-        return $result;
+        // Si no hay courses en el resultado, retornar tal cual
+        if (!isset($parentresult['courses']) || empty($parentresult['courses'])) {
+            return $parentresult;
+        }
+
+        // Procesar cada curso para agregar TODOS los profesores con indicadores
+        foreach ($parentresult['courses'] as $key => $course) {
+            // Obtener el objeto del curso completo
+            $courseobj = $DB->get_record('course', array('id' => $course->id));
+            if (!$courseobj) {
+                continue;
+            }
+
+            // Obtener contexto del curso
+            $coursecontext = \context_course::instance($course->id);
+
+            // PASO 1: Obtener editing teachers (con permisos de edición)
+            $editingteachers = get_enrolled_users(
+                $coursecontext,
+                'mod/folder:managefiles',
+                0, // Sin restricción de grupos aquí (puede ajustarse si se requiere)
+                'u.id, u.firstname, u.lastname, u.email, u.picture, u.imagealt',
+                'u.firstname ASC',
+                0,
+                0,
+                true
+            );
+
+            // PASO 2: Obtener non-editing teachers (sin permisos de edición)
+            $noneditingteachers = get_enrolled_users(
+                $coursecontext,
+                'moodle/course:viewhiddenactivities',
+                0,
+                'u.id, u.firstname, u.lastname, u.email, u.picture, u.imagealt',
+                'u.firstname ASC',
+                0,
+                0,
+                true
+            );
+
+            // PASO 3: Combinar y eliminar duplicados
+            $allteachers = array();
+            foreach ($editingteachers as $teacher) {
+                $allteachers[$teacher->id] = $teacher;
+                $allteachers[$teacher->id]->is_editing_teacher = true;
+            }
+            foreach ($noneditingteachers as $teacher) {
+                if (!isset($allteachers[$teacher->id])) {
+                    $allteachers[$teacher->id] = $teacher;
+                    $allteachers[$teacher->id]->is_editing_teacher = false;
+                }
+            }
+
+            // Ordenar alfabéticamente
+            uasort($allteachers, function($a, $b) {
+                return strcasecmp($a->firstname, $b->firstname);
+            });
+
+            // PASO 4: Crear array de instructors con TODOS los profesores
+            $instructorsarray = array();
+            foreach ($allteachers as $teacher) {
+                $instructor = array();
+                $instructor['name'] = fullname($teacher, true);
+                $instructor['url'] = $CFG->wwwroot . '/user/profile.php?id=' . $teacher->id;
+                $instructor['picture'] = $OUTPUT->user_picture($teacher, array('size' => 50));
+
+                // NUEVO: Agregar indicadores de tipo
+                $instructor['is_editing_teacher'] = $teacher->is_editing_teacher;
+                $instructor['teacher_type_class'] = $teacher->is_editing_teacher
+                    ? 'editing-teacher'
+                    : 'non-editing-teacher';
+                $instructor['teacher_type_title'] = $teacher->is_editing_teacher
+                    ? get_string('editingteacher', 'theme_inteb')
+                    : get_string('teacher', 'theme_inteb');
+
+                $instructorsarray[] = $instructor;
+            }
+
+            // PASO 5: Actualizar el curso con los datos completos
+            if (!empty($instructorsarray)) {
+                // Reemplazar el array de instructors con TODOS (no solo el primero)
+                $parentresult['courses'][$key]->instructors = $instructorsarray;
+
+                // Actualizar instructorcount (ya no es necesario porque mostramos todos)
+                // Pero lo mantenemos por compatibilidad si algún template lo usa
+                $parentresult['courses'][$key]->instructorcount = 0; // 0 porque mostramos todos
+
+                // Agregar contadores por tipo
+                $editingcount = 0;
+                $noneditingcount = 0;
+                foreach ($allteachers as $teacher) {
+                    if ($teacher->is_editing_teacher) {
+                        $editingcount++;
+                    } else {
+                        $noneditingcount++;
+                    }
+                }
+                $parentresult['courses'][$key]->editing_teachers_count = $editingcount;
+                $parentresult['courses'][$key]->non_editing_teachers_count = $noneditingcount;
+                $parentresult['courses'][$key]->total_teachers_count = count($allteachers);
+            }
+        }
+
+        return $parentresult;
     }
-    */
 }
