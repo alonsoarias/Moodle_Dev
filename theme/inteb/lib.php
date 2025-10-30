@@ -270,11 +270,169 @@ function theme_inteb_migrate_settings() {
 function theme_inteb_get_setting($setting) {
     // Siempre intentar primero con el prefijo ib_
     $value = get_config('theme_inteb', 'ib_' . $setting);
-    
+
     // Si no se encuentra, intentar con la versión sin prefijo (para compatibilidad con versiones anteriores)
     if ($value === false) {
         $value = get_config('theme_inteb', $setting);
     }
-    
+
     return $value;
+}
+
+/**
+ * SOBRESCRITURA DE FUNCIÓN DE FORMAT_REMUIFORMAT
+ *
+ * Obtiene contexto de profesores inscritos en un curso para format_remuiformat
+ * MODIFICADO: Ahora obtiene TODOS los profesores (editing y non-editing)
+ *
+ * Esta función sobrescribe get_enrolled_teachers_context_formate() de format_remuiformat
+ * para mostrar TODOS los profesores con indicadores de tipo.
+ *
+ * @param object $course Objeto del curso
+ * @param bool $frontlineteacher Si true, NO limita cantidad de profesores mostrados (modificado)
+ * @return array Contexto con información completa de profesores
+ */
+function get_enrolled_teachers_context_formate($course, $frontlineteacher = false) {
+    global $OUTPUT, $CFG, $USER, $DB;
+
+    $courseid = $course->id;
+
+    // Obtener grupos del usuario para respetar modo de grupos
+    $usergroups = groups_get_user_groups($courseid, $USER->id);
+    $groupids = 0;
+
+    if ($course->groupmode == 1) {
+        $groupids = $usergroups[0];
+    }
+
+    $coursecontext = \context_course::instance($courseid);
+
+    // ====================================================================
+    // MODIFICACIÓN PRINCIPAL: Obtener TODOS los profesores
+    // ====================================================================
+
+    // PASO 1: Obtener profesores con permisos de edición (editingteacher)
+    // Capability: mod/folder:managefiles (como hace remuiformat originalmente)
+    $editingteachers = get_enrolled_users(
+        $coursecontext,
+        'mod/folder:managefiles',
+        $groupids,
+        '*',
+        'firstname',
+        $limitfrom = 0,
+        $limitnum = 0,
+        $onlyactive = true
+    );
+
+    // PASO 2: Obtener profesores SIN permisos de edición (non-editing teacher)
+    // Capability: moodle/course:viewhiddenactivities (capability típica de teacher role)
+    $noneditingteachers = get_enrolled_users(
+        $coursecontext,
+        'moodle/course:viewhiddenactivities',
+        $groupids,
+        '*',
+        'firstname',
+        $limitfrom = 0,
+        $limitnum = 0,
+        $onlyactive = true
+    );
+
+    // PASO 3: Combinar ambos arrays y eliminar duplicados
+    $allteachers = array();
+
+    // Agregar editing teachers
+    foreach ($editingteachers as $teacher) {
+        $allteachers[$teacher->id] = $teacher;
+        // Marcar como editing teacher
+        $allteachers[$teacher->id]->is_editing_teacher = true;
+    }
+
+    // Agregar non-editing teachers (evitando duplicados)
+    foreach ($noneditingteachers as $teacher) {
+        if (!isset($allteachers[$teacher->id])) {
+            $allteachers[$teacher->id] = $teacher;
+            // Marcar como non-editing teacher
+            $allteachers[$teacher->id]->is_editing_teacher = false;
+        }
+    }
+
+    // PASO 4: Ordenar por firstname
+    uasort($allteachers, function($a, $b) {
+        return strcasecmp($a->firstname, $b->firstname);
+    });
+
+    // ====================================================================
+    // FIN DE MODIFICACIÓN PRINCIPAL
+    // ====================================================================
+
+    // Obtener rol de editingteacher para el enlace de participantes
+    $roles = new \stdClass();
+    $allroles = get_all_roles();
+    foreach ($allroles as $singlerole) {
+        if ($singlerole->shortname == 'editingteacher') {
+            $roles = $singlerole;
+            break;
+        }
+    }
+    if (!isset($roles->id)) {
+        $roles->id = "";
+    }
+
+    $context = array();
+
+    if ($allteachers) {
+        // MODIFICADO: Ya no limitamos a 4 profesores - mostramos TODOS
+        $profilecount = 0;
+
+        foreach ($allteachers as $key => $teacher) {
+            // Crear entrada para cada profesor
+            $instructor = array();
+            $instructor['id'] = $teacher->id;
+            $instructor['name'] = fullname($teacher, true);
+            $instructor['avatars'] = $OUTPUT->user_picture($teacher);
+            $instructor['teacherprofileurl'] = $CFG->wwwroot.'/user/profile.php?id='.$teacher->id;
+
+            // NUEVO: Agregar indicador de tipo de profesor
+            $instructor['is_editing_teacher'] = $teacher->is_editing_teacher;
+            $instructor['teacher_type_class'] = $teacher->is_editing_teacher
+                ? 'editing-teacher'
+                : 'non-editing-teacher';
+
+            // NUEVO: Agregar tooltip descriptivo
+            if ($teacher->is_editing_teacher) {
+                $instructor['teacher_type_title'] = get_string('editingteacher', 'theme_inteb');
+            } else {
+                $instructor['teacher_type_title'] = get_string('teacher', 'theme_inteb');
+            }
+
+            if ($profilecount != 0) {
+                $instructor['hasanother'] = true;
+            }
+
+            $context['instructors'][] = $instructor;
+            $profilecount++;
+        }
+
+        // Ya no hay teachercount porque mostramos todos
+        $context['teachercount'] = 0;
+
+        $context['participantspageurl'] = $CFG->wwwroot.'/user/index.php?id='.$courseid.'&roleid='.$roles->id;
+        $context['hasteachers'] = true;
+
+        // NUEVO: Agregar contadores separados para estadísticas
+        $editingcount = 0;
+        $noneditingcount = 0;
+        foreach ($allteachers as $teacher) {
+            if ($teacher->is_editing_teacher) {
+                $editingcount++;
+            } else {
+                $noneditingcount++;
+            }
+        }
+        $context['editing_teachers_count'] = $editingcount;
+        $context['non_editing_teachers_count'] = $noneditingcount;
+        $context['total_teachers_count'] = $profilecount;
+    }
+
+    return $context;
 }
