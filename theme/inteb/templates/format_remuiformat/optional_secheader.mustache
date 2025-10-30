@@ -61,62 +61,21 @@
                                 </div>
                                 {{/rnrdesign}}
 
-                                {{!
-                                    ===============================================================
-                                    SECCIÓN MODIFICADA: Profesores con indicadores de tipo
-                                    ===============================================================
-                                }}
+                                {{! MODIFICADO: Muestra TODOS los profesores (editing + non-editing) }}
                                 {{#teachers}}
                                 <div class="instructor-info stat-container position-relative">
-                                    {{! Badges con conteos por tipo }}
-                                    {{#total_teachers_count}}
-                                        <div class="instructors-header-label mb-2" title="Total: {{total_teachers_count}} profesores">
-                                            {{#editing_teachers_count}}
-                                                <span class="badge badge-primary editing-teacher-badge" title="{{#str}}editingteachers,theme_inteb{{/str}}">
-                                                    <i class="fa fa-edit"></i> {{editing_teachers_count}}
-                                                </span>
-                                            {{/editing_teachers_count}}
-                                            {{#non_editing_teachers_count}}
-                                                <span class="badge badge-secondary non-editing-teacher-badge" title="{{#str}}noneditingteachers,theme_inteb{{/str}}">
-                                                    <i class="fa fa-user"></i> {{non_editing_teachers_count}}
-                                                </span>
-                                            {{/non_editing_teachers_count}}
-                                        </div>
-                                    {{/total_teachers_count}}
-
-                                    {{! Lista de profesores con indicadores }}
-                                    <div class="instructors-list-wrapper d-flex flex-wrap">
-                                        {{#instructors}}
-                                            <div class="position-relative instructor-item {{teacher_type_class}}" title="{{teacher_type_title}}: {{name}}">
-                                                <a class="view-user-profile-link" href="{{teacherprofileurl}}" title="{{name}}"></a>
-                                                <div class="instructor-avatar-wrapper">
-                                                    {{{avatars}}}
-                                                    {{! Indicador visual del tipo de profesor }}
-                                                    <span class="teacher-type-indicator {{teacher_type_class}}-indicator">
-                                                        {{#is_editing_teacher}}
-                                                            <i class="fa fa-pencil" aria-hidden="true"></i>
-                                                        {{/is_editing_teacher}}
-                                                        {{^is_editing_teacher}}
-                                                            <i class="fa fa-user-o" aria-hidden="true"></i>
-                                                        {{/is_editing_teacher}}
-                                                    </span>
-                                                </div>
-                                                <span class="titles instructor-name-label">{{name}}</span>
-                                            </div>
-                                        {{/instructors}}
+                                    {{#instructors}}
+                                    <div class="position-relative {{teacher_type_class}}" title="{{teacher_type_title}}">
+                                        <a class="view-user-profile-link" href="{{teacherprofileurl}}" class="" title="{{name}}"></a>
+                                        {{{avatars}}}
+                                        <span class="titles ">{{name}}</span>
                                     </div>
-
-                                    {{! Enlace "View all" solo si teachercount > 0 (actualmente siempre 0 porque mostramos todos) }}
+                                    {{/instructors}}
                                     {{#teachercount}}
-                                        <a class="view-all-instructorslink" href="{{participantspageurl}}">view all (+{{teachercount}})</a>
+                                        <a class="view-all-instructorslink" href="{{participantspageurl}}" class="">view all</a>
                                     {{/teachercount}}
                                 </div>
                                 {{/teachers}}
-                                {{!
-                                    ===============================================================
-                                    FIN DE SECCIÓN MODIFICADA
-                                    ===============================================================
-                                }}
                             </div>
                             {{#coursecompletionstatus}}
                             <div class="progress-resume-wrapper">
