@@ -124,4 +124,16 @@ $string['devtools_access_disabled'] = 'El acceso a las herramientas de desarroll
 
 // Cadenas adicionales para el panel de control
 $string['dashboardpersonalizerinfo'] = 'Información del personalizador del panel';
+
+// Tipos de profesores (para encabezados y tarjetas de cursos)
+$string['editingteacher'] = 'Profesor con Permisos de Edición';
+$string['teacher'] = 'Profesor sin Permisos de Edición';
+$string['allteachers'] = 'Todos los Profesores';
+$string['editingteachers'] = 'Profesores con Permisos de Edición';
+$string['noneditingteachers'] = 'Profesores sin Permisos de Edición';
+$string['teacherswith'] = 'Con permisos de edición';
+$string['teacherswithout'] = 'Sin permisos de edición';
+$string['totalteachers'] = 'Total de Profesores: {$a}';
+$string['editingteacherscount'] = 'Con edición: {$a}';
+$string['noneditingteacherscount'] = 'Sin edición: {$a}';
 $string['defaultheader'] = 'Encabezado predeterminado';
