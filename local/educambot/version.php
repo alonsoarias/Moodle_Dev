@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version   = 2025103006;
+$plugin->version   = 2025103007;
 $plugin->requires  = 2022041900; // Moodle 4.0.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.1.3';
+$plugin->release   = '2.1.4';

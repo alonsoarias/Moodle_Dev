@@ -46,7 +46,10 @@ class common_questions_seed {
         $updated = 0;
 
         foreach ($rules as $ruledata) {
-            $existing = $DB->get_record('local_educambot_rule', ['pattern' => $ruledata['pattern']]);
+            // Use sql_compare_text for TEXT field comparison.
+            $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            $existing = $DB->get_record_sql($sql, ['pattern' => $ruledata['pattern']]);
 
             $record = new stdClass();
             $record->pattern = $ruledata['pattern'];
