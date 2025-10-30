@@ -107,6 +107,10 @@ class composite_reasoner implements reasoner_interface {
         debugging('composite_reasoner::decide - Adjusted scores: rule=' . $rulescore . ' (min=' . $minrulescore .
                   '), knowledge=' . $knowledgescore . ' (min=' . $minknowledgescore . ')', DEBUG_DEVELOPER);
 
+        // Log scores after adjustments for debugging.
+        debugging('composite_reasoner::decide - Adjusted scores: rule=' . $rulescore . ' (min=' . $minrulescore .
+                  '), knowledge=' . $knowledgescore . ' (min=' . $minknowledgescore . ')', DEBUG_DEVELOPER);
+
         if ($bestrule !== null && $bestknowledge !== null) {
             // v2025103007: CRITICAL LOGIC CHANGE - Strongly prefer rules over knowledge.
             // Strategy:
