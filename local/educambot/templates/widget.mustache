@@ -20,7 +20,7 @@
     Educam Bot Widget Template
 }}
 <div id="educambot-chat" data-service-url="{{serviceurl}}" data-sessionkey="{{sessionkey}}" data-page="{{pageidentifier}}" data-noanswer="{{strings.noanswer}}" data-confidence-label="{{strings.confidence}}" data-loading="{{strings.loading}}" style="display:none;">
-    <input type="hidden" id="educambot_initial_message" value="{{#widgetconfig}}{{{widgetconfig}}}{{/widgetconfig}}">
+    <script type="application/json" id="educambot_initial_message">{{{widgetconfig}}}</script>
 
     <div class="educambot-popup">
         <div id="educambot-scrollarea">
