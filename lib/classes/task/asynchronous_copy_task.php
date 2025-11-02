@@ -208,9 +208,7 @@ class asynchronous_copy_task extends adhoc_task {
             fulldelete($backupbasepath);
         }
 
-        // Note: rebuild_course_cache() is already called within the restore plan
-        // (restore_rebuild_course_cache step in restore_stepslib.php).
-        // No need to call it again here - it would be redundant and slow.
+        rebuild_course_cache($restorerecord->itemid, true);
         cache_helper::purge_by_event('changesincourse');
 
         $duration = time() - $started;
