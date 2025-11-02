@@ -798,7 +798,21 @@ class restore_rebuild_course_cache extends restore_execution_step {
         }
 
         // Rebuild cache now that all sections are in place
-        rebuild_course_cache($this->get_courseid());
+        // Extended timeout and error handling for large courses (200+ activities)
+        core_php_time_limit::raise(7200); // 2 hours for very large courses
+        raise_memory_limit('2G');
+
+        try {
+            rebuild_course_cache($this->get_courseid());
+        } catch (\Throwable $e) {
+            // If rebuild fails (timeout/memory), just purge - cache will rebuild on first access
+            debugging('Course cache rebuild failed during restore: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            $cache = cache::make('core', 'coursemodinfo');
+            increment_revision_number('course', 'cacherev', 'id = :id', ['id' => $this->get_courseid()]);
+            $cache->delete($this->get_courseid());
+            course_modinfo::clear_instance_cache($this->get_courseid());
+        }
+
         cache_helper::purge_by_event('changesincourse');
         cache_helper::purge_by_event('changesincoursecat');
     }
