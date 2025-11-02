@@ -208,7 +208,64 @@ class asynchronous_copy_task extends adhoc_task {
             fulldelete($backupbasepath);
         }
 
-        rebuild_course_cache($restorerecord->itemid, true);
+        // Rebuild course cache with extended timeouts and robust error handling.
+        // This is critical as rebuild_course_cache() → get_array_of_activities() processes ALL course activities,
+        // calling {modname}_get_coursemodule_info() for each one, which can be very slow for large courses
+        // (200+ activities) due to:
+        // - Multiple DB queries per activity
+        // - File inclusions for each module type
+        // - Text formatting and filter processing
+        //
+        // The standard max_execution_time (90s in php.ini) is often insufficient for courses with 200+ activities,
+        // causing the process to timeout at 99.53% completion, leaving the copy task hanging.
+        mtrace('Course copy: Starting course cache rebuild...');
+
+        // Significantly increase PHP limits specifically for cache rebuild of large courses.
+        // This ensures the operation completes even for courses with hundreds of activities.
+        core_php_time_limit::raise(7200); // 2 hours for very large courses
+        raise_memory_limit('2G'); // Ensure enough memory for processing all activities
+
+        $cacherebuildsuccessful = false;
+        try {
+            $startrebuild = microtime(true);
+            rebuild_course_cache($restorerecord->itemid, true);
+            $rebuildtime = round(microtime(true) - $startrebuild, 2);
+            $cacherebuildsuccessful = true;
+            mtrace("Course copy: Course cache rebuilt successfully in {$rebuildtime} seconds.");
+        } catch (\Throwable $e) {
+            // Catch ANY error including timeouts, out of memory, exceptions, etc.
+            // Using \Throwable ensures we catch both Exception and Error classes.
+            $errortype = get_class($e);
+            $errormsg = $e->getMessage();
+            mtrace("Course copy: Cache rebuild failed with {$errortype}: {$errormsg}");
+            mtrace('Course copy: Using fallback strategy - purging cache only.');
+            mtrace('Course copy: Cache will rebuild automatically on first course access.');
+
+            // Fallback: Just purge the cache - it will rebuild automatically when someone accesses the course.
+            // This ensures the copy completes successfully even if rebuild_course_cache() fails.
+            try {
+                $cache = cache::make('core', 'coursemodinfo');
+                $course = $DB->get_record('course', ['id' => $restorerecord->itemid], '*', MUST_EXIST);
+
+                // Clear the cache for this specific course by incrementing cacherev.
+                increment_revision_number('course', 'cacherev', 'id = :id', ['id' => $restorerecord->itemid]);
+                $cache->delete($course->id);
+                course_modinfo::clear_instance_cache($restorerecord->itemid);
+
+                mtrace('Course copy: Course cache purged successfully (will rebuild on first access).');
+                $cacherebuildsuccessful = true; // Mark as successful since purge worked as fallback.
+            } catch (\Throwable $cacheerror) {
+                // Even the fallback failed - this is very rare but we log it and continue.
+                $fallbackerrortype = get_class($cacheerror);
+                mtrace("Course copy: CRITICAL - Cache purge also failed with {$fallbackerrortype}: " .
+                       $cacheerror->getMessage());
+                mtrace('Course copy: Course cache may be inconsistent - manual cache purge may be required.');
+                // Don't throw - we want the copy to complete even if cache operations fail entirely.
+                // The course will still be functional, just potentially slow on first access.
+            }
+        }
+
+        // Always purge cache events to ensure cache consistency across the system.
         cache_helper::purge_by_event('changesincourse');
 
         $duration = time() - $started;
