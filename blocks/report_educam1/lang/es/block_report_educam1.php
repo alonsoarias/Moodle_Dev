@@ -58,8 +58,8 @@ $string['config_activitytype_required'] = 'Debes seleccionar un tipo de activida
 // Títulos del reporte.
 $string['report_title'] = 'Reporte de completitud de actividades';
 $string['report_title_course'] = 'Reporte: {$a}';
-$string['report_viewing_course'] = 'Curso: {$a}';
-$string['report_activity_type'] = 'Tipo de actividad: {$a}';
+$string['report_viewing_course'] = 'Curso';
+$string['report_activity_type'] = 'Tipo de actividad';
 
 // Vistas del reporte.
 $string['view_individual'] = 'Vista individual';
