@@ -52,13 +52,8 @@ $context = context_course::instance($courseid);
 
 require_login($course);
 
-// Check permissions
-$canedit = has_capability('moodle/course:update', $context);
-$canview = has_capability('block/report_educam1:viewreport', $context);
-
-if (!$canedit && !$canview) {
-    require_capability('moodle/course:update', $context);
-}
+// Check permissions - restrict to users with editing permissions only
+require_capability('moodle/course:update', $context);
 
 // Load block instance
 $blockinstance = $DB->get_record('block_instances', ['id' => $instanceid], '*', MUST_EXIST);
