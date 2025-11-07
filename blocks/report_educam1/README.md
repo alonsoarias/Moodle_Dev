@@ -124,8 +124,8 @@ blocks/report_educam1/
 
 ## Créditos
 
-- **Desarrollador**: Educam Development Team
-- **Copyright**: 2025 Educam
+- **Desarrollador**: Alonso Arias <soporte@ingeweb.co>
+- **Copyright**: 2025 IngeWeb - Soluciones para triunfar en Internet
 - **Licencia**: GNU GPL v3 o posterior
 
 ## Changelog

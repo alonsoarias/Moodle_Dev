@@ -18,7 +18,8 @@
  * Privacy Subsystem implementation for block_report_educam1.
  *
  * @package    block_report_educam1
- * @copyright  2025 Educam
+ * @copyright  2025 IngeWeb - Soluciones para triunfar en Internet
+ * @author     Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,7 +30,8 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Privacy Subsystem for block_report_educam1 implementing null_provider.
  *
- * @copyright  2025 Educam
+ * @copyright  2025 IngeWeb - Soluciones para triunfar en Internet
+ * @author     Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {

@@ -18,7 +18,8 @@
  * Block configuration form for report_educam1.
  *
  * @package    block_report_educam1
- * @copyright  2025 Educam
+ * @copyright  2025 IngeWeb - Soluciones para triunfar en Internet
+ * @author     Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
