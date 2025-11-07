@@ -123,25 +123,17 @@ class block_report_educam1 extends block_base {
 
         // Only show in course context
         if (!$contextinfo['incourse']) {
-            $this->content->text = html_writer::div(
-                get_string('block_only_course', 'block_report_educam1'),
-                'alert alert-warning'
-            );
             return $this->content;
         }
 
         $coursecontext = context_course::instance($contextinfo['courseid']);
 
-        // Check permissions
+        // Restrict block visibility to users with editing permissions only
+        // Check for course update capability (editing teachers, managers, etc.)
         $caneditcourse = has_capability('moodle/course:update', $coursecontext);
-        $hasviewreport = has_capability('block/report_educam1:viewreport', $coursecontext);
-        $hasrequiredpermissions = ($caneditcourse || $hasviewreport);
 
-        if (!$hasrequiredpermissions) {
-            $this->content->text = html_writer::div(
-                get_string('block_no_access', 'block_report_educam1'),
-                'alert alert-info'
-            );
+        // Hide block completely for users without editing permissions
+        if (!$caneditcourse) {
             return $this->content;
         }
 

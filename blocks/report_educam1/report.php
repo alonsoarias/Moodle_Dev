@@ -52,13 +52,8 @@ $context = context_course::instance($courseid);
 
 require_login($course);
 
-// Check permissions
-$canedit = has_capability('moodle/course:update', $context);
-$canview = has_capability('block/report_educam1:viewreport', $context);
-
-if (!$canedit && !$canview) {
-    require_capability('moodle/course:update', $context);
-}
+// Check permissions - restrict to users with editing permissions only
+require_capability('moodle/course:update', $context);
 
 // Load block instance
 $blockinstance = $DB->get_record('block_instances', ['id' => $instanceid], '*', MUST_EXIST);
@@ -160,153 +155,197 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($page_title);
 
 // Course and activity type info
-echo html_writer::start_div('alert alert-info');
-echo html_writer::tag('strong', get_string('report_viewing_course', 'block_report_educam1') . ': ');
-echo html_writer::span(format_string($course->fullname));
-echo html_writer::empty_tag('br');
-echo html_writer::tag('strong', get_string('report_activity_type', 'block_report_educam1') . ': ');
-echo html_writer::span($activitytypename);
+echo html_writer::start_div('alert alert-primary mb-4 shadow-sm');
+echo html_writer::start_div('d-flex align-items-center');
+echo html_writer::tag('i', '', ['class' => 'fa fa-info-circle fa-2x mr-3']);
+echo html_writer::start_div('');
+echo html_writer::tag('h5', get_string('report_viewing_course', 'block_report_educam1'), ['class' => 'mb-1']);
+echo html_writer::tag('p', format_string($course->fullname), ['class' => 'mb-1 font-weight-bold']);
+echo html_writer::tag('small', get_string('report_activity_type', 'block_report_educam1') . ': ' . $activitytypename, ['class' => 'text-muted']);
+echo html_writer::end_div();
+echo html_writer::end_div();
 echo html_writer::end_div();
 
 // View switcher
-echo html_writer::start_div('btn-group mb-3', ['role' => 'group']);
+echo html_writer::start_div('mb-4');
+echo html_writer::start_div('btn-group btn-group-lg shadow-sm', ['role' => 'group', 'aria-label' => 'View switcher']);
 
 $individualurlparams = ['instanceid' => $instanceid, 'courseid' => $courseid, 'view' => 'individual'];
 $individualurl = new moodle_url('/blocks/report_educam1/report.php', $individualurlparams);
-$individualclass = $view === 'individual' ? 'btn btn-primary active' : 'btn btn-secondary';
-echo html_writer::link($individualurl, get_string('view_individual', 'block_report_educam1'), ['class' => $individualclass]);
+$individualclass = $view === 'individual' ? 'btn btn-primary' : 'btn btn-outline-primary';
+echo html_writer::link($individualurl, '<i class="fa fa-list mr-1"></i>' . get_string('view_individual', 'block_report_educam1'), ['class' => $individualclass]);
 
 $matrixurlparams = ['instanceid' => $instanceid, 'courseid' => $courseid, 'view' => 'matrix'];
 $matrixurl = new moodle_url('/blocks/report_educam1/report.php', $matrixurlparams);
-$matrixclass = $view === 'matrix' ? 'btn btn-primary active' : 'btn btn-secondary';
-echo html_writer::link($matrixurl, get_string('view_matrix', 'block_report_educam1'), ['class' => $matrixclass]);
+$matrixclass = $view === 'matrix' ? 'btn btn-primary' : 'btn btn-outline-primary';
+echo html_writer::link($matrixurl, '<i class="fa fa-th mr-1"></i>' . get_string('view_matrix', 'block_report_educam1'), ['class' => $matrixclass]);
 
+echo html_writer::end_div();
 echo html_writer::end_div();
 
 // Filters section
-echo html_writer::start_div('card mb-3');
+echo html_writer::start_div('card mb-4 shadow-sm');
 echo html_writer::start_div('card-body');
-echo html_writer::tag('h5', get_string('filter_header', 'block_report_educam1'), ['class' => 'card-title']);
+echo html_writer::tag('h5', '<i class="fa fa-filter mr-2"></i>' . get_string('filter_header', 'block_report_educam1'), ['class' => 'card-title mb-4']);
 
-echo html_writer::start_tag('form', ['method' => 'get', 'id' => 'filter-form']);
+echo html_writer::start_tag('form', ['method' => 'get', 'id' => 'filter-form', 'class' => 'filter-form']);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'instanceid', 'value' => $instanceid]);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'courseid', 'value' => $courseid]);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'view', 'value' => $view]);
 
-echo html_writer::start_div('container-fluid');
-
-// First row: ID Number, Status, and Firstname with alphabet filter
+// Filter section 1: Basic filters
+echo html_writer::tag('h6', get_string('filter_section_basic', 'block_report_educam1'), ['class' => 'text-muted mb-3']);
 echo html_writer::start_div('row');
 
 // ID Number filter
-echo html_writer::start_div('col-md-4 mb-3');
-echo html_writer::tag('label', get_string('filter_idnumber', 'block_report_educam1'), ['for' => 'filteridnumber']);
+echo html_writer::start_div('col-lg-3 col-md-6 mb-3');
+echo html_writer::tag('label', get_string('filter_idnumber', 'block_report_educam1'), [
+    'for' => 'filteridnumber',
+    'class' => 'font-weight-bold'
+]);
 echo html_writer::empty_tag('input', [
     'type' => 'text',
     'id' => 'filteridnumber',
     'name' => 'filteridnumber',
     'value' => $filteridnumber,
-    'class' => 'form-control',
+    'class' => 'form-control form-control-lg',
     'placeholder' => get_string('filter_idnumber_placeholder', 'block_report_educam1')
 ]);
 echo html_writer::end_div();
 
 // Status filter
-echo html_writer::start_div('col-md-4 mb-3');
-echo html_writer::tag('label', get_string('filter_status', 'block_report_educam1'), ['for' => 'filterstatus']);
+echo html_writer::start_div('col-lg-3 col-md-6 mb-3');
+echo html_writer::tag('label', get_string('filter_status', 'block_report_educam1'), [
+    'for' => 'filterstatus',
+    'class' => 'font-weight-bold'
+]);
 $statusoptions = [
     '' => get_string('filter_all', 'block_report_educam1'),
     'completed' => get_string('status_completed', 'block_report_educam1'),
     'not_completed' => get_string('status_not_completed', 'block_report_educam1')
 ];
-echo html_writer::select($statusoptions, 'filterstatus', $filterstatus, false, ['class' => 'form-control', 'id' => 'filterstatus']);
+echo html_writer::select($statusoptions, 'filterstatus', $filterstatus, false, [
+    'class' => 'form-control form-control-lg custom-select',
+    'id' => 'filterstatus'
+]);
 echo html_writer::end_div();
 
+// Start date filter
+echo html_writer::start_div('col-lg-3 col-md-6 mb-3');
+echo html_writer::tag('label', get_string('filter_startdate', 'block_report_educam1'), [
+    'for' => 'filterstartdate',
+    'class' => 'font-weight-bold'
+]);
+echo html_writer::empty_tag('input', [
+    'type' => 'date',
+    'id' => 'filterstartdate',
+    'name' => 'filterstartdate',
+    'value' => $filterstartdate,
+    'class' => 'form-control form-control-lg'
+]);
+echo html_writer::tag('small', get_string('filter_startdate_help', 'block_report_educam1'), ['class' => 'form-text text-muted']);
+echo html_writer::end_div();
+
+// End date filter
+echo html_writer::start_div('col-lg-3 col-md-6 mb-3');
+echo html_writer::tag('label', get_string('filter_enddate', 'block_report_educam1'), [
+    'for' => 'filterenddate',
+    'class' => 'font-weight-bold'
+]);
+echo html_writer::empty_tag('input', [
+    'type' => 'date',
+    'id' => 'filterenddate',
+    'name' => 'filterenddate',
+    'value' => $filterenddate,
+    'class' => 'form-control form-control-lg'
+]);
+echo html_writer::tag('small', get_string('filter_enddate_help', 'block_report_educam1'), ['class' => 'form-text text-muted']);
+echo html_writer::end_div();
+
+echo html_writer::end_div();
+
+// Filter section 2: Name filters
+echo html_writer::tag('h6', get_string('filter_section_names', 'block_report_educam1'), ['class' => 'text-muted mb-3 mt-4']);
+
 // First name with alphabet filter
-echo html_writer::start_div('col-md-4 mb-3');
-echo html_writer::tag('label', get_string('filter_firstname', 'block_report_educam1'), ['for' => 'filterfirstname']);
-echo html_writer::start_div('alphabet-filter mt-1 mb-2');
-echo html_writer::tag('span', get_string('filter_by_letter', 'block_report_educam1') . ': ', ['class' => 'mr-1 small']);
+echo html_writer::start_div('row');
+echo html_writer::start_div('col-md-12 mb-3');
+echo html_writer::tag('label', get_string('filter_firstname', 'block_report_educam1'), [
+    'for' => 'filterfirstname',
+    'class' => 'font-weight-bold'
+]);
+echo html_writer::start_div('alphabet-filter mt-2 mb-2 p-2 bg-light rounded');
+echo html_writer::tag('span', get_string('filter_by_letter', 'block_report_educam1') . ': ', ['class' => 'mr-2 small font-weight-bold']);
 echo html_writer::link('#', get_string('filter_all', 'block_report_educam1'),
-    ['class' => 'btn btn-sm btn-outline-secondary' . (empty($filterfirstname) ? ' active' : ''),
+    ['class' => 'btn btn-sm btn-outline-primary' . (empty($filterfirstname) ? ' active' : ''),
      'data-letter' => '',
      'data-target' => 'filterfirstname']);
 foreach (range('A', 'Z') as $letter) {
     $active = $filterfirstname === $letter ? ' active' : '';
     echo html_writer::link('#', $letter,
-        ['class' => 'btn btn-sm btn-outline-secondary' . $active,
+        ['class' => 'btn btn-sm btn-outline-primary' . $active,
          'data-letter' => $letter,
          'data-target' => 'filterfirstname']);
 }
 echo html_writer::end_div();
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'id' => 'filterfirstname', 'name' => 'filterfirstname', 'value' => $filterfirstname]);
 echo html_writer::end_div();
-
 echo html_writer::end_div();
 
-// Second row: Lastname with alphabet filter
+// Last name with alphabet filter
 echo html_writer::start_div('row');
-
 echo html_writer::start_div('col-md-12 mb-3');
-echo html_writer::tag('label', get_string('filter_lastname', 'block_report_educam1'), ['for' => 'filterlastname']);
-echo html_writer::start_div('alphabet-filter mt-1 mb-2');
-echo html_writer::tag('span', get_string('filter_by_letter', 'block_report_educam1') . ': ', ['class' => 'mr-1 small']);
+echo html_writer::tag('label', get_string('filter_lastname', 'block_report_educam1'), [
+    'for' => 'filterlastname',
+    'class' => 'font-weight-bold'
+]);
+echo html_writer::start_div('alphabet-filter mt-2 mb-2 p-2 bg-light rounded');
+echo html_writer::tag('span', get_string('filter_by_letter', 'block_report_educam1') . ': ', ['class' => 'mr-2 small font-weight-bold']);
 echo html_writer::link('#', get_string('filter_all', 'block_report_educam1'),
-    ['class' => 'btn btn-sm btn-outline-secondary' . (empty($filterlastname) ? ' active' : ''),
+    ['class' => 'btn btn-sm btn-outline-primary' . (empty($filterlastname) ? ' active' : ''),
      'data-letter' => '',
      'data-target' => 'filterlastname']);
 foreach (range('A', 'Z') as $letter) {
     $active = $filterlastname === $letter ? ' active' : '';
     echo html_writer::link('#', $letter,
-        ['class' => 'btn btn-sm btn-outline-secondary' . $active,
+        ['class' => 'btn btn-sm btn-outline-primary' . $active,
          'data-letter' => $letter,
          'data-target' => 'filterlastname']);
 }
 echo html_writer::end_div();
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'id' => 'filterlastname', 'name' => 'filterlastname', 'value' => $filterlastname]);
 echo html_writer::end_div();
-
 echo html_writer::end_div();
 
-// Third row: Date filters and submit button
-echo html_writer::start_div('row');
-
-echo html_writer::start_div('col-md-4 mb-3');
-echo html_writer::tag('label', get_string('filter_startdate', 'block_report_educam1'), ['for' => 'filterstartdate']);
-echo html_writer::empty_tag('input', [
-    'type' => 'date',
-    'id' => 'filterstartdate',
-    'name' => 'filterstartdate',
-    'value' => $filterstartdate,
-    'class' => 'form-control'
-]);
-echo html_writer::end_div();
-
-echo html_writer::start_div('col-md-4 mb-3');
-echo html_writer::tag('label', get_string('filter_enddate', 'block_report_educam1'), ['for' => 'filterenddate']);
-echo html_writer::empty_tag('input', [
-    'type' => 'date',
-    'id' => 'filterenddate',
-    'name' => 'filterenddate',
-    'value' => $filterenddate,
-    'class' => 'form-control'
-]);
-echo html_writer::end_div();
-
-echo html_writer::start_div('col-md-4 mb-3 d-flex align-items-end');
-echo html_writer::tag('button', get_string('filter_apply', 'block_report_educam1'), [
-    'type' => 'submit',
-    'class' => 'btn btn-primary mr-2'
-]);
+// Action buttons
+echo html_writer::start_div('row mt-4 pt-3 border-top');
+echo html_writer::start_div('col-md-12 text-right');
 $clearurl = new moodle_url('/blocks/report_educam1/report.php', [
     'instanceid' => $instanceid,
     'courseid' => $courseid,
     'view' => $view
 ]);
-echo html_writer::link($clearurl, get_string('filter_clear', 'block_report_educam1'), ['class' => 'btn btn-secondary']);
+echo html_writer::link($clearurl, '<i class="fa fa-times mr-1"></i>' . get_string('filter_clear', 'block_report_educam1'), [
+    'class' => 'btn btn-outline-secondary btn-lg mr-2'
+]);
+echo html_writer::tag('button', '<i class="fa fa-search mr-1"></i>' . get_string('filter_apply', 'block_report_educam1'), [
+    'type' => 'submit',
+    'class' => 'btn btn-primary btn-lg'
+]);
+echo html_writer::end_div();
+echo html_writer::end_tag('form');
+echo html_writer::end_div();
 echo html_writer::end_div();
 
-echo html_writer::end_div();
+// Build filters array
+$filters = [
+    'idnumber' => $filteridnumber,
+    'firstname' => $filterfirstname,
+    'lastname' => $filterlastname,
+    'status' => $filterstatus,
+    'startdate' => !empty($filterstartdate) ? strtotime($filterstartdate) : '',
+    'enddate' => !empty($filterenddate) ? strtotime($filterenddate . ' 23:59:59') : ''
+];
 
 echo html_writer::end_div(); // end container-fluid
 echo html_writer::end_tag('form');
@@ -327,15 +366,15 @@ $filters = [
 if ($view === 'individual') {
     report_educam1_display_individual_view($courseid, $activitytype, $page, $perpage, $filters, $urlparams);
 } else {
-    report_educam1_display_matrix_view($courseid, $activitytype, $filters, $urlparams);
+    report_educam1_display_matrix_view($courseid, $activitytype, $page, $perpage, $filters, $urlparams);
 }
 
 // Export options
 $exporturlparams = array_merge($urlparams, ['download' => '1']);
 
-echo html_writer::start_div('card mt-4');
+echo html_writer::start_div('card mt-4 shadow-sm');
 echo html_writer::start_div('card-body');
-echo html_writer::tag('h5', get_string('export_header', 'block_report_educam1'), ['class' => 'card-title']);
+echo html_writer::tag('h5', '<i class="fa fa-download mr-2"></i>' . get_string('export_header', 'block_report_educam1'), ['class' => 'card-title']);
 
 echo html_writer::start_tag('form', ['method' => 'get', 'class' => 'form-inline']);
 foreach ($exporturlparams as $key => $value) {
@@ -351,9 +390,9 @@ $formatoptions = [
 ];
 echo html_writer::select($formatoptions, 'format', $format, false, ['class' => 'form-control mr-2']);
 
-echo html_writer::tag('button', get_string('export_button', 'block_report_educam1'), [
+echo html_writer::tag('button', '<i class="fa fa-file-export mr-1"></i>' . get_string('export_button', 'block_report_educam1'), [
     'type' => 'submit',
-    'class' => 'btn btn-primary'
+    'class' => 'btn btn-success btn-lg'
 ]);
 
 echo html_writer::end_tag('form');
@@ -394,12 +433,25 @@ function report_educam1_display_individual_view($courseid, $activitytype, $page,
     $completionrate = $totalrows > 0 ? round(($completedcount / $totalrows) * 100, 2) : 0;
 
     // Display statistics
-    echo html_writer::start_div('card mb-3');
+    echo html_writer::start_div('card mb-4 shadow-sm');
     echo html_writer::start_div('card-body');
-    echo html_writer::start_div('row');
+    echo html_writer::start_div('row text-center');
     echo html_writer::start_div('col-md-4');
-    echo html_writer::tag('h6', get_string('stats_total_students', 'block_report_educam1'), ['class' => 'text-muted']);
-    echo html_writer::tag('h3', count(array_unique(array_column($alldata, 'userid'))));
+    echo html_writer::tag('div', '<i class="fa fa-users fa-2x text-primary mb-2"></i>', ['class' => '']);
+    echo html_writer::tag('h6', get_string('stats_total_students', 'block_report_educam1'), ['class' => 'text-muted small']);
+    echo html_writer::tag('h2', count(array_unique(array_column($alldata, 'userid'))), ['class' => 'text-primary font-weight-bold']);
+    echo html_writer::end_div();
+    echo html_writer::start_div('col-md-4');
+    echo html_writer::tag('div', '<i class="fa fa-check-circle fa-2x text-success mb-2"></i>', ['class' => '']);
+    echo html_writer::tag('h6', get_string('stats_completed', 'block_report_educam1'), ['class' => 'text-muted small']);
+    echo html_writer::tag('h2', $completedcount . ' / ' . $totalrows, ['class' => 'text-success font-weight-bold']);
+    echo html_writer::end_div();
+    echo html_writer::start_div('col-md-4');
+    echo html_writer::tag('div', '<i class="fa fa-chart-pie fa-2x ' . ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' mb-2"></i>', ['class' => '']);
+    echo html_writer::tag('h6', get_string('stats_completion_rate', 'block_report_educam1'), ['class' => 'text-muted small']);
+    echo html_writer::tag('h2', $completionrate . '%', ['class' => ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' font-weight-bold']);
+    echo html_writer::end_div();
+    echo html_writer::end_div();
     echo html_writer::end_div();
     echo html_writer::start_div('col-md-4');
     echo html_writer::tag('h6', get_string('stats_completed', 'block_report_educam1'), ['class' => 'text-muted']);
@@ -411,6 +463,31 @@ function report_educam1_display_individual_view($courseid, $activitytype, $page,
     echo html_writer::end_div();
     echo html_writer::end_div();
     echo html_writer::end_div();
+    echo html_writer::end_div();
+
+    // Pagination
+    $start = $page * $perpage;
+    $data = array_slice($alldata, $start, $perpage);
+
+    // Per page selector
+    echo html_writer::start_div('mb-3 d-flex justify-content-between align-items-center');
+    echo html_writer::tag('span', get_string('showing_entries', 'block_report_educam1', [
+        'start' => $start + 1,
+        'end' => min($start + $perpage, $totalrows),
+        'total' => $totalrows
+    ]));
+
+    echo html_writer::start_tag('form', ['method' => 'get', 'class' => 'form-inline']);
+    foreach ($urlparams as $key => $value) {
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => $key, 'value' => $value]);
+    }
+    echo html_writer::tag('label', get_string('per_page', 'block_report_educam1') . ':', ['class' => 'mr-2']);
+    $perpageoptions = [10 => '10', 25 => '25', 50 => '50', 100 => '100'];
+    echo html_writer::select($perpageoptions, 'perpage', $perpage, false, [
+        'class' => 'form-control',
+        'onchange' => 'this.form.submit()'
+    ]);
+    echo html_writer::end_tag('form');
     echo html_writer::end_div();
 
     // Pagination
@@ -492,22 +569,24 @@ function report_educam1_display_individual_view($courseid, $activitytype, $page,
 }
 
 /**
- * Display matrix view with filters.
+ * Display matrix view with filters and pagination.
  *
  * @param int $courseid Course ID
  * @param string $activitytype Activity type
+ * @param int $page Current page
+ * @param int $perpage Items per page
  * @param array $filters Filters
  * @param array $urlparams URL parameters
  */
-function report_educam1_display_matrix_view($courseid, $activitytype, $filters, $urlparams) {
+function report_educam1_display_matrix_view($courseid, $activitytype, $page, $perpage, $filters, $urlparams) {
     global $OUTPUT;
 
     $matrixdata = report_educam1_get_matrix_view_data($courseid, $activitytype, $filters);
-    $students = $matrixdata['students'];
+    $allstudents = $matrixdata['students'];
     $activities = $matrixdata['activities'];
     $completions = $matrixdata['completions'];
 
-    if (empty($students) || empty($activities)) {
+    if (empty($allstudents) || empty($activities)) {
         echo html_writer::div(
             get_string('no_data', 'block_report_educam1'),
             'alert alert-warning'
@@ -515,8 +594,8 @@ function report_educam1_display_matrix_view($courseid, $activitytype, $filters, 
         return;
     }
 
-    // Calculate statistics
-    $totalstudents = count($students);
+    // Calculate statistics (using all students)
+    $totalstudents = count($allstudents);
     $totalactivities = count($activities);
     $totalcells = $totalstudents * $totalactivities;
     $completedcells = 0;
@@ -532,38 +611,67 @@ function report_educam1_display_matrix_view($courseid, $activitytype, $filters, 
     $completionrate = $totalcells > 0 ? round(($completedcells / $totalcells) * 100, 2) : 0;
 
     // Display statistics
-    echo html_writer::start_div('card mb-3');
+    echo html_writer::start_div('card mb-4 shadow-sm');
     echo html_writer::start_div('card-body');
-    echo html_writer::start_div('row');
+    echo html_writer::start_div('row text-center');
     echo html_writer::start_div('col-md-3');
-    echo html_writer::tag('h6', get_string('stats_total_students', 'block_report_educam1'), ['class' => 'text-muted']);
-    echo html_writer::tag('h3', $totalstudents);
+    echo html_writer::tag('div', '<i class="fa fa-users fa-2x text-primary mb-2"></i>', ['class' => '']);
+    echo html_writer::tag('h6', get_string('stats_total_students', 'block_report_educam1'), ['class' => 'text-muted small']);
+    echo html_writer::tag('h2', $totalstudents, ['class' => 'text-primary font-weight-bold']);
     echo html_writer::end_div();
     echo html_writer::start_div('col-md-3');
-    echo html_writer::tag('h6', get_string('stats_total_activities', 'block_report_educam1'), ['class' => 'text-muted']);
-    echo html_writer::tag('h3', $totalactivities);
+    echo html_writer::tag('div', '<i class="fa fa-tasks fa-2x text-info mb-2"></i>', ['class' => '']);
+    echo html_writer::tag('h6', get_string('stats_total_activities', 'block_report_educam1'), ['class' => 'text-muted small']);
+    echo html_writer::tag('h2', $totalactivities, ['class' => 'text-info font-weight-bold']);
     echo html_writer::end_div();
     echo html_writer::start_div('col-md-3');
-    echo html_writer::tag('h6', get_string('stats_total_completions', 'block_report_educam1'), ['class' => 'text-muted']);
-    echo html_writer::tag('h3', $completedcells . ' / ' . $totalcells);
+    echo html_writer::tag('div', '<i class="fa fa-check-circle fa-2x text-success mb-2"></i>', ['class' => '']);
+    echo html_writer::tag('h6', get_string('stats_total_completions', 'block_report_educam1'), ['class' => 'text-muted small']);
+    echo html_writer::tag('h2', $completedcells . ' / ' . $totalcells, ['class' => 'text-success font-weight-bold']);
     echo html_writer::end_div();
     echo html_writer::start_div('col-md-3');
-    echo html_writer::tag('h6', get_string('stats_completion_rate', 'block_report_educam1'), ['class' => 'text-muted']);
-    echo html_writer::tag('h3', $completionrate . '%', ['class' => $completionrate >= 70 ? 'text-success' : 'text-warning']);
+    echo html_writer::tag('div', '<i class="fa fa-chart-pie fa-2x ' . ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' mb-2"></i>', ['class' => '']);
+    echo html_writer::tag('h6', get_string('stats_completion_rate', 'block_report_educam1'), ['class' => 'text-muted small']);
+    echo html_writer::tag('h2', $completionrate . '%', ['class' => ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' font-weight-bold']);
     echo html_writer::end_div();
     echo html_writer::end_div();
     echo html_writer::end_div();
     echo html_writer::end_div();
 
+    // Pagination
+    $start = $page * $perpage;
+    $students = array_slice($allstudents, $start, $perpage);
+
+    // Per page selector
+    echo html_writer::start_div('mb-3 d-flex justify-content-between align-items-center');
+    echo html_writer::tag('span', get_string('showing_entries', 'block_report_educam1', [
+        'start' => $start + 1,
+        'end' => min($start + $perpage, $totalstudents),
+        'total' => $totalstudents
+    ]));
+
+    echo html_writer::start_tag('form', ['method' => 'get', 'class' => 'form-inline']);
+    foreach ($urlparams as $key => $value) {
+        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => $key, 'value' => $value]);
+    }
+    echo html_writer::tag('label', get_string('per_page', 'block_report_educam1') . ':', ['class' => 'mr-2']);
+    $perpageoptions = [10 => '10', 25 => '25', 50 => '50', 100 => '100'];
+    echo html_writer::select($perpageoptions, 'perpage', $perpage, false, [
+        'class' => 'form-control',
+        'onchange' => 'this.form.submit()'
+    ]);
+    echo html_writer::end_tag('form');
+    echo html_writer::end_div();
+
     // Display table with horizontal scroll
-    echo html_writer::start_div('table-responsive');
-    echo html_writer::start_tag('table', ['class' => 'table table-striped table-bordered table-sm table-hover', 'id' => 'matrix-table']);
+    echo html_writer::start_div('table-responsive shadow-sm');
+    echo html_writer::start_tag('table', ['class' => 'table table-bordered table-hover', 'id' => 'matrix-table']);
     echo html_writer::start_tag('thead', ['class' => 'thead-dark']);
     echo html_writer::start_tag('tr');
-    echo html_writer::tag('th', get_string('column_idnumber', 'block_report_educam1'), ['class' => 'sticky-col', 'style' => 'min-width: 100px;']);
-    echo html_writer::tag('th', get_string('column_firstname', 'block_report_educam1'), ['style' => 'min-width: 120px;']);
-    echo html_writer::tag('th', get_string('column_lastname', 'block_report_educam1'), ['style' => 'min-width: 120px;']);
-    echo html_writer::tag('th', get_string('column_email', 'block_report_educam1'), ['style' => 'min-width: 180px;']);
+    echo html_writer::tag('th', get_string('column_idnumber', 'block_report_educam1'), ['class' => 'sticky-col text-center', 'style' => 'min-width: 100px;']);
+    echo html_writer::tag('th', get_string('column_firstname', 'block_report_educam1'), ['class' => 'text-center', 'style' => 'min-width: 120px;']);
+    echo html_writer::tag('th', get_string('column_lastname', 'block_report_educam1'), ['class' => 'text-center', 'style' => 'min-width: 120px;']);
+    echo html_writer::tag('th', get_string('column_email', 'block_report_educam1'), ['class' => 'text-center', 'style' => 'min-width: 180px;']);
 
     foreach ($activities as $activity) {
         $activityname = !empty($activity->activityname) ? $activity->activityname : 'ID ' . $activity->cmid;
@@ -606,11 +714,17 @@ function report_educam1_display_matrix_view($courseid, $activitytype, $filters, 
     echo html_writer::end_tag('table');
     echo html_writer::end_div();
 
+    // Pagination controls
+    if ($totalstudents > $perpage) {
+        $totalpages = ceil($totalstudents / $perpage);
+        report_educam1_display_pagination($page, $totalpages, $urlparams);
+    }
+
     // Add improved CSS for matrix view
     echo html_writer::tag('style', '
         .table-responsive {
             overflow-x: auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 0.375rem;
         }
         .sticky-col {
             position: sticky;
@@ -629,14 +743,24 @@ function report_educam1_display_matrix_view($courseid, $activitytype, $filters, 
             z-index: 11;
         }
         #matrix-table tbody tr:hover {
-            background-color: #f8f9fa;
+            background-color: #e9ecef;
         }
         #report-table tbody tr:hover {
-            background-color: #f8f9fa;
+            background-color: #e9ecef;
         }
         .thead-dark th {
             background-color: #343a40;
             border-color: #454d55;
+            font-weight: 600;
+        }
+        .card {
+            border: none;
+        }
+        .shadow-sm {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+        }
+        .alphabet-filter .btn {
+            margin: 0 2px;
         }
     ');
 }

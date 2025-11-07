@@ -309,6 +309,9 @@ function report_educam1_get_matrix_view_data($courseid, $activitytype, $filters 
                     if (!empty($filters['enddate']) && $completiondate > $filters['enddate']) {
                         $completed = false;
                     }
+                } else if ($completed) {
+                    // If completed but no date, and date filters are set, don't show as completed
+                    $completed = false;
                 }
             }
 
