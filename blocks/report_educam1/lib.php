@@ -181,14 +181,32 @@ function report_educam1_get_completion_date($userid, $cmid) {
  * @param int $courseid Course ID
  * @param string $activitytype Activity type (module name)
  * @param int|null $specificactivity Specific activity CM ID (optional)
+ * @param array $filters Filters to apply (idnumber, firstname, lastname, status)
  * @return array Array of student completion data
  */
-function report_educam1_get_individual_view_data($courseid, $activitytype, $specificactivity = null) {
+function report_educam1_get_individual_view_data($courseid, $activitytype, $specificactivity = null, $filters = []) {
     $students = report_educam1_get_course_students($courseid);
     $activities = report_educam1_get_course_activities($courseid, $activitytype);
 
     if (empty($students) || empty($activities)) {
         return [];
+    }
+
+    // Apply student filters
+    if (!empty($filters['idnumber'])) {
+        $students = array_filter($students, function($student) use ($filters) {
+            return stripos($student->idnumber, $filters['idnumber']) !== false;
+        });
+    }
+    if (!empty($filters['firstname'])) {
+        $students = array_filter($students, function($student) use ($filters) {
+            return stripos($student->firstname, $filters['firstname']) !== false;
+        });
+    }
+    if (!empty($filters['lastname'])) {
+        $students = array_filter($students, function($student) use ($filters) {
+            return stripos($student->lastname, $filters['lastname']) !== false;
+        });
     }
 
     // Filter to specific activity if provided
@@ -204,6 +222,24 @@ function report_educam1_get_individual_view_data($courseid, $activitytype, $spec
         foreach ($activities as $activity) {
             $completed = report_educam1_is_activity_completed($student->id, $activity->cmid);
             $completiondate = report_educam1_get_completion_date($student->id, $activity->cmid);
+
+            // Apply status filter
+            if (!empty($filters['status'])) {
+                if ($filters['status'] === 'completed' && !$completed) {
+                    continue;
+                }
+                if ($filters['status'] === 'not_completed' && $completed) {
+                    continue;
+                }
+            }
+
+            // Apply date filters
+            if (!empty($filters['startdate']) && $completiondate && $completiondate < $filters['startdate']) {
+                continue;
+            }
+            if (!empty($filters['enddate']) && $completiondate && $completiondate > $filters['enddate']) {
+                continue;
+            }
 
             $row = new stdClass();
             $row->userid = $student->id;
@@ -228,14 +264,32 @@ function report_educam1_get_individual_view_data($courseid, $activitytype, $spec
  *
  * @param int $courseid Course ID
  * @param string $activitytype Activity type (module name)
+ * @param array $filters Filters to apply (idnumber, firstname, lastname)
  * @return array Associative array with 'students' and 'activities' keys
  */
-function report_educam1_get_matrix_view_data($courseid, $activitytype) {
+function report_educam1_get_matrix_view_data($courseid, $activitytype, $filters = []) {
     $students = report_educam1_get_course_students($courseid);
     $activities = report_educam1_get_course_activities($courseid, $activitytype);
 
     if (empty($students) || empty($activities)) {
         return ['students' => [], 'activities' => [], 'completions' => []];
+    }
+
+    // Apply student filters
+    if (!empty($filters['idnumber'])) {
+        $students = array_filter($students, function($student) use ($filters) {
+            return stripos($student->idnumber, $filters['idnumber']) !== false;
+        });
+    }
+    if (!empty($filters['firstname'])) {
+        $students = array_filter($students, function($student) use ($filters) {
+            return stripos($student->firstname, $filters['firstname']) !== false;
+        });
+    }
+    if (!empty($filters['lastname'])) {
+        $students = array_filter($students, function($student) use ($filters) {
+            return stripos($student->lastname, $filters['lastname']) !== false;
+        });
     }
 
     $completions = [];
@@ -244,6 +298,20 @@ function report_educam1_get_matrix_view_data($courseid, $activitytype) {
         $completions[$student->id] = [];
         foreach ($activities as $activity) {
             $completed = report_educam1_is_activity_completed($student->id, $activity->cmid);
+            $completiondate = report_educam1_get_completion_date($student->id, $activity->cmid);
+
+            // Apply date filters - if dates are specified, only count completion if within date range
+            if (!empty($filters['startdate']) || !empty($filters['enddate'])) {
+                if ($completiondate) {
+                    if (!empty($filters['startdate']) && $completiondate < $filters['startdate']) {
+                        $completed = false;
+                    }
+                    if (!empty($filters['enddate']) && $completiondate > $filters['enddate']) {
+                        $completed = false;
+                    }
+                }
+            }
+
             $completions[$student->id][$activity->cmid] = $completed;
         }
     }
