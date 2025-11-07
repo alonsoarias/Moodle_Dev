@@ -72,6 +72,7 @@ $string['column_idnumber'] = 'ID Number';
 $string['column_firstname'] = 'First name';
 $string['column_lastname'] = 'Last name';
 $string['column_email'] = 'Email';
+$string['column_activity'] = 'Activity';
 $string['column_completion_date'] = 'Completion date';
 $string['column_status'] = 'Status';
 
@@ -92,6 +93,13 @@ $string['filter_status'] = 'Status';
 $string['filter_search'] = 'Search student';
 $string['filter_apply'] = 'Apply filters';
 $string['filter_clear'] = 'Clear filters';
+$string['filter_idnumber'] = 'ID Number';
+$string['filter_idnumber_placeholder'] = 'Search by ID...';
+$string['filter_firstname'] = 'First name';
+$string['filter_firstname_placeholder'] = 'Search by first name...';
+$string['filter_lastname'] = 'Last name';
+$string['filter_lastname_placeholder'] = 'Search by last name...';
+$string['filter_all'] = 'All';
 
 // Export.
 $string['export_header'] = 'Export data';
@@ -116,10 +124,15 @@ $string['stats_total_activities'] = 'Total activities';
 $string['stats_completion_rate'] = 'Completion rate';
 $string['stats_completed'] = 'Completed';
 $string['stats_not_completed'] = 'Not completed';
+$string['stats_total_completions'] = 'Total completions';
 
 // Help.
 $string['help_view_individual'] = 'The individual view shows a detailed list of each student with their completion status for the selected activities.';
 $string['help_view_matrix'] = 'The matrix view shows a table with all students and all activities of the selected type, allowing you to see at a glance the overall progress of the course.';
+
+// Pagination.
+$string['showing_entries'] = 'Showing {$a->start} to {$a->end} of {$a->total} entries';
+$string['per_page'] = 'Per page';
 
 // Privacy.
 $string['privacy:metadata'] = 'The Educam Activity Report block only displays existing data from other locations.';

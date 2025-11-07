@@ -68,10 +68,11 @@ $string['switch_to_individual'] = 'Cambiar a vista individual';
 $string['switch_to_matrix'] = 'Cambiar a vista matricial';
 
 // Columnas - Vista Individual.
-$string['column_idnumber'] = 'ID Number';
+$string['column_idnumber'] = 'Cédula';
 $string['column_firstname'] = 'Nombres';
 $string['column_lastname'] = 'Apellidos';
 $string['column_email'] = 'Correo electrónico';
+$string['column_activity'] = 'Actividad';
 $string['column_completion_date'] = 'Fecha de finalización';
 $string['column_status'] = 'Estado';
 
@@ -92,6 +93,13 @@ $string['filter_status'] = 'Estado';
 $string['filter_search'] = 'Buscar estudiante';
 $string['filter_apply'] = 'Aplicar filtros';
 $string['filter_clear'] = 'Limpiar filtros';
+$string['filter_idnumber'] = 'Cédula / ID Number';
+$string['filter_idnumber_placeholder'] = 'Buscar por cédula...';
+$string['filter_firstname'] = 'Nombre';
+$string['filter_firstname_placeholder'] = 'Buscar por nombre...';
+$string['filter_lastname'] = 'Apellido';
+$string['filter_lastname_placeholder'] = 'Buscar por apellido...';
+$string['filter_all'] = 'Todos';
 
 // Exportación.
 $string['export_header'] = 'Exportar datos';
@@ -116,10 +124,15 @@ $string['stats_total_activities'] = 'Total de actividades';
 $string['stats_completion_rate'] = 'Tasa de completitud';
 $string['stats_completed'] = 'Completados';
 $string['stats_not_completed'] = 'No completados';
+$string['stats_total_completions'] = 'Total de completaciones';
 
 // Ayuda.
 $string['help_view_individual'] = 'La vista individual muestra una lista detallada de cada estudiante con su estado de completitud para las actividades seleccionadas.';
 $string['help_view_matrix'] = 'La vista matricial muestra una tabla con todos los estudiantes y todas las actividades del tipo seleccionado, permitiendo ver de un vistazo el progreso general del curso.';
+
+// Paginación.
+$string['showing_entries'] = 'Mostrando {$a->start} a {$a->end} de {$a->total} registros';
+$string['per_page'] = 'Por página';
 
 // Privacidad.
 $string['privacy:metadata'] = 'El bloque de Reporte de actividades Educam solo muestra datos existentes de otros lugares.';
