@@ -39,6 +39,8 @@ $filteridnumber = optional_param('filteridnumber', '', PARAM_TEXT);
 $filterfirstname = optional_param('filterfirstname', '', PARAM_TEXT);
 $filterlastname = optional_param('filterlastname', '', PARAM_TEXT);
 $filterstatus = optional_param('filterstatus', '', PARAM_TEXT);
+$filterstartdate = optional_param('filterstartdate', '', PARAM_TEXT);
+$filterenddate = optional_param('filterenddate', '', PARAM_TEXT);
 
 // Pagination
 $page = optional_param('page', 0, PARAM_INT);
@@ -99,6 +101,12 @@ if (!empty($filterlastname)) {
 if (!empty($filterstatus)) {
     $urlparams['filterstatus'] = $filterstatus;
 }
+if (!empty($filterstartdate)) {
+    $urlparams['filterstartdate'] = $filterstartdate;
+}
+if (!empty($filterenddate)) {
+    $urlparams['filterenddate'] = $filterenddate;
+}
 
 // Set up page
 $PAGE->set_context($context);
@@ -111,6 +119,8 @@ $page_title = get_string('report_title', 'block_report_educam1');
 $PAGE->set_title($page_title);
 $PAGE->set_heading($course->fullname);
 $PAGE->navbar->add($page_title);
+$PAGE->requires->jquery();
+$PAGE->requires->js_call_amd('block_report_educam1/report', 'init');
 
 // Handle download
 if ($download) {
@@ -118,7 +128,9 @@ if ($download) {
         'idnumber' => $filteridnumber,
         'firstname' => $filterfirstname,
         'lastname' => $filterlastname,
-        'status' => $filterstatus
+        'status' => $filterstatus,
+        'startdate' => !empty($filterstartdate) ? strtotime($filterstartdate) : '',
+        'enddate' => !empty($filterenddate) ? strtotime($filterenddate . ' 23:59:59') : ''
     ];
 
     if ($view === 'individual') {
@@ -181,10 +193,13 @@ echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'instanceid'
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'courseid', 'value' => $courseid]);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'view', 'value' => $view]);
 
+echo html_writer::start_div('container-fluid');
+
+// First row: ID Number, Status, and Firstname with alphabet filter
 echo html_writer::start_div('row');
 
 // ID Number filter
-echo html_writer::start_div('col-md-3 mb-2');
+echo html_writer::start_div('col-md-4 mb-3');
 echo html_writer::tag('label', get_string('filter_idnumber', 'block_report_educam1'), ['for' => 'filteridnumber']);
 echo html_writer::empty_tag('input', [
     'type' => 'text',
@@ -196,49 +211,89 @@ echo html_writer::empty_tag('input', [
 ]);
 echo html_writer::end_div();
 
-// First name filter
-echo html_writer::start_div('col-md-3 mb-2');
+// Status filter
+echo html_writer::start_div('col-md-4 mb-3');
+echo html_writer::tag('label', get_string('filter_status', 'block_report_educam1'), ['for' => 'filterstatus']);
+$statusoptions = [
+    '' => get_string('filter_all', 'block_report_educam1'),
+    'completed' => get_string('status_completed', 'block_report_educam1'),
+    'not_completed' => get_string('status_not_completed', 'block_report_educam1')
+];
+echo html_writer::select($statusoptions, 'filterstatus', $filterstatus, false, ['class' => 'form-control', 'id' => 'filterstatus']);
+echo html_writer::end_div();
+
+// First name with alphabet filter
+echo html_writer::start_div('col-md-4 mb-3');
 echo html_writer::tag('label', get_string('filter_firstname', 'block_report_educam1'), ['for' => 'filterfirstname']);
-echo html_writer::empty_tag('input', [
-    'type' => 'text',
-    'id' => 'filterfirstname',
-    'name' => 'filterfirstname',
-    'value' => $filterfirstname,
-    'class' => 'form-control',
-    'placeholder' => get_string('filter_firstname_placeholder', 'block_report_educam1')
-]);
-echo html_writer::end_div();
-
-// Last name filter
-echo html_writer::start_div('col-md-3 mb-2');
-echo html_writer::tag('label', get_string('filter_lastname', 'block_report_educam1'), ['for' => 'filterlastname']);
-echo html_writer::empty_tag('input', [
-    'type' => 'text',
-    'id' => 'filterlastname',
-    'name' => 'filterlastname',
-    'value' => $filterlastname,
-    'class' => 'form-control',
-    'placeholder' => get_string('filter_lastname_placeholder', 'block_report_educam1')
-]);
-echo html_writer::end_div();
-
-// Status filter (only for individual view)
-if ($view === 'individual') {
-    echo html_writer::start_div('col-md-3 mb-2');
-    echo html_writer::tag('label', get_string('filter_status', 'block_report_educam1'), ['for' => 'filterstatus']);
-    $statusoptions = [
-        '' => get_string('filter_all', 'block_report_educam1'),
-        'completed' => get_string('status_completed', 'block_report_educam1'),
-        'not_completed' => get_string('status_not_completed', 'block_report_educam1')
-    ];
-    echo html_writer::select($statusoptions, 'filterstatus', $filterstatus, false, ['class' => 'form-control']);
-    echo html_writer::end_div();
+echo html_writer::start_div('alphabet-filter mt-1 mb-2');
+echo html_writer::tag('span', get_string('filter_by_letter', 'block_report_educam1') . ': ', ['class' => 'mr-1 small']);
+echo html_writer::link('#', get_string('filter_all', 'block_report_educam1'),
+    ['class' => 'btn btn-sm btn-outline-secondary' . (empty($filterfirstname) ? ' active' : ''),
+     'data-letter' => '',
+     'data-target' => 'filterfirstname']);
+foreach (range('A', 'Z') as $letter) {
+    $active = $filterfirstname === $letter ? ' active' : '';
+    echo html_writer::link('#', $letter,
+        ['class' => 'btn btn-sm btn-outline-secondary' . $active,
+         'data-letter' => $letter,
+         'data-target' => 'filterfirstname']);
 }
+echo html_writer::end_div();
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'id' => 'filterfirstname', 'name' => 'filterfirstname', 'value' => $filterfirstname]);
+echo html_writer::end_div();
 
 echo html_writer::end_div();
 
-echo html_writer::start_div('row mt-2');
-echo html_writer::start_div('col-md-12');
+// Second row: Lastname with alphabet filter
+echo html_writer::start_div('row');
+
+echo html_writer::start_div('col-md-12 mb-3');
+echo html_writer::tag('label', get_string('filter_lastname', 'block_report_educam1'), ['for' => 'filterlastname']);
+echo html_writer::start_div('alphabet-filter mt-1 mb-2');
+echo html_writer::tag('span', get_string('filter_by_letter', 'block_report_educam1') . ': ', ['class' => 'mr-1 small']);
+echo html_writer::link('#', get_string('filter_all', 'block_report_educam1'),
+    ['class' => 'btn btn-sm btn-outline-secondary' . (empty($filterlastname) ? ' active' : ''),
+     'data-letter' => '',
+     'data-target' => 'filterlastname']);
+foreach (range('A', 'Z') as $letter) {
+    $active = $filterlastname === $letter ? ' active' : '';
+    echo html_writer::link('#', $letter,
+        ['class' => 'btn btn-sm btn-outline-secondary' . $active,
+         'data-letter' => $letter,
+         'data-target' => 'filterlastname']);
+}
+echo html_writer::end_div();
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'id' => 'filterlastname', 'name' => 'filterlastname', 'value' => $filterlastname]);
+echo html_writer::end_div();
+
+echo html_writer::end_div();
+
+// Third row: Date filters and submit button
+echo html_writer::start_div('row');
+
+echo html_writer::start_div('col-md-4 mb-3');
+echo html_writer::tag('label', get_string('filter_startdate', 'block_report_educam1'), ['for' => 'filterstartdate']);
+echo html_writer::empty_tag('input', [
+    'type' => 'date',
+    'id' => 'filterstartdate',
+    'name' => 'filterstartdate',
+    'value' => $filterstartdate,
+    'class' => 'form-control'
+]);
+echo html_writer::end_div();
+
+echo html_writer::start_div('col-md-4 mb-3');
+echo html_writer::tag('label', get_string('filter_enddate', 'block_report_educam1'), ['for' => 'filterenddate']);
+echo html_writer::empty_tag('input', [
+    'type' => 'date',
+    'id' => 'filterenddate',
+    'name' => 'filterenddate',
+    'value' => $filterenddate,
+    'class' => 'form-control'
+]);
+echo html_writer::end_div();
+
+echo html_writer::start_div('col-md-4 mb-3 d-flex align-items-end');
 echo html_writer::tag('button', get_string('filter_apply', 'block_report_educam1'), [
     'type' => 'submit',
     'class' => 'btn btn-primary mr-2'
@@ -250,8 +305,10 @@ $clearurl = new moodle_url('/blocks/report_educam1/report.php', [
 ]);
 echo html_writer::link($clearurl, get_string('filter_clear', 'block_report_educam1'), ['class' => 'btn btn-secondary']);
 echo html_writer::end_div();
+
 echo html_writer::end_div();
 
+echo html_writer::end_div(); // end container-fluid
 echo html_writer::end_tag('form');
 echo html_writer::end_div();
 echo html_writer::end_div();
@@ -261,7 +318,9 @@ $filters = [
     'idnumber' => $filteridnumber,
     'firstname' => $filterfirstname,
     'lastname' => $filterlastname,
-    'status' => $filterstatus
+    'status' => $filterstatus,
+    'startdate' => !empty($filterstartdate) ? strtotime($filterstartdate) : '',
+    'enddate' => !empty($filterenddate) ? strtotime($filterenddate . ' 23:59:59') : ''
 ];
 
 // Display appropriate view

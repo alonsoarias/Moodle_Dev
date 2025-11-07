@@ -1,10 +1,10 @@
-# Block Report Educam1
+# Reporte personalizado de notificaciones
 
 Plugin de bloque para Moodle que genera reportes de completitud de actividades por tipo.
 
 ## Descripción
 
-Block Report Educam1 es un plugin de bloque para Moodle que permite a los profesores y administradores visualizar el progreso de los estudiantes en actividades específicas de un curso. El plugin ofrece dos vistas diferentes para analizar el progreso de completitud.
+Reporte personalizado de notificaciones es un plugin de bloque para Moodle que permite a los profesores y administradores visualizar el progreso de los estudiantes en actividades específicas de un curso. El plugin ofrece dos vistas diferentes para analizar el progreso de completitud.
 
 ## Características principales
 
@@ -35,10 +35,17 @@ Muestra una tabla matricial con:
 - Checks (✓) en las celdas donde el estudiante completó la actividad
 - Permite ver de un vistazo el progreso de todos los estudiantes
 
+### Filtros avanzados
+- **Filtro por cédula/ID Number**: Búsqueda por número de identificación del estudiante
+- **Filtro alfabético por nombre y apellido**: Selección rápida por letras (A-Z)
+- **Filtro por estado**: Filtrar por actividades completadas o no completadas
+- **Filtro por fechas**: Filtrar completaciones por rango de fechas
+
 ### Exportación de datos
 - **Formatos disponibles**: Excel (.xlsx), OpenDocument (.ods), CSV
 - **Exportación por vista**: Cada vista exporta en su formato correspondiente
 - **Preservación de estructura**: Los archivos exportados mantienen la misma estructura que la vista en pantalla
+- **Respeta filtros**: Los archivos exportados incluyen solo los datos filtrados actualmente
 
 ### Estadísticas
 - Total de estudiantes
@@ -64,7 +71,7 @@ Muestra una tabla matricial con:
 ### Agregar el bloque a un curso
 
 1. Activa el modo de edición en un curso
-2. Selecciona "Agregar un bloque" → "Reporte de actividades Educam"
+2. Selecciona "Agregar un bloque" → "Reporte personalizado de notificaciones"
 3. Configura el bloque seleccionando el tipo de actividad a reportar
 
 ### Configuración del bloque
@@ -76,8 +83,13 @@ Muestra una tabla matricial con:
 ### Ver el reporte
 
 1. Haz clic en "Ver reporte de actividades" en el bloque
-2. Utiliza los botones para cambiar entre "Vista individual" y "Vista matricial"
-3. Exporta los datos usando el formulario en la parte inferior
+2. Utiliza los filtros para refinar los datos:
+   - Busca por cédula/ID Number
+   - Filtra por letra inicial del nombre o apellido
+   - Filtra por estado de completitud
+   - Filtra por rango de fechas de completación
+3. Utiliza los botones para cambiar entre "Vista individual" y "Vista matricial"
+4. Exporta los datos usando el formulario en la parte inferior
 
 ## Permisos
 
@@ -137,6 +149,13 @@ blocks/report_educam1/
 - Exportación a Excel, ODS y CSV
 - Soporte multiidioma (español e inglés)
 - Estadísticas de completitud
+- Filtros avanzados:
+  - Búsqueda por cédula/ID Number
+  - Filtro alfabético (A-Z) para nombres y apellidos
+  - Filtro por estado de completitud
+  - Filtro por rango de fechas de completación
+- Paginación de resultados
+- Interfaz responsive basada en Bootstrap
 
 ## Licencia
 

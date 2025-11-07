@@ -233,6 +233,14 @@ function report_educam1_get_individual_view_data($courseid, $activitytype, $spec
                 }
             }
 
+            // Apply date filters
+            if (!empty($filters['startdate']) && $completiondate && $completiondate < $filters['startdate']) {
+                continue;
+            }
+            if (!empty($filters['enddate']) && $completiondate && $completiondate > $filters['enddate']) {
+                continue;
+            }
+
             $row = new stdClass();
             $row->userid = $student->id;
             $row->idnumber = $student->idnumber;
@@ -290,6 +298,20 @@ function report_educam1_get_matrix_view_data($courseid, $activitytype, $filters 
         $completions[$student->id] = [];
         foreach ($activities as $activity) {
             $completed = report_educam1_is_activity_completed($student->id, $activity->cmid);
+            $completiondate = report_educam1_get_completion_date($student->id, $activity->cmid);
+
+            // Apply date filters - if dates are specified, only count completion if within date range
+            if (!empty($filters['startdate']) || !empty($filters['enddate'])) {
+                if ($completiondate) {
+                    if (!empty($filters['startdate']) && $completiondate < $filters['startdate']) {
+                        $completed = false;
+                    }
+                    if (!empty($filters['enddate']) && $completiondate > $filters['enddate']) {
+                        $completed = false;
+                    }
+                }
+            }
+
             $completions[$student->id][$activity->cmid] = $completed;
         }
     }

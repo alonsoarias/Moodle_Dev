@@ -26,13 +26,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Nombre del plugin.
-$string['pluginname'] = 'Reporte de actividades Educam';
-$string['report_educam1'] = 'Reporte de actividades Educam';
+$string['pluginname'] = 'Reporte personalizado de notificaciones';
+$string['report_educam1'] = 'Reporte personalizado de notificaciones';
 
 // Capacidades.
-$string['report_educam1:addinstance'] = 'Añadir un nuevo bloque de Reporte de actividades Educam';
-$string['report_educam1:myaddinstance'] = 'Añadir un nuevo bloque de Reporte de actividades Educam a Mi Moodle';
-$string['report_educam1:viewreport'] = 'Ver reporte de actividades';
+$string['report_educam1:addinstance'] = 'Añadir un nuevo bloque de Reporte personalizado de notificaciones';
+$string['report_educam1:myaddinstance'] = 'Añadir un nuevo bloque de Reporte personalizado de notificaciones a Mi Moodle';
+$string['report_educam1:viewreport'] = 'Ver reporte personalizado';
 
 // Alcance del bloque.
 $string['block_no_access'] = 'No tienes permiso para utilizar este reporte.';
@@ -100,6 +100,9 @@ $string['filter_firstname_placeholder'] = 'Buscar por nombre...';
 $string['filter_lastname'] = 'Apellido';
 $string['filter_lastname_placeholder'] = 'Buscar por apellido...';
 $string['filter_all'] = 'Todos';
+$string['filter_by_letter'] = 'Filtrar por letra';
+$string['filter_startdate'] = 'Fecha inicial de finalización';
+$string['filter_enddate'] = 'Fecha final de finalización';
 
 // Exportación.
 $string['export_header'] = 'Exportar datos';
@@ -135,4 +138,4 @@ $string['showing_entries'] = 'Mostrando {$a->start} a {$a->end} de {$a->total} r
 $string['per_page'] = 'Por página';
 
 // Privacidad.
-$string['privacy:metadata'] = 'El bloque de Reporte de actividades Educam solo muestra datos existentes de otros lugares.';
+$string['privacy:metadata'] = 'El bloque de Reporte personalizado de notificaciones solo muestra datos existentes de otros lugares.';

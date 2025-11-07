@@ -26,13 +26,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Plugin name.
-$string['pluginname'] = 'Educam Activity Report';
-$string['report_educam1'] = 'Educam Activity Report';
+$string['pluginname'] = 'Custom Notification Report';
+$string['report_educam1'] = 'Custom Notification Report';
 
 // Capabilities.
-$string['report_educam1:addinstance'] = 'Add a new Educam Activity Report block';
-$string['report_educam1:myaddinstance'] = 'Add a new Educam Activity Report block to My Moodle';
-$string['report_educam1:viewreport'] = 'View activity report';
+$string['report_educam1:addinstance'] = 'Add a new Custom Notification Report block';
+$string['report_educam1:myaddinstance'] = 'Add a new Custom Notification Report block to My Moodle';
+$string['report_educam1:viewreport'] = 'View custom report';
 
 // Block scope.
 $string['block_no_access'] = 'You do not have permission to use this report.';
@@ -56,10 +56,10 @@ $string['config_no_activities'] = 'There are no activities available in this cou
 $string['config_activitytype_required'] = 'You must select an activity type.';
 
 // Report titles.
-$string['report_title'] = 'Activity Completion Report';
+$string['report_title'] = 'Custom Notification Report';
 $string['report_title_course'] = 'Report: {$a}';
-$string['report_viewing_course'] = 'Course: {$a}';
-$string['report_activity_type'] = 'Activity type: {$a}';
+$string['report_viewing_course'] = 'Course';
+$string['report_activity_type'] = 'Activity type';
 
 // Report views.
 $string['view_individual'] = 'Individual view';
@@ -100,6 +100,9 @@ $string['filter_firstname_placeholder'] = 'Search by first name...';
 $string['filter_lastname'] = 'Last name';
 $string['filter_lastname_placeholder'] = 'Search by last name...';
 $string['filter_all'] = 'All';
+$string['filter_by_letter'] = 'Filter by letter';
+$string['filter_startdate'] = 'Completion start date';
+$string['filter_enddate'] = 'Completion end date';
 
 // Export.
 $string['export_header'] = 'Export data';
@@ -135,4 +138,4 @@ $string['showing_entries'] = 'Showing {$a->start} to {$a->end} of {$a->total} en
 $string['per_page'] = 'Per page';
 
 // Privacy.
-$string['privacy:metadata'] = 'The Educam Activity Report block only displays existing data from other locations.';
+$string['privacy:metadata'] = 'The Custom Notification Report block only displays existing data from other locations.';
