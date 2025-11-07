@@ -150,21 +150,19 @@ if ($download) {
     die();
 }
 
+// Build filters array
+$filters = [
+    'idnumber' => $filteridnumber,
+    'firstname' => $filterfirstname,
+    'lastname' => $filterlastname,
+    'status' => $filterstatus,
+    'startdate' => !empty($filterstartdate) ? strtotime($filterstartdate) : '',
+    'enddate' => !empty($filterenddate) ? strtotime($filterenddate . ' 23:59:59') : ''
+];
+
 // Output starts here
 echo $OUTPUT->header();
 echo $OUTPUT->heading($page_title);
-
-// Course and activity type info
-echo html_writer::start_div('alert alert-primary mb-4 shadow-sm');
-echo html_writer::start_div('d-flex align-items-center');
-echo html_writer::tag('i', '', ['class' => 'fa fa-info-circle fa-2x mr-3']);
-echo html_writer::start_div('');
-echo html_writer::tag('h5', get_string('report_viewing_course', 'block_report_educam1'), ['class' => 'mb-1']);
-echo html_writer::tag('p', format_string($course->fullname), ['class' => 'mb-1 font-weight-bold']);
-echo html_writer::tag('small', get_string('report_activity_type', 'block_report_educam1') . ': ' . $activitytypename, ['class' => 'text-muted']);
-echo html_writer::end_div();
-echo html_writer::end_div();
-echo html_writer::end_div();
 
 // View switcher
 echo html_writer::start_div('mb-4');
@@ -182,6 +180,91 @@ echo html_writer::link($matrixurl, '<i class="fa fa-th mr-1"></i>' . get_string(
 
 echo html_writer::end_div();
 echo html_writer::end_div();
+
+// Display statistics based on current view and filters
+if ($view === 'individual') {
+    $alldata = report_educam1_get_individual_view_data($courseid, $activitytype, null, $filters);
+
+    if (!empty($alldata)) {
+        $totalrows = count($alldata);
+        $completedrows = array_filter($alldata, function($item) {
+            return $item->completed;
+        });
+        $completedcount = count($completedrows);
+        $completionrate = $totalrows > 0 ? round(($completedcount / $totalrows) * 100, 2) : 0;
+
+        echo html_writer::start_div('card mb-4 shadow-sm');
+        echo html_writer::start_div('card-body');
+        echo html_writer::start_div('row text-center');
+        echo html_writer::start_div('col-md-4');
+        echo html_writer::tag('div', '<i class="fa fa-users fa-2x text-primary mb-2"></i>', ['class' => '']);
+        echo html_writer::tag('h6', get_string('stats_total_students', 'block_report_educam1'), ['class' => 'text-muted small']);
+        echo html_writer::tag('h2', count(array_unique(array_column($alldata, 'userid'))), ['class' => 'text-primary font-weight-bold']);
+        echo html_writer::end_div();
+        echo html_writer::start_div('col-md-4');
+        echo html_writer::tag('div', '<i class="fa fa-check-circle fa-2x text-success mb-2"></i>', ['class' => '']);
+        echo html_writer::tag('h6', get_string('stats_completed', 'block_report_educam1'), ['class' => 'text-muted small']);
+        echo html_writer::tag('h2', $completedcount . ' / ' . $totalrows, ['class' => 'text-success font-weight-bold']);
+        echo html_writer::end_div();
+        echo html_writer::start_div('col-md-4');
+        echo html_writer::tag('div', '<i class="fa fa-chart-pie fa-2x ' . ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' mb-2"></i>', ['class' => '']);
+        echo html_writer::tag('h6', get_string('stats_completion_rate', 'block_report_educam1'), ['class' => 'text-muted small']);
+        echo html_writer::tag('h2', $completionrate . '%', ['class' => ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' font-weight-bold']);
+        echo html_writer::end_div();
+        echo html_writer::end_div();
+        echo html_writer::end_div();
+        echo html_writer::end_div();
+    }
+} else {
+    $matrixdata = report_educam1_get_matrix_view_data($courseid, $activitytype, $filters);
+    $allstudents = $matrixdata['students'];
+    $activities = $matrixdata['activities'];
+    $completions = $matrixdata['completions'];
+
+    if (!empty($allstudents) && !empty($activities)) {
+        $totalstudents = count($allstudents);
+        $totalactivities = count($activities);
+        $totalcells = $totalstudents * $totalactivities;
+        $completedcells = 0;
+
+        foreach ($completions as $studentcompletions) {
+            foreach ($studentcompletions as $completed) {
+                if ($completed) {
+                    $completedcells++;
+                }
+            }
+        }
+
+        $completionrate = $totalcells > 0 ? round(($completedcells / $totalcells) * 100, 2) : 0;
+
+        echo html_writer::start_div('card mb-4 shadow-sm');
+        echo html_writer::start_div('card-body');
+        echo html_writer::start_div('row text-center');
+        echo html_writer::start_div('col-md-3');
+        echo html_writer::tag('div', '<i class="fa fa-users fa-2x text-primary mb-2"></i>', ['class' => '']);
+        echo html_writer::tag('h6', get_string('stats_total_students', 'block_report_educam1'), ['class' => 'text-muted small']);
+        echo html_writer::tag('h2', $totalstudents, ['class' => 'text-primary font-weight-bold']);
+        echo html_writer::end_div();
+        echo html_writer::start_div('col-md-3');
+        echo html_writer::tag('div', '<i class="fa fa-tasks fa-2x text-info mb-2"></i>', ['class' => '']);
+        echo html_writer::tag('h6', get_string('stats_total_activities', 'block_report_educam1'), ['class' => 'text-muted small']);
+        echo html_writer::tag('h2', $totalactivities, ['class' => 'text-info font-weight-bold']);
+        echo html_writer::end_div();
+        echo html_writer::start_div('col-md-3');
+        echo html_writer::tag('div', '<i class="fa fa-check-circle fa-2x text-success mb-2"></i>', ['class' => '']);
+        echo html_writer::tag('h6', get_string('stats_total_completions', 'block_report_educam1'), ['class' => 'text-muted small']);
+        echo html_writer::tag('h2', $completedcells . ' / ' . $totalcells, ['class' => 'text-success font-weight-bold']);
+        echo html_writer::end_div();
+        echo html_writer::start_div('col-md-3');
+        echo html_writer::tag('div', '<i class="fa fa-chart-pie fa-2x ' . ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' mb-2"></i>', ['class' => '']);
+        echo html_writer::tag('h6', get_string('stats_completion_rate', 'block_report_educam1'), ['class' => 'text-muted small']);
+        echo html_writer::tag('h2', $completionrate . '%', ['class' => ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' font-weight-bold']);
+        echo html_writer::end_div();
+        echo html_writer::end_div();
+        echo html_writer::end_div();
+        echo html_writer::end_div();
+    }
+}
 
 // Filters section
 echo html_writer::start_div('card mb-4 shadow-sm');
@@ -337,16 +420,6 @@ echo html_writer::end_tag('form');
 echo html_writer::end_div();
 echo html_writer::end_div();
 
-// Build filters array
-$filters = [
-    'idnumber' => $filteridnumber,
-    'firstname' => $filterfirstname,
-    'lastname' => $filterlastname,
-    'status' => $filterstatus,
-    'startdate' => !empty($filterstartdate) ? strtotime($filterstartdate) : '',
-    'enddate' => !empty($filterenddate) ? strtotime($filterenddate . ' 23:59:59') : ''
-];
-
 // Display appropriate view
 if ($view === 'individual') {
     report_educam1_display_individual_view($courseid, $activitytype, $page, $perpage, $filters, $urlparams);
@@ -409,35 +482,7 @@ function report_educam1_display_individual_view($courseid, $activitytype, $page,
         return;
     }
 
-    // Calculate statistics
     $totalrows = count($alldata);
-    $completedrows = array_filter($alldata, function($item) {
-        return $item->completed;
-    });
-    $completedcount = count($completedrows);
-    $completionrate = $totalrows > 0 ? round(($completedcount / $totalrows) * 100, 2) : 0;
-
-    // Display statistics
-    echo html_writer::start_div('card mb-4 shadow-sm');
-    echo html_writer::start_div('card-body');
-    echo html_writer::start_div('row text-center');
-    echo html_writer::start_div('col-md-4');
-    echo html_writer::tag('div', '<i class="fa fa-users fa-2x text-primary mb-2"></i>', ['class' => '']);
-    echo html_writer::tag('h6', get_string('stats_total_students', 'block_report_educam1'), ['class' => 'text-muted small']);
-    echo html_writer::tag('h2', count(array_unique(array_column($alldata, 'userid'))), ['class' => 'text-primary font-weight-bold']);
-    echo html_writer::end_div();
-    echo html_writer::start_div('col-md-4');
-    echo html_writer::tag('div', '<i class="fa fa-check-circle fa-2x text-success mb-2"></i>', ['class' => '']);
-    echo html_writer::tag('h6', get_string('stats_completed', 'block_report_educam1'), ['class' => 'text-muted small']);
-    echo html_writer::tag('h2', $completedcount . ' / ' . $totalrows, ['class' => 'text-success font-weight-bold']);
-    echo html_writer::end_div();
-    echo html_writer::start_div('col-md-4');
-    echo html_writer::tag('div', '<i class="fa fa-chart-pie fa-2x ' . ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' mb-2"></i>', ['class' => '']);
-    echo html_writer::tag('h6', get_string('stats_completion_rate', 'block_report_educam1'), ['class' => 'text-muted small']);
-    echo html_writer::tag('h2', $completionrate . '%', ['class' => ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' font-weight-bold']);
-    echo html_writer::end_div();
-    echo html_writer::end_div();
-    echo html_writer::end_div();
 
     // Pagination
     $start = $page * $perpage;
@@ -543,49 +588,7 @@ function report_educam1_display_matrix_view($courseid, $activitytype, $page, $pe
         return;
     }
 
-    // Calculate statistics (using all students)
     $totalstudents = count($allstudents);
-    $totalactivities = count($activities);
-    $totalcells = $totalstudents * $totalactivities;
-    $completedcells = 0;
-
-    foreach ($completions as $studentcompletions) {
-        foreach ($studentcompletions as $completed) {
-            if ($completed) {
-                $completedcells++;
-            }
-        }
-    }
-
-    $completionrate = $totalcells > 0 ? round(($completedcells / $totalcells) * 100, 2) : 0;
-
-    // Display statistics
-    echo html_writer::start_div('card mb-4 shadow-sm');
-    echo html_writer::start_div('card-body');
-    echo html_writer::start_div('row text-center');
-    echo html_writer::start_div('col-md-3');
-    echo html_writer::tag('div', '<i class="fa fa-users fa-2x text-primary mb-2"></i>', ['class' => '']);
-    echo html_writer::tag('h6', get_string('stats_total_students', 'block_report_educam1'), ['class' => 'text-muted small']);
-    echo html_writer::tag('h2', $totalstudents, ['class' => 'text-primary font-weight-bold']);
-    echo html_writer::end_div();
-    echo html_writer::start_div('col-md-3');
-    echo html_writer::tag('div', '<i class="fa fa-tasks fa-2x text-info mb-2"></i>', ['class' => '']);
-    echo html_writer::tag('h6', get_string('stats_total_activities', 'block_report_educam1'), ['class' => 'text-muted small']);
-    echo html_writer::tag('h2', $totalactivities, ['class' => 'text-info font-weight-bold']);
-    echo html_writer::end_div();
-    echo html_writer::start_div('col-md-3');
-    echo html_writer::tag('div', '<i class="fa fa-check-circle fa-2x text-success mb-2"></i>', ['class' => '']);
-    echo html_writer::tag('h6', get_string('stats_total_completions', 'block_report_educam1'), ['class' => 'text-muted small']);
-    echo html_writer::tag('h2', $completedcells . ' / ' . $totalcells, ['class' => 'text-success font-weight-bold']);
-    echo html_writer::end_div();
-    echo html_writer::start_div('col-md-3');
-    echo html_writer::tag('div', '<i class="fa fa-chart-pie fa-2x ' . ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' mb-2"></i>', ['class' => '']);
-    echo html_writer::tag('h6', get_string('stats_completion_rate', 'block_report_educam1'), ['class' => 'text-muted small']);
-    echo html_writer::tag('h2', $completionrate . '%', ['class' => ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' font-weight-bold']);
-    echo html_writer::end_div();
-    echo html_writer::end_div();
-    echo html_writer::end_div();
-    echo html_writer::end_div();
 
     // Pagination
     $start = $page * $perpage;
