@@ -347,21 +347,6 @@ $filters = [
     'enddate' => !empty($filterenddate) ? strtotime($filterenddate . ' 23:59:59') : ''
 ];
 
-echo html_writer::end_div(); // end container-fluid
-echo html_writer::end_tag('form');
-echo html_writer::end_div();
-echo html_writer::end_div();
-
-// Build filters array
-$filters = [
-    'idnumber' => $filteridnumber,
-    'firstname' => $filterfirstname,
-    'lastname' => $filterlastname,
-    'status' => $filterstatus,
-    'startdate' => !empty($filterstartdate) ? strtotime($filterstartdate) : '',
-    'enddate' => !empty($filterenddate) ? strtotime($filterenddate . ' 23:59:59') : ''
-];
-
 // Display appropriate view
 if ($view === 'individual') {
     report_educam1_display_individual_view($courseid, $activitytype, $page, $perpage, $filters, $urlparams);
@@ -452,42 +437,6 @@ function report_educam1_display_individual_view($courseid, $activitytype, $page,
     echo html_writer::tag('h2', $completionrate . '%', ['class' => ($completionrate >= 70 ? 'text-success' : 'text-warning') . ' font-weight-bold']);
     echo html_writer::end_div();
     echo html_writer::end_div();
-    echo html_writer::end_div();
-    echo html_writer::start_div('col-md-4');
-    echo html_writer::tag('h6', get_string('stats_completed', 'block_report_educam1'), ['class' => 'text-muted']);
-    echo html_writer::tag('h3', $completedcount . ' / ' . $totalrows);
-    echo html_writer::end_div();
-    echo html_writer::start_div('col-md-4');
-    echo html_writer::tag('h6', get_string('stats_completion_rate', 'block_report_educam1'), ['class' => 'text-muted']);
-    echo html_writer::tag('h3', $completionrate . '%', ['class' => $completionrate >= 70 ? 'text-success' : 'text-warning']);
-    echo html_writer::end_div();
-    echo html_writer::end_div();
-    echo html_writer::end_div();
-    echo html_writer::end_div();
-
-    // Pagination
-    $start = $page * $perpage;
-    $data = array_slice($alldata, $start, $perpage);
-
-    // Per page selector
-    echo html_writer::start_div('mb-3 d-flex justify-content-between align-items-center');
-    echo html_writer::tag('span', get_string('showing_entries', 'block_report_educam1', [
-        'start' => $start + 1,
-        'end' => min($start + $perpage, $totalrows),
-        'total' => $totalrows
-    ]));
-
-    echo html_writer::start_tag('form', ['method' => 'get', 'class' => 'form-inline']);
-    foreach ($urlparams as $key => $value) {
-        echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => $key, 'value' => $value]);
-    }
-    echo html_writer::tag('label', get_string('per_page', 'block_report_educam1') . ':', ['class' => 'mr-2']);
-    $perpageoptions = [10 => '10', 25 => '25', 50 => '50', 100 => '100'];
-    echo html_writer::select($perpageoptions, 'perpage', $perpage, false, [
-        'class' => 'form-control',
-        'onchange' => 'this.form.submit()'
-    ]);
-    echo html_writer::end_tag('form');
     echo html_writer::end_div();
 
     // Pagination
