@@ -86,14 +86,16 @@ $string['completed_symbol'] = '✓';
 $string['not_completed_symbol'] = '✗';
 
 // Filters.
-$string['filter_header'] = 'Filters';
+$string['filter_header'] = 'Search Filters';
+$string['filter_section_basic'] = 'Basic Filters';
+$string['filter_section_names'] = 'Name and Surname Filters';
 $string['filter_activity'] = 'Specific activity';
 $string['filter_all_activities'] = 'All activities';
-$string['filter_status'] = 'Status';
+$string['filter_status'] = 'Completion Status';
 $string['filter_search'] = 'Search student';
 $string['filter_apply'] = 'Apply filters';
 $string['filter_clear'] = 'Clear filters';
-$string['filter_idnumber'] = 'ID Number';
+$string['filter_idnumber'] = 'ID Number / Student ID';
 $string['filter_idnumber_placeholder'] = 'Search by ID...';
 $string['filter_firstname'] = 'First name';
 $string['filter_firstname_placeholder'] = 'Search by first name...';
@@ -101,8 +103,10 @@ $string['filter_lastname'] = 'Last name';
 $string['filter_lastname_placeholder'] = 'Search by last name...';
 $string['filter_all'] = 'All';
 $string['filter_by_letter'] = 'Filter by letter';
-$string['filter_startdate'] = 'Completion start date';
-$string['filter_enddate'] = 'Completion end date';
+$string['filter_startdate'] = 'Start Date';
+$string['filter_startdate_help'] = 'Show completions from this date';
+$string['filter_enddate'] = 'End Date';
+$string['filter_enddate_help'] = 'Show completions until this date';
 
 // Export.
 $string['export_header'] = 'Export data';

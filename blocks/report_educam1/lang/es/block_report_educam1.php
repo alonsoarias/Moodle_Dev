@@ -86,14 +86,16 @@ $string['completed_symbol'] = '✓';
 $string['not_completed_symbol'] = '✗';
 
 // Filtros.
-$string['filter_header'] = 'Filtros';
+$string['filter_header'] = 'Filtros de búsqueda';
+$string['filter_section_basic'] = 'Filtros básicos';
+$string['filter_section_names'] = 'Filtros por nombre y apellido';
 $string['filter_activity'] = 'Actividad específica';
 $string['filter_all_activities'] = 'Todas las actividades';
-$string['filter_status'] = 'Estado';
+$string['filter_status'] = 'Estado de completitud';
 $string['filter_search'] = 'Buscar estudiante';
 $string['filter_apply'] = 'Aplicar filtros';
 $string['filter_clear'] = 'Limpiar filtros';
-$string['filter_idnumber'] = 'Cédula / ID Number';
+$string['filter_idnumber'] = 'Cédula / Número de identificación';
 $string['filter_idnumber_placeholder'] = 'Buscar por cédula...';
 $string['filter_firstname'] = 'Nombre';
 $string['filter_firstname_placeholder'] = 'Buscar por nombre...';
@@ -101,8 +103,10 @@ $string['filter_lastname'] = 'Apellido';
 $string['filter_lastname_placeholder'] = 'Buscar por apellido...';
 $string['filter_all'] = 'Todos';
 $string['filter_by_letter'] = 'Filtrar por letra';
-$string['filter_startdate'] = 'Fecha inicial de finalización';
-$string['filter_enddate'] = 'Fecha final de finalización';
+$string['filter_startdate'] = 'Fecha de inicio';
+$string['filter_startdate_help'] = 'Mostrar completaciones desde esta fecha';
+$string['filter_enddate'] = 'Fecha de fin';
+$string['filter_enddate_help'] = 'Mostrar completaciones hasta esta fecha';
 
 // Exportación.
 $string['export_header'] = 'Exportar datos';
