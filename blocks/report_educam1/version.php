@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025110700; // YYYYMMDDVV.
+$plugin->version   = 2025110701; // YYYYMMDDVV.
 $plugin->requires  = 2022041900; // Moodle 4.0.
 $plugin->component = 'block_report_educam1';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0 (2025-11-07)';
+$plugin->release   = '1.1.0 (2025-11-07)';
