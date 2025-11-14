@@ -57,7 +57,7 @@ class block_report_educam1_edit_form extends block_edit_form {
 
         // Require the plugin's custom capability to configure the block.
         // This checks for manager and editingteacher archetypes (see db/access.php).
-        require_capability('block/report_educam1:viewreport', $parentcontext);
+        require_capability('block/report_educam1:configure', $parentcontext);
 
         $mform->addElement('header', 'configheader', get_string('config_header', 'block_report_educam1'));
 
