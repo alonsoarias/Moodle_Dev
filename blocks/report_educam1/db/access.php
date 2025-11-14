@@ -52,7 +52,8 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
+            // Note: 'teacher' (non-editing teacher) is excluded intentionally.
+            // Only users with editing permissions (moodle/course:update) should access reports.
         ],
         'clonepermissionsfrom' => 'moodle/course:update',
     ],
