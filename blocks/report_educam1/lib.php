@@ -48,7 +48,7 @@ function report_educam1_get_activity_type_name($modname) {
  *
  * SECURITY NOTE: This function returns sensitive student data (personal information).
  * Callers MUST validate that the current user has appropriate permissions
- * (moodle/course:update) before calling this function.
+ * (block/report_educam1:viewreport) before calling this function.
  *
  * @param int $courseid Course ID
  * @return array Array of user objects
@@ -58,9 +58,9 @@ function report_educam1_get_course_students($courseid) {
 
     $context = context_course::instance($courseid);
 
-    // Additional security check: Verify caller has editing permissions
+    // Additional security check: Verify caller has view report capability.
     // This is a defense-in-depth measure; callers should already verify this.
-    if (!has_capability('moodle/course:update', $context)) {
+    if (!has_capability('block/report_educam1:viewreport', $context)) {
         debugging('report_educam1_get_course_students() called without proper permissions', DEBUG_DEVELOPER);
         return [];
     }
@@ -191,7 +191,7 @@ function report_educam1_get_completion_date($userid, $cmid) {
  *
  * SECURITY NOTE: This function returns sensitive student data and completion information.
  * Callers MUST validate that the current user has appropriate permissions
- * (moodle/course:update) before calling this function.
+ * (block/report_educam1:viewreport) before calling this function.
  *
  * @param int $courseid Course ID
  * @param string $activitytype Activity type (module name)
@@ -202,8 +202,8 @@ function report_educam1_get_completion_date($userid, $cmid) {
 function report_educam1_get_individual_view_data($courseid, $activitytype, $specificactivity = null, $filters = []) {
     $context = context_course::instance($courseid);
 
-    // Additional security check: Verify caller has editing permissions
-    if (!has_capability('moodle/course:update', $context)) {
+    // Additional security check: Verify caller has view report capability.
+    if (!has_capability('block/report_educam1:viewreport', $context)) {
         debugging('report_educam1_get_individual_view_data() called without proper permissions', DEBUG_DEVELOPER);
         return [];
     }
@@ -287,7 +287,7 @@ function report_educam1_get_individual_view_data($courseid, $activitytype, $spec
  *
  * SECURITY NOTE: This function returns sensitive student data and completion information.
  * Callers MUST validate that the current user has appropriate permissions
- * (moodle/course:update) before calling this function.
+ * (block/report_educam1:viewreport) before calling this function.
  *
  * @param int $courseid Course ID
  * @param string $activitytype Activity type (module name)
@@ -297,8 +297,8 @@ function report_educam1_get_individual_view_data($courseid, $activitytype, $spec
 function report_educam1_get_matrix_view_data($courseid, $activitytype, $filters = []) {
     $context = context_course::instance($courseid);
 
-    // Additional security check: Verify caller has editing permissions
-    if (!has_capability('moodle/course:update', $context)) {
+    // Additional security check: Verify caller has view report capability.
+    if (!has_capability('block/report_educam1:viewreport', $context)) {
         debugging('report_educam1_get_matrix_view_data() called without proper permissions', DEBUG_DEVELOPER);
         return ['students' => [], 'activities' => [], 'completions' => []];
     }
@@ -365,7 +365,7 @@ function report_educam1_get_matrix_view_data($courseid, $activitytype, $filters 
  * Export individual view data to spreadsheet format.
  *
  * SECURITY NOTE: This function exports sensitive student data.
- * The caller (report.php) MUST verify permissions (moodle/course:update)
+ * The caller (report.php) MUST verify permissions (block/report_educam1:viewreport)
  * before calling this function.
  *
  * @param array $data Individual view data
@@ -452,7 +452,7 @@ function report_educam1_export_individual_spreadsheet($data, $filename, $format,
  * Export individual view data to CSV format.
  *
  * SECURITY NOTE: This function exports sensitive student data.
- * The caller (report.php) MUST verify permissions (moodle/course:update)
+ * The caller (report.php) MUST verify permissions (block/report_educam1:viewreport)
  * before calling this function.
  *
  * @param array $data Individual view data
@@ -515,7 +515,7 @@ function report_educam1_export_individual_csv($data, $filename) {
  * Export matrix view data to spreadsheet format.
  *
  * SECURITY NOTE: This function exports sensitive student data.
- * The caller (report.php) MUST verify permissions (moodle/course:update)
+ * The caller (report.php) MUST verify permissions (block/report_educam1:viewreport)
  * before calling this function.
  *
  * @param array $matrixdata Matrix view data
@@ -605,7 +605,7 @@ function report_educam1_export_matrix_spreadsheet($matrixdata, $filename, $forma
  * Export matrix view data to CSV format.
  *
  * SECURITY NOTE: This function exports sensitive student data.
- * The caller (report.php) MUST verify permissions (moodle/course:update)
+ * The caller (report.php) MUST verify permissions (block/report_educam1:viewreport)
  * before calling this function.
  *
  * @param array $matrixdata Matrix view data

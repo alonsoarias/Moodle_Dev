@@ -128,12 +128,10 @@ class block_report_educam1 extends block_base {
 
         $coursecontext = context_course::instance($contextinfo['courseid']);
 
-        // Restrict block visibility to users with editing permissions only
-        // Check for course update capability (editing teachers, managers, etc.)
-        $caneditcourse = has_capability('moodle/course:update', $coursecontext);
-
-        // Hide block completely for users without editing permissions
-        if (!$caneditcourse) {
+        // Restrict block visibility to users with view report capability only.
+        // This checks the plugin's custom capability which is assigned to manager and editingteacher
+        // archeytpes by default (see db/access.php).
+        if (!has_capability('block/report_educam1:viewreport', $coursecontext)) {
             return $this->content;
         }
 

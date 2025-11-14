@@ -52,8 +52,10 @@ $context = context_course::instance($courseid);
 
 require_login($course);
 
-// Check permissions - restrict to users with editing permissions only
-require_capability('moodle/course:update', $context);
+// Check permissions - restrict to users with view report capability.
+// This uses the plugin's custom capability which is assigned to manager and editingteacher
+// archetypes by default (see db/access.php).
+require_capability('block/report_educam1:viewreport', $context);
 
 // Load block instance
 $blockinstance = $DB->get_record('block_instances', ['id' => $instanceid], '*', MUST_EXIST);
