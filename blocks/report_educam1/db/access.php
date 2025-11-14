@@ -45,18 +45,6 @@ $capabilities = [
         ],
     ],
 
-    'block/report_educam1:configure' => [
-        'riskbitmask' => RISK_DATALOSS,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            // Allows users to configure the block settings (activity type, etc.)
-        ],
-        'clonepermissionsfrom' => 'moodle/course:update',
-    ],
-
     'block/report_educam1:viewreport' => [
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
