@@ -27,3 +27,4 @@ phpcs.xml
 *.tmp
 *.temp
 .cache/
+local/educambot_backup_*/
