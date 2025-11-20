@@ -34,9 +34,23 @@ $string['educambot:manage'] = 'Gestionar Educam Bot';
 
 // Settings.
 $string['settings_header'] = 'Configuración de Educam Bot';
+$string['identity_heading'] = 'Identidad del Bot';
+$string['appearance_heading'] = 'Apariencia';
+
 $string['botname'] = 'Nombre del bot';
 $string['botname_desc'] = 'El nombre que se muestra para el bot';
 $string['botname_default'] = 'Educam Bot';
+
+$string['widgetlabel'] = 'Etiqueta del widget';
+$string['widgetlabel_desc'] = 'La etiqueta mostrada en el botón del widget';
+$string['widgetlabel_default'] = 'Chat Bot';
+
+$string['greetingtemplate'] = 'Mensaje de saludo';
+$string['greetingtemplate_desc'] = 'El mensaje de saludo al abrir el chat. Puede usar: {{userfirstname}}, {{userlastname}}, {{botname}}';
+$string['greeting_default'] = '¡Hola {{userfirstname}}! Soy {{botname}}, tu asistente virtual. ¿En qué puedo ayudarte hoy?';
+
+$string['primarycolor'] = 'Color primario';
+$string['primarycolor_desc'] = 'El color principal del widget (botones, encabezado)';
 
 // Management page.
 $string['managerules'] = 'Gestionar Reglas';
@@ -80,3 +94,6 @@ $string['rulecreated'] = 'Regla creada exitosamente';
 $string['ruleupdated'] = 'Regla actualizada exitosamente';
 $string['ruledeleted'] = 'Regla eliminada exitosamente';
 $string['error_savingrule'] = 'Error al guardar la regla';
+
+// Widget.
+$string['typeaquestion'] = 'Escribe tu pregunta...';

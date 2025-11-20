@@ -1,0 +1,261 @@
+/**
+ * Educam Bot widget styles.
+ *
+ * @package     local_educambot
+ * @copyright   2025 EducamBot Team
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Widget container */
+#educambot-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Toggle button */
+.educambot-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+
+.educambot-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.educambot-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Badge */
+.educambot-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Chat panel */
+.educambot-panel {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 380px;
+    height: 500px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.educambot-header {
+    padding: 16px 20px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.educambot-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.educambot-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.educambot-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Messages area */
+.educambot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f9fafb;
+}
+
+/* Message */
+.educambot-message {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.educambot-message-content {
+    padding: 12px 16px;
+    border-radius: 12px;
+    max-width: 80%;
+    word-wrap: break-word;
+    line-height: 1.5;
+}
+
+/* Bot message */
+.educambot-bot .educambot-message-content {
+    background: white;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+/* User message */
+.educambot-user .educambot-message-content {
+    background: #0f6fc5;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+/* Confidence indicator */
+.educambot-confidence {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+    align-self: flex-start;
+}
+
+/* Input area */
+.educambot-input-area {
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 8px;
+    background: white;
+    flex-shrink: 0;
+}
+
+.educambot-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    resize: none;
+    font-size: 14px;
+    font-family: inherit;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.educambot-input:focus {
+    outline: none;
+    border-color: #0f6fc5;
+    box-shadow: 0 0 0 3px rgba(15, 111, 197, 0.1);
+}
+
+.educambot-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+.educambot-send:hover {
+    opacity: 0.9;
+}
+
+.educambot-send:active {
+    transform: scale(0.95);
+}
+
+/* Loading indicator */
+.educambot-loading {
+    text-align: center;
+    padding: 12px;
+    background: #f9fafb;
+}
+
+.educambot-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #0f6fc5;
+    border-radius: 50%;
+    animation: educambot-spin 0.8s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes educambot-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    .educambot-panel {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 140px);
+        max-height: 600px;
+    }
+
+    #educambot-widget {
+        right: 10px;
+        bottom: 10px;
+    }
+
+    .educambot-toggle {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+/* Scrollbar styling */
+.educambot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.educambot-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.educambot-messages::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.educambot-messages::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}

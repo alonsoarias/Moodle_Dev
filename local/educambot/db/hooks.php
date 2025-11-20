@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Hook callbacks configuration.
  *
  * @package     local_educambot
  * @copyright   2025 EducamBot Team
@@ -24,8 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_educambot';
-$plugin->version = 2025112001;  // YYYYMMDDXX format.
-$plugin->requires = 2022041900; // Moodle 4.0.
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.1.0';  // FASE 2: Widget UI.
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'callback' => \local_educambot\hook_callbacks::class . '::before_footer_html_generation',
+    ],
+];

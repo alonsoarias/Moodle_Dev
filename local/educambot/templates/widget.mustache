@@ -1,0 +1,80 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_educambot/widget
+
+    Educam Bot chat widget template.
+
+    Context variables required for this template:
+    * botname - The name of the bot
+    * widgetlabel - The label for the widget button
+    * primarycolor - Primary color for the widget
+    * serviceurl - URL to the AJAX service
+    * sesskey - Session key for AJAX requests
+}}
+<div id="educambot-widget" data-serviceurl="{{serviceurl}}" data-sesskey="{{sesskey}}" data-botname="{{botname}}">
+    <!-- Floating button -->
+    <button id="educambot-toggle" class="educambot-toggle" aria-label="{{widgetlabel}}" style="background-color: {{primarycolor}};">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="white"/>
+            <path d="M7 9H9V11H7V9ZM11 9H13V11H11V9ZM15 9H17V11H15V9Z" fill="white"/>
+        </svg>
+        <span class="educambot-badge" style="display: none;">1</span>
+    </button>
+
+    <!-- Chat panel -->
+    <div id="educambot-panel" class="educambot-panel" style="display: none;">
+        <!-- Header -->
+        <div class="educambot-header" style="background-color: {{primarycolor}};">
+            <h3 class="educambot-title">{{botname}}</h3>
+            <button id="educambot-close" class="educambot-close" aria-label="{{#str}}close, core{{/str}}">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 5L5 15M5 5L15 15" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Messages area -->
+        <div class="educambot-messages" id="educambot-messages">
+            <div class="educambot-message educambot-bot">
+                <div class="educambot-message-content">
+                    {{{greetingmessage}}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="educambot-input-area">
+            <textarea
+                id="educambot-input"
+                class="educambot-input"
+                placeholder="{{#str}}typeaquestion, local_educambot{{/str}}"
+                rows="1"
+                aria-label="{{#str}}typeaquestion, local_educambot{{/str}}"></textarea>
+            <button id="educambot-send" class="educambot-send" aria-label="{{#str}}send, core{{/str}}" style="background-color: {{primarycolor}};">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 10L18 2L10 18L8 11L2 10Z" fill="white"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Loading indicator -->
+        <div class="educambot-loading" id="educambot-loading" style="display: none;">
+            <div class="educambot-spinner"></div>
+        </div>
+    </div>
+</div>

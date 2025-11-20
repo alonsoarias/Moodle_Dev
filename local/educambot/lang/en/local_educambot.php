@@ -34,9 +34,23 @@ $string['educambot:manage'] = 'Manage Educam Bot';
 
 // Settings.
 $string['settings_header'] = 'Educam Bot Settings';
+$string['identity_heading'] = 'Bot Identity';
+$string['appearance_heading'] = 'Appearance';
+
 $string['botname'] = 'Bot name';
 $string['botname_desc'] = 'The name displayed for the bot';
 $string['botname_default'] = 'Educam Bot';
+
+$string['widgetlabel'] = 'Widget label';
+$string['widgetlabel_desc'] = 'The label shown on the widget button';
+$string['widgetlabel_default'] = 'Chat Bot';
+
+$string['greetingtemplate'] = 'Greeting message';
+$string['greetingtemplate_desc'] = 'The greeting message shown when opening the chat. You can use: {{userfirstname}}, {{userlastname}}, {{botname}}';
+$string['greeting_default'] = 'Hello {{userfirstname}}! I\'m {{botname}}, your virtual assistant. How can I help you today?';
+
+$string['primarycolor'] = 'Primary color';
+$string['primarycolor_desc'] = 'The main color for the widget (buttons, header)';
 
 // Management page.
 $string['managerules'] = 'Manage Rules';
@@ -80,3 +94,6 @@ $string['rulecreated'] = 'Rule created successfully';
 $string['ruleupdated'] = 'Rule updated successfully';
 $string['ruledeleted'] = 'Rule deleted successfully';
 $string['error_savingrule'] = 'Error saving rule';
+
+// Widget.
+$string['typeaquestion'] = 'Type your question...';

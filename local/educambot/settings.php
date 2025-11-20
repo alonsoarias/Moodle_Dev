@@ -34,6 +34,13 @@ if ($hassiteconfig) {
         get_string('settings_header', 'local_educambot'));
 
     if ($ADMIN->fulltree) {
+        // Bot identity section.
+        $settings->add(new admin_setting_heading(
+            'local_educambot/identity_heading',
+            get_string('identity_heading', 'local_educambot'),
+            ''
+        ));
+
         // Bot name setting.
         $settings->add(new admin_setting_configtext(
             'local_educambot/botname',
@@ -41,6 +48,39 @@ if ($hassiteconfig) {
             get_string('botname_desc', 'local_educambot'),
             get_string('botname_default', 'local_educambot'),
             PARAM_TEXT
+        ));
+
+        // Widget label setting.
+        $settings->add(new admin_setting_configtext(
+            'local_educambot/widgetlabel',
+            get_string('widgetlabel', 'local_educambot'),
+            get_string('widgetlabel_desc', 'local_educambot'),
+            get_string('widgetlabel_default', 'local_educambot'),
+            PARAM_TEXT
+        ));
+
+        // Greeting message setting.
+        $settings->add(new admin_setting_configtextarea(
+            'local_educambot/greetingtemplate',
+            get_string('greetingtemplate', 'local_educambot'),
+            get_string('greetingtemplate_desc', 'local_educambot'),
+            get_string('greeting_default', 'local_educambot'),
+            PARAM_TEXT
+        ));
+
+        // Appearance section.
+        $settings->add(new admin_setting_heading(
+            'local_educambot/appearance_heading',
+            get_string('appearance_heading', 'local_educambot'),
+            ''
+        ));
+
+        // Primary color setting.
+        $settings->add(new admin_setting_configcolourpicker(
+            'local_educambot/primarycolor',
+            get_string('primarycolor', 'local_educambot'),
+            get_string('primarycolor_desc', 'local_educambot'),
+            '#0f6fc5'
         ));
     }
 
