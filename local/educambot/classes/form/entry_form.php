@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Form definition for knowledge base entries.
+ * Rule entry form.
  *
  * @package     local_educambot
- * @copyright   2024 Educam
+ * @copyright   2025 EducamBot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,109 +26,71 @@ namespace local_educambot\form;
 
 defined('MOODLE_INTERNAL') || die();
 
-use context_system;
-use moodleform;
-
-global $CFG;
 require_once($CFG->libdir . '/formslib.php');
-require_once($CFG->libdir . '/editorlib.php');
 
 /**
- * Form to create or edit bot rules.
+ * Rule entry form class.
  */
-class entry_form extends moodleform {
+class entry_form extends \moodleform {
+
     /**
-     * Defines form fields.
+     * Define form elements.
      */
-    protected function definition(): void {
+    protected function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('textarea', 'pattern', get_string('pattern', 'local_educambot'), 'rows="3" cols="50"');
+        // Hidden field for rule ID (when editing).
+        $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
+
+        // Pattern field.
+        $mform->addElement('text', 'pattern', get_string('pattern', 'local_educambot'), ['size' => 60]);
         $mform->setType('pattern', PARAM_TEXT);
-        $mform->addRule('pattern', get_string('formerrorpatternrequired', 'local_educambot'), 'required');
+        $mform->addRule('pattern', get_string('required'), 'required', null, 'client');
+        $mform->addHelpButton('pattern', 'pattern', 'local_educambot');
 
-        $mform->addElement('textarea', 'synonyms', get_string('synonyms', 'local_educambot'), 'rows="4" cols="50"');
-        $mform->setType('synonyms', PARAM_TEXT);
-        $mform->addHelpButton('synonyms', 'synonyms', 'local_educambot');
-
-        $mform->addElement('text', 'keywords', get_string('keywords', 'local_educambot'));
+        // Keywords field.
+        $mform->addElement('textarea', 'keywords', get_string('keywords', 'local_educambot'),
+            ['rows' => 4, 'cols' => 60]);
         $mform->setType('keywords', PARAM_TEXT);
         $mform->addHelpButton('keywords', 'keywords', 'local_educambot');
 
-        $editoroptions = $this->_customdata['editoroptions'] ?? [
-            'context' => context_system::instance(),
-            'maxfiles' => EDITOR_UNLIMITED_FILES,
-            'maxbytes' => 0,
-            'trusttext' => false,
-        ];
-        $mform->addElement('editor', 'response', get_string('response', 'local_educambot'), null, $editoroptions);
-        $mform->setType('response', PARAM_RAW);
-        $mform->addRule('response', get_string('formerrorresponcerequired', 'local_educambot'), 'required');
+        // Response field.
+        $mform->addElement('textarea', 'response', get_string('response', 'local_educambot'),
+            ['rows' => 6, 'cols' => 60]);
+        $mform->setType('response', PARAM_TEXT);
+        $mform->addRule('response', get_string('required'), 'required', null, 'client');
+        $mform->addHelpButton('response', 'response', 'local_educambot');
 
-        $roles = get_all_roles(context_system::instance());
-        $roleoptions = [];
-        foreach ($roles as $role) {
-            $roleoptions[$role->shortname] = role_get_name($role, context_system::instance());
-        }
-        $mform->addElement('select', 'roles', get_string('roles', 'local_educambot'), $roleoptions, ['multiple' => 'multiple']);
-        $mform->setType('roles', PARAM_RAW);
-        $mform->addHelpButton('roles', 'roles', 'local_educambot');
-
-        $mform->addElement('textarea', 'contexts', get_string('contexts', 'local_educambot'), 'rows="3" cols="50"');
-        $mform->setType('contexts', PARAM_TEXT);
-        $mform->addHelpButton('contexts', 'contexts', 'local_educambot');
-
-        $mform->addElement('advcheckbox', 'suggested', get_string('suggested', 'local_educambot'));
-        $mform->setType('suggested', PARAM_INT);
-        $mform->setDefault('suggested', 0);
-
+        // Enabled checkbox.
         $mform->addElement('advcheckbox', 'enabled', get_string('enabled', 'local_educambot'));
-        $mform->setType('enabled', PARAM_INT);
         $mform->setDefault('enabled', 1);
+        $mform->addHelpButton('enabled', 'enabled', 'local_educambot');
 
-        $mform->addElement('hidden', 'id', 0);
-        $mform->setType('id', PARAM_INT);
-
+        // Action buttons.
         $this->add_action_buttons();
     }
 
     /**
-     * Custom data preprocessing.
+     * Validate form data.
      *
-     * @param array $defaultvalues
+     * @param array $data Form data
+     * @param array $files Uploaded files
+     * @return array Errors
      */
-    public function set_data($defaultvalues) {
-        if (is_object($defaultvalues)) {
-            $defaultvalues = (array)$defaultvalues;
-        }
-        if (isset($defaultvalues['roles']) && is_string($defaultvalues['roles'])) {
-            $defaultvalues['roles'] = preg_split('/[,;]/', $defaultvalues['roles'], -1, PREG_SPLIT_NO_EMPTY);
-        }
-        if (isset($defaultvalues['response']) && is_string($defaultvalues['response'])) {
-            $defaultvalues['response'] = [
-                'text' => $defaultvalues['response'],
-                'format' => FORMAT_HTML,
-            ];
-        }
-        parent::set_data($defaultvalues);
-    }
-
-    /**
-     * Validates form data.
-     *
-     * @param array $data
-     * @param array $files
-     * @return array
-     */
-    public function validation($data, $files): array {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if (trim($data['pattern'] ?? '') === '') {
-            $errors['pattern'] = get_string('formerrorpatternrequired', 'local_educambot');
+
+        // Validate pattern is not empty after trimming.
+        if (empty(trim($data['pattern']))) {
+            $errors['pattern'] = get_string('required');
         }
-        $responsetext = trim($data['response']['text'] ?? '');
-        if ($responsetext === '') {
-            $errors['response'] = get_string('formerrorresponcerequired', 'local_educambot');
+
+        // Validate response is not empty after trimming.
+        if (empty(trim($data['response']))) {
+            $errors['response'] = get_string('required');
         }
+
         return $errors;
     }
 }

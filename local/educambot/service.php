@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AJAX endpoint for the Educam Bot widget.
+ * AJAX service endpoint for bot questions.
  *
  * @package     local_educambot
- * @copyright   2024 Educam
+ * @copyright   2025 EducamBot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,62 +26,46 @@ define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
 
-require_login(null, false);
+// Require login and valid session.
+require_login();
 require_sesskey();
 
 $context = context_system::instance();
 require_capability('local/educambot:use', $context);
 
-$question = required_param('question', PARAM_RAW_TRIMMED);
-if ($question !== '') {
-    $maxquestionlength = 1000;
-    if (core_text::strlen($question) > $maxquestionlength) {
-        $question = core_text::substr($question, 0, $maxquestionlength);
-    }
-}
-$sessionid = optional_param('sessionid', '', PARAM_ALPHANUMEXT);
-$page = optional_param('page', '', PARAM_RAW_TRIMMED);
+// Get parameters.
+$question = required_param('question', PARAM_TEXT);
 
-if ($sessionid === '') {
-    $sessionid = sesskey();
+// Validate question length.
+if (empty(trim($question)) || strlen($question) > 1000) {
+    echo json_encode([
+        'success' => false,
+        'error' => get_string('invalidquestion', 'local_educambot'),
+    ]);
+    exit;
 }
 
-$userid = isloggedin() && !isguestuser() ? (int)$USER->id : null;
-
-$engine = new \local_educambot\bot\engine($userid, $page, $sessionid);
+// Create engine instance and get response.
+$engine = new \local_educambot\bot\engine();
 $result = $engine->respond($question);
 
-$response = $result['response'] ?? null;
-if (!is_string($response) || trim($response) === '') {
-    $response = get_string('noanswer', 'local_educambot');
+// Prepare response.
+if ($result['response'] !== null) {
+    $response = [
+        'success' => true,
+        'response' => $result['response'],
+        'ruleid' => $result['ruleid'],
+        'confidence' => $result['confidence'],
+    ];
+} else {
+    $response = [
+        'success' => true,
+        'response' => get_string('noresponse', 'local_educambot'),
+        'ruleid' => null,
+        'confidence' => 0,
+    ];
 }
 
-$suggestions = $result['suggestions'] ?? [];
-if (!is_array($suggestions)) {
-    $suggestions = [];
-}
-
-$confidence = isset($result['confidence']) ? (float)$result['confidence'] : 0.0;
-$confidence = max(0.0, min(1.0, $confidence));
-
-$ruleid = $result['ruleid'] ?? null;
-
-$logger = new \local_educambot\local\logger();
-$logger->log($sessionid, $question, $response, $ruleid, $confidence, $userid, $page);
-
-if (!array_key_exists('response', $result) || $result['response'] === null) {
-    $logger->record_unanswered($question, $userid, $page);
-    $response = get_string('noanswer', 'local_educambot');
-}
-
-$payload = [
-    'response' => $response,
-    'ruleid' => $ruleid,
-    'confidence' => $confidence,
-    'sessionid' => $sessionid,
-    'suggestions' => array_values($suggestions),
-];
-
-@header('Content-Type: application/json');
-echo json_encode($payload);
-die;
+// Send JSON response.
+header('Content-Type: application/json');
+echo json_encode($response);

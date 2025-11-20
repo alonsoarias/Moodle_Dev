@@ -15,283 +15,157 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Management interface for Educam Bot rules.
+ * Manage bot rules page.
  *
  * @package     local_educambot
- * @copyright   2024 Educam
+ * @copyright   2025 EducamBot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->libdir . '/editorlib.php');
-require_once(__DIR__ . '/classes/form/entry_form.php');
+
+admin_externalpage_setup('local_educambot_manage');
 
 $context = context_system::instance();
-require_login();
 require_capability('local/educambot:manage', $context);
-
-$PAGE->set_context($context);
-$PAGE->set_url(new moodle_url('/local/educambot/manage.php'));
-$PAGE->set_title(get_string('manageentries', 'local_educambot'));
-$PAGE->set_heading(get_string('manageentries', 'local_educambot'));
-
-$renderer = $PAGE->get_renderer('local_educambot');
 
 $action = optional_param('action', 'list', PARAM_ALPHA);
 $id = optional_param('id', 0, PARAM_INT);
-$search = optional_param('search', '', PARAM_RAW_TRIMMED);
-$status = optional_param('status', 'all', PARAM_ALPHA);
-$suggestedfilter = optional_param('suggested', 'all', PARAM_ALPHA);
-$page = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', 25, PARAM_INT);
 
-$page = max(0, $page);
-$perpage = max(10, min(100, $perpage));
+$PAGE->set_url('/local/educambot/manage.php');
+$PAGE->set_context($context);
+$PAGE->set_title(get_string('managerules', 'local_educambot'));
+$PAGE->set_heading(get_string('managerules', 'local_educambot'));
 
-$baseparams = [
-    'status' => $status,
-    'suggested' => $suggestedfilter,
-    'perpage' => $perpage,
-];
-if ($search !== '') {
-    $baseparams['search'] = $search;
-}
-$baseurl = new moodle_url('/local/educambot/manage.php', $baseparams);
-
-$cache = cache::make('local_educambot', 'rules');
-
-$editoroptions = [
-    'context' => $context,
-    'maxfiles' => EDITOR_UNLIMITED_FILES,
-    'maxbytes' => 0,
-    'trusttext' => false,
-    'subdirs' => false,
-];
-
-if ($action === 'delete' && $id) {
+// Handle delete action.
+if ($action === 'delete' && $id > 0) {
     require_sesskey();
-    require_post();
-    if ($DB->record_exists('local_educambot_rule', ['id' => $id])) {
-        $DB->delete_records('local_educambot_rule', ['id' => $id]);
-        $cache->purge();
-        redirect($baseurl, get_string('deleted', 'local_educambot'));
-    } else {
-        print_error('invalidrecord', 'error');
-    }
+    $DB->delete_records('local_educambot_rule', ['id' => $id]);
+    redirect(new moodle_url('/local/educambot/manage.php'),
+        get_string('ruledeleted', 'local_educambot'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS);
 }
 
-if (in_array($action, ['add', 'edit'], true)) {
-    if ($action === 'edit') {
-        $record = $DB->get_record('local_educambot_rule', ['id' => $id], '*', MUST_EXIST);
-        // Ensure responseformat is set for file_prepare_standard_editor.
-        if (!isset($record->responseformat)) {
-            $record->responseformat = FORMAT_HTML;
-        }
-        $record = file_prepare_standard_editor($record, 'response', $editoroptions, $context, 'local_educambot', 'response', $record->id);
-    } else {
-        $record = (object) [
-            'id' => 0,
-            'pattern' => '',
-            'synonyms' => '',
-            'keywords' => '',
-            'response' => '',
-            'responseformat' => FORMAT_HTML,
-            'roles' => [],
-            'contexts' => '',
-            'suggested' => 0,
-            'enabled' => 1,
-        ];
-        $record = file_prepare_standard_editor($record, 'response', $editoroptions, $context, 'local_educambot', 'response', 0);
+// Handle toggle enabled/disabled.
+if ($action === 'toggle' && $id > 0) {
+    require_sesskey();
+    $rule = $DB->get_record('local_educambot_rule', ['id' => $id], '*', MUST_EXIST);
+    $rule->enabled = $rule->enabled ? 0 : 1;
+    $rule->timemodified = time();
+    $DB->update_record('local_educambot_rule', $rule);
+    redirect(new moodle_url('/local/educambot/manage.php'));
+}
+
+// Handle add/edit form.
+if ($action === 'edit' || $action === 'add') {
+    $mform = new \local_educambot\form\entry_form();
+
+    // Load existing data if editing.
+    if ($id > 0) {
+        $rule = $DB->get_record('local_educambot_rule', ['id' => $id], '*', MUST_EXIST);
+        $mform->set_data($rule);
     }
 
-    $form = new \local_educambot\form\entry_form($baseurl, [
-        'persistent' => $record,
-        'editoroptions' => $editoroptions,
-    ]);
-
-    if ($form->is_cancelled()) {
-        redirect($baseurl);
-    } else if ($data = $form->get_data()) {
+    if ($mform->is_cancelled()) {
+        redirect(new moodle_url('/local/educambot/manage.php'));
+    } else if ($data = $mform->get_data()) {
         $now = time();
-        $saved = new stdClass();
-        $saved->pattern = trim(clean_param($data->pattern, PARAM_TEXT));
-        $saved->synonyms = preg_replace('/\r\n?/', "\n", trim(clean_param($data->synonyms ?? '', PARAM_NOTAGS)));
-        $saved->keywords = trim(clean_param($data->keywords ?? '', PARAM_NOTAGS));
-        $saved->roles = !empty($data->roles) ? implode(',', array_map(static function(string $role): string {
-            return trim(clean_param($role, PARAM_ALPHANUMEXT));
-        }, (array)$data->roles)) : null;
-        $saved->contexts = preg_replace('/\r\n?/', "\n", trim(clean_param($data->contexts ?? '', PARAM_NOTAGS)));
-        $saved->suggested = !empty($data->suggested) ? 1 : 0;
-        $saved->enabled = !empty($data->enabled) ? 1 : 0;
-        $saved->timemodified = $now;
 
-        if ($action === 'edit') {
-            $saved->id = $record->id;
-            $saved->timecreated = $record->timecreated;
-            $data = file_postupdate_standard_editor($data, 'response', $editoroptions, $context, 'local_educambot', 'response', $saved->id);
-            $saved->response = trim($data->response);
-            $DB->update_record('local_educambot_rule', $saved);
+        if ($data->id > 0) {
+            // Update existing rule.
+            $data->timemodified = $now;
+            $DB->update_record('local_educambot_rule', $data);
+            $message = get_string('ruleupdated', 'local_educambot');
         } else {
-            $saved->timecreated = $now;
-            $saved->response = '';
-            $saved->id = $DB->insert_record('local_educambot_rule', $saved);
-            $data = file_postupdate_standard_editor($data, 'response', $editoroptions, $context, 'local_educambot', 'response', $saved->id);
-            $saved->response = trim($data->response);
-            $DB->update_record('local_educambot_rule', $saved);
+            // Create new rule.
+            $data->timecreated = $now;
+            $data->timemodified = $now;
+            $DB->insert_record('local_educambot_rule', $data);
+            $message = get_string('rulecreated', 'local_educambot');
         }
 
-        $cache->purge();
-        redirect($baseurl, get_string('saved', 'local_educambot'));
-    } else {
-        $form->set_data($record);
-
-        echo $OUTPUT->header();
-        echo $OUTPUT->heading(get_string($action === 'edit' ? 'editentry' : 'addentry', 'local_educambot'));
-        $form->display();
-        echo $OUTPUT->footer();
-        exit;
+        redirect(new moodle_url('/local/educambot/manage.php'),
+            $message,
+            null,
+            \core\output\notification::NOTIFY_SUCCESS);
     }
+
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading($id > 0 ? get_string('editrule', 'local_educambot') : get_string('addrule', 'local_educambot'));
+    $mform->display();
+    echo $OUTPUT->footer();
+    exit;
 }
 
-$searching = $search !== '';
-$recordsdata = [];
-$paginghtml = '';
-
-if ($searching) {
-    $engine = new \local_educambot\bot\engine(null, null);
-    $limit = min(100, max(10, $perpage));
-    $preview = $engine->preview_rankings($search, true, $limit);
-    foreach ($preview as $ranked) {
-        $entry = clone $ranked['entry'];
-        $confidence = (float)($ranked['score'] ?? 0);
-        $recordsdata[] = [
-            'pattern' => format_string($entry->pattern),
-            'hasconfidence' => true,
-            'confidence' => sprintf('%d%%', (int)round(min(100, max(0, $confidence * 100)))),
-            'status' => $entry->enabled ? get_string('enabledyes', 'local_educambot') : get_string('enabledno', 'local_educambot'),
-            'statusclass' => $entry->enabled ? 'bg-success' : 'bg-secondary',
-            'suggested' => $entry->suggested ? get_string('enabledyes', 'local_educambot') : get_string('enabledno', 'local_educambot'),
-            'timemodified' => userdate($entry->timemodified),
-            'actions' => build_rule_actions((int)$entry->id, $entry->pattern, $search, $status, $suggestedfilter, $perpage, $page),
-        ];
-    }
-    $totalsearch = count($preview);
-} else {
-    $conditions = ['1=1'];
-    $params = [];
-    if ($status === 'enabled') {
-        $conditions[] = 'enabled = :enabled';
-        $params['enabled'] = 1;
-    } else if ($status === 'disabled') {
-        $conditions[] = 'enabled = :enabled';
-        $params['enabled'] = 0;
-    }
-    if ($suggestedfilter === 'only') {
-        $conditions[] = 'suggested = :suggested';
-        $params['suggested'] = 1;
-    } else if ($suggestedfilter === 'none') {
-        $conditions[] = 'suggested = :suggested';
-        $params['suggested'] = 0;
-    }
-
-    $select = implode(' AND ', $conditions);
-    $total = $DB->count_records_select('local_educambot_rule', $select, $params);
-    if ($total > 0) {
-        $records = $DB->get_records_select('local_educambot_rule', $select, $params, 'timemodified DESC', '*', $page * $perpage, $perpage);
-    } else {
-        $records = [];
-    }
-    foreach ($records as $record) {
-        $recordsdata[] = [
-            'pattern' => format_string($record->pattern),
-            'hasconfidence' => false,
-            'status' => $record->enabled ? get_string('enabledyes', 'local_educambot') : get_string('enabledno', 'local_educambot'),
-            'statusclass' => $record->enabled ? 'bg-success' : 'bg-secondary',
-            'suggested' => $record->suggested ? get_string('enabledyes', 'local_educambot') : get_string('enabledno', 'local_educambot'),
-            'timemodified' => userdate($record->timemodified),
-            'actions' => build_rule_actions((int)$record->id, $record->pattern, $search, $status, $suggestedfilter, $perpage, $page),
-        ];
-    }
-    if ($total > $perpage) {
-        $paginghtml = $OUTPUT->paging_bar($total, $page, $perpage, $baseurl);
-    }
-    $totalsearch = $total;
-}
-
-$filtersdata = [
-    'addurl' => (new moodle_url('/local/educambot/manage.php', ['action' => 'add'] + $baseparams))->out(false),
-    'addlabel' => get_string('addentry', 'local_educambot'),
-    'knowledgeurl' => (new moodle_url('/local/educambot/knowledge.php'))->out(false),
-    'knowledgebuttonlabel' => get_string('manageknowledge', 'local_educambot'),
-    'status' => [
-        'options' => [
-            ['value' => 'all', 'label' => get_string('filterstatusall', 'local_educambot'), 'selected' => $status === 'all'],
-            ['value' => 'enabled', 'label' => get_string('filterstatusenabled', 'local_educambot'), 'selected' => $status === 'enabled'],
-            ['value' => 'disabled', 'label' => get_string('filterstatusdisabled', 'local_educambot'), 'selected' => $status === 'disabled'],
-        ],
-    ],
-    'suggested' => [
-        'options' => [
-            ['value' => 'all', 'label' => get_string('filtersuggestedall', 'local_educambot'), 'selected' => $suggestedfilter === 'all'],
-            ['value' => 'only', 'label' => get_string('filtersuggestedonly', 'local_educambot'), 'selected' => $suggestedfilter === 'only'],
-            ['value' => 'none', 'label' => get_string('filtersuggestednone', 'local_educambot'), 'selected' => $suggestedfilter === 'none'],
-        ],
-    ],
-    'perpage' => $perpage,
-];
-
-$searchinfo = [
-    'term' => $search,
-    'placeholder' => get_string('searchplaceholder', 'local_educambot'),
-    'issearch' => $searching,
-    'clearurl' => (new moodle_url('/local/educambot/manage.php', ['status' => $status, 'suggested' => $suggestedfilter, 'perpage' => $perpage]))->out(false),
-    'showconfidence' => $searching,
-    'resultsmessage' => get_string('searchresultsfound', 'local_educambot', $totalsearch),
-    'noresults' => get_string('nosearchresults', 'local_educambot'),
-    'noentries' => empty($recordsdata)
-        ? ($searching ? get_string('nosearchresults', 'local_educambot') : get_string('noentries', 'local_educambot'))
-        : '',
-];
-
-$renderable = new \local_educambot\output\rule_table($recordsdata, $filtersdata, $searchinfo, $paginghtml);
-
+// List all rules (default action).
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('manageentries', 'local_educambot'));
-echo $renderer->render($renderable);
-echo $OUTPUT->footer();
 
-/**
- * Builds the HTML for rule actions.
- *
- * @param int $id
- * @param string $pattern
- * @param string $search
- * @param string $status
- * @param string $suggested
- * @param int $perpage
- * @param int $page
- * @return string
- */
-function build_rule_actions(int $id, string $pattern, string $search, string $status, string $suggested, int $perpage, int $page): string {
-    global $OUTPUT;
-    $params = ['action' => 'edit', 'id' => $id, 'status' => $status, 'suggested' => $suggested, 'perpage' => $perpage, 'page' => $page];
-    if ($search !== '') {
-        $params['search'] = $search;
+// Add rule button.
+$addurl = new moodle_url('/local/educambot/manage.php', ['action' => 'add']);
+echo html_writer::link($addurl, get_string('addrule', 'local_educambot'),
+    ['class' => 'btn btn-primary mb-3']);
+
+// Get all rules.
+$rules = $DB->get_records('local_educambot_rule', null, 'timecreated DESC');
+
+if (empty($rules)) {
+    echo $OUTPUT->notification(get_string('norules', 'local_educambot'), 'info');
+} else {
+    // Create table.
+    $table = new html_table();
+    $table->head = [
+        get_string('pattern_header', 'local_educambot'),
+        get_string('response_header', 'local_educambot'),
+        get_string('status_header', 'local_educambot'),
+        get_string('actions_header', 'local_educambot'),
+    ];
+    $table->attributes['class'] = 'generaltable';
+
+    foreach ($rules as $rule) {
+        $editurl = new moodle_url('/local/educambot/manage.php', ['action' => 'edit', 'id' => $rule->id]);
+        $deleteurl = new moodle_url('/local/educambot/manage.php',
+            ['action' => 'delete', 'id' => $rule->id, 'sesskey' => sesskey()]);
+        $toggleurl = new moodle_url('/local/educambot/manage.php',
+            ['action' => 'toggle', 'id' => $rule->id, 'sesskey' => sesskey()]);
+
+        // Truncate long text.
+        $pattern = strlen($rule->pattern) > 60 ? substr($rule->pattern, 0, 57) . '...' : $rule->pattern;
+        $response = strlen($rule->response) > 80 ? substr($rule->response, 0, 77) . '...' : $rule->response;
+
+        // Status badge.
+        if ($rule->enabled) {
+            $status = html_writer::tag('span', get_string('status_enabled', 'local_educambot'),
+                ['class' => 'badge badge-success']);
+        } else {
+            $status = html_writer::tag('span', get_string('status_disabled', 'local_educambot'),
+                ['class' => 'badge badge-secondary']);
+        }
+
+        // Action links.
+        $actions = html_writer::link($editurl, get_string('edit', 'local_educambot'),
+            ['class' => 'btn btn-sm btn-secondary']);
+        $actions .= ' ';
+        $actions .= html_writer::link($toggleurl,
+            $rule->enabled ? get_string('disable', 'local_educambot') : get_string('enable', 'local_educambot'),
+            ['class' => 'btn btn-sm btn-info']);
+        $actions .= ' ';
+        $actions .= html_writer::link($deleteurl, get_string('delete', 'local_educambot'),
+            [
+                'class' => 'btn btn-sm btn-danger',
+                'onclick' => 'return confirm("' . get_string('confirmdelete', 'local_educambot') . '");',
+            ]);
+
+        $table->data[] = [
+            format_text($pattern, FORMAT_PLAIN),
+            format_text($response, FORMAT_PLAIN),
+            $status,
+            $actions,
+        ];
     }
-    $editurl = new moodle_url('/local/educambot/manage.php', $params);
 
-    $deleteparams = ['action' => 'delete', 'id' => $id, 'sesskey' => sesskey(), 'status' => $status, 'suggested' => $suggested, 'perpage' => $perpage, 'page' => $page];
-    if ($search !== '') {
-        $deleteparams['search'] = $search;
-    }
-    $deleteurl = new moodle_url('/local/educambot/manage.php', $deleteparams);
-    $confirmmessage = get_string('confirmdelete', 'local_educambot', format_string($pattern));
-
-    $deletebutton = new single_button($deleteurl, get_string('delete'), 'post');
-    $deletebutton->class = 'btn btn-link p-0 m-0 align-baseline';
-    $deletebutton->formid = 'delete-rule-' . $id;
-    $deletebutton->add_confirm_action($confirmmessage);
-
-    return html_writer::link($editurl, get_string('edit')) . ' | ' . $OUTPUT->render($deletebutton);
+    echo html_writer::table($table);
 }
+
+echo $OUTPUT->footer();
