@@ -23,52 +23,72 @@
 
 define(['jquery'], function($) {
 
-    return {
+    var chat = {
         /**
          * Initialize the widget.
          */
         init: function() {
-            var widget = $('#educambot-widget');
-            var panel = $('#educambot-panel');
-            var toggle = $('#educambot-toggle');
-            var close = $('#educambot-close');
-            var input = $('#educambot-input');
-            var send = $('#educambot-send');
+            // Don't initialize in embedded layouts.
+            if ($('body.pagelayout-embedded').length) {
+                return;
+            }
+
+            var educambotchat = $('#educambot-chat');
+
+            // Hide in maintenance or embedded layouts.
+            if ($('.pagelayout-embedded, .pagelayout-maintenance').length) {
+                educambotchat.hide();
+                educambotchat.remove();
+                return;
+            }
+
+            // Show widget with animation.
+            educambotchat.show(200);
+
+            var popup = educambotchat.find('.educambot-popup');
+            var btn = $('#educambot-btn');
+            var closeBtn = $('#educambot-close');
+            var clearBtn = $('#educambot-clear');
+            var textarea = $('#educambot-textarea');
+            var sendBtn = $('#educambot-send');
             var messages = $('#educambot-messages');
             var loading = $('#educambot-loading');
 
-            var serviceUrl = widget.data('serviceurl');
-            var sesskey = widget.data('sesskey');
-            var botname = widget.data('botname');
+            var serviceUrl = educambotchat.data('serviceurl');
+            var sesskey = educambotchat.data('sesskey');
 
-            var isOpen = false;
-
-            // Toggle panel.
-            toggle.on('click', function() {
-                if (isOpen) {
-                    panel.fadeOut(200);
-                    isOpen = false;
+            // Toggle chat open/close.
+            btn.on('click', function() {
+                educambotchat.toggleClass('educambot-active');
+                if (educambotchat.hasClass('educambot-active')) {
+                    localStorage.setItem('educambot-isopen', 'true');
+                    textarea.focus();
                 } else {
-                    panel.fadeIn(200);
-                    isOpen = true;
-                    input.focus();
+                    localStorage.removeItem('educambot-isopen');
                 }
             });
 
-            // Close panel.
-            close.on('click', function() {
-                panel.fadeOut(200);
-                isOpen = false;
+            // Close button.
+            closeBtn.on('click', function(e) {
+                e.preventDefault();
+                educambotchat.removeClass('educambot-active');
+                localStorage.removeItem('educambot-isopen');
+            });
+
+            // Clear history.
+            clearBtn.on('click', function(e) {
+                e.preventDefault();
+                messages.find('.educambot-message').not(':first').remove();
             });
 
             // Auto-resize textarea.
-            input.on('input', function() {
-                this.style.height = 'auto';
+            textarea.on('input', function() {
+                this.style.height = '34px';
                 this.style.height = (this.scrollHeight) + 'px';
             });
 
-            // Send on Enter (but allow Shift+Enter for new line).
-            input.on('keydown', function(e) {
+            // Send on Enter (Shift+Enter for new line).
+            textarea.on('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
@@ -76,17 +96,22 @@ define(['jquery'], function($) {
             });
 
             // Send on button click.
-            send.on('click', function() {
+            sendBtn.on('click', function() {
                 sendMessage();
             });
+
+            // Restore state from localStorage.
+            if (localStorage.getItem('educambot-isopen') === 'true') {
+                educambotchat.addClass('educambot-active');
+            }
 
             /**
              * Send a message to the bot.
              */
             function sendMessage() {
-                var question = input.val().trim();
+                var question = textarea.val().trim();
 
-                if (question.length === 0) {
+                if (question.length < 2) {
                     return;
                 }
 
@@ -94,8 +119,8 @@ define(['jquery'], function($) {
                 addMessage(question, 'user');
 
                 // Clear input.
-                input.val('');
-                input.css('height', 'auto');
+                textarea.val('');
+                textarea.css('height', '34px');
 
                 // Show loading.
                 loading.show();
@@ -115,14 +140,14 @@ define(['jquery'], function($) {
                         if (data.success && data.response) {
                             addMessage(data.response, 'bot', data.confidence);
                         } else if (data.error) {
-                            addMessage(data.error, 'bot', 0);
+                            addMessage(data.error, 'bot error');
                         } else {
-                            addMessage('Error: No response from server.', 'bot', 0);
+                            addMessage('Error: No response received.', 'bot error');
                         }
                     },
                     error: function() {
                         loading.hide();
-                        addMessage('Error: Could not connect to server. Please try again.', 'bot', 0);
+                        addMessage('Error: Could not connect to server.', 'bot error');
                     }
                 });
             }
@@ -131,13 +156,20 @@ define(['jquery'], function($) {
              * Add a message to the chat.
              *
              * @param {string} text - Message text
-             * @param {string} sender - 'user' or 'bot'
+             * @param {string} sender - 'user' or 'bot' or 'bot error'
              * @param {number} confidence - Confidence score (0-1)
              */
             function addMessage(text, sender, confidence) {
+                var isError = sender.indexOf('error') !== -1;
+                var senderClass = sender.replace(' error', '');
+
                 var messageDiv = $('<div>')
                     .addClass('educambot-message')
-                    .addClass('educambot-' + sender);
+                    .addClass('educambot-' + senderClass);
+
+                if (isError) {
+                    messageDiv.addClass('educambot-error');
+                }
 
                 var contentDiv = $('<div>')
                     .addClass('educambot-message-content')
@@ -146,11 +178,11 @@ define(['jquery'], function($) {
                 messageDiv.append(contentDiv);
 
                 // Add confidence indicator for bot messages.
-                if (sender === 'bot' && typeof confidence !== 'undefined' && confidence > 0) {
+                if (senderClass === 'bot' && !isError && typeof confidence !== 'undefined' && confidence > 0) {
                     var confidencePercent = Math.round(confidence * 100);
                     var confidenceDiv = $('<div>')
                         .addClass('educambot-confidence')
-                        .text('Confidence: ' + confidencePercent + '%');
+                        .text(confidencePercent + '%');
                     messageDiv.append(confidenceDiv);
                 }
 
@@ -161,4 +193,6 @@ define(['jquery'], function($) {
             }
         }
     };
+
+    return chat;
 });

@@ -37,7 +37,14 @@ class hook_callbacks {
      * @param \core\hook\output\before_footer_html_generation $hook
      */
     public static function before_footer_html_generation(\core\hook\output\before_footer_html_generation $hook): void {
-        global $PAGE, $USER;
+        self::inject_chat_widget();
+    }
+
+    /**
+     * Inject the chat widget into the page.
+     */
+    private static function inject_chat_widget(): void {
+        global $PAGE, $OUTPUT, $USER;
 
         // Only inject for logged in users.
         if (!isloggedin() || isguestuser()) {
@@ -51,20 +58,31 @@ class hook_callbacks {
         }
 
         // Don't inject on certain pages.
-        $excludedpages = ['login', 'admin-cli'];
-        foreach ($excludedpages as $excluded) {
-            if (strpos($PAGE->pagetype, $excluded) !== false) {
-                return;
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $excludedpaths = ['/login/', '/admin/cli/'];
+            foreach ($excludedpaths as $excluded) {
+                if (strpos($_SERVER['REQUEST_URI'], $excluded) !== false) {
+                    return;
+                }
             }
         }
 
-        // Render the widget.
-        $output = $PAGE->get_renderer('core');
-        $widget = new \local_educambot\output\widget();
-        $widgethtml = $output->render_from_template('local_educambot/widget', $widget->export_for_template($output));
+        // Don't inject in embedded layout.
+        if (strpos($PAGE->pagetype, 'embedded') !== false) {
+            return;
+        }
 
-        // Add to footer.
-        $hook->add_html($widgethtml);
+        // Don't inject if notifications are not allowed.
+        if (!$PAGE->get_popup_notification_allowed()) {
+            return;
+        }
+
+        // Prepare data for template.
+        $widget = new \local_educambot\output\widget();
+        $data = $widget->export_for_template($OUTPUT);
+
+        // Render and output the widget directly.
+        echo $OUTPUT->render_from_template('local_educambot/widget', $data);
 
         // Include JavaScript module.
         $PAGE->requires->js_call_amd('local_educambot/widget', 'init');

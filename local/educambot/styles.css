@@ -6,74 +6,87 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/* Widget container */
-#educambot-widget {
+/* Main container */
+#educambot-chat {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 9999;
+    z-index: 999999;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    direction: ltr;
 }
 
-/* Toggle button */
-.educambot-toggle {
+/* Floating button */
+#educambot-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    border: none;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.2s, box-shadow 0.2s;
-    position: relative;
+    z-index: 999998;
 }
 
-.educambot-toggle:hover {
+#educambot-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-.educambot-toggle:active {
+#educambot-btn:active {
     transform: scale(0.95);
 }
 
-/* Badge */
-.educambot-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #ef4444;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
+/* Icon states */
+#educambot-btn .educambot-open-icon,
+#educambot-btn .educambot-close-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    font-weight: bold;
 }
 
-/* Chat panel */
-.educambot-panel {
-    position: absolute;
-    bottom: 80px;
-    right: 0;
+#educambot-btn .educambot-close-icon {
+    display: none;
+}
+
+#educambot-chat.educambot-active #educambot-btn .educambot-open-icon {
+    display: none;
+}
+
+#educambot-chat.educambot-active #educambot-btn .educambot-close-icon {
+    display: flex;
+}
+
+/* Chat popup panel */
+.educambot-popup {
+    display: none;
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
     width: 380px;
     height: 500px;
-    background: white;
+    max-height: calc(100vh - 140px);
+    background: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    display: flex;
+    z-index: 999997;
     flex-direction: column;
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+#educambot-chat.educambot-active .educambot-popup {
+    display: flex;
 }
 
 /* Header */
 .educambot-header {
-    padding: 16px 20px;
+    padding: 12px 16px;
     color: white;
     display: flex;
     justify-content: space-between;
@@ -81,25 +94,49 @@
     flex-shrink: 0;
 }
 
-.educambot-title {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
+.educambot-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.educambot-close {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
+.educambot-avatar {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    transition: background-color 0.2s;
 }
 
-.educambot-close:hover {
+.educambot-namearea {
+    display: flex;
+    flex-direction: column;
+}
+
+.educambot-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.educambot-status {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.educambot-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.educambot-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.educambot-action-btn:hover {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -107,40 +144,68 @@
 .educambot-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
+    padding: 16px;
     background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 /* Message */
 .educambot-message {
-    margin-bottom: 16px;
     display: flex;
     flex-direction: column;
+    max-width: 85%;
+    animation: educambot-fadeIn 0.3s ease;
+}
+
+@keyframes educambot-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .educambot-message-content {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: 12px;
-    max-width: 80%;
-    word-wrap: break-word;
     line-height: 1.5;
+    font-size: 14px;
+    word-wrap: break-word;
 }
 
 /* Bot message */
+.educambot-bot {
+    align-self: flex-start;
+}
+
 .educambot-bot .educambot-message-content {
     background: white;
     color: #1f2937;
     border: 1px solid #e5e7eb;
-    align-self: flex-start;
     border-bottom-left-radius: 4px;
 }
 
 /* User message */
+.educambot-user {
+    align-self: flex-end;
+}
+
 .educambot-user .educambot-message-content {
     background: #0f6fc5;
     color: white;
-    align-self: flex-end;
     border-bottom-right-radius: 4px;
+}
+
+/* Error message */
+.educambot-error .educambot-message-content {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
 }
 
 /* Confidence indicator */
@@ -148,20 +213,21 @@
     font-size: 11px;
     color: #6b7280;
     margin-top: 4px;
-    align-self: flex-start;
+    padding-left: 4px;
 }
 
-/* Input area */
-.educambot-input-area {
-    padding: 16px 20px;
+/* Send area */
+.educambot-sendarea {
+    padding: 12px 16px;
     border-top: 1px solid #e5e7eb;
     display: flex;
-    gap: 8px;
+    gap: 10px;
     background: white;
     flex-shrink: 0;
+    align-items: flex-end;
 }
 
-.educambot-input {
+#educambot-textarea {
     flex: 1;
     padding: 10px 12px;
     border: 1px solid #d1d5db;
@@ -171,45 +237,49 @@
     font-family: inherit;
     max-height: 100px;
     overflow-y: auto;
+    line-height: 1.4;
 }
 
-.educambot-input:focus {
+#educambot-textarea:focus {
     outline: none;
     border-color: #0f6fc5;
     box-shadow: 0 0 0 3px rgba(15, 111, 197, 0.1);
 }
 
-.educambot-send {
+.educambot-send-btn {
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, transform 0.2s;
     flex-shrink: 0;
 }
 
-.educambot-send:hover {
+.educambot-send-btn:hover {
     opacity: 0.9;
 }
 
-.educambot-send:active {
+.educambot-send-btn:active {
     transform: scale(0.95);
 }
 
 /* Loading indicator */
 .educambot-loading {
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    right: 0;
     text-align: center;
-    padding: 12px;
-    background: #f9fafb;
+    padding: 10px;
+    background: rgba(249, 250, 251, 0.95);
 }
 
 .educambot-spinner {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border: 3px solid #e5e7eb;
     border-top-color: #0f6fc5;
     border-radius: 50%;
@@ -223,26 +293,7 @@
     }
 }
 
-/* Responsive - Mobile */
-@media (max-width: 768px) {
-    .educambot-panel {
-        width: calc(100vw - 40px);
-        height: calc(100vh - 140px);
-        max-height: 600px;
-    }
-
-    #educambot-widget {
-        right: 10px;
-        bottom: 10px;
-    }
-
-    .educambot-toggle {
-        width: 56px;
-        height: 56px;
-    }
-}
-
-/* Scrollbar styling */
+/* Scrollbar */
 .educambot-messages::-webkit-scrollbar {
     width: 6px;
 }
@@ -258,4 +309,27 @@
 
 .educambot-messages::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
+}
+
+/* Responsive - Mobile */
+@media (max-width: 480px) {
+    .educambot-popup {
+        width: calc(100vw - 20px);
+        right: 10px;
+        bottom: 90px;
+        height: calc(100vh - 120px);
+        max-height: 600px;
+    }
+
+    #educambot-chat {
+        right: 10px;
+        bottom: 10px;
+    }
+
+    #educambot-btn {
+        right: 10px;
+        bottom: 10px;
+        width: 56px;
+        height: 56px;
+    }
 }

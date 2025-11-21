@@ -25,31 +25,45 @@
     * primarycolor - Primary color for the widget
     * serviceurl - URL to the AJAX service
     * sesskey - Session key for AJAX requests
+    * greetingmessage - Initial greeting message
 }}
-<div id="educambot-widget" data-serviceurl="{{serviceurl}}" data-sesskey="{{sesskey}}" data-botname="{{botname}}">
-    <!-- Floating button -->
-    <button id="educambot-toggle" class="educambot-toggle" aria-label="{{widgetlabel}}" style="background-color: {{primarycolor}};">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="white"/>
-            <path d="M7 9H9V11H7V9ZM11 9H13V11H11V9ZM15 9H17V11H15V9Z" fill="white"/>
-        </svg>
-        <span class="educambot-badge" style="display: none;">1</span>
-    </button>
+<div id="educambot-chat" style="display:none"
+     data-serviceurl="{{serviceurl}}"
+     data-sesskey="{{sesskey}}"
+     data-botname="{{botname}}">
 
-    <!-- Chat panel -->
-    <div id="educambot-panel" class="educambot-panel" style="display: none;">
+    <!-- Chat popup panel -->
+    <div class="educambot-popup">
         <!-- Header -->
         <div class="educambot-header" style="background-color: {{primarycolor}};">
-            <h3 class="educambot-title">{{botname}}</h3>
-            <button id="educambot-close" class="educambot-close" aria-label="{{#str}}close, core{{/str}}">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 5L5 15M5 5L15 15" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
+            <div class="educambot-info">
+                <span class="educambot-avatar">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                </span>
+                <div class="educambot-namearea">
+                    <span class="educambot-name">{{botname}}</span>
+                    <span class="educambot-status">{{#str}}online, local_educambot{{/str}}</span>
+                </div>
+            </div>
+            <div class="educambot-actions">
+                <a href="#" id="educambot-clear" class="educambot-action-btn" title="{{#str}}clearhistory, local_educambot{{/str}}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                </a>
+                <a href="#" id="educambot-close" class="educambot-action-btn" title="{{#str}}close, core{{/str}}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </a>
+            </div>
         </div>
 
         <!-- Messages area -->
         <div class="educambot-messages" id="educambot-messages">
+            <!-- Initial greeting -->
             <div class="educambot-message educambot-bot">
                 <div class="educambot-message-content">
                     {{{greetingmessage}}}
@@ -58,23 +72,35 @@
         </div>
 
         <!-- Input area -->
-        <div class="educambot-input-area">
-            <textarea
-                id="educambot-input"
-                class="educambot-input"
-                placeholder="{{#str}}typeaquestion, local_educambot{{/str}}"
-                rows="1"
-                aria-label="{{#str}}typeaquestion, local_educambot{{/str}}"></textarea>
-            <button id="educambot-send" class="educambot-send" aria-label="{{#str}}send, core{{/str}}" style="background-color: {{primarycolor}};">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 10L18 2L10 18L8 11L2 10Z" fill="white"/>
+        <div class="educambot-sendarea">
+            <textarea id="educambot-textarea"
+                      placeholder="{{#str}}typeaquestion, local_educambot{{/str}}"
+                      rows="1"></textarea>
+            <div id="educambot-send" class="educambot-send-btn" style="background-color: {{primarycolor}};" title="{{#str}}send, core{{/str}}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                 </svg>
-            </button>
+            </div>
         </div>
 
         <!-- Loading indicator -->
-        <div class="educambot-loading" id="educambot-loading" style="display: none;">
+        <div class="educambot-loading" id="educambot-loading" style="display:none">
             <div class="educambot-spinner"></div>
         </div>
+    </div>
+
+    <!-- Floating button -->
+    <div id="educambot-btn" style="background-color: {{primarycolor}};">
+        <span class="educambot-open-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+            </svg>
+        </span>
+        <span class="educambot-close-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </span>
     </div>
 </div>

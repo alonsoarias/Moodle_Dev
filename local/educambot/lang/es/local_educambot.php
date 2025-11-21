@@ -97,3 +97,5 @@ $string['error_savingrule'] = 'Error al guardar la regla';
 
 // Widget.
 $string['typeaquestion'] = 'Escribe tu pregunta...';
+$string['online'] = 'En linea';
+$string['clearhistory'] = 'Limpiar historial';

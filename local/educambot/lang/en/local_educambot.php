@@ -97,3 +97,5 @@ $string['error_savingrule'] = 'Error saving rule';
 
 // Widget.
 $string['typeaquestion'] = 'Type your question...';
+$string['online'] = 'Online';
+$string['clearhistory'] = 'Clear history';
