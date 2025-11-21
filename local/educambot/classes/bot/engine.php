@@ -81,18 +81,18 @@ class engine {
      * @param string $text Text to normalize
      * @return string Normalized text
      */
-    private function normalize_text($text) {
-        // Convert to lowercase.
-        $text = core_text::strtolower($text);
+private function normalize_text($text) {
+    // Convert to lowercase - use PHP's mb_strtolower for better UTF-8 support
+    $text = mb_strtolower($text, 'UTF-8');
 
-        // Remove extra whitespace.
-        $text = trim(preg_replace('/\s+/', ' ', $text));
+    // Remove extra whitespace.
+    $text = trim(preg_replace('/\s+/', ' ', $text));
 
-        // Remove punctuation.
-        $text = preg_replace('/[^\w\s]/u', '', $text);
+    // Remove punctuation.
+    $text = preg_replace('/[^\w\s]/u', '', $text);
 
-        return $text;
-    }
+    return $text;
+}
 
     /**
      * Calculate match score between question and rule.
