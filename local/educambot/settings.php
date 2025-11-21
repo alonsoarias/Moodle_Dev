@@ -34,6 +34,21 @@ if ($hassiteconfig) {
         get_string('settings_header', 'local_educambot'));
 
     if ($ADMIN->fulltree) {
+        // General section.
+        $settings->add(new admin_setting_heading(
+            'local_educambot/general_heading',
+            get_string('general_heading', 'local_educambot'),
+            ''
+        ));
+
+        // Enable widget setting.
+        $settings->add(new admin_setting_configcheckbox(
+            'local_educambot/widgetenabled',
+            get_string('widgetenabled', 'local_educambot'),
+            get_string('widgetenabled_desc', 'local_educambot'),
+            1
+        ));
+
         // Bot identity section.
         $settings->add(new admin_setting_heading(
             'local_educambot/identity_heading',

@@ -34,6 +34,9 @@ $string['educambot:manage'] = 'Gestionar Educam Bot';
 
 // Settings.
 $string['settings_header'] = 'Configuración de Educam Bot';
+$string['general_heading'] = 'General';
+$string['widgetenabled'] = 'Habilitar widget';
+$string['widgetenabled_desc'] = 'Mostrar el widget de chat en todas las páginas para usuarios con los permisos apropiados';
 $string['identity_heading'] = 'Identidad del Bot';
 $string['appearance_heading'] = 'Apariencia';
 
