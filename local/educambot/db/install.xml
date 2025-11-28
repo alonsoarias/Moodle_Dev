@@ -143,6 +143,11 @@
         <FIELD NAME="usercolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="botcolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="isdefault" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="widgeticontype" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="default" SEQUENCE="false" COMMENT="Type of widget header icon: default, custom, emoji, fontawesome"/>
+        <FIELD NAME="widgeticonurl" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="URL or code for custom icon"/>
+        <FIELD NAME="mascottype" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="none" SEQUENCE="false" COMMENT="Type of mascot: none, clippy, robot, owl, custom"/>
+        <FIELD NAME="mascoturl" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="URL to custom mascot SVG"/>
+        <FIELD NAME="mascotenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether mascot is enabled"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>

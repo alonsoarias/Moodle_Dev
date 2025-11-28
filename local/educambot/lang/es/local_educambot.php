@@ -389,3 +389,47 @@ $string['usercolor_help'] = 'Color de fondo para las burbujas de mensaje del usu
 $string['botcolor'] = 'Color de Mensaje del Bot';
 $string['botcolor_help'] = 'Color de fondo para las burbujas de mensaje del bot.';
 $string['invalidcolor'] = 'Formato de color invalido. Use formato hexadecimal (ej: #FF5500).';
+
+// v1.8.1 - Personalizacion de Icono del Widget.
+$string['widgeticonheading'] = 'Icono del Widget';
+$string['widgeticontype'] = 'Tipo de icono';
+$string['widgeticontype_help'] = 'Seleccione el tipo de icono que aparecera en el encabezado del widget.';
+$string['icontype_default'] = 'Icono por defecto (globo)';
+$string['icontype_emoji'] = 'Emoji';
+$string['icontype_fontawesome'] = 'Font Awesome';
+$string['icontype_custom'] = 'Imagen personalizada';
+$string['widgeticonemoji'] = 'Emoji';
+$string['widgeticonemoji_help'] = 'Ingrese un emoji Unicode (ej: 🤖, 💬, 🎓)';
+$string['widgeticonfa'] = 'Clase Font Awesome';
+$string['widgeticonfa_help'] = 'Ingrese la clase de Font Awesome sin el prefijo "fa-" (ej: robot, comments, graduation-cap)';
+$string['widgeticonfile'] = 'Archivo de icono';
+$string['widgeticonfile_help'] = 'Suba una imagen PNG, SVG, JPG o GIF. Tamano recomendado: 32x32px. Maximo: 100KB.';
+
+// v1.8.1 - Personalizacion de Mascota.
+$string['mascotheading'] = 'Mascota del Chatbot';
+$string['mascotenabled'] = 'Habilitar mascota';
+$string['mascotenabled_help'] = 'Mostrar una mascota animada en el widget que reacciona segun el estado del bot y ayuda a los usuarios con sugerencias y preguntas frecuentes.';
+$string['mascottype'] = 'Tipo de mascota';
+$string['mascottype_help'] = 'Seleccione el diseno de la mascota. Cada mascota tiene sus propias animaciones SVG.';
+$string['mascot_none'] = 'Sin mascota';
+$string['mascot_clippy'] = 'Clippy (clip de papel)';
+$string['mascot_robot'] = 'Robot amigable';
+$string['mascot_owl'] = 'Buho academico';
+$string['mascot_custom'] = 'Mascota personalizada (SVG)';
+$string['mascotfile'] = 'Archivo SVG de mascota';
+$string['mascotfile_help'] = 'Suba un archivo SVG con estructura especifica (viewBox 80x80, IDs: body, eyes, arms). El SVG debe tener elementos animables mediante CSS. Maximo: 50KB.';
+$string['mascot_aria_label'] = 'Mascota asistente del bot';
+
+// v1.8.1 - Mensajes de mascota.
+$string['mascot_greeting'] = '¡Hola! ¿En que puedo ayudarte?';
+$string['mascot_needmore'] = '¿Necesitas algo mas?';
+$string['mascot_tryagain'] = 'Intenta reformular tu pregunta o haz clic en mi para ver sugerencias';
+$string['mascot_nopopular'] = 'Aun no hay preguntas populares';
+$string['mascot_error'] = 'No se pudieron cargar las preguntas';
+$string['mascot_popularheader'] = 'Preguntas populares:';
+$string['mascot_similarheader'] = '¿Te refieres a:';
+$string['mascot_suggest_tasks'] = '¿Necesitas ayuda con tus tareas?';
+$string['mascot_suggest_grades'] = 'Puedo mostrarte tus calificaciones';
+$string['mascot_suggest_calendar'] = '¿Quieres ver el calendario?';
+$string['mascot_suggest_course'] = 'Preguntame sobre tu curso';
+$string['mascot_suggest_help'] = '¡Haz clic en mi para ver preguntas populares!';

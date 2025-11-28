@@ -58,6 +58,12 @@ class widget implements renderable, templatable {
         // Get current course ID for context.
         $courseid = isset($COURSE->id) ? $COURSE->id : SITEID;
 
+        // Prepare widget icon data (v1.8.1).
+        $widgeticon = $this->prepare_widget_icon($theme);
+
+        // Prepare mascot data (v1.8.1).
+        $mascot = $this->prepare_mascot($theme);
+
         return [
             'botname' => $botname,
             'widgetlabel' => $widgetlabel,
@@ -72,6 +78,10 @@ class widget implements renderable, templatable {
             'startupurl' => $CFG->wwwroot . '/local/educambot/startup.php',
             'sesskey' => sesskey(),
             'courseid' => $courseid,
+            // Widget icon (v1.8.1).
+            'widgeticon' => $widgeticon,
+            // Mascot (v1.8.1).
+            'mascot' => $mascot,
         ];
     }
 
@@ -129,5 +139,159 @@ class widget implements renderable, templatable {
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $message);
+    }
+
+    /**
+     * Prepare widget icon data for template (v1.8.1).
+     *
+     * @param object $theme Theme object
+     * @return array Icon data for template
+     */
+    private function prepare_widget_icon($theme) {
+        $icon = [
+            'isdefault' => false,
+            'isemoji' => false,
+            'isfontawesome' => false,
+            'iscustom' => false,
+            'iconcode' => '',
+            'iconurl' => '',
+        ];
+
+        $icontype = $theme->widgeticontype ?? 'default';
+        $iconurl = $theme->widgeticonurl ?? '';
+
+        switch ($icontype) {
+            case 'emoji':
+                $icon['isemoji'] = true;
+                $icon['iconcode'] = $iconurl;
+                break;
+
+            case 'fontawesome':
+                $icon['isfontawesome'] = true;
+                // Ensure class starts with 'fa-'.
+                $faclass = $iconurl;
+                if (!empty($faclass) && strpos($faclass, 'fa-') !== 0) {
+                    $faclass = 'fa-' . $faclass;
+                }
+                $icon['iconcode'] = $faclass;
+                break;
+
+            case 'custom':
+                if (!empty($iconurl)) {
+                    $icon['iscustom'] = true;
+                    $icon['iconurl'] = $iconurl;
+                } else {
+                    $icon['isdefault'] = true;
+                }
+                break;
+
+            case 'default':
+            default:
+                $icon['isdefault'] = true;
+                break;
+        }
+
+        return $icon;
+    }
+
+    /**
+     * Prepare mascot data for template (v1.8.1).
+     *
+     * @param object $theme Theme object
+     * @return array Mascot data for template
+     */
+    private function prepare_mascot($theme) {
+        global $CFG;
+
+        $mascot = [
+            'enabled' => false,
+            'type' => 'none',
+            'svgcontent' => '',
+        ];
+
+        $mascotenabled = $theme->mascotenabled ?? 0;
+        $mascottype = $theme->mascottype ?? 'none';
+
+        if (!$mascotenabled || $mascottype === 'none') {
+            return $mascot;
+        }
+
+        $mascot['enabled'] = true;
+        $mascot['type'] = $mascottype;
+
+        // Get SVG content based on mascot type.
+        $svgpath = '';
+        switch ($mascottype) {
+            case 'clippy':
+                $svgpath = $CFG->dirroot . '/local/educambot/pix/mascots/clippy.svg';
+                break;
+
+            case 'robot':
+                $svgpath = $CFG->dirroot . '/local/educambot/pix/mascots/robot.svg';
+                break;
+
+            case 'owl':
+                $svgpath = $CFG->dirroot . '/local/educambot/pix/mascots/owl.svg';
+                break;
+
+            case 'custom':
+                // Get custom SVG from file storage.
+                if (!empty($theme->mascoturl)) {
+                    $fs = get_file_storage();
+                    $context = \context_system::instance();
+                    $files = $fs->get_area_files(
+                        $context->id,
+                        'local_educambot',
+                        'mascot',
+                        $theme->id,
+                        'id',
+                        false
+                    );
+
+                    if ($file = reset($files)) {
+                        $svgcontent = $file->get_content();
+                        $mascot['svgcontent'] = $this->sanitize_svg($svgcontent);
+                        return $mascot;
+                    }
+                }
+                $mascot['enabled'] = false;
+                return $mascot;
+
+            default:
+                $mascot['enabled'] = false;
+                return $mascot;
+        }
+
+        // Read SVG file content.
+        if (file_exists($svgpath)) {
+            $svgcontent = file_get_contents($svgpath);
+            $mascot['svgcontent'] = $this->sanitize_svg($svgcontent);
+        } else {
+            $mascot['enabled'] = false;
+        }
+
+        return $mascot;
+    }
+
+    /**
+     * Sanitize SVG content to remove potentially dangerous elements.
+     *
+     * @param string $svgcontent Raw SVG content
+     * @return string Sanitized SVG content
+     */
+    private function sanitize_svg($svgcontent) {
+        // Remove script tags.
+        $svgcontent = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $svgcontent);
+
+        // Remove event handlers (onclick, onload, etc.).
+        $svgcontent = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $svgcontent);
+
+        // Remove javascript: URLs.
+        $svgcontent = preg_replace('/javascript\s*:/i', '', $svgcontent);
+
+        // Remove foreignObject elements (can contain HTML/JS).
+        $svgcontent = preg_replace('/<foreignObject\b[^>]*>(.*?)<\/foreignObject>/is', '', $svgcontent);
+
+        return $svgcontent;
     }
 }

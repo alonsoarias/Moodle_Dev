@@ -940,7 +940,7 @@ function xmldb_local_educambot_install() {
     }
 
     // =============================================
-    // THEMES - Visual themes for widget (v1.8.0)
+    // THEMES - Visual themes for widget (v1.8.0+)
     // =============================================
     $themes = [
         [
@@ -952,6 +952,11 @@ function xmldb_local_educambot_install() {
             'usercolor' => '#0f6fc5',
             'botcolor' => '#ffffff',
             'isdefault' => 1,
+            'widgeticontype' => 'default',
+            'widgeticonurl' => null,
+            'mascottype' => 'clippy',
+            'mascoturl' => null,
+            'mascotenabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
         ],
@@ -964,6 +969,11 @@ function xmldb_local_educambot_install() {
             'usercolor' => '#3b82f6',
             'botcolor' => '#374151',
             'isdefault' => 0,
+            'widgeticontype' => 'default',
+            'widgeticonurl' => null,
+            'mascottype' => 'robot',
+            'mascoturl' => null,
+            'mascotenabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
         ],
@@ -976,6 +986,11 @@ function xmldb_local_educambot_install() {
             'usercolor' => '#059669',
             'botcolor' => '#ffffff',
             'isdefault' => 0,
+            'widgeticontype' => 'default',
+            'widgeticonurl' => null,
+            'mascottype' => 'owl',
+            'mascoturl' => null,
+            'mascotenabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
         ],
@@ -988,6 +1003,11 @@ function xmldb_local_educambot_install() {
             'usercolor' => '#ea580c',
             'botcolor' => '#ffffff',
             'isdefault' => 0,
+            'widgeticontype' => 'default',
+            'widgeticonurl' => null,
+            'mascottype' => 'clippy',
+            'mascoturl' => null,
+            'mascotenabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
         ],

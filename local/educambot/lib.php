@@ -105,3 +105,44 @@ function local_educambot_before_footer() {
     // Include JavaScript module.
     $PAGE->requires->js_call_amd('local_educambot/widget', 'init');
 }
+
+/**
+ * Serves files for the local_educambot plugin.
+ *
+ * @param stdClass $course The course object.
+ * @param stdClass $cm The course module object (not used).
+ * @param context $context The context.
+ * @param string $filearea The file area.
+ * @param array $args Extra arguments.
+ * @param bool $forcedownload Whether to force download.
+ * @param array $options Additional options.
+ * @return bool|void False if file not found.
+ */
+function local_educambot_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
+    // Check context is system level (where theme files are stored).
+    if ($context->contextlevel != CONTEXT_SYSTEM) {
+        return false;
+    }
+
+    // Check the file area is valid.
+    $validareas = ['widgeticon', 'mascot'];
+    if (!in_array($filearea, $validareas)) {
+        return false;
+    }
+
+    // Get the item ID (theme ID) and file path.
+    $itemid = array_shift($args);
+    $filename = array_pop($args);
+    $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
+
+    // Get file storage.
+    $fs = get_file_storage();
+    $file = $fs->get_file($context->id, 'local_educambot', $filearea, $itemid, $filepath, $filename);
+
+    if (!$file || $file->is_directory()) {
+        return false;
+    }
+
+    // Send the file.
+    send_stored_file($file, 0, 0, $forcedownload, $options);
+}

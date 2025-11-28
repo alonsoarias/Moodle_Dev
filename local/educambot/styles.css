@@ -351,7 +351,328 @@
     pointer-events: none;
 }
 
-/* Responsive - Mobile */
+/* ==============================================
+   Widget Icon Styles (v1.8.1)
+   ============================================== */
+
+/* Emoji icon in header */
+.educambot-emoji-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+/* Font Awesome icon in header */
+.educambot-fa-icon {
+    font-size: 24px;
+    color: white;
+}
+
+/* Custom icon in header */
+.educambot-custom-icon {
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+/* ==============================================
+   Mascot Styles (v1.8.1)
+   ============================================== */
+
+/* Mascot container */
+.educambot-mascot-container {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 70px;
+    height: 70px;
+    z-index: 10;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.educambot-mascot-container:hover {
+    transform: scale(1.1);
+}
+
+/* SVG container */
+.educambot-mascot-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.educambot-mascot-svg svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Mascot tooltip */
+.educambot-mascot-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    max-width: 260px;
+    margin-bottom: 12px;
+    animation: educambot-tooltip-fade-in 0.3s ease;
+    z-index: 11;
+}
+
+.educambot-mascot-tooltip.visible {
+    display: block;
+}
+
+.educambot-mascot-tooltip .tooltip-content {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #1f2937;
+}
+
+.educambot-mascot-tooltip .tooltip-content strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.educambot-mascot-tooltip .tooltip-arrow {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+@keyframes educambot-tooltip-fade-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Popular questions in tooltip */
+.educambot-popular-questions {
+    margin-top: 4px;
+}
+
+.educambot-popular-q {
+    display: block;
+    padding: 6px 8px;
+    margin: 4px 0;
+    background: #f3f4f6;
+    border-radius: 6px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.educambot-popular-q:hover {
+    background: #e5e7eb;
+    color: #111827;
+    text-decoration: none;
+}
+
+/* Similar questions in tooltip */
+.educambot-similar-questions {
+    margin-top: 4px;
+}
+
+.educambot-similar-q {
+    display: block;
+    padding: 6px 8px;
+    margin: 4px 0;
+    background: #fef3c7;
+    border-radius: 6px;
+    color: #92400e;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.educambot-similar-q:hover {
+    background: #fde68a;
+    color: #78350f;
+    text-decoration: none;
+}
+
+/* ==============================================
+   Mascot State Animations
+   ============================================== */
+
+/* State: Idle - gentle floating */
+.educambot-mascot-container[data-state="idle"] .educambot-mascot-svg {
+    animation: educambot-mascot-bob 3s ease-in-out infinite;
+}
+
+@keyframes educambot-mascot-bob {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-6px) rotate(2deg);
+    }
+}
+
+/* State: Thinking */
+.educambot-mascot-container[data-state="thinking"] .educambot-mascot-svg {
+    animation: educambot-mascot-think 1s ease-in-out infinite;
+}
+
+.educambot-mascot-container[data-state="thinking"] #eyes {
+    animation: educambot-eyes-blink 0.5s ease infinite;
+}
+
+@keyframes educambot-mascot-think {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-5deg);
+    }
+    75% {
+        transform: rotate(5deg);
+    }
+}
+
+@keyframes educambot-eyes-blink {
+    0%, 40%, 60%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(0.1);
+    }
+}
+
+/* State: Success - celebration */
+.educambot-mascot-container[data-state="success"] .educambot-mascot-svg {
+    animation: educambot-mascot-celebrate 0.8s ease-out;
+}
+
+@keyframes educambot-mascot-celebrate {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    25% {
+        transform: scale(1.15) rotate(-8deg);
+    }
+    50% {
+        transform: scale(1.1) rotate(8deg);
+    }
+    75% {
+        transform: scale(1.15) rotate(-4deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* State: Confused */
+.educambot-mascot-container[data-state="confused"] .educambot-mascot-svg {
+    animation: educambot-mascot-confused 1.2s ease-in-out;
+}
+
+@keyframes educambot-mascot-confused {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-5px) rotate(-5deg);
+    }
+    40% {
+        transform: translateX(5px) rotate(5deg);
+    }
+    60% {
+        transform: translateX(-3px) rotate(-3deg);
+    }
+    80% {
+        transform: translateX(3px) rotate(3deg);
+    }
+}
+
+/* State: Greeting - entrance animation */
+.educambot-mascot-container[data-state="greeting"] .educambot-mascot-svg {
+    animation: educambot-mascot-greeting 1s ease-out;
+}
+
+.educambot-mascot-container[data-state="greeting"] #arms {
+    animation: educambot-arms-wave 0.5s ease-in-out 2;
+}
+
+@keyframes educambot-mascot-greeting {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes educambot-arms-wave {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-20deg);
+    }
+}
+
+/* State: Suggesting - attention bounce */
+.educambot-mascot-container[data-state="suggesting"] .educambot-mascot-svg {
+    animation: educambot-mascot-bounce 0.6s ease-in-out 3;
+}
+
+@keyframes educambot-mascot-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+/* ==============================================
+   Accessibility - Reduced Motion
+   ============================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .educambot-mascot-container,
+    .educambot-mascot-svg,
+    .educambot-mascot-container #eyes,
+    .educambot-mascot-container #arms,
+    .educambot-mascot-container #body {
+        animation: none !important;
+    }
+
+    .educambot-mascot-tooltip {
+        animation: none !important;
+    }
+}
+
+/* ==============================================
+   Responsive - Mobile
+   ============================================== */
+
 @media (max-width: 480px) {
     .educambot-popup {
         width: calc(100vw - 20px);
@@ -376,5 +697,27 @@
     .educambot-option-btn {
         padding: 6px 12px;
         font-size: 12px;
+    }
+
+    /* Smaller mascot on mobile */
+    .educambot-mascot-container {
+        width: 55px;
+        height: 55px;
+        bottom: 5px;
+        left: 5px;
+    }
+
+    .educambot-mascot-tooltip {
+        min-width: 160px;
+        max-width: 220px;
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+}
+
+/* Hide mascot on very small screens */
+@media (max-width: 360px) {
+    .educambot-mascot-container {
+        display: none;
     }
 }

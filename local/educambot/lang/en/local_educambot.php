@@ -389,3 +389,47 @@ $string['usercolor_help'] = 'Background color for user message bubbles.';
 $string['botcolor'] = 'Bot Message Color';
 $string['botcolor_help'] = 'Background color for bot message bubbles.';
 $string['invalidcolor'] = 'Invalid color format. Use hex format (e.g., #FF5500).';
+
+// v1.8.1 - Widget Icon Customization.
+$string['widgeticonheading'] = 'Widget Icon';
+$string['widgeticontype'] = 'Icon type';
+$string['widgeticontype_help'] = 'Select the type of icon that will appear in the widget header.';
+$string['icontype_default'] = 'Default icon (globe)';
+$string['icontype_emoji'] = 'Emoji';
+$string['icontype_fontawesome'] = 'Font Awesome';
+$string['icontype_custom'] = 'Custom image';
+$string['widgeticonemoji'] = 'Emoji';
+$string['widgeticonemoji_help'] = 'Enter a Unicode emoji (e.g., 🤖, 💬, 🎓)';
+$string['widgeticonfa'] = 'Font Awesome class';
+$string['widgeticonfa_help'] = 'Enter the Font Awesome class without the "fa-" prefix (e.g., robot, comments, graduation-cap)';
+$string['widgeticonfile'] = 'Icon file';
+$string['widgeticonfile_help'] = 'Upload a PNG, SVG, JPG or GIF image. Recommended size: 32x32px. Maximum: 100KB.';
+
+// v1.8.1 - Mascot Customization.
+$string['mascotheading'] = 'Chatbot Mascot';
+$string['mascotenabled'] = 'Enable mascot';
+$string['mascotenabled_help'] = 'Show an animated mascot in the widget that reacts based on bot state and helps users with suggestions and frequent questions.';
+$string['mascottype'] = 'Mascot type';
+$string['mascottype_help'] = 'Select the mascot design. Each mascot has its own SVG animations.';
+$string['mascot_none'] = 'No mascot';
+$string['mascot_clippy'] = 'Clippy (paperclip)';
+$string['mascot_robot'] = 'Friendly robot';
+$string['mascot_owl'] = 'Academic owl';
+$string['mascot_custom'] = 'Custom mascot (SVG)';
+$string['mascotfile'] = 'Mascot SVG file';
+$string['mascotfile_help'] = 'Upload an SVG file with specific structure (viewBox 80x80, IDs: body, eyes, arms). The SVG must have CSS-animatable elements. Maximum: 50KB.';
+$string['mascot_aria_label'] = 'Bot assistant mascot';
+
+// v1.8.1 - Mascot messages.
+$string['mascot_greeting'] = 'Hi! How can I help you?';
+$string['mascot_needmore'] = 'Need anything else?';
+$string['mascot_tryagain'] = 'Try rephrasing your question or click me for suggestions';
+$string['mascot_nopopular'] = 'No popular questions yet';
+$string['mascot_error'] = 'Could not load questions';
+$string['mascot_popularheader'] = 'Popular questions:';
+$string['mascot_similarheader'] = 'Did you mean:';
+$string['mascot_suggest_tasks'] = 'Need help with your tasks?';
+$string['mascot_suggest_grades'] = 'I can show your grades';
+$string['mascot_suggest_calendar'] = 'Want to see the calendar?';
+$string['mascot_suggest_course'] = 'Ask me about your course';
+$string['mascot_suggest_help'] = 'Click me for popular questions!';

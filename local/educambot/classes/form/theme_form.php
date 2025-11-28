@@ -98,6 +98,78 @@ class theme_form extends \moodleform {
         $mform->addElement('advcheckbox', 'isdefault', get_string('setasdefault', 'local_educambot'));
         $mform->setDefault('isdefault', 0);
 
+        // =============================================
+        // Widget Icon Section (v1.8.1).
+        // =============================================
+        $mform->addElement('header', 'iconheader', get_string('widgeticonheading', 'local_educambot'));
+
+        // Icon type.
+        $iconoptions = [
+            'default' => get_string('icontype_default', 'local_educambot'),
+            'emoji' => get_string('icontype_emoji', 'local_educambot'),
+            'fontawesome' => get_string('icontype_fontawesome', 'local_educambot'),
+            'custom' => get_string('icontype_custom', 'local_educambot'),
+        ];
+        $mform->addElement('select', 'widgeticontype', get_string('widgeticontype', 'local_educambot'), $iconoptions);
+        $mform->setDefault('widgeticontype', 'default');
+        $mform->addHelpButton('widgeticontype', 'widgeticontype', 'local_educambot');
+
+        // Emoji input (shown when type is emoji).
+        $mform->addElement('text', 'widgeticonemoji', get_string('widgeticonemoji', 'local_educambot'), ['size' => 10]);
+        $mform->setType('widgeticonemoji', PARAM_TEXT);
+        $mform->hideIf('widgeticonemoji', 'widgeticontype', 'neq', 'emoji');
+        $mform->addHelpButton('widgeticonemoji', 'widgeticonemoji', 'local_educambot');
+
+        // Font Awesome input (shown when type is fontawesome).
+        $mform->addElement('text', 'widgeticonfa', get_string('widgeticonfa', 'local_educambot'), ['size' => 30, 'placeholder' => 'fa-robot']);
+        $mform->setType('widgeticonfa', PARAM_TEXT);
+        $mform->hideIf('widgeticonfa', 'widgeticontype', 'neq', 'fontawesome');
+        $mform->addHelpButton('widgeticonfa', 'widgeticonfa', 'local_educambot');
+
+        // Custom icon file (shown when type is custom).
+        $mform->addElement('filemanager', 'widgeticonfile', get_string('widgeticonfile', 'local_educambot'), null, [
+            'subdirs' => 0,
+            'maxbytes' => 102400, // 100KB max.
+            'maxfiles' => 1,
+            'accepted_types' => ['.png', '.svg', '.jpg', '.gif'],
+        ]);
+        $mform->hideIf('widgeticonfile', 'widgeticontype', 'neq', 'custom');
+        $mform->addHelpButton('widgeticonfile', 'widgeticonfile', 'local_educambot');
+
+        // =============================================
+        // Mascot Section (v1.8.1).
+        // =============================================
+        $mform->addElement('header', 'mascotheader', get_string('mascotheading', 'local_educambot'));
+
+        // Enable mascot.
+        $mform->addElement('advcheckbox', 'mascotenabled', get_string('mascotenabled', 'local_educambot'));
+        $mform->setDefault('mascotenabled', 1);
+        $mform->addHelpButton('mascotenabled', 'mascotenabled', 'local_educambot');
+
+        // Mascot type.
+        $mascotoptions = [
+            'none' => get_string('mascot_none', 'local_educambot'),
+            'clippy' => get_string('mascot_clippy', 'local_educambot'),
+            'robot' => get_string('mascot_robot', 'local_educambot'),
+            'owl' => get_string('mascot_owl', 'local_educambot'),
+            'custom' => get_string('mascot_custom', 'local_educambot'),
+        ];
+        $mform->addElement('select', 'mascottype', get_string('mascottype', 'local_educambot'), $mascotoptions);
+        $mform->setDefault('mascottype', 'clippy');
+        $mform->hideIf('mascottype', 'mascotenabled', 'notchecked');
+        $mform->addHelpButton('mascottype', 'mascottype', 'local_educambot');
+
+        // Custom mascot file (SVG only, shown when type is custom).
+        $mform->addElement('filemanager', 'mascotfile', get_string('mascotfile', 'local_educambot'), null, [
+            'subdirs' => 0,
+            'maxbytes' => 51200, // 50KB max.
+            'maxfiles' => 1,
+            'accepted_types' => ['.svg'],
+        ]);
+        $mform->hideIf('mascotfile', 'mascottype', 'neq', 'custom');
+        $mform->hideIf('mascotfile', 'mascotenabled', 'notchecked');
+        $mform->addHelpButton('mascotfile', 'mascotfile', 'local_educambot');
+
         // Action buttons.
         $this->add_action_buttons();
     }

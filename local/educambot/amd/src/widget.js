@@ -21,13 +21,22 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(['jquery', 'core/ajax'], function($, Ajax) {
 
     var chat = {
+        // Mascot state management (v1.8.1).
+        mascot: null,
+        tooltip: null,
+        tooltipTimer: null,
+        suggestionTimer: null,
+        lastUserQuestion: '',
+
         /**
          * Initialize the widget.
          */
         init: function() {
+            var self = this;
+
             // Don't initialize in embedded layouts.
             if ($('body.pagelayout-embedded').length) {
                 return;
@@ -60,6 +69,10 @@ define(['jquery'], function($) {
             var courseid = educambotchat.data('courseid') || 1;
             var startupOptionsLoaded = false;
 
+            // Initialize mascot (v1.8.1).
+            self.mascot = $('#educambot-mascot');
+            self.tooltip = $('#educambot-mascot-tooltip');
+
             // Toggle chat open/close.
             btn.on('click', function() {
                 educambotchat.toggleClass('educambot-active');
@@ -70,8 +83,16 @@ define(['jquery'], function($) {
                     if (!startupOptionsLoaded) {
                         loadStartupOptions();
                     }
+                    // Initialize mascot on first open (v1.8.1).
+                    if (self.mascot.length && !self.mascot.data('initialized')) {
+                        self.initMascot();
+                    }
                 } else {
                     localStorage.removeItem('educambot-isopen');
+                    // Stop suggestion timer when closed.
+                    if (self.suggestionTimer) {
+                        clearTimeout(self.suggestionTimer);
+                    }
                 }
             });
 
@@ -159,6 +180,12 @@ define(['jquery'], function($) {
                 if (!startupOptionsLoaded) {
                     loadStartupOptions();
                 }
+                // Initialize mascot if restored as open (v1.8.1).
+                if (self.mascot.length && !self.mascot.data('initialized')) {
+                    setTimeout(function() {
+                        self.initMascot();
+                    }, 500);
+                }
             }
 
             /**
@@ -171,6 +198,9 @@ define(['jquery'], function($) {
                     return;
                 }
 
+                // Store last question for similar suggestions (v1.8.1).
+                self.lastUserQuestion = question;
+
                 // Add user message to chat.
                 addMessage(question, 'user');
 
@@ -180,6 +210,10 @@ define(['jquery'], function($) {
 
                 // Show loading.
                 loading.show();
+
+                // Set mascot to thinking state (v1.8.1).
+                self.setMascotState('thinking');
+                self.hideTooltip();
 
                 // Send AJAX request.
                 $.ajax({
@@ -196,15 +230,24 @@ define(['jquery'], function($) {
 
                         if (data.success && data.response) {
                             addMessage(data.response, 'bot', data.confidence, data.options);
+                            // Set mascot state based on match (v1.8.1).
+                            if (data.confidence && data.confidence > 0.5) {
+                                self.setMascotState('success');
+                            } else {
+                                self.setMascotState('confused');
+                            }
                         } else if (data.error) {
                             addMessage(data.error, 'bot error');
+                            self.setMascotState('confused');
                         } else {
                             addMessage('Error: No response received.', 'bot error');
+                            self.setMascotState('confused');
                         }
                     },
                     error: function() {
                         loading.hide();
                         addMessage('Error: Could not connect to server.', 'bot error');
+                        self.setMascotState('confused');
                     }
                 });
             }
@@ -288,6 +331,284 @@ define(['jquery'], function($) {
                 // Scroll to bottom.
                 messages.scrollTop(messages[0].scrollHeight);
             }
+        },
+
+        // ==============================================
+        // Mascot Methods (v1.8.1)
+        // ==============================================
+
+        /**
+         * Initialize the mascot with greeting animation and event handlers.
+         */
+        initMascot: function() {
+            var self = this;
+
+            if (!self.mascot || !self.mascot.length) {
+                return;
+            }
+
+            // Mark as initialized.
+            self.mascot.data('initialized', true);
+
+            // Start with greeting animation.
+            self.setMascotState('greeting');
+
+            // Show greeting tooltip.
+            setTimeout(function() {
+                self.showTooltip(M.util.get_string('mascot_greeting', 'local_educambot') || 'Hi! How can I help you?');
+            }, 800);
+
+            // Transition to idle after greeting.
+            setTimeout(function() {
+                self.setMascotState('idle');
+                self.hideTooltip();
+                self.startSuggestionTimer();
+            }, 3000);
+
+            // Click handler - show popular questions.
+            self.mascot.on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.showPopularQuestions();
+            });
+
+            // Hover handlers - pause suggestion timer.
+            self.mascot.on('mouseenter', function() {
+                if (self.suggestionTimer) {
+                    clearTimeout(self.suggestionTimer);
+                }
+            });
+
+            self.mascot.on('mouseleave', function() {
+                self.startSuggestionTimer();
+            });
+        },
+
+        /**
+         * Set the mascot's animation state.
+         *
+         * @param {string} state - One of: idle, thinking, success, confused, greeting, suggesting
+         */
+        setMascotState: function(state) {
+            var self = this;
+
+            if (!self.mascot || !self.mascot.length) {
+                return;
+            }
+
+            self.mascot.attr('data-state', state);
+
+            // Auto-transition after certain states.
+            if (state === 'success') {
+                setTimeout(function() {
+                    self.setMascotState('idle');
+                    self.showTooltip(M.util.get_string('mascot_needmore', 'local_educambot') || 'Need anything else?', 3000);
+                }, 800);
+            } else if (state === 'confused') {
+                setTimeout(function() {
+                    self.setMascotState('idle');
+                    self.showSimilarQuestions();
+                }, 1500);
+            } else if (state === 'suggesting') {
+                setTimeout(function() {
+                    self.setMascotState('idle');
+                }, 1800);
+            }
+        },
+
+        /**
+         * Show a tooltip message.
+         *
+         * @param {string} message - HTML content to display
+         * @param {number} duration - Auto-hide duration in ms (0 for no auto-hide)
+         */
+        showTooltip: function(message, duration) {
+            var self = this;
+
+            if (!self.tooltip || !self.tooltip.length) {
+                return;
+            }
+
+            self.tooltip.find('.tooltip-content').html(message);
+            self.tooltip.addClass('visible');
+
+            if (duration && duration > 0) {
+                if (self.tooltipTimer) {
+                    clearTimeout(self.tooltipTimer);
+                }
+                self.tooltipTimer = setTimeout(function() {
+                    self.hideTooltip();
+                }, duration);
+            }
+        },
+
+        /**
+         * Hide the tooltip.
+         */
+        hideTooltip: function() {
+            var self = this;
+
+            if (!self.tooltip || !self.tooltip.length) {
+                return;
+            }
+
+            self.tooltip.removeClass('visible');
+
+            if (self.tooltipTimer) {
+                clearTimeout(self.tooltipTimer);
+                self.tooltipTimer = null;
+            }
+        },
+
+        /**
+         * Start the suggestion timer (shows random suggestions every 15s).
+         */
+        startSuggestionTimer: function() {
+            var self = this;
+
+            if (self.suggestionTimer) {
+                clearTimeout(self.suggestionTimer);
+            }
+
+            self.suggestionTimer = setTimeout(function() {
+                self.showRandomSuggestion();
+                self.startSuggestionTimer();
+            }, 15000);
+        },
+
+        /**
+         * Show a random suggestion in the tooltip.
+         */
+        showRandomSuggestion: function() {
+            var self = this;
+
+            var suggestions = [
+                M.util.get_string('mascot_suggest_tasks', 'local_educambot') || 'Need help with your tasks?',
+                M.util.get_string('mascot_suggest_grades', 'local_educambot') || 'I can show your grades',
+                M.util.get_string('mascot_suggest_calendar', 'local_educambot') || 'Want to see the calendar?',
+                M.util.get_string('mascot_suggest_course', 'local_educambot') || 'Ask me about your course',
+                M.util.get_string('mascot_suggest_help', 'local_educambot') || 'Click me for popular questions!'
+            ];
+
+            var random = suggestions[Math.floor(Math.random() * suggestions.length)];
+
+            self.setMascotState('suggesting');
+            self.showTooltip(random, 5000);
+        },
+
+        /**
+         * Fetch and display popular questions from the server.
+         */
+        showPopularQuestions: function() {
+            var self = this;
+
+            Ajax.call([{
+                methodname: 'local_educambot_get_popular_questions',
+                args: {limit: 5}
+            }])[0].done(function(questions) {
+                if (!questions || questions.length === 0) {
+                    self.showTooltip(
+                        M.util.get_string('mascot_nopopular', 'local_educambot') || 'No popular questions yet',
+                        3000
+                    );
+                    return;
+                }
+
+                var html = '<div class="educambot-popular-questions">';
+                html += '<strong>' + (M.util.get_string('mascot_popularheader', 'local_educambot') || 'Popular questions:') + '</strong>';
+
+                questions.forEach(function(q) {
+                    html += '<a href="#" class="educambot-popular-q" data-question="' +
+                            self.escapeHtml(q.pattern) + '">' + self.escapeHtml(q.pattern) + '</a>';
+                });
+
+                html += '</div>';
+
+                self.showTooltip(html);
+
+                // Add click handlers to the question links.
+                self.tooltip.find('.educambot-popular-q').on('click', function(e) {
+                    e.preventDefault();
+                    var question = $(this).data('question');
+                    $('#educambot-textarea').val(question);
+                    self.hideTooltip();
+                    $('#educambot-send').trigger('click');
+                });
+            }).fail(function() {
+                self.showTooltip(
+                    M.util.get_string('mascot_error', 'local_educambot') || 'Could not load questions',
+                    3000
+                );
+            });
+        },
+
+        /**
+         * Fetch and display similar questions based on the last user question.
+         */
+        showSimilarQuestions: function() {
+            var self = this;
+
+            if (!self.lastUserQuestion) {
+                self.showTooltip(
+                    M.util.get_string('mascot_tryagain', 'local_educambot') ||
+                    'Try rephrasing your question or click me for suggestions',
+                    5000
+                );
+                return;
+            }
+
+            Ajax.call([{
+                methodname: 'local_educambot_get_similar_questions',
+                args: {question: self.lastUserQuestion, limit: 3}
+            }])[0].done(function(questions) {
+                if (!questions || questions.length === 0) {
+                    self.showTooltip(
+                        M.util.get_string('mascot_tryagain', 'local_educambot') ||
+                        'Try rephrasing your question or click me for suggestions',
+                        5000
+                    );
+                    return;
+                }
+
+                var html = '<div class="educambot-similar-questions">';
+                html += '<strong>' + (M.util.get_string('mascot_similarheader', 'local_educambot') || 'Did you mean:') + '</strong>';
+
+                questions.forEach(function(q) {
+                    html += '<a href="#" class="educambot-similar-q" data-question="' +
+                            self.escapeHtml(q.pattern) + '">' + self.escapeHtml(q.pattern) + '</a>';
+                });
+
+                html += '</div>';
+
+                self.showTooltip(html);
+
+                // Add click handlers.
+                self.tooltip.find('.educambot-similar-q').on('click', function(e) {
+                    e.preventDefault();
+                    var question = $(this).data('question');
+                    $('#educambot-textarea').val(question);
+                    self.hideTooltip();
+                    $('#educambot-send').trigger('click');
+                });
+            }).fail(function() {
+                self.showTooltip(
+                    M.util.get_string('mascot_tryagain', 'local_educambot') ||
+                    'Try rephrasing your question or click me for suggestions',
+                    5000
+                );
+            });
+        },
+
+        /**
+         * Escape HTML entities in a string.
+         *
+         * @param {string} text - Text to escape
+         * @return {string} Escaped text
+         */
+        escapeHtml: function(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
     };
 

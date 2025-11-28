@@ -983,5 +983,47 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025112810, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025112811) {
+        // Version 1.8.1: Widget icon and mascot customization.
+
+        $table = new xmldb_table('local_educambot_theme');
+
+        // Add widgeticontype field.
+        $field = new xmldb_field('widgeticontype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'default', 'isdefault');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add widgeticonurl field.
+        $field = new xmldb_field('widgeticonurl', XMLDB_TYPE_TEXT, null, null, null, null, null, 'widgeticontype');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add mascottype field.
+        $field = new xmldb_field('mascottype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'none', 'widgeticonurl');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add mascoturl field.
+        $field = new xmldb_field('mascoturl', XMLDB_TYPE_TEXT, null, null, null, null, null, 'mascottype');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add mascotenabled field.
+        $field = new xmldb_field('mascotenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'mascoturl');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Update default theme to enable mascot.
+        $DB->execute("UPDATE {local_educambot_theme} SET mascottype = 'clippy', mascotenabled = 1 WHERE isdefault = 1");
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025112811, 'local', 'educambot');
+    }
+
     return true;
 }

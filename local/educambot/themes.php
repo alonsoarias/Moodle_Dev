@@ -63,6 +63,7 @@ switch ($action) {
             redirect($baseurl);
         } else if ($data = $form->get_data()) {
             $now = time();
+            $fs = get_file_storage();
 
             $record = new stdClass();
             $record->name = $data->name;
@@ -75,19 +76,94 @@ switch ($action) {
             $record->isdefault = $data->isdefault ?? 0;
             $record->timemodified = $now;
 
+            // Widget icon customization (v1.8.1).
+            $record->widgeticontype = $data->widgeticontype ?? 'default';
+            $record->widgeticonurl = null;
+
+            // Handle widget icon based on type.
+            switch ($record->widgeticontype) {
+                case 'emoji':
+                    $record->widgeticonurl = clean_param($data->widgeticonemoji ?? '', PARAM_TEXT);
+                    break;
+                case 'fontawesome':
+                    $record->widgeticonurl = clean_param($data->widgeticonfa ?? '', PARAM_TEXT);
+                    break;
+                case 'custom':
+                    // Will be handled after record is saved.
+                    break;
+            }
+
+            // Mascot customization (v1.8.1).
+            $record->mascotenabled = $data->mascotenabled ?? 0;
+            $record->mascottype = $data->mascottype ?? 'none';
+            $record->mascoturl = null;
+
             if (!empty($data->id)) {
                 $record->id = $data->id;
                 $DB->update_record('local_educambot_theme', $record);
+                $themeid = $record->id;
                 \core\notification::success(get_string('themeupdated', 'local_educambot'));
             } else {
                 $record->timecreated = $now;
-                $DB->insert_record('local_educambot_theme', $record);
+                $themeid = $DB->insert_record('local_educambot_theme', $record);
                 \core\notification::success(get_string('themecreated', 'local_educambot'));
+            }
+
+            // Handle custom icon file upload (v1.8.1).
+            if ($record->widgeticontype === 'custom' && !empty($data->widgeticonfile)) {
+                file_save_draft_area_files(
+                    $data->widgeticonfile,
+                    $context->id,
+                    'local_educambot',
+                    'widgeticon',
+                    $themeid,
+                    ['subdirs' => false, 'maxfiles' => 1]
+                );
+
+                // Get the file URL.
+                $files = $fs->get_area_files($context->id, 'local_educambot', 'widgeticon', $themeid, 'id', false);
+                if ($file = reset($files)) {
+                    $iconurl = moodle_url::make_pluginfile_url(
+                        $file->get_contextid(),
+                        $file->get_component(),
+                        $file->get_filearea(),
+                        $file->get_itemid(),
+                        $file->get_filepath(),
+                        $file->get_filename()
+                    )->out();
+                    $DB->set_field('local_educambot_theme', 'widgeticonurl', $iconurl, ['id' => $themeid]);
+                }
+            }
+
+            // Handle custom mascot file upload (v1.8.1).
+            if ($record->mascottype === 'custom' && !empty($data->mascotfile)) {
+                file_save_draft_area_files(
+                    $data->mascotfile,
+                    $context->id,
+                    'local_educambot',
+                    'mascot',
+                    $themeid,
+                    ['subdirs' => false, 'maxfiles' => 1]
+                );
+
+                // Get the file URL.
+                $files = $fs->get_area_files($context->id, 'local_educambot', 'mascot', $themeid, 'id', false);
+                if ($file = reset($files)) {
+                    $mascoturl = moodle_url::make_pluginfile_url(
+                        $file->get_contextid(),
+                        $file->get_component(),
+                        $file->get_filearea(),
+                        $file->get_itemid(),
+                        $file->get_filepath(),
+                        $file->get_filename()
+                    )->out();
+                    $DB->set_field('local_educambot_theme', 'mascoturl', $mascoturl, ['id' => $themeid]);
+                }
             }
 
             // If this theme is set as default, unset others.
             if ($record->isdefault) {
-                $DB->execute("UPDATE {local_educambot_theme} SET isdefault = 0 WHERE id != ?", [$record->id ?? $DB->get_field('local_educambot_theme', 'MAX(id)', [])]);
+                $DB->execute("UPDATE {local_educambot_theme} SET isdefault = 0 WHERE id != ?", [$themeid]);
             }
 
             redirect($baseurl);
