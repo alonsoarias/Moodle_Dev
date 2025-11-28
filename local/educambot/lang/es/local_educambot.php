@@ -210,3 +210,9 @@ $string['copy'] = 'Copia';
 
 // Busqueda.
 $string['searchrules'] = 'Buscar reglas...';
+
+// Version 1.6.1 - Preguntas sugeridas.
+$string['suggestedquestions'] = 'Preguntas frecuentes';
+$string['selectanoption'] = 'Selecciona una opcion o escribe tu pregunta';
+$string['anotherquestion'] = 'Otra pregunta';
+$string['resourcescategory'] = 'Recursos y Materiales';

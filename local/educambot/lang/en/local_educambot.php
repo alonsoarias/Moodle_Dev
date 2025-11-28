@@ -210,3 +210,9 @@ $string['copy'] = 'Copy';
 
 // Search.
 $string['searchrules'] = 'Search rules...';
+
+// Version 1.6.1 - Suggested questions.
+$string['suggestedquestions'] = 'Frequently asked questions';
+$string['selectanoption'] = 'Select an option or type your question';
+$string['anotherquestion'] = 'Another question';
+$string['resourcescategory'] = 'Resources and Materials';

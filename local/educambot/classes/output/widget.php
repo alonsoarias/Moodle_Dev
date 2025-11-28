@@ -59,6 +59,7 @@ class widget implements renderable, templatable {
             'primarycolor' => $primarycolor,
             'greetingmessage' => $greetingmessage,
             'serviceurl' => $CFG->wwwroot . '/local/educambot/service.php',
+            'startupurl' => $CFG->wwwroot . '/local/educambot/startup.php',
             'sesskey' => sesskey(),
         ];
     }

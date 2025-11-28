@@ -55,7 +55,9 @@ define(['jquery'], function($) {
             var loading = $('#educambot-loading');
 
             var serviceUrl = educambotchat.data('serviceurl');
+            var startupUrl = educambotchat.data('startupurl');
             var sesskey = educambotchat.data('sesskey');
+            var startupOptionsLoaded = false;
 
             // Toggle chat open/close.
             btn.on('click', function() {
@@ -63,10 +65,59 @@ define(['jquery'], function($) {
                 if (educambotchat.hasClass('educambot-active')) {
                     localStorage.setItem('educambot-isopen', 'true');
                     textarea.focus();
+                    // Load startup options on first open.
+                    if (!startupOptionsLoaded) {
+                        loadStartupOptions();
+                    }
                 } else {
                     localStorage.removeItem('educambot-isopen');
                 }
             });
+
+            /**
+             * Load and display startup options (suggested questions).
+             */
+            function loadStartupOptions() {
+                if (!startupUrl) {
+                    return;
+                }
+
+                $.ajax({
+                    url: startupUrl,
+                    type: 'POST',
+                    data: {
+                        sesskey: sesskey
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.success && data.options && data.options.length > 0) {
+                            // Add startup options after the greeting message.
+                            var greetingMessage = messages.find('.educambot-message').first();
+                            if (greetingMessage.length) {
+                                var optionsDiv = $('<div>').addClass('educambot-options educambot-startup-options');
+
+                                data.options.forEach(function(option) {
+                                    var btnText = option.icon ? option.icon + ' ' + option.text : option.text;
+                                    var optBtn = $('<button>')
+                                        .addClass('educambot-option-btn')
+                                        .attr('type', 'button')
+                                        .text(btnText)
+                                        .on('click', function() {
+                                            handleOptionClick(option);
+                                        });
+                                    optionsDiv.append(optBtn);
+                                });
+
+                                greetingMessage.append(optionsDiv);
+                            }
+                        }
+                        startupOptionsLoaded = true;
+                    },
+                    error: function() {
+                        startupOptionsLoaded = true;
+                    }
+                });
+            }
 
             // Close button.
             closeBtn.on('click', function(e) {
@@ -103,6 +154,10 @@ define(['jquery'], function($) {
             // Restore state from localStorage.
             if (localStorage.getItem('educambot-isopen') === 'true') {
                 educambotchat.addClass('educambot-active');
+                // Load startup options if restored as open.
+                if (!startupOptionsLoaded) {
+                    loadStartupOptions();
+                }
             }
 
             /**
