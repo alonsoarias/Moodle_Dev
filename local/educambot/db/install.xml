@@ -20,7 +20,6 @@
         <KEY NAME="parent_fk" TYPE="foreign" FIELDS="parent" REFTABLE="local_educambot_category" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="parent_idx" UNIQUE="false" FIELDS="parent"/>
         <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
       </INDEXES>
     </TABLE>
@@ -43,7 +42,6 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
-        <INDEX NAME="categoryid_idx" UNIQUE="false" FIELDS="categoryid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_educambot_log" COMMENT="Log of bot conversations">
@@ -63,7 +61,6 @@
         <KEY NAME="ruleid_fk" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_educambot_rule" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="matched_idx" UNIQUE="false" FIELDS="matched"/>
         <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
       </INDEXES>
@@ -84,7 +81,6 @@
         <KEY NAME="targetruleid_fk" TYPE="foreign" FIELDS="targetruleid" REFTABLE="local_educambot_rule" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="ruleid_idx" UNIQUE="false" FIELDS="ruleid"/>
         <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
       </INDEXES>
     </TABLE>

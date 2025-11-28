@@ -58,7 +58,7 @@ function xmldb_local_educambot_upgrade($oldversion) {
         $table->add_key('ruleid_fk', XMLDB_KEY_FOREIGN, ['ruleid'], 'local_educambot_rule', ['id']);
 
         // Adding indexes to table local_educambot_log.
-        $table->add_index('userid_idx', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        // Note: userid and ruleid already have indexes from foreign keys.
         $table->add_index('matched_idx', XMLDB_INDEX_NOTUNIQUE, ['matched']);
         $table->add_index('timecreated_idx', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
 
@@ -98,7 +98,7 @@ function xmldb_local_educambot_upgrade($oldversion) {
         $table->add_key('targetruleid_fk', XMLDB_KEY_FOREIGN, ['targetruleid'], 'local_educambot_rule', ['id']);
 
         // Adding indexes to table local_educambot_option.
-        $table->add_index('ruleid_idx', XMLDB_INDEX_NOTUNIQUE, ['ruleid']);
+        // Note: ruleid already has an index from foreign key.
         $table->add_index('sortorder_idx', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
 
         // Conditionally launch create table for local_educambot_option.
@@ -129,7 +129,7 @@ function xmldb_local_educambot_upgrade($oldversion) {
         $table->add_key('parent_fk', XMLDB_KEY_FOREIGN, ['parent'], 'local_educambot_category', ['id']);
 
         // Adding indexes to table local_educambot_category.
-        $table->add_index('parent_idx', XMLDB_INDEX_NOTUNIQUE, ['parent']);
+        // Note: parent already has an index from foreign key.
         $table->add_index('sortorder_idx', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
 
         // Conditionally launch create table for local_educambot_category.
