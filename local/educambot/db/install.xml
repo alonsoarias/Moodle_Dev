@@ -4,12 +4,34 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
+    <TABLE NAME="local_educambot_category" COMMENT="Categories for organizing rules">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="parent" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Parent category ID"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="parent_fk" TYPE="foreign" FIELDS="parent" REFTABLE="local_educambot_category" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="parent_idx" UNIQUE="false" FIELDS="parent"/>
+        <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
     <TABLE NAME="local_educambot_rule" COMMENT="Basic rules for the educambot">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Category this rule belongs to"/>
         <FIELD NAME="pattern" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The question pattern to match"/>
         <FIELD NAME="keywords" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Additional keywords for matching (one per line)"/>
         <FIELD NAME="response" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The response text"/>
+        <FIELD NAME="tags" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated tags for searching"/>
         <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Is this rule enabled (0/1)"/>
         <FIELD NAME="showoptions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Show quick reply options after this response"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -17,9 +39,11 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="categoryid_fk" TYPE="foreign" FIELDS="categoryid" REFTABLE="local_educambot_category" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
+        <INDEX NAME="categoryid_idx" UNIQUE="false" FIELDS="categoryid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_educambot_log" COMMENT="Log of bot conversations">

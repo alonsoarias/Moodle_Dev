@@ -116,4 +116,20 @@ if ($hassiteconfig) {
         new moodle_url('/local/educambot/reports.php'),
         'local/educambot:manage'
     ));
+
+    // Categories page.
+    $ADMIN->add('local_educambot', new admin_externalpage(
+        'local_educambot_categories',
+        get_string('categories', 'local_educambot'),
+        new moodle_url('/local/educambot/categories.php'),
+        'local/educambot:manage'
+    ));
+
+    // Import/Export page.
+    $ADMIN->add('local_educambot', new admin_externalpage(
+        'local_educambot_importexport',
+        get_string('importexport', 'local_educambot'),
+        new moodle_url('/local/educambot/import.php'),
+        'local/educambot:manage'
+    ));
 }

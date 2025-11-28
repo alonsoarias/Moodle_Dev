@@ -37,11 +37,19 @@ class entry_form extends \moodleform {
      * Define form elements.
      */
     protected function definition() {
+        global $DB;
+
         $mform = $this->_form;
 
         // Hidden field for rule ID (when editing).
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
+
+        // Category selector.
+        $categories = $DB->get_records_menu('local_educambot_category', ['enabled' => 1], 'sortorder ASC', 'id, name');
+        $categoryoptions = ['' => get_string('uncategorized', 'local_educambot')] + $categories;
+        $mform->addElement('select', 'categoryid', get_string('category', 'local_educambot'), $categoryoptions);
+        $mform->setType('categoryid', PARAM_INT);
 
         // Pattern field.
         $mform->addElement('text', 'pattern', get_string('pattern', 'local_educambot'), ['size' => 60]);
@@ -61,6 +69,11 @@ class entry_form extends \moodleform {
         $mform->setType('response', PARAM_TEXT);
         $mform->addRule('response', get_string('required'), 'required', null, 'client');
         $mform->addHelpButton('response', 'response', 'local_educambot');
+
+        // Tags field.
+        $mform->addElement('text', 'tags', get_string('tags', 'local_educambot'), ['size' => 60]);
+        $mform->setType('tags', PARAM_TEXT);
+        $mform->addHelpButton('tags', 'tags', 'local_educambot');
 
         // Enabled checkbox.
         $mform->addElement('advcheckbox', 'enabled', get_string('enabled', 'local_educambot'));

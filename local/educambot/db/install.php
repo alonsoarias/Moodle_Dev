@@ -34,113 +34,79 @@ function xmldb_local_educambot_install() {
 
     $now = time();
 
-    // Initial knowledge base rules.
+    // First, create categories.
+    $categories = [
+        'general' => [
+            'name' => 'General',
+            'description' => 'Preguntas generales y saludos',
+            'parent' => null,
+            'sortorder' => 1,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        'cursos' => [
+            'name' => 'Cursos',
+            'description' => 'Inscripcion y acceso a cursos',
+            'parent' => null,
+            'sortorder' => 2,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        'tareas' => [
+            'name' => 'Tareas y Actividades',
+            'description' => 'Entrega de tareas, foros y cuestionarios',
+            'parent' => null,
+            'sortorder' => 3,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        'evaluaciones' => [
+            'name' => 'Evaluaciones',
+            'description' => 'Calificaciones y examenes',
+            'parent' => null,
+            'sortorder' => 4,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        'perfil' => [
+            'name' => 'Perfil y Cuenta',
+            'description' => 'Configuracion de perfil y contrasena',
+            'parent' => null,
+            'sortorder' => 5,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        'soporte' => [
+            'name' => 'Soporte',
+            'description' => 'Ayuda tecnica y comunicacion',
+            'parent' => null,
+            'sortorder' => 6,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+    ];
+
+    // Insert categories and store IDs.
+    $catids = [];
+    foreach ($categories as $key => $cat) {
+        $catids[$key] = $DB->insert_record('local_educambot_category', (object)$cat);
+    }
+
+    // Initial knowledge base rules with categories and tags.
     $rules = [
         // Main menu - entry point.
         'menu' => [
+            'categoryid' => $catids['general'],
             'pattern' => 'Menu principal',
             'keywords' => "menu\ninicio\nayuda\nque puedes hacer\nopciones\nempezar",
             'response' => '¿En que puedo ayudarte hoy? Selecciona una opcion o escribe tu pregunta:',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Enrollment questions.
-        'enrollment' => [
-            'pattern' => '¿Como me inscribo en un curso?',
-            'keywords' => "inscribir\nmatricularme\nenrollarme\nregistrarme en curso\napuntarme",
-            'response' => 'Para inscribirte en un curso, sigue estos pasos:<br><br>1. Navega a la pagina del curso que te interesa<br>2. Haz clic en el boton "Inscribirme" o "Matricularme"<br>3. Si el curso requiere una clave de inscripcion, tu profesor te la proporcionara<br>4. Una vez inscrito, el curso aparecera en tu panel "Mis cursos"',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Password questions.
-        'password' => [
-            'pattern' => '¿Como cambio mi contrasena?',
-            'keywords' => "contrasena\npassword\nclave\nolvide contrasena\nrecuperar acceso\ncambiar clave",
-            'response' => 'Para cambiar tu contrasena:<br><br>1. Haz clic en tu foto de perfil (esquina superior derecha)<br>2. Selecciona "Preferencias"<br>3. En la seccion "Cuenta de usuario", haz clic en "Cambiar contrasena"<br>4. Introduce tu contrasena actual y la nueva contrasena<br>5. Haz clic en "Guardar cambios"<br><br>Si olvidaste tu contrasena, usa el enlace "¿Olvido su contrasena?" en la pagina de inicio de sesion.',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Profile questions.
-        'profile' => [
-            'pattern' => '¿Como actualizo mi perfil?',
-            'keywords' => "perfil\nfoto\nimagen\ndatos personales\neditar perfil\nmodificar perfil",
-            'response' => 'Para actualizar tu perfil:<br><br>1. Haz clic en tu foto de perfil (esquina superior derecha)<br>2. Selecciona "Perfil"<br>3. Haz clic en "Editar perfil"<br>4. Modifica los campos que desees (nombre, foto, descripcion, etc.)<br>5. Haz clic en "Actualizar perfil" para guardar los cambios',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Assignment questions.
-        'assignment' => [
-            'pattern' => '¿Como entrego una tarea?',
-            'keywords' => "tarea\nsubir archivo\nentregar trabajo\nenviar tarea\nassignment\nactividad",
-            'response' => 'Para entregar una tarea:<br><br>1. Accede al curso correspondiente<br>2. Haz clic en la actividad de tarea<br>3. Lee las instrucciones cuidadosamente<br>4. Haz clic en "Agregar entrega"<br>5. Arrastra tu archivo o haz clic para seleccionarlo<br>6. Haz clic en "Guardar cambios"<br><br>Recuerda verificar la fecha limite de entrega.',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Grades questions.
-        'grades' => [
-            'pattern' => '¿Donde veo mis calificaciones?',
-            'keywords' => "calificaciones\nnotas\npuntuacion\nevaluacion\nresultados\ngrading",
-            'response' => 'Para ver tus calificaciones:<br><br>1. Entra en el curso correspondiente<br>2. En el menu lateral o de navegacion, busca "Calificaciones"<br>3. Veras un informe con todas tus notas del curso<br><br>Tambien puedes acceder desde tu perfil > "Calificaciones" para ver las notas de todos tus cursos.',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Forum questions.
-        'forum' => [
-            'pattern' => '¿Como participo en un foro?',
-            'keywords' => "foro\ndiscusion\nresponder\ncomentario\npublicar mensaje\ndebate",
-            'response' => 'Para participar en un foro:<br><br>1. Accede al curso y haz clic en el foro<br>2. Para crear un nuevo tema: haz clic en "Anadir un nuevo tema de discusion"<br>3. Escribe el asunto y tu mensaje<br>4. Haz clic en "Enviar al foro"<br><br>Para responder a un tema existente, haz clic en "Responder" debajo del mensaje.',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Calendar questions.
-        'calendar' => [
-            'pattern' => '¿Como veo el calendario?',
-            'keywords' => "calendario\nfechas\neventos\nvencimientos\nplazos\nagenda",
-            'response' => 'El calendario de Moodle te muestra eventos importantes:<br><br>1. En el panel lateral derecho encontraras el bloque "Calendario"<br>2. Los colores indican diferentes tipos de eventos:<br>   - Azul: eventos del sitio<br>   - Naranja: eventos del curso<br>   - Verde: eventos de grupo<br>   - Amarillo: eventos personales<br>3. Haz clic en una fecha para ver los detalles',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Messages questions.
-        'messages' => [
-            'pattern' => '¿Como envio un mensaje a mi profesor?',
-            'keywords' => "mensaje\ncontactar profesor\nenviar mensaje\nchat\ncomunicar\nescribir",
-            'response' => 'Para enviar un mensaje a tu profesor:<br><br>1. Haz clic en el icono de mensajes (burbuja) en la barra superior<br>2. Haz clic en "Nuevo mensaje"<br>3. Escribe el nombre del profesor en el buscador<br>4. Selecciona al profesor de la lista<br>5. Escribe tu mensaje y haz clic en enviar<br><br>Tambien puedes ir al perfil del profesor y hacer clic en "Mensaje".',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Quiz questions.
-        'quiz' => [
-            'pattern' => '¿Como hago un cuestionario o examen?',
-            'keywords' => "cuestionario\nexamen\ntest\nquiz\nevaluacion\npreguntas",
-            'response' => 'Para realizar un cuestionario:<br><br>1. Accede al curso y haz clic en el cuestionario<br>2. Lee las instrucciones y el tiempo disponible<br>3. Haz clic en "Intente resolver el cuestionario ahora"<br>4. Responde las preguntas y navega con los botones de pagina<br>5. Al terminar, haz clic en "Terminar intento"<br>6. Revisa tus respuestas y haz clic en "Enviar todo y terminar"<br><br>¡Importante! Una vez enviado, no podras modificar tus respuestas.',
-            'enabled' => 1,
-            'showoptions' => 1,
-            'timecreated' => $now,
-            'timemodified' => $now,
-        ],
-        // Help/Support.
-        'support' => [
-            'pattern' => '¿Como contacto con soporte tecnico?',
-            'keywords' => "soporte\nayuda\nproblema tecnico\nerror\ncontacto\nasistencia",
-            'response' => 'Si necesitas ayuda tecnica:<br><br>1. Primero, intenta cerrar sesion y volver a entrar<br>2. Limpia la cache de tu navegador<br>3. Prueba con un navegador diferente<br><br>Si el problema persiste, contacta al administrador del sitio a traves del formulario de contacto o envia un correo describiendo tu problema con detalle.',
+            'tags' => 'menu, inicio, navegacion',
             'enabled' => 1,
             'showoptions' => 1,
             'timecreated' => $now,
@@ -148,9 +114,11 @@ function xmldb_local_educambot_install() {
         ],
         // Greeting.
         'greeting' => [
+            'categoryid' => $catids['general'],
             'pattern' => 'Hola',
             'keywords' => "hola\nbuenas\nbuenos dias\nbuenas tardes\nbuenas noches\nque tal\nsaludos",
             'response' => '¡Hola! Soy el asistente virtual de esta plataforma. Estoy aqui para ayudarte con tus dudas sobre el uso de Moodle. ¿En que puedo ayudarte hoy?',
+            'tags' => 'saludo, bienvenida',
             'enabled' => 1,
             'showoptions' => 1,
             'timecreated' => $now,
@@ -158,11 +126,133 @@ function xmldb_local_educambot_install() {
         ],
         // Thanks.
         'thanks' => [
+            'categoryid' => $catids['general'],
             'pattern' => 'Gracias',
             'keywords' => "gracias\nmuchas gracias\nte lo agradezco\ngenial\nperfecto",
             'response' => '¡De nada! Me alegra poder ayudarte. Si tienes mas preguntas, no dudes en consultarme. ¡Que tengas un excelente dia de aprendizaje!',
+            'tags' => 'agradecimiento, despedida',
             'enabled' => 1,
             'showoptions' => 0,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Enrollment questions.
+        'enrollment' => [
+            'categoryid' => $catids['cursos'],
+            'pattern' => '¿Como me inscribo en un curso?',
+            'keywords' => "inscribir\nmatricularme\nenrollarme\nregistrarme en curso\napuntarme",
+            'response' => 'Para inscribirte en un curso, sigue estos pasos:<br><br>1. Navega a la pagina del curso que te interesa<br>2. Haz clic en el boton "Inscribirme" o "Matricularme"<br>3. Si el curso requiere una clave de inscripcion, tu profesor te la proporcionara<br>4. Una vez inscrito, el curso aparecera en tu panel "Mis cursos"',
+            'tags' => 'inscripcion, matricula, curso, registro',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Assignment questions.
+        'assignment' => [
+            'categoryid' => $catids['tareas'],
+            'pattern' => '¿Como entrego una tarea?',
+            'keywords' => "tarea\nsubir archivo\nentregar trabajo\nenviar tarea\nassignment\nactividad",
+            'response' => 'Para entregar una tarea:<br><br>1. Accede al curso correspondiente<br>2. Haz clic en la actividad de tarea<br>3. Lee las instrucciones cuidadosamente<br>4. Haz clic en "Agregar entrega"<br>5. Arrastra tu archivo o haz clic para seleccionarlo<br>6. Haz clic en "Guardar cambios"<br><br>Recuerda verificar la fecha limite de entrega.',
+            'tags' => 'tarea, entrega, archivo, actividad',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Forum questions.
+        'forum' => [
+            'categoryid' => $catids['tareas'],
+            'pattern' => '¿Como participo en un foro?',
+            'keywords' => "foro\ndiscusion\nresponder\ncomentario\npublicar mensaje\ndebate",
+            'response' => 'Para participar en un foro:<br><br>1. Accede al curso y haz clic en el foro<br>2. Para crear un nuevo tema: haz clic en "Anadir un nuevo tema de discusion"<br>3. Escribe el asunto y tu mensaje<br>4. Haz clic en "Enviar al foro"<br><br>Para responder a un tema existente, haz clic en "Responder" debajo del mensaje.',
+            'tags' => 'foro, discusion, participacion',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Grades questions.
+        'grades' => [
+            'categoryid' => $catids['evaluaciones'],
+            'pattern' => '¿Donde veo mis calificaciones?',
+            'keywords' => "calificaciones\nnotas\npuntuacion\nevaluacion\nresultados\ngrading",
+            'response' => 'Para ver tus calificaciones:<br><br>1. Entra en el curso correspondiente<br>2. En el menu lateral o de navegacion, busca "Calificaciones"<br>3. Veras un informe con todas tus notas del curso<br><br>Tambien puedes acceder desde tu perfil > "Calificaciones" para ver las notas de todos tus cursos.',
+            'tags' => 'calificaciones, notas, evaluacion',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Quiz questions.
+        'quiz' => [
+            'categoryid' => $catids['evaluaciones'],
+            'pattern' => '¿Como hago un cuestionario o examen?',
+            'keywords' => "cuestionario\nexamen\ntest\nquiz\nevaluacion\npreguntas",
+            'response' => 'Para realizar un cuestionario:<br><br>1. Accede al curso y haz clic en el cuestionario<br>2. Lee las instrucciones y el tiempo disponible<br>3. Haz clic en "Intente resolver el cuestionario ahora"<br>4. Responde las preguntas y navega con los botones de pagina<br>5. Al terminar, haz clic en "Terminar intento"<br>6. Revisa tus respuestas y haz clic en "Enviar todo y terminar"<br><br>¡Importante! Una vez enviado, no podras modificar tus respuestas.',
+            'tags' => 'cuestionario, examen, quiz, test',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Profile questions.
+        'profile' => [
+            'categoryid' => $catids['perfil'],
+            'pattern' => '¿Como actualizo mi perfil?',
+            'keywords' => "perfil\nfoto\nimagen\ndatos personales\neditar perfil\nmodificar perfil",
+            'response' => 'Para actualizar tu perfil:<br><br>1. Haz clic en tu foto de perfil (esquina superior derecha)<br>2. Selecciona "Perfil"<br>3. Haz clic en "Editar perfil"<br>4. Modifica los campos que desees (nombre, foto, descripcion, etc.)<br>5. Haz clic en "Actualizar perfil" para guardar los cambios',
+            'tags' => 'perfil, foto, datos, cuenta',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Password questions.
+        'password' => [
+            'categoryid' => $catids['perfil'],
+            'pattern' => '¿Como cambio mi contrasena?',
+            'keywords' => "contrasena\npassword\nclave\nolvide contrasena\nrecuperar acceso\ncambiar clave",
+            'response' => 'Para cambiar tu contrasena:<br><br>1. Haz clic en tu foto de perfil (esquina superior derecha)<br>2. Selecciona "Preferencias"<br>3. En la seccion "Cuenta de usuario", haz clic en "Cambiar contrasena"<br>4. Introduce tu contrasena actual y la nueva contrasena<br>5. Haz clic en "Guardar cambios"<br><br>Si olvidaste tu contrasena, usa el enlace "¿Olvido su contrasena?" en la pagina de inicio de sesion.',
+            'tags' => 'contrasena, password, clave, seguridad',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Calendar questions.
+        'calendar' => [
+            'categoryid' => $catids['soporte'],
+            'pattern' => '¿Como veo el calendario?',
+            'keywords' => "calendario\nfechas\neventos\nvencimientos\nplazos\nagenda",
+            'response' => 'El calendario de Moodle te muestra eventos importantes:<br><br>1. En el panel lateral derecho encontraras el bloque "Calendario"<br>2. Los colores indican diferentes tipos de eventos:<br>   - Azul: eventos del sitio<br>   - Naranja: eventos del curso<br>   - Verde: eventos de grupo<br>   - Amarillo: eventos personales<br>3. Haz clic en una fecha para ver los detalles',
+            'tags' => 'calendario, eventos, fechas, agenda',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Messages questions.
+        'messages' => [
+            'categoryid' => $catids['soporte'],
+            'pattern' => '¿Como envio un mensaje a mi profesor?',
+            'keywords' => "mensaje\ncontactar profesor\nenviar mensaje\nchat\ncomunicar\nescribir",
+            'response' => 'Para enviar un mensaje a tu profesor:<br><br>1. Haz clic en el icono de mensajes (burbuja) en la barra superior<br>2. Haz clic en "Nuevo mensaje"<br>3. Escribe el nombre del profesor en el buscador<br>4. Selecciona al profesor de la lista<br>5. Escribe tu mensaje y haz clic en enviar<br><br>Tambien puedes ir al perfil del profesor y hacer clic en "Mensaje".',
+            'tags' => 'mensaje, comunicacion, profesor, contacto',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        // Help/Support.
+        'support' => [
+            'categoryid' => $catids['soporte'],
+            'pattern' => '¿Como contacto con soporte tecnico?',
+            'keywords' => "soporte\nayuda\nproblema tecnico\nerror\ncontacto\nasistencia",
+            'response' => 'Si necesitas ayuda tecnica:<br><br>1. Primero, intenta cerrar sesion y volver a entrar<br>2. Limpia la cache de tu navegador<br>3. Prueba con un navegador diferente<br><br>Si el problema persiste, contacta al administrador del sitio a traves del formulario de contacto o envia un correo describiendo tu problema con detalle.',
+            'tags' => 'soporte, ayuda, tecnico, error',
+            'enabled' => 1,
+            'showoptions' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
         ],

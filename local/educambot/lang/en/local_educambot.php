@@ -159,3 +159,54 @@ $string['optionsfor'] = 'Options for rule';
 $string['backtorules'] = 'Back to Rules';
 $string['moveup'] = 'Move up';
 $string['movedown'] = 'Move down';
+
+// Categories.
+$string['categories'] = 'Categories';
+$string['managecategories'] = 'Manage Categories';
+$string['category'] = 'Category';
+$string['categoryname'] = 'Category Name';
+$string['categorydescription'] = 'Description';
+$string['parentcategory'] = 'Parent Category';
+$string['addcategory'] = 'Add Category';
+$string['editcategory'] = 'Edit Category';
+$string['deletecategory'] = 'Delete Category';
+$string['nocategories'] = 'No categories defined yet';
+$string['categorycreated'] = 'Category created successfully';
+$string['categoryupdated'] = 'Category updated successfully';
+$string['categorydeleted'] = 'Category deleted successfully';
+$string['categoryhasrules'] = 'Cannot delete category: it contains {$a} rule(s). Move or delete them first.';
+$string['categoryhaschildren'] = 'Cannot delete category: it has {$a} subcategory(ies). Delete them first.';
+$string['uncategorized'] = 'Uncategorized';
+$string['rules'] = 'Rules';
+$string['viewrules'] = 'View Rules';
+
+// Tags.
+$string['tags'] = 'Tags';
+$string['tags_help'] = 'Comma-separated tags for searching (e.g.: enrollment, register, course)';
+
+// Import/Export.
+$string['importexport'] = 'Import/Export';
+$string['exportkb'] = 'Export Knowledge Base';
+$string['exportkb_desc'] = 'Download the complete knowledge base (categories, rules, and options) as a JSON file.';
+$string['importkb'] = 'Import Knowledge Base';
+$string['importkb_desc'] = 'Upload a JSON file to import categories, rules, and options.';
+$string['exportfile'] = 'Export to JSON';
+$string['import'] = 'Import';
+$string['selectfile'] = 'Select file';
+$string['clearexisting'] = 'Clear existing data';
+$string['clearexisting_help'] = 'Delete all existing categories, rules, and options before importing. Use with caution!';
+$string['importsuccess'] = 'Import successful! Imported {$a->categories} categories, {$a->rules} rules, and {$a->options} options.';
+$string['importerror'] = 'Error reading import file';
+$string['importinvalidjson'] = 'Invalid JSON format in import file';
+$string['importinvalidversion'] = 'Invalid or missing version in import file';
+$string['currentstats'] = 'Current knowledge base: {$a->categories} categories, {$a->rules} rules, {$a->options} options.';
+
+// Duplicate.
+$string['duplicate'] = 'Duplicate';
+$string['duplicaterule'] = 'Duplicate Rule';
+$string['confirmduplicaterule'] = 'Create a copy of this rule with its options?';
+$string['ruleduplicated'] = 'Rule duplicated successfully';
+$string['copy'] = 'Copy';
+
+// Search.
+$string['searchrules'] = 'Search rules...';

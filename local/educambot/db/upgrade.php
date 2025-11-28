@@ -110,5 +110,57 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025112005, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025112006) {
+        // Define table local_educambot_category to be created.
+        $table = new xmldb_table('local_educambot_category');
+
+        // Adding fields to table local_educambot_category.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('parent', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table local_educambot_category.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('parent_fk', XMLDB_KEY_FOREIGN, ['parent'], 'local_educambot_category', ['id']);
+
+        // Adding indexes to table local_educambot_category.
+        $table->add_index('parent_idx', XMLDB_INDEX_NOTUNIQUE, ['parent']);
+        $table->add_index('sortorder_idx', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
+
+        // Conditionally launch create table for local_educambot_category.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Add categoryid field to local_educambot_rule table.
+        $table = new xmldb_table('local_educambot_rule');
+        $field = new xmldb_field('categoryid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'id');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add categoryid index.
+        $index = new xmldb_index('categoryid_idx', XMLDB_INDEX_NOTUNIQUE, ['categoryid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Add tags field to local_educambot_rule table.
+        $field = new xmldb_field('tags', XMLDB_TYPE_TEXT, null, null, null, null, null, 'response');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025112006, 'local', 'educambot');
+    }
+
     return true;
 }

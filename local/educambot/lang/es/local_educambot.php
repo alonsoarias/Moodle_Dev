@@ -159,3 +159,54 @@ $string['optionsfor'] = 'Opciones para la regla';
 $string['backtorules'] = 'Volver a Reglas';
 $string['moveup'] = 'Subir';
 $string['movedown'] = 'Bajar';
+
+// Categorias.
+$string['categories'] = 'Categorias';
+$string['managecategories'] = 'Gestionar Categorias';
+$string['category'] = 'Categoria';
+$string['categoryname'] = 'Nombre de Categoria';
+$string['categorydescription'] = 'Descripcion';
+$string['parentcategory'] = 'Categoria Padre';
+$string['addcategory'] = 'Agregar Categoria';
+$string['editcategory'] = 'Editar Categoria';
+$string['deletecategory'] = 'Eliminar Categoria';
+$string['nocategories'] = 'No hay categorias definidas aun';
+$string['categorycreated'] = 'Categoria creada exitosamente';
+$string['categoryupdated'] = 'Categoria actualizada exitosamente';
+$string['categorydeleted'] = 'Categoria eliminada exitosamente';
+$string['categoryhasrules'] = 'No se puede eliminar la categoria: contiene {$a} regla(s). Muevelas o eliminalas primero.';
+$string['categoryhaschildren'] = 'No se puede eliminar la categoria: tiene {$a} subcategoria(s). Eliminalas primero.';
+$string['uncategorized'] = 'Sin categoria';
+$string['rules'] = 'Reglas';
+$string['viewrules'] = 'Ver Reglas';
+
+// Etiquetas.
+$string['tags'] = 'Etiquetas';
+$string['tags_help'] = 'Etiquetas separadas por comas para busqueda (ej: inscripcion, registro, curso)';
+
+// Importar/Exportar.
+$string['importexport'] = 'Importar/Exportar';
+$string['exportkb'] = 'Exportar Base de Conocimiento';
+$string['exportkb_desc'] = 'Descargar la base de conocimiento completa (categorias, reglas y opciones) como archivo JSON.';
+$string['importkb'] = 'Importar Base de Conocimiento';
+$string['importkb_desc'] = 'Subir un archivo JSON para importar categorias, reglas y opciones.';
+$string['exportfile'] = 'Exportar a JSON';
+$string['import'] = 'Importar';
+$string['selectfile'] = 'Seleccionar archivo';
+$string['clearexisting'] = 'Borrar datos existentes';
+$string['clearexisting_help'] = 'Eliminar todas las categorias, reglas y opciones existentes antes de importar. ¡Usar con precaucion!';
+$string['importsuccess'] = '¡Importacion exitosa! Se importaron {$a->categories} categorias, {$a->rules} reglas y {$a->options} opciones.';
+$string['importerror'] = 'Error al leer el archivo de importacion';
+$string['importinvalidjson'] = 'Formato JSON invalido en el archivo de importacion';
+$string['importinvalidversion'] = 'Version invalida o faltante en el archivo de importacion';
+$string['currentstats'] = 'Base de conocimiento actual: {$a->categories} categorias, {$a->rules} reglas, {$a->options} opciones.';
+
+// Duplicar.
+$string['duplicate'] = 'Duplicar';
+$string['duplicaterule'] = 'Duplicar Regla';
+$string['confirmduplicaterule'] = '¿Crear una copia de esta regla con sus opciones?';
+$string['ruleduplicated'] = 'Regla duplicada exitosamente';
+$string['copy'] = 'Copia';
+
+// Busqueda.
+$string['searchrules'] = 'Buscar reglas...';
