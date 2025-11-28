@@ -1025,5 +1025,194 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025112811, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025112812) {
+        // Version 1.8.2: Extended knowledge base - 8 categories, 50+ rules, 200+ options, 8+ shortcuts.
+        $now = time();
+
+        // Helper function to create rule if not exists (using sql_compare_text for TEXT field comparison).
+        $createrule = function($pattern, $data) use ($DB, $now) {
+            $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            $existing = $DB->get_record_sql($sql, ['pattern' => $pattern]);
+            if (!$existing) {
+                $data['timecreated'] = $now;
+                $data['timemodified'] = $now;
+                return $DB->insert_record('local_educambot_rule', (object)$data);
+            }
+            return $existing->id;
+        };
+
+        // Helper function to get rule ID by pattern.
+        $getruleid = function($pattern) use ($DB) {
+            $sql = "SELECT id FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            return $DB->get_field_sql($sql, ['pattern' => $pattern]);
+        };
+
+        // Helper function to add option if not exists.
+        $addoption = function($ruleid, $text, $targetruleid, $icon, $sortorder) use ($DB) {
+            if (!$ruleid || !$targetruleid) {
+                return;
+            }
+            $existing = $DB->get_record('local_educambot_option', [
+                'ruleid' => $ruleid,
+                'text' => $text
+            ]);
+            if (!$existing) {
+                $DB->insert_record('local_educambot_option', (object)[
+                    'ruleid' => $ruleid,
+                    'text' => $text,
+                    'targetruleid' => $targetruleid,
+                    'icon' => $icon,
+                    'sortorder' => $sortorder,
+                    'enabled' => 1
+                ]);
+            }
+        };
+
+        // 1. Add 'Navegacion' category if it doesn't exist.
+        $navegacioncat = $DB->get_record('local_educambot_category', ['name' => 'Navegacion']);
+        if (!$navegacioncat) {
+            $navegacioncat = new stdClass();
+            $navegacioncat->name = 'Navegacion';
+            $navegacioncat->description = 'Preguntas sobre como usar la plataforma';
+            $navegacioncat->parent = null;
+            $navegacioncat->sortorder = 1;
+            $navegacioncat->enabled = 1;
+            $navegacioncat->timecreated = $now;
+            $navegacioncat->timemodified = $now;
+            $navegacioncat->id = $DB->insert_record('local_educambot_category', $navegacioncat);
+        }
+
+        // Get existing category IDs.
+        $catgeneral = $DB->get_record('local_educambot_category', ['name' => 'General']);
+
+        // 2. Create navigation rules if they don't exist.
+        $platformnavid = $createrule('¿Como navego por la plataforma?', [
+            'categoryid' => $navegacioncat->id,
+            'pattern' => '¿Como navego por la plataforma?',
+            'keywords' => "navegar\nnavegacion\nmoverme\nexplorar\nrecorrer\nmenus\nbarra lateral",
+            'response' => 'Para navegar por la plataforma Moodle:<br><br>1. <strong>Barra superior:</strong> Acceso rapido a inicio, notificaciones, mensajes y perfil<br>2. <strong>Menu lateral:</strong> Navegacion principal con cursos, calendario y archivos<br>3. <strong>Migas de pan:</strong> Ruta de navegacion para saber donde estas<br>4. <strong>Panel principal:</strong> Tu centro de control con cursos y actividades recientes<br><br><strong>Tip:</strong> El icono de hamburguesa (tres lineas) abre/cierra el menu lateral.',
+            'tags' => 'navegacion, menus, explorar, plataforma',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $dashboardid = $createrule('¿Donde encuentro el panel principal?', [
+            'categoryid' => $navegacioncat->id,
+            'pattern' => '¿Donde encuentro el panel principal?',
+            'keywords' => "panel principal\ndashboard\ntablero\npagina inicio\narea personal\nmi pagina",
+            'response' => 'El Panel Principal (Dashboard) es tu pagina de inicio personalizada:<br><br>1. Haz clic en <strong>"Inicio del sitio"</strong> o el logo de la plataforma<br>2. O selecciona <strong>"Area personal"</strong> en el menu de usuario<br><br><strong>En el panel encontraras:</strong><br>- Vista general de cursos<br>- Linea de tiempo con fechas limite<br>- Actividades pendientes<br>- Calendario de eventos<br>- Archivos recientes<br><br>Puedes personalizar los bloques segun tus preferencias.',
+            'tags' => 'panel, dashboard, inicio, area personal',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $navblockid = $createrule('¿Como uso el bloque de navegacion?', [
+            'categoryid' => $navegacioncat->id,
+            'pattern' => '¿Como uso el bloque de navegacion?',
+            'keywords' => "bloque navegacion\nmenu navegacion\nbarra navegacion\nmenú lateral\nnavegacion lateral",
+            'response' => 'El bloque de navegacion te permite acceder rapidamente a:<br><br>- <strong>Inicio del sitio:</strong> Pagina principal de la plataforma<br>- <strong>Area personal:</strong> Tu panel de control<br>- <strong>Pagina del sitio:</strong> Informacion general<br>- <strong>Mi perfil:</strong> Tu configuracion personal<br>- <strong>Cursos actuales:</strong> Tus cursos activos<br><br><strong>Tip:</strong> Puedes expandir cada seccion haciendo clic en las flechas.',
+            'tags' => 'bloque, navegacion, menu, lateral',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $findactivitiesid = $createrule('¿Como encuentro actividades del curso?', [
+            'categoryid' => $navegacioncat->id,
+            'pattern' => '¿Como encuentro actividades del curso?',
+            'keywords' => "encontrar actividades\nver actividades\nlista actividades\nbuscar actividad\nactividades curso",
+            'response' => 'Para encontrar actividades dentro de un curso:<br><br>1. <strong>Pagina del curso:</strong> Las actividades aparecen organizadas por temas o semanas<br>2. <strong>Indice del curso:</strong> Menu lateral con todas las secciones<br>3. <strong>Informe de actividad:</strong> Menu > Informes > Informe de actividad<br><br><strong>Iconos comunes:</strong><br>📝 Tareas | 📋 Cuestionarios | 💬 Foros | 📁 Recursos<br><br>Usa el filtro de completado para ver actividades pendientes.',
+            'tags' => 'actividades, curso, buscar, encontrar',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // 3. Add 'Soporte tecnico' shortcut if it doesn't exist.
+        $existingshortcut = $DB->get_record('local_educambot_shortcut', ['actiontype' => 'support']);
+        if (!$existingshortcut) {
+            $DB->insert_record('local_educambot_shortcut', (object)[
+                'name' => 'Soporte tecnico',
+                'keywords' => "soporte\nayuda tecnica\nproblemas tecnicos\ncontactar soporte\nasistencia tecnica",
+                'actiontype' => 'support',
+                'description' => 'Contactar soporte tecnico',
+                'icon' => '🆘',
+                'sortorder' => 8,
+                'enabled' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ]);
+        }
+
+        // 4. Get rule IDs for options.
+        $menuid = $getruleid('Menu principal');
+        $mycoursesid = $getruleid('¿Donde veo mis cursos?');
+        $calendarid = $getruleid('¿Como veo el calendario?');
+        $assignmentid = $getruleid('¿Como entrego una tarea?');
+        $quizid = $getruleid('¿Como hago un cuestionario o examen?');
+        $forumid = $getruleid('¿Como participo en un foro?');
+        $supportid = $getruleid('¿Como contacto con soporte tecnico?');
+
+        // 5. Add navigation options.
+        if ($platformnavid) {
+            $addoption($platformnavid, 'Menu Principal', $menuid, '🏠', 1);
+            $addoption($platformnavid, 'Panel Principal', $dashboardid, '📊', 2);
+            $addoption($platformnavid, 'Mis Cursos', $mycoursesid, '📚', 3);
+            $addoption($platformnavid, 'Actividades', $findactivitiesid, '📝', 4);
+        }
+
+        if ($dashboardid) {
+            $addoption($dashboardid, 'Menu Principal', $menuid, '🏠', 1);
+            $addoption($dashboardid, 'Navegacion', $platformnavid, '🧭', 2);
+            $addoption($dashboardid, 'Calendario', $calendarid, '📅', 3);
+            $addoption($dashboardid, 'Mis Cursos', $mycoursesid, '📚', 4);
+        }
+
+        if ($navblockid) {
+            $addoption($navblockid, 'Menu Principal', $menuid, '🏠', 1);
+            $addoption($navblockid, 'Navegacion', $platformnavid, '🧭', 2);
+            $addoption($navblockid, 'Panel Principal', $dashboardid, '📊', 3);
+        }
+
+        if ($findactivitiesid) {
+            $addoption($findactivitiesid, 'Menu Principal', $menuid, '🏠', 1);
+            $addoption($findactivitiesid, 'Tareas', $assignmentid, '📝', 2);
+            $addoption($findactivitiesid, 'Cuestionarios', $quizid, '✏️', 3);
+            $addoption($findactivitiesid, 'Foros', $forumid, '💬', 4);
+            $addoption($findactivitiesid, 'Navegacion', $platformnavid, '🧭', 5);
+        }
+
+        // 6. Add additional options to existing rules for navigation.
+        $startupid = $getruleid('__startup__');
+        $greetingid = $getruleid('Hola');
+        $thanksid = $getruleid('Gracias');
+        $aboutbotid = $getruleid('¿Quien eres?');
+
+        if ($startupid && $platformnavid) {
+            $addoption($startupid, 'Navegacion', $platformnavid, '🧭', 7);
+            $addoption($startupid, 'Calendario', $calendarid, '📅', 8);
+        }
+
+        if ($menuid && $platformnavid) {
+            $addoption($menuid, 'Navegacion', $platformnavid, '🧭', 6);
+        }
+
+        if ($greetingid && $platformnavid) {
+            $addoption($greetingid, 'Navegacion', $platformnavid, '🧭', 5);
+        }
+
+        if ($thanksid && $platformnavid) {
+            $addoption($thanksid, 'Navegacion', $platformnavid, '🧭', 3);
+        }
+
+        if ($aboutbotid) {
+            $addoption($aboutbotid, 'Mis Cursos', $mycoursesid, '📚', 2);
+            $addoption($aboutbotid, 'Ayuda', $supportid, '🆘', 3);
+        }
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025112812, 'local', 'educambot');
+    }
+
     return true;
 }

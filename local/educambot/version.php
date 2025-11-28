@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025112811;  // YYYYMMDDXX format.
+$plugin->version = 2025112812;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.8.1';  // Widget Icon + Mascot Customization.
+$plugin->release = '1.8.2';  // Extended Knowledge Base (50+ rules, 8 categories, 200+ options, 8+ shortcuts).

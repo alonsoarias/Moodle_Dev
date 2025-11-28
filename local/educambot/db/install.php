@@ -34,13 +34,22 @@ function xmldb_local_educambot_install() {
 
     $now = time();
 
-    // First, create categories.
+    // First, create categories (8+ categories required).
     $categories = [
-        'general' => [
-            'name' => 'General',
-            'description' => 'Preguntas generales, saludos y navegacion',
+        'navegacion' => [
+            'name' => 'Navegacion',
+            'description' => 'Preguntas sobre como usar la plataforma',
             'parent' => null,
             'sortorder' => 1,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        'general' => [
+            'name' => 'General',
+            'description' => 'Preguntas generales, saludos y bienvenida',
+            'parent' => null,
+            'sortorder' => 2,
             'enabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
@@ -49,7 +58,7 @@ function xmldb_local_educambot_install() {
             'name' => 'Cursos',
             'description' => 'Inscripcion, acceso y gestion de cursos',
             'parent' => null,
-            'sortorder' => 2,
+            'sortorder' => 3,
             'enabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
@@ -58,7 +67,7 @@ function xmldb_local_educambot_install() {
             'name' => 'Tareas y Actividades',
             'description' => 'Entrega de tareas, foros, cuestionarios y actividades',
             'parent' => null,
-            'sortorder' => 3,
+            'sortorder' => 4,
             'enabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
@@ -67,7 +76,7 @@ function xmldb_local_educambot_install() {
             'name' => 'Evaluaciones',
             'description' => 'Calificaciones, examenes y retroalimentacion',
             'parent' => null,
-            'sortorder' => 4,
+            'sortorder' => 5,
             'enabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
@@ -76,7 +85,7 @@ function xmldb_local_educambot_install() {
             'name' => 'Perfil y Cuenta',
             'description' => 'Configuracion de perfil, contrasena y preferencias',
             'parent' => null,
-            'sortorder' => 5,
+            'sortorder' => 6,
             'enabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
@@ -85,16 +94,16 @@ function xmldb_local_educambot_install() {
             'name' => 'Recursos y Materiales',
             'description' => 'Acceso a archivos, videos y materiales de estudio',
             'parent' => null,
-            'sortorder' => 6,
+            'sortorder' => 7,
             'enabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
         ],
         'soporte' => [
-            'name' => 'Soporte',
-            'description' => 'Ayuda tecnica, calendario y comunicacion',
+            'name' => 'Soporte Tecnico',
+            'description' => 'Problemas tecnicos, calendario y comunicacion',
             'parent' => null,
-            'sortorder' => 7,
+            'sortorder' => 8,
             'enabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
@@ -187,6 +196,62 @@ function xmldb_local_educambot_install() {
             'keywords' => "quien eres\nque eres\neres un robot\neres humano\ncomo te llamas\ntu nombre",
             'response' => 'Soy Nexo Bot, un asistente virtual disenado para ayudarte a navegar y utilizar esta plataforma educativa Moodle. Puedo responder preguntas sobre cursos, tareas, calificaciones, tu perfil y mucho mas. ¡Estoy aqui para hacer tu experiencia de aprendizaje mas facil!',
             'tags' => 'bot, identidad, presentacion',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // =============================================
+        // CATEGORY: NAVEGACION
+        // =============================================
+
+        // Platform navigation.
+        'platformnav' => [
+            'categoryid' => $catids['navegacion'],
+            'pattern' => '¿Como navego por la plataforma?',
+            'keywords' => "navegar\nnavegacion\nmoverme\nexplorar\nrecorrer\nmenus\nbarra lateral",
+            'response' => 'Para navegar por la plataforma Moodle:<br><br>1. <strong>Barra superior:</strong> Acceso rapido a inicio, notificaciones, mensajes y perfil<br>2. <strong>Menu lateral:</strong> Navegacion principal con cursos, calendario y archivos<br>3. <strong>Migas de pan:</strong> Ruta de navegacion para saber donde estas<br>4. <strong>Panel principal:</strong> Tu centro de control con cursos y actividades recientes<br><br><strong>Tip:</strong> El icono de hamburguesa (tres lineas) abre/cierra el menu lateral.',
+            'tags' => 'navegacion, menus, explorar, plataforma',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Dashboard panel.
+        'dashboard' => [
+            'categoryid' => $catids['navegacion'],
+            'pattern' => '¿Donde encuentro el panel principal?',
+            'keywords' => "panel principal\ndashboard\ntablero\npagina inicio\narea personal\nmi pagina",
+            'response' => 'El Panel Principal (Dashboard) es tu pagina de inicio personalizada:<br><br>1. Haz clic en <strong>"Inicio del sitio"</strong> o el logo de la plataforma<br>2. O selecciona <strong>"Area personal"</strong> en el menu de usuario<br><br><strong>En el panel encontraras:</strong><br>- Vista general de cursos<br>- Linea de tiempo con fechas limite<br>- Actividades pendientes<br>- Calendario de eventos<br>- Archivos recientes<br><br>Puedes personalizar los bloques segun tus preferencias.',
+            'tags' => 'panel, dashboard, inicio, area personal',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Navigation block.
+        'navblock' => [
+            'categoryid' => $catids['navegacion'],
+            'pattern' => '¿Como uso el bloque de navegacion?',
+            'keywords' => "bloque navegacion\nmenu navegacion\nbarra navegacion\nmenú lateral\nnavegacion lateral",
+            'response' => 'El bloque de navegacion te permite acceder rapidamente a:<br><br>- <strong>Inicio del sitio:</strong> Pagina principal de la plataforma<br>- <strong>Area personal:</strong> Tu panel de control<br>- <strong>Pagina del sitio:</strong> Informacion general<br>- <strong>Mi perfil:</strong> Tu configuracion personal<br>- <strong>Cursos actuales:</strong> Tus cursos activos<br><br><strong>Tip:</strong> Puedes expandir cada seccion haciendo clic en las flechas.',
+            'tags' => 'bloque, navegacion, menu, lateral',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Find activities.
+        'findactivities' => [
+            'categoryid' => $catids['navegacion'],
+            'pattern' => '¿Como encuentro actividades del curso?',
+            'keywords' => "encontrar actividades\nver actividades\nlista actividades\nbuscar actividad\nactividades curso",
+            'response' => 'Para encontrar actividades dentro de un curso:<br><br>1. <strong>Pagina del curso:</strong> Las actividades aparecen organizadas por temas o semanas<br>2. <strong>Indice del curso:</strong> Menu lateral con todas las secciones<br>3. <strong>Informe de actividad:</strong> Menu > Informes > Informe de actividad<br><br><strong>Iconos comunes:</strong><br>📝 Tareas | 📋 Cuestionarios | 💬 Foros | 📁 Recursos<br><br>Usa el filtro de completado para ver actividades pendientes.',
+            'tags' => 'actividades, curso, buscar, encontrar',
             'enabled' => 1,
             'showoptions' => 1,
             'timecreated' => $now,
@@ -658,6 +723,101 @@ function xmldb_local_educambot_install() {
             'timecreated' => $now,
             'timemodified' => $now,
         ],
+
+        // =============================================
+        // ADDITIONAL RULES TO REACH 50+
+        // =============================================
+
+        // Messaging system.
+        'messaging' => [
+            'categoryid' => $catids['soporte'],
+            'pattern' => '¿Como funciona la mensajeria?',
+            'keywords' => "mensajeria\nsistema mensajes\nmensajes privados\nchat privado\nbandeja entrada",
+            'response' => 'El sistema de mensajeria de Moodle te permite comunicarte de forma privada:<br><br><strong>Para acceder:</strong><br>1. Haz clic en el icono de mensaje (burbuja) en la barra superior<br>2. Selecciona un contacto o busca un usuario<br><br><strong>Funciones:</strong><br>- Enviar mensajes privados<br>- Crear grupos de conversacion<br>- Ver historial de conversaciones<br>- Recibir notificaciones de nuevos mensajes<br><br>Puedes configurar las notificaciones en Preferencias > Mensajes.',
+            'tags' => 'mensajeria, chat, comunicacion, privado',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Create calendar event.
+        'createevent' => [
+            'categoryid' => $catids['soporte'],
+            'pattern' => '¿Como creo un evento en el calendario?',
+            'keywords' => "crear evento\nagregar evento\nnuevo evento\ncalendario personal\nevento personal",
+            'response' => 'Para crear un evento personal en el calendario:<br><br>1. Ve al <strong>Calendario</strong><br>2. Haz clic en un dia especifico o en "Nuevo evento"<br>3. Completa los detalles:<br>   - Titulo del evento<br>   - Descripcion<br>   - Fecha y hora<br>   - Tipo de evento (personal, curso, sitio)<br>4. Haz clic en "Guardar"<br><br><strong>Nota:</strong> Solo los profesores pueden crear eventos de curso. Los estudiantes pueden crear eventos personales.',
+            'tags' => 'calendario, evento, crear, personal',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Badges.
+        'badges' => [
+            'categoryid' => $catids['cursos'],
+            'pattern' => '¿Que son las insignias?',
+            'keywords' => "insignias\nbadges\nlogros\nrecompensas\nmedallas\nreconocimientos",
+            'response' => 'Las insignias son reconocimientos digitales por tus logros:<br><br><strong>Tipos de insignias:</strong><br>- Por completar cursos<br>- Por participacion en foros<br>- Por calificaciones destacadas<br>- Por hitos de aprendizaje<br><br><strong>Para ver tus insignias:</strong><br>1. Ve a tu Perfil<br>2. Selecciona "Insignias"<br><br>Las insignias pueden compartirse en redes sociales y algunos empleadores las reconocen como credenciales.',
+            'tags' => 'insignias, badges, logros, reconocimiento',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Labels/tags.
+        'tags' => [
+            'categoryid' => $catids['recursos'],
+            'pattern' => '¿Para que sirven las etiquetas?',
+            'keywords' => "etiquetas\ntags\nclasificar\norganizar contenido\netiquetas recursos",
+            'response' => 'Las etiquetas ayudan a organizar y encontrar contenido:<br><br><strong>Usos comunes:</strong><br>- Clasificar recursos por tema<br>- Encontrar contenido relacionado<br>- Navegar por interes especifico<br><br><strong>Como usar:</strong><br>1. Busca la nube de etiquetas en el sitio<br>2. Haz clic en una etiqueta para ver contenido relacionado<br><br>En tu perfil puedes agregar tus propios intereses como etiquetas personales.',
+            'tags' => 'etiquetas, tags, clasificar, buscar',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Workshop activity.
+        'workshop' => [
+            'categoryid' => $catids['tareas'],
+            'pattern' => '¿Como funciona un taller?',
+            'keywords' => "taller\nworkshop\nevaluacion pares\ncoevaluacion\nevaluar companeros",
+            'response' => 'El Taller es una actividad de evaluacion entre pares:<br><br><strong>Fases del taller:</strong><br>1. <strong>Configuracion:</strong> El profesor prepara la actividad<br>2. <strong>Envio:</strong> Envias tu trabajo<br>3. <strong>Evaluacion:</strong> Evaluas trabajos de companeros segun una rubrica<br>4. <strong>Calificacion:</strong> Se calculan las notas<br>5. <strong>Cierre:</strong> Se publican resultados<br><br>Tu nota considera tanto tu trabajo como la calidad de tus evaluaciones.',
+            'tags' => 'taller, workshop, evaluacion, pares',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Chat activity.
+        'chatactivity' => [
+            'categoryid' => $catids['tareas'],
+            'pattern' => '¿Como participo en un chat?',
+            'keywords' => "chat\nconversacion\nchat en vivo\nsala de chat\nchat del curso",
+            'response' => 'El chat es una herramienta de comunicacion en tiempo real:<br><br><strong>Para participar:</strong><br>1. Accede a la actividad Chat en el curso<br>2. Haz clic en "Entrar a la sala"<br>3. Escribe tu mensaje y presiona Enter<br><br><strong>Caracteristicas:</strong><br>- Comunicacion sincronica<br>- Se guardan las sesiones<br>- Puedes revisar sesiones anteriores<br><br>Los chats suelen tener horarios programados por el profesor.',
+            'tags' => 'chat, comunicacion, tiempo real, sincrono',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // My badges.
+        'mybadges' => [
+            'categoryid' => $catids['perfil'],
+            'pattern' => '¿Donde veo mis insignias?',
+            'keywords' => "ver insignias\nmis insignias\ninsignias obtenidas\nmis logros\nmis medallas",
+            'response' => 'Para ver tus insignias obtenidas:<br><br>1. Haz clic en tu foto de perfil<br>2. Selecciona "Perfil"<br>3. En el menu lateral, haz clic en "Insignias"<br><br><strong>En la pagina veras:</strong><br>- Insignias ganadas<br>- Fecha de obtencion<br>- Criterios cumplidos<br><br>Puedes compartir tus insignias en redes sociales o descargarlas como imagen.',
+            'tags' => 'insignias, logros, perfil, medallas',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
     ];
 
     // Insert all rules and store IDs.
@@ -697,6 +857,36 @@ function xmldb_local_educambot_install() {
 
         // About bot options.
         ['ruleid' => $ruleids['aboutbot'], 'text' => 'Ver Opciones', 'targetruleid' => $ruleids['menu'], 'icon' => '📋', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['aboutbot'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['aboutbot'], 'text' => 'Ayuda', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 3, 'enabled' => 1],
+
+        // =============================================
+        // NAVIGATION OPTIONS (new category)
+        // =============================================
+
+        // Platform navigation options.
+        ['ruleid' => $ruleids['platformnav'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['platformnav'], 'text' => 'Panel Principal', 'targetruleid' => $ruleids['dashboard'], 'icon' => '📊', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['platformnav'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['platformnav'], 'text' => 'Actividades', 'targetruleid' => $ruleids['findactivities'], 'icon' => '📝', 'sortorder' => 4, 'enabled' => 1],
+
+        // Dashboard options.
+        ['ruleid' => $ruleids['dashboard'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['dashboard'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['dashboard'], 'text' => 'Calendario', 'targetruleid' => $ruleids['calendar'], 'icon' => '📅', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['dashboard'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 4, 'enabled' => 1],
+
+        // Navigation block options.
+        ['ruleid' => $ruleids['navblock'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['navblock'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['navblock'], 'text' => 'Panel Principal', 'targetruleid' => $ruleids['dashboard'], 'icon' => '📊', 'sortorder' => 3, 'enabled' => 1],
+
+        // Find activities options.
+        ['ruleid' => $ruleids['findactivities'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['findactivities'], 'text' => 'Tareas', 'targetruleid' => $ruleids['assignment'], 'icon' => '📝', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['findactivities'], 'text' => 'Cuestionarios', 'targetruleid' => $ruleids['quiz'], 'icon' => '✏️', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['findactivities'], 'text' => 'Foros', 'targetruleid' => $ruleids['forum'], 'icon' => '💬', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['findactivities'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 5, 'enabled' => 1],
 
         // Enrollment options.
         ['ruleid' => $ruleids['enrollment'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
@@ -844,6 +1034,209 @@ function xmldb_local_educambot_install() {
         ['ruleid' => $ruleids['loginissues'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
         ['ruleid' => $ruleids['loginissues'], 'text' => 'Cambiar Contrasena', 'targetruleid' => $ruleids['password'], 'icon' => '🔑', 'sortorder' => 2, 'enabled' => 1],
         ['ruleid' => $ruleids['loginissues'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['loginissues'], 'text' => 'Navegadores', 'targetruleid' => $ruleids['browser'], 'icon' => '🌐', 'sortorder' => 4, 'enabled' => 1],
+
+        // =============================================
+        // ADDITIONAL OPTIONS TO REACH 200+
+        // =============================================
+
+        // Additional startup options.
+        ['ruleid' => $ruleids['startup'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 7, 'enabled' => 1],
+        ['ruleid' => $ruleids['startup'], 'text' => 'Calendario', 'targetruleid' => $ruleids['calendar'], 'icon' => '📅', 'sortorder' => 8, 'enabled' => 1],
+
+        // Additional menu options.
+        ['ruleid' => $ruleids['menu'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 6, 'enabled' => 1],
+        ['ruleid' => $ruleids['menu'], 'text' => 'Calendario', 'targetruleid' => $ruleids['calendar'], 'icon' => '📅', 'sortorder' => 7, 'enabled' => 1],
+        ['ruleid' => $ruleids['menu'], 'text' => 'Mensajes', 'targetruleid' => $ruleids['messages'], 'icon' => '✉️', 'sortorder' => 8, 'enabled' => 1],
+
+        // Additional greeting options.
+        ['ruleid' => $ruleids['greeting'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 5, 'enabled' => 1],
+        ['ruleid' => $ruleids['greeting'], 'text' => 'Foros', 'targetruleid' => $ruleids['forum'], 'icon' => '💬', 'sortorder' => 6, 'enabled' => 1],
+
+        // Additional thanks options.
+        ['ruleid' => $ruleids['thanks'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 3, 'enabled' => 1],
+
+        // Additional enrollment options.
+        ['ruleid' => $ruleids['enrollment'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['enrollment'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 5, 'enabled' => 1],
+
+        // Additional my courses options.
+        ['ruleid' => $ruleids['mycourses'], 'text' => 'Calendario', 'targetruleid' => $ruleids['calendar'], 'icon' => '📅', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['mycourses'], 'text' => 'Certificado', 'targetruleid' => $ruleids['certificate'], 'icon' => '🎓', 'sortorder' => 5, 'enabled' => 1],
+
+        // Additional find courses options.
+        ['ruleid' => $ruleids['findcourses'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['findcourses'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional course key options.
+        ['ruleid' => $ruleids['coursekey'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['coursekey'], 'text' => 'Buscar Cursos', 'targetruleid' => $ruleids['findcourses'], 'icon' => '🔍', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional course progress options.
+        ['ruleid' => $ruleids['courseprogress'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['courseprogress'], 'text' => 'Calificaciones', 'targetruleid' => $ruleids['grades'], 'icon' => '📊', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional certificate options.
+        ['ruleid' => $ruleids['certificate'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['certificate'], 'text' => 'Calificaciones', 'targetruleid' => $ruleids['grades'], 'icon' => '📊', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional assignment options.
+        ['ruleid' => $ruleids['assignment'], 'text' => 'Foros', 'targetruleid' => $ruleids['forum'], 'icon' => '💬', 'sortorder' => 5, 'enabled' => 1],
+        ['ruleid' => $ruleids['assignment'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 6, 'enabled' => 1],
+
+        // Additional edit assignment options.
+        ['ruleid' => $ruleids['editassignment'], 'text' => 'Calificaciones', 'targetruleid' => $ruleids['grades'], 'icon' => '📊', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['editassignment'], 'text' => 'Contactar Profesor', 'targetruleid' => $ruleids['messages'], 'icon' => '✉️', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional late submission options.
+        ['ruleid' => $ruleids['latesubmission'], 'text' => 'Calendario', 'targetruleid' => $ruleids['calendar'], 'icon' => '📅', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['latesubmission'], 'text' => 'Mis Tareas', 'targetruleid' => $ruleids['assignment'], 'icon' => '📝', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional forum options.
+        ['ruleid' => $ruleids['forum'], 'text' => 'Notificaciones', 'targetruleid' => $ruleids['notifications'], 'icon' => '🔔', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['forum'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 5, 'enabled' => 1],
+
+        // Additional forum subscription options.
+        ['ruleid' => $ruleids['forumsub'], 'text' => 'Foros', 'targetruleid' => $ruleids['forum'], 'icon' => '💬', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['forumsub'], 'text' => 'Perfil', 'targetruleid' => $ruleids['profile'], 'icon' => '👤', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional wiki options.
+        ['ruleid' => $ruleids['wiki'], 'text' => 'Glosario', 'targetruleid' => $ruleids['glossary'], 'icon' => '📖', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['wiki'], 'text' => 'Actividades', 'targetruleid' => $ruleids['findactivities'], 'icon' => '📝', 'sortorder' => 3, 'enabled' => 1],
+
+        // Additional glossary options.
+        ['ruleid' => $ruleids['glossary'], 'text' => 'Wiki', 'targetruleid' => $ruleids['wiki'], 'icon' => '📄', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['glossary'], 'text' => 'Actividades', 'targetruleid' => $ruleids['findactivities'], 'icon' => '📝', 'sortorder' => 3, 'enabled' => 1],
+
+        // Additional grades options.
+        ['ruleid' => $ruleids['grades'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 5, 'enabled' => 1],
+        ['ruleid' => $ruleids['grades'], 'text' => 'Progreso', 'targetruleid' => $ruleids['courseprogress'], 'icon' => '📈', 'sortorder' => 6, 'enabled' => 1],
+
+        // Additional quiz options.
+        ['ruleid' => $ruleids['quiz'], 'text' => 'Actividades', 'targetruleid' => $ruleids['findactivities'], 'icon' => '📝', 'sortorder' => 5, 'enabled' => 1],
+        ['ruleid' => $ruleids['quiz'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 6, 'enabled' => 1],
+
+        // Additional quiz attempts options.
+        ['ruleid' => $ruleids['quizattempts'], 'text' => 'Calificaciones', 'targetruleid' => $ruleids['grades'], 'icon' => '📊', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['quizattempts'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional quiz review options.
+        ['ruleid' => $ruleids['quizreview'], 'text' => 'Hacer Examen', 'targetruleid' => $ruleids['quiz'], 'icon' => '✏️', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['quizreview'], 'text' => 'Retroalimentacion', 'targetruleid' => $ruleids['feedback'], 'icon' => '💬', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional grade appeal options.
+        ['ruleid' => $ruleids['gradeappeal'], 'text' => 'Calificaciones', 'targetruleid' => $ruleids['grades'], 'icon' => '📊', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['gradeappeal'], 'text' => 'Retroalimentacion', 'targetruleid' => $ruleids['feedback'], 'icon' => '💬', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional feedback options.
+        ['ruleid' => $ruleids['feedback'], 'text' => 'Contactar Profesor', 'targetruleid' => $ruleids['messages'], 'icon' => '✉️', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['feedback'], 'text' => 'Reclamar Nota', 'targetruleid' => $ruleids['gradeappeal'], 'icon' => '⚖️', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional profile options.
+        ['ruleid' => $ruleids['profile'], 'text' => 'Idioma', 'targetruleid' => $ruleids['language'], 'icon' => '🌍', 'sortorder' => 5, 'enabled' => 1],
+        ['ruleid' => $ruleids['profile'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 6, 'enabled' => 1],
+
+        // Additional profile picture options.
+        ['ruleid' => $ruleids['profilepic'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['profilepic'], 'text' => 'Notificaciones', 'targetruleid' => $ruleids['notifications'], 'icon' => '🔔', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional password options.
+        ['ruleid' => $ruleids['password'], 'text' => 'Perfil', 'targetruleid' => $ruleids['profile'], 'icon' => '👤', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['password'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional notifications options.
+        ['ruleid' => $ruleids['notifications'], 'text' => 'Perfil', 'targetruleid' => $ruleids['profile'], 'icon' => '👤', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['notifications'], 'text' => 'Mensajes', 'targetruleid' => $ruleids['messages'], 'icon' => '✉️', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional language options.
+        ['ruleid' => $ruleids['language'], 'text' => 'Perfil', 'targetruleid' => $ruleids['profile'], 'icon' => '👤', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['language'], 'text' => 'Notificaciones', 'targetruleid' => $ruleids['notifications'], 'icon' => '🔔', 'sortorder' => 3, 'enabled' => 1],
+
+        // Additional download files options.
+        ['ruleid' => $ruleids['downloadfiles'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['downloadfiles'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional videos options.
+        ['ruleid' => $ruleids['videos'], 'text' => 'H5P', 'targetruleid' => $ruleids['h5p'], 'icon' => '🎮', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['videos'], 'text' => 'SCORM', 'targetruleid' => $ruleids['scorm'], 'icon' => '📦', 'sortorder' => 5, 'enabled' => 1],
+
+        // Additional SCORM options.
+        ['ruleid' => $ruleids['scorm'], 'text' => 'H5P', 'targetruleid' => $ruleids['h5p'], 'icon' => '🎮', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['scorm'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional H5P options.
+        ['ruleid' => $ruleids['h5p'], 'text' => 'SCORM', 'targetruleid' => $ruleids['scorm'], 'icon' => '📦', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['h5p'], 'text' => 'Actividades', 'targetruleid' => $ruleids['findactivities'], 'icon' => '📝', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['h5p'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional calendar options.
+        ['ruleid' => $ruleids['calendar'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['calendar'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['calendar'], 'text' => 'Panel Principal', 'targetruleid' => $ruleids['dashboard'], 'icon' => '📊', 'sortorder' => 5, 'enabled' => 1],
+
+        // Additional messages options.
+        ['ruleid' => $ruleids['messages'], 'text' => 'Notificaciones', 'targetruleid' => $ruleids['notifications'], 'icon' => '🔔', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['messages'], 'text' => 'Perfil', 'targetruleid' => $ruleids['profile'], 'icon' => '👤', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['messages'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 5, 'enabled' => 1],
+
+        // Additional support options.
+        ['ruleid' => $ruleids['support'], 'text' => 'Videos', 'targetruleid' => $ruleids['videos'], 'icon' => '🎬', 'sortorder' => 5, 'enabled' => 1],
+        ['ruleid' => $ruleids['support'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 6, 'enabled' => 1],
+
+        // Additional browser options.
+        ['ruleid' => $ruleids['browser'], 'text' => 'Videos', 'targetruleid' => $ruleids['videos'], 'icon' => '🎬', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['browser'], 'text' => 'App Movil', 'targetruleid' => $ruleids['mobileapp'], 'icon' => '📱', 'sortorder' => 4, 'enabled' => 1],
+
+        // Additional mobile app options.
+        ['ruleid' => $ruleids['mobileapp'], 'text' => 'Navegadores', 'targetruleid' => $ruleids['browser'], 'icon' => '🌐', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['mobileapp'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['mobileapp'], 'text' => 'Notificaciones', 'targetruleid' => $ruleids['notifications'], 'icon' => '🔔', 'sortorder' => 5, 'enabled' => 1],
+
+        // =============================================
+        // OPTIONS FOR NEW RULES (to reach 50+ rules)
+        // =============================================
+
+        // Messaging options.
+        ['ruleid' => $ruleids['messaging'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['messaging'], 'text' => 'Notificaciones', 'targetruleid' => $ruleids['notifications'], 'icon' => '🔔', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['messaging'], 'text' => 'Perfil', 'targetruleid' => $ruleids['profile'], 'icon' => '👤', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['messaging'], 'text' => 'Foros', 'targetruleid' => $ruleids['forum'], 'icon' => '💬', 'sortorder' => 4, 'enabled' => 1],
+
+        // Create event options.
+        ['ruleid' => $ruleids['createevent'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['createevent'], 'text' => 'Calendario', 'targetruleid' => $ruleids['calendar'], 'icon' => '📅', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['createevent'], 'text' => 'Tareas', 'targetruleid' => $ruleids['assignment'], 'icon' => '📝', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['createevent'], 'text' => 'Panel Principal', 'targetruleid' => $ruleids['dashboard'], 'icon' => '📊', 'sortorder' => 4, 'enabled' => 1],
+
+        // Badges options.
+        ['ruleid' => $ruleids['badges'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['badges'], 'text' => 'Mis Insignias', 'targetruleid' => $ruleids['mybadges'], 'icon' => '🏅', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['badges'], 'text' => 'Perfil', 'targetruleid' => $ruleids['profile'], 'icon' => '👤', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['badges'], 'text' => 'Progreso', 'targetruleid' => $ruleids['courseprogress'], 'icon' => '📈', 'sortorder' => 4, 'enabled' => 1],
+
+        // Tags options.
+        ['ruleid' => $ruleids['tags'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['tags'], 'text' => 'Buscar Cursos', 'targetruleid' => $ruleids['findcourses'], 'icon' => '🔍', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['tags'], 'text' => 'Mis Cursos', 'targetruleid' => $ruleids['mycourses'], 'icon' => '📚', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['tags'], 'text' => 'Navegacion', 'targetruleid' => $ruleids['platformnav'], 'icon' => '🧭', 'sortorder' => 4, 'enabled' => 1],
+
+        // Workshop options.
+        ['ruleid' => $ruleids['workshop'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['workshop'], 'text' => 'Tareas', 'targetruleid' => $ruleids['assignment'], 'icon' => '📝', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['workshop'], 'text' => 'Calificaciones', 'targetruleid' => $ruleids['grades'], 'icon' => '📊', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['workshop'], 'text' => 'Actividades', 'targetruleid' => $ruleids['findactivities'], 'icon' => '📝', 'sortorder' => 4, 'enabled' => 1],
+
+        // Chat activity options.
+        ['ruleid' => $ruleids['chatactivity'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['chatactivity'], 'text' => 'Mensajeria', 'targetruleid' => $ruleids['messaging'], 'icon' => '✉️', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['chatactivity'], 'text' => 'Foros', 'targetruleid' => $ruleids['forum'], 'icon' => '💬', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['chatactivity'], 'text' => 'Actividades', 'targetruleid' => $ruleids['findactivities'], 'icon' => '📝', 'sortorder' => 4, 'enabled' => 1],
+
+        // My badges options.
+        ['ruleid' => $ruleids['mybadges'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['mybadges'], 'text' => 'Insignias', 'targetruleid' => $ruleids['badges'], 'icon' => '🏆', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['mybadges'], 'text' => 'Perfil', 'targetruleid' => $ruleids['profile'], 'icon' => '👤', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['mybadges'], 'text' => 'Progreso', 'targetruleid' => $ruleids['courseprogress'], 'icon' => '📈', 'sortorder' => 4, 'enabled' => 1],
     ];
 
     // Insert all options.
@@ -928,6 +1321,17 @@ function xmldb_local_educambot_install() {
             'description' => 'Muestra el progreso en el curso actual',
             'icon' => '📈',
             'sortorder' => 7,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Soporte tecnico',
+            'keywords' => "soporte\nayuda tecnica\nproblemas tecnicos\ncontactar soporte\nasistencia tecnica",
+            'actiontype' => 'support',
+            'description' => 'Contactar soporte tecnico',
+            'icon' => '🆘',
+            'sortorder' => 8,
             'enabled' => 1,
             'timecreated' => $now,
             'timemodified' => $now,
@@ -1028,6 +1432,23 @@ function xmldb_local_educambot_install() {
             'timeto' => '23:59',
             'enabled' => 1,
         ]);
+    }
+
+    // =============================================
+    // VALIDATION - Check completeness of knowledge base
+    // =============================================
+    $rulecount = $DB->count_records('local_educambot_rule');
+    $categorycount = $DB->count_records('local_educambot_category');
+    $optioncount = $DB->count_records('local_educambot_option');
+    $shortcutcount = $DB->count_records('local_educambot_shortcut');
+
+    if ($rulecount < 50 || $categorycount < 8 || $optioncount < 200 || $shortcutcount < 8) {
+        debugging('Educambot: Warning - Knowledge base may be incomplete. ' .
+                  'Rules: ' . $rulecount . '/50, ' .
+                  'Categories: ' . $categorycount . '/8, ' .
+                  'Options: ' . $optioncount . '/200, ' .
+                  'Shortcuts: ' . $shortcutcount . '/8',
+                  DEBUG_DEVELOPER);
     }
 
     return true;
