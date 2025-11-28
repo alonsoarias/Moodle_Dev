@@ -25,6 +25,25 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Check if the bot is available based on schedule.
+ *
+ * @return bool True if available, false otherwise.
+ */
+function local_educambot_is_available() {
+    // Check if schedule enforcement is enabled.
+    if (!get_config('local_educambot', 'scheduleenabled')) {
+        return true; // Schedule not enforced.
+    }
+
+    // Use schedule checker if available.
+    if (class_exists('\local_educambot\bot\schedule_checker')) {
+        return \local_educambot\bot\schedule_checker::is_available();
+    }
+
+    return true; // Fallback: always available.
+}
+
+/**
  * Inject the chat widget before the footer.
  * This is the standard Moodle callback function.
  */
@@ -44,6 +63,11 @@ function local_educambot_before_footer() {
     // Check if user has capability.
     $context = context_system::instance();
     if (!has_capability('local/educambot:use', $context)) {
+        return;
+    }
+
+    // Check schedule availability (v1.8.0).
+    if (!local_educambot_is_available()) {
         return;
     }
 

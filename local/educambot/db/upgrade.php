@@ -836,5 +836,152 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025112008, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025112810) {
+        // Version 1.8.0: Advanced Personalization + Multi-language.
+        $now = time();
+
+        // Add new fields to local_educambot_rule table.
+        $table = new xmldb_table('local_educambot_rule');
+
+        // Add roles field.
+        $field = new xmldb_field('roles', XMLDB_TYPE_TEXT, null, null, null, null, null, 'requiredcontext');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add courses field.
+        $field = new xmldb_field('courses', XMLDB_TYPE_TEXT, null, null, null, null, null, 'roles');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add lang field.
+        $field = new xmldb_field('lang', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'es', 'courses');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add langparent field.
+        $field = new xmldb_field('langparent', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'lang');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add lang index.
+        $index = new xmldb_index('lang_idx', XMLDB_INDEX_NOTUNIQUE, ['lang']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Create schedule table.
+        $table = new xmldb_table('local_educambot_schedule');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('dayofweek', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timefrom', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timeto', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('dayofweek_idx', XMLDB_INDEX_NOTUNIQUE, ['dayofweek']);
+        $table->add_index('enabled_idx', XMLDB_INDEX_NOTUNIQUE, ['enabled']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Create theme table.
+        $table = new xmldb_table('local_educambot_theme');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('primarycolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('secondarycolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('textcolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('backgroundcolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('usercolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('botcolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('isdefault', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('isdefault_idx', XMLDB_INDEX_NOTUNIQUE, ['isdefault']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Insert predefined themes.
+        $themes = [
+            [
+                'name' => 'Default',
+                'primarycolor' => '#0f6fc5',
+                'secondarycolor' => '#084a8a',
+                'textcolor' => '#1f2937',
+                'backgroundcolor' => '#f9fafb',
+                'usercolor' => '#0f6fc5',
+                'botcolor' => '#ffffff',
+                'isdefault' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Dark Mode',
+                'primarycolor' => '#1f2937',
+                'secondarycolor' => '#111827',
+                'textcolor' => '#f9fafb',
+                'backgroundcolor' => '#111827',
+                'usercolor' => '#3b82f6',
+                'botcolor' => '#374151',
+                'isdefault' => 0,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Nature',
+                'primarycolor' => '#059669',
+                'secondarycolor' => '#047857',
+                'textcolor' => '#1f2937',
+                'backgroundcolor' => '#ecfdf5',
+                'usercolor' => '#059669',
+                'botcolor' => '#ffffff',
+                'isdefault' => 0,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Sunset',
+                'primarycolor' => '#ea580c',
+                'secondarycolor' => '#c2410c',
+                'textcolor' => '#1f2937',
+                'backgroundcolor' => '#fff7ed',
+                'usercolor' => '#ea580c',
+                'botcolor' => '#ffffff',
+                'isdefault' => 0,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+        ];
+
+        foreach ($themes as $theme) {
+            $DB->insert_record('local_educambot_theme', (object)$theme);
+        }
+
+        // Insert default schedule (24/7).
+        $daynames = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+        for ($day = 0; $day <= 6; $day++) {
+            $DB->insert_record('local_educambot_schedule', (object)[
+                'dayofweek' => $day,
+                'timefrom' => '00:00',
+                'timeto' => '23:59',
+                'enabled' => 1,
+            ]);
+        }
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025112810, 'local', 'educambot');
+    }
+
     return true;
 }

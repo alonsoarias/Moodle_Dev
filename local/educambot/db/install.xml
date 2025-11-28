@@ -36,16 +36,22 @@
         <FIELD NAME="contextaware" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=use context data in response"/>
         <FIELD NAME="dynamicresponse" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=response has placeholders"/>
         <FIELD NAME="requiredcontext" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Required context: site, course, activity"/>
+        <FIELD NAME="roles" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated role shortnames (student,teacher,manager)"/>
+        <FIELD NAME="courses" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated course IDs (empty = all courses)"/>
+        <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="es" SEQUENCE="false" COMMENT="Language code"/>
+        <FIELD NAME="langparent" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Parent rule ID for translations"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="categoryid_fk" TYPE="foreign" FIELDS="categoryid" REFTABLE="local_educambot_category" REFFIELDS="id"/>
+        <KEY NAME="langparent_fk" TYPE="foreign" FIELDS="langparent" REFTABLE="local_educambot_rule" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
         <INDEX NAME="contextaware_idx" UNIQUE="false" FIELDS="contextaware"/>
+        <INDEX NAME="lang_idx" UNIQUE="false" FIELDS="lang"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_educambot_log" COMMENT="Log of bot conversations">
@@ -108,6 +114,43 @@
         <INDEX NAME="actiontype_idx" UNIQUE="false" FIELDS="actiontype"/>
         <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
         <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_educambot_schedule" COMMENT="Bot availability schedule">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="dayofweek" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="0=Sunday, 6=Saturday"/>
+        <FIELD NAME="timefrom" TYPE="char" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="HH:MM format"/>
+        <FIELD NAME="timeto" TYPE="char" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="HH:MM format"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="dayofweek_idx" UNIQUE="false" FIELDS="dayofweek"/>
+        <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_educambot_theme" COMMENT="Visual themes for widget">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="primarycolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="secondarycolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="textcolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="backgroundcolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="usercolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="botcolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="isdefault" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="isdefault_idx" UNIQUE="false" FIELDS="isdefault"/>
       </INDEXES>
     </TABLE>
   </TABLES>

@@ -42,13 +42,15 @@ class widget implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        global $CFG, $USER, $COURSE;
+        global $CFG, $USER, $COURSE, $DB;
 
         // Get bot configuration.
         $botname = get_config('local_educambot', 'botname') ?: get_string('botname_default', 'local_educambot');
         $widgetlabel = get_config('local_educambot', 'widgetlabel') ?: get_string('widgetlabel_default', 'local_educambot');
-        $primarycolor = get_config('local_educambot', 'primarycolor') ?: '#0f6fc5';
         $greetingtemplate = get_config('local_educambot', 'greetingtemplate') ?: get_string('greeting_default', 'local_educambot');
+
+        // Get selected theme (v1.8.0).
+        $theme = $this->get_current_theme();
 
         // Interpolate greeting message.
         $greetingmessage = $this->interpolate_message($greetingtemplate, $USER, $botname);
@@ -59,13 +61,56 @@ class widget implements renderable, templatable {
         return [
             'botname' => $botname,
             'widgetlabel' => $widgetlabel,
-            'primarycolor' => $primarycolor,
+            'primarycolor' => $theme->primarycolor,
+            'secondarycolor' => $theme->secondarycolor,
+            'textcolor' => $theme->textcolor,
+            'backgroundcolor' => $theme->backgroundcolor,
+            'usercolor' => $theme->usercolor,
+            'botcolor' => $theme->botcolor,
             'greetingmessage' => $greetingmessage,
             'serviceurl' => $CFG->wwwroot . '/local/educambot/service.php',
             'startupurl' => $CFG->wwwroot . '/local/educambot/startup.php',
             'sesskey' => sesskey(),
             'courseid' => $courseid,
         ];
+    }
+
+    /**
+     * Get the current active theme.
+     *
+     * @return object Theme object with color properties.
+     */
+    private function get_current_theme() {
+        global $DB;
+
+        // Check if theme table exists (for upgrades).
+        $dbman = $DB->get_manager();
+        $table = new \xmldb_table('local_educambot_theme');
+
+        if ($dbman->table_exists($table)) {
+            // Try to get default theme.
+            $theme = $DB->get_record('local_educambot_theme', ['isdefault' => 1]);
+            if ($theme) {
+                return $theme;
+            }
+
+            // Fallback to first theme.
+            $theme = $DB->get_record('local_educambot_theme', [], '*', IGNORE_MULTIPLE);
+            if ($theme) {
+                return $theme;
+            }
+        }
+
+        // Return default colors if no theme found (pre-v1.8.0 or fresh install).
+        $default = new \stdClass();
+        $default->primarycolor = get_config('local_educambot', 'primarycolor') ?: '#0f6fc5';
+        $default->secondarycolor = '#084a8a';
+        $default->textcolor = '#1f2937';
+        $default->backgroundcolor = '#f9fafb';
+        $default->usercolor = $default->primarycolor;
+        $default->botcolor = '#ffffff';
+
+        return $default;
     }
 
     /**

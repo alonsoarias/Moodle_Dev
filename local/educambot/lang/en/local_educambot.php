@@ -311,3 +311,81 @@ $string['viewcalendar'] = 'View full calendar';
 $string['duedate'] = 'Due';
 $string['overdue'] = 'Overdue';
 $string['duein'] = 'Due in {$a}';
+
+// v1.8.0 - Advanced personalization.
+// Schedule.
+$string['schedule_heading'] = 'Availability Schedule';
+$string['manageschedule'] = 'Manage Schedule';
+$string['scheduleenabled'] = 'Enable schedule';
+$string['scheduleenabled_desc'] = 'Restrict bot availability to specific hours. When disabled, the bot is always available.';
+$string['schedule_help'] = 'Configure the hours when the chatbot is available. Outside these hours, the widget will not be displayed.';
+$string['schedule_disabled_notice'] = 'Note: Schedule enforcement is currently disabled in settings. Enable "Enable schedule" in plugin settings to activate.';
+$string['scheduleupdated'] = 'Schedule updated successfully';
+$string['dayofweek'] = 'Day';
+$string['timefrom'] = 'From';
+$string['timeto'] = 'To';
+$string['currentstatus'] = 'Current Status';
+$string['botonline'] = 'The bot is currently ONLINE and available.';
+$string['botoffline'] = 'The bot is currently offline. It will be available again: {$a}';
+$string['todayat'] = 'Today at {$a}';
+$string['dayat'] = '{$a->day} at {$a->time}';
+$string['notscheduled'] = 'No scheduled availability';
+
+// Language settings.
+$string['language_heading'] = 'Language Settings';
+$string['autolang'] = 'Auto-detect language';
+$string['autolang_desc'] = 'Automatically select rules based on the user\'s preferred language. When enabled, rules in the user\'s language will be preferred.';
+$string['language'] = 'Language';
+$string['language_help'] = 'Select the language for this rule. Rules will be filtered based on the user\'s language preference.';
+$string['multilanguage'] = 'Multi-language';
+$string['parentrule'] = 'Parent rule (for translations)';
+$string['parentrule_help'] = 'If this rule is a translation of another rule, select the parent rule here. Leave empty for original rules.';
+$string['translations'] = 'Translations';
+$string['addtranslation'] = 'Add Translation';
+
+// Restrictions.
+$string['restrictions'] = 'Restrictions';
+$string['roles'] = 'Roles';
+$string['roles_help'] = 'Comma-separated role shortnames (e.g., student,teacher). Leave empty for all roles.';
+$string['courses'] = 'Courses';
+$string['courses_help'] = 'Comma-separated course IDs. Leave empty for all courses.';
+
+// Advanced section.
+$string['advanced'] = 'Advanced';
+$string['contextaware'] = 'Context-aware';
+$string['contextaware_help'] = 'If enabled, the response can include dynamic data from the current context.';
+$string['dynamicresponse'] = 'Dynamic response';
+$string['dynamicresponse_help'] = 'If enabled, the response contains placeholders that will be replaced with real data.';
+$string['requiredcontext'] = 'Required context';
+$string['requiredcontext_help'] = 'Specify where this rule should apply. "Any" means it applies everywhere.';
+$string['anycontext'] = 'Any context';
+$string['sitecontext'] = 'Site level only';
+$string['coursecontext'] = 'Course level only';
+$string['activitycontext'] = 'Activity level only';
+
+// Themes.
+$string['managethemes'] = 'Manage Themes';
+$string['addtheme'] = 'Add Theme';
+$string['edittheme'] = 'Edit Theme';
+$string['deletetheme'] = 'Delete Theme';
+$string['themename'] = 'Theme Name';
+$string['themecreated'] = 'Theme created successfully';
+$string['themeupdated'] = 'Theme updated successfully';
+$string['themedeleted'] = 'Theme deleted successfully';
+$string['themesetasdefault'] = 'Theme set as default';
+$string['setasdefault'] = 'Set as default';
+$string['cannotdeletedefault'] = 'Cannot delete the default theme. Set another theme as default first.';
+$string['nothemes'] = 'No themes found';
+$string['colors'] = 'Colors';
+$string['primarycolor_help'] = 'Main accent color for the widget header and buttons.';
+$string['secondarycolor'] = 'Secondary Color';
+$string['secondarycolor_help'] = 'Secondary accent color for hover states and accents.';
+$string['textcolor'] = 'Text Color';
+$string['textcolor_help'] = 'Color for text content in the widget.';
+$string['backgroundcolor'] = 'Background Color';
+$string['backgroundcolor_help'] = 'Background color for the chat area.';
+$string['usercolor'] = 'User Message Color';
+$string['usercolor_help'] = 'Background color for user message bubbles.';
+$string['botcolor'] = 'Bot Message Color';
+$string['botcolor_help'] = 'Background color for bot message bubbles.';
+$string['invalidcolor'] = 'Invalid color format. Use hex format (e.g., #FF5500).';

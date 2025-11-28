@@ -311,3 +311,81 @@ $string['viewcalendar'] = 'Ver calendario completo';
 $string['duedate'] = 'Vence';
 $string['overdue'] = 'Vencida';
 $string['duein'] = 'Vence en {$a}';
+
+// v1.8.0 - Personalizacion avanzada.
+// Horarios.
+$string['schedule_heading'] = 'Horario de Disponibilidad';
+$string['manageschedule'] = 'Gestionar Horario';
+$string['scheduleenabled'] = 'Habilitar horario';
+$string['scheduleenabled_desc'] = 'Restringir la disponibilidad del bot a horas especificas. Cuando esta deshabilitado, el bot esta siempre disponible.';
+$string['schedule_help'] = 'Configure las horas en que el chatbot esta disponible. Fuera de estas horas, el widget no se mostrara.';
+$string['schedule_disabled_notice'] = 'Nota: El control de horario esta actualmente deshabilitado en la configuracion. Habilite "Habilitar horario" en la configuracion del plugin para activarlo.';
+$string['scheduleupdated'] = 'Horario actualizado correctamente';
+$string['dayofweek'] = 'Dia';
+$string['timefrom'] = 'Desde';
+$string['timeto'] = 'Hasta';
+$string['currentstatus'] = 'Estado Actual';
+$string['botonline'] = 'El bot esta actualmente EN LINEA y disponible.';
+$string['botoffline'] = 'El bot esta actualmente fuera de linea. Estara disponible nuevamente: {$a}';
+$string['todayat'] = 'Hoy a las {$a}';
+$string['dayat'] = '{$a->day} a las {$a->time}';
+$string['notscheduled'] = 'Sin disponibilidad programada';
+
+// Configuracion de idioma.
+$string['language_heading'] = 'Configuracion de Idioma';
+$string['autolang'] = 'Auto-detectar idioma';
+$string['autolang_desc'] = 'Seleccionar automaticamente las reglas basado en el idioma preferido del usuario. Cuando esta habilitado, se prefieren las reglas en el idioma del usuario.';
+$string['language'] = 'Idioma';
+$string['language_help'] = 'Seleccione el idioma para esta regla. Las reglas se filtraran segun la preferencia de idioma del usuario.';
+$string['multilanguage'] = 'Multi-idioma';
+$string['parentrule'] = 'Regla padre (para traducciones)';
+$string['parentrule_help'] = 'Si esta regla es una traduccion de otra regla, seleccione la regla padre aqui. Deje vacio para reglas originales.';
+$string['translations'] = 'Traducciones';
+$string['addtranslation'] = 'Agregar Traduccion';
+
+// Restricciones.
+$string['restrictions'] = 'Restricciones';
+$string['roles'] = 'Roles';
+$string['roles_help'] = 'Nombres cortos de roles separados por comas (ej: student,teacher). Deje vacio para todos los roles.';
+$string['courses'] = 'Cursos';
+$string['courses_help'] = 'IDs de cursos separados por comas. Deje vacio para todos los cursos.';
+
+// Seccion avanzada.
+$string['advanced'] = 'Avanzado';
+$string['contextaware'] = 'Sensible al contexto';
+$string['contextaware_help'] = 'Si esta habilitado, la respuesta puede incluir datos dinamicos del contexto actual.';
+$string['dynamicresponse'] = 'Respuesta dinamica';
+$string['dynamicresponse_help'] = 'Si esta habilitado, la respuesta contiene marcadores que seran reemplazados con datos reales.';
+$string['requiredcontext'] = 'Contexto requerido';
+$string['requiredcontext_help'] = 'Especifique donde debe aplicarse esta regla. "Cualquiera" significa que aplica en todas partes.';
+$string['anycontext'] = 'Cualquier contexto';
+$string['sitecontext'] = 'Solo nivel sitio';
+$string['coursecontext'] = 'Solo nivel curso';
+$string['activitycontext'] = 'Solo nivel actividad';
+
+// Temas.
+$string['managethemes'] = 'Gestionar Temas';
+$string['addtheme'] = 'Agregar Tema';
+$string['edittheme'] = 'Editar Tema';
+$string['deletetheme'] = 'Eliminar Tema';
+$string['themename'] = 'Nombre del Tema';
+$string['themecreated'] = 'Tema creado correctamente';
+$string['themeupdated'] = 'Tema actualizado correctamente';
+$string['themedeleted'] = 'Tema eliminado correctamente';
+$string['themesetasdefault'] = 'Tema establecido como predeterminado';
+$string['setasdefault'] = 'Establecer como predeterminado';
+$string['cannotdeletedefault'] = 'No se puede eliminar el tema predeterminado. Establezca otro tema como predeterminado primero.';
+$string['nothemes'] = 'No se encontraron temas';
+$string['colors'] = 'Colores';
+$string['primarycolor_help'] = 'Color de acento principal para el encabezado y botones del widget.';
+$string['secondarycolor'] = 'Color Secundario';
+$string['secondarycolor_help'] = 'Color de acento secundario para estados hover y acentos.';
+$string['textcolor'] = 'Color de Texto';
+$string['textcolor_help'] = 'Color para el contenido de texto en el widget.';
+$string['backgroundcolor'] = 'Color de Fondo';
+$string['backgroundcolor_help'] = 'Color de fondo para el area del chat.';
+$string['usercolor'] = 'Color de Mensaje del Usuario';
+$string['usercolor_help'] = 'Color de fondo para las burbujas de mensaje del usuario.';
+$string['botcolor'] = 'Color de Mensaje del Bot';
+$string['botcolor_help'] = 'Color de fondo para las burbujas de mensaje del bot.';
+$string['invalidcolor'] = 'Formato de color invalido. Use formato hexadecimal (ej: #FF5500).';

@@ -97,6 +97,36 @@ if ($hassiteconfig) {
             get_string('primarycolor_desc', 'local_educambot'),
             '#0f6fc5'
         ));
+
+        // Schedule section (v1.8.0).
+        $settings->add(new admin_setting_heading(
+            'local_educambot/schedule_heading',
+            get_string('schedule_heading', 'local_educambot'),
+            ''
+        ));
+
+        // Enable schedule setting.
+        $settings->add(new admin_setting_configcheckbox(
+            'local_educambot/scheduleenabled',
+            get_string('scheduleenabled', 'local_educambot'),
+            get_string('scheduleenabled_desc', 'local_educambot'),
+            0
+        ));
+
+        // Language section (v1.8.0).
+        $settings->add(new admin_setting_heading(
+            'local_educambot/language_heading',
+            get_string('language_heading', 'local_educambot'),
+            ''
+        ));
+
+        // Auto-detect language setting.
+        $settings->add(new admin_setting_configcheckbox(
+            'local_educambot/autolang',
+            get_string('autolang', 'local_educambot'),
+            get_string('autolang_desc', 'local_educambot'),
+            1
+        ));
     }
 
     $ADMIN->add('local_educambot', $settings);
@@ -138,6 +168,22 @@ if ($hassiteconfig) {
         'local_educambot_shortcuts',
         get_string('shortcuts', 'local_educambot'),
         new moodle_url('/local/educambot/shortcuts.php'),
+        'local/educambot:manage'
+    ));
+
+    // Schedule page (v1.8.0).
+    $ADMIN->add('local_educambot', new admin_externalpage(
+        'local_educambot_schedule',
+        get_string('manageschedule', 'local_educambot'),
+        new moodle_url('/local/educambot/schedule.php'),
+        'local/educambot:manage'
+    ));
+
+    // Themes page (v1.8.0).
+    $ADMIN->add('local_educambot', new admin_externalpage(
+        'local_educambot_themes',
+        get_string('managethemes', 'local_educambot'),
+        new moodle_url('/local/educambot/themes.php'),
         'local/educambot:manage'
     ));
 }

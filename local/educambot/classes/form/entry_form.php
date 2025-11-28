@@ -85,6 +85,86 @@ class entry_form extends \moodleform {
         $mform->setDefault('showoptions', 1);
         $mform->addHelpButton('showoptions', 'showoptions', 'local_educambot');
 
+        // Advanced section header.
+        $mform->addElement('header', 'advancedsection', get_string('advanced', 'local_educambot'));
+        $mform->setExpanded('advancedsection', false);
+
+        // Context-aware checkbox (v1.7.0).
+        $mform->addElement('advcheckbox', 'contextaware', get_string('contextaware', 'local_educambot'));
+        $mform->setDefault('contextaware', 0);
+        $mform->addHelpButton('contextaware', 'contextaware', 'local_educambot');
+
+        // Dynamic response checkbox (v1.7.0).
+        $mform->addElement('advcheckbox', 'dynamicresponse', get_string('dynamicresponse', 'local_educambot'));
+        $mform->setDefault('dynamicresponse', 0);
+        $mform->addHelpButton('dynamicresponse', 'dynamicresponse', 'local_educambot');
+
+        // Required context (v1.7.0).
+        $contextoptions = [
+            '' => get_string('anycontext', 'local_educambot'),
+            'site' => get_string('sitecontext', 'local_educambot'),
+            'course' => get_string('coursecontext', 'local_educambot'),
+            'activity' => get_string('activitycontext', 'local_educambot'),
+        ];
+        $mform->addElement('select', 'requiredcontext', get_string('requiredcontext', 'local_educambot'), $contextoptions);
+        $mform->setType('requiredcontext', PARAM_ALPHA);
+        $mform->addHelpButton('requiredcontext', 'requiredcontext', 'local_educambot');
+
+        // Restrictions section header (v1.8.0).
+        $mform->addElement('header', 'restrictionssection', get_string('restrictions', 'local_educambot'));
+        $mform->setExpanded('restrictionssection', false);
+
+        // Roles field (v1.8.0).
+        $mform->addElement('text', 'roles', get_string('roles', 'local_educambot'), ['size' => 60]);
+        $mform->setType('roles', PARAM_TEXT);
+        $mform->addHelpButton('roles', 'roles', 'local_educambot');
+
+        // Courses field (v1.8.0).
+        $mform->addElement('text', 'courses', get_string('courses', 'local_educambot'), ['size' => 60]);
+        $mform->setType('courses', PARAM_TEXT);
+        $mform->addHelpButton('courses', 'courses', 'local_educambot');
+
+        // Language section header (v1.8.0).
+        $mform->addElement('header', 'langsection', get_string('multilanguage', 'local_educambot'));
+        $mform->setExpanded('langsection', false);
+
+        // Language field (v1.8.0).
+        $langstrings = get_string_manager()->get_list_of_translations();
+        $langoptions = [];
+        foreach ($langstrings as $code => $name) {
+            // Extract base language code (e.g., 'es' from 'es_mx').
+            $basecode = substr($code, 0, 2);
+            if (!isset($langoptions[$basecode])) {
+                $langoptions[$basecode] = $name;
+            }
+        }
+        // Add common ones if missing.
+        if (!isset($langoptions['es'])) {
+            $langoptions['es'] = 'Español';
+        }
+        if (!isset($langoptions['en'])) {
+            $langoptions['en'] = 'English';
+        }
+        ksort($langoptions);
+
+        $mform->addElement('select', 'lang', get_string('language', 'local_educambot'), $langoptions);
+        $mform->setDefault('lang', 'es');
+        $mform->setType('lang', PARAM_ALPHANUMEXT);
+        $mform->addHelpButton('lang', 'language', 'local_educambot');
+
+        // Parent rule (for translations) (v1.8.0).
+        $parentrules = $DB->get_records_sql(
+            "SELECT id, pattern FROM {local_educambot_rule} WHERE langparent IS NULL ORDER BY pattern",
+            []
+        );
+        $parentoptions = ['' => get_string('none')];
+        foreach ($parentrules as $rule) {
+            $parentoptions[$rule->id] = shorten_text($rule->pattern, 60);
+        }
+        $mform->addElement('select', 'langparent', get_string('parentrule', 'local_educambot'), $parentoptions);
+        $mform->setType('langparent', PARAM_INT);
+        $mform->addHelpButton('langparent', 'parentrule', 'local_educambot');
+
         // Action buttons.
         $this->add_action_buttons();
     }

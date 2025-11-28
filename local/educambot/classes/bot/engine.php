@@ -31,6 +31,24 @@ defined('MOODLE_INTERNAL') || die();
  */
 class engine {
 
+    /** @var int Course ID for context filtering. */
+    protected $courseid;
+
+    /** @var int User ID for role filtering. */
+    protected $userid;
+
+    /**
+     * Constructor.
+     *
+     * @param int $courseid Course ID for context.
+     * @param int $userid User ID for role filtering.
+     */
+    public function __construct(int $courseid = SITEID, int $userid = 0) {
+        global $USER;
+        $this->courseid = $courseid;
+        $this->userid = $userid ?: $USER->id;
+    }
+
     /**
      * Process a question and return a response.
      *
@@ -43,13 +61,31 @@ class engine {
         // Normalize the question.
         $normalized = $this->normalize_text($question);
 
-        // Get all enabled rules.
-        $rules = $DB->get_records('local_educambot_rule', ['enabled' => 1]);
+        // Get user's current language.
+        $userlang = current_language();
+        $userlang = substr($userlang, 0, 2); // Get base language (es, en, fr, etc.).
+
+        // Get user's roles in current context.
+        $userroles = $this->get_user_roles();
+
+        // Build SQL to filter rules by language preference.
+        // Prefer rules in user's language, fallback to 'es' (default).
+        $sql = "SELECT * FROM {local_educambot_rule}
+                WHERE enabled = 1
+                ORDER BY
+                    CASE WHEN lang = :userlang THEN 0
+                         WHEN lang = 'es' THEN 1
+                         ELSE 2 END,
+                    id ASC";
+        $rules = $DB->get_records_sql($sql, ['userlang' => $userlang]);
+
+        // Filter rules by role and course.
+        $filteredrules = $this->filter_rules_by_context($rules, $userroles);
 
         $best_match = null;
         $best_score = 0;
 
-        foreach ($rules as $rule) {
+        foreach ($filteredrules as $rule) {
             $score = $this->calculate_match_score($normalized, $rule);
 
             if ($score > $best_score) {
@@ -73,6 +109,86 @@ class engine {
             'ruleid' => null,
             'confidence' => 0,
         ];
+    }
+
+    /**
+     * Get user's role shortnames in current context.
+     *
+     * @return array Array of role shortnames.
+     */
+    protected function get_user_roles(): array {
+        $roles = [];
+
+        try {
+            if ($this->courseid > SITEID) {
+                $context = \context_course::instance($this->courseid);
+            } else {
+                $context = \context_system::instance();
+            }
+
+            $userroles = get_user_roles($context, $this->userid, true);
+            foreach ($userroles as $role) {
+                $roles[] = $role->shortname;
+            }
+        } catch (\Exception $e) {
+            // If context doesn't exist, return empty roles.
+        }
+
+        return $roles;
+    }
+
+    /**
+     * Filter rules by role and course restrictions.
+     *
+     * @param array $rules Array of rule records.
+     * @param array $userroles Array of user's role shortnames.
+     * @return array Filtered rules.
+     */
+    protected function filter_rules_by_context(array $rules, array $userroles): array {
+        $autolang = get_config('local_educambot', 'autolang');
+        $userlang = current_language();
+        $userlang = substr($userlang, 0, 2);
+
+        $filtered = [];
+        $seenpatterns = [];
+
+        foreach ($rules as $rule) {
+            // Check role filter.
+            if (!empty($rule->roles)) {
+                $ruleroles = array_map('trim', explode(',', $rule->roles));
+                if (!array_intersect($userroles, $ruleroles)) {
+                    continue; // User doesn't have required role.
+                }
+            }
+
+            // Check course filter.
+            if (!empty($rule->courses)) {
+                $rulecourses = array_map('trim', explode(',', $rule->courses));
+                if (!in_array($this->courseid, $rulecourses)) {
+                    continue; // Not in a valid course.
+                }
+            }
+
+            // If auto-lang enabled, prefer rules in user's language.
+            // Track patterns to avoid duplicates (prefer user's language).
+            if ($autolang) {
+                $patternkey = $rule->langparent ?: $rule->id;
+
+                if (!isset($seenpatterns[$patternkey])) {
+                    $seenpatterns[$patternkey] = $rule;
+                } else {
+                    // Replace if current rule is in user's language.
+                    $existingrule = $seenpatterns[$patternkey];
+                    if ($rule->lang === $userlang && $existingrule->lang !== $userlang) {
+                        $seenpatterns[$patternkey] = $rule;
+                    }
+                }
+            } else {
+                $filtered[$rule->id] = $rule;
+            }
+        }
+
+        return $autolang ? array_values($seenpatterns) : $filtered;
     }
 
     /**

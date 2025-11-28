@@ -939,5 +939,76 @@ function xmldb_local_educambot_install() {
         $DB->insert_record('local_educambot_shortcut', (object)$shortcut);
     }
 
+    // =============================================
+    // THEMES - Visual themes for widget (v1.8.0)
+    // =============================================
+    $themes = [
+        [
+            'name' => 'Default',
+            'primarycolor' => '#0f6fc5',
+            'secondarycolor' => '#084a8a',
+            'textcolor' => '#1f2937',
+            'backgroundcolor' => '#f9fafb',
+            'usercolor' => '#0f6fc5',
+            'botcolor' => '#ffffff',
+            'isdefault' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Dark Mode',
+            'primarycolor' => '#1f2937',
+            'secondarycolor' => '#111827',
+            'textcolor' => '#f9fafb',
+            'backgroundcolor' => '#111827',
+            'usercolor' => '#3b82f6',
+            'botcolor' => '#374151',
+            'isdefault' => 0,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Nature',
+            'primarycolor' => '#059669',
+            'secondarycolor' => '#047857',
+            'textcolor' => '#1f2937',
+            'backgroundcolor' => '#ecfdf5',
+            'usercolor' => '#059669',
+            'botcolor' => '#ffffff',
+            'isdefault' => 0,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Sunset',
+            'primarycolor' => '#ea580c',
+            'secondarycolor' => '#c2410c',
+            'textcolor' => '#1f2937',
+            'backgroundcolor' => '#fff7ed',
+            'usercolor' => '#ea580c',
+            'botcolor' => '#ffffff',
+            'isdefault' => 0,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+    ];
+
+    // Insert all themes.
+    foreach ($themes as $theme) {
+        $DB->insert_record('local_educambot_theme', (object)$theme);
+    }
+
+    // =============================================
+    // SCHEDULE - Default availability (24/7) (v1.8.0)
+    // =============================================
+    for ($day = 0; $day <= 6; $day++) {
+        $DB->insert_record('local_educambot_schedule', (object)[
+            'dayofweek' => $day,
+            'timefrom' => '00:00',
+            'timeto' => '23:59',
+            'enabled' => 1,
+        ]);
+    }
+
     return true;
 }
