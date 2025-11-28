@@ -15,17 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Plugin version and other meta-data are defined here.
  *
  * @package     local_educambot
- * @copyright   2024 Educam
+ * @copyright   2025 EducamBot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version   = 2025103008;
-$plugin->requires  = 2022041900; // Moodle 4.0.
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.1.5';
+$plugin->version = 2025112003;  // YYYYMMDDXX format.
+$plugin->requires = 2022041900; // Moodle 4.0.
+$plugin->maturity = MATURITY_ALPHA;
+$plugin->release = '1.3.0';  // Correccion widget + Configuracion activar/desactivar.

@@ -15,129 +15,69 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of functions for local_educambot.
+ * Plugin library functions.
  *
  * @package     local_educambot
- * @copyright   2024 Educam
+ * @copyright   2025 EducamBot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Prints the chatbot widget before the footer is rendered.
- *
- * @param moodle_page|null $page
- * @param core_renderer|null $output
- * @return string
+ * Inject the chat widget before the footer.
+ * This is the standard Moodle callback function.
  */
-function local_educambot_before_footer(?moodle_page $page = null, ?core_renderer $output = null): string {
-    return local_educambot_render_widget($page, $output);
-}
+function local_educambot_before_footer() {
+    global $PAGE, $OUTPUT, $USER;
 
-/**
- * Builds the chatbot widget markup.
- *
- * @param moodle_page|null $page
- * @param core_renderer|null $output
- * @return string
- */
-function local_educambot_render_widget(?moodle_page $page = null, ?core_renderer $output = null): string {
-    global $USER, $PAGE, $OUTPUT;
-
-    if (CLI_SCRIPT || AJAX_SCRIPT) {
-        return '';
-    }
-
-    $page = $page ?? $PAGE;
-    $output = $output ?? $OUTPUT;
-
-    if (!$page instanceof moodle_page || !$output instanceof core_renderer) {
-        return '';
-    }
-
-    $pageidentifier = null;
-    if ($page->url instanceof moodle_url) {
-        $pageidentifier = $page->url->out_as_local_url(false);
-    }
-
-    $userid = isloggedin() && !isguestuser() ? (int)$USER->id : null;
-
-    $engine = new \local_educambot\bot\engine($userid, $pageidentifier);
-    $suggestions = $engine->get_suggestions();
-
-    $renderable = new \local_educambot\output\widget(
-        $suggestions,
-        $pageidentifier,
-        $userid,
-        $engine->get_courseid()
-    );
-
-    return $output->render($renderable);
-}
-
-/**
- * Ensures the chatbot assets are queued before the page header is output.
- *
- * @param moodle_page|null $page
- * @param core_renderer|null $output
- * @return void
- */
-function local_educambot_before_standard_html_head(?moodle_page $page = null, ?core_renderer $output = null): void {
-    global $PAGE;
-
-    if (CLI_SCRIPT || AJAX_SCRIPT) {
+    // Check if widget is enabled.
+    if (!get_config('local_educambot', 'widgetenabled')) {
         return;
     }
 
-    $page = $page ?? $PAGE;
-
-    if (!$page instanceof moodle_page) {
+    // Only inject for logged in users.
+    if (!isloggedin() || isguestuser()) {
         return;
     }
 
-    $page->requires->css('/local/educambot/styles.css');
-    $page->requires->js_call_amd('local_educambot/widget', 'init');
-}
-
-/**
- * Serves plugin files for local_educambot.
- *
- * @param stdClass $course
- * @param stdClass $cm
- * @param context $context
- * @param string $filearea
- * @param array $args
- * @param bool $forcedownload
- * @param array $options
- * @return bool
- */
-function local_educambot_pluginfile($course, $cm, $context, string $filearea, array $args, bool $forcedownload, array $options = []) {
-    $allowedareas = ['response', 'knowledgecontent'];
-    if ($context->contextlevel !== CONTEXT_SYSTEM || !in_array($filearea, $allowedareas, true)) {
-        return false;
+    // Check if user has capability.
+    $context = context_system::instance();
+    if (!has_capability('local/educambot:use', $context)) {
+        return;
     }
 
-    require_login(null, false);
-    require_capability('local/educambot:manage', context_system::instance());
-
-    if (empty($args)) {
-        return false;
+    // Don't inject on certain pages.
+    if (isset($_SERVER['REQUEST_URI'])) {
+        $excludedpaths = ['/login/', '/admin/cli/'];
+        foreach ($excludedpaths as $excluded) {
+            if (strpos($_SERVER['REQUEST_URI'], $excluded) !== false) {
+                return;
+            }
+        }
     }
 
-    $itemid = (int)array_shift($args);
-    if ($itemid <= 0) {
-        return false;
+    // Don't inject in embedded layout.
+    if (strpos($PAGE->pagetype, 'embedded') !== false) {
+        return;
     }
 
-    $filename = array_pop($args);
-    $filepath = empty($args) ? '/' : '/' . implode('/', $args) . '/';
-
-    $fs = get_file_storage();
-    $file = $fs->get_file($context->id, 'local_educambot', $filearea, $itemid, $filepath, $filename);
-    if (!$file || $file->is_directory()) {
-        return false;
+    // Don't inject if notifications are not allowed.
+    try {
+        if (!$PAGE->get_popup_notification_allowed()) {
+            return;
+        }
+    } catch (Exception $e) {
+        // Ignore if method not available.
     }
 
-    send_stored_file($file, 0, 0, $forcedownload, $options);
+    // Prepare data for template.
+    $widget = new \local_educambot\output\widget();
+    $data = $widget->export_for_template($OUTPUT);
+
+    // Render and output the widget directly.
+    echo $OUTPUT->render_from_template('local_educambot/widget', $data);
+
+    // Include JavaScript module.
+    $PAGE->requires->js_call_amd('local_educambot/widget', 'init');
 }

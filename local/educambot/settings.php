@@ -15,130 +15,97 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Settings for local_educambot.
+ * Plugin administration pages are defined here.
  *
  * @package     local_educambot
- * @copyright   2024 Educam
+ * @copyright   2025 EducamBot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $category = new admin_category('local_educambot', get_string('pluginname', 'local_educambot'));
-    $ADMIN->add('localplugins', $category);
+    // Create settings category.
+    $ADMIN->add('localplugins', new admin_category('local_educambot',
+        get_string('pluginname', 'local_educambot')));
 
-    $settingspage = new admin_settingpage('local_educambot_settings', get_string('settingsheading', 'local_educambot'));
+    // Settings page.
+    $settings = new admin_settingpage('local_educambot_settings',
+        get_string('settings_header', 'local_educambot'));
 
-    $settingspage->add(new admin_setting_configcheckbox(
-        'local_educambot/loggingenabled',
-        get_string('loggingenabled', 'local_educambot'),
-        get_string('loggingenabled_desc', 'local_educambot'),
-        1
-    ));
+    if ($ADMIN->fulltree) {
+        // General section.
+        $settings->add(new admin_setting_heading(
+            'local_educambot/general_heading',
+            get_string('general_heading', 'local_educambot'),
+            ''
+        ));
 
-    $settingspage->add(new admin_setting_configtext(
-        'local_educambot/retentionperiod',
-        get_string('retentionperiod', 'local_educambot'),
-        get_string('retentionperiod_desc', 'local_educambot'),
-        90,
-        PARAM_INT
-    ));
+        // Enable widget setting.
+        $settings->add(new admin_setting_configcheckbox(
+            'local_educambot/widgetenabled',
+            get_string('widgetenabled', 'local_educambot'),
+            get_string('widgetenabled_desc', 'local_educambot'),
+            1
+        ));
 
-    $settingspage->add(new admin_setting_configtext(
-        'local_educambot/historylimit',
-        get_string('historylimit', 'local_educambot'),
-        get_string('historylimit_desc', 'local_educambot'),
-        8,
-        PARAM_INT
-    ));
+        // Bot identity section.
+        $settings->add(new admin_setting_heading(
+            'local_educambot/identity_heading',
+            get_string('identity_heading', 'local_educambot'),
+            ''
+        ));
 
-    $settingspage->add(new admin_setting_heading(
-        'local_educambot_branding',
-        get_string('brandingsettings', 'local_educambot'),
-        ''
-    ));
+        // Bot name setting.
+        $settings->add(new admin_setting_configtext(
+            'local_educambot/botname',
+            get_string('botname', 'local_educambot'),
+            get_string('botname_desc', 'local_educambot'),
+            get_string('botname_default', 'local_educambot'),
+            PARAM_TEXT
+        ));
 
-    $settingspage->add(new admin_setting_configtext(
-        'local_educambot/botname',
-        get_string('botname', 'local_educambot'),
-        get_string('botname_desc', 'local_educambot'),
-        get_string('defaultbotname', 'local_educambot'),
-        PARAM_TEXT
-    ));
+        // Widget label setting.
+        $settings->add(new admin_setting_configtext(
+            'local_educambot/widgetlabel',
+            get_string('widgetlabel', 'local_educambot'),
+            get_string('widgetlabel_desc', 'local_educambot'),
+            get_string('widgetlabel_default', 'local_educambot'),
+            PARAM_TEXT
+        ));
 
-    $settingspage->add(new admin_setting_configtext(
-        'local_educambot/widgetlabel',
-        get_string('widgetlabel', 'local_educambot'),
-        get_string('widgetlabel_desc', 'local_educambot'),
-        get_string('widgettitle', 'local_educambot'),
-        PARAM_TEXT
-    ));
+        // Greeting message setting.
+        $settings->add(new admin_setting_configtextarea(
+            'local_educambot/greetingtemplate',
+            get_string('greetingtemplate', 'local_educambot'),
+            get_string('greetingtemplate_desc', 'local_educambot'),
+            get_string('greeting_default', 'local_educambot'),
+            PARAM_TEXT
+        ));
 
-    $settingspage->add(new admin_setting_configtextarea(
-        'local_educambot/introtemplate',
-        get_string('introtemplate', 'local_educambot'),
-        get_string('introtemplate_desc', 'local_educambot'),
-        get_string('widgetintro', 'local_educambot'),
-        PARAM_RAW_TRIMMED
-    ));
+        // Appearance section.
+        $settings->add(new admin_setting_heading(
+            'local_educambot/appearance_heading',
+            get_string('appearance_heading', 'local_educambot'),
+            ''
+        ));
 
-    $settingspage->add(new admin_setting_configtextarea(
-        'local_educambot/greetingtemplate',
-        get_string('greetingtemplate', 'local_educambot'),
-        get_string('greetingtemplate_desc', 'local_educambot'),
-        get_string('defaultgreeting', 'local_educambot'),
-        PARAM_RAW_TRIMMED
-    ));
+        // Primary color setting.
+        $settings->add(new admin_setting_configcolourpicker(
+            'local_educambot/primarycolor',
+            get_string('primarycolor', 'local_educambot'),
+            get_string('primarycolor_desc', 'local_educambot'),
+            '#0f6fc5'
+        ));
+    }
 
-    $settingspage->add(new admin_setting_configtext(
-        'local_educambot/personalitytagline',
-        get_string('personalitytagline', 'local_educambot'),
-        get_string('personalitytagline_desc', 'local_educambot'),
-        '',
-        PARAM_TEXT
-    ));
+    $ADMIN->add('local_educambot', $settings);
 
-    $settingspage->add(new admin_setting_configcolourpicker(
-        'local_educambot/primarycolor',
-        get_string('primarycolor', 'local_educambot'),
-        get_string('primarycolor_desc', 'local_educambot'),
-        '#0f6fc5'
-    ));
-
-    $settingspage->add(new admin_setting_configcolourpicker(
-        'local_educambot/accentcolor',
-        get_string('accentcolor', 'local_educambot'),
-        get_string('accentcolor_desc', 'local_educambot'),
-        '#e7f0fb'
-    ));
-
-    $settingspage->add(new admin_setting_configcolourpicker(
-        'local_educambot/backgroundcolor',
-        get_string('backgroundcolor', 'local_educambot'),
-        get_string('backgroundcolor_desc', 'local_educambot'),
-        '#f7f9fc'
-    ));
-
-    $settingspage->add(new admin_setting_configcolourpicker(
-        'local_educambot/textcolor',
-        get_string('textcolor', 'local_educambot'),
-        get_string('textcolor_desc', 'local_educambot'),
-        '#1f2937'
-    ));
-
-    $ADMIN->add('local_educambot', $settingspage);
-
+    // Manage rules page.
     $ADMIN->add('local_educambot', new admin_externalpage(
         'local_educambot_manage',
-        get_string('manageentries', 'local_educambot'),
+        get_string('managerules', 'local_educambot'),
         new moodle_url('/local/educambot/manage.php'),
-        'local/educambot:manage'
-    ));
-    $ADMIN->add('local_educambot', new admin_externalpage(
-        'local_educambot_manageknowledge',
-        get_string('manageknowledge', 'local_educambot'),
-        new moodle_url('/local/educambot/knowledge.php'),
         'local/educambot:manage'
     ));
 }

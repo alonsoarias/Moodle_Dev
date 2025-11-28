@@ -15,124 +15,69 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Widget renderable for Educam Bot.
+ * Widget renderable class.
  *
  * @package     local_educambot
- * @copyright   2024 Educam
+ * @copyright   2025 EducamBot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace local_educambot\output;
 
-use local_educambot\local\context_provider;
+defined('MOODLE_INTERNAL') || die();
+
 use renderable;
 use templatable;
 use renderer_base;
-use moodle_url;
 
 /**
- * Provides data for the chatbot widget mustache template.
+ * Widget class.
  */
 class widget implements renderable, templatable {
-    /** @var array Suggested questions */
-    protected array $suggestions;
-
-    /** @var string|null Current page identifier */
-    protected ?string $pageidentifier;
-
-    /** @var int|null */
-    protected ?int $userid;
-
-    /** @var int|null */
-    protected ?int $courseid;
 
     /**
-     * Constructor.
-     *
-     * @param array $suggestions Suggested questions with text and id.
-     * @param string|null $pageidentifier Current page path.
-     * @param int|null $userid
-     * @param int|null $courseid
-     */
-    public function __construct(array $suggestions, ?string $pageidentifier, ?int $userid, ?int $courseid) {
-        $this->suggestions = $suggestions;
-        $this->pageidentifier = $pageidentifier;
-        $this->userid = $userid;
-        $this->courseid = $courseid;
-    }
-
-    /**
-     * Export data for mustache template.
+     * Export data for template.
      *
      * @param renderer_base $output
      * @return array
      */
-    public function export_for_template(renderer_base $output): array {
-        static $configcache = null;
-        if ($configcache === null) {
-            $configcache = (array)get_config('local_educambot');
-        }
-        $config = $configcache;
-        $contextprovider = new context_provider($this->userid, $this->courseid, $this->pageidentifier);
+    public function export_for_template(renderer_base $output) {
+        global $CFG, $USER;
 
-        $botname = $contextprovider->get_bot_name($config);
-        $introtemplate = trim($config['introtemplate'] ?? '');
-        if ($introtemplate === '') {
-            $introtemplate = get_string('widgetintro', 'local_educambot');
-        }
-        $intro = $contextprovider->personalise_html($introtemplate, $config);
-        $tagline = trim($config['personalitytagline'] ?? '');
-        if ($tagline !== '') {
-            $tagline = $contextprovider->personalise_html($tagline, $config);
-        }
+        // Get bot configuration.
+        $botname = get_config('local_educambot', 'botname') ?: get_string('botname_default', 'local_educambot');
+        $widgetlabel = get_config('local_educambot', 'widgetlabel') ?: get_string('widgetlabel_default', 'local_educambot');
+        $primarycolor = get_config('local_educambot', 'primarycolor') ?: '#0f6fc5';
+        $greetingtemplate = get_config('local_educambot', 'greetingtemplate') ?: get_string('greeting_default', 'local_educambot');
 
-        $widgetlabel = trim($config['widgetlabel'] ?? '');
-        if ($widgetlabel === '') {
-            $widgetlabel = get_string('widgettitle', 'local_educambot');
-        }
-
-        $primary = $config['primarycolor'] ?? '#0f6fc5';
-        $accent = $config['accentcolor'] ?? '#e7f0fb';
-        $background = $config['backgroundcolor'] ?? '#f7f9fc';
-        $textcolor = $config['textcolor'] ?? '#1f2937';
-
-        $initialmessage = $contextprovider->build_initial_greeting($config);
-        $configpayload = json_encode([
-            'initialMessage' => $initialmessage,
-            'botName' => $botname,
-            'tagline' => $tagline,
-        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        if ($configpayload === false) {
-            $configpayload = '{}';
-        }
-
-        $sessionkey = sesskey();
+        // Interpolate greeting message.
+        $greetingmessage = $this->interpolate_message($greetingtemplate, $USER, $botname);
 
         return [
-            'widgettitle' => format_string($widgetlabel),
-            'widgetintro' => $intro,
-            'chatheader' => $botname,
-            'placeholder' => get_string('startplaceholder', 'local_educambot'),
-            'suggestions' => array_values($this->suggestions),
-            'hasuggestions' => !empty($this->suggestions),
-            'sessionkey' => $sessionkey,
-            'serviceurl' => (new moodle_url('/local/educambot/service.php'))->out(false),
-            'userid' => $this->userid,
-            'pageidentifier' => $this->pageidentifier ?? '',
-            'strings' => [
-                'loading' => get_string('loading', 'local_educambot'),
-                'noanswer' => get_string('noanswer', 'local_educambot'),
-                'suggestedquestions' => get_string('suggestedquestions', 'local_educambot'),
-                'confidence' => get_string('confidence', 'local_educambot'),
-            ],
-            'theme' => [
-                'primary' => $primary,
-                'accent' => $accent,
-                'background' => $background,
-                'text' => $textcolor,
-            ],
-            'tagline' => $tagline,
-            'widgetconfig' => $configpayload,
+            'botname' => $botname,
+            'widgetlabel' => $widgetlabel,
+            'primarycolor' => $primarycolor,
+            'greetingmessage' => $greetingmessage,
+            'serviceurl' => $CFG->wwwroot . '/local/educambot/service.php',
+            'sesskey' => sesskey(),
         ];
+    }
+
+    /**
+     * Interpolate message with user variables.
+     *
+     * @param string $message Message template
+     * @param object $user User object
+     * @param string $botname Bot name
+     * @return string Interpolated message
+     */
+    private function interpolate_message($message, $user, $botname) {
+        $replacements = [
+            '{{userfirstname}}' => $user->firstname ?? '',
+            '{{userlastname}}' => $user->lastname ?? '',
+            '{{botname}}' => $botname,
+        ];
+
+        return str_replace(array_keys($replacements), array_values($replacements), $message);
     }
 }

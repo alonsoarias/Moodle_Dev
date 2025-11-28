@@ -14,9 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Hook callbacks configuration.
+ *
+ * @package     local_educambot
+ * @copyright   2025 EducamBot Team
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
-return [
+$callbacks = [
     [
         'hook' => \core\hook\output\before_footer_html_generation::class,
         'callback' => \local_educambot\hook_callbacks::class . '::before_footer_html_generation',

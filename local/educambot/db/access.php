@@ -15,16 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions for local_educambot.
+ * Plugin capabilities are defined here.
  *
  * @package     local_educambot
- * @copyright   2024 Educam
+ * @copyright   2025 EducamBot Team
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
+
+    // Capability to use the bot.
     'local/educambot:use' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -33,6 +35,8 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+
+    // Capability to manage rules.
     'local/educambot:manage' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -40,4 +44,5 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+
 ];

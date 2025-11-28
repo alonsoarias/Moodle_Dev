@@ -17,46 +17,90 @@
 {{!
     @template local_educambot/widget
 
-    Educam Bot Widget Template
-}}
-<div id="educambot-chat" data-service-url="{{serviceurl}}" data-sessionkey="{{sessionkey}}" data-page="{{pageidentifier}}" data-noanswer="{{strings.noanswer}}" data-confidence-label="{{strings.confidence}}" data-loading="{{strings.loading}}" style="display:none;">
-    <script type="application/json" id="educambot_initial_message">{{{widgetconfig}}}</script>
+    Nexo Bot chat widget template.
 
+    Context variables required for this template:
+    * botname - The name of the bot
+    * widgetlabel - The label for the widget button
+    * primarycolor - Primary color for the widget
+    * serviceurl - URL to the AJAX service
+    * sesskey - Session key for AJAX requests
+    * greetingmessage - Initial greeting message
+}}
+<div id="educambot-chat" style="display:none"
+     data-serviceurl="{{serviceurl}}"
+     data-sesskey="{{sesskey}}"
+     data-botname="{{botname}}">
+
+    <!-- Chat popup panel -->
     <div class="educambot-popup">
-        <div id="educambot-scrollarea">
-            <div class="educambot-header">
-                <div class="educambot-info">
-                    <div class="educambot-infoname">
-                        <span class="educambot-name">{{chatheader}}</span>
-                        {{#tagline}}
-                        <span class="educambot-status">{{tagline}}</span>
-                        {{/tagline}}
-                    </div>
-                </div>
-                <div class="right-icons">
-                    <a id="educambot-icon-close" title="{{#str}}cancel, local_educambot{{/str}}" href="#">
-                        &times;
-                    </a>
+        <!-- Header -->
+        <div class="educambot-header" style="background-color: {{primarycolor}};">
+            <div class="educambot-info">
+                <span class="educambot-avatar">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                </span>
+                <div class="educambot-namearea">
+                    <span class="educambot-name">{{botname}}</span>
+                    <span class="educambot-status">{{#str}}online, local_educambot{{/str}}</span>
                 </div>
             </div>
-            <div id="educambot-area-messages"></div>
-        </div>
-        <div id="educambot-sendarea">
-            <textarea id="educambot-textarea" placeholder="{{placeholder}}" autocomplete="off"></textarea>
-            <div id="educambot-icon-send" title="{{#str}}send, local_educambot{{/str}}">
-                ➤
+            <div class="educambot-actions">
+                <a href="#" id="educambot-clear" class="educambot-action-btn" title="{{#str}}clearhistory, local_educambot{{/str}}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                </a>
+                <a href="#" id="educambot-close" class="educambot-action-btn" title="{{#str}}close, core{{/str}}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </a>
             </div>
         </div>
-        <div id="educambot-status"></div>
+
+        <!-- Messages area -->
+        <div class="educambot-messages" id="educambot-messages">
+            <!-- Initial greeting -->
+            <div class="educambot-message educambot-bot">
+                <div class="educambot-message-content">
+                    {{{greetingmessage}}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="educambot-sendarea">
+            <textarea id="educambot-textarea"
+                      placeholder="{{#str}}typeaquestion, local_educambot{{/str}}"
+                      rows="1"></textarea>
+            <div id="educambot-send" class="educambot-send-btn" style="background-color: {{primarycolor}};" title="{{#str}}send, core{{/str}}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div class="educambot-loading" id="educambot-loading" style="display:none">
+            <div class="educambot-spinner"></div>
+        </div>
     </div>
 
-    <div id="educambot-chat-btn">
-        <div class="balloon">{{widgettitle}}</div>
-        <span class="educambot-icon educambot-open-icon">
-            💬
+    <!-- Floating button -->
+    <div id="educambot-btn" style="background-color: {{primarycolor}};">
+        <span class="educambot-open-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+            </svg>
         </span>
-        <span class="educambot-icon educambot-close-icon">
-            ✕
+        <span class="educambot-close-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
         </span>
     </div>
 </div>
