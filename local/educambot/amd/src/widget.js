@@ -31,9 +31,11 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         suggestionTimer: null,
         lastUserQuestion: '',
 
-        // Conversation persistence (v1.8.2).
-        storageKey: 'educambot-conversation',
-        maxStoredMessages: 50,
+        // Conversation persistence (v1.8.3).
+        storageKeyPrefix: 'educambot-conversation-',
+        storageKey: null, // Will be set with course ID
+        maxStoredMessages: 100,
+        courseid: null,
 
         /**
          * Initialize the widget.
@@ -73,12 +75,24 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             var courseid = educambotchat.data('courseid') || 1;
             var startupOptionsLoaded = false;
 
+            // Initialize conversation persistence with course-specific key (v1.8.3).
+            self.courseid = courseid;
+            self.storageKey = self.storageKeyPrefix + courseid;
+
             // Initialize mascot (v1.8.1).
             self.mascot = $('#educambot-mascot');
             self.tooltip = $('#educambot-mascot-tooltip');
 
-            // Track if conversation was restored (v1.8.2).
+            // Track if conversation was restored (v1.8.3).
             var conversationRestored = false;
+
+            // Listen for storage events to sync across tabs (v1.8.3).
+            $(window).on('storage', function(e) {
+                if (e.originalEvent.key === self.storageKey) {
+                    // Another tab updated the conversation, reload messages.
+                    self.reloadMessages(messages);
+                }
+            });
 
             // Toggle chat open/close.
             btn.on('click', function() {
@@ -307,9 +321,13 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 var isError = sender.indexOf('error') !== -1;
                 var senderClass = sender.replace(' error', '');
 
+                // Generate unique message ID (v1.8.3).
+                var msgId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
                 var messageDiv = $('<div>')
                     .addClass('educambot-message')
-                    .addClass('educambot-' + senderClass);
+                    .addClass('educambot-' + senderClass)
+                    .attr('data-msg-id', msgId);
 
                 if (isError) {
                     messageDiv.addClass('educambot-error');
@@ -354,8 +372,8 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 // Scroll to bottom.
                 messages.scrollTop(messages[0].scrollHeight);
 
-                // Save message to localStorage for persistence (v1.8.2).
-                self.saveMessage(text, sender, confidence);
+                // Save message to localStorage for persistence (v1.8.3).
+                self.saveMessageWithId(msgId, text, sender, confidence);
             }
         },
 
@@ -638,28 +656,37 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         },
 
         // ==============================================
-        // Conversation Persistence Methods (v1.8.2)
+        // Conversation Persistence Methods (v1.8.3)
         // ==============================================
 
         /**
-         * Save a message to localStorage.
+         * Save a message to localStorage with pre-generated ID.
          *
+         * @param {string} msgId - Unique message ID
          * @param {string} text - Message text
          * @param {string} sender - 'user' or 'bot'
          * @param {number} confidence - Confidence score (optional)
          */
-        saveMessage: function(text, sender, confidence) {
+        saveMessageWithId: function(msgId, text, sender, confidence) {
             var self = this;
+
+            if (!self.storageKey) {
+                return;
+            }
 
             try {
                 var messages = self.loadMessages();
 
-                messages.push({
+                // Create message object with provided ID.
+                var messageObj = {
+                    id: msgId,
                     text: text,
                     sender: sender,
                     confidence: confidence || null,
                     timestamp: Date.now()
-                });
+                };
+
+                messages.push(messageObj);
 
                 // Limit stored messages.
                 if (messages.length > self.maxStoredMessages) {
@@ -681,10 +708,18 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         loadMessages: function() {
             var self = this;
 
+            if (!self.storageKey) {
+                return [];
+            }
+
             try {
                 var stored = localStorage.getItem(self.storageKey);
                 if (stored) {
-                    return JSON.parse(stored);
+                    var messages = JSON.parse(stored);
+                    // Validate array.
+                    if (Array.isArray(messages)) {
+                        return messages;
+                    }
                 }
             } catch (e) {
                 console.warn('Educambot: Could not load messages from localStorage', e);
@@ -694,7 +729,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         },
 
         /**
-         * Restore saved messages to the chat.
+         * Restore saved messages to the chat (initial load).
          *
          * @param {jQuery} messagesContainer - The messages container element
          */
@@ -706,34 +741,14 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 return;
             }
 
+            // Mark restored messages with data attribute to avoid duplicates.
             messages.forEach(function(msg) {
-                var isError = msg.sender.indexOf('error') !== -1;
-                var senderClass = msg.sender.replace(' error', '');
-
-                var messageDiv = $('<div>')
-                    .addClass('educambot-message')
-                    .addClass('educambot-' + senderClass);
-
-                if (isError) {
-                    messageDiv.addClass('educambot-error');
+                // Check if message already exists in DOM.
+                if (messagesContainer.find('[data-msg-id="' + msg.id + '"]').length > 0) {
+                    return; // Skip duplicate.
                 }
 
-                var contentDiv = $('<div>')
-                    .addClass('educambot-message-content')
-                    .html(msg.text);
-
-                messageDiv.append(contentDiv);
-
-                // Add confidence indicator for bot messages.
-                if (senderClass === 'bot' && !isError && msg.confidence && msg.confidence > 0) {
-                    var confidencePercent = Math.round(msg.confidence * 100);
-                    var confidenceDiv = $('<div>')
-                        .addClass('educambot-confidence')
-                        .text(confidencePercent + '%');
-                    messageDiv.append(confidenceDiv);
-                }
-
-                messagesContainer.append(messageDiv);
+                self.renderMessage(messagesContainer, msg);
             });
 
             // Scroll to bottom.
@@ -741,10 +756,75 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         },
 
         /**
-         * Clear all saved messages.
+         * Reload messages when another tab updates (sync).
+         *
+         * @param {jQuery} messagesContainer - The messages container element
+         */
+        reloadMessages: function(messagesContainer) {
+            var self = this;
+            var storedMessages = self.loadMessages();
+
+            if (storedMessages.length === 0) {
+                return;
+            }
+
+            // Only add new messages that aren't already in DOM.
+            storedMessages.forEach(function(msg) {
+                if (messagesContainer.find('[data-msg-id="' + msg.id + '"]').length === 0) {
+                    self.renderMessage(messagesContainer, msg);
+                }
+            });
+
+            // Scroll to bottom.
+            messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+        },
+
+        /**
+         * Render a single message to the container.
+         *
+         * @param {jQuery} container - The messages container
+         * @param {object} msg - Message object with id, text, sender, confidence
+         */
+        renderMessage: function(container, msg) {
+            var isError = msg.sender.indexOf('error') !== -1;
+            var senderClass = msg.sender.replace(' error', '');
+
+            var messageDiv = $('<div>')
+                .addClass('educambot-message')
+                .addClass('educambot-' + senderClass)
+                .attr('data-msg-id', msg.id);
+
+            if (isError) {
+                messageDiv.addClass('educambot-error');
+            }
+
+            var contentDiv = $('<div>')
+                .addClass('educambot-message-content')
+                .html(msg.text);
+
+            messageDiv.append(contentDiv);
+
+            // Add confidence indicator for bot messages.
+            if (senderClass === 'bot' && !isError && msg.confidence && msg.confidence > 0) {
+                var confidencePercent = Math.round(msg.confidence * 100);
+                var confidenceDiv = $('<div>')
+                    .addClass('educambot-confidence')
+                    .text(confidencePercent + '%');
+                messageDiv.append(confidenceDiv);
+            }
+
+            container.append(messageDiv);
+        },
+
+        /**
+         * Clear all saved messages for current course.
          */
         clearSavedMessages: function() {
             var self = this;
+
+            if (!self.storageKey) {
+                return;
+            }
 
             try {
                 localStorage.removeItem(self.storageKey);
