@@ -688,5 +688,153 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025112007, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025112008) {
+        // Version 1.7.0: Moodle Context Integration + Shortcuts.
+        $now = time();
+
+        // Add new fields to local_educambot_rule table.
+        $table = new xmldb_table('local_educambot_rule');
+
+        // Add contextaware field.
+        $field = new xmldb_field('contextaware', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'showoptions');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add dynamicresponse field.
+        $field = new xmldb_field('dynamicresponse', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'contextaware');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add requiredcontext field.
+        $field = new xmldb_field('requiredcontext', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'dynamicresponse');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add contextaware index.
+        $index = new xmldb_index('contextaware_idx', XMLDB_INDEX_NOTUNIQUE, ['contextaware']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define table local_educambot_shortcut to be created.
+        $table = new xmldb_table('local_educambot_shortcut');
+
+        // Adding fields to table local_educambot_shortcut.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('keywords', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('actiontype', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('icon', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table local_educambot_shortcut.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table local_educambot_shortcut.
+        $table->add_index('actiontype_idx', XMLDB_INDEX_NOTUNIQUE, ['actiontype']);
+        $table->add_index('enabled_idx', XMLDB_INDEX_NOTUNIQUE, ['enabled']);
+        $table->add_index('sortorder_idx', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
+
+        // Conditionally launch create table for local_educambot_shortcut.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Insert initial shortcuts.
+        $shortcuts = [
+            [
+                'name' => 'Ver mis tareas',
+                'keywords' => "ver mis tareas\nver tareas\ntareas pendientes\nque tareas tengo\nmostrar tareas",
+                'actiontype' => 'assignments',
+                'description' => 'Muestra lista de tareas pendientes del curso actual',
+                'icon' => '📝',
+                'sortorder' => 1,
+                'enabled' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Ver mis calificaciones',
+                'keywords' => "ver calificaciones\nver notas\nmis notas\nmi calificacion\ncomo voy\nmi promedio",
+                'actiontype' => 'grades',
+                'description' => 'Muestra resumen de calificaciones del curso',
+                'icon' => '📊',
+                'sortorder' => 2,
+                'enabled' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Proximos eventos',
+                'keywords' => "proximos eventos\neventos\ncalendario\nque hay esta semana\neventos pendientes\nfechas importantes",
+                'actiontype' => 'calendar',
+                'description' => 'Muestra eventos del calendario proximos 7 dias',
+                'icon' => '📅',
+                'sortorder' => 3,
+                'enabled' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Mis mensajes',
+                'keywords' => "mis mensajes\nver mensajes\nmensajes nuevos\nmensajes no leidos",
+                'actiontype' => 'messages',
+                'description' => 'Muestra mensajes recientes y no leidos',
+                'icon' => '✉️',
+                'sortorder' => 4,
+                'enabled' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Mis profesores',
+                'keywords' => "mis profesores\nquienes son mis profesores\nprofesores del curso\ncontactar profesor\ndocentes",
+                'actiontype' => 'teachers',
+                'description' => 'Muestra los profesores del curso actual',
+                'icon' => '👨‍🏫',
+                'sortorder' => 5,
+                'enabled' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Info del curso',
+                'keywords' => "info del curso\ninformacion del curso\ndatos del curso\nsobre este curso",
+                'actiontype' => 'course',
+                'description' => 'Muestra informacion del curso actual',
+                'icon' => '📚',
+                'sortorder' => 6,
+                'enabled' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+            [
+                'name' => 'Mi progreso',
+                'keywords' => "mi progreso\ncomo voy\navance del curso\nprogreso actual",
+                'actiontype' => 'progress',
+                'description' => 'Muestra el progreso en el curso actual',
+                'icon' => '📈',
+                'sortorder' => 7,
+                'enabled' => 1,
+                'timecreated' => $now,
+                'timemodified' => $now,
+            ],
+        ];
+
+        foreach ($shortcuts as $shortcut) {
+            $DB->insert_record('local_educambot_shortcut', (object)$shortcut);
+        }
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025112008, 'local', 'educambot');
+    }
+
     return true;
 }

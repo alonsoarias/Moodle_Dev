@@ -57,6 +57,7 @@ define(['jquery'], function($) {
             var serviceUrl = educambotchat.data('serviceurl');
             var startupUrl = educambotchat.data('startupurl');
             var sesskey = educambotchat.data('sesskey');
+            var courseid = educambotchat.data('courseid') || 1;
             var startupOptionsLoaded = false;
 
             // Toggle chat open/close.
@@ -186,7 +187,8 @@ define(['jquery'], function($) {
                     type: 'POST',
                     data: {
                         sesskey: sesskey,
-                        question: question
+                        question: question,
+                        courseid: courseid
                     },
                     dataType: 'json',
                     success: function(data) {
@@ -210,13 +212,18 @@ define(['jquery'], function($) {
             /**
              * Handle option button click.
              *
-             * @param {object} option - Option object with targetpattern
+             * @param {object} option - Option object with targetpattern or action
              */
             function handleOptionClick(option) {
                 // Disable all option buttons in the chat.
                 messages.find('.educambot-option-btn').prop('disabled', true).addClass('disabled');
 
-                if (option.targetpattern) {
+                // Handle shortcut options (have 'action' property).
+                if (option.action) {
+                    textarea.val(option.action);
+                    sendMessage();
+                } else if (option.targetpattern) {
+                    // Handle regular rule options.
                     textarea.val(option.targetpattern);
                     sendMessage();
                 }

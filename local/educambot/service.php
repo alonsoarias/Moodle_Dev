@@ -26,6 +26,10 @@ define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
 
+use local_educambot\bot\context_handler;
+use local_educambot\bot\shortcut_handler;
+use local_educambot\bot\response_builder;
+
 // Require login and valid session.
 require_login();
 require_sesskey();
@@ -35,6 +39,7 @@ require_capability('local/educambot:use', $context);
 
 // Get parameters.
 $question = required_param('question', PARAM_TEXT);
+$courseid = optional_param('courseid', SITEID, PARAM_INT);
 
 // Validate question length.
 if (empty(trim($question)) || strlen($question) > 1000) {
@@ -45,58 +50,119 @@ if (empty(trim($question)) || strlen($question) > 1000) {
     exit;
 }
 
-// Create engine instance and get response.
-$engine = new \local_educambot\bot\engine();
-$result = $engine->respond($question);
+// Initialize context handler with course context.
+$contexthandler = new context_handler($courseid, $USER->id);
 
-// Prepare response.
-if ($result['response'] !== null) {
+// Initialize shortcut handler.
+$shortcuthandler = new shortcut_handler($contexthandler);
+
+// First, check if this is a shortcut command.
+$shortcutresult = $shortcuthandler->process_shortcut($question);
+
+if ($shortcutresult !== null) {
+    // This is a shortcut response.
     $response = [
         'success' => true,
-        'response' => $result['response'],
-        'ruleid' => $result['ruleid'],
-        'confidence' => $result['confidence'],
-        'options' => [],
+        'response' => $shortcutresult['response'],
+        'ruleid' => null,
+        'confidence' => 1.0,
+        'options' => $shortcutresult['options'] ?? [],
+        'type' => 'shortcut',
     ];
     $matched = 1;
-    $responsetext = $result['response'];
+    $responsetext = $shortcutresult['response'];
+    $ruleid = null;
+    $confidence = 1.0;
+} else {
+    // Regular engine processing.
+    $engine = new \local_educambot\bot\engine();
+    $result = $engine->respond($question);
 
-    // Get options for this rule if showoptions is enabled.
-    $showoptions = $DB->get_field('local_educambot_rule', 'showoptions', ['id' => $result['ruleid']]);
-    if ($showoptions) {
-        $options = $DB->get_records('local_educambot_option',
-            ['ruleid' => $result['ruleid'], 'enabled' => 1],
-            'sortorder ASC',
-            'id, text, targetruleid, icon');
-        if ($options) {
-            // Get target rule patterns for each option.
-            foreach ($options as $option) {
-                if ($option->targetruleid) {
-                    $option->targetpattern = $DB->get_field('local_educambot_rule', 'pattern', ['id' => $option->targetruleid]);
+    // Prepare response.
+    if ($result['response'] !== null) {
+        $responsetext = $result['response'];
+        $ruleid = $result['ruleid'];
+        $confidence = $result['confidence'];
+
+        // Check if rule is context-aware and has dynamic response.
+        if ($ruleid) {
+            $rule = $DB->get_record('local_educambot_rule', ['id' => $ruleid]);
+
+            if ($rule && $rule->dynamicresponse) {
+                // Build dynamic response with placeholders.
+                $builder = new response_builder($contexthandler);
+                $responsetext = $builder->build_response($responsetext);
+            }
+
+            // Check if context is required and available.
+            if ($rule && $rule->requiredcontext) {
+                $currentcontext = $contexthandler->get_context_type();
+                if ($rule->requiredcontext === 'course' && !$contexthandler->is_in_course()) {
+                    // Context required but not available - show alternative message.
+                    $responsetext = get_string('requirescoursecontext', 'local_educambot');
                 }
             }
-            $response['options'] = array_values($options);
         }
+
+        $response = [
+            'success' => true,
+            'response' => $responsetext,
+            'ruleid' => $ruleid,
+            'confidence' => $confidence,
+            'options' => [],
+            'type' => 'rule',
+        ];
+        $matched = 1;
+
+        // Get options for this rule if showoptions is enabled.
+        if ($ruleid) {
+            $showoptions = $DB->get_field('local_educambot_rule', 'showoptions', ['id' => $ruleid]);
+            if ($showoptions) {
+                $options = $DB->get_records('local_educambot_option',
+                    ['ruleid' => $ruleid, 'enabled' => 1],
+                    'sortorder ASC',
+                    'id, text, targetruleid, icon');
+                if ($options) {
+                    // Get target rule patterns for each option.
+                    foreach ($options as $option) {
+                        if ($option->targetruleid) {
+                            $option->targetpattern = $DB->get_field('local_educambot_rule', 'pattern', ['id' => $option->targetruleid]);
+                        }
+                    }
+                    $response['options'] = array_values($options);
+                }
+            }
+        }
+    } else {
+        $response = [
+            'success' => true,
+            'response' => get_string('noresponse', 'local_educambot'),
+            'ruleid' => null,
+            'confidence' => 0,
+            'options' => [],
+            'type' => 'nomatch',
+        ];
+        $matched = 0;
+        $responsetext = get_string('noresponse', 'local_educambot');
+        $ruleid = null;
+        $confidence = 0;
     }
-} else {
-    $response = [
-        'success' => true,
-        'response' => get_string('noresponse', 'local_educambot'),
-        'ruleid' => null,
-        'confidence' => 0,
-        'options' => [],
-    ];
-    $matched = 0;
-    $responsetext = get_string('noresponse', 'local_educambot');
 }
+
+// Add context info to response.
+$response['context'] = [
+    'type' => $contexthandler->get_context_type(),
+    'courseid' => $contexthandler->get_course_id(),
+    'incourse' => $contexthandler->is_in_course(),
+];
 
 // Log the conversation.
 $log = new stdClass();
 $log->userid = $USER->id;
 $log->question = $question;
 $log->response = $responsetext;
-$log->ruleid = $result['ruleid'];
-$log->confidence = $result['confidence'];
+$log->ruleid = $ruleid ?? null;
+$log->confidence = $confidence ?? 0;
 $log->matched = $matched;
 $log->timecreated = time();
 $DB->insert_record('local_educambot_log', $log);

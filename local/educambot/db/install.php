@@ -851,5 +851,93 @@ function xmldb_local_educambot_install() {
         $DB->insert_record('local_educambot_option', (object)$option);
     }
 
+    // =============================================
+    // SHORTCUTS - Quick access to Moodle features (v1.7.0)
+    // =============================================
+    $shortcuts = [
+        [
+            'name' => 'Ver mis tareas',
+            'keywords' => "ver mis tareas\nver tareas\ntareas pendientes\nque tareas tengo\nmostrar tareas",
+            'actiontype' => 'assignments',
+            'description' => 'Muestra lista de tareas pendientes del curso actual',
+            'icon' => '📝',
+            'sortorder' => 1,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Ver mis calificaciones',
+            'keywords' => "ver calificaciones\nver notas\nmis notas\nmi calificacion\ncomo voy\nmi promedio",
+            'actiontype' => 'grades',
+            'description' => 'Muestra resumen de calificaciones del curso',
+            'icon' => '📊',
+            'sortorder' => 2,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Proximos eventos',
+            'keywords' => "proximos eventos\neventos\ncalendario\nque hay esta semana\neventos pendientes\nfechas importantes",
+            'actiontype' => 'calendar',
+            'description' => 'Muestra eventos del calendario proximos 7 dias',
+            'icon' => '📅',
+            'sortorder' => 3,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Mis mensajes',
+            'keywords' => "mis mensajes\nver mensajes\nmensajes nuevos\nmensajes no leidos",
+            'actiontype' => 'messages',
+            'description' => 'Muestra mensajes recientes y no leidos',
+            'icon' => '✉️',
+            'sortorder' => 4,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Mis profesores',
+            'keywords' => "mis profesores\nquienes son mis profesores\nprofesores del curso\ncontactar profesor\ndocentes",
+            'actiontype' => 'teachers',
+            'description' => 'Muestra los profesores del curso actual',
+            'icon' => '👨‍🏫',
+            'sortorder' => 5,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Info del curso',
+            'keywords' => "info del curso\ninformacion del curso\ndatos del curso\nsobre este curso",
+            'actiontype' => 'course',
+            'description' => 'Muestra informacion del curso actual',
+            'icon' => '📚',
+            'sortorder' => 6,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        [
+            'name' => 'Mi progreso',
+            'keywords' => "mi progreso\ncomo voy\navance del curso\nprogreso actual",
+            'actiontype' => 'progress',
+            'description' => 'Muestra el progreso en el curso actual',
+            'icon' => '📈',
+            'sortorder' => 7,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+    ];
+
+    // Insert all shortcuts.
+    foreach ($shortcuts as $shortcut) {
+        $DB->insert_record('local_educambot_shortcut', (object)$shortcut);
+    }
+
     return true;
 }

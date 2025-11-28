@@ -216,3 +216,97 @@ $string['suggestedquestions'] = 'Frequently asked questions';
 $string['selectanoption'] = 'Select an option or type your question';
 $string['anotherquestion'] = 'Another question';
 $string['resourcescategory'] = 'Resources and Materials';
+
+// Version 1.7.0 - Moodle Context and Shortcuts.
+// Shortcuts.
+$string['shortcuts'] = 'Shortcuts';
+$string['manageshortcuts'] = 'Manage Shortcuts';
+$string['addshortcut'] = 'Add Shortcut';
+$string['editshortcut'] = 'Edit Shortcut';
+$string['deleteshortcut'] = 'Delete Shortcut';
+$string['noshortcuts'] = 'No shortcuts defined yet';
+$string['shortcutname'] = 'Shortcut Name';
+$string['shortcutname_help'] = 'Descriptive name for the shortcut';
+$string['shortcutkeywords'] = 'Keywords';
+$string['shortcutkeywords_help'] = 'Words or phrases that trigger this shortcut (one per line)';
+$string['actiontype'] = 'Action Type';
+$string['actiontype_help'] = 'The type of Moodle data this shortcut will display';
+$string['shortcutcreated'] = 'Shortcut created successfully';
+$string['shortcutupdated'] = 'Shortcut updated successfully';
+$string['shortcutdeleted'] = 'Shortcut deleted successfully';
+$string['shortcutshelp'] = 'Shortcuts Help';
+$string['shortcutshelp_desc'] = 'Shortcuts allow users to get Moodle information directly. When a user types a phrase matching the keywords, the bot will show dynamic system data.';
+$string['availableactiontypes'] = 'Available action types';
+$string['nametoolong'] = 'Name is too long (max 100 characters)';
+$string['keywordsrequired'] = 'Keywords are required';
+$string['sortorder'] = 'Sort Order';
+$string['unknownshortcut'] = 'Unknown shortcut';
+
+// Action types.
+$string['actiontype_assignments'] = 'Pending course assignments';
+$string['actiontype_grades'] = 'Course grades';
+$string['actiontype_calendar'] = 'Upcoming calendar events';
+$string['actiontype_messages'] = 'Recent messages';
+$string['actiontype_teachers'] = 'Course teachers';
+$string['actiontype_course'] = 'Course information';
+$string['actiontype_progress'] = 'Course progress';
+
+// Shortcut responses.
+$string['shortcut_nocourse'] = 'This feature is only available within a course. Please navigate to a course first.';
+$string['shortcut_noassignments'] = 'You have no pending assignments in this course! Great work!';
+$string['shortcut_nogrades'] = 'No grades available yet in this course.';
+$string['shortcut_noevents'] = 'No events scheduled for the next 7 days.';
+$string['shortcut_noteachers'] = 'No teachers assigned to this course.';
+$string['shortcut_assignmentsheader'] = 'Your pending assignments:';
+$string['shortcut_gradesheader'] = 'Your grades in {$a}:';
+$string['shortcut_eventsheader'] = 'Upcoming events (7 days):';
+$string['shortcut_messagesheader'] = 'Your messages:';
+$string['shortcut_teachersheader'] = 'Teachers of {$a}:';
+$string['shortcut_progressheader'] = 'Your progress in {$a}:';
+
+// Context and placeholders.
+$string['contextaware'] = 'Context Aware';
+$string['contextaware_help'] = 'This rule uses information from the current course or page';
+$string['dynamicresponse'] = 'Dynamic Response';
+$string['dynamicresponse_help'] = 'Response contains placeholders that will be replaced with real data';
+$string['requiredcontext'] = 'Required Context';
+$string['requiredcontext_help'] = 'Required context: site, course, or activity';
+$string['placeholders'] = 'Available Placeholders';
+$string['placeholders_help'] = 'Use these placeholders in dynamic responses to show information from the current context';
+$string['requirescoursecontext'] = 'This information is only available within a course. Please navigate to a course first.';
+
+// Placeholder labels.
+$string['notavailable'] = 'N/A';
+$string['theteacher'] = 'the teacher';
+$string['noteachersassigned'] = 'No teachers assigned';
+$string['noenddate'] = 'No end date';
+$string['notgraded'] = 'Not graded';
+$string['noduedate'] = 'No due date';
+$string['nopendingassignments'] = 'No pending assignments';
+$string['nopendingquizzes'] = 'No pending quizzes';
+$string['andmore'] = '... and {$a} more';
+$string['noupcomingevents'] = 'No upcoming events';
+$string['noeventthisweek'] = 'No events this week';
+
+// Grade and progress.
+$string['overallgrade'] = 'Overall grade';
+$string['notgradedyet'] = 'Not graded yet';
+$string['recentgrades'] = 'Recent grades';
+$string['viewallgrades'] = 'View all grades';
+$string['currentgrade'] = 'Current grade';
+$string['pendingtasks'] = 'Pending tasks';
+$string['completion'] = 'Completion';
+$string['teacher'] = 'Teacher';
+
+// Messages.
+$string['unreadmessages'] = 'You have {$a} unread message(s)';
+$string['nounreadmessages'] = 'You have no unread messages';
+$string['recentmessages'] = 'Recent messages';
+$string['viewallmessages'] = 'View all messages';
+$string['sendmessage'] = 'Send message';
+
+// Calendar.
+$string['viewcalendar'] = 'View full calendar';
+$string['duedate'] = 'Due';
+$string['overdue'] = 'Overdue';
+$string['duein'] = 'Due in {$a}';

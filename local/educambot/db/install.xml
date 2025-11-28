@@ -33,6 +33,9 @@
         <FIELD NAME="tags" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated tags for searching"/>
         <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Is this rule enabled (0/1)"/>
         <FIELD NAME="showoptions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Show quick reply options after this response"/>
+        <FIELD NAME="contextaware" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=use context data in response"/>
+        <FIELD NAME="dynamicresponse" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=response has placeholders"/>
+        <FIELD NAME="requiredcontext" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Required context: site, course, activity"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
@@ -42,6 +45,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
+        <INDEX NAME="contextaware_idx" UNIQUE="false" FIELDS="contextaware"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_educambot_log" COMMENT="Log of bot conversations">
@@ -81,6 +85,28 @@
         <KEY NAME="targetruleid_fk" TYPE="foreign" FIELDS="targetruleid" REFTABLE="local_educambot_rule" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
+        <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_educambot_shortcut" COMMENT="Quick shortcuts to Moodle resources">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Shortcut name"/>
+        <FIELD NAME="keywords" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Keywords to trigger shortcut (one per line)"/>
+        <FIELD NAME="actiontype" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Action type: assignments, grades, calendar, messages, course"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Description of what this shortcut does"/>
+        <FIELD NAME="icon" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Emoji or icon for the shortcut"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="actiontype_idx" UNIQUE="false" FIELDS="actiontype"/>
+        <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
         <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
       </INDEXES>
     </TABLE>

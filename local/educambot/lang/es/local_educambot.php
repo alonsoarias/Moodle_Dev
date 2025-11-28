@@ -216,3 +216,97 @@ $string['suggestedquestions'] = 'Preguntas frecuentes';
 $string['selectanoption'] = 'Selecciona una opcion o escribe tu pregunta';
 $string['anotherquestion'] = 'Otra pregunta';
 $string['resourcescategory'] = 'Recursos y Materiales';
+
+// Version 1.7.0 - Contexto Moodle y Shortcuts.
+// Shortcuts.
+$string['shortcuts'] = 'Accesos Rapidos';
+$string['manageshortcuts'] = 'Gestionar Accesos Rapidos';
+$string['addshortcut'] = 'Agregar Acceso Rapido';
+$string['editshortcut'] = 'Editar Acceso Rapido';
+$string['deleteshortcut'] = 'Eliminar Acceso Rapido';
+$string['noshortcuts'] = 'No hay accesos rapidos definidos aun';
+$string['shortcutname'] = 'Nombre del Acceso';
+$string['shortcutname_help'] = 'Nombre descriptivo del acceso rapido';
+$string['shortcutkeywords'] = 'Palabras Clave';
+$string['shortcutkeywords_help'] = 'Palabras o frases que activan este acceso (una por linea)';
+$string['actiontype'] = 'Tipo de Accion';
+$string['actiontype_help'] = 'El tipo de datos de Moodle que mostrara este acceso';
+$string['shortcutcreated'] = 'Acceso rapido creado exitosamente';
+$string['shortcutupdated'] = 'Acceso rapido actualizado exitosamente';
+$string['shortcutdeleted'] = 'Acceso rapido eliminado exitosamente';
+$string['shortcutshelp'] = 'Ayuda de Accesos Rapidos';
+$string['shortcutshelp_desc'] = 'Los accesos rapidos permiten a los usuarios obtener informacion de Moodle directamente. Cuando un usuario escribe una frase que coincide con las palabras clave, el bot mostrara datos dinamicos del sistema.';
+$string['availableactiontypes'] = 'Tipos de accion disponibles';
+$string['nametoolong'] = 'El nombre es demasiado largo (maximo 100 caracteres)';
+$string['keywordsrequired'] = 'Las palabras clave son requeridas';
+$string['sortorder'] = 'Orden';
+$string['unknownshortcut'] = 'Acceso rapido desconocido';
+
+// Action types.
+$string['actiontype_assignments'] = 'Tareas pendientes del curso';
+$string['actiontype_grades'] = 'Calificaciones del curso';
+$string['actiontype_calendar'] = 'Proximos eventos del calendario';
+$string['actiontype_messages'] = 'Mensajes recientes';
+$string['actiontype_teachers'] = 'Profesores del curso';
+$string['actiontype_course'] = 'Informacion del curso';
+$string['actiontype_progress'] = 'Progreso en el curso';
+
+// Shortcut responses.
+$string['shortcut_nocourse'] = 'Esta funcion solo esta disponible dentro de un curso. Por favor, navega a un curso primero.';
+$string['shortcut_noassignments'] = '¡No tienes tareas pendientes en este curso! ¡Buen trabajo!';
+$string['shortcut_nogrades'] = 'Aun no hay calificaciones disponibles en este curso.';
+$string['shortcut_noevents'] = 'No hay eventos programados para los proximos 7 dias.';
+$string['shortcut_noteachers'] = 'No hay profesores asignados a este curso.';
+$string['shortcut_assignmentsheader'] = 'Tus tareas pendientes:';
+$string['shortcut_gradesheader'] = 'Tus calificaciones en {$a}:';
+$string['shortcut_eventsheader'] = 'Proximos eventos (7 dias):';
+$string['shortcut_messagesheader'] = 'Tus mensajes:';
+$string['shortcut_teachersheader'] = 'Profesores de {$a}:';
+$string['shortcut_progressheader'] = 'Tu progreso en {$a}:';
+
+// Context and placeholders.
+$string['contextaware'] = 'Sensible al contexto';
+$string['contextaware_help'] = 'Esta regla usa informacion del curso o pagina actual';
+$string['dynamicresponse'] = 'Respuesta dinamica';
+$string['dynamicresponse_help'] = 'La respuesta contiene marcadores que seran reemplazados con datos reales';
+$string['requiredcontext'] = 'Contexto requerido';
+$string['requiredcontext_help'] = 'Contexto necesario: site (sitio), course (curso), activity (actividad)';
+$string['placeholders'] = 'Marcadores disponibles';
+$string['placeholders_help'] = 'Usa estos marcadores en las respuestas dinamicas para mostrar informacion del contexto actual';
+$string['requirescoursecontext'] = 'Esta informacion solo esta disponible dentro de un curso. Por favor, navega a un curso primero.';
+
+// Placeholder labels.
+$string['notavailable'] = 'No disponible';
+$string['theteacher'] = 'el profesor';
+$string['noteachersassigned'] = 'Sin profesores asignados';
+$string['noenddate'] = 'Sin fecha de fin';
+$string['notgraded'] = 'Sin calificar';
+$string['noduedate'] = 'Sin fecha limite';
+$string['nopendingassignments'] = 'Sin tareas pendientes';
+$string['nopendingquizzes'] = 'Sin cuestionarios pendientes';
+$string['andmore'] = '... y {$a} mas';
+$string['noupcomingevents'] = 'Sin eventos proximos';
+$string['noeventthisweek'] = 'Sin eventos esta semana';
+
+// Grade and progress.
+$string['overallgrade'] = 'Calificacion general';
+$string['notgradedyet'] = 'Aun no hay calificacion general';
+$string['recentgrades'] = 'Calificaciones recientes';
+$string['viewallgrades'] = 'Ver todas las calificaciones';
+$string['currentgrade'] = 'Calificacion actual';
+$string['pendingtasks'] = 'Tareas pendientes';
+$string['completion'] = 'Completado';
+$string['teacher'] = 'Profesor';
+
+// Messages.
+$string['unreadmessages'] = 'Tienes {$a} mensaje(s) no leido(s)';
+$string['nounreadmessages'] = 'No tienes mensajes no leidos';
+$string['recentmessages'] = 'Mensajes recientes';
+$string['viewallmessages'] = 'Ver todos los mensajes';
+$string['sendmessage'] = 'Enviar mensaje';
+
+// Calendar.
+$string['viewcalendar'] = 'Ver calendario completo';
+$string['duedate'] = 'Vence';
+$string['overdue'] = 'Vencida';
+$string['duein'] = 'Vence en {$a}';

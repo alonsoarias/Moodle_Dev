@@ -42,7 +42,7 @@ class widget implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-        global $CFG, $USER;
+        global $CFG, $USER, $COURSE;
 
         // Get bot configuration.
         $botname = get_config('local_educambot', 'botname') ?: get_string('botname_default', 'local_educambot');
@@ -53,6 +53,9 @@ class widget implements renderable, templatable {
         // Interpolate greeting message.
         $greetingmessage = $this->interpolate_message($greetingtemplate, $USER, $botname);
 
+        // Get current course ID for context.
+        $courseid = isset($COURSE->id) ? $COURSE->id : SITEID;
+
         return [
             'botname' => $botname,
             'widgetlabel' => $widgetlabel,
@@ -61,6 +64,7 @@ class widget implements renderable, templatable {
             'serviceurl' => $CFG->wwwroot . '/local/educambot/service.php',
             'startupurl' => $CFG->wwwroot . '/local/educambot/startup.php',
             'sesskey' => sesskey(),
+            'courseid' => $courseid,
         ];
     }
 

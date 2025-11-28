@@ -132,4 +132,12 @@ if ($hassiteconfig) {
         new moodle_url('/local/educambot/import.php'),
         'local/educambot:manage'
     ));
+
+    // Shortcuts page (v1.7.0).
+    $ADMIN->add('local_educambot', new admin_externalpage(
+        'local_educambot_shortcuts',
+        get_string('shortcuts', 'local_educambot'),
+        new moodle_url('/local/educambot/shortcuts.php'),
+        'local/educambot:manage'
+    ));
 }
