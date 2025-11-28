@@ -31,11 +31,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         suggestionTimer: null,
         lastUserQuestion: '',
 
-        // Conversation persistence (v1.8.3).
-        storageKeyPrefix: 'educambot-conversation-',
-        storageKey: null, // Will be set with course ID
+        // Conversation persistence (v1.8.4) - Global conversation across all contexts.
+        storageKey: 'educambot-conversation',
         maxStoredMessages: 100,
-        courseid: null,
 
         /**
          * Initialize the widget.
@@ -74,10 +72,6 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             var sesskey = educambotchat.data('sesskey');
             var courseid = educambotchat.data('courseid') || 1;
             var startupOptionsLoaded = false;
-
-            // Initialize conversation persistence with course-specific key (v1.8.3).
-            self.courseid = courseid;
-            self.storageKey = self.storageKeyPrefix + courseid;
 
             // Initialize mascot (v1.8.1).
             self.mascot = $('#educambot-mascot');
@@ -670,10 +664,6 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         saveMessageWithId: function(msgId, text, sender, confidence) {
             var self = this;
 
-            if (!self.storageKey) {
-                return;
-            }
-
             try {
                 var messages = self.loadMessages();
 
@@ -707,10 +697,6 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
          */
         loadMessages: function() {
             var self = this;
-
-            if (!self.storageKey) {
-                return [];
-            }
 
             try {
                 var stored = localStorage.getItem(self.storageKey);
@@ -821,10 +807,6 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
          */
         clearSavedMessages: function() {
             var self = this;
-
-            if (!self.storageKey) {
-                return;
-            }
 
             try {
                 localStorage.removeItem(self.storageKey);

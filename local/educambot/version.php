@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025112814;  // YYYYMMDDXX format.
+$plugin->version = 2025112815;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.8.4';  // Improved conversation persistence (cross-page, cross-tab, per-course).
+$plugin->release = '1.8.5';  // Global conversation persistence (cross-page, cross-tab, all contexts).

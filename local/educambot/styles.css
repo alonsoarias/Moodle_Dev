@@ -382,7 +382,7 @@
     display: none;
     position: fixed;
     bottom: 170px; /* Above the input area of popup */
-    right: 310px; /* Left side of popup (popup is 380px wide, right 20px) */
+    right: 390px; /* Left side of popup */
     width: 70px;
     height: 70px;
     z-index: 999999;
