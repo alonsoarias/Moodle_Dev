@@ -132,9 +132,12 @@ switch ($action) {
             }
 
             // Mascot customization (v1.8.1).
-            $record->mascotenabled = $data->mascotenabled ?? 0;
-            $record->mascottype = $data->mascottype ?? 'none';
+            $record->mascotenabled = !empty($data->mascotenabled) ? 1 : 0;
+            $record->mascottype = !empty($data->mascottype) ? $data->mascottype : 'none';
             $record->mascoturl = null;
+
+            // Debug: Log what's being saved.
+            debugging('Saving mascot - enabled: ' . $record->mascotenabled . ', type: ' . $record->mascottype, DEBUG_DEVELOPER);
 
             if (!empty($data->id)) {
                 $record->id = $data->id;
@@ -203,6 +206,10 @@ switch ($action) {
             if ($record->isdefault) {
                 $DB->execute("UPDATE {local_educambot_theme} SET isdefault = 0 WHERE id != ?", [$themeid]);
             }
+
+            // Purge caches to ensure widget shows updated theme immediately (v1.8.5).
+            \cache_helper::purge_by_event('theme_changed');
+            purge_all_caches();
 
             redirect($baseurl);
         }
