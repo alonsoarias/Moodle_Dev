@@ -83,6 +83,7 @@ $string['pattern_header'] = 'Pattern';
 $string['response_header'] = 'Response';
 $string['status_header'] = 'Status';
 $string['actions_header'] = 'Actions';
+$string['question'] = 'Question';
 $string['status_enabled'] = 'Enabled';
 $string['status_disabled'] = 'Disabled';
 

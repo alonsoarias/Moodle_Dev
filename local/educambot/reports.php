@@ -256,7 +256,9 @@ if ($totalrecords == 0) {
     echo $OUTPUT->notification(get_string('nologs', 'local_educambot'), 'info');
 } else {
     // Get records with pagination.
-    $sql = "SELECT l.*, u.firstname, u.lastname, u.email
+    // Include all name fields required by fullname() function in Moodle 4.0+.
+    $sql = "SELECT l.*, u.firstname, u.lastname, u.firstnamephonetic, u.lastnamephonetic,
+                   u.middlename, u.alternatename, u.email
             FROM {local_educambot_log} l
             LEFT JOIN {user} u ON u.id = l.userid
             WHERE $where

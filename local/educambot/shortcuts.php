@@ -266,7 +266,7 @@ switch ($action) {
                 $table->data[] = [
                     $icon,
                     html_writer::tag('strong', $shortcut->name) .
-                        ($shortcut->description ? html_writer::tag('br') . html_writer::tag('small', $shortcut->description, ['class' => 'text-muted']) : ''),
+                        ($shortcut->description ? html_writer::empty_tag('br') . html_writer::tag('small', $shortcut->description, ['class' => 'text-muted']) : ''),
                     $typename,
                     html_writer::tag('small', $keywordspreview),
                     $enabledicon,
