@@ -108,4 +108,12 @@ if ($hassiteconfig) {
         new moodle_url('/local/educambot/manage.php'),
         'local/educambot:manage'
     ));
+
+    // Reports page.
+    $ADMIN->add('local_educambot', new admin_externalpage(
+        'local_educambot_reports',
+        get_string('reports', 'local_educambot'),
+        new moodle_url('/local/educambot/reports.php'),
+        'local/educambot:manage'
+    ));
 }

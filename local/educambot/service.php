@@ -57,6 +57,8 @@ if ($result['response'] !== null) {
         'ruleid' => $result['ruleid'],
         'confidence' => $result['confidence'],
     ];
+    $matched = 1;
+    $responsetext = $result['response'];
 } else {
     $response = [
         'success' => true,
@@ -64,7 +66,20 @@ if ($result['response'] !== null) {
         'ruleid' => null,
         'confidence' => 0,
     ];
+    $matched = 0;
+    $responsetext = get_string('noresponse', 'local_educambot');
 }
+
+// Log the conversation.
+$log = new stdClass();
+$log->userid = $USER->id;
+$log->question = $question;
+$log->response = $responsetext;
+$log->ruleid = $result['ruleid'];
+$log->confidence = $result['confidence'];
+$log->matched = $matched;
+$log->timecreated = time();
+$DB->insert_record('local_educambot_log', $log);
 
 // Send JSON response.
 header('Content-Type: application/json');
