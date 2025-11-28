@@ -409,27 +409,270 @@ function xmldb_local_educambot_upgrade($oldversion) {
             'showoptions' => 1,
         ]);
 
-        // Add startup options if the startup rule was created.
-        if ($startupid && $mycoursesid) {
-            // Check if startup options already exist.
-            $existingoptions = $DB->count_records('local_educambot_option', ['ruleid' => $startupid]);
-            if ($existingoptions == 0) {
-                $startupoptions = [
-                    ['ruleid' => $startupid, 'text' => 'Mis Cursos', 'targetruleid' => $mycoursesid, 'icon' => '📚', 'sortorder' => 1, 'enabled' => 1],
-                    ['ruleid' => $startupid, 'text' => 'Entregar Tarea', 'targetruleid' => $assignmentid, 'icon' => '📝', 'sortorder' => 2, 'enabled' => 1],
-                    ['ruleid' => $startupid, 'text' => 'Ver Calificaciones', 'targetruleid' => $gradesid, 'icon' => '📊', 'sortorder' => 3, 'enabled' => 1],
-                    ['ruleid' => $startupid, 'text' => 'Examenes', 'targetruleid' => $quizid, 'icon' => '✏️', 'sortorder' => 4, 'enabled' => 1],
-                    ['ruleid' => $startupid, 'text' => 'Mi Perfil', 'targetruleid' => $profileid, 'icon' => '👤', 'sortorder' => 5, 'enabled' => 1],
-                    ['ruleid' => $startupid, 'text' => 'Ayuda', 'targetruleid' => $supportid, 'icon' => '🆘', 'sortorder' => 6, 'enabled' => 1],
-                ];
+        // Additional rules for complete knowledge base.
+        $forumsubid = $createrule('¿Por que recibo tantos correos del foro?', [
+            'categoryid' => $cattareas ? $cattareas->id : null,
+            'pattern' => '¿Por que recibo tantos correos del foro?',
+            'keywords' => "suscripcion foro\ncorreos foro\nnotificaciones foro\ndejar de recibir correos",
+            'response' => 'Los correos del foro son por la suscripcion automatica. Para gestionarlos:<br><br>1. Ve al foro en cuestion<br>2. Busca el enlace "Suscribirse/Darse de baja del foro"<br>3. Haz clic para cancelar la suscripcion',
+            'tags' => 'suscripcion, correos, notificaciones, foro',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
 
-                foreach ($startupoptions as $opt) {
-                    if ($opt['targetruleid']) {
-                        $DB->insert_record('local_educambot_option', (object)$opt);
-                    }
-                }
+        $wikiid = $createrule('¿Como uso un wiki?', [
+            'categoryid' => $cattareas ? $cattareas->id : null,
+            'pattern' => '¿Como uso un wiki?',
+            'keywords' => "wiki\neditar wiki\ncolaborar wiki\npagina wiki",
+            'response' => 'Un Wiki es una herramienta colaborativa:<br><br><strong>Para editar:</strong><br>1. Abre la pagina del wiki<br>2. Haz clic en la pestana "Editar"<br>3. Modifica el contenido<br>4. Haz clic en "Guardar"',
+            'tags' => 'wiki, colaborativo, editar, paginas',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $glossaryid = $createrule('¿Como agrego terminos al glosario?', [
+            'categoryid' => $cattareas ? $cattareas->id : null,
+            'pattern' => '¿Como agrego terminos al glosario?',
+            'keywords' => "glosario\nagregar termino\ndefinicion\ndiccionario",
+            'response' => 'Para agregar un termino al glosario:<br><br>1. Accede a la actividad Glosario<br>2. Haz clic en "Agregar entrada"<br>3. Escribe el concepto y la definicion<br>4. Haz clic en "Guardar cambios"',
+            'tags' => 'glosario, termino, definicion, diccionario',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $gradeappealid = $createrule('¿Como reclamo una calificacion?', [
+            'categoryid' => $catevaluaciones ? $catevaluaciones->id : null,
+            'pattern' => '¿Como reclamo una calificacion?',
+            'keywords' => "reclamar nota\napelacion\nrevision de nota\nno estoy de acuerdo",
+            'response' => 'Si tienes dudas sobre una calificacion:<br><br>1. Revisa la rubrica o criterios de evaluacion<br>2. Lee la retroalimentacion del profesor<br>3. Contacta al profesor a traves de mensajeria<br>4. Se respetuoso y especifico en tu reclamo',
+            'tags' => 'reclamacion, apelacion, revision, nota',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $languageid = $createrule('¿Como cambio el idioma?', [
+            'categoryid' => $catperfil ? $catperfil->id : null,
+            'pattern' => '¿Como cambio el idioma?',
+            'keywords' => "idioma\nlenguaje\ncambiar idioma\ningles\nespanol",
+            'response' => 'Para cambiar el idioma de la plataforma:<br><br>1. Haz clic en tu foto de perfil<br>2. Ve a "Preferencias"<br>3. Busca "Idioma preferido"<br>4. Selecciona el idioma deseado<br>5. Guarda los cambios',
+            'tags' => 'idioma, lenguaje, preferencias',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $scormid = $createrule('¿Que es un paquete SCORM?', [
+            'categoryid' => $recursoscat->id,
+            'pattern' => '¿Que es un paquete SCORM?',
+            'keywords' => "scorm\npaquete scorm\ncontenido interactivo\nmodulo scorm",
+            'response' => 'SCORM es un formato de contenido interactivo de aprendizaje:<br><br>1. Haz clic en la actividad SCORM<br>2. Haz clic en "Entrar"<br>3. Navega usando los controles internos<br>4. Completa todas las secciones<br><br>Si no abre, desactiva el bloqueador de ventanas emergentes.',
+            'tags' => 'scorm, interactivo, paquete, elearning',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $h5pid = $createrule('¿Que son las actividades H5P?', [
+            'categoryid' => $recursoscat->id,
+            'pattern' => '¿Que son las actividades H5P?',
+            'keywords' => "h5p\ncontenido h5p\ninteractivo h5p\nactividad interactiva",
+            'response' => 'H5P son actividades interactivas enriquecidas:<br><br>- Videos interactivos con preguntas<br>- Presentaciones con navegacion<br>- Cuestionarios gamificados<br>- Tarjetas de memoria<br><br>Tu progreso se guarda automaticamente.',
+            'tags' => 'h5p, interactivo, multimedia, actividad',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // Get existing rule IDs for options.
+        $enrollmentid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como me inscribo en un curso?']);
+        $forumid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como participo en un foro?']);
+        $calendarid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como veo el calendario?']);
+        $messagesid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como envio un mensaje a mi profesor?']);
+        $passwordid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como cambio mi contrasena?']);
+
+        // Helper function to add option if not exists.
+        $addoption = function($ruleid, $text, $targetruleid, $icon, $sortorder) use ($DB) {
+            if (!$ruleid || !$targetruleid) {
+                return;
             }
-        }
+            $existing = $DB->get_record('local_educambot_option', [
+                'ruleid' => $ruleid,
+                'text' => $text
+            ]);
+            if (!$existing) {
+                $DB->insert_record('local_educambot_option', (object)[
+                    'ruleid' => $ruleid,
+                    'text' => $text,
+                    'targetruleid' => $targetruleid,
+                    'icon' => $icon,
+                    'sortorder' => $sortorder,
+                    'enabled' => 1
+                ]);
+            }
+        };
+
+        // Add startup options.
+        $addoption($startupid, 'Mis Cursos', $mycoursesid, '📚', 1);
+        $addoption($startupid, 'Entregar Tarea', $assignmentid, '📝', 2);
+        $addoption($startupid, 'Ver Calificaciones', $gradesid, '📊', 3);
+        $addoption($startupid, 'Examenes', $quizid, '✏️', 4);
+        $addoption($startupid, 'Mi Perfil', $profileid, '👤', 5);
+        $addoption($startupid, 'Ayuda', $supportid, '🆘', 6);
+
+        // Add menu options.
+        $addoption($menuid, 'Cursos', $mycoursesid, '📚', 1);
+        $addoption($menuid, 'Tareas', $assignmentid, '📝', 2);
+        $addoption($menuid, 'Calificaciones', $gradesid, '📊', 3);
+        $addoption($menuid, 'Mi Perfil', $profileid, '👤', 4);
+        $addoption($menuid, 'Soporte', $supportid, '🆘', 5);
+
+        // Add navigation options for each rule.
+        // Enrollment options.
+        $addoption($enrollmentid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($enrollmentid, 'Clave de Curso', $coursekeyid, '🔑', 2);
+        $addoption($enrollmentid, 'Buscar Cursos', $findcoursesid, '🔍', 3);
+
+        // My courses options.
+        $addoption($mycoursesid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($mycoursesid, 'Inscribirme', $enrollmentid, '➕', 2);
+        $addoption($mycoursesid, 'Ver Progreso', $courseprogressid, '📈', 3);
+
+        // Find courses options.
+        $addoption($findcoursesid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($findcoursesid, 'Inscribirme', $enrollmentid, '➕', 2);
+
+        // Course key options.
+        $addoption($coursekeyid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($coursekeyid, 'Inscribirme', $enrollmentid, '➕', 2);
+
+        // Course progress options.
+        $addoption($courseprogressid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($courseprogressid, 'Certificado', $certificateid, '🎓', 2);
+
+        // Certificate options.
+        $addoption($certificateid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($certificateid, 'Ver Progreso', $courseprogressid, '📈', 2);
+
+        // Assignment options.
+        $addoption($assignmentid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($assignmentid, 'Modificar Tarea', $editassignmentid, '✏️', 2);
+        $addoption($assignmentid, 'Entrega Tardia', $latesubmissionid, '⏰', 3);
+        $addoption($assignmentid, 'Calificaciones', $gradesid, '📊', 4);
+
+        // Edit assignment options.
+        $addoption($editassignmentid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($editassignmentid, 'Entregar Tarea', $assignmentid, '📝', 2);
+
+        // Late submission options.
+        $addoption($latesubmissionid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($latesubmissionid, 'Contactar Profesor', $messagesid, '✉️', 2);
+
+        // Forum options.
+        $addoption($forumid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($forumid, 'Suscripciones', $forumsubid, '📧', 2);
+        $addoption($forumid, 'Mensajes', $messagesid, '✉️', 3);
+
+        // Forum subscription options.
+        $addoption($forumsubid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($forumsubid, 'Notificaciones', $notificationsid, '🔔', 2);
+
+        // Wiki options.
+        $addoption($wikiid, 'Menu Principal', $menuid, '🏠', 1);
+
+        // Glossary options.
+        $addoption($glossaryid, 'Menu Principal', $menuid, '🏠', 1);
+
+        // Grades options.
+        $addoption($gradesid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($gradesid, 'Retroalimentacion', $feedbackid, '💬', 2);
+        $addoption($gradesid, 'Reclamar Nota', $gradeappealid, '⚖️', 3);
+        $addoption($gradesid, 'Cuestionarios', $quizid, '❓', 4);
+
+        // Quiz options.
+        $addoption($quizid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($quizid, 'Intentos', $quizattemptsid, '🔄', 2);
+        $addoption($quizid, 'Ver Respuestas', $quizreviewid, '👁️', 3);
+        $addoption($quizid, 'Calificaciones', $gradesid, '📊', 4);
+
+        // Quiz attempts options.
+        $addoption($quizattemptsid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($quizattemptsid, 'Hacer Examen', $quizid, '✏️', 2);
+
+        // Quiz review options.
+        $addoption($quizreviewid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($quizreviewid, 'Calificaciones', $gradesid, '📊', 2);
+
+        // Grade appeal options.
+        $addoption($gradeappealid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($gradeappealid, 'Contactar Profesor', $messagesid, '✉️', 2);
+
+        // Feedback options.
+        $addoption($feedbackid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($feedbackid, 'Calificaciones', $gradesid, '📊', 2);
+
+        // Profile options.
+        $addoption($profileid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($profileid, 'Cambiar Foto', $profilepicid, '📷', 2);
+        $addoption($profileid, 'Contrasena', $passwordid, '🔑', 3);
+        $addoption($profileid, 'Notificaciones', $notificationsid, '🔔', 4);
+
+        // Profile picture options.
+        $addoption($profilepicid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($profilepicid, 'Editar Perfil', $profileid, '👤', 2);
+
+        // Password options.
+        $addoption($passwordid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($passwordid, 'Problemas de Acceso', $loginissuesid, '🔒', 2);
+
+        // Notifications options.
+        $addoption($notificationsid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($notificationsid, 'Correos del Foro', $forumsubid, '📧', 2);
+
+        // Language options.
+        $addoption($languageid, 'Menu Principal', $menuid, '🏠', 1);
+
+        // Download files options.
+        $addoption($downloadfilesid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($downloadfilesid, 'Problemas Video', $videosid, '🎬', 2);
+
+        // Videos options.
+        $addoption($videosid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($videosid, 'Soporte Tecnico', $supportid, '🆘', 2);
+        $addoption($videosid, 'Navegadores', $browserid, '🌐', 3);
+
+        // SCORM options.
+        $addoption($scormid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($scormid, 'Navegadores', $browserid, '🌐', 2);
+
+        // H5P options.
+        $addoption($h5pid, 'Menu Principal', $menuid, '🏠', 1);
+
+        // Calendar options.
+        $addoption($calendarid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($calendarid, 'Tareas', $assignmentid, '📝', 2);
+
+        // Messages options.
+        $addoption($messagesid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($messagesid, 'Foros', $forumid, '💬', 2);
+
+        // Support options.
+        $addoption($supportid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($supportid, 'Navegadores', $browserid, '🌐', 2);
+        $addoption($supportid, 'App Movil', $mobileappid, '📱', 3);
+        $addoption($supportid, 'Login', $loginissuesid, '🔒', 4);
+
+        // Browser options.
+        $addoption($browserid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($browserid, 'Soporte', $supportid, '🆘', 2);
+
+        // Mobile app options.
+        $addoption($mobileappid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($mobileappid, 'Mis Cursos', $mycoursesid, '📚', 2);
+
+        // Login issues options.
+        $addoption($loginissuesid, 'Menu Principal', $menuid, '🏠', 1);
+        $addoption($loginissuesid, 'Cambiar Contrasena', $passwordid, '🔑', 2);
+        $addoption($loginissuesid, 'Soporte', $supportid, '🆘', 3);
+
+        // About bot options.
+        $addoption($aboutbotid, 'Ver Opciones', $menuid, '📋', 1);
 
         // Educambot savepoint reached.
         upgrade_plugin_savepoint(true, 2025112007, 'local', 'educambot');
