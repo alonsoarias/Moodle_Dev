@@ -189,14 +189,24 @@ function xmldb_local_educambot_upgrade($oldversion) {
         $catsoporte = $DB->get_record('local_educambot_category', ['name' => 'Soporte']);
 
         // Helper function to create rule if not exists.
+        // Note: pattern is a TEXT field, must use sql_compare_text() for comparison.
         $createrule = function($pattern, $data) use ($DB, $now) {
-            $existing = $DB->get_record('local_educambot_rule', ['pattern' => $pattern]);
+            $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            $existing = $DB->get_record_sql($sql, ['pattern' => $pattern]);
             if (!$existing) {
                 $data['timecreated'] = $now;
                 $data['timemodified'] = $now;
                 return $DB->insert_record('local_educambot_rule', (object)$data);
             }
             return $existing->id;
+        };
+
+        // Helper function to get rule ID by pattern (using sql_compare_text for TEXT field).
+        $getruleid = function($pattern) use ($DB) {
+            $sql = "SELECT id FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            return $DB->get_field_sql($sql, ['pattern' => $pattern]);
         };
 
         // Create startup rule (special rule for initial options).
@@ -210,13 +220,13 @@ function xmldb_local_educambot_upgrade($oldversion) {
             'showoptions' => 1,
         ]);
 
-        // Get existing rule IDs for linking options.
-        $menuid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => 'Menu principal']);
-        $assignmentid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como entrego una tarea?']);
-        $gradesid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Donde veo mis calificaciones?']);
-        $quizid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como hago un cuestionario o examen?']);
-        $profileid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como actualizo mi perfil?']);
-        $supportid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como contacto con soporte tecnico?']);
+        // Get existing rule IDs for linking options (using helper function for TEXT comparison).
+        $menuid = $getruleid('Menu principal');
+        $assignmentid = $getruleid('¿Como entrego una tarea?');
+        $gradesid = $getruleid('¿Donde veo mis calificaciones?');
+        $quizid = $getruleid('¿Como hago un cuestionario o examen?');
+        $profileid = $getruleid('¿Como actualizo mi perfil?');
+        $supportid = $getruleid('¿Como contacto con soporte tecnico?');
 
         // Create new rules for v1.6.1.
         $mycoursesid = $createrule('¿Donde veo mis cursos?', [
@@ -480,12 +490,12 @@ function xmldb_local_educambot_upgrade($oldversion) {
             'showoptions' => 1,
         ]);
 
-        // Get existing rule IDs for options.
-        $enrollmentid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como me inscribo en un curso?']);
-        $forumid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como participo en un foro?']);
-        $calendarid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como veo el calendario?']);
-        $messagesid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como envio un mensaje a mi profesor?']);
-        $passwordid = $DB->get_field('local_educambot_rule', 'id', ['pattern' => '¿Como cambio mi contrasena?']);
+        // Get existing rule IDs for options (using helper function for TEXT comparison).
+        $enrollmentid = $getruleid('¿Como me inscribo en un curso?');
+        $forumid = $getruleid('¿Como participo en un foro?');
+        $calendarid = $getruleid('¿Como veo el calendario?');
+        $messagesid = $getruleid('¿Como envio un mensaje a mi profesor?');
+        $passwordid = $getruleid('¿Como cambio mi contrasena?');
 
         // Helper function to add option if not exists.
         $addoption = function($ruleid, $text, $targetruleid, $icon, $sortorder) use ($DB) {
