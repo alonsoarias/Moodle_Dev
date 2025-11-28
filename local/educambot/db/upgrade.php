@@ -71,5 +71,44 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025112004, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025112005) {
+        // Add showoptions field to local_educambot_rule table.
+        $table = new xmldb_table('local_educambot_rule');
+        $field = new xmldb_field('showoptions', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'enabled');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define table local_educambot_option to be created.
+        $table = new xmldb_table('local_educambot_option');
+
+        // Adding fields to table local_educambot_option.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('text', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('targetruleid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('icon', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+
+        // Adding keys to table local_educambot_option.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('ruleid_fk', XMLDB_KEY_FOREIGN, ['ruleid'], 'local_educambot_rule', ['id']);
+        $table->add_key('targetruleid_fk', XMLDB_KEY_FOREIGN, ['targetruleid'], 'local_educambot_rule', ['id']);
+
+        // Adding indexes to table local_educambot_option.
+        $table->add_index('ruleid_idx', XMLDB_INDEX_NOTUNIQUE, ['ruleid']);
+        $table->add_index('sortorder_idx', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
+
+        // Conditionally launch create table for local_educambot_option.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025112005, 'local', 'educambot');
+    }
+
     return true;
 }

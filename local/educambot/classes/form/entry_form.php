@@ -67,6 +67,11 @@ class entry_form extends \moodleform {
         $mform->setDefault('enabled', 1);
         $mform->addHelpButton('enabled', 'enabled', 'local_educambot');
 
+        // Show options checkbox.
+        $mform->addElement('advcheckbox', 'showoptions', get_string('showoptions', 'local_educambot'));
+        $mform->setDefault('showoptions', 1);
+        $mform->addHelpButton('showoptions', 'showoptions', 'local_educambot');
+
         // Action buttons.
         $this->add_action_buttons();
     }

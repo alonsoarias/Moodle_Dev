@@ -138,7 +138,7 @@ define(['jquery'], function($) {
                         loading.hide();
 
                         if (data.success && data.response) {
-                            addMessage(data.response, 'bot', data.confidence);
+                            addMessage(data.response, 'bot', data.confidence, data.options);
                         } else if (data.error) {
                             addMessage(data.error, 'bot error');
                         } else {
@@ -153,13 +153,29 @@ define(['jquery'], function($) {
             }
 
             /**
+             * Handle option button click.
+             *
+             * @param {object} option - Option object with targetpattern
+             */
+            function handleOptionClick(option) {
+                // Disable all option buttons in the chat.
+                messages.find('.educambot-option-btn').prop('disabled', true).addClass('disabled');
+
+                if (option.targetpattern) {
+                    textarea.val(option.targetpattern);
+                    sendMessage();
+                }
+            }
+
+            /**
              * Add a message to the chat.
              *
              * @param {string} text - Message text
              * @param {string} sender - 'user' or 'bot' or 'bot error'
              * @param {number} confidence - Confidence score (0-1)
+             * @param {array} options - Quick reply options
              */
-            function addMessage(text, sender, confidence) {
+            function addMessage(text, sender, confidence, options) {
                 var isError = sender.indexOf('error') !== -1;
                 var senderClass = sender.replace(' error', '');
 
@@ -184,6 +200,25 @@ define(['jquery'], function($) {
                         .addClass('educambot-confidence')
                         .text(confidencePercent + '%');
                     messageDiv.append(confidenceDiv);
+                }
+
+                // Add quick reply options if present.
+                if (senderClass === 'bot' && !isError && options && options.length > 0) {
+                    var optionsDiv = $('<div>').addClass('educambot-options');
+
+                    options.forEach(function(option) {
+                        var btnText = option.icon ? option.icon + ' ' + option.text : option.text;
+                        var btn = $('<button>')
+                            .addClass('educambot-option-btn')
+                            .attr('type', 'button')
+                            .text(btnText)
+                            .on('click', function() {
+                                handleOptionClick(option);
+                            });
+                        optionsDiv.append(btn);
+                    });
+
+                    messageDiv.append(optionsDiv);
                 }
 
                 messages.append(messageDiv);

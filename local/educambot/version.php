@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025112004;  // YYYYMMDDXX format.
+$plugin->version = 2025112005;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '1.4.0';  // Sistema de Logging + Reportes basicos.
+$plugin->release = '1.5.0';  // Opciones Interactivas / Quick Replies.

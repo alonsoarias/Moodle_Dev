@@ -311,6 +311,46 @@
     background: #9ca3af;
 }
 
+/* Quick reply options */
+.educambot-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.educambot-option-btn {
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 20px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #374151;
+    font-family: inherit;
+}
+
+.educambot-option-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+}
+
+.educambot-option-btn:active {
+    transform: translateY(0);
+}
+
+.educambot-option-btn:disabled,
+.educambot-option-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 /* Responsive - Mobile */
 @media (max-width: 480px) {
     .educambot-popup {
@@ -331,5 +371,10 @@
         bottom: 10px;
         width: 56px;
         height: 56px;
+    }
+
+    .educambot-option-btn {
+        padding: 6px 12px;
+        font-size: 12px;
     }
 }

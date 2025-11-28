@@ -118,6 +118,7 @@ if (empty($rules)) {
     $table->head = [
         get_string('pattern_header', 'local_educambot'),
         get_string('response_header', 'local_educambot'),
+        get_string('options', 'local_educambot'),
         get_string('status_header', 'local_educambot'),
         get_string('actions_header', 'local_educambot'),
     ];
@@ -129,10 +130,18 @@ if (empty($rules)) {
             ['action' => 'delete', 'id' => $rule->id, 'sesskey' => sesskey()]);
         $toggleurl = new moodle_url('/local/educambot/manage.php',
             ['action' => 'toggle', 'id' => $rule->id, 'sesskey' => sesskey()]);
+        $optionsurl = new moodle_url('/local/educambot/manage_options.php', ['ruleid' => $rule->id]);
 
         // Truncate long text.
         $pattern = strlen($rule->pattern) > 60 ? substr($rule->pattern, 0, 57) . '...' : $rule->pattern;
         $response = strlen($rule->response) > 80 ? substr($rule->response, 0, 77) . '...' : $rule->response;
+
+        // Count options for this rule.
+        $optioncount = $DB->count_records('local_educambot_option', ['ruleid' => $rule->id]);
+        $optionsbadge = html_writer::link($optionsurl,
+            html_writer::tag('span', $optioncount, ['class' => 'badge badge-primary']) .
+            ' ' . get_string('manageoptions', 'local_educambot'),
+            ['class' => 'btn btn-sm btn-outline-primary']);
 
         // Status badge.
         if ($rule->enabled) {
@@ -160,6 +169,7 @@ if (empty($rules)) {
         $table->data[] = [
             format_text($pattern, FORMAT_PLAIN),
             format_text($response, FORMAT_PLAIN),
+            $optionsbadge,
             $status,
             $actions,
         ];

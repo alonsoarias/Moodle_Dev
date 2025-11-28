@@ -56,15 +56,35 @@ if ($result['response'] !== null) {
         'response' => $result['response'],
         'ruleid' => $result['ruleid'],
         'confidence' => $result['confidence'],
+        'options' => [],
     ];
     $matched = 1;
     $responsetext = $result['response'];
+
+    // Get options for this rule if showoptions is enabled.
+    $showoptions = $DB->get_field('local_educambot_rule', 'showoptions', ['id' => $result['ruleid']]);
+    if ($showoptions) {
+        $options = $DB->get_records('local_educambot_option',
+            ['ruleid' => $result['ruleid'], 'enabled' => 1],
+            'sortorder ASC',
+            'id, text, targetruleid, icon');
+        if ($options) {
+            // Get target rule patterns for each option.
+            foreach ($options as $option) {
+                if ($option->targetruleid) {
+                    $option->targetpattern = $DB->get_field('local_educambot_rule', 'pattern', ['id' => $option->targetruleid]);
+                }
+            }
+            $response['options'] = array_values($options);
+        }
+    }
 } else {
     $response = [
         'success' => true,
         'response' => get_string('noresponse', 'local_educambot'),
         'ruleid' => null,
         'confidence' => 0,
+        'options' => [],
     ];
     $matched = 0;
     $responsetext = get_string('noresponse', 'local_educambot');
