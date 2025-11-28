@@ -377,16 +377,23 @@
    Mascot Styles (v1.8.1)
    ============================================== */
 
-/* Mascot container */
+/* Mascot container - positioned fixed, visible only when chat is active */
 .educambot-mascot-container {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
+    display: none;
+    position: fixed;
+    bottom: 170px; /* Above the input area of popup */
+    right: 310px; /* Left side of popup (popup is 380px wide, right 20px) */
     width: 70px;
     height: 70px;
-    z-index: 10;
+    z-index: 999999;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: auto;
+}
+
+/* Show mascot only when chat is active */
+#educambot-chat.educambot-active .educambot-mascot-container {
+    display: block;
 }
 
 .educambot-mascot-container:hover {
@@ -703,8 +710,9 @@
     .educambot-mascot-container {
         width: 55px;
         height: 55px;
-        bottom: 5px;
-        left: 5px;
+        bottom: 160px;
+        right: auto;
+        left: 15px;
     }
 
     .educambot-mascot-tooltip {

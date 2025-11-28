@@ -31,6 +31,10 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         suggestionTimer: null,
         lastUserQuestion: '',
 
+        // Conversation persistence (v1.8.2).
+        storageKey: 'educambot-conversation',
+        maxStoredMessages: 50,
+
         /**
          * Initialize the widget.
          */
@@ -73,12 +77,22 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             self.mascot = $('#educambot-mascot');
             self.tooltip = $('#educambot-mascot-tooltip');
 
+            // Track if conversation was restored (v1.8.2).
+            var conversationRestored = false;
+
             // Toggle chat open/close.
             btn.on('click', function() {
                 educambotchat.toggleClass('educambot-active');
                 if (educambotchat.hasClass('educambot-active')) {
                     localStorage.setItem('educambot-isopen', 'true');
                     textarea.focus();
+
+                    // Restore saved conversation on first open (v1.8.2).
+                    if (!conversationRestored) {
+                        self.restoreMessages(messages);
+                        conversationRestored = true;
+                    }
+
                     // Load startup options on first open.
                     if (!startupOptionsLoaded) {
                         loadStartupOptions();
@@ -152,6 +166,8 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             clearBtn.on('click', function(e) {
                 e.preventDefault();
                 messages.find('.educambot-message').not(':first').remove();
+                // Clear saved messages from localStorage (v1.8.2).
+                self.clearSavedMessages();
             });
 
             // Auto-resize textarea.
@@ -176,6 +192,13 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             // Restore state from localStorage.
             if (localStorage.getItem('educambot-isopen') === 'true') {
                 educambotchat.addClass('educambot-active');
+
+                // Restore saved conversation (v1.8.2).
+                if (!conversationRestored) {
+                    self.restoreMessages(messages);
+                    conversationRestored = true;
+                }
+
                 // Load startup options if restored as open.
                 if (!startupOptionsLoaded) {
                     loadStartupOptions();
@@ -330,6 +353,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
                 // Scroll to bottom.
                 messages.scrollTop(messages[0].scrollHeight);
+
+                // Save message to localStorage for persistence (v1.8.2).
+                self.saveMessage(text, sender, confidence);
             }
         },
 
@@ -609,6 +635,122 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             var div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        },
+
+        // ==============================================
+        // Conversation Persistence Methods (v1.8.2)
+        // ==============================================
+
+        /**
+         * Save a message to localStorage.
+         *
+         * @param {string} text - Message text
+         * @param {string} sender - 'user' or 'bot'
+         * @param {number} confidence - Confidence score (optional)
+         */
+        saveMessage: function(text, sender, confidence) {
+            var self = this;
+
+            try {
+                var messages = self.loadMessages();
+
+                messages.push({
+                    text: text,
+                    sender: sender,
+                    confidence: confidence || null,
+                    timestamp: Date.now()
+                });
+
+                // Limit stored messages.
+                if (messages.length > self.maxStoredMessages) {
+                    messages = messages.slice(-self.maxStoredMessages);
+                }
+
+                localStorage.setItem(self.storageKey, JSON.stringify(messages));
+            } catch (e) {
+                // localStorage might be full or disabled.
+                console.warn('Educambot: Could not save message to localStorage', e);
+            }
+        },
+
+        /**
+         * Load messages from localStorage.
+         *
+         * @return {array} Array of message objects
+         */
+        loadMessages: function() {
+            var self = this;
+
+            try {
+                var stored = localStorage.getItem(self.storageKey);
+                if (stored) {
+                    return JSON.parse(stored);
+                }
+            } catch (e) {
+                console.warn('Educambot: Could not load messages from localStorage', e);
+            }
+
+            return [];
+        },
+
+        /**
+         * Restore saved messages to the chat.
+         *
+         * @param {jQuery} messagesContainer - The messages container element
+         */
+        restoreMessages: function(messagesContainer) {
+            var self = this;
+            var messages = self.loadMessages();
+
+            if (messages.length === 0) {
+                return;
+            }
+
+            messages.forEach(function(msg) {
+                var isError = msg.sender.indexOf('error') !== -1;
+                var senderClass = msg.sender.replace(' error', '');
+
+                var messageDiv = $('<div>')
+                    .addClass('educambot-message')
+                    .addClass('educambot-' + senderClass);
+
+                if (isError) {
+                    messageDiv.addClass('educambot-error');
+                }
+
+                var contentDiv = $('<div>')
+                    .addClass('educambot-message-content')
+                    .html(msg.text);
+
+                messageDiv.append(contentDiv);
+
+                // Add confidence indicator for bot messages.
+                if (senderClass === 'bot' && !isError && msg.confidence && msg.confidence > 0) {
+                    var confidencePercent = Math.round(msg.confidence * 100);
+                    var confidenceDiv = $('<div>')
+                        .addClass('educambot-confidence')
+                        .text(confidencePercent + '%');
+                    messageDiv.append(confidenceDiv);
+                }
+
+                messagesContainer.append(messageDiv);
+            });
+
+            // Scroll to bottom.
+            messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+        },
+
+        /**
+         * Clear all saved messages.
+         */
+        clearSavedMessages: function() {
+            var self = this;
+
+            try {
+                localStorage.removeItem(self.storageKey);
+            } catch (e) {
+                console.warn('Educambot: Could not clear messages from localStorage', e);
+            }
         }
     };
 

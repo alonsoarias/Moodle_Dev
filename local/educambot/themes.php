@@ -56,6 +56,44 @@ switch ($action) {
         $form = new theme_form($baseurl);
 
         if ($theme) {
+            // Prepare file managers for existing files (v1.8.2).
+            $fs = get_file_storage();
+
+            // Handle emoji/fontawesome icon fields - copy widgeticonurl to appropriate field.
+            if ($theme->widgeticontype === 'emoji') {
+                $theme->widgeticonemoji = $theme->widgeticonurl;
+            } else if ($theme->widgeticontype === 'fontawesome') {
+                $theme->widgeticonfa = $theme->widgeticonurl;
+            }
+
+            // Prepare widget icon file manager.
+            if ($theme->widgeticontype === 'custom') {
+                $draftitemid = file_get_submitted_draft_itemid('widgeticonfile');
+                file_prepare_draft_area(
+                    $draftitemid,
+                    $context->id,
+                    'local_educambot',
+                    'widgeticon',
+                    $theme->id,
+                    ['subdirs' => false, 'maxfiles' => 1]
+                );
+                $theme->widgeticonfile = $draftitemid;
+            }
+
+            // Prepare mascot file manager.
+            if ($theme->mascottype === 'custom') {
+                $draftitemid = file_get_submitted_draft_itemid('mascotfile');
+                file_prepare_draft_area(
+                    $draftitemid,
+                    $context->id,
+                    'local_educambot',
+                    'mascot',
+                    $theme->id,
+                    ['subdirs' => false, 'maxfiles' => 1]
+                );
+                $theme->mascotfile = $draftitemid;
+            }
+
             $form->set_data($theme);
         }
 
