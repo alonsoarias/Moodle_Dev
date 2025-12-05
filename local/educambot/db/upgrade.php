@@ -1025,5 +1025,239 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025112811, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025120502) {
+        // Version 1.9.2: Extended knowledge base for teachers and managers (archetype-based rules).
+        $now = time();
+
+        // Helper function to create rule if not exists.
+        $createrule = function($pattern, $data) use ($DB, $now) {
+            $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            $existing = $DB->get_record_sql($sql, ['pattern' => $pattern]);
+            if (!$existing) {
+                $data['timecreated'] = $now;
+                $data['timemodified'] = $now;
+                return $DB->insert_record('local_educambot_rule', (object)$data);
+            }
+            return $existing->id;
+        };
+
+        // Helper function to get rule ID by pattern.
+        $getruleid = function($pattern) use ($DB) {
+            $sql = "SELECT id FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            return $DB->get_field_sql($sql, ['pattern' => $pattern]);
+        };
+
+        // Helper function to add option if not exists.
+        $addoption = function($ruleid, $text, $targetruleid, $icon, $sortorder) use ($DB) {
+            if (!$ruleid || !$targetruleid) {
+                return;
+            }
+            $existing = $DB->get_record('local_educambot_option', [
+                'ruleid' => $ruleid,
+                'text' => $text
+            ]);
+            if (!$existing) {
+                $DB->insert_record('local_educambot_option', (object)[
+                    'ruleid' => $ruleid,
+                    'text' => $text,
+                    'targetruleid' => $targetruleid,
+                    'icon' => $icon,
+                    'sortorder' => $sortorder,
+                    'enabled' => 1
+                ]);
+            }
+        };
+
+        // Create new categories for teachers and managers.
+        $catdocentes = $DB->get_record('local_educambot_category', ['name' => 'Docentes y Gestion']);
+        if (!$catdocentes) {
+            $catdocentes = new stdClass();
+            $catdocentes->name = 'Docentes y Gestion';
+            $catdocentes->description = 'Gestion de cursos, calificaciones y estudiantes para profesores';
+            $catdocentes->parent = null;
+            $catdocentes->sortorder = 8;
+            $catdocentes->enabled = 1;
+            $catdocentes->timecreated = $now;
+            $catdocentes->timemodified = $now;
+            $catdocentes->id = $DB->insert_record('local_educambot_category', $catdocentes);
+        }
+
+        $catadmin = $DB->get_record('local_educambot_category', ['name' => 'Administracion']);
+        if (!$catadmin) {
+            $catadmin = new stdClass();
+            $catadmin->name = 'Administracion';
+            $catadmin->description = 'Gestion del sitio, usuarios y configuracion para administradores';
+            $catadmin->parent = null;
+            $catadmin->sortorder = 9;
+            $catadmin->enabled = 1;
+            $catadmin->timecreated = $now;
+            $catadmin->timemodified = $now;
+            $catadmin->id = $DB->insert_record('local_educambot_category', $catadmin);
+        }
+
+        // Create teacher rules.
+        $gradeassignmentid = $createrule('¿Como califico una tarea?', [
+            'categoryid' => $catdocentes->id,
+            'pattern' => '¿Como califico una tarea?',
+            'keywords' => "calificar tarea\ncalificar actividad\nponer nota\nevaluar estudiante\nrevisar entregas",
+            'response' => 'Para calificar tareas de tus estudiantes:<br><br>1. Accede al curso y haz clic en la actividad de tarea<br>2. Haz clic en "Ver todas las entregas"<br>3. Para cada estudiante:<br>   - Haz clic en "Calificar" junto a su nombre<br>   - Revisa el archivo entregado<br>   - Asigna la calificacion<br>   - Escribe retroalimentacion<br>4. Haz clic en "Guardar cambios"',
+            'tags' => 'calificar, evaluar, tarea, profesor',
+            'roles' => 'teacher,editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $createquizid = $createrule('¿Como creo un cuestionario?', [
+            'categoryid' => $catdocentes->id,
+            'pattern' => '¿Como creo un cuestionario?',
+            'keywords' => "crear cuestionario\ncrear examen\ncrear quiz\nanadir preguntas",
+            'response' => 'Para crear un cuestionario:<br><br>1. Activa el modo de edicion<br>2. Haz clic en "Anadir una actividad o recurso"<br>3. Selecciona "Cuestionario"<br>4. Configura nombre, tiempo y fechas<br>5. Guarda y haz clic en "Editar cuestionario"<br>6. Anade preguntas desde el Banco de preguntas',
+            'tags' => 'crear, cuestionario, examen, profesor',
+            'roles' => 'editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $studentprogressid = $createrule('¿Como veo el progreso de mis estudiantes?', [
+            'categoryid' => $catdocentes->id,
+            'pattern' => '¿Como veo el progreso de mis estudiantes?',
+            'keywords' => "progreso estudiantes\nver avance\ncompletion estudiantes\nreporte progreso",
+            'response' => 'Para ver el progreso de tus estudiantes:<br><br>1. Ve a Administracion del curso > Informes > Finalizacion de la actividad<br>2. O ve a Participantes y haz clic en un estudiante para ver sus informes',
+            'tags' => 'progreso, estudiantes, seguimiento, profesor',
+            'roles' => 'teacher,editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $addresourcesid = $createrule('¿Como agrego materiales al curso?', [
+            'categoryid' => $catdocentes->id,
+            'pattern' => '¿Como agrego materiales al curso?',
+            'keywords' => "agregar material\nsubir archivo\nagregar recurso\nsubir pdf",
+            'response' => 'Para agregar materiales:<br><br>1. Activa el modo de edicion<br>2. Haz clic en "Agregar una actividad o recurso"<br>3. Selecciona: Archivo, Carpeta, URL o Pagina<br>4. Sube el archivo y guarda',
+            'tags' => 'agregar, material, recurso, archivo, profesor',
+            'roles' => 'editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $teachermenuid = $createrule('Menu de profesor', [
+            'categoryid' => $catdocentes->id,
+            'pattern' => 'Menu de profesor',
+            'keywords' => "menu profesor\nopciones profesor\nherramientas docente",
+            'response' => 'Como profesor tienes acceso a:<br><br><strong>Gestion:</strong> Agregar actividades, configurar fechas<br><strong>Evaluacion:</strong> Calificar tareas y cuestionarios<br><strong>Seguimiento:</strong> Ver progreso de estudiantes<br><br>¿En que te puedo ayudar?',
+            'tags' => 'menu, profesor, herramientas',
+            'roles' => 'teacher,editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // Create manager rules.
+        $createcourseid = $createrule('¿Como creo un curso nuevo?', [
+            'categoryid' => $catadmin->id,
+            'pattern' => '¿Como creo un curso nuevo?',
+            'keywords' => "crear curso\nnuevo curso\nanadir curso",
+            'response' => 'Para crear un nuevo curso:<br><br>1. Administracion del sitio > Cursos > Gestionar cursos<br>2. Selecciona la categoria<br>3. Haz clic en "Crear un nuevo curso"<br>4. Completa la informacion y guarda',
+            'tags' => 'crear, curso, nuevo, administrador',
+            'roles' => 'manager,coursecreator',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $manageusersid = $createrule('¿Como gestiono usuarios?', [
+            'categoryid' => $catadmin->id,
+            'pattern' => '¿Como gestiono usuarios?',
+            'keywords' => "gestionar usuarios\nadministrar usuarios\ncrear usuario",
+            'response' => 'Para gestionar usuarios:<br><br><strong>Ver:</strong> Administracion > Usuarios > Examinar lista<br><strong>Crear:</strong> Administracion > Usuarios > Agregar un usuario<br><strong>Carga masiva:</strong> Administracion > Usuarios > Subir usuarios',
+            'tags' => 'usuarios, gestionar, administrador',
+            'roles' => 'manager',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $sitereportsid = $createrule('¿Como veo los reportes del sitio?', [
+            'categoryid' => $catadmin->id,
+            'pattern' => '¿Como veo los reportes del sitio?',
+            'keywords' => "reportes sitio\ninformes sistema\nlogs sitio",
+            'response' => 'Reportes del sitio:<br><br><strong>Logs:</strong> Administracion > Informes > Logs<br><strong>Estadisticas:</strong> Administracion > Informes > Estadisticas<br><strong>Rendimiento:</strong> Administracion > Informes > Rendimiento',
+            'tags' => 'reportes, informes, administrador',
+            'roles' => 'manager',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        $adminmenuid = $createrule('Menu de administrador', [
+            'categoryid' => $catadmin->id,
+            'pattern' => 'Menu de administrador',
+            'keywords' => "menu administrador\nopciones admin\nherramientas admin",
+            'response' => 'Como administrador tienes acceso a:<br><br><strong>Usuarios:</strong> Crear, editar, cargar masivamente<br><strong>Cursos:</strong> Crear, categorizar, restaurar<br><strong>Configuracion:</strong> Temas, plugins, seguridad<br><strong>Monitoreo:</strong> Logs, reportes, rendimiento',
+            'tags' => 'menu, administrador, herramientas',
+            'roles' => 'manager',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // Get menu rule for linking.
+        $menuid = $getruleid('Menu principal');
+
+        // Add teacher options.
+        if ($teachermenuid && $gradeassignmentid) {
+            $addoption($teachermenuid, 'Calificar Tareas', $gradeassignmentid, '📝', 1);
+        }
+        if ($teachermenuid && $createquizid) {
+            $addoption($teachermenuid, 'Crear Cuestionario', $createquizid, '❓', 2);
+        }
+        if ($teachermenuid && $studentprogressid) {
+            $addoption($teachermenuid, 'Ver Progreso', $studentprogressid, '📈', 3);
+        }
+        if ($teachermenuid && $addresourcesid) {
+            $addoption($teachermenuid, 'Agregar Material', $addresourcesid, '📁', 4);
+        }
+        if ($teachermenuid && $menuid) {
+            $addoption($teachermenuid, 'Menu Principal', $menuid, '🏠', 5);
+        }
+
+        // Add admin options.
+        if ($adminmenuid && $createcourseid) {
+            $addoption($adminmenuid, 'Crear Curso', $createcourseid, '📚', 1);
+        }
+        if ($adminmenuid && $manageusersid) {
+            $addoption($adminmenuid, 'Gestionar Usuarios', $manageusersid, '👥', 2);
+        }
+        if ($adminmenuid && $sitereportsid) {
+            $addoption($adminmenuid, 'Ver Reportes', $sitereportsid, '📊', 3);
+        }
+        if ($adminmenuid && $menuid) {
+            $addoption($adminmenuid, 'Menu Principal', $menuid, '🏠', 4);
+        }
+
+        // Add back navigation for new rules.
+        if ($gradeassignmentid && $teachermenuid) {
+            $addoption($gradeassignmentid, 'Menu Profesor', $teachermenuid, '👨‍🏫', 1);
+        }
+        if ($createquizid && $teachermenuid) {
+            $addoption($createquizid, 'Menu Profesor', $teachermenuid, '👨‍🏫', 1);
+        }
+        if ($studentprogressid && $teachermenuid) {
+            $addoption($studentprogressid, 'Menu Profesor', $teachermenuid, '👨‍🏫', 1);
+        }
+        if ($addresourcesid && $teachermenuid) {
+            $addoption($addresourcesid, 'Menu Profesor', $teachermenuid, '👨‍🏫', 1);
+        }
+        if ($createcourseid && $adminmenuid) {
+            $addoption($createcourseid, 'Menu Admin', $adminmenuid, '⚙️', 1);
+        }
+        if ($manageusersid && $adminmenuid) {
+            $addoption($manageusersid, 'Menu Admin', $adminmenuid, '⚙️', 1);
+        }
+        if ($sitereportsid && $adminmenuid) {
+            $addoption($sitereportsid, 'Menu Admin', $adminmenuid, '⚙️', 1);
+        }
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025120502, 'local', 'educambot');
+    }
+
     return true;
 }

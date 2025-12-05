@@ -99,6 +99,25 @@ function xmldb_local_educambot_install() {
             'timecreated' => $now,
             'timemodified' => $now,
         ],
+        // v1.9.1 - Categorias por arquetipo de rol.
+        'docentes' => [
+            'name' => 'Docentes y Gestion',
+            'description' => 'Gestion de cursos, calificaciones y estudiantes para profesores',
+            'parent' => null,
+            'sortorder' => 8,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+        'administracion' => [
+            'name' => 'Administracion',
+            'description' => 'Gestion del sitio, usuarios y configuracion para administradores',
+            'parent' => null,
+            'sortorder' => 9,
+            'enabled' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
     ];
 
     // Insert categories and store IDs.
@@ -658,6 +677,226 @@ function xmldb_local_educambot_install() {
             'timecreated' => $now,
             'timemodified' => $now,
         ],
+
+        // =============================================
+        // CATEGORY: DOCENTES Y GESTION (v1.9.1)
+        // Reglas para arquetipos: teacher, editingteacher
+        // =============================================
+
+        // Grade assignment.
+        'gradeassignment' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => '¿Como califico una tarea?',
+            'keywords' => "calificar tarea\ncalificar actividad\nponer nota\nevaluar estudiante\nrevisar entregas",
+            'response' => 'Para calificar tareas de tus estudiantes:<br><br>1. Accede al curso y haz clic en la actividad de tarea<br>2. Haz clic en "Ver todas las entregas"<br>3. Para cada estudiante:<br>   - Haz clic en "Calificar" junto a su nombre<br>   - Revisa el archivo entregado<br>   - Asigna la calificacion en el campo correspondiente<br>   - Escribe retroalimentacion si lo deseas<br>   - Haz clic en "Guardar cambios"<br><br><strong>Tip:</strong> Usa "Calificacion rapida" para evaluar multiples entregas mas eficientemente.',
+            'tags' => 'calificar, evaluar, tarea, profesor',
+            'roles' => 'teacher,editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Create quiz.
+        'createquiz' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => '¿Como creo un cuestionario?',
+            'keywords' => "crear cuestionario\ncrear examen\ncrear quiz\nanadir preguntas\ncrear evaluacion",
+            'response' => 'Para crear un cuestionario en tu curso:<br><br>1. Activa el modo de edicion<br>2. En la seccion deseada, haz clic en "Anadir una actividad o recurso"<br>3. Selecciona "Cuestionario"<br>4. Configura:<br>   - Nombre y descripcion<br>   - Tiempo limite (si aplica)<br>   - Fecha de apertura y cierre<br>   - Numero de intentos permitidos<br>5. Haz clic en "Guardar y mostrar"<br>6. Haz clic en "Editar cuestionario" para anadir preguntas<br><br><strong>Tip:</strong> Crea las preguntas primero en el Banco de preguntas.',
+            'tags' => 'crear, cuestionario, examen, profesor',
+            'roles' => 'editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Student progress.
+        'studentprogress' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => '¿Como veo el progreso de mis estudiantes?',
+            'keywords' => "progreso estudiantes\nver avance\ncompletion estudiantes\nreporte progreso\nseguimiento estudiantes",
+            'response' => 'Para ver el progreso de tus estudiantes:<br><br><strong>Opcion 1 - Informe de actividad:</strong><br>1. Ve a tu curso<br>2. En Administracion del curso > Informes > Finalizacion de la actividad<br><br><strong>Opcion 2 - Por estudiante:</strong><br>1. Ve a Participantes<br>2. Haz clic en un estudiante<br>3. Revisa "Informes de actividad"<br><br><strong>Opcion 3 - Calificador:</strong><br>1. Administracion del curso > Calificaciones<br>2. Selecciona "Ver > Informe del calificador"',
+            'tags' => 'progreso, estudiantes, seguimiento, profesor',
+            'roles' => 'teacher,editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Set deadline.
+        'setdeadline' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => '¿Como configuro la fecha limite de una tarea?',
+            'keywords' => "fecha limite\ndeadline\ncierre tarea\nfecha entrega\nplazo tarea",
+            'response' => 'Para configurar fechas limite en tareas:<br><br>1. Ve a la tarea y haz clic en "Editar ajustes"<br>2. En la seccion "Disponibilidad":<br>   - <strong>Permitir entregas desde:</strong> Fecha de apertura<br>   - <strong>Fecha de entrega:</strong> Fecha limite sugerida<br>   - <strong>Fecha limite:</strong> Cierre definitivo de entregas<br>   - <strong>Fecha de corte:</strong> No acepta entregas despues<br>3. Guarda los cambios<br><br><strong>Tip:</strong> "Fecha de entrega" muestra aviso pero permite entregas tardias hasta "Fecha limite".',
+            'tags' => 'fecha, limite, deadline, tarea, profesor',
+            'roles' => 'editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Add resources.
+        'addresources' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => '¿Como agrego materiales al curso?',
+            'keywords' => "agregar material\nsubir archivo\nagregar recurso\nagregar documento\nsubir pdf",
+            'response' => 'Para agregar materiales a tu curso:<br><br>1. Activa el "Modo de edicion" (esquina superior derecha)<br>2. En la seccion deseada, haz clic en "Agregar una actividad o recurso"<br>3. Selecciona el tipo:<br>   - <strong>Archivo:</strong> Un documento (PDF, Word, etc.)<br>   - <strong>Carpeta:</strong> Multiples archivos organizados<br>   - <strong>URL:</strong> Enlace a sitio externo<br>   - <strong>Pagina:</strong> Contenido HTML<br>4. Sube el archivo o configura el recurso<br>5. Guarda los cambios',
+            'tags' => 'agregar, material, recurso, archivo, profesor',
+            'roles' => 'editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Enroll students.
+        'enrollstudents' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => '¿Como inscribo estudiantes en mi curso?',
+            'keywords' => "inscribir estudiante\nmatricular alumno\nagregar estudiante\nenrol estudiante",
+            'response' => 'Para inscribir estudiantes en tu curso:<br><br><strong>Inscripcion manual:</strong><br>1. Ve a tu curso > Participantes<br>2. Haz clic en "Inscribir usuarios"<br>3. Busca al estudiante por nombre o correo<br>4. Selecciona el rol (Estudiante)<br>5. Haz clic en "Inscribir"<br><br><strong>Autoinscripcion con clave:</strong><br>1. Administracion > Metodos de inscripcion<br>2. Habilita "Autoinscripcion"<br>3. Configura una clave de inscripcion<br>4. Comparte la clave con tus estudiantes',
+            'tags' => 'inscribir, estudiante, matricular, profesor',
+            'roles' => 'editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Create groups.
+        'creategroups' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => '¿Como creo grupos en mi curso?',
+            'keywords' => "crear grupo\ngrupos de trabajo\norganizar grupos\nequipos estudiantes",
+            'response' => 'Para crear grupos en tu curso:<br><br>1. Ve a Administracion del curso > Usuarios > Grupos<br>2. Haz clic en "Crear grupo"<br>3. Asigna un nombre al grupo<br>4. Guarda los cambios<br>5. Selecciona el grupo y haz clic en "Agregar/quitar usuarios"<br>6. Selecciona los estudiantes y agregalos<br><br><strong>Tip:</strong> Usa "Crear grupos automaticamente" para asignacion aleatoria.<br><br>Luego configura las actividades en "Modo de grupo" para trabajar con grupos.',
+            'tags' => 'grupos, equipos, organizar, profesor',
+            'roles' => 'editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Backup course.
+        'backupcourse' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => '¿Como hago respaldo de mi curso?',
+            'keywords' => "respaldo curso\nbackup\ncopia seguridad\nexportar curso\nguardar curso",
+            'response' => 'Para crear un respaldo de tu curso:<br><br>1. Ve a Administracion del curso > Copia de seguridad<br>2. Selecciona los elementos a incluir:<br>   - Actividades y recursos<br>   - Bloques<br>   - Datos de usuarios (opcional)<br>   - Archivos del curso<br>3. Haz clic en "Siguiente" y revisa la configuracion<br>4. Haz clic en "Ejecutar copia de seguridad"<br>5. Descarga el archivo .mbz generado<br><br><strong>Tip:</strong> Guarda copias periodicas, especialmente antes de cambios importantes.',
+            'tags' => 'backup, respaldo, copia, seguridad, profesor',
+            'roles' => 'editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Teacher menu.
+        'teachermenu' => [
+            'categoryid' => $catids['docentes'],
+            'pattern' => 'Menu de profesor',
+            'keywords' => "menu profesor\nopciones profesor\nque puedo hacer como profesor\nherramientas docente",
+            'response' => 'Como profesor tienes acceso a herramientas especiales:<br><br><strong>Gestion del curso:</strong><br>- Agregar y editar actividades<br>- Configurar fechas y restricciones<br>- Crear grupos de estudiantes<br><br><strong>Evaluacion:</strong><br>- Calificar tareas y cuestionarios<br>- Configurar rubrics<br>- Ver libro de calificaciones<br><br><strong>Seguimiento:</strong><br>- Ver progreso de estudiantes<br>- Informes de actividad<br>- Logs del curso<br><br>¿En que te puedo ayudar?',
+            'tags' => 'menu, profesor, herramientas, docente',
+            'roles' => 'teacher,editingteacher',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // =============================================
+        // CATEGORY: ADMINISTRACION (v1.9.1)
+        // Reglas para arquetipo: manager
+        // =============================================
+
+        // Create course.
+        'createcourse' => [
+            'categoryid' => $catids['administracion'],
+            'pattern' => '¿Como creo un curso nuevo?',
+            'keywords' => "crear curso\nnuevo curso\nanadir curso\ncurso nuevo",
+            'response' => 'Para crear un nuevo curso:<br><br>1. Ve a Administracion del sitio > Cursos > Gestionar cursos y categorias<br>2. Selecciona la categoria donde quieres el curso<br>3. Haz clic en "Crear un nuevo curso"<br>4. Completa la informacion:<br>   - Nombre completo y corto<br>   - Categoria<br>   - Fechas de inicio y fin<br>   - Formato del curso<br>5. Haz clic en "Guardar y mostrar"<br>6. Asigna profesores en "Inscribir usuarios"<br><br><strong>Tip:</strong> Usa plantillas de curso para agilizar la creacion.',
+            'tags' => 'crear, curso, nuevo, administrador',
+            'roles' => 'manager,coursecreator',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Manage users.
+        'manageusers' => [
+            'categoryid' => $catids['administracion'],
+            'pattern' => '¿Como gestiono usuarios?',
+            'keywords' => "gestionar usuarios\nadministrar usuarios\ncrear usuario\neditar usuario\nusuarios del sitio",
+            'response' => 'Para gestionar usuarios del sitio:<br><br><strong>Ver usuarios:</strong><br>Administracion del sitio > Usuarios > Cuentas > Examinar lista de usuarios<br><br><strong>Crear usuario:</strong><br>1. Administracion > Usuarios > Agregar un usuario<br>2. Completa los datos requeridos<br>3. Genera o asigna contrasena<br><br><strong>Editar usuario:</strong><br>1. Busca al usuario en la lista<br>2. Haz clic en el icono de editar<br>3. Modifica los campos necesarios<br><br><strong>Carga masiva:</strong><br>Administracion > Usuarios > Subir usuarios (CSV)',
+            'tags' => 'usuarios, gestionar, administrador, cuentas',
+            'roles' => 'manager',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Site reports.
+        'sitereports' => [
+            'categoryid' => $catids['administracion'],
+            'pattern' => '¿Como veo los reportes del sitio?',
+            'keywords' => "reportes sitio\ninformes sistema\nreportes moodle\nver estadisticas\nlogs sitio",
+            'response' => 'Para ver reportes del sitio:<br><br><strong>Logs del sistema:</strong><br>Administracion > Informes > Logs<br><br><strong>Estadisticas:</strong><br>Administracion > Informes > Estadisticas del sitio<br><br><strong>Rendimiento:</strong><br>Administracion > Informes > Rendimiento<br><br><strong>Backups:</strong><br>Administracion > Informes > Logs de copia de seguridad<br><br><strong>Eventos:</strong><br>Administracion > Informes > Lista de eventos<br><br><strong>Tip:</strong> Configura alertas automaticas para eventos importantes.',
+            'tags' => 'reportes, informes, estadisticas, administrador',
+            'roles' => 'manager',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Site configuration.
+        'siteconfig' => [
+            'categoryid' => $catids['administracion'],
+            'pattern' => '¿Como configuro el sitio?',
+            'keywords' => "configurar sitio\najustes sitio\nconfiguracion moodle\npersonalizar sitio",
+            'response' => 'Configuraciones principales del sitio:<br><br><strong>Apariencia:</strong><br>- Administracion > Apariencia > Temas<br>- Administracion > Apariencia > Logos<br><br><strong>Pagina principal:</strong><br>- Administracion > Pagina principal > Ajustes<br><br><strong>Seguridad:</strong><br>- Administracion > Seguridad > Politicas del sitio<br>- Administracion > Seguridad > Seguridad HTTP<br><br><strong>Plugins:</strong><br>- Administracion > Plugins > Vista general<br><br><strong>Idiomas:</strong><br>- Administracion > Idioma > Ajustes de idioma',
+            'tags' => 'configuracion, sitio, ajustes, administrador',
+            'roles' => 'manager',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Manage plugins.
+        'manageplugins' => [
+            'categoryid' => $catids['administracion'],
+            'pattern' => '¿Como instalo un plugin?',
+            'keywords' => "instalar plugin\nagregar plugin\nplugin moodle\nextension moodle",
+            'response' => 'Para instalar un plugin en Moodle:<br><br><strong>Desde ZIP:</strong><br>1. Descarga el plugin (.zip) desde moodle.org/plugins<br>2. Ve a Administracion > Plugins > Instalar plugins<br>3. Sube el archivo ZIP<br>4. Haz clic en "Instalar plugin desde ZIP"<br>5. Confirma la instalacion<br><br><strong>Manual (FTP):</strong><br>1. Extrae el plugin en la carpeta correspondiente<br>2. Ve a Administracion > Notificaciones<br>3. Sigue el proceso de instalacion<br><br><strong>Tip:</strong> Siempre revisa la compatibilidad con tu version de Moodle.',
+            'tags' => 'plugin, instalar, extension, administrador',
+            'roles' => 'manager',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
+
+        // Admin menu.
+        'adminmenu' => [
+            'categoryid' => $catids['administracion'],
+            'pattern' => 'Menu de administrador',
+            'keywords' => "menu administrador\nopciones admin\nque puedo hacer como admin\nherramientas admin",
+            'response' => 'Como administrador tienes acceso completo al sitio:<br><br><strong>Gestion de usuarios:</strong><br>- Crear y editar usuarios<br>- Asignar roles globales<br>- Carga masiva de usuarios<br><br><strong>Gestion de cursos:</strong><br>- Crear categorias y cursos<br>- Restaurar cursos<br>- Gestionar inscripciones<br><br><strong>Configuracion:</strong><br>- Temas y apariencia<br>- Plugins<br>- Seguridad<br><br><strong>Monitoreo:</strong><br>- Logs y reportes<br>- Rendimiento<br>- Tareas programadas<br><br>¿En que te puedo ayudar?',
+            'tags' => 'menu, administrador, herramientas, admin',
+            'roles' => 'manager',
+            'enabled' => 1,
+            'showoptions' => 1,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ],
     ];
 
     // Insert all rules and store IDs.
@@ -844,6 +1083,81 @@ function xmldb_local_educambot_install() {
         ['ruleid' => $ruleids['loginissues'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 1, 'enabled' => 1],
         ['ruleid' => $ruleids['loginissues'], 'text' => 'Cambiar Contrasena', 'targetruleid' => $ruleids['password'], 'icon' => '🔑', 'sortorder' => 2, 'enabled' => 1],
         ['ruleid' => $ruleids['loginissues'], 'text' => 'Soporte', 'targetruleid' => $ruleids['support'], 'icon' => '🆘', 'sortorder' => 3, 'enabled' => 1],
+
+        // =============================================
+        // OPCIONES PARA DOCENTES (v1.9.1)
+        // =============================================
+
+        // Grade assignment options.
+        ['ruleid' => $ruleids['gradeassignment'], 'text' => 'Menu Profesor', 'targetruleid' => $ruleids['teachermenu'], 'icon' => '👨‍🏫', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['gradeassignment'], 'text' => 'Ver Progreso', 'targetruleid' => $ruleids['studentprogress'], 'icon' => '📈', 'sortorder' => 2, 'enabled' => 1],
+
+        // Create quiz options.
+        ['ruleid' => $ruleids['createquiz'], 'text' => 'Menu Profesor', 'targetruleid' => $ruleids['teachermenu'], 'icon' => '👨‍🏫', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['createquiz'], 'text' => 'Agregar Materiales', 'targetruleid' => $ruleids['addresources'], 'icon' => '📁', 'sortorder' => 2, 'enabled' => 1],
+
+        // Student progress options.
+        ['ruleid' => $ruleids['studentprogress'], 'text' => 'Menu Profesor', 'targetruleid' => $ruleids['teachermenu'], 'icon' => '👨‍🏫', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['studentprogress'], 'text' => 'Calificar Tarea', 'targetruleid' => $ruleids['gradeassignment'], 'icon' => '📝', 'sortorder' => 2, 'enabled' => 1],
+
+        // Set deadline options.
+        ['ruleid' => $ruleids['setdeadline'], 'text' => 'Menu Profesor', 'targetruleid' => $ruleids['teachermenu'], 'icon' => '👨‍🏫', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['setdeadline'], 'text' => 'Crear Cuestionario', 'targetruleid' => $ruleids['createquiz'], 'icon' => '❓', 'sortorder' => 2, 'enabled' => 1],
+
+        // Add resources options.
+        ['ruleid' => $ruleids['addresources'], 'text' => 'Menu Profesor', 'targetruleid' => $ruleids['teachermenu'], 'icon' => '👨‍🏫', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['addresources'], 'text' => 'Crear Cuestionario', 'targetruleid' => $ruleids['createquiz'], 'icon' => '❓', 'sortorder' => 2, 'enabled' => 1],
+
+        // Enroll students options.
+        ['ruleid' => $ruleids['enrollstudents'], 'text' => 'Menu Profesor', 'targetruleid' => $ruleids['teachermenu'], 'icon' => '👨‍🏫', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['enrollstudents'], 'text' => 'Crear Grupos', 'targetruleid' => $ruleids['creategroups'], 'icon' => '👥', 'sortorder' => 2, 'enabled' => 1],
+
+        // Create groups options.
+        ['ruleid' => $ruleids['creategroups'], 'text' => 'Menu Profesor', 'targetruleid' => $ruleids['teachermenu'], 'icon' => '👨‍🏫', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['creategroups'], 'text' => 'Inscribir Estudiantes', 'targetruleid' => $ruleids['enrollstudents'], 'icon' => '➕', 'sortorder' => 2, 'enabled' => 1],
+
+        // Backup course options.
+        ['ruleid' => $ruleids['backupcourse'], 'text' => 'Menu Profesor', 'targetruleid' => $ruleids['teachermenu'], 'icon' => '👨‍🏫', 'sortorder' => 1, 'enabled' => 1],
+
+        // Teacher menu options.
+        ['ruleid' => $ruleids['teachermenu'], 'text' => 'Calificar Tareas', 'targetruleid' => $ruleids['gradeassignment'], 'icon' => '📝', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['teachermenu'], 'text' => 'Crear Cuestionario', 'targetruleid' => $ruleids['createquiz'], 'icon' => '❓', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['teachermenu'], 'text' => 'Ver Progreso', 'targetruleid' => $ruleids['studentprogress'], 'icon' => '📈', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['teachermenu'], 'text' => 'Agregar Material', 'targetruleid' => $ruleids['addresources'], 'icon' => '📁', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['teachermenu'], 'text' => 'Inscribir', 'targetruleid' => $ruleids['enrollstudents'], 'icon' => '➕', 'sortorder' => 5, 'enabled' => 1],
+        ['ruleid' => $ruleids['teachermenu'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 6, 'enabled' => 1],
+
+        // =============================================
+        // OPCIONES PARA ADMINISTRADORES (v1.9.1)
+        // =============================================
+
+        // Create course options.
+        ['ruleid' => $ruleids['createcourse'], 'text' => 'Menu Admin', 'targetruleid' => $ruleids['adminmenu'], 'icon' => '⚙️', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['createcourse'], 'text' => 'Gestionar Usuarios', 'targetruleid' => $ruleids['manageusers'], 'icon' => '👥', 'sortorder' => 2, 'enabled' => 1],
+
+        // Manage users options.
+        ['ruleid' => $ruleids['manageusers'], 'text' => 'Menu Admin', 'targetruleid' => $ruleids['adminmenu'], 'icon' => '⚙️', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['manageusers'], 'text' => 'Crear Curso', 'targetruleid' => $ruleids['createcourse'], 'icon' => '📚', 'sortorder' => 2, 'enabled' => 1],
+
+        // Site reports options.
+        ['ruleid' => $ruleids['sitereports'], 'text' => 'Menu Admin', 'targetruleid' => $ruleids['adminmenu'], 'icon' => '⚙️', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['sitereports'], 'text' => 'Configurar Sitio', 'targetruleid' => $ruleids['siteconfig'], 'icon' => '🔧', 'sortorder' => 2, 'enabled' => 1],
+
+        // Site config options.
+        ['ruleid' => $ruleids['siteconfig'], 'text' => 'Menu Admin', 'targetruleid' => $ruleids['adminmenu'], 'icon' => '⚙️', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['siteconfig'], 'text' => 'Instalar Plugin', 'targetruleid' => $ruleids['manageplugins'], 'icon' => '🔌', 'sortorder' => 2, 'enabled' => 1],
+
+        // Manage plugins options.
+        ['ruleid' => $ruleids['manageplugins'], 'text' => 'Menu Admin', 'targetruleid' => $ruleids['adminmenu'], 'icon' => '⚙️', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['manageplugins'], 'text' => 'Configurar Sitio', 'targetruleid' => $ruleids['siteconfig'], 'icon' => '🔧', 'sortorder' => 2, 'enabled' => 1],
+
+        // Admin menu options.
+        ['ruleid' => $ruleids['adminmenu'], 'text' => 'Crear Curso', 'targetruleid' => $ruleids['createcourse'], 'icon' => '📚', 'sortorder' => 1, 'enabled' => 1],
+        ['ruleid' => $ruleids['adminmenu'], 'text' => 'Gestionar Usuarios', 'targetruleid' => $ruleids['manageusers'], 'icon' => '👥', 'sortorder' => 2, 'enabled' => 1],
+        ['ruleid' => $ruleids['adminmenu'], 'text' => 'Ver Reportes', 'targetruleid' => $ruleids['sitereports'], 'icon' => '📊', 'sortorder' => 3, 'enabled' => 1],
+        ['ruleid' => $ruleids['adminmenu'], 'text' => 'Configuracion', 'targetruleid' => $ruleids['siteconfig'], 'icon' => '🔧', 'sortorder' => 4, 'enabled' => 1],
+        ['ruleid' => $ruleids['adminmenu'], 'text' => 'Plugins', 'targetruleid' => $ruleids['manageplugins'], 'icon' => '🔌', 'sortorder' => 5, 'enabled' => 1],
+        ['ruleid' => $ruleids['adminmenu'], 'text' => 'Menu Principal', 'targetruleid' => $ruleids['menu'], 'icon' => '🏠', 'sortorder' => 6, 'enabled' => 1],
     ];
 
     // Insert all options.
