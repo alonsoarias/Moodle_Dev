@@ -34,7 +34,10 @@ $context = context_system::instance();
 require_capability('local/educambot:use', $context);
 
 // Get the startup rule (special rule with __startup__ pattern).
-$startuprule = $DB->get_record('local_educambot_rule', ['pattern' => '__startup__', 'enabled' => 1]);
+// Use sql_compare_text for TEXT field comparison (database compatibility).
+$sql = "SELECT * FROM {local_educambot_rule}
+        WHERE " . $DB->sql_compare_text('pattern') . " = :pattern AND enabled = :enabled";
+$startuprule = $DB->get_record_sql($sql, ['pattern' => '__startup__', 'enabled' => 1]);
 
 $response = [
     'success' => true,

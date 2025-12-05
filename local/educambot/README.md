@@ -1,6 +1,6 @@
 # Nexo Bot - Chatbot Inteligente para Moodle
 
-**Version**: 1.9.5
+**Version**: 1.9.6
 **Requiere**: Moodle 4.0+
 **Licencia**: GPL v3+
 

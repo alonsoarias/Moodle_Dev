@@ -5,6 +5,13 @@ Todos los cambios notables de este proyecto seran documentados en este archivo.
 El formato esta basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.9.6] - 2025-12-05
+
+### Corregido
+- **history.php**: Orden corregido de `require_login()` y `require_sesskey()` para evitar errores de sesion
+- **startup.php**: Uso de `$DB->sql_compare_text()` para compatibilidad con todos los motores de base de datos (Oracle, PostgreSQL)
+- **widget.mustache**: Corregida variable `data-userrole` que referenciaba `{{userrole}}` inexistente (ahora usa `{{userrolearchetype}}`)
+
 ## [1.9.5] - 2025-12-05
 
 ### Agregado

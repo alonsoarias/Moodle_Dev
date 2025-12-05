@@ -26,9 +26,9 @@ define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
 
-// Verify session.
-require_sesskey();
+// Verify session - require_login must come first.
 require_login();
+require_sesskey();
 
 // Get parameters.
 $limit = optional_param('limit', 20, PARAM_INT);
