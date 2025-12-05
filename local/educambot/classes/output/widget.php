@@ -94,6 +94,7 @@ class widget implements renderable, templatable {
             'userid' => $USER->id,
             'userfirstname' => $USER->firstname ?? '',
             'userlastname' => $USER->lastname ?? '',
+            'userfullname' => trim(($USER->firstname ?? '') . ' ' . ($USER->lastname ?? '')),
             'userrolearchetype' => $userrolearchetype,
             // Configuration options (v1.9.0).
             'inactivitytimeout' => (int) $inactivitytimeout,
@@ -152,9 +153,14 @@ class widget implements renderable, templatable {
      * @return string Interpolated message
      */
     private function interpolate_message($message, $user, $botname) {
+        // Build fullname from firstname and lastname.
+        $fullname = trim(($user->firstname ?? '') . ' ' . ($user->lastname ?? ''));
+
         $replacements = [
             '{{userfirstname}}' => $user->firstname ?? '',
             '{{userlastname}}' => $user->lastname ?? '',
+            '{{fullname}}' => $fullname,
+            '{{username}}' => $fullname, // Alias for fullname.
             '{{botname}}' => $botname,
         ];
 

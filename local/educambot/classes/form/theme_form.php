@@ -175,6 +175,64 @@ class theme_form extends \moodleform {
     }
 
     /**
+     * Set form data - restore icon/mascot values to correct fields.
+     *
+     * @param stdClass|array $data Form data from database
+     */
+    public function set_data($data) {
+        global $CFG;
+
+        if (is_object($data)) {
+            $data = (array)$data;
+        }
+
+        // Restore widget icon value to the appropriate field based on type.
+        if (!empty($data['widgeticonurl']) && !empty($data['widgeticontype'])) {
+            switch ($data['widgeticontype']) {
+                case 'emoji':
+                    $data['widgeticonemoji'] = $data['widgeticonurl'];
+                    break;
+                case 'fontawesome':
+                    $data['widgeticonfa'] = $data['widgeticonurl'];
+                    break;
+                case 'custom':
+                    // For custom icons, prepare the file manager draft area.
+                    if (!empty($data['id'])) {
+                        $context = \context_system::instance();
+                        $draftitemid = file_get_submitted_draft_itemid('widgeticonfile');
+                        file_prepare_draft_area(
+                            $draftitemid,
+                            $context->id,
+                            'local_educambot',
+                            'widgeticon',
+                            $data['id'],
+                            ['subdirs' => 0, 'maxfiles' => 1]
+                        );
+                        $data['widgeticonfile'] = $draftitemid;
+                    }
+                    break;
+            }
+        }
+
+        // Restore mascot file to draft area if custom.
+        if (!empty($data['id']) && !empty($data['mascottype']) && $data['mascottype'] === 'custom') {
+            $context = \context_system::instance();
+            $draftitemid = file_get_submitted_draft_itemid('mascotfile');
+            file_prepare_draft_area(
+                $draftitemid,
+                $context->id,
+                'local_educambot',
+                'mascot',
+                $data['id'],
+                ['subdirs' => 0, 'maxfiles' => 1]
+            );
+            $data['mascotfile'] = $draftitemid;
+        }
+
+        parent::set_data($data);
+    }
+
+    /**
      * Validate form data.
      *
      * @param array $data Form data.

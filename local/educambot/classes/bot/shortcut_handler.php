@@ -195,7 +195,7 @@ class shortcut_handler {
                 $duetext = get_string('noduedate', 'local_educambot');
             }
 
-            $response .= "- <a href='{$assignment->url}'>{$assignment->name}</a> - {$duetext}<br>";
+            $response .= "- <a href='{$assignment->url}' target='_blank' rel='noopener'>{$assignment->name}</a> - {$duetext}<br>";
         }
 
         return $response;
@@ -245,9 +245,10 @@ class shortcut_handler {
             }
         }
 
-        // Link to full grades.
+        // Link to full grades (opens in new tab).
         $gradesurl = new \moodle_url('/grade/report/user/index.php', ['id' => $course['id']]);
-        $response .= '<br><a href="' . $gradesurl . '">' . get_string('viewallgrades', 'local_educambot') . '</a>';
+        $response .= '<br>📊 <a href="' . $gradesurl . '" target="_blank" rel="noopener">';
+        $response .= get_string('viewallgrades', 'local_educambot') . ' ↗</a>';
 
         return $response;
     }
@@ -274,9 +275,10 @@ class shortcut_handler {
             $response .= "{$icon} <strong>{$event->name}</strong> - {$date}<br>";
         }
 
-        // Link to calendar.
+        // Link to calendar (opens in new tab).
         $calurl = new \moodle_url('/calendar/view.php');
-        $response .= '<br><a href="' . $calurl . '">' . get_string('viewcalendar', 'local_educambot') . '</a>';
+        $response .= '<br>📅 <a href="' . $calurl . '" target="_blank" rel="noopener">';
+        $response .= get_string('viewcalendar', 'local_educambot') . ' ↗</a>';
 
         return $response;
     }
@@ -325,9 +327,10 @@ class shortcut_handler {
             }
         }
 
-        // Link to messages.
+        // Link to messages (opens in new tab).
         $msgurl = new \moodle_url('/message/index.php');
-        $response .= '<br><a href="' . $msgurl . '">' . get_string('viewallmessages', 'local_educambot') . '</a>';
+        $response .= '<br>💬 <a href="' . $msgurl . '" target="_blank" rel="noopener">';
+        $response .= get_string('viewallmessages', 'local_educambot') . ' ↗</a>';
 
         return $response;
     }
@@ -354,7 +357,7 @@ class shortcut_handler {
         foreach ($teachers as $teacher) {
             $msgurl = new \moodle_url('/message/index.php', ['id' => $teacher->id]);
             $response .= "- <strong>{$teacher->fullname}</strong> ";
-            $response .= "(<a href='{$msgurl}'>" . get_string('sendmessage', 'local_educambot') . "</a>)<br>";
+            $response .= "(<a href='{$msgurl}' target='_blank' rel='noopener'>" . get_string('sendmessage', 'local_educambot') . "</a>)<br>";
         }
 
         return $response;

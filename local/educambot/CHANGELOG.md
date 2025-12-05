@@ -5,6 +5,17 @@ Todos los cambios notables de este proyecto seran documentados en este archivo.
 El formato esta basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.9.4] - 2025-12-05
+
+### Agregado
+- **Saludo con nombre completo**: Nuevos marcadores `{{fullname}}` y `{{username}}` para el mensaje de saludo
+- Los enlaces de shortcuts ahora se abren en nueva pestana (`target="_blank"`)
+- Indicadores visuales en enlaces directos (iconos y flecha ↗)
+
+### Corregido
+- Formulario de temas: Los valores de icono (emoji, Font Awesome) y mascota ahora se restauran correctamente al editar
+- Metodo `set_data()` en theme_form para cargar archivos existentes en draft area
+
 ## [1.9.3] - 2025-12-05
 
 ### Corregido

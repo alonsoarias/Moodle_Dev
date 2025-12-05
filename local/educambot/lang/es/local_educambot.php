@@ -49,8 +49,8 @@ $string['widgetlabel_desc'] = 'La etiqueta mostrada en el botón del widget';
 $string['widgetlabel_default'] = 'Chat Bot';
 
 $string['greetingtemplate'] = 'Mensaje de saludo';
-$string['greetingtemplate_desc'] = 'El mensaje de saludo al abrir el chat. Puede usar: {{userfirstname}}, {{userlastname}}, {{botname}}';
-$string['greeting_default'] = '¡Hola {{userfirstname}}! Soy {{botname}}, tu asistente virtual. ¿En qué puedo ayudarte hoy?';
+$string['greetingtemplate_desc'] = 'El mensaje de saludo al abrir el chat. Marcadores disponibles: {{fullname}} (nombre completo), {{userfirstname}}, {{userlastname}}, {{username}} (alias de fullname), {{botname}}';
+$string['greeting_default'] = '¡Hola {{fullname}}! Soy {{botname}}, tu asistente virtual. ¿En qué puedo ayudarte hoy?';
 
 $string['primarycolor'] = 'Color primario';
 $string['primarycolor_desc'] = 'El color principal del widget (botones, encabezado)';
