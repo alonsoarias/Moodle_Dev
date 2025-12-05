@@ -15,7 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * External API for local_educambot.
+ * External API for local_educambot (v1.9.0).
+ *
+ * Updated to use modern external API classes when available (Moodle 4.2+)
+ * while maintaining backwards compatibility with older versions.
  *
  * @package     local_educambot
  * @copyright   2025 EducamBot Team
@@ -26,28 +29,39 @@ namespace local_educambot;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
+// Use modern API if available (Moodle 4.2+), otherwise fall back to legacy.
+if (class_exists('\core_external\external_api')) {
+    // Moodle 4.2+ uses namespaced classes.
+    class_alias('\core_external\external_api', '\local_educambot\base_external_api');
+    class_alias('\core_external\external_function_parameters', '\local_educambot\base_external_function_parameters');
+    class_alias('\core_external\external_value', '\local_educambot\base_external_value');
+    class_alias('\core_external\external_single_structure', '\local_educambot\base_external_single_structure');
+    class_alias('\core_external\external_multiple_structure', '\local_educambot\base_external_multiple_structure');
+} else {
+    // Legacy support for Moodle < 4.2.
+    require_once($CFG->libdir . '/externallib.php');
+    class_alias('\external_api', '\local_educambot\base_external_api');
+    class_alias('\external_function_parameters', '\local_educambot\base_external_function_parameters');
+    class_alias('\external_value', '\local_educambot\base_external_value');
+    class_alias('\external_single_structure', '\local_educambot\base_external_single_structure');
+    class_alias('\external_multiple_structure', '\local_educambot\base_external_multiple_structure');
+}
 
-use external_api;
-use external_function_parameters;
-use external_value;
-use external_single_structure;
-use external_multiple_structure;
 use context_system;
 
 /**
  * External functions for educambot mascot functionality.
  */
-class external extends external_api {
+class external extends base_external_api {
 
     /**
      * Describes the parameters for get_popular_questions.
      *
-     * @return external_function_parameters
+     * @return base_external_function_parameters
      */
     public static function get_popular_questions_parameters() {
-        return new external_function_parameters([
-            'limit' => new external_value(PARAM_INT, 'Maximum number of questions to return', VALUE_DEFAULT, 5),
+        return new base_external_function_parameters([
+            'limit' => new base_external_value(PARAM_INT, 'Maximum number of questions to return', VALUE_DEFAULT, 5),
         ]);
     }
 
@@ -124,14 +138,14 @@ class external extends external_api {
     /**
      * Describes the return value for get_popular_questions.
      *
-     * @return external_multiple_structure
+     * @return base_external_multiple_structure
      */
     public static function get_popular_questions_returns() {
-        return new external_multiple_structure(
-            new external_single_structure([
-                'id' => new external_value(PARAM_INT, 'Rule ID'),
-                'pattern' => new external_value(PARAM_TEXT, 'Question pattern'),
-                'count' => new external_value(PARAM_INT, 'Usage count'),
+        return new base_external_multiple_structure(
+            new base_external_single_structure([
+                'id' => new base_external_value(PARAM_INT, 'Rule ID'),
+                'pattern' => new base_external_value(PARAM_TEXT, 'Question pattern'),
+                'count' => new base_external_value(PARAM_INT, 'Usage count'),
             ])
         );
     }
@@ -139,12 +153,12 @@ class external extends external_api {
     /**
      * Describes the parameters for get_similar_questions.
      *
-     * @return external_function_parameters
+     * @return base_external_function_parameters
      */
     public static function get_similar_questions_parameters() {
-        return new external_function_parameters([
-            'question' => new external_value(PARAM_TEXT, 'The question to find similar questions for'),
-            'limit' => new external_value(PARAM_INT, 'Maximum number of questions to return', VALUE_DEFAULT, 3),
+        return new base_external_function_parameters([
+            'question' => new base_external_value(PARAM_TEXT, 'The question to find similar questions for'),
+            'limit' => new base_external_value(PARAM_INT, 'Maximum number of questions to return', VALUE_DEFAULT, 3),
         ]);
     }
 
@@ -227,13 +241,13 @@ class external extends external_api {
     /**
      * Describes the return value for get_similar_questions.
      *
-     * @return external_multiple_structure
+     * @return base_external_multiple_structure
      */
     public static function get_similar_questions_returns() {
-        return new external_multiple_structure(
-            new external_single_structure([
-                'id' => new external_value(PARAM_INT, 'Rule ID'),
-                'pattern' => new external_value(PARAM_TEXT, 'Question pattern'),
+        return new base_external_multiple_structure(
+            new base_external_single_structure([
+                'id' => new base_external_value(PARAM_INT, 'Rule ID'),
+                'pattern' => new base_external_value(PARAM_TEXT, 'Question pattern'),
             ])
         );
     }

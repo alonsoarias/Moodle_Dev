@@ -433,3 +433,38 @@ $string['mascot_suggest_grades'] = 'I can show your grades';
 $string['mascot_suggest_calendar'] = 'Want to see the calendar?';
 $string['mascot_suggest_course'] = 'Ask me about your course';
 $string['mascot_suggest_help'] = 'Click me for popular questions!';
+
+// v1.9.0 - Conversation History and Persistence.
+$string['history_heading'] = 'Conversation History';
+$string['enablehistory'] = 'Enable conversation history';
+$string['enablehistory_desc'] = 'Save and restore conversation history for users. Users can resume previous conversations when reopening the chat.';
+$string['previousconversation'] = 'Previous conversation';
+$string['historydeleted'] = 'Conversation history deleted';
+$string['recorddeleted'] = 'Record deleted';
+$string['recordnotfound'] = 'Record not found';
+$string['chatconversations'] = 'Chat Conversations';
+
+// v1.9.0 - Inactivity Timeout.
+$string['timeout_heading'] = 'Inactivity Timeout';
+$string['inactivitytimeout'] = 'Inactivity timeout';
+$string['inactivitytimeout_desc'] = 'Automatically minimize the chat after this period of inactivity (in milliseconds). Set to 0 to disable. Default: 600000 (10 minutes).';
+$string['inactivity_warning'] = 'Chat will close soon due to inactivity';
+$string['keepchatopen'] = 'Keep chat open';
+
+// v1.9.0 - Role-based behavior.
+$string['mascot_greeting_teacher'] = 'Hello teacher! How can I assist you today?';
+$string['mascot_greeting_admin'] = 'Welcome administrator! How can I help you manage the system?';
+$string['mascot_suggest_grading'] = 'Need help with grading?';
+$string['mascot_suggest_students'] = 'Questions about your students?';
+$string['mascot_suggest_reports'] = 'View system reports?';
+$string['mascot_suggest_admin'] = 'Admin dashboard help?';
+
+// v1.9.0 - Privacy strings for GDPR compliance.
+$string['privacy:metadata:log'] = 'Chat conversation log storing user questions and bot responses.';
+$string['privacy:metadata:log:userid'] = 'The ID of the user who asked the question.';
+$string['privacy:metadata:log:question'] = 'The question asked by the user.';
+$string['privacy:metadata:log:response'] = 'The response provided by the bot.';
+$string['privacy:metadata:log:ruleid'] = 'The ID of the rule that matched the question.';
+$string['privacy:metadata:log:confidence'] = 'The confidence score of the match (0-1).';
+$string['privacy:metadata:log:matched'] = 'Whether a matching rule was found.';
+$string['privacy:metadata:log:timecreated'] = 'The timestamp when the conversation occurred.';

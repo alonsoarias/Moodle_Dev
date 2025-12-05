@@ -27,17 +27,32 @@
     * sesskey - Session key for AJAX requests
     * greetingmessage - Initial greeting message
 }}
-<div id="educambot-chat" style="display:none"
+<div id="educambot-chat" style="display:none;
+     --educambot-primary: {{primarycolor}};
+     --educambot-secondary: {{secondarycolor}};
+     --educambot-text: {{textcolor}};
+     --educambot-background: {{backgroundcolor}};
+     --educambot-user: {{usercolor}};
+     --educambot-bot: {{botcolor}};"
      data-serviceurl="{{serviceurl}}"
      data-startupurl="{{startupurl}}"
+     data-historyurl="{{historyurl}}"
      data-sesskey="{{sesskey}}"
      data-botname="{{botname}}"
-     data-courseid="{{courseid}}">
+     data-courseid="{{courseid}}"
+     data-userrole="{{userrole}}"
+     data-inactivity-timeout="{{inactivitytimeout}}"
+     data-enable-history="{{enablehistory}}"
+     data-userid="{{userid}}"
+     data-userfirstname="{{userfirstname}}"
+     data-userlastname="{{userlastname}}"
+     data-userrolearchetype="{{userrolearchetype}}"
+     class="educambot-role-{{userrolearchetype}}">
 
     <!-- Chat popup panel -->
     <div class="educambot-popup">
         <!-- Header -->
-        <div class="educambot-header" style="background-color: {{primarycolor}};">
+        <div class="educambot-header">
             <div class="educambot-info">
                 <span class="educambot-avatar">
                     {{#widgeticon}}
@@ -114,7 +129,7 @@
             <textarea id="educambot-textarea"
                       placeholder="{{#str}}typeaquestion, local_educambot{{/str}}"
                       rows="1"></textarea>
-            <div id="educambot-send" class="educambot-send-btn" style="background-color: {{primarycolor}};" title="{{#str}}send, core{{/str}}">
+            <div id="educambot-send" class="educambot-send-btn" title="{{#str}}send, core{{/str}}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                 </svg>
@@ -128,7 +143,7 @@
     </div>
 
     <!-- Floating button -->
-    <div id="educambot-btn" style="background-color: {{primarycolor}};">
+    <div id="educambot-btn">
         <span class="educambot-open-icon">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
                 <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>

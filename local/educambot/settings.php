@@ -127,6 +127,37 @@ if ($hassiteconfig) {
             get_string('autolang_desc', 'local_educambot'),
             1
         ));
+
+        // History section (v1.9.0).
+        $settings->add(new admin_setting_heading(
+            'local_educambot/history_heading',
+            get_string('history_heading', 'local_educambot'),
+            ''
+        ));
+
+        // Enable conversation history setting.
+        $settings->add(new admin_setting_configcheckbox(
+            'local_educambot/enablehistory',
+            get_string('enablehistory', 'local_educambot'),
+            get_string('enablehistory_desc', 'local_educambot'),
+            1
+        ));
+
+        // Timeout section (v1.9.0).
+        $settings->add(new admin_setting_heading(
+            'local_educambot/timeout_heading',
+            get_string('timeout_heading', 'local_educambot'),
+            ''
+        ));
+
+        // Inactivity timeout setting.
+        $settings->add(new admin_setting_configtext(
+            'local_educambot/inactivitytimeout',
+            get_string('inactivitytimeout', 'local_educambot'),
+            get_string('inactivitytimeout_desc', 'local_educambot'),
+            600000,
+            PARAM_INT
+        ));
     }
 
     $ADMIN->add('local_educambot', $settings);

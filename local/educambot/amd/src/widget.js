@@ -14,7 +14,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nexo Bot widget JavaScript.
+ * Nexo Bot widget JavaScript (v1.9.0).
+ *
+ * Features:
+ * - Theme colors via CSS custom properties
+ * - Conversation history persistence
+ * - Inactivity timeout
+ * - Role-based behavior
+ * - Mascot animations
  *
  * @module     local_educambot/widget
  * @copyright  2025 EducamBot Team
@@ -30,6 +37,21 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         tooltipTimer: null,
         suggestionTimer: null,
         lastUserQuestion: '',
+
+        // Inactivity management (v1.9.0).
+        inactivityTimer: null,
+        inactivityWarningTimer: null,
+        inactivityTimeout: 600000, // 10 minutes default.
+        inactivityWarningTime: 60000, // 1 minute warning before close.
+        warningShown: false,
+
+        // History management (v1.9.0).
+        historyLoaded: false,
+        enableHistory: true,
+        historyUrl: '',
+
+        // User role (v1.9.0).
+        userRole: 'user',
 
         /**
          * Initialize the widget.
@@ -50,6 +72,12 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 educambotchat.remove();
                 return;
             }
+
+            // Get configuration from data attributes (v1.9.0).
+            self.inactivityTimeout = parseInt(educambotchat.data('inactivity-timeout')) || 600000;
+            self.enableHistory = parseInt(educambotchat.data('enable-history')) === 1;
+            self.historyUrl = educambotchat.data('historyurl') || '';
+            self.userRole = educambotchat.data('userrolearchetype') || 'user';
 
             // Show widget with animation.
             educambotchat.show(200);
@@ -79,6 +107,12 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 if (educambotchat.hasClass('educambot-active')) {
                     localStorage.setItem('educambot-isopen', 'true');
                     textarea.focus();
+
+                    // Load chat history on first open (v1.9.0).
+                    if (!self.historyLoaded && self.enableHistory) {
+                        self.loadChatHistory(messages, sesskey);
+                    }
+
                     // Load startup options on first open.
                     if (!startupOptionsLoaded) {
                         loadStartupOptions();
@@ -87,12 +121,17 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                     if (self.mascot.length && !self.mascot.data('initialized')) {
                         self.initMascot();
                     }
+
+                    // Start inactivity timer (v1.9.0).
+                    self.resetInactivityTimer(educambotchat, messages);
                 } else {
                     localStorage.removeItem('educambot-isopen');
                     // Stop suggestion timer when closed.
                     if (self.suggestionTimer) {
                         clearTimeout(self.suggestionTimer);
                     }
+                    // Stop inactivity timer (v1.9.0).
+                    self.stopInactivityTimer();
                 }
             });
 
@@ -146,18 +185,42 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 e.preventDefault();
                 educambotchat.removeClass('educambot-active');
                 localStorage.removeItem('educambot-isopen');
+                self.stopInactivityTimer();
             });
 
             // Clear history.
             clearBtn.on('click', function(e) {
                 e.preventDefault();
+                // Keep only greeting message.
                 messages.find('.educambot-message').not(':first').remove();
+                messages.find('.educambot-history-divider').remove();
+
+                // Clear server-side history if enabled (v1.9.0).
+                if (self.enableHistory && self.historyUrl) {
+                    $.ajax({
+                        url: self.historyUrl,
+                        type: 'POST',
+                        data: {
+                            sesskey: sesskey,
+                            action: 'clear'
+                        },
+                        dataType: 'json'
+                    });
+                }
+
+                // Clear local storage.
+                localStorage.removeItem('educambot-history-' + educambotchat.data('userid'));
+
+                // Reset inactivity timer.
+                self.resetInactivityTimer(educambotchat, messages);
             });
 
-            // Auto-resize textarea.
+            // Auto-resize textarea and reset inactivity on input.
             textarea.on('input', function() {
                 this.style.height = '34px';
                 this.style.height = (this.scrollHeight) + 'px';
+                // Reset inactivity timer on typing (v1.9.0).
+                self.resetInactivityTimer(educambotchat, messages);
             });
 
             // Send on Enter (Shift+Enter for new line).
@@ -176,6 +239,12 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             // Restore state from localStorage.
             if (localStorage.getItem('educambot-isopen') === 'true') {
                 educambotchat.addClass('educambot-active');
+
+                // Load chat history if restored as open (v1.9.0).
+                if (!self.historyLoaded && self.enableHistory) {
+                    self.loadChatHistory(messages, sesskey);
+                }
+
                 // Load startup options if restored as open.
                 if (!startupOptionsLoaded) {
                     loadStartupOptions();
@@ -186,6 +255,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                         self.initMascot();
                     }, 500);
                 }
+
+                // Start inactivity timer (v1.9.0).
+                self.resetInactivityTimer(educambotchat, messages);
             }
 
             /**
@@ -215,6 +287,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 self.setMascotState('thinking');
                 self.hideTooltip();
 
+                // Reset inactivity timer (v1.9.0).
+                self.resetInactivityTimer(educambotchat, messages);
+
                 // Send AJAX request.
                 $.ajax({
                     url: serviceUrl,
@@ -243,6 +318,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                             addMessage('Error: No response received.', 'bot error');
                             self.setMascotState('confused');
                         }
+
+                        // Reset inactivity timer after response (v1.9.0).
+                        self.resetInactivityTimer(educambotchat, messages);
                     },
                     error: function() {
                         loading.hide();
@@ -260,6 +338,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             function handleOptionClick(option) {
                 // Disable all option buttons in the chat.
                 messages.find('.educambot-option-btn').prop('disabled', true).addClass('disabled');
+
+                // Reset inactivity timer (v1.9.0).
+                self.resetInactivityTimer(educambotchat, messages);
 
                 // Handle shortcut options (have 'action' property).
                 if (option.action) {
@@ -279,8 +360,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
              * @param {string} sender - 'user' or 'bot' or 'bot error'
              * @param {number} confidence - Confidence score (0-1)
              * @param {array} options - Quick reply options
+             * @param {boolean} isHistory - Whether this is a history message (v1.9.0)
              */
-            function addMessage(text, sender, confidence, options) {
+            function addMessage(text, sender, confidence, options, isHistory) {
                 var isError = sender.indexOf('error') !== -1;
                 var senderClass = sender.replace(' error', '');
 
@@ -290,6 +372,11 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
                 if (isError) {
                     messageDiv.addClass('educambot-error');
+                }
+
+                // Mark as history message (v1.9.0).
+                if (isHistory) {
+                    messageDiv.addClass('educambot-history-message');
                 }
 
                 var contentDiv = $('<div>')
@@ -331,6 +418,176 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 // Scroll to bottom.
                 messages.scrollTop(messages[0].scrollHeight);
             }
+
+            // Make addMessage available to chat object for history loading.
+            self.addMessageFn = addMessage;
+        },
+
+        // ==============================================
+        // Chat History Methods (v1.9.0)
+        // ==============================================
+
+        /**
+         * Load chat history from server.
+         *
+         * @param {jQuery} messages - Messages container
+         * @param {string} sesskey - Session key
+         */
+        loadChatHistory: function(messages, sesskey) {
+            var self = this;
+
+            if (!self.enableHistory || !self.historyUrl || self.historyLoaded) {
+                return;
+            }
+
+            $.ajax({
+                url: self.historyUrl,
+                type: 'POST',
+                data: {
+                    sesskey: sesskey,
+                    action: 'recent',
+                    limit: 10
+                },
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success && data.history && data.history.length > 0) {
+                        // Add history divider.
+                        var divider = $('<div>')
+                            .addClass('educambot-history-divider')
+                            .text(M.util.get_string('previousconversation', 'local_educambot') || 'Previous conversation');
+                        messages.append(divider);
+
+                        // Add history messages.
+                        data.history.forEach(function(item) {
+                            self.addMessageFn(item.question, 'user', null, null, true);
+                            self.addMessageFn(item.response, 'bot', item.confidence, null, true);
+                        });
+
+                        // Scroll to bottom.
+                        messages.scrollTop(messages[0].scrollHeight);
+                    }
+                    self.historyLoaded = true;
+                },
+                error: function() {
+                    self.historyLoaded = true;
+                }
+            });
+        },
+
+        // ==============================================
+        // Inactivity Timer Methods (v1.9.0)
+        // ==============================================
+
+        /**
+         * Reset the inactivity timer.
+         *
+         * @param {jQuery} educambotchat - Chat container
+         * @param {jQuery} messages - Messages container
+         */
+        resetInactivityTimer: function(educambotchat, messages) {
+            var self = this;
+
+            // Clear existing timers.
+            self.stopInactivityTimer();
+
+            // Remove any existing warning.
+            if (self.warningShown) {
+                messages.find('.educambot-inactivity-warning').remove();
+                self.warningShown = false;
+            }
+
+            // Don't start timer if chat is closed or timeout is 0.
+            if (!educambotchat.hasClass('educambot-active') || self.inactivityTimeout <= 0) {
+                return;
+            }
+
+            // Set warning timer (1 minute before close).
+            var warningTime = Math.max(0, self.inactivityTimeout - self.inactivityWarningTime);
+            if (warningTime > 0) {
+                self.inactivityWarningTimer = setTimeout(function() {
+                    self.showInactivityWarning(educambotchat, messages);
+                }, warningTime);
+            }
+
+            // Set close timer.
+            self.inactivityTimer = setTimeout(function() {
+                self.handleInactivityTimeout(educambotchat);
+            }, self.inactivityTimeout);
+        },
+
+        /**
+         * Stop all inactivity timers.
+         */
+        stopInactivityTimer: function() {
+            var self = this;
+
+            if (self.inactivityTimer) {
+                clearTimeout(self.inactivityTimer);
+                self.inactivityTimer = null;
+            }
+
+            if (self.inactivityWarningTimer) {
+                clearTimeout(self.inactivityWarningTimer);
+                self.inactivityWarningTimer = null;
+            }
+        },
+
+        /**
+         * Show inactivity warning message.
+         *
+         * @param {jQuery} educambotchat - Chat container
+         * @param {jQuery} messages - Messages container
+         */
+        showInactivityWarning: function(educambotchat, messages) {
+            var self = this;
+
+            if (self.warningShown) {
+                return;
+            }
+
+            self.warningShown = true;
+
+            var warningDiv = $('<div>')
+                .addClass('educambot-inactivity-warning')
+                .html(
+                    '<p>' + (M.util.get_string('inactivity_warning', 'local_educambot') ||
+                        'Chat will close soon due to inactivity') + '</p>' +
+                    '<button type="button">' +
+                        (M.util.get_string('keepchatopen', 'local_educambot') || 'Keep chat open') +
+                    '</button>'
+                );
+
+            warningDiv.find('button').on('click', function() {
+                self.resetInactivityTimer(educambotchat, messages);
+            });
+
+            messages.append(warningDiv);
+            messages.scrollTop(messages[0].scrollHeight);
+
+            // Set mascot to confused/concerned state.
+            self.setMascotState('confused');
+        },
+
+        /**
+         * Handle inactivity timeout - minimize the chat.
+         *
+         * @param {jQuery} educambotchat - Chat container
+         */
+        handleInactivityTimeout: function(educambotchat) {
+            var self = this;
+
+            // Minimize the chat.
+            educambotchat.removeClass('educambot-active');
+            localStorage.removeItem('educambot-isopen');
+
+            // Stop timers.
+            self.stopInactivityTimer();
+            self.warningShown = false;
+
+            // Stop mascot suggestion timer.
+            if (self.suggestionTimer) {
+                clearTimeout(self.suggestionTimer);
+            }
         },
 
         // ==============================================
@@ -353,9 +610,20 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             // Start with greeting animation.
             self.setMascotState('greeting');
 
-            // Show greeting tooltip.
+            // Show role-specific greeting (v1.9.0).
+            var greetingKey = 'mascot_greeting';
+            if (self.userRole === 'teacher' || self.userRole === 'editingteacher') {
+                greetingKey = 'mascot_greeting_teacher';
+            } else if (self.userRole === 'manager') {
+                greetingKey = 'mascot_greeting_admin';
+            }
+
             setTimeout(function() {
-                self.showTooltip(M.util.get_string('mascot_greeting', 'local_educambot') || 'Hi! How can I help you?');
+                self.showTooltip(
+                    M.util.get_string(greetingKey, 'local_educambot') ||
+                    M.util.get_string('mascot_greeting', 'local_educambot') ||
+                    'Hi! How can I help you?'
+                );
             }, 800);
 
             // Transition to idle after greeting.
@@ -478,6 +746,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
         /**
          * Show a random suggestion in the tooltip.
+         * Role-specific suggestions (v1.9.0).
          */
         showRandomSuggestion: function() {
             var self = this;
@@ -489,6 +758,19 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 M.util.get_string('mascot_suggest_course', 'local_educambot') || 'Ask me about your course',
                 M.util.get_string('mascot_suggest_help', 'local_educambot') || 'Click me for popular questions!'
             ];
+
+            // Add role-specific suggestions (v1.9.0).
+            if (self.userRole === 'teacher' || self.userRole === 'editingteacher') {
+                suggestions.push(
+                    M.util.get_string('mascot_suggest_grading', 'local_educambot') || 'Need help with grading?',
+                    M.util.get_string('mascot_suggest_students', 'local_educambot') || 'Questions about your students?'
+                );
+            } else if (self.userRole === 'manager') {
+                suggestions.push(
+                    M.util.get_string('mascot_suggest_reports', 'local_educambot') || 'View system reports?',
+                    M.util.get_string('mascot_suggest_admin', 'local_educambot') || 'Admin dashboard help?'
+                );
+            }
 
             var random = suggestions[Math.floor(Math.random() * suggestions.length)];
 

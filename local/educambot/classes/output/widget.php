@@ -49,6 +49,10 @@ class widget implements renderable, templatable {
         $widgetlabel = get_config('local_educambot', 'widgetlabel') ?: get_string('widgetlabel_default', 'local_educambot');
         $greetingtemplate = get_config('local_educambot', 'greetingtemplate') ?: get_string('greeting_default', 'local_educambot');
 
+        // Get v1.9.0 configuration options.
+        $inactivitytimeout = get_config('local_educambot', 'inactivitytimeout') ?: 600000; // 10 minutes default.
+        $enablehistory = get_config('local_educambot', 'enablehistory') ?? 1;
+
         // Get selected theme (v1.8.0).
         $theme = $this->get_current_theme();
 
@@ -64,6 +68,9 @@ class widget implements renderable, templatable {
         // Prepare mascot data (v1.8.1).
         $mascot = $this->prepare_mascot($theme);
 
+        // Get user role archetype (v1.9.0).
+        $userrolearchetype = $this->get_user_role_archetype($USER->id, $courseid);
+
         return [
             'botname' => $botname,
             'widgetlabel' => $widgetlabel,
@@ -76,12 +83,21 @@ class widget implements renderable, templatable {
             'greetingmessage' => $greetingmessage,
             'serviceurl' => $CFG->wwwroot . '/local/educambot/service.php',
             'startupurl' => $CFG->wwwroot . '/local/educambot/startup.php',
+            'historyurl' => $CFG->wwwroot . '/local/educambot/history.php',
             'sesskey' => sesskey(),
             'courseid' => $courseid,
             // Widget icon (v1.8.1).
             'widgeticon' => $widgeticon,
             // Mascot (v1.8.1).
             'mascot' => $mascot,
+            // User info and role (v1.9.0).
+            'userid' => $USER->id,
+            'userfirstname' => $USER->firstname ?? '',
+            'userlastname' => $USER->lastname ?? '',
+            'userrolearchetype' => $userrolearchetype,
+            // Configuration options (v1.9.0).
+            'inactivitytimeout' => (int) $inactivitytimeout,
+            'enablehistory' => (int) $enablehistory,
         ];
     }
 
@@ -119,6 +135,10 @@ class widget implements renderable, templatable {
         $default->backgroundcolor = '#f9fafb';
         $default->usercolor = $default->primarycolor;
         $default->botcolor = '#ffffff';
+        $default->widgeticontype = 'default';
+        $default->widgeticonurl = '';
+        $default->mascotenabled = 0;
+        $default->mascottype = 'none';
 
         return $default;
     }
@@ -139,6 +159,56 @@ class widget implements renderable, templatable {
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $message);
+    }
+
+    /**
+     * Get user's primary role archetype for styling (v1.9.0).
+     *
+     * @param int $userid User ID
+     * @param int $courseid Course ID
+     * @return string Role archetype (student, teacher, editingteacher, manager, user)
+     */
+    private function get_user_role_archetype($userid, $courseid) {
+        global $DB;
+
+        // Check system context first for admin/manager.
+        $syscontext = \context_system::instance();
+        if (has_capability('moodle/site:config', $syscontext, $userid)) {
+            return 'manager';
+        }
+
+        // Priority order for archetypes.
+        $archetypepriority = ['manager', 'editingteacher', 'teacher', 'student', 'user'];
+
+        // Get course context if not site.
+        if ($courseid != SITEID) {
+            $coursecontext = \context_course::instance($courseid, IGNORE_MISSING);
+            if ($coursecontext) {
+                $roles = get_user_roles($coursecontext, $userid, true);
+                foreach ($archetypepriority as $archetype) {
+                    foreach ($roles as $role) {
+                        $rolerecord = $DB->get_record('role', ['id' => $role->roleid]);
+                        if ($rolerecord && $rolerecord->archetype === $archetype) {
+                            return $archetype;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check system roles.
+        $sysroles = get_user_roles($syscontext, $userid, true);
+        foreach ($archetypepriority as $archetype) {
+            foreach ($sysroles as $role) {
+                $rolerecord = $DB->get_record('role', ['id' => $role->roleid]);
+                if ($rolerecord && $rolerecord->archetype === $archetype) {
+                    return $archetype;
+                }
+            }
+        }
+
+        // Default to 'user' if logged in.
+        return isloggedin() && !isguestuser() ? 'user' : 'guest';
     }
 
     /**

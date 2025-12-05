@@ -433,3 +433,52 @@ $string['mascot_suggest_grades'] = 'Puedo mostrarte tus calificaciones';
 $string['mascot_suggest_calendar'] = '¿Quieres ver el calendario?';
 $string['mascot_suggest_course'] = 'Preguntame sobre tu curso';
 $string['mascot_suggest_help'] = '¡Haz clic en mi para ver preguntas populares!';
+
+// v1.9.0 - Persistencia, Timeout, Privacidad, Comportamiento por rol.
+// Historial.
+$string['history_heading'] = 'Historial de Conversaciones';
+$string['enablehistory'] = 'Habilitar historial';
+$string['enablehistory_desc'] = 'Permitir que las conversaciones se guarden y los usuarios puedan retomarlas';
+$string['previousconversation'] = 'Conversacion anterior';
+$string['historydeleted'] = 'Historial eliminado correctamente';
+$string['recorddeleted'] = 'Registro eliminado correctamente';
+$string['recordnotfound'] = 'Registro no encontrado';
+$string['chatconversations'] = 'Conversaciones del chat';
+$string['loadinghistory'] = 'Cargando historial...';
+
+// Timeout de inactividad.
+$string['timeout_heading'] = 'Tiempo de Inactividad';
+$string['inactivitytimeout'] = 'Tiempo de inactividad (ms)';
+$string['inactivitytimeout_desc'] = 'Tiempo en milisegundos antes de cerrar el chat por inactividad (0 = deshabilitado). Predeterminado: 600000 (10 minutos)';
+$string['inactivity_warning'] = 'El chat se cerrara por inactividad en {$a} segundos';
+$string['keepchatopen'] = 'Mantener abierto';
+$string['chat_closed_inactivity'] = 'El chat se ha cerrado por inactividad. Haz clic para reabrir.';
+
+// Saludos por rol.
+$string['mascot_greeting_student'] = '¡Hola estudiante! ¿Tienes dudas sobre tus tareas o calificaciones?';
+$string['mascot_greeting_teacher'] = '¡Hola profesor! ¿Puedo ayudarte a gestionar tu curso?';
+$string['mascot_greeting_editingteacher'] = '¡Hola! ¿Necesitas ayuda con la configuracion del curso?';
+$string['mascot_greeting_manager'] = '¡Hola administrador! ¿En que puedo asistirte hoy?';
+$string['mascot_greeting_admin'] = '¡Hola! Tengo acceso completo para ayudarte con cualquier consulta del sistema.';
+$string['mascot_greeting_coursecreator'] = '¡Hola creador de cursos! ¿Trabajando en un nuevo curso?';
+$string['mascot_greeting_guest'] = '¡Bienvenido! Como invitado puedo responder preguntas generales.';
+$string['mascot_greeting_user'] = '¡Hola! ¿En que puedo ayudarte hoy?';
+
+// Sugerencias por rol.
+$string['role_suggestion_student_assignments'] = 'Ver mis tareas pendientes';
+$string['role_suggestion_student_grades'] = 'Consultar mis calificaciones';
+$string['role_suggestion_student_calendar'] = 'Ver proximos eventos';
+$string['role_suggestion_teacher_students'] = 'Ver lista de estudiantes';
+$string['role_suggestion_teacher_grades'] = 'Gestionar calificaciones';
+$string['role_suggestion_admin_users'] = 'Administrar usuarios';
+$string['role_suggestion_admin_reports'] = 'Ver reportes del sistema';
+
+// Privacidad (GDPR).
+$string['privacy:metadata:log'] = 'Registro de conversaciones del chatbot';
+$string['privacy:metadata:log:userid'] = 'ID del usuario que realizo la consulta';
+$string['privacy:metadata:log:question'] = 'La pregunta realizada por el usuario';
+$string['privacy:metadata:log:response'] = 'La respuesta proporcionada por el bot';
+$string['privacy:metadata:log:ruleid'] = 'ID de la regla que coincidio con la pregunta';
+$string['privacy:metadata:log:confidence'] = 'Nivel de confianza de la coincidencia';
+$string['privacy:metadata:log:matched'] = 'Si la pregunta coincidio con alguna regla';
+$string['privacy:metadata:log:timecreated'] = 'Fecha y hora de la conversacion';
