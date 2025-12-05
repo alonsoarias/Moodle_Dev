@@ -494,3 +494,14 @@ $string['privacy:metadata:log:ruleid'] = 'The ID of the rule that matched the qu
 $string['privacy:metadata:log:confidence'] = 'The confidence score of the match (0-1).';
 $string['privacy:metadata:log:matched'] = 'Whether a matching rule was found.';
 $string['privacy:metadata:log:timecreated'] = 'The timestamp when the conversation occurred.';
+
+// v1.9.2 - Archetypes for rule filtering.
+$string['archetypes'] = 'Allowed role archetypes';
+$string['archetypes_help'] = 'Select which role archetypes can see this rule. Leave empty for all users. These are Moodle role archetypes, not the role names which can be customized.';
+$string['archetype_student'] = 'Student';
+$string['archetype_teacher'] = 'Teacher (non-editing)';
+$string['archetype_editingteacher'] = 'Teacher (editing)';
+$string['archetype_coursecreator'] = 'Course creator';
+$string['archetype_manager'] = 'Manager / Administrator';
+$string['archetype_guest'] = 'Guest';
+$string['archetype_user'] = 'Authenticated user (no specific role)';

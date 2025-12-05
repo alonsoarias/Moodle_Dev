@@ -65,8 +65,8 @@ class engine {
         $userlang = current_language();
         $userlang = substr($userlang, 0, 2); // Get base language (es, en, fr, etc.).
 
-        // Get user's roles in current context.
-        $userroles = $this->get_user_roles();
+        // Get user's role ARCHETYPES in current context (not shortnames!).
+        $userarchetypes = $this->get_user_archetypes();
 
         // Build SQL to filter rules by language preference.
         // Prefer rules in user's language, fallback to 'es' (default).
@@ -79,8 +79,8 @@ class engine {
                     id ASC";
         $rules = $DB->get_records_sql($sql, ['userlang' => $userlang]);
 
-        // Filter rules by role and course.
-        $filteredrules = $this->filter_rules_by_context($rules, $userroles);
+        // Filter rules by archetype and course.
+        $filteredrules = $this->filter_rules_by_context($rules, $userarchetypes);
 
         $best_match = null;
         $best_score = 0;
@@ -112,39 +112,79 @@ class engine {
     }
 
     /**
-     * Get user's role shortnames in current context.
+     * Get user's role ARCHETYPES in current context.
      *
-     * @return array Array of role shortnames.
+     * Important: This returns archetypes (student, teacher, editingteacher, manager, etc.)
+     * NOT role shortnames which are customizable by admins.
+     *
+     * Moodle archetypes: manager, coursecreator, editingteacher, teacher, student, guest, user
+     *
+     * @return array Array of role archetypes.
      */
-    protected function get_user_roles(): array {
-        $roles = [];
+    protected function get_user_archetypes(): array {
+        global $DB;
 
-        try {
-            if ($this->courseid > SITEID) {
-                $context = \context_course::instance($this->courseid);
-            } else {
-                $context = \context_system::instance();
-            }
+        $archetypes = [];
 
-            $userroles = get_user_roles($context, $this->userid, true);
-            foreach ($userroles as $role) {
-                $roles[] = $role->shortname;
-            }
-        } catch (\Exception $e) {
-            // If context doesn't exist, return empty roles.
+        // Check for site administrator first (special case).
+        if (is_siteadmin($this->userid)) {
+            $archetypes[] = 'manager';
         }
 
-        return $roles;
+        try {
+            $syscontext = \context_system::instance();
+
+            // Get course context if not site.
+            if ($this->courseid > SITEID) {
+                $coursecontext = \context_course::instance($this->courseid, IGNORE_MISSING);
+                if ($coursecontext) {
+                    $roles = get_user_roles($coursecontext, $this->userid, true);
+                    foreach ($roles as $role) {
+                        $rolerecord = $DB->get_record('role', ['id' => $role->roleid]);
+                        if ($rolerecord && !empty($rolerecord->archetype)) {
+                            $archetypes[] = $rolerecord->archetype;
+                        }
+                    }
+                }
+            }
+
+            // Also check system-level roles.
+            $sysroles = get_user_roles($syscontext, $this->userid, true);
+            foreach ($sysroles as $role) {
+                $rolerecord = $DB->get_record('role', ['id' => $role->roleid]);
+                if ($rolerecord && !empty($rolerecord->archetype)) {
+                    $archetypes[] = $rolerecord->archetype;
+                }
+            }
+        } catch (\Exception $e) {
+            // If context doesn't exist, continue with what we have.
+        }
+
+        // Check if guest user.
+        if (isguestuser($this->userid)) {
+            $archetypes[] = 'guest';
+        }
+
+        // Add 'user' for authenticated users without specific archetypes.
+        if (empty($archetypes) && isloggedin() && !isguestuser($this->userid)) {
+            $archetypes[] = 'user';
+        }
+
+        // Remove duplicates and return.
+        return array_unique($archetypes);
     }
 
     /**
-     * Filter rules by role and course restrictions.
+     * Filter rules by archetype and course restrictions.
+     *
+     * The 'roles' field in rules contains archetypes (student, teacher, editingteacher,
+     * manager, coursecreator, guest, user) - NOT role shortnames.
      *
      * @param array $rules Array of rule records.
-     * @param array $userroles Array of user's role shortnames.
+     * @param array $userarchetypes Array of user's role archetypes.
      * @return array Filtered rules.
      */
-    protected function filter_rules_by_context(array $rules, array $userroles): array {
+    protected function filter_rules_by_context(array $rules, array $userarchetypes): array {
         $autolang = get_config('local_educambot', 'autolang');
         $userlang = current_language();
         $userlang = substr($userlang, 0, 2);
@@ -153,11 +193,12 @@ class engine {
         $seenpatterns = [];
 
         foreach ($rules as $rule) {
-            // Check role filter.
+            // Check archetype filter.
+            // The 'roles' field contains archetypes like: teacher,editingteacher
             if (!empty($rule->roles)) {
-                $ruleroles = array_map('trim', explode(',', $rule->roles));
-                if (!array_intersect($userroles, $ruleroles)) {
-                    continue; // User doesn't have required role.
+                $rulearchetypes = array_map('trim', explode(',', $rule->roles));
+                if (!array_intersect($userarchetypes, $rulearchetypes)) {
+                    continue; // User doesn't have required archetype.
                 }
             }
 

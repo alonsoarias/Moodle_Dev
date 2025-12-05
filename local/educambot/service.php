@@ -74,8 +74,8 @@ if ($shortcutresult !== null) {
     $ruleid = null;
     $confidence = 1.0;
 } else {
-    // Regular engine processing.
-    $engine = new \local_educambot\bot\engine();
+    // Regular engine processing - pass courseid and userid for proper context filtering.
+    $engine = new \local_educambot\bot\engine($courseid, $USER->id);
     $result = $engine->respond($question);
 
     // Prepare response.

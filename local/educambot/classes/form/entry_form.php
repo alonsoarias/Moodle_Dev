@@ -114,10 +114,24 @@ class entry_form extends \moodleform {
         $mform->addElement('header', 'restrictionssection', get_string('restrictions', 'local_educambot'));
         $mform->setExpanded('restrictionssection', false);
 
-        // Roles field (v1.8.0).
-        $mform->addElement('text', 'roles', get_string('roles', 'local_educambot'), ['size' => 60]);
+        // Archetypes multi-select (v1.9.2) - replaces free-text roles field.
+        // These are Moodle role archetypes, not role shortnames.
+        $archetypeoptions = [
+            'student' => get_string('archetype_student', 'local_educambot'),
+            'teacher' => get_string('archetype_teacher', 'local_educambot'),
+            'editingteacher' => get_string('archetype_editingteacher', 'local_educambot'),
+            'coursecreator' => get_string('archetype_coursecreator', 'local_educambot'),
+            'manager' => get_string('archetype_manager', 'local_educambot'),
+            'guest' => get_string('archetype_guest', 'local_educambot'),
+            'user' => get_string('archetype_user', 'local_educambot'),
+        ];
+        $archetypeselect = $mform->addElement('select', 'roles_array', get_string('archetypes', 'local_educambot'), $archetypeoptions);
+        $archetypeselect->setMultiple(true);
+        $mform->addHelpButton('roles_array', 'archetypes', 'local_educambot');
+
+        // Hidden field to store comma-separated roles (for DB compatibility).
+        $mform->addElement('hidden', 'roles');
         $mform->setType('roles', PARAM_TEXT);
-        $mform->addHelpButton('roles', 'roles', 'local_educambot');
 
         // Courses field (v1.8.0).
         $mform->addElement('text', 'courses', get_string('courses', 'local_educambot'), ['size' => 60]);
@@ -167,6 +181,48 @@ class entry_form extends \moodleform {
 
         // Action buttons.
         $this->add_action_buttons();
+    }
+
+    /**
+     * Set form data - converts comma-separated roles to array for multi-select.
+     *
+     * @param stdClass|array $data Form data
+     */
+    public function set_data($data) {
+        if (is_object($data)) {
+            $data = (array)$data;
+        }
+
+        // Convert comma-separated roles string to array for multi-select.
+        if (!empty($data['roles'])) {
+            $data['roles_array'] = array_map('trim', explode(',', $data['roles']));
+        } else {
+            $data['roles_array'] = [];
+        }
+
+        parent::set_data($data);
+    }
+
+    /**
+     * Get submitted form data - converts array to comma-separated roles.
+     *
+     * @return stdClass|false Form data or false
+     */
+    public function get_data() {
+        $data = parent::get_data();
+
+        if ($data) {
+            // Convert multi-select array to comma-separated string for DB.
+            if (!empty($data->roles_array) && is_array($data->roles_array)) {
+                $data->roles = implode(',', $data->roles_array);
+            } else {
+                $data->roles = '';
+            }
+            // Remove the temporary field.
+            unset($data->roles_array);
+        }
+
+        return $data;
     }
 
     /**

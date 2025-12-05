@@ -497,3 +497,14 @@ $string['privacy:metadata:log:ruleid'] = 'ID de la regla que coincidio con la pr
 $string['privacy:metadata:log:confidence'] = 'Nivel de confianza de la coincidencia';
 $string['privacy:metadata:log:matched'] = 'Si la pregunta coincidio con alguna regla';
 $string['privacy:metadata:log:timecreated'] = 'Fecha y hora de la conversacion';
+
+// v1.9.2 - Arquetipos para filtrado de reglas.
+$string['archetypes'] = 'Arquetipos de rol permitidos';
+$string['archetypes_help'] = 'Seleccione los arquetipos de rol que pueden ver esta regla. Los arquetipos son categorias fijas de Moodle (estudiante, profesor, etc.), no los nombres personalizados de roles. Deje vacio para permitir todos los arquetipos.';
+$string['archetype_student'] = 'Estudiante';
+$string['archetype_teacher'] = 'Profesor (sin edicion)';
+$string['archetype_editingteacher'] = 'Profesor (con edicion)';
+$string['archetype_coursecreator'] = 'Creador de cursos';
+$string['archetype_manager'] = 'Gestor / Administrador';
+$string['archetype_guest'] = 'Invitado';
+$string['archetype_user'] = 'Usuario autenticado (sin rol especifico)';

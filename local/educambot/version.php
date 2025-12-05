@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025120502;  // YYYYMMDDXX format.
+$plugin->version = 2025120503;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '1.9.2';  // Extended knowledge base for teachers/managers + archetype-based behavior.
+$plugin->release = '1.9.3';  // Critical bug fixes: archetype filtering now works correctly.
