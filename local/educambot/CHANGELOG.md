@@ -11,6 +11,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **history.php**: Orden corregido de `require_login()` y `require_sesskey()` para evitar errores de sesion
 - **startup.php**: Uso de `$DB->sql_compare_text()` para compatibilidad con todos los motores de base de datos (Oracle, PostgreSQL)
 - **widget.mustache**: Corregida variable `data-userrole` que referenciaba `{{userrole}}` inexistente (ahora usa `{{userrolearchetype}}`)
+- **option_form.php**: Corregido `addHelpButton()` que referenciaba elemento incorrecto (`targetrule` -> `targetruleid`)
 
 ## [1.9.5] - 2025-12-05
 

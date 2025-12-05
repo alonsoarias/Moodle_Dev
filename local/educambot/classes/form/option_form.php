@@ -67,7 +67,7 @@ class option_form extends \moodleform {
         $mform->addElement('select', 'targetruleid', get_string('targetrule', 'local_educambot'), $ruleoptions);
         $mform->setType('targetruleid', PARAM_INT);
         $mform->addRule('targetruleid', get_string('required'), 'required', null, 'client');
-        $mform->addHelpButton('targetrule', 'targetrule', 'local_educambot');
+        $mform->addHelpButton('targetruleid', 'targetrule', 'local_educambot');
 
         // Sort order field.
         $mform->addElement('text', 'sortorder', get_string('optionorder', 'local_educambot'), ['size' => 5]);
