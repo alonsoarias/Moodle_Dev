@@ -5,10 +5,21 @@ Todos los cambios notables de este proyecto seran documentados en este archivo.
 El formato esta basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.9.5] - 2025-12-05
+
+### Agregado
+- **Retencion de historial**: Nueva configuracion para definir cuanto tiempo conservar los logs de conversaciones
+  - Opciones: Para siempre, 1 semana, 1 mes, 3 meses, 6 meses, 1 año
+- **Tarea programada de limpieza**: `cleanup_history` se ejecuta diariamente a las 3:00 AM
+  - Elimina automaticamente registros antiguos segun la configuracion de retencion
+
+### Cambiado
+- Saludo por defecto vuelve a usar `{{userfirstname}}` en lugar de `{{fullname}}`
+
 ## [1.9.4] - 2025-12-05
 
 ### Agregado
-- **Saludo con nombre completo**: Nuevos marcadores `{{fullname}}` y `{{username}}` para el mensaje de saludo
+- **Marcadores de nombre**: `{{fullname}}` y `{{username}}` disponibles para mensajes de saludo
 - Los enlaces de shortcuts ahora se abren en nueva pestana (`target="_blank"`)
 - Indicadores visuales en enlaces directos (iconos y flecha ↗)
 

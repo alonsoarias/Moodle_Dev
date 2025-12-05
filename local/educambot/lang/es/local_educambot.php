@@ -49,8 +49,8 @@ $string['widgetlabel_desc'] = 'La etiqueta mostrada en el botón del widget';
 $string['widgetlabel_default'] = 'Chat Bot';
 
 $string['greetingtemplate'] = 'Mensaje de saludo';
-$string['greetingtemplate_desc'] = 'El mensaje de saludo al abrir el chat. Marcadores disponibles: {{fullname}} (nombre completo), {{userfirstname}}, {{userlastname}}, {{username}} (alias de fullname), {{botname}}';
-$string['greeting_default'] = '¡Hola {{fullname}}! Soy {{botname}}, tu asistente virtual. ¿En qué puedo ayudarte hoy?';
+$string['greetingtemplate_desc'] = 'El mensaje de saludo al abrir el chat. Marcadores disponibles: {{userfirstname}}, {{userlastname}}, {{fullname}} (nombre completo), {{username}} (alias de fullname), {{botname}}';
+$string['greeting_default'] = '¡Hola {{userfirstname}}! Soy {{botname}}, tu asistente virtual. ¿En qué puedo ayudarte hoy?';
 
 $string['primarycolor'] = 'Color primario';
 $string['primarycolor_desc'] = 'El color principal del widget (botones, encabezado)';
@@ -439,6 +439,15 @@ $string['mascot_suggest_help'] = '¡Haz clic en mi para ver preguntas populares!
 $string['history_heading'] = 'Historial de Conversaciones';
 $string['enablehistory'] = 'Habilitar historial';
 $string['enablehistory_desc'] = 'Permitir que las conversaciones se guarden y los usuarios puedan retomarlas';
+$string['historyretention'] = 'Periodo de retencion del historial';
+$string['historyretention_desc'] = 'Cuanto tiempo conservar los registros de conversaciones en la base de datos. Los registros antiguos seran eliminados automaticamente por una tarea programada.';
+$string['retention_forever'] = 'Conservar siempre';
+$string['retention_1week'] = '1 semana';
+$string['retention_1month'] = '1 mes';
+$string['retention_3months'] = '3 meses';
+$string['retention_6months'] = '6 meses';
+$string['retention_1year'] = '1 año';
+$string['task_cleanup_history'] = 'Limpiar historial de conversaciones antiguo';
 $string['previousconversation'] = 'Conversacion anterior';
 $string['historydeleted'] = 'Historial eliminado correctamente';
 $string['recorddeleted'] = 'Registro eliminado correctamente';

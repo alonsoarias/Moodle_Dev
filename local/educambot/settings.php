@@ -143,6 +143,23 @@ if ($hassiteconfig) {
             1
         ));
 
+        // History retention period (v1.9.5).
+        $retentionoptions = [
+            0 => get_string('retention_forever', 'local_educambot'),
+            7 => get_string('retention_1week', 'local_educambot'),
+            30 => get_string('retention_1month', 'local_educambot'),
+            90 => get_string('retention_3months', 'local_educambot'),
+            180 => get_string('retention_6months', 'local_educambot'),
+            365 => get_string('retention_1year', 'local_educambot'),
+        ];
+        $settings->add(new admin_setting_configselect(
+            'local_educambot/historyretention',
+            get_string('historyretention', 'local_educambot'),
+            get_string('historyretention_desc', 'local_educambot'),
+            90, // Default: 3 months.
+            $retentionoptions
+        ));
+
         // Timeout section (v1.9.0).
         $settings->add(new admin_setting_heading(
             'local_educambot/timeout_heading',

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Scheduled tasks for local_educambot.
  *
  * @package     local_educambot
  * @copyright   2025 EducamBot Team
@@ -24,8 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_educambot';
-$plugin->version = 2025120505;  // YYYYMMDDXX format.
-$plugin->requires = 2022041900; // Moodle 4.0.
-$plugin->maturity = MATURITY_BETA;
-$plugin->release = '1.9.5';  // History retention setting + scheduled cleanup task.
+$tasks = [
+    [
+        'classname' => 'local_educambot\task\cleanup_history',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ],
+];

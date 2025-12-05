@@ -49,8 +49,8 @@ $string['widgetlabel_desc'] = 'The label shown on the widget button';
 $string['widgetlabel_default'] = 'Chat Bot';
 
 $string['greetingtemplate'] = 'Greeting message';
-$string['greetingtemplate_desc'] = 'The greeting message shown when opening the chat. Available placeholders: {{fullname}} (full name), {{userfirstname}}, {{userlastname}}, {{username}} (alias for fullname), {{botname}}';
-$string['greeting_default'] = 'Hello {{fullname}}! I\'m {{botname}}, your virtual assistant. How can I help you today?';
+$string['greetingtemplate_desc'] = 'The greeting message shown when opening the chat. Available placeholders: {{userfirstname}}, {{userlastname}}, {{fullname}} (full name), {{username}} (alias for fullname), {{botname}}';
+$string['greeting_default'] = 'Hello {{userfirstname}}! I\'m {{botname}}, your virtual assistant. How can I help you today?';
 
 $string['primarycolor'] = 'Primary color';
 $string['primarycolor_desc'] = 'The main color for the widget (buttons, header)';
@@ -438,6 +438,15 @@ $string['mascot_suggest_help'] = 'Click me for popular questions!';
 $string['history_heading'] = 'Conversation History';
 $string['enablehistory'] = 'Enable conversation history';
 $string['enablehistory_desc'] = 'Save and restore conversation history for users. Users can resume previous conversations when reopening the chat.';
+$string['historyretention'] = 'History retention period';
+$string['historyretention_desc'] = 'How long to keep conversation logs in the database. Older records will be automatically deleted by a scheduled task.';
+$string['retention_forever'] = 'Keep forever';
+$string['retention_1week'] = '1 week';
+$string['retention_1month'] = '1 month';
+$string['retention_3months'] = '3 months';
+$string['retention_6months'] = '6 months';
+$string['retention_1year'] = '1 year';
+$string['task_cleanup_history'] = 'Cleanup old conversation history';
 $string['previousconversation'] = 'Previous conversation';
 $string['historydeleted'] = 'Conversation history deleted';
 $string['recorddeleted'] = 'Record deleted';

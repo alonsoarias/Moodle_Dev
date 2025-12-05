@@ -1,6 +1,6 @@
 # Nexo Bot - Chatbot Inteligente para Moodle
 
-**Version**: 1.9.3
+**Version**: 1.9.5
 **Requiere**: Moodle 4.0+
 **Licencia**: GPL v3+
 
@@ -60,7 +60,7 @@ Comandos que muestran datos dinamicos de Moodle:
 ### Configuracion General
 - **Habilitar widget**: Mostrar/ocultar el chat en todas las paginas
 - **Nombre del bot**: Nombre que se muestra en el encabezado
-- **Mensaje de saludo**: Plantilla con marcadores ({{userfirstname}}, {{botname}})
+- **Mensaje de saludo**: Plantilla con marcadores ({{userfirstname}}, {{fullname}}, {{botname}})
 
 ### Personalizacion Visual
 - **Color primario**: Color principal del widget
@@ -74,6 +74,13 @@ Comandos que muestran datos dinamicos de Moodle:
 ### Idioma
 - **Auto-detectar idioma**: Preferir reglas en el idioma del usuario
 - Soporte para traducciones vinculadas entre reglas
+
+### Historial de Conversaciones
+- **Habilitar historial**: Guardar y restaurar conversaciones de usuarios
+- **Periodo de retencion**: Cuanto tiempo conservar los registros
+  - Para siempre (sin limpieza automatica)
+  - 1 semana, 1 mes, 3 meses, 6 meses, 1 año
+- **Tarea programada**: Limpieza automatica diaria a las 3:00 AM
 
 ## Uso
 
