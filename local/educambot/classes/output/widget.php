@@ -162,23 +162,26 @@ class widget implements renderable, templatable {
     }
 
     /**
-     * Get user's primary role archetype for styling (v1.9.0).
+     * Get user's primary role archetype for behavior customization (v1.9.0).
+     *
+     * Moodle role archetypes: manager, coursecreator, editingteacher, teacher, student, guest, user, frontpage
      *
      * @param int $userid User ID
      * @param int $courseid Course ID
-     * @return string Role archetype (student, teacher, editingteacher, manager, user)
+     * @return string Role archetype
      */
     private function get_user_role_archetype($userid, $courseid) {
         global $DB;
 
-        // Check system context first for admin/manager.
-        $syscontext = \context_system::instance();
-        if (has_capability('moodle/site:config', $syscontext, $userid)) {
+        // Check for site administrator first (special case - no archetype but highest privilege).
+        if (is_siteadmin($userid)) {
             return 'manager';
         }
 
-        // Priority order for archetypes.
-        $archetypepriority = ['manager', 'editingteacher', 'teacher', 'student', 'user'];
+        $syscontext = \context_system::instance();
+
+        // Priority order for archetypes (highest privilege first).
+        $archetypepriority = ['manager', 'coursecreator', 'editingteacher', 'teacher', 'student'];
 
         // Get course context if not site.
         if ($courseid != SITEID) {
@@ -196,7 +199,7 @@ class widget implements renderable, templatable {
             }
         }
 
-        // Check system roles.
+        // Check system-level roles.
         $sysroles = get_user_roles($syscontext, $userid, true);
         foreach ($archetypepriority as $archetype) {
             foreach ($sysroles as $role) {
@@ -207,8 +210,13 @@ class widget implements renderable, templatable {
             }
         }
 
-        // Default to 'user' if logged in.
-        return isloggedin() && !isguestuser() ? 'user' : 'guest';
+        // Check if guest user.
+        if (isguestuser($userid)) {
+            return 'guest';
+        }
+
+        // Default to 'user' for authenticated users without specific roles.
+        return isloggedin() ? 'user' : 'guest';
     }
 
     /**

@@ -454,24 +454,39 @@ $string['inactivity_warning'] = 'El chat se cerrara por inactividad en {$a} segu
 $string['keepchatopen'] = 'Mantener abierto';
 $string['chat_closed_inactivity'] = 'El chat se ha cerrado por inactividad. Haz clic para reabrir.';
 
-// Saludos por rol.
+// Saludos por arquetipo de rol.
 $string['mascot_greeting_student'] = '¡Hola estudiante! ¿Tienes dudas sobre tus tareas o calificaciones?';
 $string['mascot_greeting_teacher'] = '¡Hola profesor! ¿Puedo ayudarte a gestionar tu curso?';
 $string['mascot_greeting_editingteacher'] = '¡Hola! ¿Necesitas ayuda con la configuracion del curso?';
-$string['mascot_greeting_manager'] = '¡Hola administrador! ¿En que puedo asistirte hoy?';
-$string['mascot_greeting_admin'] = '¡Hola! Tengo acceso completo para ayudarte con cualquier consulta del sistema.';
 $string['mascot_greeting_coursecreator'] = '¡Hola creador de cursos! ¿Trabajando en un nuevo curso?';
+$string['mascot_greeting_manager'] = '¡Hola administrador! ¿En que puedo asistirte hoy?';
 $string['mascot_greeting_guest'] = '¡Bienvenido! Como invitado puedo responder preguntas generales.';
 $string['mascot_greeting_user'] = '¡Hola! ¿En que puedo ayudarte hoy?';
 
-// Sugerencias por rol.
-$string['role_suggestion_student_assignments'] = 'Ver mis tareas pendientes';
-$string['role_suggestion_student_grades'] = 'Consultar mis calificaciones';
-$string['role_suggestion_student_calendar'] = 'Ver proximos eventos';
-$string['role_suggestion_teacher_students'] = 'Ver lista de estudiantes';
-$string['role_suggestion_teacher_grades'] = 'Gestionar calificaciones';
-$string['role_suggestion_admin_users'] = 'Administrar usuarios';
-$string['role_suggestion_admin_reports'] = 'Ver reportes del sistema';
+// Sugerencias por arquetipo de rol.
+// Sugerencias para estudiantes.
+$string['mascot_suggest_deadlines'] = 'Revisa tus proximas fechas de entrega';
+// Sugerencias para profesores.
+$string['mascot_suggest_grading'] = '¿Necesitas ayuda con las calificaciones?';
+$string['mascot_suggest_students'] = '¿Preguntas sobre tus estudiantes?';
+$string['mascot_suggest_attendance'] = 'Ver reportes de asistencia';
+// Sugerencias para profesores con edicion.
+$string['mascot_suggest_activities'] = 'Agregar actividades a tu curso';
+// Sugerencias para creadores de cursos.
+$string['mascot_suggest_newcourse'] = '¿Crear un nuevo curso?';
+$string['mascot_suggest_templates'] = 'Usar plantillas de curso';
+$string['mascot_suggest_categories'] = 'Organizar categorias de cursos';
+// Sugerencias para administradores.
+$string['mascot_suggest_reports'] = '¿Ver reportes del sistema?';
+$string['mascot_suggest_admin'] = '¿Ayuda con el panel de administracion?';
+$string['mascot_suggest_users'] = 'Gestionar usuarios';
+$string['mascot_suggest_settings'] = 'Configuracion del sitio';
+// Sugerencias para invitados.
+$string['mascot_suggest_browse'] = 'Explorar cursos disponibles';
+$string['mascot_suggest_login'] = 'Inicia sesion para mas funciones';
+// Sugerencias para usuarios autenticados.
+$string['mascot_suggest_profile'] = 'Actualiza tu perfil';
+$string['mascot_suggest_courses'] = 'Explora los cursos disponibles';
 
 // Privacidad (GDPR).
 $string['privacy:metadata:log'] = 'Registro de conversaciones del chatbot';

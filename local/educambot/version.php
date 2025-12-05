@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025120500;  // YYYYMMDDXX format.
+$plugin->version = 2025120501;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '1.9.0';  // Persistence, Timeout, Privacy, Role-based behavior, Themes fix.
+$plugin->release = '1.9.1';  // Archetype-based behavior (student, teacher, editingteacher, coursecreator, manager, guest, user).

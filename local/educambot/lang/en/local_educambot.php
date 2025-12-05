@@ -451,13 +451,39 @@ $string['inactivitytimeout_desc'] = 'Automatically minimize the chat after this 
 $string['inactivity_warning'] = 'Chat will close soon due to inactivity';
 $string['keepchatopen'] = 'Keep chat open';
 
-// v1.9.0 - Role-based behavior.
+// v1.9.0 - Archetype-based greetings.
+$string['mascot_greeting_student'] = 'Hi student! Do you have questions about your tasks or grades?';
 $string['mascot_greeting_teacher'] = 'Hello teacher! How can I assist you today?';
-$string['mascot_greeting_admin'] = 'Welcome administrator! How can I help you manage the system?';
+$string['mascot_greeting_editingteacher'] = 'Hi! Need help setting up your course?';
+$string['mascot_greeting_coursecreator'] = 'Hello course creator! Working on a new course?';
+$string['mascot_greeting_manager'] = 'Welcome administrator! How can I help you manage the system?';
+$string['mascot_greeting_guest'] = 'Welcome! As a guest, I can answer general questions.';
+$string['mascot_greeting_user'] = 'Hi! How can I help you today?';
+
+// v1.9.0 - Archetype-based suggestions.
+// Student suggestions.
+$string['mascot_suggest_deadlines'] = 'Check your upcoming deadlines';
+// Teacher suggestions.
 $string['mascot_suggest_grading'] = 'Need help with grading?';
 $string['mascot_suggest_students'] = 'Questions about your students?';
+$string['mascot_suggest_attendance'] = 'View attendance reports';
+// Editing teacher suggestions.
+$string['mascot_suggest_activities'] = 'Add activities to your course';
+// Course creator suggestions.
+$string['mascot_suggest_newcourse'] = 'Create a new course?';
+$string['mascot_suggest_templates'] = 'Use course templates';
+$string['mascot_suggest_categories'] = 'Organize course categories';
+// Manager suggestions.
 $string['mascot_suggest_reports'] = 'View system reports?';
 $string['mascot_suggest_admin'] = 'Admin dashboard help?';
+$string['mascot_suggest_users'] = 'Manage users';
+$string['mascot_suggest_settings'] = 'Site configuration';
+// Guest suggestions.
+$string['mascot_suggest_browse'] = 'Browse available courses';
+$string['mascot_suggest_login'] = 'Log in for more features';
+// User suggestions.
+$string['mascot_suggest_profile'] = 'Update your profile';
+$string['mascot_suggest_courses'] = 'Explore available courses';
 
 // v1.9.0 - Privacy strings for GDPR compliance.
 $string['privacy:metadata:log'] = 'Chat conversation log storing user questions and bot responses.';

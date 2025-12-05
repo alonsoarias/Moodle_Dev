@@ -610,12 +610,20 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             // Start with greeting animation.
             self.setMascotState('greeting');
 
-            // Show role-specific greeting (v1.9.0).
+            // Show archetype-specific greeting (v1.9.0).
             var greetingKey = 'mascot_greeting';
-            if (self.userRole === 'teacher' || self.userRole === 'editingteacher') {
-                greetingKey = 'mascot_greeting_teacher';
-            } else if (self.userRole === 'manager') {
-                greetingKey = 'mascot_greeting_admin';
+            var archetypeGreetings = {
+                'student': 'mascot_greeting_student',
+                'teacher': 'mascot_greeting_teacher',
+                'editingteacher': 'mascot_greeting_editingteacher',
+                'coursecreator': 'mascot_greeting_coursecreator',
+                'manager': 'mascot_greeting_manager',
+                'guest': 'mascot_greeting_guest',
+                'user': 'mascot_greeting_user'
+            };
+
+            if (archetypeGreetings[self.userRole]) {
+                greetingKey = archetypeGreetings[self.userRole];
             }
 
             setTimeout(function() {
@@ -746,30 +754,65 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
         /**
          * Show a random suggestion in the tooltip.
-         * Role-specific suggestions (v1.9.0).
+         * Archetype-specific suggestions (v1.9.0).
          */
         showRandomSuggestion: function() {
             var self = this;
 
+            // Base suggestions for all users.
             var suggestions = [
-                M.util.get_string('mascot_suggest_tasks', 'local_educambot') || 'Need help with your tasks?',
-                M.util.get_string('mascot_suggest_grades', 'local_educambot') || 'I can show your grades',
-                M.util.get_string('mascot_suggest_calendar', 'local_educambot') || 'Want to see the calendar?',
-                M.util.get_string('mascot_suggest_course', 'local_educambot') || 'Ask me about your course',
                 M.util.get_string('mascot_suggest_help', 'local_educambot') || 'Click me for popular questions!'
             ];
 
-            // Add role-specific suggestions (v1.9.0).
-            if (self.userRole === 'teacher' || self.userRole === 'editingteacher') {
-                suggestions.push(
+            // Archetype-specific suggestions.
+            var archetypeSuggestions = {
+                'student': [
+                    M.util.get_string('mascot_suggest_tasks', 'local_educambot') || 'Need help with your tasks?',
+                    M.util.get_string('mascot_suggest_grades', 'local_educambot') || 'I can show your grades',
+                    M.util.get_string('mascot_suggest_calendar', 'local_educambot') || 'Want to see the calendar?',
+                    M.util.get_string('mascot_suggest_course', 'local_educambot') || 'Ask me about your course',
+                    M.util.get_string('mascot_suggest_deadlines', 'local_educambot') || 'Check your upcoming deadlines'
+                ],
+                'teacher': [
                     M.util.get_string('mascot_suggest_grading', 'local_educambot') || 'Need help with grading?',
-                    M.util.get_string('mascot_suggest_students', 'local_educambot') || 'Questions about your students?'
-                );
-            } else if (self.userRole === 'manager') {
-                suggestions.push(
+                    M.util.get_string('mascot_suggest_students', 'local_educambot') || 'Questions about your students?',
+                    M.util.get_string('mascot_suggest_course', 'local_educambot') || 'Ask me about your course',
+                    M.util.get_string('mascot_suggest_attendance', 'local_educambot') || 'View attendance reports'
+                ],
+                'editingteacher': [
+                    M.util.get_string('mascot_suggest_grading', 'local_educambot') || 'Need help with grading?',
+                    M.util.get_string('mascot_suggest_students', 'local_educambot') || 'Questions about your students?',
+                    M.util.get_string('mascot_suggest_activities', 'local_educambot') || 'Add activities to your course',
+                    M.util.get_string('mascot_suggest_course', 'local_educambot') || 'Ask me about your course'
+                ],
+                'coursecreator': [
+                    M.util.get_string('mascot_suggest_newcourse', 'local_educambot') || 'Create a new course?',
+                    M.util.get_string('mascot_suggest_templates', 'local_educambot') || 'Use course templates',
+                    M.util.get_string('mascot_suggest_categories', 'local_educambot') || 'Organize course categories'
+                ],
+                'manager': [
                     M.util.get_string('mascot_suggest_reports', 'local_educambot') || 'View system reports?',
-                    M.util.get_string('mascot_suggest_admin', 'local_educambot') || 'Admin dashboard help?'
-                );
+                    M.util.get_string('mascot_suggest_admin', 'local_educambot') || 'Admin dashboard help?',
+                    M.util.get_string('mascot_suggest_users', 'local_educambot') || 'Manage users',
+                    M.util.get_string('mascot_suggest_settings', 'local_educambot') || 'Site configuration'
+                ],
+                'guest': [
+                    M.util.get_string('mascot_suggest_browse', 'local_educambot') || 'Browse available courses',
+                    M.util.get_string('mascot_suggest_login', 'local_educambot') || 'Log in for more features'
+                ],
+                'user': [
+                    M.util.get_string('mascot_suggest_profile', 'local_educambot') || 'Update your profile',
+                    M.util.get_string('mascot_suggest_courses', 'local_educambot') || 'Explore available courses',
+                    M.util.get_string('mascot_suggest_calendar', 'local_educambot') || 'Want to see the calendar?'
+                ]
+            };
+
+            // Add archetype-specific suggestions.
+            if (archetypeSuggestions[self.userRole]) {
+                suggestions = suggestions.concat(archetypeSuggestions[self.userRole]);
+            } else {
+                // Fallback to student suggestions for unknown archetypes.
+                suggestions = suggestions.concat(archetypeSuggestions['student']);
             }
 
             var random = suggestions[Math.floor(Math.random() * suggestions.length)];
