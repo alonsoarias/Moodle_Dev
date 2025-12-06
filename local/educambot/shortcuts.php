@@ -54,7 +54,12 @@ switch ($action) {
             $shortcut = $DB->get_record('local_educambot_shortcut', ['id' => $id], '*', MUST_EXIST);
         }
 
-        $form = new shortcut_form($baseurl);
+        // Build form URL with action and id to ensure correct processing on POST.
+        $formurl = new moodle_url($baseurl, ['action' => $action]);
+        if ($id) {
+            $formurl->param('id', $id);
+        }
+        $form = new shortcut_form($formurl);
 
         if ($shortcut) {
             $form->set_data($shortcut);

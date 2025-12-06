@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025120506;  // YYYYMMDDXX format.
+$plugin->version = 2025120507;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '1.9.6';  // Bug fixes from exhaustive code review.
+$plugin->release = '1.9.7';  // Fix: themes.php and shortcuts.php form URL to properly save changes.

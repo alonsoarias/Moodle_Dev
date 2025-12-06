@@ -39,6 +39,10 @@ class theme_form extends \moodleform {
     protected function definition() {
         $mform = $this->_form;
 
+        // Get custom data passed from themes.php.
+        $context = $this->_customdata['context'] ?? \context_system::instance();
+        $themeid = $this->_customdata['themeid'] ?? 0;
+
         // Hidden ID for editing.
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
@@ -186,6 +190,9 @@ class theme_form extends \moodleform {
             $data = (array)$data;
         }
 
+        $context = \context_system::instance();
+        $themeid = !empty($data['id']) ? $data['id'] : 0;
+
         // Restore widget icon value to the appropriate field based on type.
         if (!empty($data['widgeticonurl']) && !empty($data['widgeticontype'])) {
             switch ($data['widgeticontype']) {
@@ -197,33 +204,34 @@ class theme_form extends \moodleform {
                     break;
                 case 'custom':
                     // For custom icons, prepare the file manager draft area.
-                    if (!empty($data['id'])) {
-                        $context = \context_system::instance();
-                        $draftitemid = file_get_submitted_draft_itemid('widgeticonfile');
-                        file_prepare_draft_area(
-                            $draftitemid,
-                            $context->id,
-                            'local_educambot',
-                            'widgeticon',
-                            $data['id'],
-                            ['subdirs' => 0, 'maxfiles' => 1]
-                        );
-                        $data['widgeticonfile'] = $draftitemid;
-                    }
+                    // Do not use file_get_submitted_draft_itemid here - it only works for POST data.
                     break;
             }
         }
 
-        // Restore mascot file to draft area if custom.
-        if (!empty($data['id']) && !empty($data['mascottype']) && $data['mascottype'] === 'custom') {
-            $context = \context_system::instance();
-            $draftitemid = file_get_submitted_draft_itemid('mascotfile');
+        // Prepare file manager draft areas for existing files.
+        // This must be done for ALL cases, not just 'custom', to properly initialize the file managers.
+        if ($themeid > 0) {
+            // Prepare widget icon file draft area.
+            $draftitemid = 0; // Let Moodle generate a new draft item id.
+            file_prepare_draft_area(
+                $draftitemid,
+                $context->id,
+                'local_educambot',
+                'widgeticon',
+                $themeid,
+                ['subdirs' => 0, 'maxfiles' => 1]
+            );
+            $data['widgeticonfile'] = $draftitemid;
+
+            // Prepare mascot file draft area.
+            $draftitemid = 0; // Let Moodle generate a new draft item id.
             file_prepare_draft_area(
                 $draftitemid,
                 $context->id,
                 'local_educambot',
                 'mascot',
-                $data['id'],
+                $themeid,
                 ['subdirs' => 0, 'maxfiles' => 1]
             );
             $data['mascotfile'] = $draftitemid;
