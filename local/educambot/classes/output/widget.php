@@ -350,6 +350,14 @@ class widget implements renderable, templatable {
                 $svgpath = $CFG->dirroot . '/local/educambot/pix/mascots/owl.svg';
                 break;
 
+            case 'cat':
+                $svgpath = $CFG->dirroot . '/local/educambot/pix/mascots/cat.svg';
+                break;
+
+            case 'lightbulb':
+                $svgpath = $CFG->dirroot . '/local/educambot/pix/mascots/lightbulb.svg';
+                break;
+
             case 'custom':
                 // Get custom SVG from file storage.
                 if (!empty($theme->mascoturl)) {

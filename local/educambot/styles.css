@@ -760,6 +760,158 @@
 }
 
 /* ==============================================
+   Mascot Type-Specific Styles (v1.9.10)
+   ============================================== */
+
+/* Cat mascot - tail and ear animations */
+.educambot-mascot-container[data-type="cat"][data-state="idle"] #ears {
+    animation: educambot-cat-ears 4s ease-in-out infinite;
+}
+
+@keyframes educambot-cat-ears {
+    0%, 90%, 100% {
+        transform: rotate(0deg);
+    }
+    93% {
+        transform: rotate(-5deg);
+    }
+    96% {
+        transform: rotate(5deg);
+    }
+}
+
+.educambot-mascot-container[data-type="cat"][data-state="thinking"] #eyes {
+    animation: educambot-cat-curious 1.5s ease-in-out infinite;
+}
+
+@keyframes educambot-cat-curious {
+    0%, 100% {
+        transform: scaleX(1);
+    }
+    50% {
+        transform: scaleX(0.9);
+    }
+}
+
+/* Lightbulb mascot - glow pulse */
+.educambot-mascot-container[data-type="lightbulb"][data-state="success"] #sparkles {
+    animation: educambot-lightbulb-sparkle 0.5s ease-out 3;
+}
+
+@keyframes educambot-lightbulb-sparkle {
+    0% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.3);
+    }
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+}
+
+.educambot-mascot-container[data-type="lightbulb"][data-state="thinking"] #body {
+    animation: educambot-lightbulb-pulse 1s ease-in-out infinite;
+}
+
+@keyframes educambot-lightbulb-pulse {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+/* Robot mascot - LED blink */
+.educambot-mascot-container[data-type="robot"][data-state="idle"] #antenna-light {
+    animation: educambot-robot-antenna 2s ease-in-out infinite;
+}
+
+@keyframes educambot-robot-antenna {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.educambot-mascot-container[data-type="robot"][data-state="thinking"] #buttons circle {
+    animation: educambot-robot-buttons 0.3s ease-in-out infinite;
+}
+
+@keyframes educambot-robot-buttons {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Owl mascot - blink animation */
+.educambot-mascot-container[data-type="owl"][data-state="idle"] #eyes {
+    animation: educambot-owl-blink 5s ease-in-out infinite;
+}
+
+@keyframes educambot-owl-blink {
+    0%, 94%, 100% {
+        transform: scaleY(1);
+    }
+    96% {
+        transform: scaleY(0.1);
+    }
+    98% {
+        transform: scaleY(1);
+    }
+}
+
+/* Clippy mascot - bounce more */
+.educambot-mascot-container[data-type="clippy"][data-state="greeting"] #body {
+    animation: educambot-clippy-bounce 0.4s ease-out 3;
+}
+
+@keyframes educambot-clippy-bounce {
+    0%, 100% {
+        transform: translateY(0) scaleY(1);
+    }
+    30% {
+        transform: translateY(-8px) scaleY(1.05);
+    }
+    60% {
+        transform: translateY(0) scaleY(0.95);
+    }
+}
+
+/* Eye tracking animation - follows cursor conceptually */
+.educambot-mascot-container:hover #eye-left,
+.educambot-mascot-container:hover #eye-right {
+    transform: translateX(1px);
+    transition: transform 0.2s ease;
+}
+
+/* Arms wave on hover */
+.educambot-mascot-container:hover #arm-right {
+    animation: educambot-wave-right 0.6s ease-in-out;
+}
+
+@keyframes educambot-wave-right {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-15deg);
+    }
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+/* ==============================================
    Accessibility - Reduced Motion
    ============================================== */
 

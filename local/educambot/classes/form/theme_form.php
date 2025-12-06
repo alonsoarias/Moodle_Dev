@@ -195,10 +195,12 @@ class theme_form extends \moodleform {
             'clippy' => get_string('mascot_clippy', 'local_educambot'),
             'robot' => get_string('mascot_robot', 'local_educambot'),
             'owl' => get_string('mascot_owl', 'local_educambot'),
+            'cat' => get_string('mascot_cat', 'local_educambot'),
+            'lightbulb' => get_string('mascot_lightbulb', 'local_educambot'),
             'custom' => get_string('mascot_custom', 'local_educambot'),
         ];
         $mform->addElement('select', 'mascottype', get_string('mascottype', 'local_educambot'), $mascotoptions);
-        $mform->setDefault('mascottype', 'clippy');
+        $mform->setDefault('mascottype', 'robot');
         $mform->hideIf('mascottype', 'mascotenabled', 'notchecked');
         $mform->addHelpButton('mascottype', 'mascottype', 'local_educambot');
 
