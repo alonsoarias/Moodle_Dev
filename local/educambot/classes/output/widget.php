@@ -239,6 +239,7 @@ class widget implements renderable, templatable {
             'iscustom' => false,
             'iconcode' => '',
             'iconurl' => '',
+            'faprefix' => '', // Font Awesome family prefix (fa, fa-solid, etc.).
         ];
 
         $icontype = $theme->widgeticontype ?? 'default';
@@ -252,11 +253,42 @@ class widget implements renderable, templatable {
 
             case 'fontawesome':
                 $icon['isfontawesome'] = true;
-                // Ensure class starts with 'fa-'.
-                $faclass = $iconurl;
-                if (!empty($faclass) && strpos($faclass, 'fa-') !== 0) {
-                    $faclass = 'fa-' . $faclass;
+                // Handle Font Awesome 6 icon classes properly.
+                // FA6 families: fa-solid, fa-regular, fa-brands, fa-light, fa-thin, fa-duotone, fa-sharp.
+                // For backward compatibility, 'fa' class also works as fa-solid.
+                $faclass = trim($iconurl);
+
+                if (empty($faclass)) {
+                    $icon['isdefault'] = true;
+                    $icon['isfontawesome'] = false;
+                    break;
                 }
+
+                // FA6 family classes.
+                $fa6families = ['fa-solid', 'fa-regular', 'fa-brands', 'fa-light', 'fa-thin', 'fa-duotone', 'fa-sharp', 'fab', 'far', 'fas'];
+
+                // Check if user provided a family class.
+                $hasfamily = false;
+                foreach ($fa6families as $family) {
+                    if (strpos($faclass, $family) !== false) {
+                        $hasfamily = true;
+                        break;
+                    }
+                }
+
+                // Ensure icon name starts with 'fa-'.
+                if (!$hasfamily) {
+                    // Simple icon name like "robot" or "fa-robot".
+                    if (strpos($faclass, 'fa-') !== 0) {
+                        $faclass = 'fa-' . $faclass;
+                    }
+                    // Add default solid family for FA6 compatibility.
+                    $icon['faprefix'] = 'fa';
+                } else {
+                    // User provided family, don't add prefix.
+                    $icon['faprefix'] = '';
+                }
+
                 $icon['iconcode'] = $faclass;
                 break;
 

@@ -400,8 +400,8 @@ $string['icontype_fontawesome'] = 'Font Awesome';
 $string['icontype_custom'] = 'Custom image';
 $string['widgeticonemoji'] = 'Emoji';
 $string['widgeticonemoji_help'] = 'Enter a Unicode emoji (e.g., 🤖, 💬, 🎓)';
-$string['widgeticonfa'] = 'Font Awesome class';
-$string['widgeticonfa_help'] = 'Enter the Font Awesome class without the "fa-" prefix (e.g., robot, comments, graduation-cap)';
+$string['widgeticonfa'] = 'Font Awesome icon';
+$string['widgeticonfa_help'] = 'Enter a Font Awesome 6 icon class. Examples: robot, fa-robot, fa-comment-dots, fa-graduation-cap. For brand icons use: fa-brands fa-apple. For regular (outlined) icons use: fa-regular fa-comment. Default is solid style. See https://fontawesome.com/search for available icons.';
 $string['widgeticonfile'] = 'Icon file';
 $string['widgeticonfile_help'] = 'Upload a PNG, SVG, JPG or GIF image. Recommended size: 32x32px. Maximum: 100KB.';
 

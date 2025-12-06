@@ -160,7 +160,11 @@ class theme_form extends \moodleform {
         $mform->addHelpButton('widgeticonemoji', 'widgeticonemoji', 'local_educambot');
 
         // Font Awesome input (shown when type is fontawesome).
-        $mform->addElement('text', 'widgeticonfa', get_string('widgeticonfa', 'local_educambot'), ['size' => 30, 'placeholder' => 'fa-robot']);
+        // FA6 compatible - accepts: robot, fa-robot, fa-solid fa-robot, fa-brands fa-apple, etc.
+        $mform->addElement('text', 'widgeticonfa', get_string('widgeticonfa', 'local_educambot'), [
+            'size' => 40,
+            'placeholder' => 'fa-robot, fa-comment-dots, fa-brands fa-apple',
+        ]);
         $mform->setType('widgeticonfa', PARAM_TEXT);
         $mform->hideIf('widgeticonfa', 'widgeticontype', 'neq', 'fontawesome');
         $mform->addHelpButton('widgeticonfa', 'widgeticonfa', 'local_educambot');

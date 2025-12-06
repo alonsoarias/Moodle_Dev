@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025120508;  // YYYYMMDDXX format.
+$plugin->version = 2025120509;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '1.9.8';  // Fix: theme form color picker, cache purge on theme save.
+$plugin->release = '1.9.9';  // Fix: Font Awesome 6 compatibility for widget icons.
