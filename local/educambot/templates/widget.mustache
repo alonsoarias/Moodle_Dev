@@ -100,30 +100,32 @@
                     {{{greetingmessage}}}
                 </div>
             </div>
-
-            {{#mascot}}
-                {{#enabled}}
-                <!-- Mascot container (v1.8.1) -->
-                <div class="educambot-mascot-container"
-                     id="educambot-mascot"
-                     data-type="{{type}}"
-                     data-state="idle"
-                     role="img"
-                     aria-label="{{#str}}mascot_aria_label, local_educambot{{/str}}">
-                    <!-- SVG mascot inline -->
-                    <div class="educambot-mascot-svg">
-                        {{{svgcontent}}}
-                    </div>
-
-                    <!-- Tooltip for suggestions -->
-                    <div class="educambot-mascot-tooltip" id="educambot-mascot-tooltip">
-                        <div class="tooltip-content"></div>
-                        <div class="tooltip-arrow"></div>
-                    </div>
-                </div>
-                {{/enabled}}
-            {{/mascot}}
         </div>
+
+        {{#mascot}}
+            {{#enabled}}
+        <!-- Mascot container (v1.9.11 - positioned relative to popup, not messages) -->
+        <div class="educambot-mascot-wrapper">
+            <div class="educambot-mascot-container"
+                 id="educambot-mascot"
+                 data-type="{{type}}"
+                 data-state="idle"
+                 role="img"
+                 aria-label="{{#str}}mascot_aria_label, local_educambot{{/str}}">
+                <!-- SVG mascot inline -->
+                <div class="educambot-mascot-svg">
+                    {{{svgcontent}}}
+                </div>
+
+                <!-- Tooltip for suggestions -->
+                <div class="educambot-mascot-tooltip" id="educambot-mascot-tooltip">
+                    <div class="tooltip-content"></div>
+                    <div class="tooltip-arrow"></div>
+                </div>
+            </div>
+        </div>
+            {{/enabled}}
+        {{/mascot}}
 
         <!-- Input area -->
         <div class="educambot-sendarea">
