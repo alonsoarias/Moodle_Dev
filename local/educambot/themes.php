@@ -171,6 +171,9 @@ switch ($action) {
                 $DB->execute("UPDATE {local_educambot_theme} SET isdefault = 0 WHERE id != ?", [$themeid]);
             }
 
+            // Purge all caches to ensure theme changes are applied immediately.
+            purge_all_caches();
+
             redirect($baseurl);
         }
 

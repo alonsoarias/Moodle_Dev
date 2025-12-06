@@ -56,47 +56,82 @@ class theme_form extends \moodleform {
         // Color section header.
         $mform->addElement('header', 'colorsheader', get_string('colors', 'local_educambot'));
 
-        // Primary color.
-        $mform->addElement('text', 'primarycolor', get_string('primarycolor', 'local_educambot'), ['size' => 10, 'class' => 'color-picker']);
-        $mform->setType('primarycolor', PARAM_TEXT);
-        $mform->addRule('primarycolor', null, 'required', null, 'client');
-        $mform->setDefault('primarycolor', '#0f6fc5');
-        $mform->addHelpButton('primarycolor', 'primarycolor', 'local_educambot');
+        // Define color fields with defaults.
+        $colorfields = [
+            'primarycolor' => '#0f6fc5',
+            'secondarycolor' => '#084a8a',
+            'textcolor' => '#1f2937',
+            'backgroundcolor' => '#f9fafb',
+            'usercolor' => '#0f6fc5',
+            'botcolor' => '#ffffff',
+        ];
 
-        // Secondary color.
-        $mform->addElement('text', 'secondarycolor', get_string('secondarycolor', 'local_educambot'), ['size' => 10, 'class' => 'color-picker']);
-        $mform->setType('secondarycolor', PARAM_TEXT);
-        $mform->addRule('secondarycolor', null, 'required', null, 'client');
-        $mform->setDefault('secondarycolor', '#084a8a');
-        $mform->addHelpButton('secondarycolor', 'secondarycolor', 'local_educambot');
+        // Add each color field with an HTML5 color input type.
+        // Using static element + text field approach for better UX.
+        foreach ($colorfields as $field => $default) {
+            // Add the text input field (this is the actual form field that gets submitted).
+            $mform->addElement('text', $field, get_string($field, 'local_educambot'), [
+                'size' => 10,
+                'maxlength' => 7,
+                'class' => 'educambot-color-text',
+                'data-colorfield' => $field,
+            ]);
+            $mform->setType($field, PARAM_TEXT);
+            $mform->addRule($field, null, 'required', null, 'client');
+            $mform->setDefault($field, $default);
+            $mform->addHelpButton($field, $field, 'local_educambot');
+        }
 
-        // Text color.
-        $mform->addElement('text', 'textcolor', get_string('textcolor', 'local_educambot'), ['size' => 10, 'class' => 'color-picker']);
-        $mform->setType('textcolor', PARAM_TEXT);
-        $mform->addRule('textcolor', null, 'required', null, 'client');
-        $mform->setDefault('textcolor', '#1f2937');
-        $mform->addHelpButton('textcolor', 'textcolor', 'local_educambot');
+        // Add JavaScript to enhance text fields with color pickers.
+        $mform->addElement('html', '
+            <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var colorFields = ["primarycolor", "secondarycolor", "textcolor", "backgroundcolor", "usercolor", "botcolor"];
+                colorFields.forEach(function(field) {
+                    var textInput = document.getElementById("id_" + field);
+                    if (!textInput) return;
 
-        // Background color.
-        $mform->addElement('text', 'backgroundcolor', get_string('backgroundcolor', 'local_educambot'), ['size' => 10, 'class' => 'color-picker']);
-        $mform->setType('backgroundcolor', PARAM_TEXT);
-        $mform->addRule('backgroundcolor', null, 'required', null, 'client');
-        $mform->setDefault('backgroundcolor', '#f9fafb');
-        $mform->addHelpButton('backgroundcolor', 'backgroundcolor', 'local_educambot');
+                    // Create color picker input.
+                    var colorPicker = document.createElement("input");
+                    colorPicker.type = "color";
+                    colorPicker.id = "id_" + field + "_picker";
+                    colorPicker.style.cssText = "width:40px;height:34px;padding:2px;cursor:pointer;vertical-align:middle;border:1px solid #ced4da;border-radius:4px;margin-right:8px;";
+                    colorPicker.value = textInput.value || "#000000";
 
-        // User message color.
-        $mform->addElement('text', 'usercolor', get_string('usercolor', 'local_educambot'), ['size' => 10, 'class' => 'color-picker']);
-        $mform->setType('usercolor', PARAM_TEXT);
-        $mform->addRule('usercolor', null, 'required', null, 'client');
-        $mform->setDefault('usercolor', '#0f6fc5');
-        $mform->addHelpButton('usercolor', 'usercolor', 'local_educambot');
+                    // Insert color picker before text input.
+                    textInput.parentNode.insertBefore(colorPicker, textInput);
 
-        // Bot message color.
-        $mform->addElement('text', 'botcolor', get_string('botcolor', 'local_educambot'), ['size' => 10, 'class' => 'color-picker']);
-        $mform->setType('botcolor', PARAM_TEXT);
-        $mform->addRule('botcolor', null, 'required', null, 'client');
-        $mform->setDefault('botcolor', '#ffffff');
-        $mform->addHelpButton('botcolor', 'botcolor', 'local_educambot');
+                    // Style the text input.
+                    textInput.style.cssText = "font-family:monospace;width:80px;";
+
+                    // Sync color picker to text input.
+                    colorPicker.addEventListener("input", function() {
+                        textInput.value = this.value;
+                    });
+                    colorPicker.addEventListener("change", function() {
+                        textInput.value = this.value;
+                    });
+
+                    // Sync text input to color picker.
+                    textInput.addEventListener("input", function() {
+                        if (/^#[0-9A-Fa-f]{6}$/i.test(this.value)) {
+                            colorPicker.value = this.value;
+                        }
+                    });
+                    textInput.addEventListener("change", function() {
+                        if (/^#[0-9A-Fa-f]{6}$/i.test(this.value)) {
+                            colorPicker.value = this.value;
+                        }
+                    });
+
+                    // Initialize color picker with current value.
+                    if (textInput.value && /^#[0-9A-Fa-f]{6}$/i.test(textInput.value)) {
+                        colorPicker.value = textInput.value;
+                    }
+                });
+            });
+            </script>
+        ');
 
         // Is default.
         $mform->addElement('advcheckbox', 'isdefault', get_string('setasdefault', 'local_educambot'));
