@@ -197,6 +197,21 @@ $rules = $DB->get_records_sql($sql, $params);
 if (empty($rules)) {
     echo $OUTPUT->notification(get_string('norules', 'local_educambot'), 'info');
 } else {
+    // Get option counts for all rules in a single query (fixes N+1 query problem).
+    $ruleids = array_keys($rules);
+    $optioncounts = [];
+    if (!empty($ruleids)) {
+        list($insql, $inparams) = $DB->get_in_or_equal($ruleids, SQL_PARAMS_NAMED);
+        $countsql = "SELECT ruleid, COUNT(*) as optcount
+                     FROM {local_educambot_option}
+                     WHERE ruleid $insql
+                     GROUP BY ruleid";
+        $counts = $DB->get_records_sql($countsql, $inparams);
+        foreach ($counts as $c) {
+            $optioncounts[$c->ruleid] = $c->optcount;
+        }
+    }
+
     // Create table.
     $table = new html_table();
     $table->head = [
@@ -238,8 +253,8 @@ if (empty($rules)) {
             }
         }
 
-        // Count options for this rule.
-        $optioncount = $DB->count_records('local_educambot_option', ['ruleid' => $rule->id]);
+        // Get option count from pre-calculated array (optimized).
+        $optioncount = $optioncounts[$rule->id] ?? 0;
         $optionsbadge = html_writer::link($optionsurl,
             html_writer::tag('span', $optioncount, ['class' => 'badge badge-primary']) .
             ' ' . get_string('manageoptions', 'local_educambot'),

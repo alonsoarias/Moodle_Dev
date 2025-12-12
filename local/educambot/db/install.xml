@@ -73,6 +73,7 @@
       <INDEXES>
         <INDEX NAME="matched_idx" UNIQUE="false" FIELDS="matched"/>
         <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+        <INDEX NAME="userid_time_idx" UNIQUE="false" FIELDS="userid, timecreated" COMMENT="Composite index for user history queries"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_educambot_option" COMMENT="Quick reply options for rules">

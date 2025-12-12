@@ -56,8 +56,13 @@ class widget implements renderable, templatable {
         // Get selected theme (v1.8.0).
         $theme = $this->get_current_theme();
 
-        // Interpolate greeting message.
+        // Interpolate greeting message and sanitize for XSS protection.
         $greetingmessage = $this->interpolate_message($greetingtemplate, $USER, $botname);
+        $greetingmessage = format_text($greetingmessage, FORMAT_HTML, [
+            'trusted' => false,
+            'noclean' => false,
+            'filter' => false,
+        ]);
 
         // Get current course ID for context.
         $courseid = isset($COURSE->id) ? $COURSE->id : SITEID;

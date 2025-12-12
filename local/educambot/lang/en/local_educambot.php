@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Plugin general.
-$string['pluginname'] = 'Bot';
-$string['educambot'] = 'Bot';
+$string['pluginname'] = 'Nexo Bot';
+$string['educambot'] = 'Nexo Bot';
 
 // Capabilities.
 $string['educambot:use'] = 'Use Nexo Bot';
@@ -516,3 +516,21 @@ $string['archetype_coursecreator'] = 'Course creator';
 $string['archetype_manager'] = 'Manager / Administrator';
 $string['archetype_guest'] = 'Guest';
 $string['archetype_user'] = 'Authenticated user (no specific role)';
+
+// v2.0.0 - Import/Export strings.
+$string['importexport'] = 'Import/Export Knowledge Base';
+$string['exportkb'] = 'Export Knowledge Base';
+$string['exportkb_desc'] = 'Download all categories, rules and options as a JSON file for backup or transfer to another site.';
+$string['exportfile'] = 'Download JSON file';
+$string['importkb'] = 'Import Knowledge Base';
+$string['importkb_desc'] = 'Upload a previously exported JSON file to import categories, rules and options.';
+$string['selectfile'] = 'Select file';
+$string['clearexisting'] = 'Clear existing data';
+$string['clearexisting_help'] = 'If enabled, all existing categories, rules and options will be deleted before importing. Use with caution!';
+$string['import'] = 'Import';
+$string['importsuccess'] = 'Successfully imported {\->categories} categories, {\->rules} rules, and {\->options} options.';
+$string['importerror'] = 'Error during import';
+$string['importinvalidjson'] = 'Invalid JSON file format';
+$string['importinvalidversion'] = 'Invalid or missing version in the import file';
+$string['currentstats'] = 'Current knowledge base: {\->categories} categories, {\->rules} rules, {\->options} options.';
+

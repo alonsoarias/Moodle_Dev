@@ -25,7 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025120511;  // YYYYMMDDXX format.
-$plugin->requires = 2022041900; // Moodle 4.0.
-$plugin->maturity = MATURITY_BETA;
-$plugin->release = '1.9.11';  // Fix: Mascot positioning - stays fixed while messages scroll.
+$plugin->version = 2025121200;  // YYYYMMDDXX format.
+$plugin->requires = 2022041900; // Moodle 4.0 minimum (compatible with 4.0 - 4.5).
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = '2.0.0';
+$plugin->supported = [400, 405]; // Moodle 4.0 to 4.5.

@@ -87,43 +87,43 @@ $avgconfidence = $DB->get_field_sql('SELECT AVG(confidence) FROM {local_educambo
 $avgconfidence = $avgconfidence ? round($avgconfidence * 100, 1) : 0;
 $uniqueusers = $DB->count_records_sql('SELECT COUNT(DISTINCT userid) FROM {local_educambot_log}');
 
-// Cards HTML.
+// Cards HTML with SVG icons (Bootstrap 4/5 compatible - no Font Awesome dependency).
 $cards = [
     [
         'title' => get_string('totalconversations', 'local_educambot'),
         'value' => $totalconversations,
         'class' => 'bg-primary',
-        'icon' => 'fa-comments',
+        'svg' => '<svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/><path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/></svg>',
     ],
     [
         'title' => get_string('matchedquestions', 'local_educambot'),
         'value' => $matchedquestions,
         'class' => 'bg-success',
-        'icon' => 'fa-check-circle',
+        'svg' => '<svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>',
     ],
     [
         'title' => get_string('unmatchedquestions', 'local_educambot'),
         'value' => $unmatchedquestions,
         'class' => 'bg-warning',
-        'icon' => 'fa-question-circle',
+        'svg' => '<svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/></svg>',
     ],
     [
         'title' => get_string('successrate', 'local_educambot'),
         'value' => $successrate . '%',
         'class' => 'bg-info',
-        'icon' => 'fa-chart-line',
+        'svg' => '<svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/></svg>',
     ],
     [
         'title' => get_string('averageconfidence', 'local_educambot'),
         'value' => $avgconfidence . '%',
         'class' => 'bg-secondary',
-        'icon' => 'fa-bullseye',
+        'svg' => '<svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>',
     ],
     [
         'title' => get_string('uniqueusers', 'local_educambot'),
         'value' => $uniqueusers,
         'class' => 'bg-dark',
-        'icon' => 'fa-users',
+        'svg' => '<svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg>',
     ],
 ];
 
@@ -132,7 +132,7 @@ foreach ($cards as $card) {
     echo html_writer::start_tag('div', ['class' => 'col-md-4 col-lg-2 mb-3']);
     echo html_writer::start_tag('div', ['class' => 'card text-white ' . $card['class']]);
     echo html_writer::start_tag('div', ['class' => 'card-body text-center']);
-    echo html_writer::tag('i', '', ['class' => 'fa ' . $card['icon'] . ' fa-2x mb-2']);
+    echo html_writer::tag('div', $card['svg'], ['class' => 'mb-2']);
     echo html_writer::tag('h3', $card['value'], ['class' => 'card-title mb-0']);
     echo html_writer::tag('small', $card['title']);
     echo html_writer::end_tag('div');
@@ -150,7 +150,7 @@ echo html_writer::end_tag('div');
 echo html_writer::start_tag('div', ['class' => 'card-body']);
 
 $filterurl = new moodle_url('/local/educambot/reports.php');
-echo html_writer::start_tag('form', ['method' => 'get', 'action' => $filterurl->out_omit_querystring(), 'class' => 'form-inline']);
+echo html_writer::start_tag('form', ['method' => 'get', 'action' => $filterurl->out_omit_querystring(), 'class' => 'form-inline educambot-filter-form']);
 
 echo html_writer::start_tag('div', ['class' => 'row w-100']);
 
@@ -215,28 +215,6 @@ echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'datefrom', 
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'dateto', 'id' => 'dateto', 'value' => $dateto]);
 
 echo html_writer::end_tag('form');
-
-// JavaScript to convert date inputs to timestamps.
-echo html_writer::script("
-    document.querySelector('form').addEventListener('submit', function(e) {
-        var datefromInput = document.querySelector('input[name=\"datefrom_date\"]');
-        var datetoInput = document.querySelector('input[name=\"dateto_date\"]');
-        var datefromHidden = document.getElementById('datefrom');
-        var datetoHidden = document.getElementById('dateto');
-
-        if (datefromInput.value) {
-            datefromHidden.value = Math.floor(new Date(datefromInput.value).getTime() / 1000);
-        } else {
-            datefromHidden.value = 0;
-        }
-
-        if (datetoInput.value) {
-            datetoHidden.value = Math.floor(new Date(datetoInput.value).getTime() / 1000);
-        } else {
-            datetoHidden.value = 0;
-        }
-    });
-");
 
 echo html_writer::end_tag('div');
 echo html_writer::end_tag('div');
@@ -418,12 +396,13 @@ echo html_writer::start_tag('div', ['class' => 'modal-body']);
 echo html_writer::tag('div', '', ['id' => 'modal-content-area']);
 echo html_writer::end_tag('div');
 
-// Modal footer.
+// Modal footer - compatible with both BS4 and BS5.
 echo html_writer::start_tag('div', ['class' => 'modal-footer']);
 echo html_writer::tag('button', get_string('close', 'local_educambot'), [
     'type' => 'button',
     'class' => 'btn btn-secondary',
     'data-dismiss' => 'modal',
+    'data-bs-dismiss' => 'modal',
 ]);
 echo html_writer::end_tag('div');
 
@@ -431,48 +410,17 @@ echo html_writer::end_tag('div');
 echo html_writer::end_tag('div');
 echo html_writer::end_tag('div');
 
-// JavaScript for modal.
-echo html_writer::script("
-    document.querySelectorAll('.view-log-details').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var question = this.dataset.question;
-            var response = this.dataset.response;
-            var user = this.dataset.user;
-            var date = this.dataset.date;
-            var confidence = this.dataset.confidence;
-            var matched = this.dataset.matched;
-
-            var statusBadge = matched == '1'
-                ? '<span class=\"badge badge-success\">" . get_string('matched', 'local_educambot') . "</span>'
-                : '<span class=\"badge badge-warning\">" . get_string('unmatched', 'local_educambot') . "</span>';
-
-            var content = '<dl class=\"row\">' +
-                '<dt class=\"col-sm-3\">" . get_string('user') . "</dt>' +
-                '<dd class=\"col-sm-9\">' + user + '</dd>' +
-                '<dt class=\"col-sm-3\">" . get_string('date') . "</dt>' +
-                '<dd class=\"col-sm-9\">' + date + '</dd>' +
-                '<dt class=\"col-sm-3\">" . get_string('status_header', 'local_educambot') . "</dt>' +
-                '<dd class=\"col-sm-9\">' + statusBadge + '</dd>' +
-                '<dt class=\"col-sm-3\">" . get_string('confidence', 'local_educambot') . "</dt>' +
-                '<dd class=\"col-sm-9\">' + confidence + '</dd>' +
-                '<dt class=\"col-sm-3\">" . get_string('question', 'local_educambot') . "</dt>' +
-                '<dd class=\"col-sm-9\"><div class=\"alert alert-info\">' + question + '</div></dd>' +
-                '<dt class=\"col-sm-3\">" . get_string('response', 'local_educambot') . "</dt>' +
-                '<dd class=\"col-sm-9\"><div class=\"alert alert-secondary\">' + response + '</div></dd>' +
-                '</dl>';
-
-            document.getElementById('modal-content-area').innerHTML = content;
-
-            // Show modal using Bootstrap.
-            var modal = document.getElementById('logDetailsModal');
-            if (typeof jQuery !== 'undefined') {
-                jQuery(modal).modal('show');
-            } else {
-                modal.classList.add('show');
-                modal.style.display = 'block';
-            }
-        });
-    });
-");
+// Initialize JavaScript module with localized strings.
+$jsstrings = [
+    'matched' => get_string('matched', 'local_educambot'),
+    'unmatched' => get_string('unmatched', 'local_educambot'),
+    'user' => get_string('user'),
+    'date' => get_string('date'),
+    'status' => get_string('status_header', 'local_educambot'),
+    'confidence' => get_string('confidence', 'local_educambot'),
+    'question' => get_string('question', 'local_educambot'),
+    'response' => get_string('response', 'local_educambot'),
+];
+$PAGE->requires->js_call_amd('local_educambot/reports', 'init', [$jsstrings]);
 
 echo $OUTPUT->footer();

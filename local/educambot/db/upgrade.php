@@ -1259,5 +1259,187 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025120502, 'local', 'educambot');
     }
 
+    if ($oldversion < 2025121200) {
+        // Version 2.0.0: Performance and compatibility improvements.
+        $now = time();
+
+        // Add composite index for user history queries on local_educambot_log.
+        $table = new xmldb_table('local_educambot_log');
+        $index = new xmldb_index('userid_time_idx', XMLDB_INDEX_NOTUNIQUE, ['userid', 'timecreated']);
+
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Helper function to create rule if not exists.
+        $createrule = function($pattern, $data) use ($DB, $now) {
+            $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            $existing = $DB->get_record_sql($sql, ['pattern' => $pattern]);
+            if (!$existing) {
+                $data['timecreated'] = $now;
+                $data['timemodified'] = $now;
+                return $DB->insert_record('local_educambot_rule', (object)$data);
+            }
+            return $existing->id;
+        };
+
+        // Helper function to get rule ID by pattern.
+        $getruleid = function($pattern) use ($DB) {
+            $sql = "SELECT id FROM {local_educambot_rule} WHERE " .
+                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+            return $DB->get_field_sql($sql, ['pattern' => $pattern]);
+        };
+
+        // Helper function to add option if not exists.
+        $addoption = function($ruleid, $text, $targetruleid, $icon, $sortorder) use ($DB) {
+            if (!$ruleid || !$targetruleid) {
+                return;
+            }
+            $existing = $DB->get_record('local_educambot_option', [
+                'ruleid' => $ruleid,
+                'text' => $text
+            ]);
+            if (!$existing) {
+                $DB->insert_record('local_educambot_option', (object)[
+                    'ruleid' => $ruleid,
+                    'text' => $text,
+                    'targetruleid' => $targetruleid,
+                    'icon' => $icon,
+                    'sortorder' => $sortorder,
+                    'enabled' => 1
+                ]);
+            }
+        };
+
+        // Get or create Plugins category.
+        $catplugins = $DB->get_record('local_educambot_category', ['name' => 'Plugins y Herramientas']);
+        if (!$catplugins) {
+            $catplugins = new stdClass();
+            $catplugins->name = 'Plugins y Herramientas';
+            $catplugins->description = 'Informacion sobre plugins y herramientas adicionales del sitio';
+            $catplugins->parent = null;
+            $catplugins->sortorder = 10;
+            $catplugins->enabled = 1;
+            $catplugins->timecreated = $now;
+            $catplugins->timemodified = $now;
+            $catplugins->id = $DB->insert_record('local_educambot_category', $catplugins);
+        }
+
+        // Create rules for repository plugins.
+
+        // GeniAI plugin.
+        $geniaiiid = $createrule('¿Que es GeniAI?', [
+            'categoryid' => $catplugins->id,
+            'pattern' => '¿Que es GeniAI?',
+            'keywords' => "geniai\nia generativa\nchatgpt\ninteligencia artificial\ncrear contenido con ia\nh5p automatico",
+            'response' => 'GeniAI es un plugin que integra inteligencia artificial generativa en Moodle:<br><br><strong>Funciones principales:</strong><br>- Crear contenido H5P automaticamente<br>- Generar cuestionarios y actividades<br>- Asistente de chat con IA<br>- Crear glosarios, libros interactivos<br><br>Si tienes acceso, busca el enlace "GeniAI" en el menu de administracion.',
+            'tags' => 'geniai, ia, chatgpt, h5p, inteligencia artificial',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // Download Center plugin.
+        $downloadid = $createrule('¿Como descargo todos los materiales de un curso?', [
+            'categoryid' => $catplugins->id,
+            'pattern' => '¿Como descargo todos los materiales de un curso?',
+            'keywords' => "descargar todo\ndescargar curso completo\ncentro de descargas\ndownload center\nzip del curso",
+            'response' => 'El Centro de Descargas te permite descargar todos los materiales del curso en un solo archivo ZIP:<br><br>1. Entra al curso deseado<br>2. Busca el enlace "Centro de Descargas" en el menu del curso o bloque lateral<br>3. Selecciona las secciones y tipos de archivo a incluir<br>4. Haz clic en "Crear ZIP"<br>5. Descarga el archivo generado',
+            'tags' => 'descargar, zip, materiales, curso completo',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // IntebChat (AI Chat) plugin.
+        $intebchatid = $createrule('¿Que es el Chat con IA?', [
+            'categoryid' => $catplugins->id,
+            'pattern' => '¿Que es el Chat con IA?',
+            'keywords' => "intebchat\nchat con ia\nasistente ia\nchat inteligente\nchatbot del curso",
+            'response' => 'El Chat con IA es una actividad que permite conversar con un asistente de inteligencia artificial dentro del curso:<br><br><strong>Caracteristicas:</strong><br>- Responde preguntas sobre el contenido<br>- Ayuda con dudas academicas<br>- Conserva el historial de conversaciones<br>- Disponible como actividad dentro del curso<br><br>Si tu profesor lo ha habilitado, lo encontraras como una actividad en el curso.',
+            'tags' => 'chat, ia, asistente, intebchat',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // Quiz retake UI plugin.
+        $quizretakeid = $createrule('¿Como reintento un cuestionario?', [
+            'categoryid' => $catplugins->id,
+            'pattern' => '¿Como reintento un cuestionario?',
+            'keywords' => "reintentar cuestionario\nvolver a hacer quiz\nnuevo intento\nrepetir examen",
+            'response' => 'Para reintentar un cuestionario:<br><br>1. Abre el cuestionario<br>2. Si tienes intentos disponibles, veras el boton "Volver a intentar"<br>3. Haz clic para iniciar un nuevo intento<br><br><strong>Nota:</strong> El numero de intentos lo define el profesor. Revisa la informacion del cuestionario para ver cuantos intentos tienes permitidos.',
+            'tags' => 'reintentar, quiz, intentos, cuestionario',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // NexusPay enrollment.
+        $nexuspayid = $createrule('¿Como pago para inscribirme en un curso?', [
+            'categoryid' => $catplugins->id,
+            'pattern' => '¿Como pago para inscribirme en un curso?',
+            'keywords' => "pagar curso\ninscripcion de pago\nnexuspay\ncomprar curso\npasarela de pago",
+            'response' => 'Para inscribirte en un curso de pago:<br><br>1. Busca el curso en el catalogo<br>2. Haz clic en "Inscribirse"<br>3. Veras el precio y opciones de pago<br>4. Selecciona tu metodo de pago preferido<br>5. Completa el proceso de pago<br>6. Una vez confirmado, tendras acceso inmediato al curso',
+            'tags' => 'pago, inscripcion, comprar, nexuspay',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // Custom login page.
+        $customloginid = $createrule('¿Por que la pagina de login se ve diferente?', [
+            'categoryid' => $catplugins->id,
+            'pattern' => '¿Por que la pagina de login se ve diferente?',
+            'keywords' => "login personalizado\npagina de acceso\neducamlogin\nentrar al sitio",
+            'response' => 'Esta plataforma tiene una pagina de inicio de sesion personalizada para ofrecer una mejor experiencia:<br><br>- Diseno adaptado a la institucion<br>- Opciones de recuperacion de contrasena<br>- Acceso rapido a la plataforma<br><br>Si tienes problemas para acceder, usa el enlace "Recuperar contrasena" o contacta a soporte.',
+            'tags' => 'login, acceso, personalizado',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // Plugins menu.
+        $pluginsmenuid = $createrule('¿Que herramientas adicionales hay?', [
+            'categoryid' => $catplugins->id,
+            'pattern' => '¿Que herramientas adicionales hay?',
+            'keywords' => "herramientas\nplugins\nfunciones extra\nque mas puedo hacer",
+            'response' => 'Esta plataforma incluye varias herramientas adicionales:<br><br><strong>Para todos:</strong><br>- Centro de Descargas (ZIP del curso)<br>- Chat con IA (si esta habilitado)<br><br><strong>Para profesores:</strong><br>- GeniAI para crear contenido<br>- Herramientas de evaluacion avanzadas<br><br>Las herramientas disponibles dependen de tu rol y los permisos del curso.',
+            'tags' => 'herramientas, plugins, funciones',
+            'enabled' => 1,
+            'showoptions' => 1,
+        ]);
+
+        // Get menu for navigation.
+        $menuid = $getruleid('Menu principal');
+
+        // Add options for plugin rules.
+        if ($geniaiiid && $menuid) {
+            $addoption($geniaiiid, 'Menu Principal', $menuid, '🏠', 1);
+            $addoption($geniaiiid, 'Otras Herramientas', $pluginsmenuid, '🔧', 2);
+        }
+        if ($downloadid && $menuid) {
+            $addoption($downloadid, 'Menu Principal', $menuid, '🏠', 1);
+            $addoption($downloadid, 'Otras Herramientas', $pluginsmenuid, '🔧', 2);
+        }
+        if ($intebchatid && $menuid) {
+            $addoption($intebchatid, 'Menu Principal', $menuid, '🏠', 1);
+            $addoption($intebchatid, 'Otras Herramientas', $pluginsmenuid, '🔧', 2);
+        }
+        if ($quizretakeid && $menuid) {
+            $addoption($quizretakeid, 'Menu Principal', $menuid, '🏠', 1);
+        }
+        if ($nexuspayid && $menuid) {
+            $addoption($nexuspayid, 'Menu Principal', $menuid, '🏠', 1);
+        }
+        if ($customloginid && $menuid) {
+            $addoption($customloginid, 'Menu Principal', $menuid, '🏠', 1);
+        }
+        if ($pluginsmenuid) {
+            $addoption($pluginsmenuid, 'GeniAI', $geniaiiid, '🤖', 1);
+            $addoption($pluginsmenuid, 'Descargar Curso', $downloadid, '📥', 2);
+            $addoption($pluginsmenuid, 'Chat con IA', $intebchatid, '💬', 3);
+            $addoption($pluginsmenuid, 'Menu Principal', $menuid, '🏠', 4);
+        }
+
+        // Educambot savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121200, 'local', 'educambot');
+    }
+
     return true;
 }

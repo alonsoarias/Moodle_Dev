@@ -101,7 +101,7 @@ $string['error_savingrule'] = 'Error al guardar la regla';
 
 // Widget.
 $string['typeaquestion'] = 'Escribe tu pregunta...';
-$string['online'] = 'En linea';
+$string['online'] = 'En línea';
 $string['clearhistory'] = 'Limpiar historial';
 
 // Reports.
@@ -115,7 +115,7 @@ $string['recentconversations'] = 'Conversaciones Recientes';
 $string['averageconfidence'] = 'Confianza Prom.';
 $string['topquestions'] = 'Preguntas Frecuentes';
 $string['questionswithoutrule'] = 'Preguntas Sin Regla';
-$string['nologs'] = 'No hay conversaciones registradas aun';
+$string['nologs'] = 'No hay conversaciones registradas aún';
 $string['nounmatchedquestions'] = 'Todas las preguntas han sido respondidas. No hay preguntas sin respuesta.';
 $string['matched'] = 'Respondida';
 $string['unmatched'] = 'Sin respuesta';
@@ -171,7 +171,7 @@ $string['parentcategory'] = 'Categoria Padre';
 $string['addcategory'] = 'Agregar Categoria';
 $string['editcategory'] = 'Editar Categoria';
 $string['deletecategory'] = 'Eliminar Categoria';
-$string['nocategories'] = 'No hay categorias definidas aun';
+$string['nocategories'] = 'No hay categorías definidas aún';
 $string['categorycreated'] = 'Categoria creada exitosamente';
 $string['categoryupdated'] = 'Categoria actualizada exitosamente';
 $string['categorydeleted'] = 'Categoria eliminada exitosamente';
@@ -225,7 +225,7 @@ $string['manageshortcuts'] = 'Gestionar Accesos Rapidos';
 $string['addshortcut'] = 'Agregar Acceso Rapido';
 $string['editshortcut'] = 'Editar Acceso Rapido';
 $string['deleteshortcut'] = 'Eliminar Acceso Rapido';
-$string['noshortcuts'] = 'No hay accesos rapidos definidos aun';
+$string['noshortcuts'] = 'No hay accesos rápidos definidos aún';
 $string['shortcutname'] = 'Nombre del Acceso';
 $string['shortcutname_help'] = 'Nombre descriptivo del acceso rapido';
 $string['shortcutkeywords'] = 'Palabras Clave';
@@ -519,3 +519,21 @@ $string['archetype_coursecreator'] = 'Creador de cursos';
 $string['archetype_manager'] = 'Gestor / Administrador';
 $string['archetype_guest'] = 'Invitado';
 $string['archetype_user'] = 'Usuario autenticado (sin rol especifico)';
+
+// v2.0.0 - Import/Export strings.
+$string['importexport'] = 'Importar/Exportar Base de Conocimiento';
+$string['exportkb'] = 'Exportar Base de Conocimiento';
+$string['exportkb_desc'] = 'Descarga todas las categorías, reglas y opciones como un archivo JSON para respaldo o transferencia a otro sitio.';
+$string['exportfile'] = 'Descargar archivo JSON';
+$string['importkb'] = 'Importar Base de Conocimiento';
+$string['importkb_desc'] = 'Sube un archivo JSON previamente exportado para importar categorías, reglas y opciones.';
+$string['selectfile'] = 'Seleccionar archivo';
+$string['clearexisting'] = 'Borrar datos existentes';
+$string['clearexisting_help'] = 'Si está habilitado, todas las categorías, reglas y opciones existentes serán eliminadas antes de importar. ¡Usar con precaución!';
+$string['import'] = 'Importar';
+$string['importsuccess'] = 'Se importaron exitosamente {\->categories} categorías, {\->rules} reglas, y {\->options} opciones.';
+$string['importerror'] = 'Error durante la importación';
+$string['importinvalidjson'] = 'Formato de archivo JSON inválido';
+$string['importinvalidversion'] = 'Versión inválida o faltante en el archivo de importación';
+$string['currentstats'] = 'Base de conocimiento actual: {\->categories} categorías, {\->rules} reglas, {\->options} opciones.';
+
