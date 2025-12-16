@@ -18,7 +18,7 @@
  * Privacy Subsystem implementation for paygw_wompi.
  *
  * @package    paygw_wompi
- * @copyright  2024 Alonso Arias <alonso.arias@moodle.com>
+ * @copyright  2024 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,7 +35,7 @@ use core_privacy\local\request\writer;
 /**
  * Privacy Subsystem for paygw_wompi implementing metadata and request providers.
  *
- * @copyright  2024 Alonso Arias <alonso.arias@moodle.com>
+ * @copyright  2024 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements

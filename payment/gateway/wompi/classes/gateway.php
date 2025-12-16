@@ -18,7 +18,7 @@
  * Contains class for Wompi payment gateway.
  *
  * @package    paygw_wompi
- * @copyright  2024 Alonso Arias <alonso.arias@moodle.com>
+ * @copyright  2024 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,7 +29,7 @@ use core_payment\form\account_gateway;
 /**
  * The gateway class for Wompi payment gateway.
  *
- * @copyright  2024 Alonso Arias <alonso.arias@moodle.com>
+ * @copyright  2024 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class gateway extends \core_payment\gateway {

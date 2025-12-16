@@ -18,7 +18,7 @@
  * Various helper methods for interacting with the Wompi API.
  *
  * @package    paygw_wompi
- * @copyright  2024 Alonso Arias <alonso.arias@moodle.com>
+ * @copyright  2024 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The helper class for Wompi payment gateway.
  *
- * @copyright  2024 Alonso Arias <alonso.arias@moodle.com>
+ * @copyright  2024 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class wompi_helper {
