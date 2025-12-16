@@ -58,6 +58,8 @@ $string['responseurl'] = 'Response URL';
 
 $string['sandbox_notice'] = '<strong>Note:</strong> In Sandbox environment, PayU test credentials are automatically used. You do not need to enter credentials.';
 
+$string['country'] = 'Supported Country';
+
 // Payment process.
 $string['redirecting'] = 'Redirecting to PayU...';
 $string['redirecting_message'] = 'You are being redirected to PayU\'s secure payment page. Please wait...';
@@ -113,3 +115,16 @@ $string['payment_declined'] = 'Your payment has been declined. Please try a diff
 $string['payment_expired_subject'] = 'Payment expired';
 $string['payment_expired_message'] = 'Your payment of {$a->amount} {$a->currency} initiated on {$a->date} has expired due to lack of confirmation. If you wish to complete the purchase, please initiate a new payment.';
 $string['messageprovider:payment_status'] = 'Payment status notifications';
+
+// Legacy notification strings.
+$string['messagesubject'] = 'Payment notification';
+$string['message_payment_completed'] = 'Hello {$a->firstname},
+
+Your payment of {$a->localizedcost} (Order ID: {$a->orderid}) was completed successfully.
+
+If you cannot access the course, please contact the administrator.';
+$string['message_payment_pending'] = 'Hello {$a->firstname},
+
+Your payment of {$a->localizedcost} (Order ID: {$a->orderid}) is pending approval.
+
+We will notify you once the payment is confirmed.';
