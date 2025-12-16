@@ -46,6 +46,10 @@ $string['invalidpublickey:sandbox'] = 'Llave pública inválida para ambiente sa
 $string['invalidpublickey:production'] = 'Llave pública inválida para ambiente de producción. Debe comenzar con pub_prod_';
 $string['invalidprivatekey:sandbox'] = 'Llave privada inválida para ambiente sandbox. Debe comenzar con prv_test_';
 $string['invalidprivatekey:production'] = 'Llave privada inválida para ambiente de producción. Debe comenzar con prv_prod_';
+$string['invalidintegritykey:sandbox'] = 'Llave de integridad inválida para ambiente sandbox. Debe comenzar con test_integrity_';
+$string['invalidintegritykey:production'] = 'Llave de integridad inválida para ambiente de producción. Debe comenzar con prod_integrity_';
+$string['sandboxcredentials'] = 'Credenciales de prueba automáticas';
+$string['sandboxcredentials_desc'] = 'En modo sandbox, se utilizarán credenciales de prueba automáticas si no se proporcionan credenciales personalizadas.';
 
 $string['paymentmethods'] = 'Métodos de Pago';
 $string['paymentmethods_help'] = 'Seleccione los métodos de pago que desea ofrecer a sus clientes.';

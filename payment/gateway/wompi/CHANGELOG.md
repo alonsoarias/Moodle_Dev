@@ -5,17 +5,6 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere al [Versionamiento Semántico](https://semver.org/lang/es/).
 
-## [Unreleased]
-
-### Planeado
-- Soporte para reembolsos desde Moodle
-- Panel de administración de transacciones
-- Reportes avanzados de pagos
-- Integración con sistema de cupones de descuento
-- Soporte para pagos recurrentes (suscripciones)
-
----
-
 ## [1.0.0] - 2025-12-16
 
 ### Agregado
@@ -32,6 +21,7 @@ y este proyecto adhiere al [Versionamiento Semántico](https://semver.org/lang/e
 #### Funcionalidades Core
 - Widget de checkout integrado de Wompi
 - Soporte para ambientes **Sandbox** y **Producción**
+- **Credenciales de prueba automáticas** en Sandbox
 - Sistema de **webhooks** para pagos asíncronos
 - **Firma de integridad SHA256** para todas las transacciones
 - **Verificación de webhooks** con llave de eventos

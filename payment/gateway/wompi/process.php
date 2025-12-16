@@ -23,6 +23,7 @@
  */
 
 use core_payment\helper;
+use paygw_wompi\gateway;
 use paygw_wompi\wompi_helper;
 
 require_once(__DIR__ . '/../../../config.php');
@@ -39,14 +40,8 @@ $transactionid = optional_param('id', '', PARAM_TEXT);
 $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'wompi');
 $payable = helper::get_payable($component, $paymentarea, $itemid);
 
-// Initialize Wompi helper.
-$wompihelper = new wompi_helper(
-    $config->publickey,
-    $config->privatekey,
-    $config->integritykey,
-    $config->environment ?? 'sandbox',
-    $config->eventskey ?? ''
-);
+// Initialize Wompi helper (with automatic sandbox credentials support).
+$wompihelper = gateway::create_helper_from_config($config);
 
 // If no transaction ID provided, check if we have a reference.
 if (empty($transactionid)) {

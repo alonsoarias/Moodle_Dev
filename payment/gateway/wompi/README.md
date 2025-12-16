@@ -257,6 +257,19 @@ Los métodos de pago asíncronos requieren que el webhook esté correctamente co
 
 ## Datos de Prueba (Sandbox)
 
+### Credenciales de Prueba Automáticas
+
+El plugin incluye **credenciales de prueba automáticas** para el ambiente sandbox. Si no proporciona credenciales personalizadas, el sistema usará las siguientes credenciales de demostración:
+
+| Llave | Valor |
+|-------|-------|
+| Llave Pública | `pub_test_g2u0HQd3ZJh05hsSLKTp20v0JAeNEGbN` |
+| Llave Privada | `prv_test_24xZUvbmCTaApOFGdRBWNk51YoQ6B0Lo` |
+| Llave de Integridad | `test_integrity_0Hj5IFNf14ObBa6mNzAH6AEi6Fw7wQEk` |
+| Llave de Eventos | `test_events_aImCXzj0j0UJAWkpzBfBsLU1qR36kQzr` |
+
+> **Nota**: Para producción, debes configurar tus propias credenciales obtenidas en el panel de Wompi.
+
 ### Tarjetas de Prueba
 
 | Número | Resultado |
@@ -265,8 +278,8 @@ Los métodos de pago asíncronos requieren que el webhook esté correctamente co
 | `4111 1111 1111 1111` | ❌ Declinada |
 | `4012 8888 8888 1881` | ⏳ Pendiente |
 
-- **Fecha de vencimiento**: Cualquier fecha futura
-- **CVV**: Cualquier 3 dígitos
+- **Fecha de vencimiento**: Cualquier fecha futura (ej: 12/29)
+- **CVV**: Cualquier 3 dígitos (ej: 123)
 - **Nombre**: Cualquier nombre
 
 ### Nequi de Prueba
@@ -448,6 +461,17 @@ $url = gateway::get_api_url('sandbox'); // https://sandbox.wompi.co/v1
 
 // Obtener URL del checkout
 $url = gateway::get_checkout_url(); // https://checkout.wompi.co
+
+// Obtener credenciales de prueba sandbox
+$test_creds = gateway::get_test_credentials();
+// Returns: ['publicKey' => '...', 'privateKey' => '...', 'integrityKey' => '...', 'eventsKey' => '...']
+
+// Obtener tarjetas de prueba
+$test_cards = gateway::get_test_cards();
+// Returns: ['approved' => [...], 'declined' => [...]]
+
+// Crear helper desde configuración (con auto-fallback a credenciales de prueba en sandbox)
+$helper = gateway::create_helper_from_config($config);
 ```
 
 ---

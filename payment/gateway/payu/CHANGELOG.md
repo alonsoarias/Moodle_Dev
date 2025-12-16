@@ -31,16 +31,6 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Protección contra transacciones duplicadas
 - Sanitización de todos los parámetros de entrada
 
-## [Unreleased]
-
-### Planeado
-- Soporte para tokenización de tarjetas
-- Panel de administración con reportes de transacciones
-- Integración con API de consultas de PayU
-- Soporte para reembolsos automáticos
-
----
-
 ## Cómo actualizar
 
 ### De versiones anteriores

@@ -128,12 +128,14 @@ class gateway extends \core_payment\gateway {
         array $files,
         array &$errors
     ): void {
-        if ($data->enabled &&
+        // In sandbox mode, empty credentials are allowed (will use test credentials).
+        // In production mode, all credentials are required.
+        if ($data->enabled && $data->environment === 'production' &&
             (empty($data->publickey) || empty($data->privatekey) || empty($data->integritykey))) {
             $errors['enabled'] = get_string('gatewaycannotbeenabled', 'payment');
         }
 
-        // Validate public key format.
+        // Validate public key format if provided.
         if (!empty($data->publickey)) {
             if ($data->environment === 'sandbox' && strpos($data->publickey, 'pub_test_') !== 0) {
                 $errors['publickey'] = get_string('invalidpublickey:sandbox', 'paygw_wompi');
@@ -142,12 +144,21 @@ class gateway extends \core_payment\gateway {
             }
         }
 
-        // Validate private key format.
+        // Validate private key format if provided.
         if (!empty($data->privatekey)) {
             if ($data->environment === 'sandbox' && strpos($data->privatekey, 'prv_test_') !== 0) {
                 $errors['privatekey'] = get_string('invalidprivatekey:sandbox', 'paygw_wompi');
             } else if ($data->environment === 'production' && strpos($data->privatekey, 'prv_prod_') !== 0) {
                 $errors['privatekey'] = get_string('invalidprivatekey:production', 'paygw_wompi');
+            }
+        }
+
+        // Validate integrity key format if provided.
+        if (!empty($data->integritykey)) {
+            if ($data->environment === 'sandbox' && strpos($data->integritykey, 'test_integrity_') !== 0) {
+                $errors['integritykey'] = get_string('invalidintegritykey:sandbox', 'paygw_wompi');
+            } else if ($data->environment === 'production' && strpos($data->integritykey, 'prod_integrity_') !== 0) {
+                $errors['integritykey'] = get_string('invalidintegritykey:production', 'paygw_wompi');
             }
         }
     }
@@ -172,5 +183,55 @@ class gateway extends \core_payment\gateway {
      */
     public static function get_checkout_url(): string {
         return 'https://checkout.wompi.co';
+    }
+
+    /**
+     * Get test credentials for sandbox environment.
+     *
+     * @return array Test credentials for sandbox.
+     */
+    public static function get_test_credentials(): array {
+        return wompi_helper::TEST_CREDENTIALS;
+    }
+
+    /**
+     * Get test cards for sandbox environment.
+     *
+     * @return array Test cards information.
+     */
+    public static function get_test_cards(): array {
+        return wompi_helper::TEST_CARDS;
+    }
+
+    /**
+     * Create a wompi_helper instance from configuration.
+     *
+     * @param object $config Plugin configuration.
+     * @return wompi_helper Helper instance.
+     */
+    public static function create_helper_from_config(object $config): wompi_helper {
+        $environment = $config->environment ?? 'sandbox';
+
+        // Use test credentials if in sandbox and no credentials provided.
+        if ($environment === 'sandbox') {
+            $testcreds = self::get_test_credentials();
+            $publickey = !empty($config->publickey) ? $config->publickey : $testcreds['publicKey'];
+            $privatekey = !empty($config->privatekey) ? $config->privatekey : $testcreds['privateKey'];
+            $integritykey = !empty($config->integritykey) ? $config->integritykey : $testcreds['integrityKey'];
+            $eventskey = !empty($config->eventskey) ? $config->eventskey : $testcreds['eventsKey'];
+        } else {
+            $publickey = $config->publickey;
+            $privatekey = $config->privatekey;
+            $integritykey = $config->integritykey;
+            $eventskey = $config->eventskey ?? '';
+        }
+
+        return new wompi_helper(
+            $publickey,
+            $privatekey,
+            $integritykey,
+            $environment,
+            $eventskey
+        );
     }
 }

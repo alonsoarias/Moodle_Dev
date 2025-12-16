@@ -46,6 +46,10 @@ $string['invalidpublickey:sandbox'] = 'Invalid public key for sandbox environmen
 $string['invalidpublickey:production'] = 'Invalid public key for production environment. It should start with pub_prod_';
 $string['invalidprivatekey:sandbox'] = 'Invalid private key for sandbox environment. It should start with prv_test_';
 $string['invalidprivatekey:production'] = 'Invalid private key for production environment. It should start with prv_prod_';
+$string['invalidintegritykey:sandbox'] = 'Invalid integrity key for sandbox environment. It should start with test_integrity_';
+$string['invalidintegritykey:production'] = 'Invalid integrity key for production environment. It should start with prod_integrity_';
+$string['sandboxcredentials'] = 'Automatic sandbox credentials';
+$string['sandboxcredentials_desc'] = 'In sandbox mode, automatic test credentials will be used if no custom credentials are provided.';
 
 $string['paymentmethods'] = 'Payment Methods';
 $string['paymentmethods_help'] = 'Select the payment methods you want to offer to your customers.';

@@ -43,14 +43,8 @@ $surcharge = helper::get_gateway_surcharge('wompi');
 // Calculate cost with surcharge.
 $cost = helper::get_rounded_cost($payable->get_amount(), $payable->get_currency(), $surcharge);
 
-// Initialize Wompi helper.
-$wompihelper = new wompi_helper(
-    $config->publickey,
-    $config->privatekey,
-    $config->integritykey,
-    $config->environment ?? 'sandbox',
-    $config->eventskey ?? ''
-);
+// Initialize Wompi helper (with automatic sandbox credentials support).
+$wompihelper = gateway::create_helper_from_config($config);
 
 // Generate unique reference for this transaction.
 $reference = $wompihelper->generate_reference($component, $paymentarea, $itemid, $USER->id);

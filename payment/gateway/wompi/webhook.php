@@ -96,14 +96,8 @@ try {
     exit;
 }
 
-// Initialize Wompi helper.
-$wompihelper = new wompi_helper(
-    $config->publickey,
-    $config->privatekey,
-    $config->integritykey,
-    $config->environment ?? 'sandbox',
-    $config->eventskey ?? ''
-);
+// Initialize Wompi helper (with automatic sandbox credentials support).
+$wompihelper = \paygw_wompi\gateway::create_helper_from_config($config);
 
 // Verify signature if events key is configured.
 if (!empty($config->eventskey) && isset($event['signature'])) {
