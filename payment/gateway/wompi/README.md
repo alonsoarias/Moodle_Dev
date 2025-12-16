@@ -159,7 +159,6 @@ Este plugin está licenciado bajo la GNU GPL v3 o posterior.
 - **Autor:** Alonso Arias
 - **Email:** soporte@ingeweb.co
 - **Versión:** 1.0.0
-- **Basado en:** paygw_stripe por Alex Morris
 
 ## Changelog
 
