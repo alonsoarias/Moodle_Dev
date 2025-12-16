@@ -160,12 +160,6 @@ git clone https://github.com/ingeweb/moodle-paygw_wompi.git wompi
 php /ruta/a/moodle/admin/cli/upgrade.php
 ```
 
-### Método 3: Via Composer
-
-```bash
-composer require ingeweb/moodle-paygw_wompi
-```
-
 ---
 
 ## Configuración
