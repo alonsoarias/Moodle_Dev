@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Notifications for paygw_payu.
+ * Notifications for paygw_wompi.
  *
- * @package    paygw_payu
+ * @package    paygw_wompi
  * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace paygw_payu;
+namespace paygw_wompi;
 
 /**
  * Notifications class.
  *
- * Handle notifications for users about their PayU transactions.
+ * Handle notifications for users about their Wompi transactions.
  *
- * @package    paygw_payu
+ * @package    paygw_wompi
  * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -50,7 +50,7 @@ class notifications {
     }
 
     /**
-     * Send notification to user about their PayU transaction.
+     * Send notification to user about their Wompi transaction.
      *
      * @param int $userid The user ID.
      * @param float $fee The payment amount.
@@ -81,18 +81,18 @@ class notifications {
         if ($type === 'payment_pending') {
             $subject = !empty($config->email_pending_subject)
                 ? $config->email_pending_subject
-                : get_string('email_pending_subject_default', 'paygw_payu');
+                : get_string('email_pending_subject_default', 'paygw_wompi');
             $body = !empty($config->email_pending_body)
                 ? $config->email_pending_body
-                : get_string('email_pending_body_default', 'paygw_payu');
+                : get_string('email_pending_body_default', 'paygw_wompi');
         } else {
             // Default to payment_completed.
             $subject = !empty($config->email_completed_subject)
                 ? $config->email_completed_subject
-                : get_string('email_completed_subject_default', 'paygw_payu');
+                : get_string('email_completed_subject_default', 'paygw_wompi');
             $body = !empty($config->email_completed_body)
                 ? $config->email_completed_body
-                : get_string('email_completed_body_default', 'paygw_payu');
+                : get_string('email_completed_body_default', 'paygw_wompi');
         }
 
         // Replace placeholders in subject and body.
@@ -101,7 +101,7 @@ class notifications {
 
         // Build and send the message.
         $message = new \core\message\message();
-        $message->component = 'paygw_payu';
+        $message->component = 'paygw_wompi';
         $message->name = 'payment_successful';
         $message->userfrom = \core_user::get_noreply_user();
         $message->userto = $user;

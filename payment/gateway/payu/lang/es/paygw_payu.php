@@ -114,15 +114,29 @@ $string['payment_expired_subject'] = 'Pago expirado';
 $string['payment_expired_message'] = 'Su pago por {$a->amount} {$a->currency} iniciado el {$a->date} ha expirado por falta de confirmación. Si desea completar la compra, por favor inicie un nuevo pago.';
 $string['messageprovider:payment_status'] = 'Notificaciones de estado de pago';
 
-// Cadenas de notificación legacy.
-$string['messagesubject'] = 'Notificación de pago';
-$string['message_payment_completed'] = 'Hola {$a->firstname},
+// Configuración de plantillas de email.
+$string['emailtemplates'] = 'Plantillas de Notificación por Email';
+$string['availableplaceholders'] = 'Placeholders Disponibles';
+$string['placeholder:firstname'] = 'Nombre del usuario';
+$string['placeholder:fullname'] = 'Nombre completo del usuario';
+$string['placeholder:amount'] = 'Monto del pago con moneda';
+$string['placeholder:currency'] = 'Código de moneda';
+$string['placeholder:orderid'] = 'ID de Orden/Referencia';
 
-Su pago de {$a->localizedcost} (ID de orden: {$a->orderid}) fue completado exitosamente.
+$string['email_completed_subject'] = 'Pago Completado - Asunto';
+$string['email_completed_subject_default'] = 'Pago Exitoso - Orden #{orderid}';
+$string['email_completed_body'] = 'Pago Completado - Cuerpo';
+$string['email_completed_body_default'] = 'Hola {firstname},
+
+Su pago de {amount} (ID de orden: {orderid}) fue completado exitosamente.
 
 Si no puede acceder al curso, por favor contacte al administrador.';
-$string['message_payment_pending'] = 'Hola {$a->firstname},
 
-Su pago de {$a->localizedcost} (ID de orden: {$a->orderid}) está pendiente de aprobación.
+$string['email_pending_subject'] = 'Pago Pendiente - Asunto';
+$string['email_pending_subject_default'] = 'Pago Pendiente - Orden #{orderid}';
+$string['email_pending_body'] = 'Pago Pendiente - Cuerpo';
+$string['email_pending_body_default'] = 'Hola {firstname},
+
+Su pago de {amount} (ID de orden: {orderid}) está pendiente de aprobación.
 
 Le notificaremos una vez que el pago sea confirmado.';

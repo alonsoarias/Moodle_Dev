@@ -112,6 +112,44 @@ class gateway extends \core_payment\gateway {
             get_string('collectcustomerdata_desc', 'paygw_wompi')
         );
         $mform->setDefault('collectcustomerdata', true);
+
+        // Email notification templates section.
+        $mform->addElement('header', 'emailtemplates', get_string('emailtemplates', 'paygw_wompi'));
+
+        // Placeholders help.
+        $mform->addElement('static', 'placeholders_info', get_string('availableplaceholders', 'paygw_wompi'),
+            '<div class="alert alert-info small">' .
+            '<code>{firstname}</code> - ' . get_string('placeholder:firstname', 'paygw_wompi') . '<br>' .
+            '<code>{fullname}</code> - ' . get_string('placeholder:fullname', 'paygw_wompi') . '<br>' .
+            '<code>{amount}</code> - ' . get_string('placeholder:amount', 'paygw_wompi') . '<br>' .
+            '<code>{currency}</code> - ' . get_string('placeholder:currency', 'paygw_wompi') . '<br>' .
+            '<code>{orderid}</code> - ' . get_string('placeholder:orderid', 'paygw_wompi') .
+            '</div>'
+        );
+
+        // Email subject for completed payments.
+        $mform->addElement('text', 'email_completed_subject',
+            get_string('email_completed_subject', 'paygw_wompi'), ['size' => 60]);
+        $mform->setType('email_completed_subject', PARAM_TEXT);
+        $mform->setDefault('email_completed_subject', get_string('email_completed_subject_default', 'paygw_wompi'));
+
+        // Email body for completed payments.
+        $mform->addElement('textarea', 'email_completed_body',
+            get_string('email_completed_body', 'paygw_wompi'), ['rows' => 6, 'cols' => 60]);
+        $mform->setType('email_completed_body', PARAM_RAW);
+        $mform->setDefault('email_completed_body', get_string('email_completed_body_default', 'paygw_wompi'));
+
+        // Email subject for pending payments.
+        $mform->addElement('text', 'email_pending_subject',
+            get_string('email_pending_subject', 'paygw_wompi'), ['size' => 60]);
+        $mform->setType('email_pending_subject', PARAM_TEXT);
+        $mform->setDefault('email_pending_subject', get_string('email_pending_subject_default', 'paygw_wompi'));
+
+        // Email body for pending payments.
+        $mform->addElement('textarea', 'email_pending_body',
+            get_string('email_pending_body', 'paygw_wompi'), ['rows' => 6, 'cols' => 60]);
+        $mform->setType('email_pending_body', PARAM_RAW);
+        $mform->setDefault('email_pending_body', get_string('email_pending_body_default', 'paygw_wompi'));
     }
 
     /**

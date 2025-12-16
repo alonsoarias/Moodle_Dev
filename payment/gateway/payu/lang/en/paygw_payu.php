@@ -114,15 +114,29 @@ $string['payment_expired_subject'] = 'Payment expired';
 $string['payment_expired_message'] = 'Your payment of {$a->amount} {$a->currency} initiated on {$a->date} has expired due to lack of confirmation. If you wish to complete the purchase, please initiate a new payment.';
 $string['messageprovider:payment_status'] = 'Payment status notifications';
 
-// Legacy notification strings.
-$string['messagesubject'] = 'Payment notification';
-$string['message_payment_completed'] = 'Hello {$a->firstname},
+// Email template settings.
+$string['emailtemplates'] = 'Email Notification Templates';
+$string['availableplaceholders'] = 'Available Placeholders';
+$string['placeholder:firstname'] = 'User\'s first name';
+$string['placeholder:fullname'] = 'User\'s full name';
+$string['placeholder:amount'] = 'Payment amount with currency';
+$string['placeholder:currency'] = 'Currency code';
+$string['placeholder:orderid'] = 'Order/Reference ID';
 
-Your payment of {$a->localizedcost} (Order ID: {$a->orderid}) was completed successfully.
+$string['email_completed_subject'] = 'Payment Completed - Subject';
+$string['email_completed_subject_default'] = 'Payment Successful - Order #{orderid}';
+$string['email_completed_body'] = 'Payment Completed - Body';
+$string['email_completed_body_default'] = 'Hello {firstname},
+
+Your payment of {amount} (Order ID: {orderid}) was completed successfully.
 
 If you cannot access the course, please contact the administrator.';
-$string['message_payment_pending'] = 'Hello {$a->firstname},
 
-Your payment of {$a->localizedcost} (Order ID: {$a->orderid}) is pending approval.
+$string['email_pending_subject'] = 'Payment Pending - Subject';
+$string['email_pending_subject_default'] = 'Payment Pending - Order #{orderid}';
+$string['email_pending_body'] = 'Payment Pending - Body';
+$string['email_pending_body_default'] = 'Hello {firstname},
+
+Your payment of {amount} (Order ID: {orderid}) is pending approval.
 
 We will notify you once the payment is confirmed.';

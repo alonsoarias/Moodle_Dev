@@ -652,6 +652,73 @@ php /ruta/a/moodle/admin/cli/upgrade.php</code></pre>
                         <p>El sistema validara que las credenciales tengan el formato correcto.</p>
                     </li>
                 </ol>
+
+                <h3>Paso 4: Personalizar Plantillas de Email (Opcional)</h3>
+                <p>El plugin permite personalizar los emails de notificacion que reciben los usuarios tras realizar un pago.</p>
+
+                <h4>Placeholders Disponibles</h4>
+                <p>Puedes usar los siguientes placeholders en tus plantillas:</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Placeholder</th>
+                                <th>Descripcion</th>
+                                <th>Ejemplo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>{firstname}</code></td>
+                                <td>Nombre del usuario</td>
+                                <td>Juan</td>
+                            </tr>
+                            <tr>
+                                <td><code>{fullname}</code></td>
+                                <td>Nombre completo del usuario</td>
+                                <td>Juan Perez</td>
+                            </tr>
+                            <tr>
+                                <td><code>{amount}</code></td>
+                                <td>Monto del pago con moneda</td>
+                                <td>$50,000.00 COP</td>
+                            </tr>
+                            <tr>
+                                <td><code>{currency}</code></td>
+                                <td>Codigo de moneda</td>
+                                <td>COP</td>
+                            </tr>
+                            <tr>
+                                <td><code>{orderid}</code></td>
+                                <td>ID de la orden/referencia</td>
+                                <td>PAY-123456</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Plantillas Configurables</h4>
+                <ul>
+                    <li><strong>Pago Completado - Asunto:</strong> Asunto del email cuando el pago es exitoso</li>
+                    <li><strong>Pago Completado - Cuerpo:</strong> Contenido del email de pago exitoso</li>
+                    <li><strong>Pago Pendiente - Asunto:</strong> Asunto del email cuando el pago esta pendiente (PSE, efectivo)</li>
+                    <li><strong>Pago Pendiente - Cuerpo:</strong> Contenido del email de pago pendiente</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <h4>💡 Ejemplo de Plantilla Personalizada</h4>
+                    <p><strong>Asunto:</strong> <code>¡Gracias por tu compra! - Orden #{orderid}</code></p>
+                    <p><strong>Cuerpo:</strong></p>
+                    <pre><code>Hola {firstname},
+
+¡Gracias por tu compra de {amount}!
+
+Tu orden #{orderid} ha sido procesada exitosamente.
+Ya puedes acceder a tu curso.
+
+Saludos,
+El equipo de capacitacion</code></pre>
+                </div>
             </div>
         </section>
 
