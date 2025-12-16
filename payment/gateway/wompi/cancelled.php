@@ -18,7 +18,7 @@
  * Handle cancelled payments.
  *
  * @package    paygw_wompi
- * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

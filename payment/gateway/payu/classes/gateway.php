@@ -18,7 +18,7 @@
  * Contains class for PayU Colombia payment gateway.
  *
  * @package    paygw_payu
- * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ use core_payment\form\account_gateway;
  * PayU is a leading payment gateway in Latin America, this plugin is
  * specifically designed for the Colombian market.
  *
- * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class gateway extends \core_payment\gateway {

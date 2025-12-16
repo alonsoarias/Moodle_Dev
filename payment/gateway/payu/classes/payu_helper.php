@@ -18,7 +18,7 @@
  * Various helper methods for interacting with the PayU Colombia API.
  *
  * @package    paygw_payu
- * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  * Implements WebCheckout integration with signature validation
  * according to PayU Latam documentation.
  *
- * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class payu_helper {

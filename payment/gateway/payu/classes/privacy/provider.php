@@ -19,7 +19,7 @@
  *
  * @package    paygw_payu
  * @category   privacy
- * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Privacy Subsystem implementation for paygw_payu.
  *
- * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
