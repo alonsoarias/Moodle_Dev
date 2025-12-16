@@ -91,7 +91,7 @@ class check_pending_transactions extends scheduled_task {
                 // Create helper instance and query PayU API.
                 $helper = new payu_helper(
                     $config->merchantid ?? '',
-                    $config->accountid ?? '',
+                    $config->payuaccountid ?? '',
                     $config->apikey ?? '',
                     $config->apilogin ?? '',
                     $config->environment ?? 'sandbox'

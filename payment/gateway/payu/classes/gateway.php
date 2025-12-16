@@ -69,11 +69,11 @@ class gateway extends \core_payment\gateway {
         $mform->addHelpButton('merchantid', 'merchantid', 'paygw_payu');
         $mform->hideIf('merchantid', 'environment', 'eq', 'sandbox');
 
-        // Account ID.
-        $mform->addElement('text', 'accountid', get_string('accountid', 'paygw_payu'), ['size' => 30]);
-        $mform->setType('accountid', PARAM_TEXT);
-        $mform->addHelpButton('accountid', 'accountid', 'paygw_payu');
-        $mform->hideIf('accountid', 'environment', 'eq', 'sandbox');
+        // PayU Account ID - CAMBIO AQUÍ: de 'accountid' a 'payuaccountid'
+        $mform->addElement('text', 'payuaccountid', get_string('accountid', 'paygw_payu'), ['size' => 30]);
+        $mform->setType('payuaccountid', PARAM_TEXT);
+        $mform->addHelpButton('payuaccountid', 'accountid', 'paygw_payu');
+        $mform->hideIf('payuaccountid', 'environment', 'eq', 'sandbox');
 
         // API Key.
         $mform->addElement('passwordunmask', 'apikey', get_string('apikey', 'paygw_payu'), ['size' => 60]);
@@ -180,8 +180,9 @@ class gateway extends \core_payment\gateway {
             if (empty($data->merchantid)) {
                 $errors['merchantid'] = get_string('required');
             }
-            if (empty($data->accountid)) {
-                $errors['accountid'] = get_string('required');
+            // CAMBIO AQUÍ: de 'accountid' a 'payuaccountid'
+            if (empty($data->payuaccountid)) {
+                $errors['payuaccountid'] = get_string('required');
             }
             if (empty($data->apikey)) {
                 $errors['apikey'] = get_string('required');
@@ -197,8 +198,9 @@ class gateway extends \core_payment\gateway {
         }
 
         // Validate account ID format (should be numeric).
-        if (!empty($data->accountid) && !is_numeric($data->accountid)) {
-            $errors['accountid'] = get_string('invalidaccountid', 'paygw_payu');
+        // CAMBIO AQUÍ: de 'accountid' a 'payuaccountid'
+        if (!empty($data->payuaccountid) && !is_numeric($data->payuaccountid)) {
+            $errors['payuaccountid'] = get_string('invalidaccountid', 'paygw_payu');
         }
     }
 

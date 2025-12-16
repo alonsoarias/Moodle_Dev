@@ -103,7 +103,7 @@ class payu_helper {
         string $environment = 'sandbox'
     ) {
         $this->merchantid = $merchantid;
-        $this->accountid = $accountid;
+        $this->payuaccountid = $accountid;
         $this->apikey = $apikey;
         $this->apilogin = $apilogin;
         $this->environment = $environment;
@@ -128,7 +128,7 @@ class payu_helper {
 
         return new self(
             $config->merchantid,
-            $config->accountid,
+            $config->payuaccountid,
             $config->apikey,
             $config->apilogin,
             'production'
@@ -288,7 +288,7 @@ class payu_helper {
 
         $formparams = [
             'merchantId' => $this->merchantid,
-            'accountId' => $this->accountid,
+            'accountId' => $this->payuaccountid,
             'description' => substr($params['description'] ?? '', 0, 255),
             'referenceCode' => $params['referenceCode'],
             'amount' => $params['amount'],
@@ -521,7 +521,7 @@ class payu_helper {
      * @return string Account ID.
      */
     public function get_account_id(): string {
-        return $this->accountid;
+        return $this->payuaccountid;
     }
 
     /**
