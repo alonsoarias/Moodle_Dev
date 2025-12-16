@@ -176,12 +176,6 @@
             align-items: center;
         }
 
-        .header-logos {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
         .logo-link {
             display: flex;
             align-items: center;
@@ -195,17 +189,6 @@
 
         .logo-link:hover img {
             transform: scale(1.05);
-        }
-
-        .logo-wompi img {
-            height: 32px;
-        }
-
-        .logo-separator {
-            font-family: 'Rubik', sans-serif;
-            font-weight: 300;
-            font-size: 24px;
-            color: var(--gray-200);
         }
 
         .header-nav {
@@ -258,23 +241,18 @@
         .hero-brand {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.1);
-            padding: 12px 28px;
-            border-radius: 50px;
+            justify-content: center;
+            background: rgba(255,255,255,0.95);
+            padding: 20px 40px;
+            border-radius: 16px;
             margin-bottom: var(--element-margin);
             backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
         }
 
         .hero-brand img {
-            height: 40px;
-        }
-
-        .hero-brand span {
-            font-family: 'Rubik', sans-serif;
-            font-weight: 700;
-            font-size: 24px;
-            color: var(--white);
+            height: 48px;
+            width: auto;
         }
 
         .hero h1 {
@@ -915,15 +893,9 @@
     <header class="site-header">
         <div class="container">
             <div class="header-inner">
-                <div class="header-logos">
-                    <a href="https://ingeweb.co" target="_blank" class="logo-link">
-                        <img src="https://ingeweb.co/images/ingeweb/logos/default.svg" alt="ingeweb.co" onerror="this.style.display='none'">
-                    </a>
-                    <span class="logo-separator">×</span>
-                    <a href="https://wompi.com" target="_blank" class="logo-link logo-wompi">
-                        <img src="https://transfrdings3.s3.amazonaws.com/wompi/assets/logos/full-color.svg" alt="Wompi" onerror="this.outerHTML='<span style=&quot;font-family:Rubik;font-weight:700;font-size:24px;color:#00a650&quot;>Wompi</span>'">
-                    </a>
-                </div>
+                <a href="https://ingeweb.co" target="_blank" class="logo-link">
+                    <img src="https://ingeweb.co/images/ingeweb/logos/default.svg" alt="ingeweb.co" onerror="this.style.display='none'">
+                </a>
                 <nav class="header-nav">
                     <a href="https://ingeweb.co" target="_blank">Sitio Web</a>
                     <a href="mailto:soporte@ingeweb.co">Soporte</a>
@@ -940,8 +912,7 @@
         <div class="container">
             <div class="hero-inner">
                 <div class="hero-brand">
-                    <img src="https://checkout.wompi.co/favicon.ico" alt="Wompi" onerror="this.outerHTML='<span style=&quot;font-size:32px&quot;>💳</span>'">
-                    <span>Wompi</span>
+                    <img src="https://public-assets.wompi.com/brand_wompi/logos/logo-primary.svg" alt="Wompi" onerror="this.outerHTML='<span style=&quot;font-family:Rubik;font-weight:700;font-size:32px;color:#00a650&quot;>Wompi</span>'">
                 </div>
                 <h1>Wompi Payment Gateway para Moodle</h1>
                 <p class="hero-subtitle">La solución de pagos colombiana integrada con tu plataforma educativa</p>
@@ -1458,7 +1429,7 @@ php /ruta/a/moodle/admin/cli/upgrade.php</code></pre>
                         </a>
                         <span class="footer-logo-separator">×</span>
                         <a href="https://wompi.com" target="_blank">
-                            <img src="https://transfrdings3.s3.amazonaws.com/wompi/assets/logos/full-color.svg" alt="Wompi" class="footer-logo footer-logo-wompi" style="filter:brightness(0) invert(1)" onerror="this.outerHTML='<span style=&quot;font-family:Rubik;font-weight:700;font-size:20px;color:#fff&quot;>Wompi</span>'">
+                            <img src="https://public-assets.wompi.com/brand_wompi/logos/logo-primary.svg" alt="Wompi" class="footer-logo footer-logo-wompi" style="filter:brightness(0) invert(1)" onerror="this.outerHTML='<span style=&quot;font-family:Rubik;font-weight:700;font-size:20px;color:#fff&quot;>Wompi</span>'">
                         </a>
                     </div>
                     <h4>Wompi Payment Gateway</h4>
