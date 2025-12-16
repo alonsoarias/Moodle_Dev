@@ -18,7 +18,7 @@
  * Settings for the PayU payment gateway
  *
  * @package     paygw_payu
- * @copyright   2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @copyright   2025 ingeweb.co <soporte@ingeweb.co>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,17 +35,12 @@ if ($ADMIN->fulltree) {
     // Add common gateway settings
     \core_payment\helper::add_common_gateway_settings($settings, 'paygw_payu');
     
-    // Display information about supported countries
+    // Display information about supported country (Colombia only).
+    $currencies = implode(', ', \paygw_payu\gateway::get_supported_currencies());
     $countries_info = '<div class="alert alert-info">';
-    $countries_info .= '<h5>' . get_string('country', 'paygw_payu') . '</h5>';
-    $countries_info .= '<ul>';
-    foreach (\paygw_payu\gateway::SUPPORTED_COUNTRIES as $code => $name) {
-        $currencies = implode(', ', \paygw_payu\gateway::COUNTRY_CURRENCIES[$code]);
-        $countries_info .= '<li><strong>' . $name . '</strong> (' . $code . '): ' . $currencies . '</li>';
-    }
-    $countries_info .= '</ul>';
+    $countries_info .= '<strong>Colombia (CO):</strong> ' . $currencies;
     $countries_info .= '</div>';
-    
+
     $settings->add(new admin_setting_heading(
         'paygw_payu_countries',
         get_string('country', 'paygw_payu'),

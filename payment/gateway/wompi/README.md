@@ -540,7 +540,6 @@ Ver [LICENSE](https://www.gnu.org/licenses/gpl-3.0.html) para más detalles.
 ## Créditos
 
 - **Desarrollado por**: [ingeweb.co](https://ingeweb.co)
-- **Autor**: Alonso Arias
 - **Email**: soporte@ingeweb.co
 - **Versión**: 1.0.0
 

@@ -18,7 +18,7 @@
  * paygw_payu installer script.
  *
  * @package    paygw_payu
- * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

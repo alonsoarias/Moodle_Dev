@@ -18,7 +18,7 @@
  * PayU payment method display page.
  *
  * @package     paygw_payu
- * @copyright   2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @copyright   2025 ingeweb.co <soporte@ingeweb.co>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -149,7 +149,7 @@ $templatecontext = [
     'enrolperiod_desc' => $enrolperioddesc,
     'showenrolperiod' => $showenrolperiod && $enrolperiod > 0,
     'groupnames' => $groupnames,
-    'country_name' => \paygw_payu\gateway::SUPPORTED_COUNTRIES[$config->country] ?? 'Colombia'
+    'country_name' => 'Colombia'
 ];
 
 echo $OUTPUT->header();

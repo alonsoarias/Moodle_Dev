@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/** 
+/**
  * Notifications for paygw_payu.
  *
  * @package    paygw_payu
- * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ namespace paygw_payu;
  * Handle notifications for users about their PayU transactions.
  *
  * @package    paygw_payu
- * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class notifications {

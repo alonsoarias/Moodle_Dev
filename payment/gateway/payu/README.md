@@ -199,7 +199,6 @@ Este plugin cumple con GDPR y la Ley 1581 de Colombia sobre protección de datos
 
 Desarrollado por [ingeweb.co](https://ingeweb.co)
 
-- **Autor**: Alonso Arias
 - **Email**: soporte@ingeweb.co
 - **Sitio web**: https://ingeweb.co
 

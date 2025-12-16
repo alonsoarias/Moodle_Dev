@@ -18,7 +18,7 @@
  * Strings for component 'paygw_payu', language 'pt_br'
  *
  * @package     paygw_payu
- * @copyright   2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @copyright   2025 ingeweb.co <soporte@ingeweb.co>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
