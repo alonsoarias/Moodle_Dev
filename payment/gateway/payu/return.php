@@ -15,137 +15,124 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Redirects user back to the original page after PayU payment
+ * PayU response page handler.
  *
- * @package   paygw_payu
- * @copyright 2025 Alonso Arias <soporte@nexuslabs.com.co>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * This page receives the user after completing payment on PayU.
+ * It displays the payment result and redirects to the success page.
+ *
+ * @package    paygw_payu
+ * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core_payment\helper;
+use paygw_payu\payu_helper;
 
-require("../../../config.php");
-global $CFG, $USER, $DB;
-
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../../config.php');
 
 require_login();
 
-// Get PayU response parameters
-$merchant_id = required_param('merchantId', PARAM_TEXT);
-$reference_sale = required_param('referenceCode', PARAM_TEXT);
-$tx_value = required_param('TX_VALUE', PARAM_TEXT);
-$currency = required_param('currency', PARAM_TEXT);
-$transaction_state = required_param('transactionState', PARAM_INT);
-$signature = required_param('signature', PARAM_TEXT);
-$reference_pol = optional_param('reference_pol', '', PARAM_TEXT);
-$cus = optional_param('cus', '', PARAM_TEXT);
-$description = optional_param('description', '', PARAM_TEXT);
-$lap_response_code = optional_param('lapResponseCode', '', PARAM_TEXT);
-$lap_payment_method = optional_param('lapPaymentMethod', '', PARAM_TEXT);
-$lap_payment_method_type = optional_param('lapPaymentMethodType', '', PARAM_TEXT);
-$lap_transaction_state = optional_param('lapTransactionState', '', PARAM_TEXT);
+global $DB;
+
+// Get payment context parameters.
+$component = required_param('component', PARAM_COMPONENT);
+$paymentarea = required_param('paymentarea', PARAM_AREA);
+$itemid = required_param('itemid', PARAM_INT);
+
+// Get PayU response parameters (GET).
+$merchantid = optional_param('merchantId', '', PARAM_TEXT);
+$referencecode = optional_param('referenceCode', '', PARAM_TEXT);
+$txvalue = optional_param('TX_VALUE', 0, PARAM_FLOAT);
+$currency = optional_param('currency', '', PARAM_TEXT);
+$transactionstate = optional_param('transactionState', 0, PARAM_INT);
+$signature = optional_param('signature', '', PARAM_TEXT);
+$referencepol = optional_param('reference_pol', '', PARAM_TEXT);
 $message = optional_param('message', '', PARAM_TEXT);
-$extra1 = optional_param('extra1', '', PARAM_TEXT); // payment ID
-$extra2 = optional_param('extra2', '', PARAM_TEXT); // component  
-$extra3 = optional_param('extra3', '', PARAM_TEXT); // payment area
+$lappaymentmethod = optional_param('lapPaymentMethod', '', PARAM_TEXT);
+$laptransactionstate = optional_param('lapTransactionState', '', PARAM_TEXT);
+$extra1 = optional_param('extra1', '', PARAM_TEXT);
 
-// Validate payment ID
-if (empty($extra1)) {
-    throw new \moodle_exception('error_notvalidpaymentid', 'paygw_payu');
+// Get success URL for redirect.
+$successurl = helper::get_success_url($component, $paymentarea, $itemid);
+
+// If we don't have transaction info, just redirect.
+if (empty($referencecode) && empty($extra1)) {
+    redirect($successurl);
 }
 
-$paymentid = $extra1;
+// Use extra1 as reference if available.
+$ref = !empty($extra1) ? $extra1 : $referencecode;
 
-// Get PayU transaction record
-$payu_record = $DB->get_record('paygw_payu', ['paymentid' => $paymentid]);
-if (!$payu_record) {
-    throw new \moodle_exception('error_notvalidtxid', 'paygw_payu');
+// Get gateway configuration.
+try {
+    $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
+} catch (\Exception $e) {
+    redirect($successurl, get_string('paymentunknownstatus', 'paygw_payu'), null, 'warning');
 }
 
-// Get payment record
-$payment = $DB->get_record('payments', ['id' => $paymentid]);
-if (!$payment) {
-    throw new \moodle_exception('error_notvalidpayment', 'paygw_payu');
+// Create PayU helper.
+$payuhelper = payu_helper::from_config($config);
+
+// Verify signature if present.
+$validsignature = true;
+if (!empty($signature) && !empty($referencecode)) {
+    $validsignature = $payuhelper->verify_signature($signature, $referencecode, $txvalue, $currency, $transactionstate);
 }
 
-$component = $payment->component;
-$paymentarea = $payment->paymentarea;
-$itemid = $payment->itemid;
+// Get local transaction.
+$localrecord = $payuhelper->get_transaction_by_reference($ref);
 
-// Get gateway configuration
-$config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
-
-// Get API key based on environment
-if ($config->environment === 'sandbox') {
-    $credentials = \paygw_payu\gateway::get_test_credentials($config->country);
-    $apiKey = $credentials['apikey'];
-} else {
-    $apiKey = $config->apikey;
+// Update local record if found.
+if ($localrecord && !empty($referencepol)) {
+    $statename = $payuhelper->get_state_name($transactionstate);
+    $payuhelper->update_transaction($ref, $statename, '', $referencepol);
 }
 
-// Validate signature
-$signature_string = $apiKey . "~" . $merchant_id . "~" . $reference_sale . "~" . $tx_value . "~" . $currency . "~" . $transaction_state;
-$calculated_signature = md5($signature_string);
+// Determine message based on state.
+$notificationtype = 'info';
+$statusmessage = '';
 
-$valid_signature = (strtoupper($calculated_signature) === strtoupper($signature));
+switch ($transactionstate) {
+    case payu_helper::STATE_APPROVED:
+        $notificationtype = 'success';
+        $statusmessage = get_string('paymentsuccessful', 'paygw_payu');
+        break;
 
-// Determine transaction status
-$success = false;
-$status_message = '';
+    case payu_helper::STATE_DECLINED:
+        $notificationtype = 'error';
+        $statusmessage = get_string('paymentdeclined', 'paygw_payu');
+        break;
 
-switch ($transaction_state) {
-    case 4: // Approved
-        $success = true;
-        $status_message = get_string('payment_success', 'paygw_payu');
-        $notification_type = 'success';
+    case payu_helper::STATE_PENDING:
+        $notificationtype = 'warning';
+        $statusmessage = get_string('paymentpending', 'paygw_payu');
         break;
-    case 6: // Declined
-        $success = false;
-        $status_message = get_string('payment_declined', 'paygw_payu');
-        $notification_type = 'error';
+
+    case payu_helper::STATE_EXPIRED:
+        $notificationtype = 'error';
+        $statusmessage = get_string('paymentexpired', 'paygw_payu');
         break;
-    case 7: // Pending
-        $success = false;
-        $status_message = get_string('payment_pending', 'paygw_payu');
-        $notification_type = 'info';
+
+    case payu_helper::STATE_ERROR:
+        $notificationtype = 'error';
+        $statusmessage = get_string('paymenterror', 'paygw_payu');
         break;
-    case 5: // Expired
-        $success = false;
-        $status_message = get_string('payment_expired', 'paygw_payu');
-        $notification_type = 'error';
-        break;
-    case 104: // Error
-        $success = false;
-        $status_message = get_string('payment_error', 'paygw_payu');
-        $notification_type = 'error';
-        break;
+
     default:
-        $success = false;
-        $status_message = get_string('payment_unknown', 'paygw_payu');
-        $notification_type = 'warning';
+        $notificationtype = 'warning';
+        $statusmessage = get_string('paymentunknownstatus', 'paygw_payu');
 }
 
-// Add signature validation message
-if (!$valid_signature) {
-    $status_message .= ' ' . get_string('signature_invalid', 'paygw_payu');
-    $notification_type = 'error';
-}
-
-// Add PayU message if available
+// Add PayU message if available.
 if (!empty($message)) {
-    $status_message .= ' - ' . $message;
+    $statusmessage .= ' - ' . s($message);
 }
 
-// Update PayU transaction record with latest status
-if (!empty($reference_pol)) {
-    $payu_record->orderId = $reference_pol;
+// Add signature warning.
+if (!$validsignature) {
+    $statusmessage .= ' ' . get_string('signatureinvalid', 'paygw_payu');
+    $notificationtype = 'warning';
 }
-$payu_record->timemodified = time();
-$DB->update_record('paygw_payu', $payu_record);
 
-// Get success URL
-$url = helper::get_success_url($component, $paymentarea, $itemid);
-
-// Redirect with appropriate message
-redirect($url, $status_message, null, $notification_type);
+// Redirect with message.
+redirect($successurl, $statusmessage, null, $notificationtype);

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayU Payment Gateway para Moodle | ingeweb.co</title>
+    <meta name="description" content="Documentación completa del plugin PayU Payment Gateway para Moodle Colombia. Desarrollado por ingeweb.co">
+    <meta name="author" content="ingeweb.co">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2B4D99;
+            --primary-dark: #2a4b9a;
+            --secondary: #0080FE;
+            --accent: #FD5E1F;
+            --accent-hover: #de6906;
+            --teal: #14BDE8;
+            --navy: #013251;
+            --white: #FFFFFF;
+            --gray-50: #f8f9fa;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #6b7280;
+            --gray-800: #374151;
+            --gray-900: #1f2937;
+            --payu: #a8e063;
+            --payu-dark: #56ab2f;
+            --section-padding: 50px 0;
+            --element-margin: 30px;
+            --container-max: 1200px;
+            --transition: 0.3s ease;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Roboto', sans-serif; font-weight: 400; font-size: 16px; line-height: 1.7; color: var(--gray-900); background: var(--white); }
+
+        h1, h2, h3, h4, h5 { font-family: 'Rubik', sans-serif; font-weight: 700; color: var(--navy); line-height: 1.3; }
+        h1 { font-size: 36px; } h2 { font-size: 28px; margin-bottom: 20px; } h3 { font-size: 22px; } h4 { font-size: 18px; }
+        p { margin-bottom: 16px; color: var(--gray-800); }
+        a { color: var(--secondary); text-decoration: none; transition: var(--transition); }
+        a:hover { color: var(--accent-hover); }
+
+        .container { max-width: var(--container-max); margin: 0 auto; padding: 0 20px; }
+        .section { padding: var(--section-padding); }
+        .section-gray { background: var(--gray-50); }
+        .section-navy { background: var(--navy); color: var(--white); }
+
+        .btn { display: inline-block; font-family: 'Rubik', sans-serif; font-weight: 600; font-size: 16px; padding: 8px 22px 10px 22px; border-radius: 4px; border: none; cursor: pointer; transition: var(--transition); text-decoration: none; }
+        .btn-primary { background: var(--secondary); color: var(--white) !important; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-payu { background: linear-gradient(135deg, var(--payu), var(--payu-dark)); color: var(--white) !important; }
+        .btn-payu:hover { background: var(--payu-dark); }
+
+        .site-header { background: var(--white); padding: 15px 0; border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 1000; }
+        .header-inner { display: flex; justify-content: space-between; align-items: center; }
+        .logo-link { display: flex; align-items: center; }
+        .logo-link img { height: 40px; width: auto; transition: var(--transition); }
+        .logo-link:hover img { transform: scale(1.05); }
+        .header-nav { display: flex; gap: 8px; }
+        .header-nav a { font-family: 'Rubik', sans-serif; font-size: 14px; font-weight: 500; color: var(--gray-600); padding: 8px 16px; border-radius: 4px; transition: var(--transition); }
+        .header-nav a:hover { background: var(--gray-100); color: var(--primary); }
+
+        .hero { background: linear-gradient(135deg, var(--payu) 0%, var(--payu-dark) 100%); padding: 80px 0; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.05)"/></svg>') repeat; opacity: 0.5; }
+        .hero-inner { text-align: center; max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-brand { display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.95); padding: 20px 40px; border-radius: 16px; margin-bottom: var(--element-margin); backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+        .hero-brand img { height: 48px; width: auto; }
+        .hero h1 { color: var(--white); font-size: 42px; margin-bottom: 20px; }
+        .hero-subtitle { color: rgba(255,255,255,0.9); font-size: 20px; margin-bottom: 20px; }
+        .hero-badges { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .badge { display: inline-block; font-family: 'Rubik', sans-serif; font-size: 14px; font-weight: 500; padding: 6px 16px; border-radius: 50px; }
+        .badge-payu { background: var(--white); color: var(--payu-dark); }
+        .badge-moodle { background: var(--accent); color: var(--white); }
+        .badge-ingeweb { background: rgba(255,255,255,0.2); color: var(--white); }
+
+        .section-nav { background: linear-gradient(180deg, var(--white) 0%, var(--gray-50) 100%); border-bottom: 2px solid var(--gray-200); position: sticky; top: 71px; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .nav-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
+        .nav-scroll::-webkit-scrollbar { display: none; }
+        .nav-menu { display: flex; list-style: none; gap: 6px; padding: 16px 0; min-width: max-content; align-items: center; }
+        .nav-menu a { font-family: 'Rubik', sans-serif; font-size: 13px; font-weight: 500; color: var(--gray-600); padding: 10px 18px; border-radius: 50px; white-space: nowrap; transition: var(--transition); border: 1px solid transparent; }
+        .nav-menu a:hover { background: rgba(43, 77, 153, 0.08); color: var(--primary); border-color: rgba(43, 77, 153, 0.15); }
+        .nav-menu a.active { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); border-color: var(--primary); box-shadow: 0 4px 12px rgba(43, 77, 153, 0.3); }
+
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: var(--element-margin); }
+        @media (max-width: 992px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
+
+        .card { background: var(--white); border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: var(--transition); text-align: center; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+        .card-icon { width: 64px; height: 64px; margin: 0 auto 20px; background: linear-gradient(135deg, var(--payu), var(--payu-dark)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .card h3 { margin-bottom: 12px; }
+        .card p { color: var(--gray-600); margin-bottom: 0; font-size: 15px; }
+
+        .install-steps { counter-reset: step; }
+        .step { display: flex; gap: 24px; margin-bottom: 32px; padding: 24px; background: var(--white); border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .step-number { counter-increment: step; width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Rubik', sans-serif; font-weight: 700; font-size: 20px; flex-shrink: 0; }
+        .step-number::before { content: counter(step); }
+        .step-content { flex: 1; }
+        .step-content h4 { margin-bottom: 8px; }
+
+        .code-block { background: var(--gray-900); color: #e5e7eb; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; margin: 16px 0; }
+        .code-block code { color: #a8e063; }
+
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; background: var(--white); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--gray-200); }
+        th { background: var(--gray-50); font-family: 'Rubik', sans-serif; font-weight: 600; color: var(--navy); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--gray-50); }
+
+        .alert { padding: 16px 20px; border-radius: 8px; margin: 16px 0; border-left: 4px solid; }
+        .alert-info { background: #e0f4ff; border-color: var(--secondary); color: #1e6091; }
+        .alert-warning { background: #fff8e6; border-color: #ffc107; color: #856404; }
+        .alert-success { background: #e8f5e9; border-color: var(--payu-dark); color: #2e7d32; }
+
+        .site-footer { background: var(--navy); color: var(--white); padding: 60px 0 30px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+        @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr; } }
+        .footer-col h4 { font-size: 18px; margin-bottom: 20px; color: var(--white); }
+        .footer-col a { display: block; color: rgba(255,255,255,0.7); margin-bottom: 8px; transition: var(--transition); }
+        .footer-col a:hover { color: var(--teal); }
+        .footer-logos { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .footer-logo { height: 36px; filter: brightness(0) invert(1); transition: var(--transition); }
+        .footer-logo:hover { opacity: 0.8; }
+        .footer-logo-payu { height: 28px; }
+        .footer-logo-separator { font-family: 'Rubik', sans-serif; font-weight: 300; font-size: 20px; color: rgba(255,255,255,0.3); }
+        .footer-bottom { text-align: center; padding-top: 40px; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .footer-bottom p { color: rgba(255,255,255,0.5); margin-bottom: 0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="https://ingeweb.co" target="_blank" class="logo-link">
+                    <img src="https://ingeweb.co/images/ingeweb/logos/default.svg" alt="ingeweb.co" onerror="this.style.display='none'">
+                </a>
+                <nav class="header-nav">
+                    <a href="https://ingeweb.co" target="_blank">Sitio Web</a>
+                    <a href="mailto:soporte@ingeweb.co">Soporte</a>
+                    <a href="https://developers.payulatam.com" target="_blank">Docs PayU</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-inner">
+                <div class="hero-brand">
+                    <img src="https://colombia.payu.com/wp-content/uploads/sites/2/2022/03/PayU_Logo_Full-color.svg" alt="PayU" onerror="this.outerHTML='<span style=&quot;font-family:Rubik;font-weight:700;font-size:32px;color:#56ab2f&quot;>PayU</span>'">
+                </div>
+                <h1>PayU Payment Gateway para Moodle</h1>
+                <p class="hero-subtitle">La solución de pagos colombiana integrada con tu plataforma educativa</p>
+                <div class="hero-badges">
+                    <span class="badge badge-payu">v1.0.0</span>
+                    <span class="badge badge-moodle">Moodle 4.1+</span>
+                    <span class="badge badge-ingeweb">by ingeweb.co</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="section-nav">
+        <div class="container">
+            <div class="nav-scroll">
+                <ul class="nav-menu">
+                    <li><a href="#caracteristicas" class="active">Características</a></li>
+                    <li><a href="#instalacion">Instalación</a></li>
+                    <li><a href="#configuracion">Configuración</a></li>
+                    <li><a href="#sandbox">Sandbox</a></li>
+                    <li><a href="#metodos">Métodos de Pago</a></li>
+                    <li><a href="#flujo">Flujo de Pago</a></li>
+                    <li><a href="#api">API</a></li>
+                    <li><a href="#troubleshooting">Solución de Problemas</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="caracteristicas" class="section">
+        <div class="container">
+            <h2>Características Principales</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon">💳</div>
+                    <h3>Múltiples Métodos</h3>
+                    <p>Tarjetas, PSE, efectivo, transferencias y más métodos de pago locales</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔒</div>
+                    <h3>Seguridad</h3>
+                    <p>Validación de firmas MD5, HTTPS obligatorio, protección antifraude</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🧪</div>
+                    <h3>Modo Sandbox</h3>
+                    <p>Credenciales de prueba automáticas para desarrollo y testing</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔔</div>
+                    <h3>Notificaciones</h3>
+                    <p>Alertas automáticas por email sobre el estado de los pagos</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h3>Registro</h3>
+                    <p>Historial completo de transacciones en la base de datos</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🇨🇴</div>
+                    <h3>Colombia</h3>
+                    <p>Optimizado para el mercado colombiano con soporte COP</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="instalacion" class="section section-gray">
+        <div class="container">
+            <h2>Instalación</h2>
+            <div class="install-steps">
+                <div class="step">
+                    <div class="step-number"></div>
+                    <div class="step-content">
+                        <h4>Descargar el Plugin</h4>
+                        <p>Descargue el plugin desde el repositorio o clone via Git:</p>
+                        <div class="code-block"><code>git clone https://github.com/ingeweb/paygw_payu.git payment/gateway/payu</code></div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number"></div>
+                    <div class="step-content">
+                        <h4>Instalar en Moodle</h4>
+                        <p>Copie la carpeta <code>payu</code> a <code>/payment/gateway/</code> de su instalación de Moodle y visite la página de administración para completar la instalación.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number"></div>
+                    <div class="step-content">
+                        <h4>Configurar Cuenta de Pago</h4>
+                        <p>Vaya a <strong>Administración del sitio > Plugins > Pasarelas de pago > Gestionar cuentas de pago</strong> y cree una nueva cuenta seleccionando PayU Colombia.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="configuracion" class="section">
+        <div class="container">
+            <h2>Configuración</h2>
+            <h3>Credenciales de PayU</h3>
+            <p>Obtenga sus credenciales desde el panel de comercios de PayU:</p>
+            <table>
+                <tr><th>Campo</th><th>Descripción</th><th>Ubicación en PayU</th></tr>
+                <tr><td>Merchant ID</td><td>Identificador de su comercio</td><td>Configuración > Datos técnicos</td></tr>
+                <tr><td>Account ID</td><td>ID de cuenta para Colombia</td><td>Configuración > Cuentas</td></tr>
+                <tr><td>API Key</td><td>Llave secreta para firmas</td><td>Configuración > Datos técnicos</td></tr>
+                <tr><td>API Login</td><td>Usuario de API</td><td>Configuración > Datos técnicos</td></tr>
+            </table>
+
+            <h3>URLs de Callback</h3>
+            <p>Configure estas URLs en el panel de PayU:</p>
+            <div class="code-block">
+<strong>URL de Confirmación:</strong>
+<code>https://su-sitio.com/payment/gateway/payu/callback.php</code>
+
+<strong>URL de Respuesta:</strong>
+<code>https://su-sitio.com/payment/gateway/payu/return.php</code>
+            </div>
+        </div>
+    </section>
+
+    <section id="sandbox" class="section section-gray">
+        <div class="container">
+            <h2>Ambiente Sandbox</h2>
+            <div class="alert alert-info">
+                En ambiente Sandbox, las credenciales de prueba se utilizan automáticamente. No necesita configurar credenciales.
+            </div>
+            <h3>Credenciales de Prueba</h3>
+            <table>
+                <tr><th>Campo</th><th>Valor</th></tr>
+                <tr><td>Merchant ID</td><td><code>508029</code></td></tr>
+                <tr><td>Account ID (Colombia)</td><td><code>512321</code></td></tr>
+                <tr><td>API Key</td><td><code>4Vj8eK4rloUd272L48hsrarnUA</code></td></tr>
+                <tr><td>API Login</td><td><code>pRRXKOl8ikMmt9u</code></td></tr>
+            </table>
+
+            <h3>Tarjetas de Prueba</h3>
+            <table>
+                <tr><th>Tipo</th><th>Número</th><th>CVV</th><th>Fecha</th><th>Resultado</th></tr>
+                <tr><td>Visa</td><td><code>4111111111111111</code></td><td>123</td><td>12/25</td><td>Aprobada</td></tr>
+                <tr><td>Mastercard</td><td><code>5424000000000015</code></td><td>123</td><td>12/25</td><td>Aprobada</td></tr>
+                <tr><td>AMEX</td><td><code>370000000000002</code></td><td>1234</td><td>12/25</td><td>Aprobada</td></tr>
+                <tr><td>Visa</td><td><code>4000000000000002</code></td><td>123</td><td>12/25</td><td>Rechazada</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <section id="metodos" class="section">
+        <div class="container">
+            <h2>Métodos de Pago Soportados</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon">💳</div>
+                    <h3>Tarjetas de Crédito</h3>
+                    <p>Visa, Mastercard, American Express, Diners Club, Codensa</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏦</div>
+                    <h3>PSE</h3>
+                    <p>Pagos Seguros en Línea - Débito bancario directo</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💵</div>
+                    <h3>Efectivo</h3>
+                    <p>Baloto, Efecty, Su Red, corresponsales bancarios</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="flujo" class="section section-gray">
+        <div class="container">
+            <h2>Flujo de Pago</h2>
+            <div class="alert alert-success">
+                <strong>1.</strong> Usuario inicia pago en Moodle →
+                <strong>2.</strong> Redirección a PayU WebCheckout →
+                <strong>3.</strong> Usuario completa pago →
+                <strong>4.</strong> PayU envía confirmación →
+                <strong>5.</strong> Moodle entrega el contenido
+            </div>
+            <h3>Estados de Transacción</h3>
+            <table>
+                <tr><th>Código</th><th>Estado</th><th>Descripción</th></tr>
+                <tr><td>4</td><td>APPROVED</td><td>Pago aprobado exitosamente</td></tr>
+                <tr><td>5</td><td>EXPIRED</td><td>Transacción expirada</td></tr>
+                <tr><td>6</td><td>DECLINED</td><td>Pago rechazado</td></tr>
+                <tr><td>7</td><td>PENDING</td><td>Pago pendiente de confirmación</td></tr>
+                <tr><td>104</td><td>ERROR</td><td>Error en el procesamiento</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <section id="api" class="section">
+        <div class="container">
+            <h2>Referencia API</h2>
+            <h3>Clase payu_helper</h3>
+            <div class="code-block">
+use paygw_payu\payu_helper;
+
+// Crear instancia desde configuración
+$helper = payu_helper::from_config($config);
+
+// Generar firma de envío
+$signature = $helper->generate_signature($reference, $amount, $currency);
+
+// Verificar firma de respuesta
+$valid = $helper->verify_signature($sign, $reference, $value, $currency, $state);
+
+// Verificar estado de transacción
+if ($helper->is_approved($state_pol)) {
+    // Pago aprobado
+}
+            </div>
+
+            <h3>Firma de Envío</h3>
+            <div class="code-block"><code>MD5(apiKey~merchantId~referenceCode~amount~currency)</code></div>
+
+            <h3>Firma de Confirmación</h3>
+            <div class="code-block"><code>MD5(apiKey~merchantId~referenceCode~value~currency~state_pol)</code></div>
+        </div>
+    </section>
+
+    <section id="troubleshooting" class="section section-gray">
+        <div class="container">
+            <h2>Solución de Problemas</h2>
+            <div class="alert alert-warning">
+                <strong>Firma inválida:</strong> Verifique que el API Key sea correcto y que esté usando el ambiente correcto (sandbox/producción).
+            </div>
+            <div class="alert alert-warning">
+                <strong>No se procesa el pago:</strong> Asegúrese de que las URLs de callback estén correctamente configuradas en PayU y que su servidor permita conexiones entrantes.
+            </div>
+            <div class="alert alert-warning">
+                <strong>Usuario no inscrito:</strong> Revise los logs de Moodle y la tabla <code>paygw_payu_transactions</code> para verificar el estado de la transacción.
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-logos">
+                        <a href="https://ingeweb.co" target="_blank">
+                            <img src="https://ingeweb.co/images/ingeweb/logos/light.svg" alt="ingeweb.co" class="footer-logo" onerror="this.style.display='none'">
+                        </a>
+                        <span class="footer-logo-separator">×</span>
+                        <a href="https://colombia.payu.com" target="_blank">
+                            <img src="https://colombia.payu.com/wp-content/uploads/sites/2/2022/03/PayU_Logo_Full-color.svg" alt="PayU" class="footer-logo footer-logo-payu" style="filter:brightness(0) invert(1)" onerror="this.outerHTML='<span style=&quot;font-family:Rubik;font-weight:700;font-size:20px;color:#fff&quot;>PayU</span>'">
+                        </a>
+                    </div>
+                    <h4>PayU Payment Gateway</h4>
+                    <p>Plugin de pasarela de pago para Moodle, diseñado para el mercado colombiano.</p>
+                    <p><strong>Versión:</strong> 1.0.0<br><strong>Licencia:</strong> GNU GPL v3</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Enlaces de Interés</h4>
+                    <a href="https://ingeweb.co" target="_blank">Sitio Web ingeweb.co</a>
+                    <a href="https://developers.payulatam.com" target="_blank">Documentación PayU</a>
+                    <a href="https://colombia.payu.com" target="_blank">PayU Colombia</a>
+                    <a href="https://moodle.org" target="_blank">Moodle.org</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contacto</h4>
+                    <a href="mailto:soporte@ingeweb.co">soporte@ingeweb.co</a>
+                    <a href="https://ingeweb.co" target="_blank">https://ingeweb.co</a>
+                    <p style="margin-top: 16px; color: rgba(255,255,255,0.6);">
+                        <strong>Desarrollado por:</strong><br>
+                        Alonso Arias<br>
+                        ingeweb.co
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ingeweb.co - Todos los derechos reservados | PayU es una marca registrada de PayU GPO S.A.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelectorAll('.nav-menu a').forEach(a => {
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-menu a').forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>

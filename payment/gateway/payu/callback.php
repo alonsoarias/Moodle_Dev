@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,154 +12,139 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * PayU callback handler (confirmation URL)
+ * PayU confirmation page handler (webhook/callback).
  *
- * @package     paygw_payu
- * @copyright   2025 Alonso Arias <soporte@nexuslabs.com.co>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * This endpoint receives transaction status updates from PayU via HTTP POST.
+ * It processes the payment and delivers the order if approved.
+ *
+ * @package    paygw_payu
+ * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core_payment\helper;
-use paygw_payu\notifications;
+use paygw_payu\payu_helper;
 
-require("../../../config.php");
+// This is a webhook, no login required.
+// phpcs:ignore moodle.Files.RequireLogin.Missing
+require_once(__DIR__ . '/../../../config.php');
 
-global $CFG, $USER, $DB;
+global $DB;
 
-defined('MOODLE_INTERNAL') || die();
-
-// Get PayU response parameters
-$merchant_id = required_param('merchant_id', PARAM_TEXT);
-$reference_sale = required_param('reference_sale', PARAM_TEXT);
+// Get PayU confirmation parameters (POST).
+$merchantid = required_param('merchant_id', PARAM_TEXT);
+$referencecode = required_param('reference_sale', PARAM_TEXT);
 $value = required_param('value', PARAM_FLOAT);
 $currency = required_param('currency', PARAM_TEXT);
-$state_pol = required_param('state_pol', PARAM_INT);
+$statepol = required_param('state_pol', PARAM_INT);
 $sign = required_param('sign', PARAM_TEXT);
-$payment_method_type = optional_param('payment_method_type', '', PARAM_INT);
-$reference_pol = optional_param('reference_pol', '', PARAM_TEXT);
-$transaction_id = optional_param('transaction_id', '', PARAM_TEXT);
-$payment_method_id = optional_param('payment_method_id', 0, PARAM_INT);
-$payment_method_name = optional_param('payment_method_name', '', PARAM_TEXT);
-$response_message_pol = optional_param('response_message_pol', '', PARAM_TEXT);
-$extra1 = optional_param('extra1', '', PARAM_TEXT); // payment ID
-$extra2 = optional_param('extra2', '', PARAM_TEXT); // component
-$extra3 = optional_param('extra3', '', PARAM_TEXT); // payment area
 
-// Validate payment ID
-if (empty($extra1)) {
-    die('ERROR: Missing payment ID');
+// Optional parameters.
+$transactionid = optional_param('transaction_id', '', PARAM_TEXT);
+$referencepol = optional_param('reference_pol', '', PARAM_TEXT);
+$paymentmethodtype = optional_param('payment_method_type', '', PARAM_INT);
+$paymentmethodname = optional_param('payment_method_name', '', PARAM_TEXT);
+$responsemessagepol = optional_param('response_message_pol', '', PARAM_TEXT);
+$extra1 = optional_param('extra1', '', PARAM_TEXT); // Reference code.
+$extra2 = optional_param('extra2', '', PARAM_TEXT); // Component.
+$extra3 = optional_param('extra3', '', PARAM_TEXT); // Paymentarea:itemid.
+
+// Get local transaction record.
+$localrecord = $DB->get_record('paygw_payu_transactions', ['referencecode' => $referencecode]);
+
+if (!$localrecord) {
+    // Try with extra1 if reference_sale doesn't match.
+    if (!empty($extra1)) {
+        $localrecord = $DB->get_record('paygw_payu_transactions', ['referencecode' => $extra1]);
+    }
+    if (!$localrecord) {
+        debugging('PayU callback: Transaction not found for reference: ' . $referencecode, DEBUG_DEVELOPER);
+        http_response_code(200);
+        echo 'OK';
+        exit;
+    }
 }
 
-$paymentid = $extra1;
+$component = $localrecord->component;
+$paymentarea = $localrecord->paymentarea;
+$itemid = $localrecord->itemid;
+$userid = $localrecord->userid;
 
-// Get PayU transaction record
-$payu_record = $DB->get_record('paygw_payu', ['paymentid' => $paymentid]);
-if (!$payu_record) {
-    die('ERROR: Transaction not found');
+// Get gateway configuration.
+try {
+    $config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
+} catch (\Exception $e) {
+    debugging('PayU callback: Configuration not found: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    http_response_code(200);
+    echo 'OK';
+    exit;
 }
 
-// Get payment record
-$payment = $DB->get_record('payments', ['id' => $paymentid]);
-if (!$payment) {
-    die('ERROR: Payment not found');
+// Create PayU helper.
+$payuhelper = payu_helper::from_config($config);
+
+// Verify signature.
+if (!$payuhelper->verify_signature($sign, $referencecode, $value, $currency, $statepol)) {
+    debugging('PayU callback: Invalid signature for reference: ' . $referencecode, DEBUG_DEVELOPER);
+    http_response_code(200);
+    echo 'OK';
+    exit;
 }
 
-$component = $payment->component;
-$paymentarea = $payment->paymentarea;
-$itemid = $payment->itemid;
-$userid = $payment->userid;
+// Get state name.
+$statename = $payuhelper->get_state_name($statepol);
 
-// Get gateway configuration
-$config = (object) helper::get_gateway_configuration($component, $paymentarea, $itemid, 'payu');
+// Update local transaction record.
+$payuhelper->update_transaction($referencecode, $statename, $transactionid, $referencepol);
 
-// Get API key based on environment
-if ($config->environment === 'sandbox') {
-    $credentials = \paygw_payu\gateway::get_test_credentials($config->country);
-    $apiKey = $credentials['apikey'];
-} else {
-    $apiKey = $config->apikey;
+// Check if already delivered to prevent duplicates.
+if ($payuhelper->is_already_delivered($referencecode)) {
+    debugging('PayU callback: Already delivered for reference: ' . $referencecode, DEBUG_DEVELOPER);
+    http_response_code(200);
+    echo 'OK';
+    exit;
 }
 
-// Format value to 1 decimal for signature
-$formatted_value = number_format($value, 1, '.', '');
+// Process based on transaction state.
+if ($payuhelper->is_approved($statepol)) {
+    // Payment approved - deliver the order.
+    try {
+        $payable = helper::get_payable($component, $paymentarea, $itemid);
+        $surcharge = helper::get_gateway_surcharge('payu');
+        $cost = helper::get_rounded_cost($payable->get_amount(), $payable->get_currency(), $surcharge);
 
-// Validate signature
-$signature_string = $apiKey . "~" . $merchant_id . "~" . $reference_sale . "~" . $formatted_value . "~" . $currency . "~" . $state_pol;
-$calculated_sign = md5($signature_string);
+        // Deliver the order.
+        $payuhelper->deliver_order(
+            $component,
+            $paymentarea,
+            $itemid,
+            $userid,
+            $cost,
+            $payable->get_currency()
+        );
 
-if (strtoupper($calculated_sign) !== strtoupper($sign)) {
-    die('ERROR: Invalid signature');
+        // Mark as delivered.
+        $payuhelper->mark_as_delivered($referencecode);
+
+        // Notify user.
+        $successurl = helper::get_success_url($component, $paymentarea, $itemid);
+        $payuhelper->notify_user($userid, 'successful', ['url' => $successurl->out()]);
+
+        debugging('PayU callback: Order delivered for reference: ' . $referencecode, DEBUG_DEVELOPER);
+
+    } catch (\Exception $e) {
+        debugging('PayU callback: Delivery error: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    }
+
+} else if ($payuhelper->is_failed($statepol)) {
+    // Payment failed - notify user.
+    $payuhelper->notify_user($userid, 'failed');
+    debugging('PayU callback: Payment failed for reference: ' . $referencecode . ' State: ' . $statename, DEBUG_DEVELOPER);
 }
 
-// Map PayU state to internal status
-$success = 0;
-$state_message = '';
-
-switch ($state_pol) {
-    case 4: // Approved
-        $success = 1;
-        $state_message = 'APPROVED';
-        break;
-    case 6: // Declined
-        $success = 4;
-        $state_message = 'DECLINED';
-        break;
-    case 7: // Pending
-        $success = 0;
-        $state_message = 'PENDING';
-        break;
-    case 5: // Expired
-        $success = 4;
-        $state_message = 'EXPIRED';
-        break;
-    case 104: // Error
-        $success = 4;
-        $state_message = 'ERROR';
-        break;
-    default:
-        $success = 0;
-        $state_message = 'UNKNOWN';
-}
-
-// Update payment record
-$payment->amount = $value;
-$payment->currency = $currency;
-$DB->update_record('payments', $payment);
-
-// Update PayU transaction record
-$payu_record->transactionid = $transaction_id;
-$payu_record->orderId = $reference_pol;
-$payu_record->amount = $value;
-$payu_record->currency = $currency;
-$payu_record->state = $state_message;
-$payu_record->success = $success;
-$payu_record->timemodified = time();
-
-// Add test mode indicator if in sandbox
-if ($config->environment === 'sandbox') {
-    $payu_record->success = ($success == 1) ? 3 : $success;
-}
-
-if (!$DB->update_record('paygw_payu', $payu_record)) {
-    die('ERROR: Failed to update transaction');
-}
-
-// If payment is approved, deliver the order
-if ($success == 1) {
-    helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $userid);
-    
-    // Send notification to user
-    notifications::notify(
-        $userid,
-        $payment->amount,
-        $payment->currency,
-        $paymentid,
-        'payment_completed'
-    );
-}
-
-// Return success response to PayU
+// Return success response to PayU.
+http_response_code(200);
 echo 'OK';

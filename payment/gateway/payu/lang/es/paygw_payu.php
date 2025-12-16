@@ -15,126 +15,89 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'paygw_payu', language 'es'
+ * Strings for component 'paygw_payu', language 'es'.
  *
- * @package     paygw_payu
- * @copyright   2025 Alonso Arias <soporte@nexuslabs.com.co>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    paygw_payu
+ * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Plugin name and description
-$string['pluginname'] = 'PayU Latinoamérica';
-$string['pluginname_desc'] = 'El plugin PayU le permite recibir pagos a través de la plataforma PayU para países de América Latina.';
+$string['pluginname'] = 'PayU Colombia';
+$string['pluginname_desc'] = 'El plugin PayU le permite recibir pagos a través de la plataforma PayU para Colombia.';
 $string['gatewayname'] = 'PayU';
-$string['gatewaydescription'] = 'PayU es un proveedor de pasarela de pago autorizado para procesar transacciones con tarjeta de crédito en América Latina.';
+$string['gatewaydescription'] = 'PayU es una pasarela de pago para Colombia que permite tarjetas de crédito/débito, PSE, efectivo y otros métodos de pago locales.';
 
-// Countries
-$string['country'] = 'País de operación';
-$string['country_ar'] = 'Argentina';
-$string['country_br'] = 'Brasil';
-$string['country_cl'] = 'Chile';
-$string['country_co'] = 'Colombia';
-$string['country_mx'] = 'México';
-$string['country_pa'] = 'Panamá';
-$string['country_pe'] = 'Perú';
+// Configuración.
+$string['environment'] = 'Ambiente';
+$string['environment_help'] = 'Seleccione el ambiente de PayU. Use Sandbox para pruebas y Producción para transacciones reales.';
+$string['environment:sandbox'] = 'Sandbox (Pruebas)';
+$string['environment:production'] = 'Producción (En vivo)';
 
-// Environment settings
-$string['environment'] = 'Entorno';
-$string['environment_sandbox'] = 'Sandbox (Pruebas)';
-$string['environment_production'] = 'Producción (Pagos reales)';
-
-// Credentials
-$string['merchantid'] = 'ID de Comercio';
-$string['merchantid_help'] = 'Su ID de Comercio en PayU. Requerido para el entorno de producción.';
-$string['accountid'] = 'ID de Cuenta';
-$string['accountid_help'] = 'Su ID de Cuenta PayU para el país seleccionado. Requerido para el entorno de producción.';
-$string['apikey'] = 'Llave API';
-$string['apikey_help'] = 'Su Llave API de PayU. ¡Manténgala segura! Requerida para el entorno de producción.';
+$string['merchantid'] = 'Merchant ID';
+$string['merchantid_help'] = 'El ID de comercio de su cuenta de PayU. Se encuentra en el panel de PayU.';
+$string['accountid'] = 'Account ID';
+$string['accountid_help'] = 'El ID de cuenta de PayU para Colombia. Se encuentra en el panel de PayU.';
+$string['apikey'] = 'API Key';
+$string['apikey_help'] = 'La llave API de su cuenta de PayU. Se encuentra en la configuración técnica del panel de PayU.';
 $string['apilogin'] = 'API Login';
-$string['apilogin_help'] = 'Su API Login de PayU. Requerido para el entorno de producción.';
-$string['publickey'] = 'Llave Pública';
-$string['publickey_help'] = 'Su Llave Pública de PayU para tokenización (opcional).';
+$string['apilogin_help'] = 'El login API de su cuenta de PayU. Se encuentra en la configuración técnica del panel de PayU.';
 
-// Language settings
+$string['invalidmerchantid'] = 'El Merchant ID debe ser numérico';
+$string['invalidaccountid'] = 'El Account ID debe ser numérico';
+
 $string['language'] = 'Idioma de la página de pago';
-$string['language_es'] = 'Español';
-$string['language_en'] = 'Inglés';
-$string['language_pt'] = 'Portugués';
+$string['language:es'] = 'Español';
+$string['language:en'] = 'Inglés';
 
-// Payment settings
-$string['abouttopay'] = 'Está a punto de pagar por';
-$string['payment'] = 'Pago';
-$string['sendpaymentbutton'] = 'Pagar con PayU';
+$string['collectcustomerdata'] = 'Recopilar datos del cliente';
+$string['collectcustomerdata_desc'] = 'Pre-llenar información del cliente (email, nombre) en el formulario de pago.';
+
+$string['callback_urls'] = 'URLs de configuración en PayU';
+$string['confirmationurl'] = 'URL de confirmación';
+$string['responseurl'] = 'URL de respuesta';
+
+$string['sandbox_notice'] = '<strong>Nota:</strong> En ambiente Sandbox se utilizan automáticamente las credenciales de prueba de PayU. No necesita ingresar credenciales.';
+
+// Proceso de pago.
 $string['redirecting'] = 'Redirigiendo a PayU...';
 $string['redirecting_message'] = 'Está siendo redirigido a la página segura de pago de PayU. Por favor espere...';
+$string['reference'] = 'Referencia';
+$string['javascript_required'] = 'JavaScript es requerido para el pago automático.';
+$string['continue_to_payu'] = 'Continuar a PayU';
 
-// Status messages
-$string['payment_success'] = '¡Pago exitoso!';
-$string['payment_error'] = 'Error en el pago';
-$string['payment_declined'] = 'El pago fue rechazado';
-$string['payment_pending'] = 'El pago está pendiente de aprobación';
-$string['payment_expired'] = 'El pago expiró';
-$string['payment_unknown'] = 'Estado de pago desconocido';
-$string['signature_invalid'] = '(Advertencia: Firma inválida)';
+// Estados de pago.
+$string['paymentsuccessful'] = '¡Pago exitoso! Su inscripción ha sido procesada.';
+$string['paymentpending'] = 'Su pago está siendo procesado. Será notificado una vez confirmado.';
+$string['paymentdeclined'] = 'Su pago fue rechazado. Por favor intente de nuevo o use otro método de pago.';
+$string['paymentexpired'] = 'El pago ha expirado. Por favor intente de nuevo.';
+$string['paymenterror'] = 'Ocurrió un error procesando su pago. Por favor intente de nuevo.';
+$string['paymentunknownstatus'] = 'Estado de pago desconocido. Por favor contacte a soporte.';
+$string['signatureinvalid'] = '(Advertencia: No se pudo verificar la firma)';
 
-// Test mode
-$string['autofilltest'] = 'Auto-completar datos de prueba';
-$string['autofilltest_help'] = 'Completa automáticamente los datos de tarjeta de prueba en modo sandbox para facilitar las pruebas.';
-$string['sandbox_note'] = '<strong>Nota:</strong> Al usar el entorno Sandbox, se utilizarán automáticamente las credenciales de prueba. No necesita ingresar credenciales de producción.';
+// Errores.
+$string['error_transaction_create'] = 'Error al crear la transacción en la base de datos.';
 
-// Optional payment modes
-$string['skipmode'] = 'Permitir omitir pago';
-$string['skipmode_help'] = 'Muestra un botón para omitir el pago. Útil para pagos opcionales en cursos públicos.';
-$string['skipmode_text'] = 'Si no puede realizar un pago a través del sistema de pagos, puede hacer clic en este botón.';
-$string['skippaymentbutton'] = 'Omitir pago';
+// Mensajes de notificación.
+$string['messageprovider:payment_successful'] = 'Confirmación de pago exitoso';
+$string['messageprovider:payment_failed'] = 'Notificación de pago fallido';
+$string['messageprovider:payment_pending'] = 'Notificación de pago pendiente';
 
-$string['passwordmode'] = 'Habilitar contraseña de bypass';
-$string['password'] = 'Contraseña de bypass';
-$string['password_help'] = 'Los usuarios pueden omitir el pago usando esta contraseña. Útil cuando el sistema de pagos no está disponible.';
-$string['password_text'] = 'Si no puede realizar un pago, solicite la contraseña al administrador e ingrésela aquí.';
-$string['password_error'] = 'Contraseña de pago inválida';
-$string['password_success'] = 'Contraseña de pago aceptada';
-$string['password_required'] = 'La contraseña es requerida cuando el modo de contraseña está habilitado';
+$string['payment:successful:subject'] = 'Pago exitoso';
+$string['payment:successful:message'] = 'Su pago fue exitoso. Ahora puede acceder a su contenido en: {$a->url}';
+$string['payment:failed:subject'] = 'Pago fallido';
+$string['payment:failed:message'] = 'Su pago no pudo ser procesado. Por favor intente de nuevo o use otro método de pago.';
+$string['payment:pending:subject'] = 'Pago pendiente';
+$string['payment:pending:message'] = 'Su pago está siendo procesado. Será notificado una vez sea confirmado.';
 
-// Cost settings
-$string['fixcost'] = 'Modo de precio fijo';
-$string['fixcost_help'] = 'Desactiva la capacidad de los estudiantes para pagar con una cantidad personalizada.';
-$string['suggest'] = 'Precio sugerido';
-$string['maxcost'] = 'Costo máximo';
-$string['maxcosterror'] = 'El precio máximo debe ser mayor que el precio sugerido';
-$string['paymore'] = 'Si desea pagar más, simplemente ingrese su cantidad en lugar de la cantidad sugerida.';
+// Privacidad.
+$string['privacy:metadata:paygw_payu_transactions'] = 'Almacena datos de transacciones para pagos de PayU.';
+$string['privacy:metadata:paygw_payu_transactions:userid'] = 'El ID del usuario que realizó el pago.';
+$string['privacy:metadata:paygw_payu_transactions:transactionid'] = 'El ID de transacción de PayU.';
+$string['privacy:metadata:paygw_payu_transactions:referencecode'] = 'La referencia única del pago.';
+$string['privacy:metadata:paygw_payu_transactions:amount'] = 'El monto del pago.';
+$string['privacy:metadata:paygw_payu_transactions:state'] = 'El estado de la transacción.';
+$string['privacy:metadata:paygw_payu_transactions:timecreated'] = 'La hora en que se creó la transacción.';
 
-// URLs
-$string['callback_urls'] = 'URLs de configuración';
-$string['confirmation_url'] = 'URL de confirmación';
-$string['response_url'] = 'URL de respuesta';
-
-// Errors
-$string['error_txdatabase'] = 'Error al escribir la transacción en la base de datos';
-$string['error_notvalidtxid'] = 'ID de transacción inválido';
-$string['error_notvalidpayment'] = 'Pago inválido';
-$string['error_notvalidpaymentid'] = 'ID de pago inválido';
-$string['production_fields_required'] = 'Todas las credenciales son requeridas para el entorno de producción';
-
-// Privacy
-$string['privacy:metadata'] = 'El plugin PayU almacena datos personales para procesar pagos.';
-$string['privacy:metadata:paygw_payu:paygw_payu'] = 'Almacena datos de transacciones de pago';
-$string['privacy:metadata:paygw_payu:userid'] = 'ID de usuario';
-$string['privacy:metadata:paygw_payu:courseid'] = 'ID del curso';
-$string['privacy:metadata:paygw_payu:groupnames'] = 'Nombres de grupos';
-$string['privacy:metadata:paygw_payu:country'] = 'País de la transacción';
-$string['privacy:metadata:paygw_payu:transactionid'] = 'ID de transacción PayU';
-$string['privacy:metadata:paygw_payu:referencecode'] = 'Código de referencia';
-$string['privacy:metadata:paygw_payu:amount'] = 'Monto del pago';
-$string['privacy:metadata:paygw_payu:currency'] = 'Moneda';
-$string['privacy:metadata:paygw_payu:state'] = 'Estado de la transacción';
-
-// Notifications
-$string['messagesubject'] = 'Notificación de pago';
-$string['messageprovider:payment_receipt'] = 'Recibo de pago';
-$string['message_payment_completed'] = 'Hola {$a->firstname},
-Su pago de {$a->fee} {$a->currency} (ID: {$a->orderid}) ha sido completado exitosamente.
-Si no puede acceder al curso, por favor contacte al administrador.';
-$string['message_payment_pending'] = 'Hola {$a->firstname},
-Su pago de {$a->fee} {$a->currency} (ID: {$a->orderid}) está pendiente de aprobación.
-Le notificaremos una vez que el pago sea confirmado.';
+$string['privacy:metadata:payu'] = 'Para procesar pagos, algunos datos del usuario son enviados a PayU.';
+$string['privacy:metadata:payu:email'] = 'Su dirección de correo electrónico.';
+$string['privacy:metadata:payu:fullname'] = 'Su nombre completo.';

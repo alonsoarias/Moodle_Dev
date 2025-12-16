@@ -19,7 +19,7 @@
  *
  * @package    paygw_payu
  * @category   privacy
- * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,18 +28,21 @@ namespace paygw_payu\privacy;
 use core_payment\privacy\paygw_provider;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\writer;
+use core_privacy\local\request\transform;
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Privacy Subsystem implementation for paygw_payu.
  *
- * @copyright  2025 Alonso Arias <soporte@nexuslabs.com.co>
+ * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements 
+class provider implements
     \core_privacy\local\request\data_provider,
     paygw_provider,
     \core_privacy\local\metadata\provider {
-    
+
     /**
      * Returns meta data about this system.
      *
@@ -50,36 +53,28 @@ class provider implements
 
         // Data may be exported to an external location (PayU).
         $collection->add_external_location_link(
-            'payu.com',
+            'payu',
             [
-                'fullname'    => 'privacy:metadata:paygw_payu:fullname',
-                'email'       => 'privacy:metadata:paygw_payu:email',
-                'phone'       => 'privacy:metadata:paygw_payu:phone',
-                'amount'      => 'privacy:metadata:paygw_payu:amount',
-                'currency'    => 'privacy:metadata:paygw_payu:currency',
+                'fullname' => 'privacy:metadata:payu:fullname',
+                'email' => 'privacy:metadata:payu:email',
             ],
-            'privacy:metadata:paygw_payu:payu_com'
+            'privacy:metadata:payu'
         );
 
-        // The paygw_payu table stores transaction data.
+        // The paygw_payu_transactions table stores transaction data.
         $collection->add_database_table(
-            'paygw_payu',
+            'paygw_payu_transactions',
             [
-                'userid'         => 'privacy:metadata:paygw_payu:userid',
-                'courseid'       => 'privacy:metadata:paygw_payu:courseid',
-                'groupnames'     => 'privacy:metadata:paygw_payu:groupnames',
-                'country'        => 'privacy:metadata:paygw_payu:country',
-                'transactionid'  => 'privacy:metadata:paygw_payu:transactionid',
-                'referencecode'  => 'privacy:metadata:paygw_payu:referencecode',
-                'amount'         => 'privacy:metadata:paygw_payu:amount',
-                'currency'       => 'privacy:metadata:paygw_payu:currency',
-                'state'          => 'privacy:metadata:paygw_payu:state',
-                'timecreated'    => 'privacy:metadata:paygw_payu:timecreated',
-                'timemodified'   => 'privacy:metadata:paygw_payu:timemodified',
+                'userid' => 'privacy:metadata:paygw_payu_transactions:userid',
+                'transactionid' => 'privacy:metadata:paygw_payu_transactions:transactionid',
+                'referencecode' => 'privacy:metadata:paygw_payu_transactions:referencecode',
+                'amount' => 'privacy:metadata:paygw_payu_transactions:amount',
+                'state' => 'privacy:metadata:paygw_payu_transactions:state',
+                'timecreated' => 'privacy:metadata:paygw_payu_transactions:timecreated',
             ],
-            'privacy:metadata:paygw_payu:paygw_payu'
+            'privacy:metadata:paygw_payu_transactions'
         );
-        
+
         return $collection;
     }
 
@@ -94,20 +89,26 @@ class provider implements
         global $DB;
 
         $subcontext[] = get_string('gatewayname', 'paygw_payu');
-        $record = $DB->get_record('paygw_payu', ['paymentid' => $payment->id]);
+
+        // Find transaction by component, paymentarea and itemid.
+        $record = $DB->get_record('paygw_payu_transactions', [
+            'component' => $payment->component,
+            'paymentarea' => $payment->paymentarea,
+            'itemid' => $payment->itemid,
+            'userid' => $payment->userid,
+        ]);
 
         if ($record) {
             $data = (object) [
                 'transactionid' => $record->transactionid,
                 'referencecode' => $record->referencecode,
-                'country'       => $record->country,
-                'amount'        => $record->amount,
-                'currency'      => $record->currency,
-                'state'         => $record->state,
-                'timecreated'   => transform::datetime($record->timecreated),
-                'timemodified'  => transform::datetime($record->timemodified),
+                'amount' => $record->amount,
+                'currency' => $record->currency,
+                'state' => $record->state,
+                'timecreated' => transform::datetime($record->timecreated),
+                'timemodified' => transform::datetime($record->timemodified),
             ];
-            
+
             writer::with_context($context)->export_data($subcontext, $data);
         }
     }
@@ -121,6 +122,16 @@ class provider implements
     public static function delete_data_for_payment_sql(string $paymentsql, array $paymentparams) {
         global $DB;
 
-        $DB->delete_records_select('paygw_payu', "paymentid IN ({$paymentsql})", $paymentparams);
+        // Get payment records.
+        $payments = $DB->get_records_sql("SELECT * FROM {payments} WHERE id IN ({$paymentsql})", $paymentparams);
+
+        foreach ($payments as $payment) {
+            $DB->delete_records('paygw_payu_transactions', [
+                'component' => $payment->component,
+                'paymentarea' => $payment->paymentarea,
+                'itemid' => $payment->itemid,
+                'userid' => $payment->userid,
+            ]);
+        }
     }
 }
