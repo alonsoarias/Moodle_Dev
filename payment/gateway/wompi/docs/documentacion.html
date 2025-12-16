@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wompi Payment Gateway para Moodle | ingeweb.co</title>
+    <meta name="description" content="Documentación completa del plugin Wompi Payment Gateway para Moodle. Desarrollado por ingeweb.co">
+    <meta name="author" content="ingeweb.co">
+    <meta name="keywords" content="Wompi, Moodle, plugin, pasarela de pago, Colombia, ingeweb, LMS, e-learning">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           VARIABLES - Paleta IngeWeb
+           ============================================ */
+        :root {
+            --ing-primary: #2B4D99;
+            --ing-primary-dark: #2a4b9a;
+            --ing-secondary: #0080FE;
+            --ing-accent: #FD5E1F;
+            --ing-accent-hover: #de6906;
+            --ing-teal: #14BDE8;
+            --ing-navy: #013251;
+            --ing-white: #FFFFFF;
+            --ing-gray-100: #f8f9fa;
+            --ing-gray-200: #e9ecef;
+            --ing-gray-300: #dee2e6;
+            --ing-gray-600: #6c757d;
+            --ing-gray-800: #343a40;
+            --ing-gray-900: #212529;
+            --wompi-green: #00a650;
+            --wompi-green-dark: #008a42;
+            --transition-base: 0.3s;
+        }
+
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--ing-gray-900);
+            background: var(--ing-white);
+        }
+
+        /* ============================================
+           TYPOGRAPHY - Estilo IngeWeb
+           ============================================ */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            color: var(--ing-navy);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            line-height: 48px;
+        }
+
+        h2 {
+            font-size: 28px;
+            line-height: 36px;
+        }
+
+        h3 {
+            font-size: 22px;
+            line-height: 30px;
+        }
+
+        h4 {
+            font-size: 18px;
+            line-height: 26px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--ing-gray-800);
+        }
+
+        a {
+            color: var(--ing-secondary);
+            text-decoration: none;
+            transition: color var(--transition-base);
+        }
+
+        a:hover {
+            color: var(--ing-accent-hover);
+        }
+
+        /* ============================================
+           BUTTONS - Estilo IngeWeb
+           ============================================ */
+        .btn {
+            display: inline-block;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 8px 22px 10px 22px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--ing-secondary);
+            color: var(--ing-white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--ing-accent-hover);
+            color: var(--ing-white);
+        }
+
+        .btn-accent {
+            background: var(--ing-accent) !important;
+            color: var(--ing-white) !important;
+        }
+
+        .btn-accent:hover {
+            background: var(--ing-accent-hover) !important;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--ing-primary);
+            color: var(--ing-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--ing-primary);
+            color: var(--ing-white);
+        }
+
+        /* ============================================
+           HEADER - Estilo IngeWeb
+           ============================================ */
+        .site-header {
+            background: linear-gradient(0deg, var(--ing-primary-dark), var(--ing-primary-dark));
+            padding: 12px 0;
+            position: relative;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--ing-white);
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .logo img, .logo svg {
+            height: 48px;
+            width: auto;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-links a {
+            color: var(--ing-white);
+            font-family: 'Rubik', sans-serif;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-links a:hover {
+            opacity: 1;
+            color: var(--ing-teal);
+        }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
+            background: linear-gradient(135deg, var(--ing-primary) 0%, var(--ing-navy) 100%);
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            padding: 12px 24px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-badge svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .hero-badge span {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--ing-white);
+        }
+
+        .hero h1 {
+            color: var(--ing-white);
+            font-size: 42px;
+            line-height: 52px;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 20px;
+            line-height: 30px;
+            margin-bottom: 30px;
+        }
+
+        .hero-tags {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-family: 'Rubik', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 50px;
+        }
+
+        .tag-version {
+            background: var(--wompi-green);
+            color: var(--ing-white);
+        }
+
+        .tag-moodle {
+            background: var(--ing-accent);
+            color: var(--ing-white);
+        }
+
+        .tag-ingeweb {
+            background: var(--ing-white);
+            color: var(--ing-primary);
+        }
+
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+        .main-nav {
+            background: var(--ing-white);
+            border-bottom: 1px solid var(--ing-gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            overflow-x: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 4px;
+            padding: 12px 0;
+            min-width: max-content;
+        }
+
+        .nav-menu a {
+            display: block;
+            font-family: 'Rubik', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ing-gray-600);
+            padding: 10px 16px;
+            border-radius: 4px;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(43, 77, 153, 0.08);
+            color: var(--ing-primary);
+        }
+
+        .nav-menu a.active {
+            background: var(--ing-primary);
+            color: var(--ing-white);
+        }
+
+        /* ============================================
+           SECTIONS - Estilo IngeWeb
+           ============================================ */
+        .section {
+            padding: 50px 0 50px 0;
+        }
+
+        .section-alt {
+            background: var(--ing-gray-100);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid var(--ing-accent);
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--ing-primary) 0%, var(--ing-secondary) 100%);
+            color: var(--ing-white);
+            font-size: 20px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        /* ============================================
+           CARDS - Estilo IngeWeb
+           ============================================ */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: var(--ing-white);
+            border: 1px solid var(--ing-gray-200);
+            border-radius: 8px;
+            padding: 30px;
+            transition: all var(--transition-base);
+            box-shadow: 0 0 0 0 var(--ing-white);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: var(--ing-primary);
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--ing-primary) 0%, var(--ing-secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h4 {
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: var(--ing-gray-600);
+            font-size: 15px;
+            margin-bottom: 0;
+        }
+
+        /* ============================================
+           FEATURE LIST
+           ============================================ */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            position: relative;
+            padding-left: 36px;
+            margin-bottom: 14px;
+            font-size: 16px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background: var(--wompi-green);
+            color: var(--ing-white);
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ============================================
+           TABLES
+           ============================================ */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 24px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--ing-white);
+            font-size: 15px;
+        }
+
+        th {
+            background: var(--ing-primary);
+            color: var(--ing-white);
+            font-family: 'Rubik', sans-serif;
+            font-weight: 600;
+            padding: 14px 18px;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--ing-gray-200);
+        }
+
+        tr:nth-child(even) {
+            background: var(--ing-gray-100);
+        }
+
+        tr:hover {
+            background: rgba(43, 77, 153, 0.05);
+        }
+
+        /* ============================================
+           CODE BLOCKS
+           ============================================ */
+        code {
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            background: rgba(43, 77, 153, 0.08);
+            color: var(--ing-primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        pre {
+            background: var(--ing-navy);
+            color: #e2e8f0;
+            padding: 24px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid var(--ing-accent);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: inherit;
+        }
+
+        /* ============================================
+           STEPS
+           ============================================ */
+        .steps {
+            counter-reset: step;
+            list-style: none;
+            padding: 0;
+        }
+
+        .steps > li {
+            counter-increment: step;
+            position: relative;
+            padding-left: 72px;
+            margin-bottom: 32px;
+            min-height: 52px;
+        }
+
+        .steps > li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--ing-primary) 0%, var(--ing-secondary) 100%);
+            color: var(--ing-white);
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(43, 77, 153, 0.3);
+        }
+
+        .steps > li strong {
+            display: block;
+            font-family: 'Rubik', sans-serif;
+            font-size: 17px;
+            color: var(--ing-navy);
+            margin-bottom: 8px;
+        }
+
+        .steps > li p {
+            margin-bottom: 12px;
+        }
+
+        /* ============================================
+           INFO BOXES
+           ============================================ */
+        .info-box {
+            background: linear-gradient(135deg, rgba(43, 77, 153, 0.05) 0%, rgba(0, 128, 254, 0.05) 100%);
+            border: 1px solid rgba(43, 77, 153, 0.15);
+            border-left: 4px solid var(--ing-primary);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .info-box.warning {
+            background: linear-gradient(135deg, rgba(253, 94, 31, 0.05) 0%, rgba(222, 105, 6, 0.05) 100%);
+            border-color: rgba(253, 94, 31, 0.2);
+            border-left-color: var(--ing-accent);
+        }
+
+        .info-box.success {
+            background: linear-gradient(135deg, rgba(0, 166, 80, 0.05) 0%, rgba(0, 138, 66, 0.05) 100%);
+            border-color: rgba(0, 166, 80, 0.2);
+            border-left-color: var(--wompi-green);
+        }
+
+        .info-box h4 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box p:last-child,
+        .info-box ul:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ============================================
+           PAYMENT METHODS
+           ============================================ */
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin: 30px 0;
+        }
+
+        .payment-item {
+            background: var(--ing-white);
+            border: 2px solid var(--ing-gray-200);
+            border-radius: 8px;
+            padding: 24px 16px;
+            text-align: center;
+            transition: all var(--transition-base);
+        }
+
+        .payment-item:hover {
+            border-color: var(--wompi-green);
+            transform: scale(1.02);
+        }
+
+        .payment-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .payment-name {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--ing-navy);
+            margin-bottom: 4px;
+        }
+
+        .payment-type {
+            font-size: 13px;
+            color: var(--ing-gray-600);
+        }
+
+        /* ============================================
+           FAQ / ACCORDION
+           ============================================ */
+        .faq-list {
+            margin: 24px 0;
+        }
+
+        .faq-item {
+            border: 1px solid var(--ing-gray-200);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            background: var(--ing-gray-100);
+            padding: 18px 24px;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--ing-navy);
+            cursor: pointer;
+            transition: background var(--transition-base);
+        }
+
+        .faq-question:hover {
+            background: rgba(43, 77, 153, 0.08);
+        }
+
+        .faq-answer {
+            padding: 18px 24px;
+            background: var(--ing-white);
+            border-top: 1px solid var(--ing-gray-200);
+        }
+
+        .faq-answer ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .faq-answer li {
+            margin-bottom: 8px;
+        }
+
+        /* ============================================
+           FOOTER - Estilo IngeWeb
+           ============================================ */
+        .site-footer {
+            background: var(--ing-navy);
+            color: var(--ing-white);
+            padding: 60px 0 30px 0;
+            margin-top: 50px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-col h4 {
+            color: var(--ing-white);
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--ing-accent);
+        }
+
+        .footer-col p {
+            color: rgba(255,255,255,0.75);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .footer-col a {
+            display: block;
+            color: rgba(255,255,255,0.75);
+            font-size: 15px;
+            margin-bottom: 10px;
+            transition: color var(--transition-base);
+        }
+
+        .footer-col a:hover {
+            color: var(--ing-teal);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .footer-bottom p {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+                line-height: 36px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            h1 {
+                font-size: 26px;
+                line-height: 34px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .section-header h2 {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .steps > li {
+                padding-left: 60px;
+            }
+
+            .steps > li::before {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-col h4 {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="48" height="48" rx="8" fill="#0080FE"/>
+                    <path d="M14 24L22 32L34 18" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>ingeweb.co</span>
+            </div>
+            <div class="header-links">
+                <a href="https://ingeweb.co" target="_blank">Sitio Web</a>
+                <a href="mailto:soporte@ingeweb.co">Soporte</a>
+                <a href="https://docs.wompi.co" target="_blank">Docs Wompi</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================
+         HERO
+         ============================================ -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="#00a650"/>
+                    <path d="M12 20L18 26L28 14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Wompi</span>
+            </div>
+            <h1>Wompi Payment Gateway para Moodle</h1>
+            <p class="hero-subtitle">La solución de pagos colombiana integrada con tu plataforma educativa LMS</p>
+            <div class="hero-tags">
+                <span class="tag tag-version">v1.0.0</span>
+                <span class="tag tag-moodle">Moodle 4.1+</span>
+                <span class="tag tag-ingeweb">by ingeweb.co</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         NAVIGATION
+         ============================================ -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="#introduccion" class="active">Introducción</a></li>
+                <li><a href="#requisitos">Requisitos</a></li>
+                <li><a href="#instalacion">Instalación</a></li>
+                <li><a href="#config-wompi">Config. Wompi</a></li>
+                <li><a href="#config-moodle">Config. Moodle</a></li>
+                <li><a href="#metodos-pago">Métodos de Pago</a></li>
+                <li><a href="#webhook">Webhook</a></li>
+                <li><a href="#uso-admin">Uso Admin</a></li>
+                <li><a href="#uso-estudiante">Uso Estudiante</a></li>
+                <li><a href="#pruebas">Pruebas</a></li>
+                <li><a href="#troubleshooting">Solución de Problemas</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ============================================
+         CONTENT
+         ============================================ -->
+    <main>
+        <!-- Introducción -->
+        <section id="introduccion" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">1</span> Introducción</h2>
+                </div>
+
+                <p>El plugin <strong>Wompi Payment Gateway</strong> permite a los sitios Moodle aceptar pagos a través de <strong>Wompi</strong>, la plataforma líder de pagos en Colombia, subsidiaria de Bancolombia. Soporta múltiples métodos de pago locales adaptados al mercado colombiano.</p>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-icon">💳</div>
+                        <h4>Múltiples Métodos de Pago</h4>
+                        <p>Tarjetas, Nequi, PSE, Bancolombia, Daviplata y Puntos Colombia.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🔒</div>
+                        <h4>Seguridad Avanzada</h4>
+                        <p>Firma SHA256, verificación de webhooks y validación de llaves.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">⚡</div>
+                        <h4>Procesamiento Asíncrono</h4>
+                        <p>Webhooks para pagos que requieren confirmación diferida.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🌐</div>
+                        <h4>Multiidioma</h4>
+                        <p>Soporte completo en Español e Inglés con cumplimiento GDPR.</p>
+                    </div>
+                </div>
+
+                <h3>Características Principales</h3>
+                <ul class="feature-list">
+                    <li>Soporte para ambientes Sandbox (pruebas) y Producción</li>
+                    <li>Widget de checkout integrado de Wompi</li>
+                    <li>Procesamiento de pagos asíncronos vía webhooks</li>
+                    <li>Notificaciones automáticas a usuarios</li>
+                    <li>Registro completo de transacciones</li>
+                    <li>Cumplimiento GDPR para protección de datos</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Requisitos -->
+        <section id="requisitos" class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">2</span> Requisitos del Sistema</h2>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Componente</th>
+                                <th>Requisito Mínimo</th>
+                                <th>Recomendado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Moodle</strong></td>
+                                <td>4.1</td>
+                                <td>4.3 o superior</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PHP</strong></td>
+                                <td>7.4</td>
+                                <td>8.1 o superior</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL/HTTPS</strong></td>
+                                <td>Requerido en producción</td>
+                                <td>Siempre activo</td>
+                            </tr>
+                            <tr>
+                                <td><strong>cURL Extension</strong></td>
+                                <td>Habilitada</td>
+                                <td>Habilitada</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box warning">
+                    <h4>⚠️ Importante</h4>
+                    <p>Para usar Wompi en producción, necesitas una <strong>cuenta de comercio verificada en Wompi Colombia</strong>. Puedes registrarte en <a href="https://comercios.wompi.co" target="_blank">comercios.wompi.co</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Instalación -->
+        <section id="instalacion" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">3</span> Instalación del Plugin</h2>
+                </div>
+
+                <h3>Método 1: Instalación Manual</h3>
+                <ol class="steps">
+                    <li>
+                        <strong>Descarga el plugin</strong>
+                        <p>Descarga el archivo ZIP del plugin desde el repositorio oficial o desde <a href="https://ingeweb.co" target="_blank">ingeweb.co</a></p>
+                    </li>
+                    <li>
+                        <strong>Extrae los archivos</strong>
+                        <p>Descomprime el archivo y coloca la carpeta <code>wompi</code> en:</p>
+                        <pre><code>/tu-sitio-moodle/payment/gateway/wompi</code></pre>
+                    </li>
+                    <li>
+                        <strong>Verifica la estructura</strong>
+                        <p>Asegúrate de que los archivos estén correctamente ubicados:</p>
+                        <pre><code>payment/gateway/wompi/
+├── classes/
+│   ├── gateway.php
+│   ├── wompi_helper.php
+│   └── privacy/provider.php
+├── db/
+│   ├── install.xml
+│   └── messages.php
+├── lang/
+│   ├── en/paygw_wompi.php
+│   └── es/paygw_wompi.php
+├── pix/icon.svg
+├── pay.php
+├── process.php
+├── webhook.php
+└── version.php</code></pre>
+                    </li>
+                    <li>
+                        <strong>Completa la instalación</strong>
+                        <p>Accede a tu sitio Moodle como administrador y navega a:</p>
+                        <pre><code>Administración del sitio → Notificaciones</code></pre>
+                        <p>Moodle detectará el nuevo plugin y te guiará para completar la instalación.</p>
+                    </li>
+                </ol>
+
+                <h3>Método 2: Via línea de comandos</h3>
+                <pre><code># Navegar al directorio de pasarelas de pago
+cd /ruta/a/moodle/payment/gateway
+
+# Clonar el repositorio
+git clone https://github.com/ingeweb/moodle-paygw_wompi.git wompi
+
+# Ejecutar actualización de Moodle
+php /ruta/a/moodle/admin/cli/upgrade.php</code></pre>
+
+                <div class="info-box success">
+                    <h4>✅ Verificación</h4>
+                    <p>Después de la instalación, verifica que el plugin aparezca en <strong>Administración del sitio → Plugins → Pasarelas de pago</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuración Wompi -->
+        <section id="config-wompi" class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">4</span> Configuración en Wompi</h2>
+                </div>
+
+                <p>Antes de configurar el plugin en Moodle, necesitas obtener tus credenciales del panel de Wompi.</p>
+
+                <h3>Obtener Credenciales</h3>
+                <ol class="steps">
+                    <li>
+                        <strong>Accede al Dashboard de Wompi</strong>
+                        <p>Ingresa a <a href="https://comercios.wompi.co" target="_blank">comercios.wompi.co</a> con tu cuenta de comercio.</p>
+                    </li>
+                    <li>
+                        <strong>Navega a Configuración de Llaves</strong>
+                        <p>Ve a <strong>Configuración → Llaves de API</strong> en el menú lateral.</p>
+                    </li>
+                    <li>
+                        <strong>Copia las llaves necesarias</strong>
+                        <p>Necesitarás las siguientes llaves:</p>
+                    </li>
+                </ol>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Llave</th>
+                                <th>Sandbox</th>
+                                <th>Producción</th>
+                                <th>Uso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Llave Pública</strong></td>
+                                <td><code>pub_test_...</code></td>
+                                <td><code>pub_prod_...</code></td>
+                                <td>Iniciar transacciones</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Llave Privada</strong></td>
+                                <td><code>prv_test_...</code></td>
+                                <td><code>prv_prod_...</code></td>
+                                <td>Consultar transacciones</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Llave de Integridad</strong></td>
+                                <td colspan="2">Cadena alfanumérica</td>
+                                <td>Firmar transacciones</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Llave de Eventos</strong></td>
+                                <td colspan="2">Cadena alfanumérica</td>
+                                <td>Verificar webhooks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box warning">
+                    <h4>⚠️ Seguridad de las Llaves</h4>
+                    <p>Nunca compartas tus llaves privadas. Guárdalas en un lugar seguro y no las expongas en código público.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuración Moodle -->
+        <section id="config-moodle" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">5</span> Configuración en Moodle</h2>
+                </div>
+
+                <h3>Crear Cuenta de Pago</h3>
+                <ol class="steps">
+                    <li>
+                        <strong>Accede a la gestión de cuentas de pago</strong>
+                        <p>Ve a <strong>Administración del sitio → Plugins → Pasarelas de pago → Gestionar cuentas de pago</strong></p>
+                    </li>
+                    <li>
+                        <strong>Crea una nueva cuenta</strong>
+                        <p>Haz clic en <strong>"Crear cuenta de pago"</strong> e ingresa un nombre descriptivo (ej: "Pagos Colombia - Wompi").</p>
+                    </li>
+                    <li>
+                        <strong>Habilita la pasarela Wompi</strong>
+                        <p>En la sección de pasarelas disponibles, activa <strong>Wompi</strong>.</p>
+                    </li>
+                </ol>
+
+                <h3>Configurar Credenciales</h3>
+
+                <h4>Ambiente</h4>
+                <ul>
+                    <li><strong>Sandbox:</strong> Para pruebas y desarrollo (usa llaves <code>pub_test_</code> y <code>prv_test_</code>)</li>
+                    <li><strong>Producción:</strong> Para pagos reales (usa llaves <code>pub_prod_</code> y <code>prv_prod_</code>)</li>
+                </ul>
+
+                <h4>Credenciales API</h4>
+                <ul>
+                    <li><strong>Llave Pública:</strong> Tu llave pública de Wompi</li>
+                    <li><strong>Llave Privada:</strong> Tu llave privada de Wompi</li>
+                    <li><strong>Llave de Integridad:</strong> Para firmar las transacciones</li>
+                    <li><strong>Llave de Eventos:</strong> (Opcional) Para verificar webhooks</li>
+                </ul>
+
+                <div class="info-box">
+                    <h4>💡 Consejo</h4>
+                    <p>Comienza siempre en modo <strong>Sandbox</strong> para probar la integración antes de pasar a producción.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Métodos de Pago -->
+        <section id="metodos-pago" class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">6</span> Métodos de Pago Disponibles</h2>
+                </div>
+
+                <p>Wompi ofrece múltiples métodos de pago adaptados al mercado colombiano:</p>
+
+                <div class="payment-grid">
+                    <div class="payment-item">
+                        <div class="payment-icon">💳</div>
+                        <div class="payment-name">Tarjetas</div>
+                        <div class="payment-type">Visa, Mastercard, Amex</div>
+                    </div>
+                    <div class="payment-item">
+                        <div class="payment-icon">📱</div>
+                        <div class="payment-name">Nequi</div>
+                        <div class="payment-type">Billetera móvil</div>
+                    </div>
+                    <div class="payment-item">
+                        <div class="payment-icon">🏦</div>
+                        <div class="payment-name">PSE</div>
+                        <div class="payment-type">Transferencia bancaria</div>
+                    </div>
+                    <div class="payment-item">
+                        <div class="payment-icon">🔄</div>
+                        <div class="payment-name">Bancolombia Transfer</div>
+                        <div class="payment-type">Transferencia directa</div>
+                    </div>
+                    <div class="payment-item">
+                        <div class="payment-icon">🏪</div>
+                        <div class="payment-name">Bancolombia Collect</div>
+                        <div class="payment-type">Pago en corresponsal</div>
+                    </div>
+                    <div class="payment-item">
+                        <div class="payment-icon">📲</div>
+                        <div class="payment-name">Daviplata</div>
+                        <div class="payment-type">Billetera Davivienda</div>
+                    </div>
+                    <div class="payment-item">
+                        <div class="payment-icon">🎁</div>
+                        <div class="payment-name">Puntos Colombia</div>
+                        <div class="payment-type">Programa de puntos</div>
+                    </div>
+                </div>
+
+                <h3>Tiempos de Confirmación</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Método</th>
+                                <th>Tipo</th>
+                                <th>Tiempo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tarjeta de Crédito/Débito</td>
+                                <td>Inmediato</td>
+                                <td>Instantáneo</td>
+                            </tr>
+                            <tr>
+                                <td>Nequi</td>
+                                <td>Asíncrono</td>
+                                <td>1-5 minutos</td>
+                            </tr>
+                            <tr>
+                                <td>PSE</td>
+                                <td>Asíncrono</td>
+                                <td>1-30 minutos</td>
+                            </tr>
+                            <tr>
+                                <td>Bancolombia Transfer</td>
+                                <td>Asíncrono</td>
+                                <td>1-30 minutos</td>
+                            </tr>
+                            <tr>
+                                <td>Bancolombia Collect</td>
+                                <td>Asíncrono</td>
+                                <td>Hasta 24 horas</td>
+                            </tr>
+                            <tr>
+                                <td>Daviplata</td>
+                                <td>Asíncrono</td>
+                                <td>1-5 minutos</td>
+                            </tr>
+                            <tr>
+                                <td>Puntos Colombia</td>
+                                <td>Inmediato</td>
+                                <td>Instantáneo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box">
+                    <h4>💡 Pagos Asíncronos</h4>
+                    <p>Los métodos asíncronos requieren que configures el <strong>webhook</strong> para completar automáticamente la inscripción del estudiante.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Webhook -->
+        <section id="webhook" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">7</span> Configuración del Webhook</h2>
+                </div>
+
+                <p>El webhook es <strong>esencial</strong> para procesar pagos asíncronos como PSE, Nequi y Bancolombia.</p>
+
+                <h3>Configurar en Wompi</h3>
+                <ol class="steps">
+                    <li>
+                        <strong>Accede a la configuración de eventos</strong>
+                        <p>En el Dashboard de Wompi, ve a <strong>Configuración → Eventos</strong>.</p>
+                    </li>
+                    <li>
+                        <strong>Agrega la URL del webhook</strong>
+                        <p>Ingresa la siguiente URL (reemplaza con tu dominio):</p>
+                        <pre><code>https://tu-sitio-moodle.com/payment/gateway/wompi/webhook.php</code></pre>
+                    </li>
+                    <li>
+                        <strong>Selecciona los eventos</strong>
+                        <p>Activa el evento <code>transaction.updated</code> para recibir notificaciones.</p>
+                    </li>
+                    <li>
+                        <strong>Copia la Llave de Eventos</strong>
+                        <p>Wompi generará una <strong>Llave de Eventos</strong>. Cópiala y agrégala en la configuración del plugin.</p>
+                    </li>
+                </ol>
+
+                <div class="info-box success">
+                    <h4>✅ Verificar Webhook</h4>
+                    <p>Puedes verificar que funciona haciendo una compra de prueba en modo Sandbox con Nequi o PSE.</p>
+                </div>
+
+                <h3>Estructura del Evento</h3>
+                <pre><code>{
+  "event": "transaction.updated",
+  "data": {
+    "transaction": {
+      "id": "123456-789-abc",
+      "status": "APPROVED",
+      "reference": "enrol_fee_course_1_123_1702800000",
+      "amount_in_cents": 5000000
+    }
+  },
+  "timestamp": 1702800000,
+  "signature": {
+    "checksum": "abc123...",
+    "properties": ["data.transaction.id", "data.transaction.status"]
+  }
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Uso para Administradores -->
+        <section id="uso-admin" class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">8</span> Guía para Administradores</h2>
+                </div>
+
+                <h3>Configurar Inscripción de Pago en un Curso</h3>
+                <ol class="steps">
+                    <li>
+                        <strong>Accede al curso</strong>
+                        <p>Navega al curso donde deseas activar la inscripción de pago.</p>
+                    </li>
+                    <li>
+                        <strong>Configura el método de inscripción</strong>
+                        <p>Ve a <strong>Participantes → Métodos de inscripción</strong> y agrega <strong>"Inscripción con pago"</strong>.</p>
+                    </li>
+                    <li>
+                        <strong>Selecciona la cuenta de pago</strong>
+                        <p>Elige la cuenta de pago donde configuraste Wompi.</p>
+                    </li>
+                    <li>
+                        <strong>Establece el precio</strong>
+                        <p>Ingresa el costo de inscripción en <strong>COP (Pesos Colombianos)</strong>.</p>
+                        <pre><code>Ejemplo: 50000 = $50.000 COP</code></pre>
+                    </li>
+                    <li>
+                        <strong>Guarda los cambios</strong>
+                        <p>El curso ahora mostrará el botón de pago a los usuarios no inscritos.</p>
+                    </li>
+                </ol>
+
+                <h3>Monitorear Transacciones</h3>
+                <h4>En Moodle</h4>
+                <ul>
+                    <li><strong>Reportes de pago:</strong> Administración del sitio → Reportes → Pagos</li>
+                    <li><strong>Logs del sistema:</strong> Administración del sitio → Reportes → Logs</li>
+                </ul>
+
+                <h4>En Wompi</h4>
+                <ul>
+                    <li>Dashboard de comercio → Transacciones</li>
+                    <li>Filtra por referencia para encontrar transacciones específicas</li>
+                </ul>
+
+                <div class="info-box">
+                    <h4>💡 Referencias de Transacción</h4>
+                    <p>Las referencias siguen el formato: <code>componente_area_itemid_userid_timestamp</code><br>
+                    Ejemplo: <code>enrol_fee_course_15_123_1702800000</code></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Uso para Estudiantes -->
+        <section id="uso-estudiante" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">9</span> Guía para Estudiantes</h2>
+                </div>
+
+                <p>El proceso de pago es sencillo e intuitivo:</p>
+
+                <ol class="steps">
+                    <li>
+                        <strong>Accede al curso</strong>
+                        <p>Navega al curso que requiere pago para inscribirte.</p>
+                    </li>
+                    <li>
+                        <strong>Haz clic en el botón de pago</strong>
+                        <p>Verás la información del curso y el costo. Haz clic en <strong>"Pagar con Wompi"</strong>.</p>
+                    </li>
+                    <li>
+                        <strong>Selecciona tu método de pago</strong>
+                        <p>El widget de Wompi se abrirá mostrando los métodos disponibles.</p>
+                    </li>
+                    <li>
+                        <strong>Completa el pago</strong>
+                        <p>Sigue las instrucciones según el método elegido:</p>
+                        <ul>
+                            <li><strong>Tarjeta:</strong> Ingresa los datos de tu tarjeta</li>
+                            <li><strong>Nequi:</strong> Ingresa tu número de celular y aprueba en la app</li>
+                            <li><strong>PSE:</strong> Selecciona tu banco y completa en la página del banco</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Espera la confirmación</strong>
+                        <p>Una vez aprobado el pago, serás inscrito automáticamente al curso.</p>
+                    </li>
+                </ol>
+
+                <div class="info-box success">
+                    <h4>✅ Confirmación</h4>
+                    <p>Recibirás un correo electrónico confirmando tu inscripción al curso una vez procesado el pago.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pruebas -->
+        <section id="pruebas" class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">10</span> Pruebas en Sandbox</h2>
+                </div>
+
+                <p>Antes de ir a producción, prueba exhaustivamente en modo Sandbox:</p>
+
+                <h3>Tarjetas de Prueba</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Número de Tarjeta</th>
+                                <th>Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>4242 4242 4242 4242</code></td>
+                                <td>✅ Aprobada</td>
+                            </tr>
+                            <tr>
+                                <td><code>4111 1111 1111 1111</code></td>
+                                <td>❌ Declinada</td>
+                            </tr>
+                            <tr>
+                                <td><code>4012 8888 8888 1881</code></td>
+                                <td>⏳ Pendiente</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p><strong>Para todas las tarjetas:</strong></p>
+                <ul>
+                    <li>Fecha de vencimiento: Cualquier fecha futura</li>
+                    <li>CVV: Cualquier 3 dígitos</li>
+                    <li>Nombre: Cualquier nombre</li>
+                </ul>
+
+                <h3>Nequi de Prueba</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Número de Celular</th>
+                                <th>Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>3991111111</code></td>
+                                <td>✅ Aprobado</td>
+                            </tr>
+                            <tr>
+                                <td><code>3992222222</code></td>
+                                <td>❌ Declinado</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>PSE de Prueba</h3>
+                <p>En modo Sandbox, selecciona cualquier banco de la lista. El sistema simulará el flujo de pago.</p>
+
+                <div class="info-box warning">
+                    <h4>⚠️ Antes de Producción</h4>
+                    <p>Asegúrate de:</p>
+                    <ul>
+                        <li>Probar todos los métodos de pago que habilitarás</li>
+                        <li>Verificar que el webhook funciona correctamente</li>
+                        <li>Confirmar que las inscripciones se completan automáticamente</li>
+                        <li>Cambiar las llaves de Sandbox por las de Producción</li>
+                        <li>Cambiar el ambiente a "Producción" en la configuración del plugin</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solución de Problemas -->
+        <section id="troubleshooting" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-number">11</span> Solución de Problemas</h2>
+                </div>
+
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <div class="faq-question">El pago no se procesa</div>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Verifica que las llaves sean correctas para el ambiente seleccionado</li>
+                                <li>Confirma que el prefijo coincida (pub_test_ para Sandbox, pub_prod_ para Producción)</li>
+                                <li>Revisa los logs de Moodle en <strong>Administración del sitio → Reportes → Logs</strong></li>
+                                <li>Verifica que tu servidor tenga conexión a Internet</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">Error de firma de integridad</div>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Verifica que la Llave de Integridad sea exactamente la del Dashboard de Wompi</li>
+                                <li>Asegúrate de que no haya espacios adicionales en las llaves</li>
+                                <li>Confirma que estás usando la llave del ambiente correcto</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">El usuario no se inscribe después del pago</div>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Verifica que el webhook esté configurado correctamente en Wompi</li>
+                                <li>Confirma que la URL del webhook sea accesible (HTTPS)</li>
+                                <li>Revisa que la Llave de Eventos esté configurada en Moodle</li>
+                                <li>Para pagos con tarjeta, verifica que la redirección funcione</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">El widget de Wompi no carga</div>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Verifica que tu sitio use HTTPS</li>
+                                <li>Revisa la consola del navegador (F12) por errores JavaScript</li>
+                                <li>Asegúrate de que no haya bloqueadores de scripts activos</li>
+                                <li>Confirma que la Llave Pública sea válida</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">Los métodos de pago no aparecen en el widget</div>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Verifica que hayas habilitado los métodos en la configuración del plugin</li>
+                                <li>Confirma que tu cuenta de Wompi tenga habilitados esos métodos</li>
+                                <li>Algunos métodos requieren verificación adicional en Wompi</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Logs y Diagnóstico</h3>
+                <ul>
+                    <li><strong>Logs de Moodle:</strong> Administración del sitio → Reportes → Logs (filtra por "paygw_wompi")</li>
+                    <li><strong>Logs del servidor:</strong> Revisa los logs de error de PHP</li>
+                    <li><strong>Dashboard de Wompi:</strong> Sección de transacciones y eventos</li>
+                </ul>
+
+                <div class="info-box">
+                    <h4>📧 Soporte Técnico</h4>
+                    <p>Si necesitas ayuda adicional, contacta a:</p>
+                    <ul>
+                        <li><strong>Plugin Moodle:</strong> <a href="mailto:soporte@ingeweb.co">soporte@ingeweb.co</a></li>
+                        <li><strong>Wompi:</strong> <a href="https://docs.wompi.co" target="_blank">docs.wompi.co</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============================================
+         FOOTER
+         ============================================ -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Wompi Payment Gateway</h4>
+                <p>Plugin de pasarela de pago Wompi para Moodle, diseñado específicamente para el mercado colombiano.</p>
+                <p><strong>Versión:</strong> 1.0.0<br><strong>Licencia:</strong> GNU GPL v3</p>
+            </div>
+            <div class="footer-col">
+                <h4>Enlaces Útiles</h4>
+                <a href="https://ingeweb.co" target="_blank">Sitio Web ingeweb.co</a>
+                <a href="https://docs.wompi.co" target="_blank">Documentación de Wompi</a>
+                <a href="https://comercios.wompi.co" target="_blank">Dashboard de Wompi</a>
+                <a href="https://moodle.org" target="_blank">Moodle.org</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <p><strong>Desarrollado por:</strong><br>ingeweb.co</p>
+                <p><strong>Autor:</strong><br>Alonso Arias</p>
+                <p><strong>Email:</strong><br><a href="mailto:soporte@ingeweb.co">soporte@ingeweb.co</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ingeweb.co - Todos los derechos reservados</p>
+            <p>Wompi es una marca registrada de Bancolombia S.A.</p>
+        </div>
+    </footer>
+
+    <!-- ============================================
+         SCRIPTS
+         ============================================ -->
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Active nav on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-menu a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 120;
+                if (pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

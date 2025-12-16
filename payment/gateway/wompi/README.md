@@ -122,7 +122,7 @@ Este plugin permite a los sitios Moodle aceptar pagos a través de **Wompi**, la
    │   ├── install.xml
    │   └── messages.php
    ├── docs/
-   │   └── guia-instalacion.html
+   │   └── documentacion.html
    ├── lang/
    │   ├── en/
    │   │   └── paygw_wompi.php
@@ -456,7 +456,7 @@ $url = gateway::get_checkout_url(); // https://checkout.wompi.co
 
 ### Documentación
 
-- **Guía completa**: Ver archivo `docs/guia-instalacion.html`
+- **Guía completa**: Ver archivo `docs/documentacion.html`
 - **Documentación de Wompi**: [docs.wompi.co](https://docs.wompi.co)
 
 ### Contacto
