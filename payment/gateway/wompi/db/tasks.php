@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for paygw_wompi
+ * Scheduled tasks definition for paygw_wompi.
  *
  * @package    paygw_wompi
  * @copyright  2025 ingeweb.co <soporte@ingeweb.co>
@@ -24,8 +24,29 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025121601;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = '1.1.0';
-$plugin->requires  = 2022112809;        // Requires this Moodle version. 4.1.
-$plugin->component = 'paygw_wompi';     // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
+$tasks = [
+    // Check pending transactions every 15 minutes.
+    // This is essential for async payment methods like PSE, Nequi, cash payments.
+    [
+        'classname' => 'paygw_wompi\task\check_pending_transactions',
+        'blocking' => 0,
+        'minute' => '*/15',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0,
+    ],
+    // Clean up expired transactions daily at 3:00 AM.
+    // Marks abandoned PENDING transactions as EXPIRED after 7 days.
+    [
+        'classname' => 'paygw_wompi\task\cleanup_expired_transactions',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0,
+    ],
+];

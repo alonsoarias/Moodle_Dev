@@ -107,3 +107,15 @@ $string['privacy:metadata:paygw_wompi_transactions:timecreated'] = 'La hora en q
 $string['privacy:metadata:wompi'] = 'Para procesar pagos, algunos datos del usuario son enviados a Wompi.';
 $string['privacy:metadata:wompi:email'] = 'Su dirección de correo electrónico.';
 $string['privacy:metadata:wompi:fullname'] = 'Su nombre completo.';
+
+// Tareas programadas.
+$string['task_check_pending'] = 'Verificar transacciones pendientes de Wompi';
+$string['task_cleanup_expired'] = 'Limpiar transacciones expiradas de Wompi';
+
+// Notificaciones de estado.
+$string['payment_notification'] = 'Notificación de pago Wompi';
+$string['payment_approved'] = 'Su pago ha sido aprobado. Ya puede acceder a su contenido.';
+$string['payment_declined'] = 'Su pago ha sido rechazado. Por favor intente con otro método de pago.';
+$string['payment_expired_subject'] = 'Pago expirado';
+$string['payment_expired_message'] = 'Su pago por {$a->amount} {$a->currency} iniciado el {$a->date} ha expirado por falta de confirmación. Si desea completar la compra, por favor inicie un nuevo pago.';
+$string['messageprovider:payment_status'] = 'Notificaciones de estado de pago';

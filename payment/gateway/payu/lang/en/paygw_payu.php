@@ -101,3 +101,15 @@ $string['privacy:metadata:paygw_payu_transactions:timecreated'] = 'The time the 
 $string['privacy:metadata:payu'] = 'To process payments, some user data is sent to PayU.';
 $string['privacy:metadata:payu:email'] = 'Your email address.';
 $string['privacy:metadata:payu:fullname'] = 'Your full name.';
+
+// Scheduled tasks.
+$string['task_check_pending'] = 'Check pending PayU transactions';
+$string['task_cleanup_expired'] = 'Clean up expired PayU transactions';
+
+// Status notifications.
+$string['payment_notification'] = 'PayU payment notification';
+$string['payment_approved'] = 'Your payment has been approved. You can now access your content.';
+$string['payment_declined'] = 'Your payment has been declined. Please try a different payment method.';
+$string['payment_expired_subject'] = 'Payment expired';
+$string['payment_expired_message'] = 'Your payment of {$a->amount} {$a->currency} initiated on {$a->date} has expired due to lack of confirmation. If you wish to complete the purchase, please initiate a new payment.';
+$string['messageprovider:payment_status'] = 'Payment status notifications';
