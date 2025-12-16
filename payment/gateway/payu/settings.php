@@ -32,18 +32,6 @@ if ($ADMIN->fulltree) {
         get_string('pluginname_desc', 'paygw_payu')
     ));
 
-    // Add common gateway settings
+    // Add common gateway settings.
     \core_payment\helper::add_common_gateway_settings($settings, 'paygw_payu');
-    
-    // Display information about supported country (Colombia only).
-    $currencies = implode(', ', \paygw_payu\gateway::get_supported_currencies());
-    $countries_info = '<div class="alert alert-info">';
-    $countries_info .= '<strong>Colombia (CO):</strong> ' . $currencies;
-    $countries_info .= '</div>';
-
-    $settings->add(new admin_setting_heading(
-        'paygw_payu_countries',
-        get_string('country', 'paygw_payu'),
-        $countries_info
-    ));
 }

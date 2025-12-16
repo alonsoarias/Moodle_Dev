@@ -58,8 +58,6 @@ $string['responseurl'] = 'URL de respuesta';
 
 $string['sandbox_notice'] = '<strong>Nota:</strong> En ambiente Sandbox se utilizan automáticamente las credenciales de prueba de PayU. No necesita ingresar credenciales.';
 
-$string['country'] = 'País soportado';
-
 // Proceso de pago.
 $string['redirecting'] = 'Redirigiendo a PayU...';
 $string['redirecting_message'] = 'Está siendo redirigido a la página segura de pago de PayU. Por favor espere...';
