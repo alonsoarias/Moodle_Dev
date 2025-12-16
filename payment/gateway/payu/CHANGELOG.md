@@ -5,6 +5,21 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
+## [1.0.1] - 2025-12-16
+
+### Mejorado
+- Documentacion HTML completa con navegacion horizontal sticky
+- Logo de ingeweb.co integrado en header y footer
+- Bandera de Colombia como SVG en lugar de emoji para mejor compatibilidad
+- Seccion de contacto actualizada con informacion de ingeweb.co
+- Plantillas de email configurables con placeholders documentados
+
+### Corregido
+- Visibilidad del texto en footer (contraste de colores)
+- Estilos CSS para mejor legibilidad en alertas
+
+---
+
 ## [1.0.0] - 2025-12-16
 
 ### Agregado
