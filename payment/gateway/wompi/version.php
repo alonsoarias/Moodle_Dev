@@ -18,13 +18,13 @@
  * Version information for paygw_wompi
  *
  * @package    paygw_wompi
- * @copyright  2024 Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024121600;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2025121600;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->release   = '1.0.0';
 $plugin->requires  = 2022112809;        // Requires this Moodle version. 4.1.
 $plugin->component = 'paygw_wompi';     // Full name of the plugin (used for diagnostics).
