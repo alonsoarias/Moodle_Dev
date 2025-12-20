@@ -187,3 +187,35 @@ $string['unnamed'] = 'Sin nombre';
 
 // Task.
 $string['task_sync_grades'] = 'Sincronizar notas a Q10';
+
+// Q10 Items mapping.
+$string['q10items'] = 'Ítems de Calificación Q10';
+$string['q10items_desc'] = 'Mapea los ítems de calificación de Q10 (ej: Trabajos, Exámenes, Participación) a las actividades de Moodle. Selecciona qué actividades contribuyen a cada ítem de Q10 y elige un método de cálculo.';
+$string['q10iteminfo'] = 'Información del Ítem Q10';
+$string['q10itemid'] = 'ID del Ítem Q10';
+$string['q10itemid_help'] = 'El identificador único para este ítem de calificación en Q10';
+$string['q10itemname'] = 'Nombre del Ítem Q10';
+$string['q10itemname_placeholder'] = 'ej: Trabajos, Examen Final, Participación';
+$string['q10itemweight'] = 'Peso en Q10 (%)';
+$string['q10itemweight_help'] = 'El porcentaje de peso de este ítem en la calificación final de Q10 (opcional, para referencia)';
+$string['additem'] = 'Agregar Ítem Q10';
+$string['edititem'] = 'Editar Ítem Q10';
+$string['deleteitem'] = 'Eliminar Ítem Q10';
+$string['deleteitemconfirm'] = '¿Está seguro de que desea eliminar el ítem Q10 "{$a}"? Esto también eliminará todos los mapeos de actividades.';
+$string['itemdeleted'] = 'Ítem Q10 eliminado exitosamente';
+$string['itemcreated'] = 'Ítem Q10 creado exitosamente';
+$string['itemupdated'] = 'Ítem Q10 actualizado exitosamente';
+$string['noitems'] = 'No hay ítems Q10 configurados. Agregue ítems manualmente u obténgalos de Q10.';
+$string['fetchfromq10'] = 'Obtener ítems de Q10';
+$string['itemsimported'] = '{$a} ítems importados de Q10';
+$string['noitemsq10'] = 'No se encontraron ítems en Q10 para esta materia';
+$string['fetcherror'] = 'Error al obtener ítems de Q10: {$a}';
+$string['selectactivities_desc'] = 'Seleccione las actividades de Moodle que se usarán para calcular la nota de este ítem Q10.';
+$string['calculationmethod'] = 'Método de Cálculo';
+$string['calculationtype'] = 'Tipo de cálculo';
+$string['calculationtype_help'] = 'Cómo combinar las actividades seleccionadas en una sola nota: Promedio (media de todas), Ponderado (usando pesos), Suma (total), Más alta (mejor nota) o Más baja (peor nota).';
+$string['enableitem'] = 'Habilitar este ítem para sincronización';
+$string['weight'] = 'Peso';
+$string['activities'] = 'actividades';
+$string['none'] = 'Ninguna';
+$string['configuredq10items'] = 'Ítems Q10 Configurados';

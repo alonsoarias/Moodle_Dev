@@ -27,8 +27,6 @@ require_once($CFG->libdir . '/gradelib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', 'preview', PARAM_ALPHA);
-$formulaid = optional_param('formulaid', 0, PARAM_INT);
-$confirm = optional_param('confirm', 0, PARAM_BOOL);
 
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 $context = context_course::instance($courseid);
@@ -52,7 +50,7 @@ $apiclient = new \local_q10grades\q10_api_client();
 $syncmanager = new \local_q10grades\grade_sync_manager($courseid);
 $calculator = new \local_q10grades\formula_calculator($courseid);
 
-$formulas = $calculator->get_formulas(true);
+$q10items = $calculator->get_q10_items(true);
 
 // Handle upload action.
 if ($action === 'upload' && confirm_sesskey()) {
@@ -81,9 +79,9 @@ if ($action === 'upload' && confirm_sesskey()) {
     $totalerrors = 0;
     $errors = [];
 
-    // Upload grades for each formula.
-    foreach ($formulas as $formula) {
-        $calculated = $calculator->calculate_formula_grades($formula);
+    // Upload grades for each Q10 item.
+    foreach ($q10items as $q10item) {
+        $calculated = $calculator->calculate_item_grades($q10item);
 
         if (empty($calculated)) {
             continue;
@@ -111,7 +109,7 @@ if ($action === 'upload' && confirm_sesskey()) {
             try {
                 $response = $apiclient->upload_grades(
                     $mapping->q10_subject_id,
-                    $formula->q10_component_id,
+                    $q10item->q10_item_id,
                     $gradestosend,
                     $mapping->q10_period_id
                 );
@@ -132,7 +130,7 @@ if ($action === 'upload' && confirm_sesskey()) {
                     );
                 }
             } catch (\Exception $e) {
-                $errors[] = $formula->name . ': ' . $e->getMessage();
+                $errors[] = $q10item->q10_item_name . ': ' . $e->getMessage();
                 $totalerrors += count($gradestosend);
 
                 // Log error.
@@ -180,9 +178,9 @@ $tabs[] = new tabobject('sync',
 $tabs[] = new tabobject('mapping',
     new moodle_url('/local/q10grades/mapping.php', ['courseid' => $courseid]),
     get_string('coursemapping', 'local_q10grades'));
-$tabs[] = new tabobject('formulas',
-    new moodle_url('/local/q10grades/formulas.php', ['courseid' => $courseid]),
-    get_string('formulas', 'local_q10grades'));
+$tabs[] = new tabobject('items',
+    new moodle_url('/local/q10grades/items.php', ['courseid' => $courseid]),
+    get_string('q10items', 'local_q10grades'));
 $tabs[] = new tabobject('upload',
     new moodle_url('/local/q10grades/upload.php', ['courseid' => $courseid]),
     get_string('uploadgrades', 'local_q10grades'));
@@ -215,12 +213,12 @@ if (!$syncmanager->has_mapping()) {
     );
 }
 
-if (empty($formulas)) {
+if (empty($q10items)) {
     echo $OUTPUT->notification(
-        get_string('noformulas', 'local_q10grades') . ' ' .
+        get_string('noitems', 'local_q10grades') . ' ' .
         html_writer::link(
-            new moodle_url('/local/q10grades/formulas.php', ['courseid' => $courseid, 'action' => 'add']),
-            get_string('addformula', 'local_q10grades')
+            new moodle_url('/local/q10grades/items.php', ['courseid' => $courseid, 'action' => 'add']),
+            get_string('additem', 'local_q10grades')
         ),
         'warning'
     );
@@ -244,8 +242,8 @@ $headers = [
     get_string('idnumber'),
 ];
 
-foreach ($preview['formulas'] as $formula) {
-    $headers[] = $formula['name'] . '<br><small class="text-muted">' . $formula['q10_component_id'] . '</small>';
+foreach ($preview['q10_items'] as $q10item) {
+    $headers[] = s($q10item['q10_item_name']) . '<br><small class="text-muted">' . s($q10item['q10_item_id']) . '</small>';
 }
 
 $table->head = $headers;
@@ -257,9 +255,9 @@ foreach ($preview['students'] as $studentid => $student) {
         $student['q10_id'] ?: html_writer::tag('span', get_string('notset', 'local_q10grades'), ['class' => 'text-warning']),
     ];
 
-    foreach ($preview['formulas'] as $formulaid => $formula) {
-        if (isset($preview['grades'][$studentid][$formulaid])) {
-            $grade = $preview['grades'][$studentid][$formulaid];
+    foreach ($preview['q10_items'] as $itemid => $q10item) {
+        if (isset($preview['grades'][$studentid][$itemid])) {
+            $grade = $preview['grades'][$studentid][$itemid];
             $row[] = html_writer::tag('span', number_format($grade, 2), ['class' => 'badge badge-info']);
         } else {
             $row[] = html_writer::tag('span', '-', ['class' => 'text-muted']);
@@ -275,27 +273,26 @@ if (empty($table->data)) {
     echo html_writer::table($table);
 }
 
-// Formula details accordion.
-echo html_writer::tag('h4', get_string('formuladetails', 'local_q10grades'), ['class' => 'mt-4']);
+// Q10 item details.
+echo html_writer::tag('h4', get_string('configuredq10items', 'local_q10grades'), ['class' => 'mt-4']);
 
-foreach ($preview['formulas'] as $formula) {
-    $formulatypes = [
-        'average' => get_string('formulaaverage', 'local_q10grades'),
-        'weighted' => get_string('formulaweighted', 'local_q10grades'),
-        'sum' => get_string('formulasum', 'local_q10grades'),
-        'highest' => get_string('formulahighest', 'local_q10grades'),
-        'lowest' => get_string('formulalowest', 'local_q10grades'),
-        'custom' => get_string('formulacustom', 'local_q10grades'),
-    ];
+$calculationtypes = [
+    'average' => get_string('formulaaverage', 'local_q10grades'),
+    'weighted' => get_string('formulaweighted', 'local_q10grades'),
+    'sum' => get_string('formulasum', 'local_q10grades'),
+    'highest' => get_string('formulahighest', 'local_q10grades'),
+    'lowest' => get_string('formulalowest', 'local_q10grades'),
+];
 
+foreach ($preview['q10_items'] as $q10item) {
     echo html_writer::start_div('card mb-2');
     echo html_writer::start_div('card-body');
-    echo html_writer::tag('h5', $formula['name'], ['class' => 'card-title']);
+    echo html_writer::tag('h5', s($q10item['q10_item_name']), ['class' => 'card-title']);
 
     echo html_writer::start_tag('ul', ['class' => 'list-unstyled mb-0']);
-    echo html_writer::tag('li', '<strong>' . get_string('q10componentid', 'local_q10grades') . ':</strong> ' . $formula['q10_component_id']);
-    echo html_writer::tag('li', '<strong>' . get_string('formulatype', 'local_q10grades') . ':</strong> ' . ($formulatypes[$formula['formula_type']] ?? $formula['formula_type']));
-    echo html_writer::tag('li', '<strong>' . get_string('selectedactivities', 'local_q10grades') . ':</strong> ' . implode(', ', $formula['items']));
+    echo html_writer::tag('li', '<strong>' . get_string('q10itemid', 'local_q10grades') . ':</strong> ' . s($q10item['q10_item_id']));
+    echo html_writer::tag('li', '<strong>' . get_string('calculationtype', 'local_q10grades') . ':</strong> ' . ($calculationtypes[$q10item['calculation_type']] ?? $q10item['calculation_type']));
+    echo html_writer::tag('li', '<strong>' . get_string('selectedactivities', 'local_q10grades') . ':</strong> ' . implode(', ', array_map('s', $q10item['activities'])));
     echo html_writer::end_tag('ul');
 
     echo html_writer::end_div();

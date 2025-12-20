@@ -59,9 +59,9 @@ $tabs[] = new tabobject('sync',
 $tabs[] = new tabobject('mapping',
     new moodle_url('/local/q10grades/mapping.php', ['courseid' => $courseid]),
     get_string('coursemapping', 'local_q10grades'));
-$tabs[] = new tabobject('formulas',
-    new moodle_url('/local/q10grades/formulas.php', ['courseid' => $courseid]),
-    get_string('formulas', 'local_q10grades'));
+$tabs[] = new tabobject('items',
+    new moodle_url('/local/q10grades/items.php', ['courseid' => $courseid]),
+    get_string('q10items', 'local_q10grades'));
 $tabs[] = new tabobject('upload',
     new moodle_url('/local/q10grades/upload.php', ['courseid' => $courseid]),
     get_string('uploadgrades', 'local_q10grades'));

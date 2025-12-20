@@ -187,3 +187,35 @@ $string['unnamed'] = 'Unnamed';
 
 // Task.
 $string['task_sync_grades'] = 'Sync grades to Q10';
+
+// Q10 Items mapping.
+$string['q10items'] = 'Q10 Grade Items';
+$string['q10items_desc'] = 'Map Q10 grade items (e.g., Assignments, Exams, Participation) to Moodle activities. Select which activities contribute to each Q10 grade item and choose a calculation method.';
+$string['q10iteminfo'] = 'Q10 Item Information';
+$string['q10itemid'] = 'Q10 Item ID';
+$string['q10itemid_help'] = 'The unique identifier for this grade item in Q10';
+$string['q10itemname'] = 'Q10 Item Name';
+$string['q10itemname_placeholder'] = 'e.g., Assignments, Final Exam, Participation';
+$string['q10itemweight'] = 'Weight in Q10 (%)';
+$string['q10itemweight_help'] = 'The percentage weight of this item in the final Q10 grade (optional, for reference)';
+$string['additem'] = 'Add Q10 Item';
+$string['edititem'] = 'Edit Q10 Item';
+$string['deleteitem'] = 'Delete Q10 Item';
+$string['deleteitemconfirm'] = 'Are you sure you want to delete the Q10 item "{$a}"? This will also remove all activity mappings.';
+$string['itemdeleted'] = 'Q10 item deleted successfully';
+$string['itemcreated'] = 'Q10 item created successfully';
+$string['itemupdated'] = 'Q10 item updated successfully';
+$string['noitems'] = 'No Q10 items configured. Add items manually or fetch them from Q10.';
+$string['fetchfromq10'] = 'Fetch items from Q10';
+$string['itemsimported'] = '{$a} items imported from Q10';
+$string['noitemsq10'] = 'No items found in Q10 for this subject';
+$string['fetcherror'] = 'Error fetching items from Q10: {$a}';
+$string['selectactivities_desc'] = 'Select the Moodle activities that will be used to calculate the grade for this Q10 item.';
+$string['calculationmethod'] = 'Calculation Method';
+$string['calculationtype'] = 'Calculation type';
+$string['calculationtype_help'] = 'How to combine the selected activities into a single grade: Average (mean of all), Weighted (using specified weights), Sum (total), Highest (best grade), or Lowest (worst grade).';
+$string['enableitem'] = 'Enable this item for synchronization';
+$string['weight'] = 'Weight';
+$string['activities'] = 'activities';
+$string['none'] = 'None';
+$string['configuredq10items'] = 'Configured Q10 Items';

@@ -33,7 +33,7 @@ use grade_grade;
 use stdClass;
 
 /**
- * Class to calculate grades based on configured formulas.
+ * Class to calculate grades based on configured Q10 items and their mapped activities.
  */
 class formula_calculator {
 
@@ -70,12 +70,12 @@ class formula_calculator {
     }
 
     /**
-     * Get all formulas for the course.
+     * Get all Q10 items configured for the course.
      *
-     * @param bool $enabledonly Only return enabled formulas.
-     * @return array Array of formula records.
+     * @param bool $enabledonly Only return enabled items.
+     * @return array Array of Q10 item records.
      */
-    public function get_formulas(bool $enabledonly = true): array {
+    public function get_q10_items(bool $enabledonly = true): array {
         global $DB;
 
         $conditions = ['courseid' => $this->courseid];
@@ -83,33 +83,33 @@ class formula_calculator {
             $conditions['enabled'] = 1;
         }
 
-        return $DB->get_records('local_q10grades_formula', $conditions, 'sortorder');
+        return $DB->get_records('local_q10grades_items', $conditions, 'sortorder');
     }
 
     /**
-     * Get a single formula.
+     * Get a single Q10 item.
      *
-     * @param int $formulaid Formula ID.
-     * @return stdClass|null Formula record or null.
+     * @param int $itemid Item ID.
+     * @return stdClass|null Item record or null.
      */
-    public function get_formula(int $formulaid): ?stdClass {
+    public function get_q10_item(int $itemid): ?stdClass {
         global $DB;
-        return $DB->get_record('local_q10grades_formula', ['id' => $formulaid, 'courseid' => $this->courseid]) ?: null;
+        return $DB->get_record('local_q10grades_items', ['id' => $itemid, 'courseid' => $this->courseid]) ?: null;
     }
 
     /**
-     * Calculate grades for all students based on a formula.
+     * Calculate grades for all students based on a Q10 item configuration.
      *
-     * @param stdClass $formula Formula record.
+     * @param stdClass $q10item Q10 item record.
      * @return array Array of calculated grades indexed by user ID.
      */
-    public function calculate_formula_grades(stdClass $formula): array {
+    public function calculate_item_grades(stdClass $q10item): array {
         global $DB;
 
-        $selecteditems = json_decode($formula->selected_items, true) ?? [];
-        $weights = json_decode($formula->weights, true) ?? [];
+        $selectedactivities = json_decode($q10item->selected_activities, true) ?? [];
+        $activityweights = json_decode($q10item->activity_weights, true) ?? [];
 
-        if (empty($selecteditems)) {
+        if (empty($selectedactivities)) {
             return [];
         }
 
@@ -122,24 +122,24 @@ class formula_calculator {
         foreach ($students as $student) {
             $usergrades = [];
 
-            // Collect grades for selected items.
-            foreach ($selecteditems as $itemid) {
-                if (!isset($this->gradeitems[$itemid])) {
+            // Collect grades for selected activities.
+            foreach ($selectedactivities as $activityid) {
+                if (!isset($this->gradeitems[$activityid])) {
                     continue;
                 }
 
-                $gradeitem = $this->gradeitems[$itemid];
-                $gradegrade = new grade_grade(['itemid' => $itemid, 'userid' => $student->id]);
+                $gradeitem = $this->gradeitems[$activityid];
+                $gradegrade = new grade_grade(['itemid' => $activityid, 'userid' => $student->id]);
 
                 if ($gradegrade->finalgrade !== null) {
                     // Normalize grade to percentage.
                     $normalized = $gradeitem->grademax > 0 ?
                         ($gradegrade->finalgrade / $gradeitem->grademax) * 100 : 0;
 
-                    $usergrades[$itemid] = [
+                    $usergrades[$activityid] = [
                         'raw' => $gradegrade->finalgrade,
                         'normalized' => $normalized,
-                        'weight' => $weights[$itemid] ?? 1,
+                        'weight' => $activityweights[$activityid] ?? 1,
                         'itemname' => $gradeitem->itemname,
                     ];
                 }
@@ -149,17 +149,21 @@ class formula_calculator {
                 continue;
             }
 
-            // Calculate based on formula type.
-            $calculatedgrade = $this->apply_formula($formula->formula_type, $usergrades, $formula->custom_formula ?? '');
+            // Calculate based on calculation type.
+            $calculatedgrade = $this->apply_calculation(
+                $q10item->calculation_type,
+                $usergrades,
+                $q10item->custom_formula ?? ''
+            );
 
             if ($calculatedgrade !== null) {
                 $results[$student->id] = [
                     'userid' => $student->id,
                     'user' => $student,
                     'calculated_grade' => round($calculatedgrade, 2),
-                    'component_grades' => $usergrades,
-                    'formula_name' => $formula->name,
-                    'q10_component_id' => $formula->q10_component_id,
+                    'activity_grades' => $usergrades,
+                    'q10_item_name' => $q10item->q10_item_name,
+                    'q10_item_id' => $q10item->q10_item_id,
                 ];
             }
         }
@@ -168,19 +172,19 @@ class formula_calculator {
     }
 
     /**
-     * Apply formula calculation.
+     * Apply calculation method.
      *
-     * @param string $formulatype Formula type.
+     * @param string $calculationtype Calculation type.
      * @param array $grades Array of grades with 'normalized' and 'weight' keys.
      * @param string $customformula Custom formula expression (for 'custom' type).
      * @return float|null Calculated grade or null.
      */
-    private function apply_formula(string $formulatype, array $grades, string $customformula = ''): ?float {
+    private function apply_calculation(string $calculationtype, array $grades, string $customformula = ''): ?float {
         if (empty($grades)) {
             return null;
         }
 
-        switch ($formulatype) {
+        switch ($calculationtype) {
             case 'average':
                 return $this->calculate_average($grades);
 
@@ -296,10 +300,6 @@ class formula_calculator {
     /**
      * Calculate custom formula.
      *
-     * Supports simple mathematical expressions with variables like:
-     * - [[item_123]] for grade item 123
-     * - Basic operators: + - * / ()
-     *
      * @param array $grades Grades array.
      * @param string $formula Custom formula expression.
      * @return float|null Calculated result or null on error.
@@ -332,11 +332,9 @@ class formula_calculator {
             return $this->calculate_average($grades);
         }
 
-        // Evaluate expression safely.
         try {
-            // Use a simple expression evaluator.
             $result = $this->evaluate_expression($sanitized);
-            return max(0, min(100, $result)); // Clamp to 0-100.
+            return max(0, min(100, $result));
         } catch (\Exception $e) {
             debugging('Error evaluating custom formula: ' . $e->getMessage(), DEBUG_DEVELOPER);
             return $this->calculate_average($grades);
@@ -350,16 +348,13 @@ class formula_calculator {
      * @return float Result.
      */
     private function evaluate_expression(string $expression): float {
-        // Remove spaces.
         $expression = str_replace(' ', '', $expression);
 
-        // Handle parentheses recursively.
         while (preg_match('/\(([^()]+)\)/', $expression, $matches)) {
             $inner = $this->evaluate_expression($matches[1]);
             $expression = str_replace($matches[0], $inner, $expression);
         }
 
-        // Handle multiplication and division first.
         while (preg_match('/(-?\d+\.?\d*)\s*([*\/])\s*(-?\d+\.?\d*)/', $expression, $matches)) {
             $left = (float) $matches[1];
             $operator = $matches[2];
@@ -374,7 +369,6 @@ class formula_calculator {
             $expression = str_replace($matches[0], $result, $expression);
         }
 
-        // Handle addition and subtraction.
         while (preg_match('/(-?\d+\.?\d*)\s*([+\-])\s*(-?\d+\.?\d*)/', $expression, $matches)) {
             $left = (float) $matches[1];
             $operator = $matches[2];
@@ -393,18 +387,18 @@ class formula_calculator {
     }
 
     /**
-     * Get all calculated grades for the course.
+     * Get all calculated grades for all Q10 items in the course.
      *
-     * @return array Array of grades grouped by formula.
+     * @return array Array of grades grouped by Q10 item.
      */
     public function get_all_calculated_grades(): array {
-        $formulas = $this->get_formulas(true);
+        $q10items = $this->get_q10_items(true);
         $allgrades = [];
 
-        foreach ($formulas as $formula) {
-            $allgrades[$formula->id] = [
-                'formula' => $formula,
-                'grades' => $this->calculate_formula_grades($formula),
+        foreach ($q10items as $q10item) {
+            $allgrades[$q10item->id] = [
+                'q10_item' => $q10item,
+                'grades' => $this->calculate_item_grades($q10item),
             ];
         }
 
@@ -412,39 +406,39 @@ class formula_calculator {
     }
 
     /**
-     * Get preview data for all formulas and students.
+     * Get preview data for all Q10 items and students.
      *
      * @return array Preview data array.
      */
     public function get_preview_data(): array {
-        $formulas = $this->get_formulas(true);
+        $q10items = $this->get_q10_items(true);
         $context = \context_course::instance($this->courseid);
         $students = get_enrolled_users($context, '', 0, 'u.id, u.firstname, u.lastname, u.email, u.idnumber', 'u.lastname, u.firstname');
 
         $usermappingfield = get_config('local_q10grades', 'usermappingfield') ?: 'idnumber';
 
         $preview = [
-            'formulas' => [],
+            'q10_items' => [],
             'students' => [],
             'grades' => [],
         ];
 
-        // Prepare formula info.
-        foreach ($formulas as $formula) {
-            $selecteditems = json_decode($formula->selected_items, true) ?? [];
-            $itemnames = [];
-            foreach ($selecteditems as $itemid) {
-                if (isset($this->gradeitems[$itemid])) {
-                    $itemnames[] = $this->gradeitems[$itemid]->itemname ?: get_string('unnamed', 'local_q10grades');
+        // Prepare Q10 item info.
+        foreach ($q10items as $q10item) {
+            $selectedactivities = json_decode($q10item->selected_activities, true) ?? [];
+            $activitynames = [];
+            foreach ($selectedactivities as $activityid) {
+                if (isset($this->gradeitems[$activityid])) {
+                    $activitynames[] = $this->gradeitems[$activityid]->itemname ?: get_string('unnamed', 'local_q10grades');
                 }
             }
 
-            $preview['formulas'][$formula->id] = [
-                'id' => $formula->id,
-                'name' => $formula->name,
-                'q10_component_id' => $formula->q10_component_id,
-                'formula_type' => $formula->formula_type,
-                'items' => $itemnames,
+            $preview['q10_items'][$q10item->id] = [
+                'id' => $q10item->id,
+                'q10_item_id' => $q10item->q10_item_id,
+                'q10_item_name' => $q10item->q10_item_name,
+                'calculation_type' => $q10item->calculation_type,
+                'activities' => $activitynames,
             ];
         }
 
@@ -459,14 +453,14 @@ class formula_calculator {
             ];
         }
 
-        // Calculate grades for each formula.
-        foreach ($formulas as $formula) {
-            $calculated = $this->calculate_formula_grades($formula);
+        // Calculate grades for each Q10 item.
+        foreach ($q10items as $q10item) {
+            $calculated = $this->calculate_item_grades($q10item);
             foreach ($calculated as $userid => $data) {
                 if (!isset($preview['grades'][$userid])) {
                     $preview['grades'][$userid] = [];
                 }
-                $preview['grades'][$userid][$formula->id] = $data['calculated_grade'];
+                $preview['grades'][$userid][$q10item->id] = $data['calculated_grade'];
             }
         }
 

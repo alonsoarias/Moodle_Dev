@@ -52,8 +52,8 @@ $syncmanager = new \local_q10grades\grade_sync_manager($courseid);
 $mapping = $syncmanager->get_mapping();
 $hasMapping = $syncmanager->has_mapping();
 
-// Get formulas.
-$formulas = $DB->get_records('local_q10grades_formula', ['courseid' => $courseid, 'enabled' => 1], 'sortorder');
+// Get Q10 items.
+$q10items = $DB->get_records('local_q10grades_items', ['courseid' => $courseid, 'enabled' => 1], 'sortorder');
 
 // Get sync stats.
 $stats = $syncmanager->get_sync_stats();
@@ -93,9 +93,9 @@ $tabs[] = new tabobject('sync',
 $tabs[] = new tabobject('mapping',
     new moodle_url('/local/q10grades/mapping.php', ['courseid' => $courseid]),
     get_string('coursemapping', 'local_q10grades'));
-$tabs[] = new tabobject('formulas',
-    new moodle_url('/local/q10grades/formulas.php', ['courseid' => $courseid]),
-    get_string('formulas', 'local_q10grades'));
+$tabs[] = new tabobject('items',
+    new moodle_url('/local/q10grades/items.php', ['courseid' => $courseid]),
+    get_string('q10items', 'local_q10grades'));
 $tabs[] = new tabobject('upload',
     new moodle_url('/local/q10grades/upload.php', ['courseid' => $courseid]),
     get_string('uploadgrades', 'local_q10grades'));
@@ -165,47 +165,51 @@ if ($hasMapping) {
     echo html_writer::end_div();
 }
 
-// Configured formulas.
+// Configured Q10 items.
 echo html_writer::start_div('card mb-4');
 echo html_writer::start_div('card-body');
-echo html_writer::tag('h5', get_string('configuredformulas', 'local_q10grades'), ['class' => 'card-title']);
+echo html_writer::tag('h5', get_string('configuredq10items', 'local_q10grades'), ['class' => 'card-title']);
 
-if (empty($formulas)) {
-    echo html_writer::tag('p', get_string('noformulas', 'local_q10grades'), ['class' => 'text-muted']);
+if (empty($q10items)) {
+    echo html_writer::tag('p', get_string('noitems', 'local_q10grades'), ['class' => 'text-muted']);
     echo html_writer::link(
-        new moodle_url('/local/q10grades/formulas.php', ['courseid' => $courseid, 'action' => 'add']),
-        get_string('addformula', 'local_q10grades'),
+        new moodle_url('/local/q10grades/items.php', ['courseid' => $courseid, 'action' => 'add']),
+        get_string('additem', 'local_q10grades'),
         ['class' => 'btn btn-primary']
     );
 } else {
+    $calculationtypes = [
+        'average' => get_string('formulaaverage', 'local_q10grades'),
+        'weighted' => get_string('formulaweighted', 'local_q10grades'),
+        'sum' => get_string('formulasum', 'local_q10grades'),
+        'highest' => get_string('formulahighest', 'local_q10grades'),
+        'lowest' => get_string('formulalowest', 'local_q10grades'),
+    ];
+
     $table = new html_table();
     $table->head = [
-        get_string('formulaname', 'local_q10grades'),
-        get_string('q10componentid', 'local_q10grades'),
-        get_string('formulatype', 'local_q10grades'),
+        get_string('q10itemname', 'local_q10grades'),
+        get_string('q10itemid', 'local_q10grades'),
+        get_string('calculationtype', 'local_q10grades'),
+        get_string('selectedactivities', 'local_q10grades'),
         get_string('actions'),
     ];
     $table->attributes['class'] = 'table table-striped';
 
-    foreach ($formulas as $formula) {
-        $formulatypes = [
-            'average' => get_string('formulaaverage', 'local_q10grades'),
-            'weighted' => get_string('formulaweighted', 'local_q10grades'),
-            'sum' => get_string('formulasum', 'local_q10grades'),
-            'highest' => get_string('formulahighest', 'local_q10grades'),
-            'lowest' => get_string('formulalowest', 'local_q10grades'),
-            'custom' => get_string('formulacustom', 'local_q10grades'),
-        ];
+    foreach ($q10items as $item) {
+        $selectedactivities = json_decode($item->selected_activities, true) ?? [];
+        $activitycount = count($selectedactivities);
 
         $actions = html_writer::link(
-            new moodle_url('/local/q10grades/formulas.php', ['courseid' => $courseid, 'action' => 'edit', 'id' => $formula->id]),
+            new moodle_url('/local/q10grades/items.php', ['courseid' => $courseid, 'action' => 'edit', 'itemid' => $item->id]),
             $OUTPUT->pix_icon('t/edit', get_string('edit'))
         );
 
         $table->data[] = [
-            $formula->name,
-            $formula->q10_component_id,
-            $formulatypes[$formula->formula_type] ?? $formula->formula_type,
+            html_writer::tag('strong', s($item->q10_item_name)),
+            html_writer::tag('code', s($item->q10_item_id)),
+            $calculationtypes[$item->calculation_type] ?? $item->calculation_type,
+            $activitycount . ' ' . get_string('activities', 'local_q10grades'),
             $actions,
         ];
     }
@@ -213,8 +217,8 @@ if (empty($formulas)) {
     echo html_writer::table($table);
 
     echo html_writer::link(
-        new moodle_url('/local/q10grades/formulas.php', ['courseid' => $courseid, 'action' => 'add']),
-        get_string('addformula', 'local_q10grades'),
+        new moodle_url('/local/q10grades/items.php', ['courseid' => $courseid]),
+        get_string('edititem', 'local_q10grades'),
         ['class' => 'btn btn-outline-primary']
     );
 }
@@ -223,7 +227,7 @@ echo html_writer::end_div();
 echo html_writer::end_div();
 
 // Quick sync actions.
-if ($apiConfigured && $hasMapping) {
+if ($apiConfigured && $hasMapping && !empty($q10items)) {
     echo html_writer::start_div('card mb-4');
     echo html_writer::start_div('card-body');
     echo html_writer::tag('h5', get_string('quickactions', 'local_q10grades'), ['class' => 'card-title']);
@@ -234,12 +238,6 @@ if ($apiConfigured && $hasMapping) {
         new moodle_url('/local/q10grades/upload.php', ['courseid' => $courseid]),
         get_string('uploadgrades', 'local_q10grades'),
         ['class' => 'btn btn-primary']
-    );
-
-    echo html_writer::link(
-        new moodle_url('/local/q10grades/preview.php', ['courseid' => $courseid]),
-        get_string('previewgrades', 'local_q10grades'),
-        ['class' => 'btn btn-outline-secondary']
     );
 
     echo html_writer::end_div();
