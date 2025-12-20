@@ -135,6 +135,7 @@ echo $OUTPUT->header();
         <?php if (!empty($customerdata)): ?>
         // Customer data.
         name_billing: <?php echo json_encode($customerdata['name']); ?>,
+        last_name_billing: <?php echo json_encode($customerdata['last_name'] ?? ''); ?>,
         address_billing: <?php echo json_encode($customerdata['address']); ?>,
         type_doc_billing: <?php echo json_encode($customerdata['doc_type']); ?>,
         mobilephone_billing: <?php echo json_encode($customerdata['phone']); ?>,

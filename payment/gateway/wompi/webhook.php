@@ -99,8 +99,17 @@ try {
 // Initialize Wompi helper (with automatic sandbox credentials support).
 $wompihelper = \paygw_wompi\gateway::create_helper_from_config($config);
 
-// Verify signature if events key is configured.
-if (!empty($config->eventskey) && isset($event['signature'])) {
+// Verify webhook signature (REQUIRED for security).
+if (empty($config->eventskey)) {
+    // Events key not configured - log warning but allow processing.
+    // In production, this should be required.
+    debugging('Wompi webhook: eventskey not configured - signature verification skipped. ' .
+              'Configure eventskey in gateway settings for security.', DEBUG_DEVELOPER);
+} else if (!isset($event['signature'])) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Missing signature']);
+    exit;
+} else {
     $signaturefromheader = $event['signature']['checksum'] ?? '';
     if (!$wompihelper->verify_webhook_signature($event, $signaturefromheader)) {
         http_response_code(401);
@@ -112,15 +121,17 @@ if (!empty($config->eventskey) && isset($event['signature'])) {
 // Process based on event type.
 switch ($eventtype) {
     case 'transaction.updated':
-        // Update local transaction status.
+        // Check if already delivered BEFORE updating status (idempotency check).
+        $previousstatus = $localrecord->status;
+        $alreadydelivered = ($previousstatus === 'DELIVERED');
+
+        // Update local transaction record with new data.
         $localrecord->transactionid = $transactionid;
-        $localrecord->status = $status;
         $localrecord->paymentmethod = $transaction['payment_method_type'] ?? $localrecord->paymentmethod;
         $localrecord->timemodified = time();
-        $DB->update_record('paygw_wompi_transactions', $localrecord);
 
         // If approved and not yet delivered, deliver the order.
-        if ($wompihelper->is_transaction_approved($status) && $localrecord->status !== 'DELIVERED') {
+        if ($wompihelper->is_transaction_approved($status) && !$alreadydelivered) {
             try {
                 $payable = helper::get_payable(
                     $localrecord->component,
@@ -155,12 +166,27 @@ switch ($eventtype) {
 
             } catch (\Exception $e) {
                 debugging('Wompi webhook delivery error: ' . $e->getMessage(), DEBUG_DEVELOPER);
+                // Update status to reflect the Wompi status even if delivery failed.
+                $localrecord->status = $status;
+                $DB->update_record('paygw_wompi_transactions', $localrecord);
             }
+        } else if (!$alreadydelivered) {
+            // Not approved or already delivered - just update the status.
+            $localrecord->status = $status;
+            $DB->update_record('paygw_wompi_transactions', $localrecord);
         }
 
-        // If failed, notify the user.
-        if ($wompihelper->is_transaction_failed($status)) {
-            $wompihelper->notify_user($localrecord->userid, 'failed');
+        // Send notifications based on status (only if not already delivered).
+        if (!$alreadydelivered) {
+            // If pending, notify the user.
+            if ($wompihelper->is_transaction_pending($status)) {
+                $wompihelper->notify_user($localrecord->userid, 'pending');
+            }
+
+            // If failed, notify the user.
+            if ($wompihelper->is_transaction_failed($status)) {
+                $wompihelper->notify_user($localrecord->userid, 'failed');
+            }
         }
 
         break;

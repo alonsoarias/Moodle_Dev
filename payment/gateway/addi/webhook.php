@@ -94,17 +94,30 @@ try {
 
     $addihelper = gateway::create_helper_from_config($config);
 
+    // Verify webhook authenticity by querying Addi API.
+    if (!empty($applicationid)) {
+        $verifieddata = $addihelper->get_application($applicationid);
+        if (!$verifieddata || strtoupper($verifieddata['status'] ?? '') !== strtoupper($status)) {
+            debugging('Addi webhook: Status verification failed - possible spoofing', DEBUG_DEVELOPER);
+            http_response_code(403);
+            echo json_encode(['error' => 'Status verification failed']);
+            die();
+        }
+    }
+
+    // Idempotency check: If already delivered, skip processing.
+    if (!empty($transaction->paymentid)) {
+        debugging('Addi webhook: Order already delivered for ' . $transaction->reference, DEBUG_DEVELOPER);
+        http_response_code(200);
+        echo json_encode(['success' => true, 'message' => 'Already processed']);
+        die();
+    }
+
     // Map status.
     $newstatus = $addihelper->map_addi_status($status);
 
-    // Update transaction.
-    $addihelper->update_transaction($transaction->id, [
-        'status' => $newstatus,
-        'response' => $data,
-    ]);
-
-    // If approved and not yet delivered, deliver the order.
-    if (strtoupper($status) === addi_helper::STATUS_APPROVED && empty($transaction->paymentid)) {
+    // If approved, deliver first, then update status.
+    if (strtoupper($status) === addi_helper::STATUS_APPROVED) {
         // Get payable info.
         $payable = helper::get_payable(
             $transaction->component,
@@ -134,8 +147,12 @@ try {
             (int)$transaction->userid
         );
 
-        // Update transaction with payment ID.
-        $DB->set_field('paygw_addi_transactions', 'paymentid', $paymentid, ['id' => $transaction->id]);
+        // Update transaction with payment ID and DELIVERED status.
+        $addihelper->update_transaction($transaction->id, [
+            'status' => 'DELIVERED',
+            'paymentid' => $paymentid,
+            'response' => $data,
+        ]);
 
         // Send notification email.
         $user = \core_user::get_user($transaction->userid);
@@ -148,6 +165,31 @@ try {
         }
 
         debugging('Addi webhook: Payment delivered for ' . $transaction->reference, DEBUG_DEVELOPER);
+    } else {
+        // For non-approved statuses, just update the transaction.
+        $addihelper->update_transaction($transaction->id, [
+            'status' => $newstatus,
+            'response' => $data,
+        ]);
+
+        // Send notification for rejected/cancelled/expired.
+        if (in_array(strtoupper($status), [
+            addi_helper::STATUS_REJECTED,
+            addi_helper::STATUS_DECLINED,
+            addi_helper::STATUS_CANCELLED,
+            addi_helper::STATUS_EXPIRED,
+        ])) {
+            $user = \core_user::get_user($transaction->userid);
+            if ($user) {
+                $addihelper->send_notification_email($user, $config, 'rejected', [
+                    'amount' => number_format($transaction->amount, 0, ',', '.') . ' ' . $transaction->currency,
+                    'currency' => $transaction->currency,
+                    'orderid' => $transaction->reference,
+                ]);
+            }
+        }
+
+        debugging('Addi webhook: Status updated to ' . $newstatus . ' for ' . $transaction->reference, DEBUG_DEVELOPER);
     }
 
     // Return success.

@@ -127,8 +127,39 @@ if (!empty($transaction->applicationid)) {
                         'orderid' => $transaction->reference,
                     ]);
                 }
+                // Update transaction status to DELIVERED.
+                $addihelper->update_transaction($transaction->id, ['status' => 'DELIVERED']);
             } catch (\Exception $e) {
                 debugging('Addi response: Error delivering order: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            }
+        }
+
+        // Send pending notification if status is PENDING.
+        if ($addistatus === addi_helper::STATUS_PENDING) {
+            $user = \core_user::get_user($transaction->userid);
+            if ($user) {
+                $addihelper->send_notification_email($user, $config, 'pending', [
+                    'amount' => number_format($transaction->amount, 0, ',', '.') . ' ' . $transaction->currency,
+                    'currency' => $transaction->currency,
+                    'orderid' => $transaction->reference,
+                ]);
+            }
+        }
+
+        // Send rejected notification if status is REJECTED/DECLINED/CANCELLED/EXPIRED.
+        if (in_array($addistatus, [
+            addi_helper::STATUS_REJECTED,
+            addi_helper::STATUS_DECLINED,
+            addi_helper::STATUS_CANCELLED,
+            addi_helper::STATUS_EXPIRED,
+        ])) {
+            $user = \core_user::get_user($transaction->userid);
+            if ($user) {
+                $addihelper->send_notification_email($user, $config, 'rejected', [
+                    'amount' => number_format($transaction->amount, 0, ',', '.') . ' ' . $transaction->currency,
+                    'currency' => $transaction->currency,
+                    'orderid' => $transaction->reference,
+                ]);
             }
         }
     }

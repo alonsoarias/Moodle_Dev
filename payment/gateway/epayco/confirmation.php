@@ -34,7 +34,8 @@ require_once(__DIR__ . '/../../../config.php');
 
 // Get parameters from ePayco confirmation.
 $refpayco = optional_param('x_ref_payco', '', PARAM_ALPHANUMEXT);
-$transactionid = optional_param('x_id_invoice', '', PARAM_ALPHANUMEXT);
+$idinvoice = optional_param('x_id_invoice', '', PARAM_ALPHANUMEXT);
+$xtransactionid = optional_param('x_transaction_id', '', PARAM_ALPHANUMEXT);
 $amount = optional_param('x_amount', '', PARAM_TEXT);
 $currency = optional_param('x_currency_code', '', PARAM_ALPHA);
 $signature = optional_param('x_signature', '', PARAM_ALPHANUMEXT);
@@ -55,7 +56,7 @@ $userid = optional_param('x_extra4', 0, PARAM_INT);
 debugging('ePayco confirmation received: ref=' . $refpayco . ', cod_response=' . $codresponse, DEBUG_DEVELOPER);
 
 // Basic validation.
-if (empty($refpayco) || empty($transactionid) || empty($component) || empty($paymentarea) || !$itemid) {
+if (empty($refpayco) || empty($idinvoice) || empty($component) || empty($paymentarea) || !$itemid) {
     debugging('ePayco confirmation: Missing required parameters', DEBUG_DEVELOPER);
     http_response_code(400);
     echo 'Missing required parameters';
@@ -69,8 +70,8 @@ try {
     // Create helper instance.
     $epaycohelper = gateway::create_helper_from_config($config);
 
-    // Verify signature.
-    $expectedsignature = $epaycohelper->calculate_signature($refpayco, $transactionid, $amount, $currency);
+    // Verify signature using x_transaction_id (as per ePayco documentation).
+    $expectedsignature = $epaycohelper->calculate_signature($refpayco, $xtransactionid, $amount, $currency);
 
     if (!hash_equals($expectedsignature, $signature)) {
         debugging('ePayco confirmation: Invalid signature. Expected: ' . $expectedsignature . ', Got: ' . $signature, DEBUG_DEVELOPER);
@@ -79,13 +80,21 @@ try {
         die();
     }
 
-    // Get internal transaction.
-    $transaction = $epaycohelper->get_transaction_by_reference($transactionid);
+    // Get internal transaction using invoice reference.
+    $transaction = $epaycohelper->get_transaction_by_reference($idinvoice);
 
     if (!$transaction) {
-        debugging('ePayco confirmation: Transaction not found for reference: ' . $transactionid, DEBUG_DEVELOPER);
+        debugging('ePayco confirmation: Transaction not found for reference: ' . $idinvoice, DEBUG_DEVELOPER);
         http_response_code(404);
         echo 'Transaction not found';
+        die();
+    }
+
+    // Idempotency check: If already delivered, skip processing.
+    if (!empty($transaction->paymentid)) {
+        debugging('ePayco confirmation: Order already delivered for ref=' . $idinvoice, DEBUG_DEVELOPER);
+        http_response_code(200);
+        echo 'OK - Already processed';
         die();
     }
 
@@ -145,7 +154,7 @@ try {
                 $epaycohelper->send_notification_email($user, $config, 'completed', [
                     'amount' => $amount,
                     'currency' => $currency,
-                    'orderid' => $transactionid,
+                    'orderid' => $idinvoice,
                 ]);
             }
         }
@@ -159,12 +168,27 @@ try {
                 $epaycohelper->send_notification_email($user, $config, 'pending', [
                     'amount' => $amount,
                     'currency' => $currency,
-                    'orderid' => $transactionid,
+                    'orderid' => $idinvoice,
                 ]);
             }
         }
 
         debugging('ePayco confirmation: Payment pending for ref=' . $refpayco, DEBUG_DEVELOPER);
+    } else if ($epaycohelper->is_failed($codresponse)) {
+        // Send failed notification email.
+        if ($userid) {
+            $user = \core_user::get_user($userid);
+            if ($user) {
+                $epaycohelper->send_notification_email($user, $config, 'failed', [
+                    'amount' => $amount,
+                    'currency' => $currency,
+                    'orderid' => $idinvoice,
+                    'reason' => $responsemotivo,
+                ]);
+            }
+        }
+
+        debugging('ePayco confirmation: Payment failed (code=' . $codresponse . ') for ref=' . $refpayco, DEBUG_DEVELOPER);
     } else {
         debugging('ePayco confirmation: Payment not approved (code=' . $codresponse . ') for ref=' . $refpayco, DEBUG_DEVELOPER);
     }
