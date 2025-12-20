@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePayco API - Referencia Tecnica | Fase 4 - Ingenieria Inversa</title>
+    <meta name="description" content="Documentacion tecnica de la API de ePayco Colombia para integracion con Moodle. Checkout.js, codigos respuesta, firmas, callbacks y metodos de pago.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00bcd4;
+            --primary-dark: #0097a7;
+            --secondary: #ff5722;
+            --accent: #ff9800;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --navy: #263238;
+            --white: #FFFFFF;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #eeeeee;
+            --gray-300: #e0e0e0;
+            --gray-600: #757575;
+            --gray-800: #424242;
+            --gray-900: #212121;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Roboto', sans-serif; font-size: 16px; line-height: 1.7; color: var(--gray-900); background: var(--white); }
+
+        h1, h2, h3, h4, h5 { font-family: 'Rubik', sans-serif; font-weight: 700; color: var(--navy); line-height: 1.3; }
+        h1 { font-size: 32px; } h2 { font-size: 26px; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 3px solid var(--primary); }
+        h3 { font-size: 20px; margin: 30px 0 15px; color: var(--primary-dark); }
+        h4 { font-size: 17px; margin: 20px 0 10px; }
+        p { margin-bottom: 16px; color: var(--gray-800); }
+        a { color: var(--primary-dark); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        /* Header */
+        .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 40px 0; }
+        .header h1 { color: white; margin-bottom: 8px; }
+        .header p { color: rgba(255,255,255,0.9); margin: 0; }
+        .header-meta { display: flex; gap: 20px; margin-top: 16px; flex-wrap: wrap; }
+        .header-meta span { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; font-size: 14px; }
+
+        /* Navigation */
+        .nav { background: var(--gray-50); border-bottom: 1px solid var(--gray-200); padding: 12px 0; position: sticky; top: 0; z-index: 100; }
+        .nav ul { list-style: none; display: flex; gap: 8px; flex-wrap: wrap; }
+        .nav a { font-family: 'Rubik', sans-serif; font-size: 13px; font-weight: 500; color: var(--gray-600); padding: 6px 12px; border-radius: 4px; transition: 0.2s; }
+        .nav a:hover { background: var(--gray-200); color: var(--primary-dark); text-decoration: none; }
+
+        /* Content */
+        .content { padding: 40px 0 80px; }
+
+        /* Tables */
+        .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 8px; box-shadow: 0 1px 8px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 14px; }
+        th { background: var(--primary-dark); color: white; font-family: 'Rubik', sans-serif; font-weight: 600; padding: 12px 16px; text-align: left; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--gray-200); }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) { background: var(--gray-50); }
+
+        /* Code */
+        code { font-family: 'Fira Code', monospace; font-size: 13px; background: rgba(0,188,212,0.1); color: var(--navy); padding: 2px 6px; border-radius: 4px; }
+        pre { background: var(--navy); color: #e0e0e0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 16px 0; font-size: 13px; line-height: 1.5; }
+        pre code { background: none; color: inherit; padding: 0; }
+        .code-comment { color: #78909c; }
+        .code-string { color: #c5e1a5; }
+        .code-key { color: #80deea; }
+        .code-number { color: #ffcc80; }
+
+        /* Alerts */
+        .alert { padding: 16px 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid; }
+        .alert-info { background: #e0f7fa; border-color: var(--primary); }
+        .alert-warning { background: #fff3e0; border-color: var(--warning); }
+        .alert-success { background: #e8f5e9; border-color: var(--success); }
+        .alert-error { background: #ffebee; border-color: var(--error); }
+        .alert h4 { margin-bottom: 8px; font-size: 15px; }
+        .alert p:last-child { margin-bottom: 0; }
+
+        /* Status badges */
+        .status { display: inline-block; font-family: 'Fira Code', monospace; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 4px; }
+        .status-1 { background: #c8e6c9; color: #2e7d32; }
+        .status-2 { background: #ffcdd2; color: #c62828; }
+        .status-3 { background: #fff9c4; color: #f57f17; }
+        .status-4 { background: #ffccbc; color: #bf360c; }
+        .status-6 { background: #e1bee7; color: #7b1fa2; }
+        .status-9 { background: #cfd8dc; color: #455a64; }
+
+        /* Flow diagram */
+        .flow { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px; padding: 24px; margin: 20px 0; font-family: 'Fira Code', monospace; font-size: 13px; line-height: 2; white-space: pre; overflow-x: auto; }
+
+        /* Lists */
+        ul, ol { margin: 12px 0 12px 24px; }
+        li { margin-bottom: 8px; color: var(--gray-800); }
+
+        /* Comparison */
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+        .comparison-col { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px; padding: 20px; }
+        .comparison-col h4 { margin-top: 0; padding-bottom: 12px; border-bottom: 2px solid var(--primary); }
+        @media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+
+        /* Parameter blocks */
+        .param-block { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 8px; margin: 20px 0; overflow: hidden; }
+        .param-header { background: var(--primary-dark); color: white; padding: 12px 20px; font-family: 'Rubik', sans-serif; font-weight: 600; }
+        .param-body { padding: 20px; }
+
+        /* Footer */
+        .footer { background: var(--navy); color: white; padding: 30px 0; margin-top: 60px; text-align: center; }
+        .footer p { color: rgba(255,255,255,0.8); margin: 4px 0; font-size: 14px; }
+        .footer a { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>ePayco API - Referencia Tecnica</h1>
+            <p>Documentacion de ingenieria inversa para integracion con Moodle Payment Gateway</p>
+            <div class="header-meta">
+                <span>Fase 4</span>
+                <span>Checkout.js</span>
+                <span>Colombia</span>
+                <span>COP / USD</span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <ul>
+                <li><a href="#checkout-js">Checkout.js</a></li>
+                <li><a href="#handler-open">handler.open()</a></li>
+                <li><a href="#codigos-respuesta">Codigos Respuesta</a></li>
+                <li><a href="#firma-validacion">Firma SHA256</a></li>
+                <li><a href="#urls-callback">URLs Callback</a></li>
+                <li><a href="#parametros-retorno">Parametros Retorno</a></li>
+                <li><a href="#pagos-pendientes">Pagos Pendientes</a></li>
+                <li><a href="#api-validacion">API Validacion</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+
+            <!-- SECTION 1: CHECKOUT.JS -->
+            <section id="checkout-js">
+                <h2>1. Configuracion de checkout.js</h2>
+
+                <h3>1.1 Inclusion del Script</h3>
+                <p>ePayco proporciona una biblioteca JavaScript para integrar el checkout en tu sitio:</p>
+                <pre><code><span class="code-comment">&lt;!-- Incluir en el &lt;head&gt; o antes de usar --&gt;</span>
+&lt;script src="https://checkout.epayco.co/checkout.js"&gt;&lt;/script&gt;</code></pre>
+
+                <h3>1.2 Configuracion del Handler</h3>
+                <p>Inicializa el handler con tu llave publica:</p>
+                <pre><code><span class="code-comment">// Configurar el handler de ePayco</span>
+var handler = ePayco.checkout.configure({
+    <span class="code-key">key</span>: <span class="code-string">'TU_PUBLIC_KEY'</span>,      <span class="code-comment">// Llave publica del comercio</span>
+    <span class="code-key">test</span>: <span class="code-number">true</span>                    <span class="code-comment">// true = modo prueba, false = produccion</span>
+});</code></pre>
+
+                <h3>1.3 Credenciales de ePayco</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Credencial</th>
+                                <th>Descripcion</th>
+                                <th>Uso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>p_cust_id_cliente</code></td>
+                                <td>ID unico del comercio</td>
+                                <td>Validacion de firma</td>
+                            </tr>
+                            <tr>
+                                <td><code>p_key</code></td>
+                                <td>Llave secreta del comercio</td>
+                                <td>Validacion de firma (NO exponer al cliente)</td>
+                            </tr>
+                            <tr>
+                                <td><code>public_key</code></td>
+                                <td>Llave publica</td>
+                                <td>Inicializar checkout.js</td>
+                            </tr>
+                            <tr>
+                                <td><code>private_key</code></td>
+                                <td>Llave privada API</td>
+                                <td>Llamadas API server-side</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-warning">
+                    <h4>Seguridad</h4>
+                    <p><strong>p_key</strong> y <strong>private_key</strong> son secretas. Nunca las expongas en el frontend. Solo usa <strong>public_key</strong> en JavaScript.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 2: HANDLER.OPEN -->
+            <section id="handler-open">
+                <h2>2. Metodo handler.open(data)</h2>
+
+                <h3>2.1 Estructura Completa de Parametros</h3>
+                <pre><code>var data = {
+    <span class="code-comment">// ===== PARAMETROS OBLIGATORIOS =====</span>
+    <span class="code-key">name</span>: <span class="code-string">"Nombre del producto"</span>,
+    <span class="code-key">description</span>: <span class="code-string">"Descripcion del producto"</span>,
+    <span class="code-key">invoice</span>: <span class="code-string">"FAC-12345"</span>,          <span class="code-comment">// Referencia unica de factura</span>
+    <span class="code-key">currency</span>: <span class="code-string">"cop"</span>,                 <span class="code-comment">// cop | usd</span>
+    <span class="code-key">amount</span>: <span class="code-string">"50000"</span>,                 <span class="code-comment">// Monto total (string)</span>
+    <span class="code-key">country</span>: <span class="code-string">"co"</span>,                   <span class="code-comment">// Codigo pais ISO</span>
+
+    <span class="code-comment">// ===== IMPUESTOS (obligatorios, pueden ser 0) =====</span>
+    <span class="code-key">tax_base</span>: <span class="code-string">"42016"</span>,              <span class="code-comment">// Base gravable</span>
+    <span class="code-key">tax</span>: <span class="code-string">"7984"</span>,                    <span class="code-comment">// IVA</span>
+    <span class="code-key">tax_ico</span>: <span class="code-string">"0"</span>,                   <span class="code-comment">// Impuesto al consumo</span>
+
+    <span class="code-comment">// ===== TIPO DE CHECKOUT =====</span>
+    <span class="code-key">external</span>: <span class="code-string">"false"</span>,              <span class="code-comment">// false=OnPage, true=Standard (redirige)</span>
+    <span class="code-key">lang</span>: <span class="code-string">"es"</span>,                     <span class="code-comment">// es | en</span>
+
+    <span class="code-comment">// ===== URLs DE CALLBACK =====</span>
+    <span class="code-key">response</span>: <span class="code-string">"https://mitienda.com/response.php"</span>,
+    <span class="code-key">confirmation</span>: <span class="code-string">"https://mitienda.com/confirmation.php"</span>,
+
+    <span class="code-comment">// ===== PARAMETROS EXTRA (hasta 7) =====</span>
+    <span class="code-key">extra1</span>: <span class="code-string">"component"</span>,            <span class="code-comment">// Datos personalizados</span>
+    <span class="code-key">extra2</span>: <span class="code-string">"paymentarea"</span>,
+    <span class="code-key">extra3</span>: <span class="code-string">"itemid"</span>,
+    <span class="code-key">extra4</span>: <span class="code-string">"userid"</span>,
+    <span class="code-key">extra5</span>: <span class="code-string">""</span>,
+    <span class="code-key">extra6</span>: <span class="code-string">""</span>,
+    <span class="code-key">extra7</span>: <span class="code-string">""</span>,
+
+    <span class="code-comment">// ===== DATOS DEL CLIENTE (opcional) =====</span>
+    <span class="code-key">name_billing</span>: <span class="code-string">"Juan"</span>,
+    <span class="code-key">last_name_billing</span>: <span class="code-string">"Perez"</span>,
+    <span class="code-key">address_billing</span>: <span class="code-string">"Calle 123"</span>,
+    <span class="code-key">type_doc_billing</span>: <span class="code-string">"CC"</span>,        <span class="code-comment">// CC, NIT, CE, TI, PP</span>
+    <span class="code-key">number_doc_billing</span>: <span class="code-string">"1234567890"</span>,
+    <span class="code-key">mobilephone_billing</span>: <span class="code-string">"3001234567"</span>,
+    <span class="code-key">email_billing</span>: <span class="code-string">"cliente@email.com"</span>,
+
+    <span class="code-comment">// ===== OPCIONES ADICIONALES =====</span>
+    <span class="code-key">autoclick</span>: <span class="code-string">"true"</span>,             <span class="code-comment">// Auto-abrir modal (opcional)</span>
+    <span class="code-key">method_confirmation</span>: <span class="code-string">"POST"</span>,  <span class="code-comment">// GET o POST para confirmacion</span>
+};
+
+<span class="code-comment">// Abrir el checkout</span>
+handler.open(data);</code></pre>
+
+                <h3>2.2 Parametro external: OnPage vs Standard</h3>
+                <div class="comparison">
+                    <div class="comparison-col">
+                        <h4>OnPage (external: "false")</h4>
+                        <ul>
+                            <li>Modal embebido en tu sitio</li>
+                            <li>Usuario no sale de la pagina</li>
+                            <li>Experiencia mas fluida</li>
+                            <li><strong>Recomendado para Moodle</strong></li>
+                        </ul>
+                    </div>
+                    <div class="comparison-col">
+                        <h4>Standard (external: "true")</h4>
+                        <ul>
+                            <li>Redirige a pagina de ePayco</li>
+                            <li>Usuario sale del sitio</li>
+                            <li>Mas metodos de pago disponibles</li>
+                            <li>Retorna via URL response</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>2.3 Evento onCloseModal</h3>
+                <pre><code><span class="code-comment">// Callback cuando se cierra el modal</span>
+handler.onCloseModal = function() {
+    console.log(<span class="code-string">'Checkout cerrado'</span>);
+    <span class="code-comment">// Puedes verificar el estado de la transaccion aqui</span>
+};
+
+handler.open(data);</code></pre>
+
+                <h3>2.4 Integracion Declarativa (Alternativa)</h3>
+                <pre><code><span class="code-comment">&lt;!-- Usando data attributes --&gt;</span>
+&lt;form&gt;
+    &lt;script src="https://checkout.epayco.co/checkout.js"
+        class="epayco-button"
+        data-epayco-key="TU_PUBLIC_KEY"
+        data-epayco-amount="50000"
+        data-epayco-name="Producto"
+        data-epayco-description="Descripcion"
+        data-epayco-currency="cop"
+        data-epayco-country="co"
+        data-epayco-test="true"
+        data-epayco-external="false"
+        data-epayco-response="https://mitienda.com/response"
+        data-epayco-confirmation="https://mitienda.com/confirmation"&gt;
+    &lt;/script&gt;
+&lt;/form&gt;</code></pre>
+            </section>
+
+            <!-- SECTION 3: CODIGOS RESPUESTA -->
+            <section id="codigos-respuesta">
+                <h2>3. Codigos de Respuesta (x_cod_response)</h2>
+
+                <h3>3.1 Codigos Principales</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Codigo</th>
+                                <th>Estado</th>
+                                <th>Descripcion</th>
+                                <th>Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="status status-1">1</span></td>
+                                <td><strong>Aceptada</strong></td>
+                                <td>Transaccion aprobada exitosamente</td>
+                                <td>Entregar producto/servicio</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-2">2</span></td>
+                                <td><strong>Rechazada</strong></td>
+                                <td>Transaccion rechazada por banco/procesador</td>
+                                <td>Notificar rechazo, permitir reintento</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-3">3</span></td>
+                                <td><strong>Pendiente</strong></td>
+                                <td>Esperando confirmacion (PSE, efectivo, Nequi)</td>
+                                <td>Esperar callback de confirmacion</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-4">4</span></td>
+                                <td><strong>Fallida</strong></td>
+                                <td>Error en el flujo de la transaccion</td>
+                                <td>Revisar logs, permitir reintento</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>3.2 Codigos Extendidos</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Codigo</th>
+                                <th>Estado</th>
+                                <th>Descripcion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="status status-6">6</span></td>
+                                <td>Reversada</td>
+                                <td>Transaccion reversada/reembolsada al cliente</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status" style="background:#e3f2fd;color:#1565c0;">7</span></td>
+                                <td>Retenida</td>
+                                <td>Retenida para revision de fraude</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status" style="background:#e8eaf6;color:#3949ab;">8</span></td>
+                                <td>Iniciada</td>
+                                <td>Transaccion iniciada, pendiente de completar</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-9">9</span></td>
+                                <td>Expirada/Caducada</td>
+                                <td>Tiempo de pago expirado (efectivo/SafetyPay)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status" style="background:#fce4ec;color:#c2185b;">10</span></td>
+                                <td>Abandonada</td>
+                                <td>Usuario abandono el proceso de pago</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status" style="background:#eceff1;color:#546e7a;">11</span></td>
+                                <td>Cancelada</td>
+                                <td>Transaccion cancelada por usuario o sistema</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status" style="background:#fff3e0;color:#e65100;">12</span></td>
+                                <td>Antifraude</td>
+                                <td>Rechazada por sistema antifraude</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>3.3 Flujo de Estados</h3>
+                <div class="flow">
+INICIADA (8)
+    |
+    v
+[CHECKOUT] ──> Usuario completa pago
+    |
+    +──────────> ACEPTADA (1) ───────> Entregar orden
+    |
+    +──────────> PENDIENTE (3) ──────> Esperar confirmacion
+    |                |
+    |                +──> ACEPTADA (1)
+    |                +──> RECHAZADA (2)
+    |                +──> EXPIRADA (9)
+    |
+    +──────────> RECHAZADA (2) ──────> Notificar rechazo
+    |
+    +──────────> FALLIDA (4) ────────> Error tecnico
+    |
+    +──────────> ABANDONADA (10) ────> Usuario cerro checkout
+                </div>
+
+                <h3>3.4 Constantes en PHP</h3>
+                <pre><code><span class="code-comment">// Definidas en epayco_helper.php</span>
+const STATUS_ACCEPTED = <span class="code-number">1</span>;      <span class="code-comment">// Aceptada</span>
+const STATUS_REJECTED = <span class="code-number">2</span>;      <span class="code-comment">// Rechazada</span>
+const STATUS_PENDING = <span class="code-number">3</span>;       <span class="code-comment">// Pendiente</span>
+const STATUS_FAILED = <span class="code-number">4</span>;        <span class="code-comment">// Fallida</span>
+const STATUS_REVERSED = <span class="code-number">6</span>;      <span class="code-comment">// Reversada</span>
+const STATUS_HELD = <span class="code-number">7</span>;          <span class="code-comment">// Retenida</span>
+const STATUS_INITIATED = <span class="code-number">8</span>;     <span class="code-comment">// Iniciada</span>
+const STATUS_EXPIRED = <span class="code-number">9</span>;       <span class="code-comment">// Expirada</span>
+const STATUS_ABANDONED = <span class="code-number">10</span>;    <span class="code-comment">// Abandonada</span>
+const STATUS_CANCELLED = <span class="code-number">11</span>;    <span class="code-comment">// Cancelada</span>
+const STATUS_ANTIFRAUD = <span class="code-number">12</span>;    <span class="code-comment">// Antifraude</span></code></pre>
+            </section>
+
+            <!-- SECTION 4: FIRMA VALIDACION -->
+            <section id="firma-validacion">
+                <h2>4. Validacion de Firma (x_signature)</h2>
+
+                <h3>4.1 Algoritmo de Firma</h3>
+                <div class="alert alert-info">
+                    <h4>Formula de la Firma</h4>
+                    <p>La firma se genera concatenando valores con el caracter <code>^</code> y aplicando SHA256:</p>
+                    <pre style="margin:8px 0 0;background:#263238;"><code>signature = SHA256(p_cust_id_cliente ^ p_key ^ x_ref_payco ^ x_transaction_id ^ x_amount ^ x_currency_code)</code></pre>
+                </div>
+
+                <h3>4.2 Implementacion en PHP</h3>
+                <pre><code><span class="code-comment">/**
+ * Calcular firma para validacion de transaccion.
+ *
+ * @param string $refpayco     Referencia ePayco (x_ref_payco)
+ * @param string $transactionid ID de transaccion (x_transaction_id)
+ * @param float  $amount       Monto (x_amount)
+ * @param string $currency     Moneda (x_currency_code)
+ */</span>
+public function calculate_signature(
+    string $refpayco,
+    string $transactionid,
+    float $amount,
+    string $currency
+): string {
+    $signaturestring = sprintf(
+        <span class="code-string">'%s^%s^%s^%s^%s^%s'</span>,
+        $this->pcustidcliente,  <span class="code-comment">// p_cust_id_cliente</span>
+        $this->pkey,            <span class="code-comment">// p_key</span>
+        $refpayco,              <span class="code-comment">// x_ref_payco</span>
+        $transactionid,         <span class="code-comment">// x_transaction_id</span>
+        $amount,                <span class="code-comment">// x_amount</span>
+        $currency               <span class="code-comment">// x_currency_code</span>
+    );
+
+    return hash(<span class="code-string">'sha256'</span>, $signaturestring);
+}</code></pre>
+
+                <h3>4.3 Ejemplo de Calculo</h3>
+                <pre><code><span class="code-comment">// Datos recibidos en callback</span>
+$x_ref_payco = <span class="code-string">"12345"</span>;
+$x_transaction_id = <span class="code-string">"67890"</span>;
+$x_amount = <span class="code-string">"50000"</span>;
+$x_currency_code = <span class="code-string">"COP"</span>;
+$x_signature = <span class="code-string">"abc123..."</span>;  <span class="code-comment">// Firma recibida</span>
+
+<span class="code-comment">// Credenciales del comercio</span>
+$p_cust_id_cliente = <span class="code-string">"123456"</span>;
+$p_key = <span class="code-string">"a1b2c3d4e5f6"</span>;
+
+<span class="code-comment">// Construir string de firma</span>
+$signature_string = <span class="code-string">"123456^a1b2c3d4e5f6^12345^67890^50000^COP"</span>;
+
+<span class="code-comment">// Calcular hash</span>
+$calculated = hash(<span class="code-string">'sha256'</span>, $signature_string);
+
+<span class="code-comment">// Comparar (usar hash_equals para evitar timing attacks)</span>
+if (hash_equals($calculated, $x_signature)) {
+    <span class="code-comment">// Firma valida - procesar transaccion</span>
+} else {
+    <span class="code-comment">// Firma invalida - rechazar</span>
+}</code></pre>
+
+                <h3>4.4 Verificacion en Callback</h3>
+                <pre><code>public function verify_signature(
+    string $refpayco,
+    string $transactionid,
+    float $amount,
+    string $currency,
+    string $receivedsignature
+): bool {
+    $calculated = $this->calculate_signature(
+        $refpayco,
+        $transactionid,
+        $amount,
+        $currency
+    );
+
+    <span class="code-comment">// Comparacion segura (case-insensitive)</span>
+    return hash_equals(
+        strtolower($calculated),
+        strtolower($receivedsignature)
+    );
+}</code></pre>
+
+                <div class="alert alert-warning">
+                    <h4>Importante</h4>
+                    <p>Siempre valida la firma ANTES de procesar cualquier transaccion. Rechaza callbacks con firma invalida para prevenir fraudes.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 5: URLs CALLBACK -->
+            <section id="urls-callback">
+                <h2>5. URLs de Confirmacion vs Respuesta</h2>
+
+                <h3>5.1 Diferencias Clave</h3>
+                <div class="comparison">
+                    <div class="comparison-col">
+                        <h4>URL de Confirmacion</h4>
+                        <ul>
+                            <li><strong>Tipo:</strong> Server-to-Server (S2S)</li>
+                            <li><strong>Metodo:</strong> POST (configurable)</li>
+                            <li><strong>Proposito:</strong> Procesar pago</li>
+                            <li><strong>Cuando:</strong> Cambio de estado</li>
+                            <li><strong>Usuario:</strong> NO presente</li>
+                            <li><strong>Respuesta:</strong> HTTP 200 OK</li>
+                            <li><strong>Reintentos:</strong> Si, automaticos</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-col">
+                        <h4>URL de Respuesta</h4>
+                        <ul>
+                            <li><strong>Tipo:</strong> Redireccion navegador</li>
+                            <li><strong>Metodo:</strong> GET</li>
+                            <li><strong>Proposito:</strong> Mostrar resultado</li>
+                            <li><strong>Cuando:</strong> Fin del checkout</li>
+                            <li><strong>Usuario:</strong> SI presente</li>
+                            <li><strong>Respuesta:</strong> Pagina HTML</li>
+                            <li><strong>Reintentos:</strong> No</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>5.2 Flujo de Callbacks</h3>
+                <div class="flow">
+Usuario inicia pago
+       |
+       v
+[Checkout ePayco] ──> Usuario completa formulario
+       |
+       +──────────────────────────────────────────+
+       |                                          |
+       v                                          v
+[URL Confirmacion]                         [URL Respuesta]
+(POST server-to-server)                    (GET navegador)
+       |                                          |
+       v                                          v
+confirmation.php                           response.php
+  - Valida firma                             - Consulta API
+  - Procesa pago                             - Muestra resultado
+  - Entrega orden                            - Redirige usuario
+  - Retorna 200 OK
+                </div>
+
+                <h3>5.3 URL de Confirmacion (confirmation.php)</h3>
+                <pre><code><span class="code-comment">// Archivo: confirmation.php</span>
+<span class="code-comment">// No requiere login - es llamado por servidores ePayco</span>
+
+<span class="code-comment">// 1. Recibir parametros</span>
+$refpayco = $_REQUEST[<span class="code-string">'x_ref_payco'</span>];
+$transactionid = $_REQUEST[<span class="code-string">'x_transaction_id'</span>];
+$amount = $_REQUEST[<span class="code-string">'x_amount'</span>];
+$currency = $_REQUEST[<span class="code-string">'x_currency_code'</span>];
+$signature = $_REQUEST[<span class="code-string">'x_signature'</span>];
+$codresponse = $_REQUEST[<span class="code-string">'x_cod_response'</span>];
+
+<span class="code-comment">// 2. Validar firma</span>
+if (!$helper->verify_signature($refpayco, $transactionid, $amount, $currency, $signature)) {
+    http_response_code(<span class="code-number">400</span>);
+    die(<span class="code-string">'Invalid signature'</span>);
+}
+
+<span class="code-comment">// 3. Procesar segun estado</span>
+if ($codresponse == <span class="code-number">1</span>) {
+    <span class="code-comment">// Entregar orden</span>
+    helper::deliver_order(...);
+}
+
+<span class="code-comment">// 4. Responder OK</span>
+http_response_code(<span class="code-number">200</span>);
+echo <span class="code-string">'OK'</span>;</code></pre>
+
+                <h3>5.4 URL de Respuesta (response.php)</h3>
+                <pre><code><span class="code-comment">// Archivo: response.php</span>
+<span class="code-comment">// Requiere login - usuario presente</span>
+
+require_login();
+
+<span class="code-comment">// 1. Obtener referencia</span>
+$refpayco = $_GET[<span class="code-string">'ref_payco'</span>];
+
+<span class="code-comment">// 2. Consultar API de ePayco para obtener detalles</span>
+$apiurl = <span class="code-string">'https://secure.epayco.co/validation/v1/reference/'</span> . $refpayco;
+$response = file_get_contents($apiurl);
+$data = json_decode($response, true);
+
+<span class="code-comment">// 3. Mostrar resultado al usuario</span>
+$txdata = $data[<span class="code-string">'data'</span>];
+$codresponse = $txdata[<span class="code-string">'x_cod_response'</span>];
+
+if ($codresponse == <span class="code-number">1</span>) {
+    echo <span class="code-string">'Pago aprobado!'</span>;
+} else if ($codresponse == <span class="code-number">3</span>) {
+    echo <span class="code-string">'Pago pendiente...'</span>;
+} else {
+    echo <span class="code-string">'Pago rechazado'</span>;
+}</code></pre>
+
+                <div class="alert alert-info">
+                    <h4>Buenas Practicas</h4>
+                    <ul>
+                        <li>La <strong>confirmacion</strong> es donde debes entregar el curso/producto</li>
+                        <li>La <strong>respuesta</strong> solo muestra informacion al usuario</li>
+                        <li>Siempre valida la firma en la confirmacion</li>
+                        <li>En respuesta, consulta la API para obtener datos frescos</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- SECTION 6: PARAMETROS RETORNO -->
+            <section id="parametros-retorno">
+                <h2>6. Parametros de Retorno</h2>
+
+                <h3>6.1 Parametros de Transaccion</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parametro</th>
+                                <th>Tipo</th>
+                                <th>Descripcion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>x_ref_payco</code></td>
+                                <td>string</td>
+                                <td>Referencia unica de ePayco (numero de recibo)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_transaction_id</code></td>
+                                <td>string</td>
+                                <td>ID interno de la transaccion</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_id_invoice</code></td>
+                                <td>string</td>
+                                <td>Referencia de factura enviada (invoice)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_amount</code></td>
+                                <td>string</td>
+                                <td>Monto total de la transaccion</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_amount_base</code></td>
+                                <td>string</td>
+                                <td>Base gravable (antes de impuestos)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_tax</code></td>
+                                <td>string</td>
+                                <td>Valor del IVA</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_currency_code</code></td>
+                                <td>string</td>
+                                <td>Codigo de moneda (COP, USD)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>6.2 Parametros de Estado</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parametro</th>
+                                <th>Tipo</th>
+                                <th>Descripcion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>x_cod_response</code></td>
+                                <td>int</td>
+                                <td>Codigo de respuesta (1,2,3,4...)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_response</code></td>
+                                <td>string</td>
+                                <td>Texto del estado (Aceptada, Rechazada...)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_response_reason_text</code></td>
+                                <td>string</td>
+                                <td>Razon detallada del estado</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_approval_code</code></td>
+                                <td>string</td>
+                                <td>Codigo de aprobacion del banco</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_signature</code></td>
+                                <td>string</td>
+                                <td>Firma SHA256 para validacion</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>6.3 Parametros del Cliente</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parametro</th>
+                                <th>Descripcion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>x_customer_name</code></td>
+                                <td>Nombre del cliente</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_customer_email</code></td>
+                                <td>Email del cliente</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_customer_phone</code></td>
+                                <td>Telefono del cliente</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_customer_doctype</code></td>
+                                <td>Tipo de documento (CC, NIT...)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_customer_document</code></td>
+                                <td>Numero de documento</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>6.4 Parametros de Pago</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parametro</th>
+                                <th>Descripcion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>x_franchise</code></td>
+                                <td>Franquicia (VISA, MASTERCARD, PSE, EFECTY...)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_bank_name</code></td>
+                                <td>Nombre del banco</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_cardnumber</code></td>
+                                <td>Ultimos 4 digitos de tarjeta</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_quotas</code></td>
+                                <td>Numero de cuotas</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>6.5 Parametros Extra (Personalizados)</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parametro</th>
+                                <th>Uso en Moodle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>x_extra1</code></td>
+                                <td>component (enrol_fee)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_extra2</code></td>
+                                <td>paymentarea (fee)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_extra3</code></td>
+                                <td>itemid (course id)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_extra4</code></td>
+                                <td>userid</td>
+                            </tr>
+                            <tr>
+                                <td><code>x_extra5</code> - <code>x_extra7</code></td>
+                                <td>Disponibles para uso adicional</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECTION 7: PAGOS PENDIENTES -->
+            <section id="pagos-pendientes">
+                <h2>7. Manejo de Pagos Pendientes (PSE, Efectivo)</h2>
+
+                <h3>7.1 Metodos con Confirmacion Asincrona</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metodo</th>
+                                <th>Tiempo Confirmacion</th>
+                                <th>Estado Inicial</th>
+                                <th>Notas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>PSE</strong></td>
+                                <td>5-20 minutos</td>
+                                <td>PENDING (3)</td>
+                                <td>Usuario redirigido al banco</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Efecty</strong></td>
+                                <td>Hasta 24-72 horas</td>
+                                <td>PENDING (3)</td>
+                                <td>Usuario paga en punto fisico</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Baloto</strong></td>
+                                <td>Hasta 24-72 horas</td>
+                                <td>PENDING (3)</td>
+                                <td>Usuario paga en punto fisico</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SafetyPay</strong></td>
+                                <td>Hasta 72 horas</td>
+                                <td>PENDING (3)</td>
+                                <td>Puede expirar (codigo 9)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nequi</strong></td>
+                                <td>1-5 minutos</td>
+                                <td>PENDING (3)</td>
+                                <td>Push notification al usuario</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Daviplata</strong></td>
+                                <td>1-5 minutos</td>
+                                <td>PENDING (3)</td>
+                                <td>OTP requerido</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>7.2 Flujo de Pago Pendiente</h3>
+                <div class="flow">
+1. Usuario selecciona PSE/Efectivo
+   |
+   v
+2. ePayco retorna x_cod_response = 3 (PENDING)
+   |
+   v
+3. confirmation.php recibe callback con PENDING
+   |
+   +──> Guardar transaccion en BD con status PENDING
+   +──> Enviar email al usuario "Pago pendiente"
+   +──> NO entregar orden todavia
+   |
+   v
+4. Usuario completa pago (banco/punto fisico)
+   |
+   v
+5. ePayco envia NUEVO callback a confirmation.php
+   |
+   +──> x_cod_response = 1 (APPROVED)
+   +──> Validar firma
+   +──> Actualizar status en BD
+   +──> Entregar orden (inscribir curso)
+   +──> Enviar email "Pago aprobado"
+                </div>
+
+                <h3>7.3 Implementacion en Confirmacion</h3>
+                <pre><code><span class="code-comment">// En confirmation.php</span>
+
+$codresponse = (int) $_REQUEST[<span class="code-string">'x_cod_response'</span>];
+
+switch ($codresponse) {
+    case <span class="code-number">1</span>: <span class="code-comment">// ACEPTADA</span>
+        <span class="code-comment">// Validar monto</span>
+        if ($amount != $expected_amount) {
+            http_response_code(<span class="code-number">400</span>);
+            die(<span class="code-string">'Amount mismatch'</span>);
+        }
+
+        <span class="code-comment">// Entregar orden</span>
+        $paymentid = helper::save_payment(...);
+        helper::deliver_order($component, $paymentarea, $itemid, $paymentid, $userid);
+
+        <span class="code-comment">// Actualizar BD</span>
+        $helper->update_transaction($id, [<span class="code-string">'status'</span> => <span class="code-string">'APPROVED'</span>]);
+
+        <span class="code-comment">// Notificar usuario</span>
+        $helper->send_notification_email($user, $config, <span class="code-string">'completed'</span>, [...]);
+        break;
+
+    case <span class="code-number">3</span>: <span class="code-comment">// PENDIENTE</span>
+        <span class="code-comment">// Guardar como pendiente</span>
+        $helper->update_transaction($id, [<span class="code-string">'status'</span> => <span class="code-string">'PENDING'</span>]);
+
+        <span class="code-comment">// Notificar que esta pendiente</span>
+        $helper->send_notification_email($user, $config, <span class="code-string">'pending'</span>, [...]);
+
+        <span class="code-comment">// NO entregar orden - esperar siguiente callback</span>
+        break;
+
+    case <span class="code-number">2</span>: <span class="code-comment">// RECHAZADA</span>
+    case <span class="code-number">4</span>: <span class="code-comment">// FALLIDA</span>
+    case <span class="code-number">9</span>: <span class="code-comment">// EXPIRADA</span>
+    default:
+        <span class="code-comment">// Actualizar como fallida</span>
+        $helper->update_transaction($id, [<span class="code-string">'status'</span> => <span class="code-string">'FAILED'</span>]);
+        break;
+}
+
+http_response_code(<span class="code-number">200</span>);
+echo <span class="code-string">'OK'</span>;</code></pre>
+
+                <h3>7.4 Consulta Manual de Transacciones Pendientes</h3>
+                <p>Para casos donde el callback no llega, puedes consultar la API:</p>
+                <pre><code><span class="code-comment">// Consultar estado de transaccion por ref_payco</span>
+$apiurl = <span class="code-string">'https://secure.epayco.co/validation/v1/reference/'</span> . $refpayco;
+
+$ch = curl_init($apiurl);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [<span class="code-string">'Content-Type: application/json'</span>]);
+
+$response = curl_exec($ch);
+$data = json_decode($response, true);
+
+if ($data[<span class="code-string">'success'</span>]) {
+    $txdata = $data[<span class="code-string">'data'</span>];
+    $codresponse = $txdata[<span class="code-string">'x_cod_response'</span>];
+
+    <span class="code-comment">// Procesar segun estado actual</span>
+}</code></pre>
+
+                <div class="alert alert-warning">
+                    <h4>Importante: Pagos Efectivo</h4>
+                    <p>Los pagos en efectivo (Efecty, Baloto) pueden tomar hasta <strong>72 horas</strong> en confirmarse. El callback de confirmacion se enviara automaticamente cuando el usuario pague en el punto fisico.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 8: API VALIDACION -->
+            <section id="api-validacion">
+                <h2>8. API de Validacion</h2>
+
+                <h3>8.1 Endpoint de Consulta</h3>
+                <div class="param-block">
+                    <div class="param-header">GET /validation/v1/reference/{ref_payco}</div>
+                    <div class="param-body">
+                        <p><strong>URL Base:</strong> <code>https://secure.epayco.co</code></p>
+                        <p><strong>Ejemplo:</strong></p>
+                        <pre><code>GET https://secure.epayco.co/validation/v1/reference/12345678</code></pre>
+                    </div>
+                </div>
+
+                <h3>8.2 Respuesta de la API</h3>
+                <pre><code>{
+  <span class="code-key">"success"</span>: <span class="code-number">true</span>,
+  <span class="code-key">"title_response"</span>: <span class="code-string">"Transaccion encontrada"</span>,
+  <span class="code-key">"text_response"</span>: <span class="code-string">"Transaccion aceptada"</span>,
+  <span class="code-key">"last_action"</span>: <span class="code-string">"2025-01-15 10:30:45"</span>,
+  <span class="code-key">"data"</span>: {
+    <span class="code-key">"x_ref_payco"</span>: <span class="code-string">"12345678"</span>,
+    <span class="code-key">"x_id_invoice"</span>: <span class="code-string">"FAC-12345"</span>,
+    <span class="code-key">"x_transaction_id"</span>: <span class="code-string">"67890"</span>,
+    <span class="code-key">"x_amount"</span>: <span class="code-string">"50000"</span>,
+    <span class="code-key">"x_amount_base"</span>: <span class="code-string">"42016"</span>,
+    <span class="code-key">"x_tax"</span>: <span class="code-string">"7984"</span>,
+    <span class="code-key">"x_currency_code"</span>: <span class="code-string">"COP"</span>,
+    <span class="code-key">"x_cod_response"</span>: <span class="code-number">1</span>,
+    <span class="code-key">"x_response"</span>: <span class="code-string">"Aceptada"</span>,
+    <span class="code-key">"x_response_reason_text"</span>: <span class="code-string">"Transaccion aprobada"</span>,
+    <span class="code-key">"x_approval_code"</span>: <span class="code-string">"000000"</span>,
+    <span class="code-key">"x_franchise"</span>: <span class="code-string">"VISA"</span>,
+    <span class="code-key">"x_bank_name"</span>: <span class="code-string">"Banco de prueba"</span>,
+    <span class="code-key">"x_customer_email"</span>: <span class="code-string">"cliente@email.com"</span>,
+    <span class="code-key">"x_extra1"</span>: <span class="code-string">"enrol_fee"</span>,
+    <span class="code-key">"x_extra2"</span>: <span class="code-string">"fee"</span>,
+    <span class="code-key">"x_extra3"</span>: <span class="code-string">"5"</span>,
+    <span class="code-key">"x_extra4"</span>: <span class="code-string">"42"</span>
+  }
+}</code></pre>
+
+                <h3>8.3 Uso en response.php (Moodle)</h3>
+                <pre><code><span class="code-comment">// En response.php - consultar API para mostrar resultado</span>
+$refpayco = $_GET[<span class="code-string">'ref_payco'</span>];
+$apiurl = <span class="code-string">'https://secure.epayco.co/validation/v1/reference/'</span> . urlencode($refpayco);
+
+$response = file_get_contents($apiurl);
+$data = json_decode($response, true);
+
+if ($data[<span class="code-string">'success'</span>] && isset($data[<span class="code-string">'data'</span>])) {
+    $txdata = $data[<span class="code-string">'data'</span>];
+
+    <span class="code-comment">// Extraer datos para mostrar</span>
+    $codresponse = $txdata[<span class="code-string">'x_cod_response'</span>];
+    $amount = $txdata[<span class="code-string">'x_amount'</span>];
+    $reference = $txdata[<span class="code-string">'x_id_invoice'</span>];
+
+    <span class="code-comment">// Recuperar datos de Moodle desde extras</span>
+    $component = $txdata[<span class="code-string">'x_extra1'</span>];
+    $paymentarea = $txdata[<span class="code-string">'x_extra2'</span>];
+    $itemid = (int) $txdata[<span class="code-string">'x_extra3'</span>];
+}</code></pre>
+            </section>
+
+            <!-- FUENTES -->
+            <section id="fuentes">
+                <h2>Fuentes</h2>
+                <ul>
+                    <li><a href="https://docs.epayco.com" target="_blank">Documentacion oficial ePayco</a></li>
+                    <li><a href="https://docs.epayco.com/docs/integracion-personalizada" target="_blank">Integracion Personalizada - Checkout</a></li>
+                    <li><a href="https://docs.epayco.com/docs/paginas-de-respuestas" target="_blank">Paginas de Respuesta y Confirmacion</a></li>
+                    <li><a href="https://docs.epayco.com/docs/url-de-confirmacion" target="_blank">URL de Confirmacion</a></li>
+                    <li><a href="https://github.com/epayco/resources" target="_blank">GitHub - ePayco Resources</a></li>
+                    <li><a href="https://github.com/epayco/epayco-php" target="_blank">GitHub - ePayco PHP SDK</a></li>
+                </ul>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p><strong>Fase 4 - Ingenieria Inversa API ePayco</strong></p>
+            <p>Documentacion tecnica para paygw_epayco | Moodle Payment Gateway</p>
+            <p>Generado: Diciembre 2025 | <a href="https://ingeweb.co" target="_blank">ingeweb.co</a></p>
+        </div>
+    </footer>
+</body>
+</html>
