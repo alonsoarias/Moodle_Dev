@@ -38,38 +38,6 @@ defined('MOODLE_INTERNAL') || die();
 class wompi_helper {
 
     /**
-     * Sandbox test credentials for Wompi.
-     * These are official Wompi sandbox credentials for testing.
-     * Source: https://docs.wompi.co/docs/colombia/widget-checkout-web/
-     */
-    const TEST_CREDENTIALS = [
-        'publicKey' => 'pub_test_g2u0HQd3ZJh05hsSLKTp20v0JAeNEGbN',
-        'privateKey' => 'prv_test_24xZUvbmCTaApOFGdRBWNk51YoQ6B0Lo',
-        'integrityKey' => 'test_integrity_0Hj5IFNf14ObBa6mNzAH6AEi6Fw7wQEk',
-        'eventsKey' => 'test_events_aImCXzj0j0UJAWkpzBfBsLU1qR36kQzr',
-    ];
-
-    /**
-     * Test cards for Wompi sandbox environment.
-     */
-    const TEST_CARDS = [
-        'approved' => [
-            'number' => '4242424242424242',
-            'cvv' => '123',
-            'exp_month' => '12',
-            'exp_year' => '29',
-            'holder' => 'APPROVED',
-        ],
-        'declined' => [
-            'number' => '4111111111111111',
-            'cvv' => '123',
-            'exp_month' => '12',
-            'exp_year' => '29',
-            'holder' => 'DECLINED',
-        ],
-    ];
-
-    /**
      * Transaction status constants.
      */
     const STATUS_APPROVED = 'APPROVED';

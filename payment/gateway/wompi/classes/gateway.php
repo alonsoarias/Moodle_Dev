@@ -166,9 +166,8 @@ class gateway extends \core_payment\gateway {
         array $files,
         array &$errors
     ): void {
-        // In sandbox mode, empty credentials are allowed (will use test credentials).
-        // In production mode, all credentials are required.
-        if ($data->enabled && $data->environment === 'production' &&
+        // All credentials are required in both sandbox and production modes.
+        if ($data->enabled &&
             (empty($data->publickey) || empty($data->privatekey) || empty($data->integritykey))) {
             $errors['enabled'] = get_string('gatewaycannotbeenabled', 'payment');
         }
@@ -224,24 +223,6 @@ class gateway extends \core_payment\gateway {
     }
 
     /**
-     * Get test credentials for sandbox environment.
-     *
-     * @return array Test credentials for sandbox.
-     */
-    public static function get_test_credentials(): array {
-        return wompi_helper::TEST_CREDENTIALS;
-    }
-
-    /**
-     * Get test cards for sandbox environment.
-     *
-     * @return array Test cards information.
-     */
-    public static function get_test_cards(): array {
-        return wompi_helper::TEST_CARDS;
-    }
-
-    /**
      * Create a wompi_helper instance from configuration.
      *
      * @param object $config Plugin configuration.
@@ -250,26 +231,12 @@ class gateway extends \core_payment\gateway {
     public static function create_helper_from_config(object $config): wompi_helper {
         $environment = $config->environment ?? 'sandbox';
 
-        // Use test credentials if in sandbox and no credentials provided.
-        if ($environment === 'sandbox') {
-            $testcreds = self::get_test_credentials();
-            $publickey = !empty($config->publickey) ? $config->publickey : $testcreds['publicKey'];
-            $privatekey = !empty($config->privatekey) ? $config->privatekey : $testcreds['privateKey'];
-            $integritykey = !empty($config->integritykey) ? $config->integritykey : $testcreds['integrityKey'];
-            $eventskey = !empty($config->eventskey) ? $config->eventskey : $testcreds['eventsKey'];
-        } else {
-            $publickey = $config->publickey;
-            $privatekey = $config->privatekey;
-            $integritykey = $config->integritykey;
-            $eventskey = $config->eventskey ?? '';
-        }
-
         return new wompi_helper(
-            $publickey,
-            $privatekey,
-            $integritykey,
+            $config->publickey,
+            $config->privatekey,
+            $config->integritykey,
             $environment,
-            $eventskey
+            $config->eventskey ?? ''
         );
     }
 }

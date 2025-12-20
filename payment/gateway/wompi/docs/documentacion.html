@@ -291,8 +291,8 @@
                     </div>
                     <div class="card">
                         <div class="card-icon">🧪</div>
-                        <h4>Sandbox Automatico</h4>
-                        <p>Credenciales de prueba automaticas para desarrollo y testing.</p>
+                        <h4>Ambiente Sandbox</h4>
+                        <p>Ambiente de pruebas para desarrollo y testing con tus credenciales de sandbox.</p>
                     </div>
                     <div class="card">
                         <div class="card-icon">📧</div>
@@ -320,7 +320,6 @@
                         <li>Registro completo de transacciones en base de datos</li>
                         <li>Cumplimiento GDPR para proteccion de datos personales</li>
                         <li>Soporte multiidioma (Espanol e Ingles)</li>
-                        <li>Credenciales de prueba automaticas en Sandbox</li>
                     </ul>
                 </div>
 
@@ -620,17 +619,17 @@ php /ruta/a/moodle/admin/cli/upgrade.php</code></pre>
                             <tr>
                                 <td><strong>Llave Publica</strong></td>
                                 <td>Tu llave publica de Wompi (pub_test_... o pub_prod_...)</td>
-                                <td>No*</td>
+                                <td>Si</td>
                             </tr>
                             <tr>
                                 <td><strong>Llave Privada</strong></td>
                                 <td>Tu llave privada de Wompi (prv_test_... o prv_prod_...)</td>
-                                <td>No*</td>
+                                <td>Si</td>
                             </tr>
                             <tr>
                                 <td><strong>Llave de Integridad</strong></td>
                                 <td>Para generar firmas de transacciones</td>
-                                <td>No*</td>
+                                <td>Si</td>
                             </tr>
                             <tr>
                                 <td><strong>Llave de Eventos</strong></td>
@@ -651,9 +650,9 @@ php /ruta/a/moodle/admin/cli/upgrade.php</code></pre>
                     </table>
                 </div>
 
-                <div class="alert alert-info">
-                    <h4>💡 Credenciales Integradas en Sandbox</h4>
-                    <p><strong>*En modo Sandbox</strong>, puedes dejar los campos de credenciales vacios. El plugin tiene credenciales de prueba integradas que se usaran automaticamente. Esto te permite probar rapidamente sin necesidad de crear una cuenta de Wompi.</p>
+                <div class="alert alert-warning">
+                    <h4>⚠️ Credenciales Requeridas</h4>
+                    <p>Las credenciales son <strong>obligatorias</strong> tanto en modo Sandbox como en Produccion. Debes obtener tus propias llaves desde el panel de <a href="https://comercios.wompi.co" target="_blank">comercios.wompi.co</a>.</p>
                 </div>
 
                 <h3>Paso 3: Guardar y Verificar</h3>
@@ -1101,22 +1100,24 @@ El equipo de capacitacion</code></pre>
                     <h2>Pruebas en Ambiente Sandbox</h2>
                 </div>
 
-                <h3>Credenciales de Prueba Integradas</h3>
-                <p>El plugin tiene <strong>credenciales de prueba integradas</strong> en el codigo para el ambiente sandbox. Cuando seleccionas el ambiente Sandbox y dejas los campos de credenciales vacios, el plugin utiliza automaticamente credenciales internas para pruebas.</p>
+                <h3>Configurar Credenciales de Sandbox</h3>
+                <p>Para probar el plugin en modo sandbox, necesitas obtener tus propias credenciales de prueba desde tu cuenta de Wompi.</p>
 
                 <div class="alert alert-info">
-                    <h4>💡 Funcionamiento en Sandbox</h4>
-                    <p>En modo Sandbox, puedes dejar todos los campos de credenciales vacios. El plugin usara automaticamente sus credenciales de prueba integradas. Solo necesitas:</p>
+                    <h4>💡 Obtener Credenciales de Sandbox</h4>
+                    <p>Para obtener tus credenciales de prueba:</p>
                     <ol>
-                        <li>Seleccionar ambiente <strong>Sandbox</strong></li>
-                        <li>Seleccionar los metodos de pago deseados</li>
-                        <li>Guardar la configuracion</li>
+                        <li>Ingresa a <a href="https://comercios.wompi.co" target="_blank">comercios.wompi.co</a></li>
+                        <li>Crea una cuenta o inicia sesion</li>
+                        <li>En el panel, selecciona ambiente <strong>Sandbox</strong></li>
+                        <li>Copia tus llaves de prueba (inician con <code>pub_test_</code>, <code>prv_test_</code>, etc.)</li>
+                        <li>Configura estas llaves en el plugin de Moodle</li>
                     </ol>
                 </div>
 
                 <div class="alert alert-warning">
-                    <h4>⚠️ Credenciales Propias de Sandbox</h4>
-                    <p>Si necesitas probar webhooks personalizados o funcionalidades avanzadas, puedes crear tu propia cuenta en <a href="https://comercios.wompi.co" target="_blank">comercios.wompi.co</a> y usar tus propias credenciales de sandbox (que inician con <code>pub_test_</code>, <code>prv_test_</code>, etc.).</p>
+                    <h4>⚠️ Credenciales Requeridas</h4>
+                    <p>Las credenciales son <strong>obligatorias</strong> tanto en modo Sandbox como en Produccion. Debes obtener tus propias llaves desde el panel de Wompi para poder usar el plugin.</p>
                 </div>
 
                 <h3>Tarjetas de Prueba</h3>
