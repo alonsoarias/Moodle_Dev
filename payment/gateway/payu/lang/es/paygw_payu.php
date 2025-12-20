@@ -58,6 +58,16 @@ $string['responseurl'] = 'URL de respuesta';
 
 $string['sandbox_notice'] = '<strong>Nota:</strong> En ambiente Sandbox se utilizan automáticamente las credenciales de prueba de PayU. No necesita ingresar credenciales.';
 
+// Cadenas del formulario de pago.
+$string['abouttopay'] = 'Está a punto de pagar por';
+$string['country'] = 'País';
+$string['uninterrupted_desc'] = 'Por favor no cierre esta ventana hasta que el pago esté completo.';
+$string['paymore'] = 'Opcionalmente puede pagar más del monto mínimo';
+$string['sendpaymentbutton'] = 'Proceder al Pago';
+$string['skipmode_text'] = 'O si tiene un código de acceso gratuito:';
+$string['skippaymentbutton'] = 'Usar Código de Acceso';
+$string['password_text'] = '¿Tiene una contraseña? Ingrésela aquí';
+
 // Proceso de pago.
 $string['redirecting'] = 'Redirigiendo a PayU...';
 $string['redirecting_message'] = 'Está siendo redirigido a la página segura de pago de PayU. Por favor espere...';

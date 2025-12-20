@@ -211,10 +211,10 @@ echo $OUTPUT->header();
                 redirectUrl: '<?php echo $successurl->out(false); ?>',
                 <?php if (!empty($customerdata['email'])): ?>
                 customerData: {
-                    email: '<?php echo $customerdata['email']; ?>',
-                    fullName: '<?php echo addslashes($customerdata['full_name']); ?>',
+                    email: <?php echo json_encode($customerdata['email']); ?>,
+                    fullName: <?php echo json_encode($customerdata['full_name']); ?>,
                     <?php if (!empty($customerdata['phone_number'])): ?>
-                    phoneNumber: '<?php echo $customerdata['phone_number']; ?>',
+                    phoneNumber: <?php echo json_encode($customerdata['phone_number']); ?>,
                     <?php endif; ?>
                 },
                 <?php endif; ?>

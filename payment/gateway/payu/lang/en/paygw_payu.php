@@ -58,6 +58,16 @@ $string['responseurl'] = 'Response URL';
 
 $string['sandbox_notice'] = '<strong>Note:</strong> In Sandbox environment, PayU test credentials are automatically used. You do not need to enter credentials.';
 
+// Payment form strings.
+$string['abouttopay'] = 'You are about to pay for';
+$string['country'] = 'Country';
+$string['uninterrupted_desc'] = 'Please do not close this window until the payment is complete.';
+$string['paymore'] = 'You can optionally pay more than the minimum amount';
+$string['sendpaymentbutton'] = 'Proceed to Payment';
+$string['skipmode_text'] = 'Or if you have a free access code:';
+$string['skippaymentbutton'] = 'Use Access Code';
+$string['password_text'] = 'Have a password? Enter it here';
+
 // Payment process.
 $string['redirecting'] = 'Redirecting to PayU...';
 $string['redirecting_message'] = 'You are being redirected to PayU\'s secure payment page. Please wait...';

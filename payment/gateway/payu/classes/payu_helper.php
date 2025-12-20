@@ -75,7 +75,7 @@ class payu_helper {
     private $merchantid;
 
     /** @var string Account ID. */
-    private $accountid;
+    private $payuaccountid;
 
     /** @var string API Key. */
     private $apikey;

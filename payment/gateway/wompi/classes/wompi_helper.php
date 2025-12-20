@@ -232,6 +232,11 @@ class wompi_helper {
 
         $decoded = json_decode($response, true);
 
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            debugging('Wompi JSON Decode Error: ' . json_last_error_msg(), DEBUG_DEVELOPER);
+            return null;
+        }
+
         if ($httpcode >= 400) {
             debugging('Wompi API HTTP Error: ' . $httpcode . ' - ' . $response, DEBUG_DEVELOPER);
             return null;

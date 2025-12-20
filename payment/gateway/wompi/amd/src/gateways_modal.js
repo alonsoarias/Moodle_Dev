@@ -49,10 +49,10 @@ export const process = (component, paymentArea, itemId, description) => {
     return showModalWithPlaceholder()
         .then(() => {
             location.href = M.cfg.wwwroot + '/payment/gateway/wompi/pay.php?' +
-                'component=' + component +
-                '&paymentarea=' + paymentArea +
-                '&itemid=' + itemId +
-                '&description=' + description;
+                'component=' + encodeURIComponent(component) +
+                '&paymentarea=' + encodeURIComponent(paymentArea) +
+                '&itemid=' + encodeURIComponent(itemId) +
+                '&description=' + encodeURIComponent(description);
             return new Promise(() => null);
         });
 };

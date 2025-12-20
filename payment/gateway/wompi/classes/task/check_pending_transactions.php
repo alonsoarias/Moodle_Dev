@@ -94,13 +94,13 @@ class check_pending_transactions extends scheduled_task {
                 // Query Wompi API for current status.
                 $wompidata = $helper->get_transaction($transaction->transactionid);
 
-                if (!$wompidata || !isset($wompidata['data']['status'])) {
+                if (!$wompidata || !isset($wompidata['status'])) {
                     mtrace("  Transaction {$transaction->transactionid}: Could not fetch status from Wompi.");
                     $errors++;
                     continue;
                 }
 
-                $newstatus = $wompidata['data']['status'];
+                $newstatus = $wompidata['status'];
                 mtrace("  Transaction {$transaction->transactionid}: Wompi status = {$newstatus}");
 
                 // If status changed from PENDING, update the transaction.
