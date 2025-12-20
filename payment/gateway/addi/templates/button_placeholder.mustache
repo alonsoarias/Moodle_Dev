@@ -1,0 +1,73 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template paygw_addi/button_placeholder
+
+    This template renders the Addi payment button placeholder.
+
+    Context variables required for this template:
+    * payUrl - URL to the payment page
+    * buttonLabel - Label for the payment button
+    * amount - Amount to pay
+    * currency - Currency code
+    * isValid - Whether amount is within limits
+    * minAmount - Minimum allowed amount
+    * maxAmount - Maximum allowed amount
+
+    Example context (json):
+    {
+        "payUrl": "https://example.com/payment/gateway/addi/pay.php?...",
+        "buttonLabel": "Pay with Addi",
+        "amount": "100000",
+        "currency": "COP",
+        "isValid": true,
+        "minAmount": 50000,
+        "maxAmount": 5000000
+    }
+}}
+<div class="paygw-addi-container text-center py-4">
+    <div class="addi-amount mb-3">
+        <p class="h4 mb-0">{{#str}}amounttopay, paygw_addi{{/str}}</p>
+        <p class="h2 text-primary font-weight-bold">${{amount}} {{currency}}</p>
+    </div>
+
+    {{#isValid}}
+    <div class="addi-button-wrapper mb-3">
+        <a href="{{payUrl}}" class="btn btn-success btn-lg">
+            <i class="fa fa-credit-card mr-2"></i>
+            {{{buttonLabel}}}
+        </a>
+    </div>
+
+    <p class="small text-muted">
+        {{#str}}redirectaddi, paygw_addi{{/str}}
+    </p>
+
+    <div class="alert alert-info small mt-3" style="max-width: 400px; margin: 0 auto;">
+        <i class="fa fa-info-circle mr-1"></i>
+        <strong>Addi</strong> - Buy Now, Pay Later<br>
+        Split your payment into convenient installments.
+    </div>
+    {{/isValid}}
+
+    {{^isValid}}
+    <div class="alert alert-warning">
+        <i class="fa fa-exclamation-triangle mr-1"></i>
+        {{#str}}amountbelowminimum, paygw_addi, {"amount": "{{amount}}", "currency": "{{currency}}", "min": "{{minAmount}}"}{{/str}}
+    </div>
+    {{/isValid}}
+</div>

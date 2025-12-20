@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación - Plugin de Pagos Addi para Moodle</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #6C63FF, #5A52D5); color: white; padding: 40px 20px; text-align: center; margin-bottom: 30px; border-radius: 8px; }
+        header h1 { font-size: 2.2em; margin-bottom: 10px; }
+        header p { opacity: 0.9; }
+        .card { background: white; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { color: #6C63FF; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #6C63FF; }
+        h3 { color: #555; margin: 20px 0 10px; }
+        ul, ol { margin-left: 20px; margin-bottom: 15px; }
+        li { margin-bottom: 8px; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; margin: 15px 0; }
+        pre code { background: none; color: inherit; padding: 0; }
+        .alert { padding: 15px; border-radius: 6px; margin: 15px 0; }
+        .alert-info { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .alert-warning { background: #fff3e0; border-left: 4px solid #ff9800; }
+        .alert-success { background: #e8f5e9; border-left: 4px solid #4caf50; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f5f5f5; font-weight: 600; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 500; }
+        .badge-success { background: #c8e6c9; color: #2e7d32; }
+        .badge-warning { background: #fff3e0; color: #e65100; }
+        .badge-primary { background: #e8eaf6; color: #3f51b5; }
+        .step-number { display: inline-block; width: 28px; height: 28px; background: #6C63FF; color: white; border-radius: 50%; text-align: center; line-height: 28px; margin-right: 10px; font-weight: bold; }
+        footer { text-align: center; padding: 20px; color: #666; font-size: 0.9em; }
+        a { color: #6C63FF; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💳 Plugin de Pagos Addi</h1>
+            <p>Compra Ahora, Paga Después (BNPL) para Moodle - Colombia</p>
+        </header>
+
+        <div class="card">
+            <h2>📋 Descripción General</h2>
+            <p>El plugin <strong>paygw_addi</strong> permite integrar el servicio de financiamiento Addi en tu plataforma Moodle. Addi es un servicio colombiano de "Buy Now, Pay Later" (BNPL) que permite a los estudiantes dividir el pago de sus cursos en cuotas convenientes.</p>
+
+            <h3>¿Qué es Addi?</h3>
+            <ul>
+                <li><strong>Compra Ahora, Paga Después:</strong> Los estudiantes pueden acceder inmediatamente al curso y pagar en cuotas</li>
+                <li><strong>Aprobación Rápida:</strong> Proceso de verificación de crédito en minutos</li>
+                <li><strong>Sin Tarjeta de Crédito:</strong> No requiere tarjeta de crédito tradicional</li>
+                <li><strong>Cuotas Flexibles:</strong> Planes de pago adaptados a las necesidades del estudiante</li>
+            </ul>
+
+            <h3>Moneda Soportada</h3>
+            <ul>
+                <li><span class="badge badge-success">COP</span> Peso Colombiano</li>
+            </ul>
+
+            <h3>Límites de Monto</h3>
+            <ul>
+                <li><strong>Mínimo:</strong> $50,000 COP (configurable)</li>
+                <li><strong>Máximo:</strong> $5,000,000 COP (configurable)</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>🚀 Requisitos</h2>
+            <ul>
+                <li>Moodle 4.1 o superior</li>
+                <li>PHP 8.0 o superior</li>
+                <li>Cuenta comercial con Addi</li>
+                <li>SSL/HTTPS habilitado en tu servidor</li>
+                <li>Contrato de aliado comercial con Addi</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>📦 Instalación</h2>
+
+            <h3><span class="step-number">1</span>Descargar el Plugin</h3>
+            <p>Copia la carpeta <code>addi</code> en el directorio:</p>
+            <pre><code>/payment/gateway/addi</code></pre>
+
+            <h3><span class="step-number">2</span>Instalar desde Moodle</h3>
+            <ol>
+                <li>Accede como administrador a tu sitio Moodle</li>
+                <li>Ve a <strong>Administración del sitio → Notificaciones</strong></li>
+                <li>Sigue el asistente de instalación de plugins</li>
+            </ol>
+
+            <h3><span class="step-number">3</span>Habilitar el Plugin</h3>
+            <ol>
+                <li>Ve a <strong>Administración del sitio → Plugins → Pasarelas de pago → Gestionar pasarelas de pago</strong></li>
+                <li>Activa el plugin "Addi"</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>🔑 Obtener Credenciales de Addi</h2>
+
+            <h3>Proceso de Registro</h3>
+            <ol>
+                <li>Contacta al equipo comercial de Addi en <a href="https://co.addi.com" target="_blank">co.addi.com</a></li>
+                <li>Completa el proceso de onboarding como aliado comercial</li>
+                <li>Una vez aprobado, recibirás:
+                    <ul>
+                        <li><code>Client ID</code></li>
+                        <li><code>Client Secret</code></li>
+                        <li><code>Ally Slug</code> (identificador único de tu comercio)</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <div class="alert alert-info">
+                <strong>ℹ️ Nota:</strong> Addi proporciona credenciales separadas para los ambientes de Sandbox y Producción.
+            </div>
+
+            <h3>Ambiente Sandbox (Pruebas)</h3>
+            <p>El ambiente de sandbox permite probar la integración sin procesar transacciones reales. Las solicitudes de financiamiento serán simuladas.</p>
+
+            <h3>Ambiente Producción</h3>
+            <p>Una vez completadas las pruebas en sandbox, Addi habilitará tus credenciales de producción.</p>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ Configuración</h2>
+
+            <h3>Crear una Cuenta de Pago</h3>
+            <ol>
+                <li>Ve a <strong>Administración del sitio → Plugins → Inscripciones → Gestionar cuentas de pago</strong></li>
+                <li>Haz clic en <strong>"Crear cuenta de pago"</strong></li>
+                <li>Completa el nombre y selecciona la moneda (COP)</li>
+            </ol>
+
+            <h3>Configurar Addi en la Cuenta</h3>
+            <ol>
+                <li>En la cuenta de pago, haz clic en "Addi" bajo pasarelas de pago</li>
+                <li>Activa la pasarela</li>
+                <li>Configura los siguientes campos:</li>
+            </ol>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ambiente</strong></td>
+                        <td>Selecciona "Sandbox" para pruebas o "Producción" para transacciones reales</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Client ID</strong></td>
+                        <td>Tu identificador de cliente proporcionado por Addi</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Client Secret</strong></td>
+                        <td>Tu secreto de cliente proporcionado por Addi</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ally Slug</strong></td>
+                        <td>Tu identificador único de comercio en Addi</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monto Mínimo</strong></td>
+                        <td>Monto mínimo permitido para pagos con Addi (default: 50,000 COP)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monto Máximo</strong></td>
+                        <td>Monto máximo permitido para pagos con Addi (default: 5,000,000 COP)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>🔗 Configuración de URLs en Addi</h2>
+            <p>Debes configurar las siguientes URLs en tu panel de Addi:</p>
+
+            <h3>URL de Redirección</h3>
+            <pre><code>https://tu-sitio.com/payment/gateway/addi/response.php</code></pre>
+
+            <h3>URL de Webhook</h3>
+            <pre><code>https://tu-sitio.com/payment/gateway/addi/webhook.php</code></pre>
+
+            <div class="alert alert-info">
+                <strong>ℹ️ Nota:</strong> Reemplaza <code>tu-sitio.com</code> con el dominio real de tu instalación de Moodle.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔄 Flujo de Pago</h2>
+            <ol>
+                <li>El estudiante selecciona un curso con inscripción de pago</li>
+                <li>Selecciona "Addi" como método de pago</li>
+                <li>Es redirigido al portal de Addi</li>
+                <li>Completa el proceso de solicitud de financiamiento</li>
+                <li>Addi evalúa la solicitud y notifica el resultado</li>
+                <li>Si es aprobado, el estudiante se inscribe automáticamente al curso</li>
+                <li>El estudiante paga las cuotas directamente a Addi</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>📊 Estados de Transacción</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Estado</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-primary">INITIATED</span></td>
+                        <td>Solicitud iniciada pero no enviada a Addi</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">PENDING</span></td>
+                        <td>Solicitud enviada a Addi, en proceso de evaluación</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">APPROVED</span></td>
+                        <td>Financiamiento aprobado, estudiante inscrito</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">REJECTED</span></td>
+                        <td>Solicitud de financiamiento rechazada</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">CANCELLED</span></td>
+                        <td>Solicitud cancelada por el usuario</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">EXPIRED</span></td>
+                        <td>Solicitud expirada por inactividad</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>⏰ Tareas Programadas</h2>
+            <p>El plugin incluye las siguientes tareas programadas:</p>
+
+            <h3>Verificar Transacciones Pendientes</h3>
+            <ul>
+                <li>Se ejecuta cada 30 minutos</li>
+                <li>Consulta el estado de transacciones pendientes en Addi</li>
+                <li>Completa inscripciones si el financiamiento fue aprobado</li>
+            </ul>
+
+            <h3>Limpiar Transacciones Expiradas</h3>
+            <ul>
+                <li>Se ejecuta diariamente a las 4:00 AM</li>
+                <li>Elimina transacciones abandonadas</li>
+                <li>Marca transacciones pendientes antiguas como expiradas</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>📧 Plantillas de Email</h2>
+            <p>El plugin permite personalizar los emails de notificación. Puedes usar los siguientes placeholders:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Placeholder</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>{firstname}</code></td>
+                        <td>Nombre del usuario</td>
+                    </tr>
+                    <tr>
+                        <td><code>{fullname}</code></td>
+                        <td>Nombre completo del usuario</td>
+                    </tr>
+                    <tr>
+                        <td><code>{amount}</code></td>
+                        <td>Monto del pago con moneda</td>
+                    </tr>
+                    <tr>
+                        <td><code>{currency}</code></td>
+                        <td>Código de moneda</td>
+                    </tr>
+                    <tr>
+                        <td><code>{orderid}</code></td>
+                        <td>ID de orden/referencia</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>🔒 Seguridad</h2>
+            <ul>
+                <li><strong>OAuth 2.0:</strong> Autenticación segura con el API de Addi</li>
+                <li><strong>HTTPS Requerido:</strong> Todas las comunicaciones usan SSL/TLS</li>
+                <li><strong>Webhooks Verificados:</strong> Se valida la autenticidad de las notificaciones</li>
+                <li><strong>Tokens con Expiración:</strong> Los tokens de acceso tienen tiempo de vida limitado</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>❓ Solución de Problemas</h2>
+
+            <h3>Error "Monto fuera de límites"</h3>
+            <ul>
+                <li>Verifica que el precio del curso esté dentro de los límites de Addi</li>
+                <li>Ajusta los límites mínimo/máximo en la configuración del plugin</li>
+            </ul>
+
+            <h3>La solicitud no se procesa</h3>
+            <ul>
+                <li>Verifica que las credenciales (Client ID, Client Secret, Ally Slug) sean correctas</li>
+                <li>Asegúrate de usar las credenciales del ambiente correcto</li>
+                <li>Revisa los logs de Moodle para errores de API</li>
+            </ul>
+
+            <h3>El estudiante no se inscribe después de la aprobación</h3>
+            <ul>
+                <li>Verifica que el webhook esté configurado correctamente en Addi</li>
+                <li>Ejecuta manualmente la tarea "Verificar transacciones pendientes"</li>
+                <li>Revisa los logs para errores de entrega</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>📞 Soporte</h2>
+            <p>Para soporte técnico del plugin:</p>
+            <ul>
+                <li><strong>Email:</strong> <a href="mailto:soporte@ingeweb.co">soporte@ingeweb.co</a></li>
+                <li><strong>Web:</strong> <a href="https://ingeweb.co" target="_blank">ingeweb.co</a></li>
+            </ul>
+
+            <p>Para soporte de Addi:</p>
+            <ul>
+                <li><strong>Portal:</strong> <a href="https://co.addi.com" target="_blank">co.addi.com</a></li>
+                <li><strong>Documentación API:</strong> <a href="https://api-docs-sandbox.addi.com" target="_blank">api-docs-sandbox.addi.com</a></li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>Plugin paygw_addi v1.0.0 | © 2025 ingeweb.co</p>
+            <p>Licencia: GNU GPL v3</p>
+        </footer>
+    </div>
+</body>
+</html>

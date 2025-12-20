@@ -1,0 +1,58 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template paygw_epayco/button_placeholder
+
+    This template renders the ePayco payment button placeholder.
+
+    Context variables required for this template:
+    * payUrl - URL to the payment page
+    * buttonLabel - Label for the payment button
+    * amount - Amount to pay
+    * currency - Currency code
+
+    Example context (json):
+    {
+        "payUrl": "https://example.com/payment/gateway/epayco/pay.php?...",
+        "buttonLabel": "Pay with ePayco",
+        "amount": "50000",
+        "currency": "COP"
+    }
+}}
+<div class="paygw-epayco-container text-center py-4">
+    <div class="epayco-amount mb-3">
+        <p class="h4 mb-0">{{#str}}amounttopay, paygw_epayco{{/str}}</p>
+        <p class="h2 text-primary font-weight-bold">${{amount}} {{currency}}</p>
+    </div>
+
+    <div class="epayco-button-wrapper mb-3">
+        <a href="{{payUrl}}" class="btn btn-primary btn-lg" target="_blank">
+            <i class="fa fa-credit-card mr-2"></i>
+            {{{buttonLabel}}}
+        </a>
+    </div>
+
+    <p class="small text-muted">
+        {{#str}}redirectepayco, paygw_epayco{{/str}}
+    </p>
+
+    <div class="epayco-logo mt-3">
+        <img src="https://369969691f476073508a-60bf0867add971908d4f26a64519c2aa.ssl.cf5.rackcdn.com/btns/epayco/boton_de_pago_epayco-01.png"
+             alt="ePayco"
+             style="max-height: 60px;">
+    </div>
+</div>
