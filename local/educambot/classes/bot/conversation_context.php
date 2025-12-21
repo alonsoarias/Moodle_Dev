@@ -497,37 +497,37 @@ class conversation_context {
         switch ($this->state['topic']) {
             case 'assignments':
                 $suggestions = [
-                    '¿Cuándo vence esta tarea?',
-                    '¿Qué otras tareas tengo pendientes?',
-                    '¿Cómo puedo entregar la tarea?',
+                    get_string('followup_assignment_1', 'local_educambot'),
+                    get_string('followup_assignment_2', 'local_educambot'),
+                    get_string('followup_assignment_3', 'local_educambot'),
                 ];
                 break;
             case 'grades':
                 $suggestions = [
-                    '¿Cuál es mi promedio general?',
-                    '¿Qué notas me faltan?',
-                    '¿Cómo puedo mejorar mi calificación?',
+                    get_string('followup_grades_1', 'local_educambot'),
+                    get_string('followup_grades_2', 'local_educambot'),
+                    get_string('followup_grades_3', 'local_educambot'),
                 ];
                 break;
             case 'calendar':
                 $suggestions = [
-                    '¿Qué eventos hay esta semana?',
-                    '¿Cuándo es el próximo examen?',
-                    '¿Cuáles son mis próximas entregas?',
+                    get_string('followup_calendar_1', 'local_educambot'),
+                    get_string('followup_calendar_2', 'local_educambot'),
+                    get_string('followup_calendar_3', 'local_educambot'),
                 ];
                 break;
             case 'course':
                 $suggestions = [
-                    '¿Quién es el profesor de este curso?',
-                    '¿Cuándo termina el curso?',
-                    '¿Qué temas faltan por ver?',
+                    get_string('followup_course_1', 'local_educambot'),
+                    get_string('followup_course_2', 'local_educambot'),
+                    get_string('followup_course_3', 'local_educambot'),
                 ];
                 break;
             default:
                 $suggestions = [
-                    '¿Qué tareas tengo pendientes?',
-                    '¿Cuál es mi calificación actual?',
-                    '¿Qué eventos tengo próximamente?',
+                    get_string('followup_general_1', 'local_educambot'),
+                    get_string('followup_general_2', 'local_educambot'),
+                    get_string('followup_general_3', 'local_educambot'),
                 ];
         }
 

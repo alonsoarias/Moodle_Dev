@@ -230,20 +230,22 @@ class engine {
         $userInfo = $this->moodleContext->get_user_info();
         $hour = (int)date('H');
 
-        // Time-based greeting.
+        // Time-based greeting from language strings.
         if ($hour < 12) {
-            $timeGreeting = 'Buenos días';
+            $timeGreeting = get_string('greeting_morning', 'local_educambot');
         } else if ($hour < 19) {
-            $timeGreeting = 'Buenas tardes';
+            $timeGreeting = get_string('greeting_afternoon', 'local_educambot');
         } else {
-            $timeGreeting = 'Buenas noches';
+            $timeGreeting = get_string('greeting_evening', 'local_educambot');
         }
 
+        // Greeting templates from language file.
+        $params = (object)['greeting' => $timeGreeting, 'firstname' => $userInfo['firstname']];
         $greetings = [
-            "¡{$timeGreeting}, {$userInfo['firstname']}! ¿En qué puedo ayudarte hoy?",
-            "¡Hola {$userInfo['firstname']}! Estoy aquí para ayudarte.",
-            "¡{$timeGreeting}! ¿Qué necesitas saber?",
-            "¡Hola! ¿Cómo puedo asistirte hoy?",
+            get_string('greeting_response_1', 'local_educambot', $params),
+            get_string('greeting_response_2', 'local_educambot', $params),
+            get_string('greeting_response_3', 'local_educambot', $params),
+            get_string('greeting_response_4', 'local_educambot', $params),
         ];
 
         return [
@@ -263,11 +265,12 @@ class engine {
      * @return array Response
      */
     protected function build_farewell_response(array $analysis): array {
+        // Farewell responses from language file.
         $farewells = [
-            "¡Hasta luego! Si necesitas algo más, aquí estaré.",
-            "¡Adiós! Fue un gusto ayudarte.",
-            "¡Nos vemos! No dudes en volver cuando necesites ayuda.",
-            "¡Chao! Que tengas un excelente día.",
+            get_string('farewell_response_1', 'local_educambot'),
+            get_string('farewell_response_2', 'local_educambot'),
+            get_string('farewell_response_3', 'local_educambot'),
+            get_string('farewell_response_4', 'local_educambot'),
         ];
 
         // Reset conversation context on farewell.
@@ -289,11 +292,12 @@ class engine {
      * @return array Response
      */
     protected function build_thanks_response(array $analysis): array {
+        // Thanks responses from language file.
         $responses = [
-            "¡De nada! Me alegra haberte ayudado. ¿Necesitas algo más?",
-            "¡Con gusto! Estoy aquí para lo que necesites.",
-            "¡No hay de qué! ¿Puedo ayudarte con algo más?",
-            "¡Es un placer! Si tienes más preguntas, no dudes en hacerlas.",
+            get_string('thanks_response_1', 'local_educambot'),
+            get_string('thanks_response_2', 'local_educambot'),
+            get_string('thanks_response_3', 'local_educambot'),
+            get_string('thanks_response_4', 'local_educambot'),
         ];
 
         return [
@@ -319,10 +323,11 @@ class engine {
         }
 
         $userInfo = $this->moodleContext->get_user_info();
+        // Empathetic responses from language file.
         $empathetic = [
-            "Entiendo tu frustración, {$userInfo['firstname']}. Déjame ayudarte con esto.",
-            "Lamento que estés teniendo dificultades. Vamos a resolverlo juntos.",
-            "No te preocupes, estoy aquí para ayudarte. ¿Puedes explicarme qué ocurre?",
+            get_string('empathetic_response_1', 'local_educambot', $userInfo['firstname']),
+            get_string('empathetic_response_2', 'local_educambot'),
+            get_string('empathetic_response_3', 'local_educambot'),
         ];
 
         return [
@@ -332,9 +337,9 @@ class engine {
             'confidence' => 0.8,
             'type' => 'empathetic',
             'options' => [
-                ['text' => 'Tengo un problema con una tarea', 'icon' => 'bi-file-earmark-text', 'action' => 'problema con mi tarea'],
-                ['text' => 'No puedo acceder a algo', 'icon' => 'bi-lock', 'action' => 'no puedo acceder'],
-                ['text' => 'Necesito contactar al profesor', 'icon' => 'bi-person', 'action' => 'contactar profesor'],
+                ['text' => get_string('option_task_problem', 'local_educambot'), 'icon' => 'bi-file-earmark-text', 'action' => 'problema con mi tarea'],
+                ['text' => get_string('option_access_problem', 'local_educambot'), 'icon' => 'bi-lock', 'action' => 'no puedo acceder'],
+                ['text' => get_string('option_contact_teacher', 'local_educambot'), 'icon' => 'bi-person', 'action' => 'contactar profesor'],
             ],
         ];
     }
@@ -376,7 +381,7 @@ class engine {
 
         return [
             'success' => true,
-            'response' => "¡Perfecto! ¿En qué más puedo ayudarte?",
+            'response' => get_string('affirmation_response', 'local_educambot'),
             'ruleid' => null,
             'confidence' => 1.0,
             'type' => 'follow_up',
@@ -395,7 +400,7 @@ class engine {
     protected function handle_negation(array $analysis): array {
         return [
             'success' => true,
-            'response' => "Entendido. Si necesitas algo más, solo pregúntame.",
+            'response' => get_string('negation_response', 'local_educambot'),
             'ruleid' => null,
             'confidence' => 1.0,
             'type' => 'follow_up',
@@ -703,11 +708,11 @@ class engine {
         // Try to find similar questions from history.
         $suggestions = $this->find_similar_questions($question);
 
-        // Prepare fallback response.
+        // Prepare fallback response from language file.
         $fallbackResponses = [
-            "No estoy seguro de entender tu pregunta. ¿Podrías reformularla?",
-            "Hmm, no encontré información sobre eso. ¿Puedes ser más específico?",
-            "Disculpa, no tengo una respuesta para eso. ¿Intentamos con otras palabras?",
+            get_string('fallback_response_1', 'local_educambot'),
+            get_string('fallback_response_2', 'local_educambot'),
+            get_string('fallback_response_3', 'local_educambot'),
         ];
 
         $response = $fallbackResponses[array_rand($fallbackResponses)];
@@ -715,7 +720,7 @@ class engine {
         // Add suggestions if available.
         $options = [];
         if (!empty($suggestions)) {
-            $response .= "\n\nQuizás quisiste preguntar:";
+            $response .= "\n\n" . get_string('fallback_suggestions', 'local_educambot');
             foreach (array_slice($suggestions, 0, 3) as $suggestion) {
                 $options[] = [
                     'text' => $suggestion['pattern'],
@@ -797,27 +802,27 @@ class engine {
     protected function get_topic_suggestions(string $topic): array {
         $suggestions = [
             intent_detector::TOPIC_ASSIGNMENTS => [
-                ['text' => '¿Qué tareas tengo pendientes?', 'icon' => 'bi-file-earmark-text', 'action' => 'tareas pendientes'],
-                ['text' => '¿Cuándo vence mi próxima tarea?', 'icon' => 'bi-calendar', 'action' => 'fecha próxima tarea'],
+                ['text' => get_string('suggestion_pending_tasks', 'local_educambot'), 'icon' => 'bi-file-earmark-text', 'action' => 'tareas pendientes'],
+                ['text' => get_string('suggestion_next_deadline', 'local_educambot'), 'icon' => 'bi-calendar', 'action' => 'fecha proxima tarea'],
             ],
             intent_detector::TOPIC_GRADES => [
-                ['text' => '¿Cuál es mi calificación actual?', 'icon' => 'bi-trophy', 'action' => 'mi calificación'],
-                ['text' => '¿Cómo van mis notas?', 'icon' => 'bi-graph-up', 'action' => 'mis notas'],
+                ['text' => get_string('suggestion_current_grade', 'local_educambot'), 'icon' => 'bi-trophy', 'action' => 'mi calificacion'],
+                ['text' => get_string('suggestion_my_grades', 'local_educambot'), 'icon' => 'bi-graph-up', 'action' => 'mis notas'],
             ],
             intent_detector::TOPIC_CALENDAR => [
-                ['text' => '¿Qué eventos tengo esta semana?', 'icon' => 'bi-calendar-event', 'action' => 'eventos semana'],
-                ['text' => '¿Cuándo es el próximo examen?', 'icon' => 'bi-clock', 'action' => 'próximo examen'],
+                ['text' => get_string('suggestion_week_events', 'local_educambot'), 'icon' => 'bi-calendar-event', 'action' => 'eventos semana'],
+                ['text' => get_string('suggestion_next_exam', 'local_educambot'), 'icon' => 'bi-clock', 'action' => 'proximo examen'],
             ],
             intent_detector::TOPIC_COURSE => [
-                ['text' => '¿Quién es el profesor?', 'icon' => 'bi-person', 'action' => 'quién es el profesor'],
-                ['text' => 'Información del curso', 'icon' => 'bi-info-circle', 'action' => 'información del curso'],
+                ['text' => get_string('suggestion_who_teacher', 'local_educambot'), 'icon' => 'bi-person', 'action' => 'quien es el profesor'],
+                ['text' => get_string('suggestion_course_info', 'local_educambot'), 'icon' => 'bi-info-circle', 'action' => 'informacion del curso'],
             ],
         ];
 
         return $suggestions[$topic] ?? [
-            ['text' => '¿Qué tareas tengo?', 'icon' => 'bi-list-task', 'action' => 'mis tareas'],
-            ['text' => 'Ver mi calendario', 'icon' => 'bi-calendar3', 'action' => 'mi calendario'],
-            ['text' => 'Consultar calificaciones', 'icon' => 'bi-award', 'action' => 'mis calificaciones'],
+            ['text' => get_string('suggestion_my_tasks', 'local_educambot'), 'icon' => 'bi-list-task', 'action' => 'mis tareas'],
+            ['text' => get_string('suggestion_my_calendar', 'local_educambot'), 'icon' => 'bi-calendar3', 'action' => 'mi calendario'],
+            ['text' => get_string('suggestion_my_grades_alt', 'local_educambot'), 'icon' => 'bi-award', 'action' => 'mis calificaciones'],
         ];
     }
 
@@ -828,9 +833,9 @@ class engine {
      */
     protected function get_quick_start_options(): array {
         return [
-            ['text' => 'Ver mis tareas', 'icon' => 'bi-list-check', 'action' => 'mis tareas pendientes'],
-            ['text' => 'Consultar calificaciones', 'icon' => 'bi-trophy', 'action' => 'mis calificaciones'],
-            ['text' => 'Ver calendario', 'icon' => 'bi-calendar-event', 'action' => 'mi calendario'],
+            ['text' => get_string('option_view_tasks', 'local_educambot'), 'icon' => 'bi-list-check', 'action' => 'mis tareas pendientes'],
+            ['text' => get_string('option_view_grades', 'local_educambot'), 'icon' => 'bi-trophy', 'action' => 'mis calificaciones'],
+            ['text' => get_string('option_view_calendar', 'local_educambot'), 'icon' => 'bi-calendar-event', 'action' => 'mi calendario'],
         ];
     }
 

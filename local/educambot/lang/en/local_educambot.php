@@ -658,3 +658,83 @@ $string['backupsettings'] = 'Backup settings';
 $string['automatedbackups'] = 'Automated backups';
 $string['restoresite'] = 'Restore site/course';
 $string['importcourse'] = 'Import course';
+
+// v3.1.0 - Bot responses externalized.
+// Greetings by time of day.
+$string['greeting_morning'] = 'Good morning';
+$string['greeting_afternoon'] = 'Good afternoon';
+$string['greeting_evening'] = 'Good evening';
+
+// Greeting responses (array of variants).
+$string['greeting_response_1'] = '{$a->greeting}, {$a->firstname}! How can I help you today?';
+$string['greeting_response_2'] = 'Hello {$a->firstname}! I\'m here to help you.';
+$string['greeting_response_3'] = '{$a->greeting}! What do you need to know?';
+$string['greeting_response_4'] = 'Hello! How can I assist you today?';
+
+// Farewell responses.
+$string['farewell_response_1'] = 'Goodbye! If you need anything else, I\'ll be here.';
+$string['farewell_response_2'] = 'Bye! It was nice helping you.';
+$string['farewell_response_3'] = 'See you! Don\'t hesitate to come back when you need help.';
+$string['farewell_response_4'] = 'Goodbye! Have a great day.';
+
+// Thanks responses.
+$string['thanks_response_1'] = 'You\'re welcome! Glad I could help. Need anything else?';
+$string['thanks_response_2'] = 'My pleasure! I\'m here for whatever you need.';
+$string['thanks_response_3'] = 'No problem! Can I help with anything else?';
+$string['thanks_response_4'] = 'Happy to help! If you have more questions, just ask.';
+
+// Empathetic responses for frustrated users.
+$string['empathetic_response_1'] = 'I understand your frustration, {$a}. Let me help you with this.';
+$string['empathetic_response_2'] = 'I\'m sorry you\'re having difficulties. Let\'s solve this together.';
+$string['empathetic_response_3'] = 'Don\'t worry, I\'m here to help. Can you explain what\'s happening?';
+
+// Fallback responses when no match found.
+$string['fallback_response_1'] = 'I\'m not sure I understand your question. Could you rephrase it?';
+$string['fallback_response_2'] = 'Hmm, I couldn\'t find information about that. Can you be more specific?';
+$string['fallback_response_3'] = 'Sorry, I don\'t have an answer for that. Shall we try different words?';
+$string['fallback_suggestions'] = 'Perhaps you meant:';
+
+// Follow-up responses.
+$string['affirmation_response'] = 'Perfect! What else can I help you with?';
+$string['negation_response'] = 'Understood. If you need anything else, just ask.';
+
+// Quick start options.
+$string['option_view_tasks'] = 'View my tasks';
+$string['option_view_grades'] = 'Check grades';
+$string['option_view_calendar'] = 'View calendar';
+$string['option_task_problem'] = 'I have a problem with a task';
+$string['option_access_problem'] = 'I can\'t access something';
+$string['option_contact_teacher'] = 'I need to contact the teacher';
+
+// Topic suggestions.
+$string['suggestion_pending_tasks'] = 'What tasks do I have pending?';
+$string['suggestion_next_deadline'] = 'When is my next task due?';
+$string['suggestion_current_grade'] = 'What is my current grade?';
+$string['suggestion_my_grades'] = 'How are my grades?';
+$string['suggestion_week_events'] = 'What events do I have this week?';
+$string['suggestion_next_exam'] = 'When is the next exam?';
+$string['suggestion_who_teacher'] = 'Who is the teacher?';
+$string['suggestion_course_info'] = 'Course information';
+$string['suggestion_my_tasks'] = 'What tasks do I have?';
+$string['suggestion_my_calendar'] = 'View my calendar';
+$string['suggestion_my_grades_alt'] = 'Check grades';
+
+// Follow-up suggestions by topic.
+$string['followup_assignment_1'] = 'When is this task due?';
+$string['followup_assignment_2'] = 'What other tasks do I have pending?';
+$string['followup_assignment_3'] = 'How can I submit the task?';
+$string['followup_grades_1'] = 'What is my overall average?';
+$string['followup_grades_2'] = 'What grades am I missing?';
+$string['followup_grades_3'] = 'How can I improve my grade?';
+$string['followup_calendar_1'] = 'What events are this week?';
+$string['followup_calendar_2'] = 'When is the next exam?';
+$string['followup_calendar_3'] = 'What are my upcoming deadlines?';
+$string['followup_course_1'] = 'Who is the teacher of this course?';
+$string['followup_course_2'] = 'When does the course end?';
+$string['followup_course_3'] = 'What topics are left to cover?';
+$string['followup_general_1'] = 'What tasks do I have pending?';
+$string['followup_general_2'] = 'What is my current grade?';
+$string['followup_general_3'] = 'What events do I have coming up?';
+
+// Context prompts.
+$string['context_follow_up_prompts'] = 'anything else,need,would you like,want me to,can I help';

@@ -18,11 +18,13 @@
  * Text normalizer for educambot - advanced text processing for better matching.
  *
  * Features:
+ * - Loads synonyms and abbreviations from external JSON files
  * - Preserves Spanish accents for semantic meaning
  * - Expands common abbreviations (q -> que, xq -> porque)
  * - Handles typos with Levenshtein distance
  * - Removes stopwords for better keyword matching
  * - Synonym expansion for common terms
+ * - Word-by-word matching for better accuracy
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -39,50 +41,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 class text_normalizer {
 
-    /** @var array Common Spanish abbreviations to expand */
-    private const ABBREVIATIONS = [
-        'q' => 'que',
-        'xq' => 'porque',
-        'x' => 'por',
-        'xa' => 'para',
-        'xfa' => 'por favor',
-        'pf' => 'por favor',
-        'tb' => 'también',
-        'tbn' => 'también',
-        'tmb' => 'también',
-        'pq' => 'porque',
-        'k' => 'que',
-        'd' => 'de',
-        'dl' => 'del',
-        'cn' => 'con',
-        'ste' => 'este',
-        'sta' => 'esta',
-        'sts' => 'estos',
-        'stas' => 'estas',
-        'bn' => 'bien',
-        'bs' => 'buenas',
-        'gcias' => 'gracias',
-        'grax' => 'gracias',
-        'thx' => 'gracias',
-        'hla' => 'hola',
-        'ola' => 'hola',
-        'kmo' => 'como',
-        'kien' => 'quien',
-        'dnd' => 'donde',
-        'cdo' => 'cuando',
-        'qndo' => 'cuando',
-        'xo' => 'pero',
-        'mxo' => 'mucho',
-        'mcho' => 'mucho',
-        'pco' => 'poco',
-        'nda' => 'nada',
-        'tdo' => 'todo',
-        'msj' => 'mensaje',
-        'msgs' => 'mensajes',
-        'prof' => 'profesor',
-        'profe' => 'profesor',
-    ];
-
     /** @var array Spanish stopwords to optionally remove */
     private const STOPWORDS = [
         'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas',
@@ -91,58 +49,37 @@ class text_normalizer {
         'lo', 'le', 'les', 'me', 'te', 'nos', 'os',
         'mi', 'tu', 'mis', 'tus', 'este', 'esta', 'esto',
         'ese', 'esa', 'eso', 'aquel', 'aquella', 'aquello',
-        'es', 'son', 'fue', 'era', 'ser', 'estar', 'está',
-        'muy', 'más', 'menos', 'tan', 'tanto',
-        'yo', 'tú', 'él', 'ella', 'nosotros', 'ellos', 'ellas',
+        'es', 'son', 'fue', 'era', 'ser', 'estar', 'esta',
+        'muy', 'mas', 'menos', 'tan', 'tanto',
+        'yo', 'tu', 'el', 'ella', 'nosotros', 'ellos', 'ellas',
     ];
 
-    /** @var array Synonym mappings for common Moodle terms */
-    private const SYNONYMS = [
-        // Tareas
-        'tarea' => ['tarea', 'trabajo', 'actividad', 'asignación', 'entrega', 'ejercicio'],
-        'tareas' => ['tareas', 'trabajos', 'actividades', 'asignaciones', 'entregas', 'ejercicios'],
+    /** @var array Loaded abbreviations from JSON */
+    private $abbreviations = [];
 
-        // Calificaciones
-        'calificación' => ['calificación', 'nota', 'puntuación', 'resultado', 'evaluación'],
-        'calificaciones' => ['calificaciones', 'notas', 'puntuaciones', 'resultados', 'evaluaciones'],
+    /** @var array Loaded synonyms from JSON */
+    private $synonyms = [];
 
-        // Profesor
-        'profesor' => ['profesor', 'profe', 'docente', 'maestro', 'tutor', 'instructor', 'teacher'],
-        'profesores' => ['profesores', 'profes', 'docentes', 'maestros', 'tutores', 'instructores'],
-
-        // Curso
-        'curso' => ['curso', 'materia', 'asignatura', 'clase', 'módulo'],
-        'cursos' => ['cursos', 'materias', 'asignaturas', 'clases', 'módulos'],
-
-        // Examen
-        'examen' => ['examen', 'prueba', 'test', 'quiz', 'evaluación', 'parcial', 'final'],
-        'examenes' => ['examenes', 'exámenes', 'pruebas', 'tests', 'quizzes', 'evaluaciones'],
-
-        // Fecha
-        'fecha' => ['fecha', 'día', 'cuando', 'plazo', 'deadline', 'vencimiento'],
-
-        // Ver/Mostrar
-        'ver' => ['ver', 'mostrar', 'enseñar', 'visualizar', 'consultar', 'revisar'],
-
-        // Ayuda
-        'ayuda' => ['ayuda', 'ayudar', 'ayúdame', 'auxilio', 'soporte', 'asistencia'],
-
-        // Mensaje
-        'mensaje' => ['mensaje', 'correo', 'email', 'mail', 'notificación'],
-        'mensajes' => ['mensajes', 'correos', 'emails', 'mails', 'notificaciones'],
-
-        // Calendario
-        'calendario' => ['calendario', 'agenda', 'horario', 'programación', 'fechas'],
-
-        // Pendiente
-        'pendiente' => ['pendiente', 'pendientes', 'sin hacer', 'por hacer', 'faltan', 'falta'],
-    ];
+    /** @var array Reverse synonym map for quick lookup */
+    private $reverseSynonymMap = [];
 
     /** @var bool Whether to remove stopwords */
     private $removeStopwords = false;
 
     /** @var bool Whether to expand synonyms */
     private $expandSynonyms = true;
+
+    /** @var bool Whether data has been loaded */
+    private static $dataLoaded = false;
+
+    /** @var array Cached abbreviations (static for performance) */
+    private static $cachedAbbreviations = [];
+
+    /** @var array Cached synonyms (static for performance) */
+    private static $cachedSynonyms = [];
+
+    /** @var array Cached reverse map (static for performance) */
+    private static $cachedReverseMap = [];
 
     /**
      * Constructor.
@@ -153,6 +90,65 @@ class text_normalizer {
     public function __construct(bool $removeStopwords = false, bool $expandSynonyms = true) {
         $this->removeStopwords = $removeStopwords;
         $this->expandSynonyms = $expandSynonyms;
+
+        $this->load_data();
+    }
+
+    /**
+     * Load abbreviations and synonyms from JSON files.
+     */
+    private function load_data(): void {
+        global $CFG;
+
+        // Use cached data if available.
+        if (self::$dataLoaded) {
+            $this->abbreviations = self::$cachedAbbreviations;
+            $this->synonyms = self::$cachedSynonyms;
+            $this->reverseSynonymMap = self::$cachedReverseMap;
+            return;
+        }
+
+        $datapath = $CFG->dirroot . '/local/educambot/db/data/';
+
+        // Load abbreviations.
+        $abbrevFile = $datapath . 'abbreviations.json';
+        if (file_exists($abbrevFile)) {
+            $content = file_get_contents($abbrevFile);
+            $data = json_decode($content, true);
+            if (isset($data['abbreviations'])) {
+                $this->abbreviations = $data['abbreviations'];
+            }
+        }
+
+        // Load synonyms.
+        $synFile = $datapath . 'synonyms.json';
+        if (file_exists($synFile)) {
+            $content = file_get_contents($synFile);
+            $data = json_decode($content, true);
+            if (isset($data['synonyms'])) {
+                $this->synonyms = $data['synonyms'];
+                $this->build_reverse_synonym_map();
+            }
+        }
+
+        // Cache the loaded data.
+        self::$cachedAbbreviations = $this->abbreviations;
+        self::$cachedSynonyms = $this->synonyms;
+        self::$cachedReverseMap = $this->reverseSynonymMap;
+        self::$dataLoaded = true;
+    }
+
+    /**
+     * Build a reverse map for quick synonym lookup.
+     * Maps each synonym to its canonical form (the key).
+     */
+    private function build_reverse_synonym_map(): void {
+        $this->reverseSynonymMap = [];
+        foreach ($this->synonyms as $canonical => $synonymList) {
+            foreach ($synonymList as $synonym) {
+                $this->reverseSynonymMap[mb_strtolower($synonym, 'UTF-8')] = $canonical;
+            }
+        }
     }
 
     /**
@@ -219,8 +215,9 @@ class text_normalizer {
 
         foreach ($words as $word) {
             $clean = preg_replace('/[^\p{L}]/u', '', $word);
-            if (isset(self::ABBREVIATIONS[$clean])) {
-                $expanded[] = self::ABBREVIATIONS[$clean];
+            $cleanLower = mb_strtolower($clean, 'UTF-8');
+            if (isset($this->abbreviations[$cleanLower])) {
+                $expanded[] = $this->abbreviations[$cleanLower];
             } else {
                 $expanded[] = $word;
             }
@@ -253,18 +250,37 @@ class text_normalizer {
         $word = mb_strtolower($word, 'UTF-8');
 
         // Direct lookup.
-        if (isset(self::SYNONYMS[$word])) {
-            return self::SYNONYMS[$word];
+        if (isset($this->synonyms[$word])) {
+            return $this->synonyms[$word];
         }
 
-        // Reverse lookup (find which group this word belongs to).
-        foreach (self::SYNONYMS as $key => $synonyms) {
-            if (in_array($word, $synonyms)) {
-                return $synonyms;
-            }
+        // Reverse lookup (find canonical form, then return its synonyms).
+        if (isset($this->reverseSynonymMap[$word])) {
+            $canonical = $this->reverseSynonymMap[$word];
+            return $this->synonyms[$canonical] ?? [];
         }
 
         return [];
+    }
+
+    /**
+     * Get the canonical form of a word (the main synonym).
+     *
+     * @param string $word Word to canonicalize
+     * @return string Canonical form or original word
+     */
+    public function get_canonical(string $word): string {
+        $word = mb_strtolower($word, 'UTF-8');
+
+        if (isset($this->synonyms[$word])) {
+            return $word;
+        }
+
+        if (isset($this->reverseSynonymMap[$word])) {
+            return $this->reverseSynonymMap[$word];
+        }
+
+        return $word;
     }
 
     /**
@@ -282,8 +298,62 @@ class text_normalizer {
             return true;
         }
 
-        $synonyms = $this->get_synonyms($word1);
-        return in_array($word2, $synonyms);
+        // Get canonical forms and compare.
+        $canonical1 = $this->get_canonical($word1);
+        $canonical2 = $this->get_canonical($word2);
+
+        return $canonical1 === $canonical2;
+    }
+
+    /**
+     * Expand a word to include all its synonyms.
+     *
+     * @param string $word Word to expand
+     * @return array Array containing the word and all synonyms
+     */
+    public function expand_word(string $word): array {
+        $synonyms = $this->get_synonyms($word);
+        if (empty($synonyms)) {
+            return [$word];
+        }
+        return array_unique(array_merge([$word], $synonyms));
+    }
+
+    /**
+     * Check if any word in text1 is a synonym of any word in text2.
+     *
+     * @param string $text1 First text
+     * @param string $text2 Second text
+     * @return array Match info with count and matched words
+     */
+    public function find_synonym_matches(string $text1, string $text2): array {
+        $words1 = array_filter(explode(' ', mb_strtolower($text1, 'UTF-8')));
+        $words2 = array_filter(explode(' ', mb_strtolower($text2, 'UTF-8')));
+
+        $matches = [];
+        $matchedPairs = [];
+
+        foreach ($words1 as $w1) {
+            if (mb_strlen($w1) < 3) {
+                continue;
+            }
+            foreach ($words2 as $w2) {
+                if (mb_strlen($w2) < 3) {
+                    continue;
+                }
+                if ($this->are_synonyms($w1, $w2)) {
+                    $matches[] = $w1;
+                    $matchedPairs[] = ['word' => $w1, 'synonym' => $w2, 'canonical' => $this->get_canonical($w1)];
+                    break;
+                }
+            }
+        }
+
+        return [
+            'count' => count($matches),
+            'matches' => array_unique($matches),
+            'pairs' => $matchedPairs,
+        ];
     }
 
     /**
@@ -304,7 +374,7 @@ class text_normalizer {
 
         // Levenshtein distance (normalized).
         $maxLen = max(mb_strlen($text1), mb_strlen($text2));
-        if ($maxLen > 0 && $maxLen <= 255) { // Levenshtein has length limits.
+        if ($maxLen > 0 && $maxLen <= 255) {
             $levenshtein = levenshtein($text1, $text2);
             $scores['levenshtein'] = 1 - ($levenshtein / $maxLen);
         }
@@ -318,17 +388,9 @@ class text_normalizer {
             $union = count(array_unique(array_merge($words1, $words2)));
             $scores['jaccard'] = $intersection / $union;
 
-            // Keyword overlap with synonym support.
-            $synonymMatches = 0;
-            foreach ($words1 as $w1) {
-                foreach ($words2 as $w2) {
-                    if ($this->are_synonyms($w1, $w2)) {
-                        $synonymMatches++;
-                        break;
-                    }
-                }
-            }
-            $scores['synonym'] = $synonymMatches / max(count($words1), count($words2));
+            // Synonym-aware word matching.
+            $synonymMatches = $this->find_synonym_matches($text1, $text2);
+            $scores['synonym'] = $synonymMatches['count'] / max(count($words1), count($words2));
         }
 
         // Containment check.
@@ -338,9 +400,9 @@ class text_normalizer {
 
         // Calculate weighted average.
         $weights = [
-            'levenshtein' => 0.3,
-            'jaccard' => 0.3,
-            'synonym' => 0.25,
+            'levenshtein' => 0.25,
+            'jaccard' => 0.25,
+            'synonym' => 0.35,
             'containment' => 0.15,
         ];
 
@@ -392,7 +454,7 @@ class text_normalizer {
     }
 
     /**
-     * Check if text contains any of the given keywords.
+     * Check if text contains any of the given keywords (with synonym support).
      *
      * @param string $text Text to search in
      * @param array $keywords Keywords to search for
@@ -406,8 +468,9 @@ class text_normalizer {
 
         foreach ($keywords as $keyword) {
             $normalizedKeyword = $this->normalize($keyword);
+            $keywordWords = explode(' ', $normalizedKeyword);
 
-            // Direct match.
+            // Direct phrase match.
             if (mb_strpos($normalizedText, $normalizedKeyword) !== false) {
                 $matches[] = $keyword;
                 continue;
@@ -415,11 +478,25 @@ class text_normalizer {
 
             // Word-by-word match with synonyms.
             if ($useSynonyms) {
-                foreach ($textWords as $textWord) {
-                    if ($this->are_synonyms($textWord, $normalizedKeyword)) {
-                        $matches[] = $keyword;
+                $allMatched = true;
+                foreach ($keywordWords as $kw) {
+                    if (mb_strlen($kw) < 2) {
+                        continue;
+                    }
+                    $found = false;
+                    foreach ($textWords as $tw) {
+                        if ($this->are_synonyms($tw, $kw)) {
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $allMatched = false;
                         break;
                     }
+                }
+                if ($allMatched && count($keywordWords) > 0) {
+                    $matches[] = $keyword;
                 }
             }
         }
@@ -428,6 +505,55 @@ class text_normalizer {
             'found' => !empty($matches),
             'matches' => array_unique($matches),
             'count' => count(array_unique($matches)),
+        ];
+    }
+
+    /**
+     * Check if a single word from keywords exists in text (word-by-word matching).
+     *
+     * @param string $text Text to search in
+     * @param array $keywords Individual keywords to match
+     * @param bool $useSynonyms Whether to use synonym matching
+     * @return array Match results
+     */
+    public function match_individual_words(string $text, array $keywords, bool $useSynonyms = true): array {
+        $normalizedText = $this->normalize($text);
+        $textWords = array_filter(explode(' ', $normalizedText));
+        $matches = [];
+        $matchedKeywords = [];
+
+        foreach ($textWords as $textWord) {
+            if (mb_strlen($textWord) < 3) {
+                continue;
+            }
+
+            foreach ($keywords as $keyword) {
+                $normalizedKeyword = mb_strtolower(trim($keyword), 'UTF-8');
+                $keywordWords = array_filter(explode(' ', $normalizedKeyword));
+
+                foreach ($keywordWords as $kw) {
+                    if (mb_strlen($kw) < 3) {
+                        continue;
+                    }
+
+                    // Direct match.
+                    if ($textWord === $kw) {
+                        $matches[] = ['text_word' => $textWord, 'keyword' => $keyword, 'type' => 'exact'];
+                        $matchedKeywords[] = $keyword;
+                    } else if ($useSynonyms && $this->are_synonyms($textWord, $kw)) {
+                        // Synonym match.
+                        $matches[] = ['text_word' => $textWord, 'keyword' => $keyword, 'type' => 'synonym'];
+                        $matchedKeywords[] = $keyword;
+                    }
+                }
+            }
+        }
+
+        return [
+            'found' => !empty($matches),
+            'matches' => $matches,
+            'matched_keywords' => array_unique($matchedKeywords),
+            'count' => count(array_unique($matchedKeywords)),
         ];
     }
 
@@ -453,9 +579,9 @@ class text_normalizer {
         $entities['dates'] = $dates[0] ?? [];
 
         // Extract relative dates.
-        $relativeDates = ['hoy', 'mañana', 'ayer', 'esta semana', 'próxima semana',
-                          'este mes', 'próximo mes', 'lunes', 'martes', 'miércoles',
-                          'jueves', 'viernes', 'sábado', 'domingo'];
+        $relativeDates = ['hoy', 'manana', 'ayer', 'esta semana', 'proxima semana',
+                          'este mes', 'proximo mes', 'lunes', 'martes', 'miercoles',
+                          'jueves', 'viernes', 'sabado', 'domingo'];
         foreach ($relativeDates as $relDate) {
             if (mb_stripos($text, $relDate) !== false) {
                 $entities['dates'][] = $relDate;
@@ -463,5 +589,33 @@ class text_normalizer {
         }
 
         return $entities;
+    }
+
+    /**
+     * Clear cached data (useful for testing or after JSON updates).
+     */
+    public static function clear_cache(): void {
+        self::$dataLoaded = false;
+        self::$cachedAbbreviations = [];
+        self::$cachedSynonyms = [];
+        self::$cachedReverseMap = [];
+    }
+
+    /**
+     * Get all loaded synonyms (for debugging/admin).
+     *
+     * @return array All synonyms
+     */
+    public function get_all_synonyms(): array {
+        return $this->synonyms;
+    }
+
+    /**
+     * Get all loaded abbreviations (for debugging/admin).
+     *
+     * @return array All abbreviations
+     */
+    public function get_all_abbreviations(): array {
+        return $this->abbreviations;
     }
 }

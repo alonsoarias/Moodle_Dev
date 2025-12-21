@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025121946;  // YYYYMMDDXX format.
+$plugin->version = 2025122100;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.0.6';  // Add fallback navigation rules for menu options.
+$plugin->release = '3.1.0';  // Externalize hardcoded strings, improve synonym matching, add missing keywords.
