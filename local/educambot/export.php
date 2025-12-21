@@ -104,6 +104,7 @@ foreach ($options as $opt) {
 
 if ($format === 'csv') {
     // Export as CSV (rules only - flat format).
+    // Using semicolon separator for Excel compatibility (Spanish/European locale).
     $filename = 'educambot_rules_' . date('Y-m-d_His') . '.csv';
 
     header('Content-Type: text/csv; charset=utf-8');
@@ -140,22 +141,22 @@ if ($format === 'csv') {
     // Output BOM for Excel UTF-8 compatibility.
     echo "\xEF\xBB\xBF";
 
-    // Output header.
+    // Output header with semicolon separator.
     $output = fopen('php://output', 'w');
-    fputcsv($output, $csvHeader);
+    fputcsv($output, $csvHeader, ';', '"', '\\');
 
     // Output rows.
     foreach ($exportrules as $rule) {
         $row = [];
         foreach ($csvHeader as $field) {
             $value = $rule[$field] ?? '';
-            // Handle multiline fields.
+            // Handle multiline fields - preserve as literal \n for Excel.
             if (is_string($value)) {
                 $value = str_replace(["\r\n", "\r", "\n"], "\\n", $value);
             }
             $row[] = $value;
         }
-        fputcsv($output, $row);
+        fputcsv($output, $row, ';', '"', '\\');
     }
 
     fclose($output);

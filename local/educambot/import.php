@@ -74,18 +74,26 @@ class import_form extends moodleform {
 
 /**
  * Parse CSV content into rules array.
+ * Supports both comma (,) and semicolon (;) as delimiters.
  *
  * @param string $content CSV content
  * @return array|false Parsed data or false on error
  */
 function parse_csv_import($content) {
+    // Remove BOM if present.
+    $content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
+
     $lines = explode("\n", trim($content));
     if (count($lines) < 2) {
         return false;
     }
 
+    // Detect delimiter (semicolon or comma) from first line.
+    $firstLine = $lines[0];
+    $delimiter = (substr_count($firstLine, ';') > substr_count($firstLine, ',')) ? ';' : ',';
+
     // Parse header.
-    $header = str_getcsv(array_shift($lines), ',', '"', '\\');
+    $header = str_getcsv(array_shift($lines), $delimiter, '"', '\\');
     $header = array_map('trim', $header);
 
     // Validate required columns.
@@ -103,7 +111,7 @@ function parse_csv_import($content) {
             continue;
         }
 
-        $values = str_getcsv($line, ',', '"', '\\');
+        $values = str_getcsv($line, $delimiter, '"', '\\');
         if (count($values) !== count($header)) {
             continue; // Skip malformed rows.
         }
@@ -111,6 +119,13 @@ function parse_csv_import($content) {
         $row = array_combine($header, $values);
         if ($row === false) {
             continue;
+        }
+
+        // Convert escaped newlines back to real newlines.
+        foreach ($row as $key => $value) {
+            if (is_string($value)) {
+                $row[$key] = str_replace('\\n', "\n", $value);
+            }
         }
 
         // Add row number as ID if not present.
