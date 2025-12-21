@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025122101;  // YYYYMMDDXX format.
+$plugin->version = 2025122102;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.2.0';  // Database-driven NLP patterns, pattern_loader class, expanded navigation rules.
+$plugin->release = '3.3.0';  // Expanded knowledge base, n-gram matching, improved scoring algorithm, response templates.

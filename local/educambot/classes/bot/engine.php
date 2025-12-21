@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Bot engine - handles question processing and response generation (v3.0.0).
+ * Bot engine - handles question processing and response generation (v3.3.0).
  *
  * Major improvements:
  * - Advanced text normalization with abbreviation expansion
@@ -26,6 +26,10 @@
  * - Rule prioritization based on feedback and usage
  * - Better fallback with similar question suggestions
  * - Response variants for natural conversation
+ * - N-gram matching for partial phrase matching (v3.3.0)
+ * - Context-aware scoring boost (v3.3.0)
+ * - Multi-word keyword matching (v3.3.0)
+ * - Database-driven response templates (v3.3.0)
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -76,11 +80,15 @@ class engine {
         'question_contains' => 35,
         'word_overlap' => 30,
         'keyword_match' => 25,
+        'multi_word_keyword' => 28,
         'synonym_match' => 20,
+        'ngram_match' => 18,
         'levenshtein' => 15,
+        'context_boost' => 12,
         'topic_match' => 10,
         'feedback_boost' => 10,
         'priority_boost' => 5,
+        'intent_match' => 8,
     ];
 
     /**
@@ -572,26 +580,37 @@ class engine {
             $score += (int)(self::SCORE_WEIGHTS['word_overlap'] * $overlapRatio);
         }
 
-        // 4. Keyword matching from rule keywords.
+        // 4. Keyword matching from rule keywords (improved).
         if (!empty($rule->keywords)) {
             $keywords = array_filter(array_map('trim', explode("\n", $rule->keywords)));
             foreach ($keywords as $keyword) {
                 $normalizedKeyword = $this->normalizer->normalize($keyword);
                 if (!empty($normalizedKeyword)) {
-                    // Direct match.
-                    if (mb_strpos($question, $normalizedKeyword) !== false) {
+                    // Check for multi-word keywords (higher score).
+                    $keywordWordCount = count(explode(' ', $normalizedKeyword));
+                    if ($keywordWordCount > 1 && mb_strpos($question, $normalizedKeyword) !== false) {
+                        $score += self::SCORE_WEIGHTS['multi_word_keyword'];
+                    } else if (mb_strpos($question, $normalizedKeyword) !== false) {
+                        // Direct single word match.
                         $score += self::SCORE_WEIGHTS['keyword_match'];
-                    }
-                    // Synonym match.
-                    $keywordResult = $this->normalizer->contains_keywords($question, [$normalizedKeyword], true);
-                    if ($keywordResult['found'] && mb_strpos($question, $normalizedKeyword) === false) {
-                        $score += self::SCORE_WEIGHTS['synonym_match'];
+                    } else {
+                        // Synonym match.
+                        $keywordResult = $this->normalizer->contains_keywords($question, [$normalizedKeyword], true);
+                        if ($keywordResult['found']) {
+                            $score += self::SCORE_WEIGHTS['synonym_match'];
+                        }
                     }
                 }
             }
         }
 
-        // 5. Levenshtein distance for typo tolerance.
+        // 5. N-gram matching for partial phrase matching.
+        $ngramScore = $this->calculate_ngram_score($question, $pattern);
+        if ($ngramScore > 0.3) {
+            $score += (int)(self::SCORE_WEIGHTS['ngram_match'] * $ngramScore);
+        }
+
+        // 6. Levenshtein distance for typo tolerance.
         if (mb_strlen($pattern) <= 100 && mb_strlen($question) <= 100) {
             $similarity = $this->normalizer->calculate_similarity($question, $pattern);
             if ($similarity > 0.5) {
@@ -599,7 +618,15 @@ class engine {
             }
         }
 
-        // 6. Topic match bonus.
+        // 7. Context boost - if matches current conversation topic.
+        if (!empty($analysis['context_topic']) && !empty($rule->tags)) {
+            $ruleTags = array_map('trim', explode(',', mb_strtolower($rule->tags)));
+            if (in_array($analysis['context_topic'], $ruleTags)) {
+                $score += self::SCORE_WEIGHTS['context_boost'];
+            }
+        }
+
+        // 8. Topic match bonus.
         if (!empty($rule->tags) && isset($analysis['topic']['primary'])) {
             $ruleTags = array_map('trim', explode(',', mb_strtolower($rule->tags)));
             if (in_array($analysis['topic']['primary'], $ruleTags)) {
@@ -607,13 +634,65 @@ class engine {
             }
         }
 
-        // 7. Feedback boost (rules with positive feedback score higher).
+        // 9. Intent match bonus.
+        if (!empty($rule->tags) && isset($analysis['intent']['primary'])) {
+            $ruleTags = array_map('trim', explode(',', mb_strtolower($rule->tags)));
+            if (in_array($analysis['intent']['primary'], $ruleTags)) {
+                $score += self::SCORE_WEIGHTS['intent_match'];
+            }
+        }
+
+        // 10. Feedback boost (rules with positive feedback score higher).
         if (isset($rule->feedback_score) && $rule->feedback_score > 0) {
             $boost = min(self::SCORE_WEIGHTS['feedback_boost'], $rule->feedback_score);
             $score += $boost;
         }
 
         return $score;
+    }
+
+    /**
+     * Calculate n-gram similarity score between question and pattern.
+     *
+     * @param string $question Normalized question
+     * @param string $pattern Normalized pattern
+     * @param int $n N-gram size (default 2 for bigrams)
+     * @return float Similarity score between 0 and 1
+     */
+    protected function calculate_ngram_score(string $question, string $pattern, int $n = 2): float {
+        if (mb_strlen($question) < $n || mb_strlen($pattern) < $n) {
+            return 0.0;
+        }
+
+        $questionNgrams = $this->get_ngrams($question, $n);
+        $patternNgrams = $this->get_ngrams($pattern, $n);
+
+        if (empty($questionNgrams) || empty($patternNgrams)) {
+            return 0.0;
+        }
+
+        $intersection = array_intersect($questionNgrams, $patternNgrams);
+        $union = array_unique(array_merge($questionNgrams, $patternNgrams));
+
+        return count($intersection) / count($union);
+    }
+
+    /**
+     * Extract n-grams from text.
+     *
+     * @param string $text Text to extract n-grams from
+     * @param int $n N-gram size
+     * @return array Array of n-grams
+     */
+    protected function get_ngrams(string $text, int $n): array {
+        $ngrams = [];
+        $length = mb_strlen($text);
+
+        for ($i = 0; $i <= $length - $n; $i++) {
+            $ngrams[] = mb_substr($text, $i, $n);
+        }
+
+        return $ngrams;
     }
 
     /**

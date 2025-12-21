@@ -462,6 +462,34 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025122100, 'local', 'educambot');
     }
 
+    // v3.3.0 - Update NLP patterns with expanded knowledge base.
+    if ($oldversion < 2025122102) {
+
+        $datapath = __DIR__ . '/data/';
+        $now = time();
+
+        // Update intents with expanded patterns.
+        load_patterns_from_json($datapath . 'intents.json', 'intent', $now);
+
+        // Update topics with expanded keywords.
+        load_patterns_from_json($datapath . 'topics.json', 'topic', $now);
+
+        // Update sentiments with expanded keywords.
+        load_patterns_from_json($datapath . 'sentiments.json', 'sentiment', $now);
+
+        // Update synonyms with expanded vocabulary.
+        load_simple_patterns($datapath . 'synonyms.json', 'synonym', $now);
+
+        // Update abbreviations with expanded list.
+        load_simple_patterns($datapath . 'abbreviations.json', 'abbreviation', $now);
+
+        // Load new responses.json for fallback templates.
+        load_simple_patterns($datapath . 'responses.json', 'response', $now);
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025122102, 'local', 'educambot');
+    }
+
     return true;
 }
 
