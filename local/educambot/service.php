@@ -18,7 +18,8 @@
  * AJAX service endpoint for bot questions.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,6 +36,7 @@ require_login();
 require_sesskey();
 
 $context = context_system::instance();
+$PAGE->set_context($context);
 require_capability('local/educambot:use', $context);
 
 // Get parameters.
@@ -53,7 +55,7 @@ if (empty(trim($question)) || strlen($question) > 1000) {
 // Initialize context handler with course context.
 $contexthandler = new context_handler($courseid, $USER->id);
 
-// Initialize shortcut handler.
+// Initialize shortcut handler (reads from database).
 $shortcuthandler = new shortcut_handler($contexthandler);
 
 // First, check if this is a shortcut command.
@@ -84,15 +86,14 @@ if ($shortcutresult !== null) {
         $ruleid = $result['ruleid'];
         $confidence = $result['confidence'];
 
-        // Check if rule is context-aware and has dynamic response.
+        // Always process placeholders in responses (v2.2.2).
+        // Placeholders like {{site.name}}, {{user.firstname}}, etc. are processed for all responses.
+        $builder = new response_builder($contexthandler);
+        $responsetext = $builder->build_response($responsetext);
+
+        // Check if rule is context-aware.
         if ($ruleid) {
             $rule = $DB->get_record('local_educambot_rule', ['id' => $ruleid]);
-
-            if ($rule && $rule->dynamicresponse) {
-                // Build dynamic response with placeholders.
-                $builder = new response_builder($contexthandler);
-                $responsetext = $builder->build_response($responsetext);
-            }
 
             // Check if context is required and available.
             if ($rule && $rule->requiredcontext) {
@@ -121,7 +122,7 @@ if ($shortcutresult !== null) {
                 $options = $DB->get_records('local_educambot_option',
                     ['ruleid' => $ruleid, 'enabled' => 1],
                     'sortorder ASC',
-                    'id, text, targetruleid, icon');
+                    'id, text, action, targetruleid, icon');
                 if ($options) {
                     // Get target rule patterns for each option.
                     foreach ($options as $option) {

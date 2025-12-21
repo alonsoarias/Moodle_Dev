@@ -1,0 +1,20 @@
+{
+    "version": "2.0.9",
+    "description": "EducamBot menu for guests",
+    "archetype": "guest",
+    "menu": {
+        "title": "Menu Invitado",
+        "greeting": "¡Bienvenido! Como invitado puedo responder preguntas generales.",
+        "options": [
+            {"id": "courses", "label": "Explorar Cursos", "icon": "📚", "action": "explorar cursos", "enabled": true},
+            {"id": "login", "label": "Iniciar Sesion", "icon": "🔐", "action": "como inicio sesion", "enabled": true},
+            {"id": "register", "label": "Registrarse", "icon": "📝", "action": "como me registro", "enabled": true},
+            {"id": "help", "label": "Ayuda", "icon": "❓", "action": "necesito ayuda", "enabled": true}
+        ]
+    },
+    "suggestions": [
+        "¿Como me registro?",
+        "¿Que cursos hay disponibles?",
+        "¿Como inicio sesion?"
+    ]
+}

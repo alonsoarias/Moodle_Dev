@@ -1,0 +1,116 @@
+{
+    "version": "3.0.1",
+    "description": "EducamBot - Calificaciones y evaluaciones",
+    "rules": [
+        {
+            "id": "ver_calificaciones",
+            "category": "calificaciones",
+            "pattern": "Donde veo mis calificaciones",
+            "keywords": ["calificaciones", "notas", "ver notas", "mis calificaciones", "gradebook", "promedio", "mis notas", "consultar notas", "libro calificaciones"],
+            "response": "Para ver tus calificaciones:<br><br><strong>Desde tu perfil:</strong><br>1. Clic en tu foto/avatar<br>2. Selecciona <strong>Calificaciones</strong><br><br><strong>Desde el curso:</strong><br>1. Entra al curso<br>2. Menu > <strong>Calificaciones</strong><br><br>Veras: nota por actividad, total del curso y retroalimentacion.",
+            "tags": ["calificaciones", "notas"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "retroalimentacion",
+            "category": "calificaciones",
+            "pattern": "Como veo la retroalimentacion",
+            "keywords": ["retroalimentacion", "comentarios profesor", "feedback", "observaciones", "revision profesor", "comentarios tarea"],
+            "response": "Para ver retroalimentacion:<br><br><strong>En tareas:</strong><br>1. Abre la tarea calificada<br>2. Busca seccion <strong>Retroalimentacion</strong><br><br><strong>En calificaciones:</strong><br>1. Ve a Calificaciones<br>2. Clic en la calificacion<br>3. Expande para ver comentarios",
+            "tags": ["retroalimentacion", "feedback"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "calculo_notas",
+            "category": "calificaciones",
+            "pattern": "Como se calculan las calificaciones",
+            "keywords": ["calcular", "ponderacion", "peso notas", "porcentaje", "formula", "como se calcula", "promedio nota"],
+            "response": "Calculo de calificaciones:<br><br><strong>Metodos:</strong><br>- <strong>Media simple:</strong> Todas valen igual<br>- <strong>Ponderada:</strong> Cada actividad tiene peso diferente (ej: Examen 40%, Tareas 30%)<br>- <strong>Por categorias:</strong> Grupos con porcentajes<br><br>El profesor configura los pesos.",
+            "tags": ["calcular", "ponderacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "nota_aprobar",
+            "category": "calificaciones",
+            "pattern": "Cual es la nota para aprobar",
+            "keywords": ["nota aprobar", "minimo", "aprobatoria", "aprobar curso", "calificacion minima", "nota minima", "pasar curso"],
+            "response": "Sobre la nota para aprobar:<br><br><strong>Indicadores:</strong><br>- Verde = Aprobado<br>- Rojo = Reprobado<br><br>Cada actividad puede tener su propio minimo. Pregunta al profesor si no esta claro.",
+            "tags": ["aprobar", "minimo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi progreso", "icon": "bi-graph-up", "action": "mi progreso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "calificacion_oculta",
+            "category": "calificaciones",
+            "pattern": "Por que no veo una calificacion",
+            "keywords": ["calificacion oculta", "no veo nota", "falta nota", "no aparece nota", "donde esta mi nota", "nota pendiente"],
+            "response": "Si no ves una calificacion:<br><br><strong>Razones:</strong><br>- No calificada aun<br>- Oculta temporalmente por el profesor<br>- No completaste la actividad<br><br>Espera unos dias o contacta al profesor.",
+            "tags": ["oculta", "no aparece"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis profesores", "icon": "bi-person-badge", "action": "mis profesores"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "rubrica",
+            "category": "calificaciones",
+            "pattern": "Que es una rubrica",
+            "keywords": ["rubrica", "criterios", "matriz evaluacion", "rubric", "criterios evaluacion", "como me evaluan"],
+            "response": "La rubrica es una guia de evaluacion:<br><br><strong>Muestra:</strong><br>- Criterios (que se evalua)<br>- Niveles (malo a excelente)<br>- Puntos por cada nivel<br><br>Revisa la rubrica ANTES de entregar para saber que se espera.",
+            "tags": ["rubrica", "criterios"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "resultados_quiz",
+            "category": "calificaciones",
+            "pattern": "Como veo resultados del cuestionario",
+            "keywords": ["resultados quiz", "respuestas cuestionario", "revision examen", "ver respuestas", "resultado examen", "revisar cuestionario"],
+            "response": "Para ver resultados del cuestionario:<br><br>1. Abre el cuestionario<br>2. Busca <strong>Revisar intento</strong><br><br>Puede mostrar: tus respuestas, correctas, puntos y retroalimentacion. El profesor configura que se muestra y cuando.",
+            "tags": ["resultados", "quiz"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "reclamar_nota",
+            "category": "calificaciones",
+            "pattern": "Como reclamo una nota",
+            "keywords": ["reclamar nota", "impugnar calificacion", "nota incorrecta", "error calificacion", "revisar nota", "no estoy de acuerdo"],
+            "response": "Si crees que hay un error en tu calificacion:<br><br>1. Revisa la rubrica y criterios de evaluacion<br>2. Contacta a tu profesor por mensajeria<br>3. Explica tu caso de forma respetuosa<br>4. Proporciona evidencia si es necesario<br><br>El profesor revisara y respondera.",
+            "tags": ["reclamo", "revision"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis profesores", "icon": "bi-person-badge", "action": "mis profesores"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

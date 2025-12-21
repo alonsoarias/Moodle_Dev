@@ -18,7 +18,8 @@
  * AJAX endpoint for getting startup options (suggested questions).
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,6 +32,7 @@ require_login();
 require_sesskey();
 
 $context = context_system::instance();
+$PAGE->set_context($context);
 require_capability('local/educambot:use', $context);
 
 // Get the startup rule (special rule with __startup__ pattern).

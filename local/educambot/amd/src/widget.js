@@ -14,44 +14,119 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nexo Bot widget JavaScript (v1.9.0).
+ * Nexo Bot widget JavaScript (v3.0.0).
+ *
+ * Major rewrite to fix event handling inconsistencies.
  *
  * Features:
+ * - Unified event delegation system (no duplicate handlers)
+ * - Retry mechanism with exponential backoff
+ * - Session ID for context synchronization
  * - Theme colors via CSS custom properties
  * - Conversation history persistence
  * - Inactivity timeout
  * - Role-based behavior
  * - Mascot animations
+ * - Typing indicator
+ * - Message timestamps
+ * - Feedback system
+ * - Export conversation
+ * - Sound notifications
+ * - Cross-tab conversation sync
  *
  * @module     local_educambot/widget
- * @copyright  2025 EducamBot Team
+ * @author     Alonso Arias <soporte@ingeweb.co>
+ * @copyright  2025 Ingeweb <https://ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define(['jquery', 'core/ajax'], function($, Ajax) {
 
     var chat = {
-        // Mascot state management (v1.8.1).
+        // ==============================================
+        // Configuration Properties
+        // ==============================================
+
+        // Mascot state management.
         mascot: null,
         tooltip: null,
         tooltipTimer: null,
         suggestionTimer: null,
         lastUserQuestion: '',
 
-        // Inactivity management (v1.9.0).
+        // Inactivity management.
         inactivityTimer: null,
         inactivityWarningTimer: null,
         inactivityTimeout: 600000, // 10 minutes default.
         inactivityWarningTime: 60000, // 1 minute warning before close.
         warningShown: false,
 
-        // History management (v1.9.0).
+        // History management.
         historyLoaded: false,
         enableHistory: true,
         historyUrl: '',
 
-        // User role (v1.9.0).
+        // User role.
         userRole: 'user',
+
+        // Sound management.
+        soundEnabled: true,
+        notificationSound: null,
+        audioContext: null,
+
+        // Feedback URL.
+        feedbackUrl: '',
+
+        // References for export.
+        messagesContainer: null,
+        sesskey: '',
+        botName: 'EducamBot',
+
+        // Message counter for unique IDs.
+        messageCounter: 0,
+
+        // Local storage persistence.
+        userId: null,
+        localStorageKey: 'educambot-conversation',
+        conversationData: [],
+        greetingMessage: '',
+
+        // Session ID for context tracking (v3.0.0).
+        sessionId: null,
+
+        // Retry configuration (v3.0.0).
+        maxRetries: 3,
+        retryDelays: [1000, 2000, 4000], // Exponential backoff delays in ms.
+
+        // DOM references (v3.0.0).
+        elements: {
+            chat: null,
+            popup: null,
+            btn: null,
+            closeBtn: null,
+            clearBtn: null,
+            exportBtn: null,
+            textarea: null,
+            sendBtn: null,
+            messages: null,
+            loading: null,
+            typingIndicator: null
+        },
+
+        // URLs (v3.0.0).
+        urls: {
+            service: '',
+            shortcuts: ''
+        },
+
+        // State flags (v3.0.0).
+        shortcutsLoaded: false,
+        isProcessing: false,
+        courseid: 1,
+
+        // ==============================================
+        // Initialization
+        // ==============================================
 
         /**
          * Initialize the widget.
@@ -73,418 +148,978 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 return;
             }
 
-            // Get configuration from data attributes (v1.9.0).
+            // Store main element reference.
+            self.elements.chat = educambotchat;
+
+            // Get configuration from data attributes.
             self.inactivityTimeout = parseInt(educambotchat.data('inactivity-timeout')) || 600000;
             self.enableHistory = parseInt(educambotchat.data('enable-history')) === 1;
             self.historyUrl = educambotchat.data('historyurl') || '';
             self.userRole = educambotchat.data('userrolearchetype') || 'user';
+            self.soundEnabled = parseInt(educambotchat.data('sound-enabled')) !== 0;
+            self.feedbackUrl = educambotchat.data('feedbackurl') || '';
+            self.botName = educambotchat.data('botname') || 'EducamBot';
+            self.userId = educambotchat.data('userid') || 0;
+            self.localStorageKey = 'educambot-conversation-' + self.userId;
+            self.sesskey = educambotchat.data('sesskey') || '';
+            self.courseid = educambotchat.data('courseid') || 1;
+            self.urls.service = educambotchat.data('serviceurl') || '';
+            self.urls.shortcuts = educambotchat.data('shortcutsurl') || '';
+
+            // Generate unique session ID for this conversation (v3.0.0).
+            self.sessionId = self.generateSessionId();
+
+            // Save greeting message for reset.
+            var greetingElement = educambotchat.find('.educambot-message').first();
+            if (greetingElement.length) {
+                self.greetingMessage = greetingElement.find('.educambot-message-content').html();
+            }
+
+            // Cache DOM elements.
+            self.elements.popup = educambotchat.find('.educambot-popup');
+            self.elements.btn = $('#educambot-btn');
+            self.elements.closeBtn = $('#educambot-close');
+            self.elements.clearBtn = $('#educambot-clear');
+            self.elements.exportBtn = $('#educambot-export');
+            self.elements.textarea = $('#educambot-textarea');
+            self.elements.sendBtn = $('#educambot-send');
+            self.elements.messages = $('#educambot-messages');
+            self.elements.loading = $('#educambot-loading');
+            self.elements.typingIndicator = $('#educambot-typing');
+
+            // Store references for export.
+            self.messagesContainer = self.elements.messages;
+
+            // Initialize notification sound.
+            self.initNotificationSound();
+
+            // Initialize mascot.
+            self.mascot = $('#educambot-mascot');
+            self.tooltip = $('#educambot-mascot-tooltip');
+
+            // Load local conversation on page load.
+            self.loadLocalConversation(self.elements.messages);
+
+            // Listen for storage events to sync between tabs.
+            self.initStorageListener(self.elements.messages);
+
+            // Setup unified event delegation (v3.0.0).
+            self.setupEventDelegation();
+
+            // Setup direct event handlers.
+            self.setupDirectHandlers();
 
             // Show widget with animation.
             educambotchat.show(200);
 
-            var popup = educambotchat.find('.educambot-popup');
-            var btn = $('#educambot-btn');
-            var closeBtn = $('#educambot-close');
-            var clearBtn = $('#educambot-clear');
-            var textarea = $('#educambot-textarea');
-            var sendBtn = $('#educambot-send');
-            var messages = $('#educambot-messages');
-            var loading = $('#educambot-loading');
+            // Restore state from localStorage.
+            if (localStorage.getItem('educambot-isopen') === 'true') {
+                self.openChat();
+            }
+        },
 
-            var serviceUrl = educambotchat.data('serviceurl');
-            var startupUrl = educambotchat.data('startupurl');
-            var sesskey = educambotchat.data('sesskey');
-            var courseid = educambotchat.data('courseid') || 1;
-            var startupOptionsLoaded = false;
+        /**
+         * Generate a unique session ID for context tracking.
+         *
+         * @return {string} Unique session ID
+         */
+        generateSessionId: function() {
+            return 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        },
 
-            // Initialize mascot (v1.8.1).
-            self.mascot = $('#educambot-mascot');
-            self.tooltip = $('#educambot-mascot-tooltip');
+        // ==============================================
+        // Unified Event Delegation System (v3.0.0)
+        // ==============================================
 
-            // Toggle chat open/close.
-            btn.on('click', function() {
-                educambotchat.toggleClass('educambot-active');
-                if (educambotchat.hasClass('educambot-active')) {
-                    localStorage.setItem('educambot-isopen', 'true');
-                    textarea.focus();
+        /**
+         * Setup unified event delegation for all interactive elements.
+         * This replaces all inline handlers to prevent duplicate execution.
+         */
+        setupEventDelegation: function() {
+            var self = this;
+            var educambotchat = self.elements.chat;
 
-                    // Load chat history on first open (v1.9.0).
-                    if (!self.historyLoaded && self.enableHistory) {
-                        self.loadChatHistory(messages, sesskey);
-                    }
+            // Single delegation handler for ALL clickable elements.
+            educambotchat.on('click', '[data-educambot-action]', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-                    // Load startup options on first open.
-                    if (!startupOptionsLoaded) {
-                        loadStartupOptions();
-                    }
-                    // Initialize mascot on first open (v1.8.1).
-                    if (self.mascot.length && !self.mascot.data('initialized')) {
-                        self.initMascot();
-                    }
+                var $btn = $(this);
+                var action = $btn.attr('data-educambot-action');
 
-                    // Start inactivity timer (v1.9.0).
-                    self.resetInactivityTimer(educambotchat, messages);
-                } else {
-                    localStorage.removeItem('educambot-isopen');
-                    // Stop suggestion timer when closed.
-                    if (self.suggestionTimer) {
-                        clearTimeout(self.suggestionTimer);
-                    }
-                    // Stop inactivity timer (v1.9.0).
-                    self.stopInactivityTimer();
-                }
-            });
-
-            /**
-             * Load and display startup options (suggested questions).
-             */
-            function loadStartupOptions() {
-                if (!startupUrl) {
+                // Prevent double-clicks.
+                if ($btn.hasClass('processing')) {
                     return;
                 }
 
-                $.ajax({
-                    url: startupUrl,
-                    type: 'POST',
-                    data: {
-                        sesskey: sesskey
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        if (data.success && data.options && data.options.length > 0) {
-                            // Add startup options after the greeting message.
-                            var greetingMessage = messages.find('.educambot-message').first();
-                            if (greetingMessage.length) {
-                                var optionsDiv = $('<div>').addClass('educambot-options educambot-startup-options');
+                switch (action) {
+                    case 'shortcut':
+                        self.handleShortcutClick($btn);
+                        break;
+                    case 'option':
+                        self.handleOptionClick($btn);
+                        break;
+                    case 'popular-question':
+                        self.handlePopularQuestionClick($btn);
+                        break;
+                    case 'similar-question':
+                        self.handleSimilarQuestionClick($btn);
+                        break;
+                }
+            });
 
-                                data.options.forEach(function(option) {
-                                    var btnText = option.icon ? option.icon + ' ' + option.text : option.text;
-                                    var optBtn = $('<button>')
-                                        .addClass('educambot-option-btn')
-                                        .attr('type', 'button')
-                                        .text(btnText)
-                                        .on('click', function() {
-                                            handleOptionClick(option);
-                                        });
-                                    optionsDiv.append(optBtn);
-                                });
+            // Legacy support: Handle old button classes without data-educambot-action.
+            // This ensures backwards compatibility with existing HTML/templates.
+            educambotchat.on('click', '.educambot-shortcut-btn:not([data-educambot-action])', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.handleShortcutClick($(this));
+            });
 
-                                greetingMessage.append(optionsDiv);
-                            }
-                        }
-                        startupOptionsLoaded = true;
-                    },
-                    error: function() {
-                        startupOptionsLoaded = true;
-                    }
-                });
+            educambotchat.on('click', '.educambot-option-btn:not([data-educambot-action]):not(.disabled)', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.handleOptionClick($(this));
+            });
+        },
+
+        /**
+         * Handle shortcut button click.
+         *
+         * @param {jQuery} $btn - The clicked button
+         */
+        handleShortcutClick: function($btn) {
+            var self = this;
+            var action = $btn.attr('data-action');
+
+            if (action && action.length >= 2) {
+                self.elements.textarea.val(action);
+                self.sendMessage();
             }
+        },
+
+        /**
+         * Handle option button click.
+         *
+         * @param {jQuery} $btn - The clicked button
+         */
+        handleOptionClick: function($btn) {
+            var self = this;
+
+            // Disable all options in the same container.
+            $btn.closest('.educambot-options').find('.educambot-option-btn')
+                .prop('disabled', true).addClass('disabled');
+
+            // Reset inactivity timer.
+            self.resetInactivityTimer();
+
+            // Get action or targetpattern.
+            var action = $btn.attr('data-action');
+            var targetpattern = $btn.attr('data-targetpattern');
+
+            // Execute the action.
+            if (action && action.length >= 2) {
+                self.elements.textarea.val(action);
+                self.sendMessage();
+            } else if (targetpattern && targetpattern.length >= 2) {
+                self.elements.textarea.val(targetpattern);
+                self.sendMessage();
+            }
+        },
+
+        /**
+         * Handle popular question click.
+         *
+         * @param {jQuery} $btn - The clicked element
+         */
+        handlePopularQuestionClick: function($btn) {
+            var self = this;
+            var question = $btn.attr('data-question');
+
+            if (question) {
+                self.elements.textarea.val(question);
+                self.hideTooltip();
+                self.sendMessage();
+            }
+        },
+
+        /**
+         * Handle similar question click.
+         *
+         * @param {jQuery} $btn - The clicked element
+         */
+        handleSimilarQuestionClick: function($btn) {
+            var self = this;
+            var question = $btn.attr('data-question');
+
+            if (question) {
+                self.elements.textarea.val(question);
+                self.hideTooltip();
+                self.sendMessage();
+            }
+        },
+
+        // ==============================================
+        // Direct Event Handlers
+        // ==============================================
+
+        /**
+         * Setup direct event handlers for non-delegated elements.
+         */
+        setupDirectHandlers: function() {
+            var self = this;
+
+            // Toggle chat open/close.
+            self.elements.btn.on('click', function() {
+                if (self.elements.chat.hasClass('educambot-active')) {
+                    self.closeChat();
+                } else {
+                    self.openChat();
+                }
+            });
 
             // Close button.
-            closeBtn.on('click', function(e) {
+            self.elements.closeBtn.on('click', function(e) {
                 e.preventDefault();
-                educambotchat.removeClass('educambot-active');
-                localStorage.removeItem('educambot-isopen');
-                self.stopInactivityTimer();
+                self.closeChat();
             });
 
             // Clear history.
-            clearBtn.on('click', function(e) {
+            self.elements.clearBtn.on('click', function(e) {
                 e.preventDefault();
-                // Keep only greeting message.
-                messages.find('.educambot-message').not(':first').remove();
-                messages.find('.educambot-history-divider').remove();
-
-                // Clear server-side history if enabled (v1.9.0).
-                if (self.enableHistory && self.historyUrl) {
-                    $.ajax({
-                        url: self.historyUrl,
-                        type: 'POST',
-                        data: {
-                            sesskey: sesskey,
-                            action: 'clear'
-                        },
-                        dataType: 'json'
-                    });
-                }
-
-                // Clear local storage.
-                localStorage.removeItem('educambot-history-' + educambotchat.data('userid'));
-
-                // Reset inactivity timer.
-                self.resetInactivityTimer(educambotchat, messages);
+                self.clearChat();
             });
 
+            // Export conversation.
+            if (self.elements.exportBtn.length) {
+                self.elements.exportBtn.on('click', function(e) {
+                    e.preventDefault();
+                    self.exportConversation();
+                });
+            }
+
             // Auto-resize textarea and reset inactivity on input.
-            textarea.on('input', function() {
+            self.elements.textarea.on('input', function() {
                 this.style.height = '34px';
                 this.style.height = (this.scrollHeight) + 'px';
-                // Reset inactivity timer on typing (v1.9.0).
-                self.resetInactivityTimer(educambotchat, messages);
+                self.resetInactivityTimer();
             });
 
             // Send on Enter (Shift+Enter for new line).
-            textarea.on('keydown', function(e) {
+            self.elements.textarea.on('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    sendMessage();
+                    self.sendMessage();
                 }
             });
 
             // Send on button click.
-            sendBtn.on('click', function() {
-                sendMessage();
+            self.elements.sendBtn.on('click', function() {
+                self.sendMessage();
             });
+        },
 
-            // Restore state from localStorage.
-            if (localStorage.getItem('educambot-isopen') === 'true') {
-                educambotchat.addClass('educambot-active');
+        // ==============================================
+        // Chat State Management
+        // ==============================================
 
-                // Load chat history if restored as open (v1.9.0).
-                if (!self.historyLoaded && self.enableHistory) {
-                    self.loadChatHistory(messages, sesskey);
-                }
+        /**
+         * Open the chat window.
+         */
+        openChat: function() {
+            var self = this;
 
-                // Load startup options if restored as open.
-                if (!startupOptionsLoaded) {
-                    loadStartupOptions();
-                }
-                // Initialize mascot if restored as open (v1.8.1).
-                if (self.mascot.length && !self.mascot.data('initialized')) {
-                    setTimeout(function() {
-                        self.initMascot();
-                    }, 500);
-                }
+            self.elements.chat.addClass('educambot-active');
+            localStorage.setItem('educambot-isopen', 'true');
+            self.elements.textarea.focus();
 
-                // Start inactivity timer (v1.9.0).
-                self.resetInactivityTimer(educambotchat, messages);
+            // Load chat history on first open.
+            if (!self.historyLoaded && self.enableHistory) {
+                self.loadChatHistory();
             }
 
-            /**
-             * Send a message to the bot.
-             */
-            function sendMessage() {
-                var question = textarea.val().trim();
+            // Load shortcuts.
+            if (!self.shortcutsLoaded) {
+                self.loadShortcuts();
+            }
 
-                if (question.length < 2) {
-                    return;
+            // Initialize mascot on first open.
+            if (self.mascot.length && !self.mascot.data('initialized')) {
+                self.initMascot();
+            }
+
+            // Start inactivity timer.
+            self.resetInactivityTimer();
+        },
+
+        /**
+         * Close the chat window.
+         */
+        closeChat: function() {
+            var self = this;
+
+            self.elements.chat.removeClass('educambot-active');
+            localStorage.removeItem('educambot-isopen');
+
+            // Stop suggestion timer.
+            if (self.suggestionTimer) {
+                clearTimeout(self.suggestionTimer);
+            }
+
+            // Stop inactivity timer.
+            self.stopInactivityTimer();
+        },
+
+        /**
+         * Clear the chat and reset state.
+         */
+        clearChat: function() {
+            var self = this;
+            var messages = self.elements.messages;
+
+            // Keep only greeting message.
+            messages.find('.educambot-message').not(':first').remove();
+            messages.find('.educambot-history-divider').remove();
+            messages.find('.educambot-inactivity-warning').remove();
+            messages.find('.educambot-shortcuts-container').remove();
+
+            // Clear server-side history if enabled.
+            if (self.enableHistory && self.historyUrl) {
+                self.ajaxRequest(self.historyUrl, {
+                    sesskey: self.sesskey,
+                    action: 'clear'
+                });
+            }
+
+            // Clear local storage.
+            localStorage.removeItem('educambot-history-' + self.userId);
+
+            // Clear local conversation.
+            self.conversationData = [];
+            self.saveLocalConversation();
+
+            // Reset flags.
+            self.historyLoaded = false;
+            self.shortcutsLoaded = false;
+
+            // Generate new session ID.
+            self.sessionId = self.generateSessionId();
+
+            // Reload shortcuts.
+            self.loadShortcuts();
+
+            // Reset inactivity timer.
+            self.resetInactivityTimer();
+
+            // Reset mascot state.
+            self.setMascotState('idle');
+        },
+
+        // ==============================================
+        // Message Sending with Retry (v3.0.0)
+        // ==============================================
+
+        /**
+         * Send a message to the bot with retry support.
+         */
+        sendMessage: function() {
+            var self = this;
+            var question = self.elements.textarea.val().trim();
+
+            if (question.length < 2 || self.isProcessing) {
+                return;
+            }
+
+            // Store last question for similar suggestions.
+            self.lastUserQuestion = question;
+
+            // Mark as processing.
+            self.isProcessing = true;
+
+            // Add user message to chat.
+            self.addMessage(question, 'user');
+
+            // Clear input.
+            self.elements.textarea.val('');
+            self.elements.textarea.css('height', '34px');
+
+            // Show typing indicator.
+            self.showTypingIndicator();
+
+            // Set mascot to thinking state.
+            self.setMascotState('thinking');
+            self.hideTooltip();
+
+            // Reset inactivity timer.
+            self.resetInactivityTimer();
+
+            // Send request with retry.
+            self.sendMessageWithRetry(question, 0);
+        },
+
+        /**
+         * Send message request with retry on failure.
+         *
+         * @param {string} question - The question to send
+         * @param {number} attempt - Current attempt number (0-indexed)
+         */
+        sendMessageWithRetry: function(question, attempt) {
+            var self = this;
+
+            var requestData = {
+                sesskey: self.sesskey,
+                question: question,
+                courseid: self.courseid,
+                sessionid: self.sessionId // Context synchronization.
+            };
+
+            $.ajax({
+                url: self.urls.service,
+                type: 'POST',
+                data: requestData,
+                dataType: 'json',
+                timeout: 30000, // 30 second timeout.
+                success: function(data) {
+                    self.handleMessageSuccess(data);
+                },
+                error: function(xhr, status, error) {
+                    self.handleMessageError(question, attempt, xhr, status, error);
                 }
+            });
+        },
 
-                // Store last question for similar suggestions (v1.8.1).
-                self.lastUserQuestion = question;
+        /**
+         * Handle successful message response.
+         *
+         * @param {object} data - Response data
+         */
+        handleMessageSuccess: function(data) {
+            var self = this;
 
-                // Add user message to chat.
-                addMessage(question, 'user');
+            // Hide typing indicator.
+            self.hideTypingIndicator();
 
-                // Clear input.
-                textarea.val('');
-                textarea.css('height', '34px');
+            // Mark as not processing.
+            self.isProcessing = false;
 
-                // Show loading.
-                loading.show();
+            if (data.success && data.response) {
+                self.addMessage(data.response, 'bot', data.confidence, data.options, false, data.ruleid);
 
-                // Set mascot to thinking state (v1.8.1).
-                self.setMascotState('thinking');
-                self.hideTooltip();
+                // Play notification sound.
+                self.playNotificationSound();
 
-                // Reset inactivity timer (v1.9.0).
-                self.resetInactivityTimer(educambotchat, messages);
+                // Set mascot state based on match.
+                if (data.confidence && data.confidence > 0.5) {
+                    self.setMascotState('success');
+                } else {
+                    self.setMascotState('confused');
+                }
+            } else if (data.error) {
+                self.addMessage(data.error, 'bot error');
+                self.setMascotState('confused');
+            } else {
+                self.addMessage(
+                    M.util.get_string('error_noresponse', 'local_educambot') || 'No response received',
+                    'bot error'
+                );
+                self.setMascotState('confused');
+            }
 
-                // Send AJAX request.
-                $.ajax({
-                    url: serviceUrl,
+            // Reset inactivity timer after response.
+            self.resetInactivityTimer();
+        },
+
+        /**
+         * Handle message error with retry logic.
+         *
+         * @param {string} question - Original question
+         * @param {number} attempt - Current attempt number
+         * @param {object} xhr - XHR object
+         * @param {string} status - Error status
+         * @param {string} error - Error message
+         */
+        handleMessageError: function(question, attempt, xhr, status, error) {
+            var self = this;
+
+            // Check if we should retry.
+            if (attempt < self.maxRetries && self.shouldRetry(xhr, status)) {
+                var delay = self.retryDelays[attempt] || 4000;
+
+                // Update typing indicator to show retry.
+                self.updateTypingIndicator(
+                    M.util.get_string('retrying', 'local_educambot') || 'Retrying...'
+                );
+
+                // Retry after delay.
+                setTimeout(function() {
+                    self.sendMessageWithRetry(question, attempt + 1);
+                }, delay);
+            } else {
+                // Max retries reached or non-retryable error.
+                self.hideTypingIndicator();
+                self.isProcessing = false;
+
+                self.addMessage(
+                    M.util.get_string('error_connection', 'local_educambot') || 'Connection error. Please try again.',
+                    'bot error'
+                );
+                self.setMascotState('confused');
+            }
+        },
+
+        /**
+         * Determine if request should be retried.
+         *
+         * @param {object} xhr - XHR object
+         * @param {string} status - Error status
+         * @return {boolean} Whether to retry
+         */
+        shouldRetry: function(xhr, status) {
+            // Retry on timeout or network errors.
+            if (status === 'timeout' || status === 'error') {
+                return true;
+            }
+
+            // Retry on server errors (5xx).
+            if (xhr && xhr.status >= 500 && xhr.status < 600) {
+                return true;
+            }
+
+            // Don't retry on client errors (4xx) or other issues.
+            return false;
+        },
+
+        /**
+         * Show typing indicator.
+         */
+        showTypingIndicator: function() {
+            var self = this;
+
+            if (self.elements.typingIndicator.length) {
+                self.elements.typingIndicator.show();
+                self.elements.messages.scrollTop(self.elements.messages[0].scrollHeight);
+            } else {
+                self.elements.loading.show();
+            }
+        },
+
+        /**
+         * Hide typing indicator.
+         */
+        hideTypingIndicator: function() {
+            var self = this;
+
+            if (self.elements.typingIndicator.length) {
+                self.elements.typingIndicator.hide();
+            }
+            self.elements.loading.hide();
+        },
+
+        /**
+         * Update typing indicator text.
+         *
+         * @param {string} text - Text to show
+         */
+        updateTypingIndicator: function(text) {
+            var self = this;
+
+            if (self.elements.typingIndicator.length) {
+                self.elements.typingIndicator.find('.educambot-typing-text').text(text);
+            }
+        },
+
+        // ==============================================
+        // AJAX Helper with Retry
+        // ==============================================
+
+        /**
+         * Make AJAX request with optional retry.
+         *
+         * @param {string} url - Request URL
+         * @param {object} data - Request data
+         * @param {function} onSuccess - Success callback
+         * @param {function} onError - Error callback
+         * @param {number} maxRetries - Max retry attempts
+         * @return {jqXHR} jQuery XHR object
+         */
+        ajaxRequest: function(url, data, onSuccess, onError, maxRetries) {
+            var self = this;
+            maxRetries = maxRetries || 0;
+
+            function doRequest(attempt) {
+                return $.ajax({
+                    url: url,
                     type: 'POST',
-                    data: {
-                        sesskey: sesskey,
-                        question: question,
-                        courseid: courseid
-                    },
+                    data: data,
                     dataType: 'json',
-                    success: function(data) {
-                        loading.hide();
-
-                        if (data.success && data.response) {
-                            addMessage(data.response, 'bot', data.confidence, data.options);
-                            // Set mascot state based on match (v1.8.1).
-                            if (data.confidence && data.confidence > 0.5) {
-                                self.setMascotState('success');
-                            } else {
-                                self.setMascotState('confused');
-                            }
-                        } else if (data.error) {
-                            addMessage(data.error, 'bot error');
-                            self.setMascotState('confused');
-                        } else {
-                            addMessage('Error: No response received.', 'bot error');
-                            self.setMascotState('confused');
+                    success: function(response) {
+                        if (onSuccess) {
+                            onSuccess(response);
                         }
-
-                        // Reset inactivity timer after response (v1.9.0).
-                        self.resetInactivityTimer(educambotchat, messages);
                     },
-                    error: function() {
-                        loading.hide();
-                        addMessage('Error: Could not connect to server.', 'bot error');
-                        self.setMascotState('confused');
+                    error: function(xhr, status, error) {
+                        if (attempt < maxRetries && self.shouldRetry(xhr, status)) {
+                            var delay = self.retryDelays[attempt] || 4000;
+                            setTimeout(function() {
+                                doRequest(attempt + 1);
+                            }, delay);
+                        } else if (onError) {
+                            onError(xhr, status, error);
+                        }
                     }
                 });
             }
 
-            /**
-             * Handle option button click.
-             *
-             * @param {object} option - Option object with targetpattern or action
-             */
-            function handleOptionClick(option) {
-                // Disable all option buttons in the chat.
-                messages.find('.educambot-option-btn').prop('disabled', true).addClass('disabled');
-
-                // Reset inactivity timer (v1.9.0).
-                self.resetInactivityTimer(educambotchat, messages);
-
-                // Handle shortcut options (have 'action' property).
-                if (option.action) {
-                    textarea.val(option.action);
-                    sendMessage();
-                } else if (option.targetpattern) {
-                    // Handle regular rule options.
-                    textarea.val(option.targetpattern);
-                    sendMessage();
-                }
-            }
-
-            /**
-             * Add a message to the chat.
-             *
-             * @param {string} text - Message text
-             * @param {string} sender - 'user' or 'bot' or 'bot error'
-             * @param {number} confidence - Confidence score (0-1)
-             * @param {array} options - Quick reply options
-             * @param {boolean} isHistory - Whether this is a history message (v1.9.0)
-             */
-            function addMessage(text, sender, confidence, options, isHistory) {
-                var isError = sender.indexOf('error') !== -1;
-                var senderClass = sender.replace(' error', '');
-
-                var messageDiv = $('<div>')
-                    .addClass('educambot-message')
-                    .addClass('educambot-' + senderClass);
-
-                if (isError) {
-                    messageDiv.addClass('educambot-error');
-                }
-
-                // Mark as history message (v1.9.0).
-                if (isHistory) {
-                    messageDiv.addClass('educambot-history-message');
-                }
-
-                var contentDiv = $('<div>')
-                    .addClass('educambot-message-content')
-                    .html(text);
-
-                messageDiv.append(contentDiv);
-
-                // Add confidence indicator for bot messages.
-                if (senderClass === 'bot' && !isError && typeof confidence !== 'undefined' && confidence > 0) {
-                    var confidencePercent = Math.round(confidence * 100);
-                    var confidenceDiv = $('<div>')
-                        .addClass('educambot-confidence')
-                        .text(confidencePercent + '%');
-                    messageDiv.append(confidenceDiv);
-                }
-
-                // Add quick reply options if present.
-                if (senderClass === 'bot' && !isError && options && options.length > 0) {
-                    var optionsDiv = $('<div>').addClass('educambot-options');
-
-                    options.forEach(function(option) {
-                        var btnText = option.icon ? option.icon + ' ' + option.text : option.text;
-                        var btn = $('<button>')
-                            .addClass('educambot-option-btn')
-                            .attr('type', 'button')
-                            .text(btnText)
-                            .on('click', function() {
-                                handleOptionClick(option);
-                            });
-                        optionsDiv.append(btn);
-                    });
-
-                    messageDiv.append(optionsDiv);
-                }
-
-                messages.append(messageDiv);
-
-                // Scroll to bottom.
-                messages.scrollTop(messages[0].scrollHeight);
-            }
-
-            // Make addMessage available to chat object for history loading.
-            self.addMessageFn = addMessage;
+            return doRequest(0);
         },
 
         // ==============================================
-        // Chat History Methods (v1.9.0)
+        // Message Display
+        // ==============================================
+
+        /**
+         * Add a message to the chat.
+         *
+         * @param {string} text - Message text
+         * @param {string} sender - 'user' or 'bot' or 'bot error'
+         * @param {number} confidence - Confidence score (0-1)
+         * @param {array} options - Quick reply options
+         * @param {boolean} isHistory - Whether this is a history message
+         * @param {number} ruleid - Rule ID for feedback
+         * @return {string} Message ID
+         */
+        addMessage: function(text, sender, confidence, options, isHistory, ruleid) {
+            var self = this;
+            var messages = self.elements.messages;
+
+            var isError = sender.indexOf('error') !== -1;
+            var senderClass = sender.replace(' error', '');
+
+            // Generate unique message ID.
+            self.messageCounter++;
+            var msgId = 'educambot-msg-' + self.messageCounter;
+
+            var messageDiv = $('<div>')
+                .addClass('educambot-message')
+                .addClass('educambot-' + senderClass)
+                .attr('id', msgId)
+                .attr('data-sender', senderClass)
+                .attr('data-timestamp', Date.now());
+
+            if (ruleid) {
+                messageDiv.attr('data-ruleid', ruleid);
+            }
+
+            if (isError) {
+                messageDiv.addClass('educambot-error');
+            }
+
+            if (isHistory) {
+                messageDiv.addClass('educambot-history-message');
+            }
+
+            var contentDiv = $('<div>')
+                .addClass('educambot-message-content')
+                .html(text);
+
+            messageDiv.append(contentDiv);
+
+            // Add message footer with timestamp and actions.
+            var footerDiv = $('<div>').addClass('educambot-message-footer');
+
+            // Timestamp.
+            var now = new Date();
+            var timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            var timestampSpan = $('<span>')
+                .addClass('educambot-timestamp')
+                .text(timeStr);
+            footerDiv.append(timestampSpan);
+
+            // Add confidence indicator for bot messages.
+            if (senderClass === 'bot' && !isError && typeof confidence !== 'undefined' && confidence > 0) {
+                var confidencePercent = Math.round(confidence * 100);
+                var confidenceSpan = $('<span>')
+                    .addClass('educambot-confidence')
+                    .text(confidencePercent + '%');
+                footerDiv.append(confidenceSpan);
+            }
+
+            // Add feedback buttons for bot messages.
+            if (senderClass === 'bot' && !isError && !isHistory && self.feedbackUrl) {
+                var feedbackDiv = self.createFeedbackButtons(msgId, ruleid);
+                footerDiv.append(feedbackDiv);
+            }
+
+            messageDiv.append(footerDiv);
+
+            // Add quick reply options if present (v3.0.0 - unified approach).
+            if (senderClass === 'bot' && !isError && options && options.length > 0) {
+                var optionsDiv = self.createOptionsButtons(options);
+                messageDiv.append(optionsDiv);
+            }
+
+            messages.append(messageDiv);
+
+            // Scroll to bottom.
+            messages.scrollTop(messages[0].scrollHeight);
+
+            // Save to local conversation - only for new messages, not history.
+            if (!isHistory) {
+                self.conversationData.push({
+                    id: msgId,
+                    sender: senderClass,
+                    text: text,
+                    timestamp: Date.now(),
+                    confidence: confidence || null,
+                    ruleid: ruleid || null,
+                    options: options || null,
+                    isError: isError
+                });
+                self.saveLocalConversation();
+            }
+
+            return msgId;
+        },
+
+        /**
+         * Create options buttons container.
+         * Uses data attributes for unified event delegation.
+         *
+         * @param {array} options - Array of option objects
+         * @return {jQuery} Options container element
+         */
+        createOptionsButtons: function(options) {
+            var optionsDiv = $('<div>').addClass('educambot-options');
+
+            options.forEach(function(option) {
+                var btn = $('<button>')
+                    .addClass('educambot-option-btn')
+                    .attr('type', 'button')
+                    .attr('data-educambot-action', 'option'); // Unified action attribute.
+
+                // Add data attributes for the delegation handler.
+                if (option.action) {
+                    btn.attr('data-action', option.action);
+                }
+                if (option.targetpattern) {
+                    btn.attr('data-targetpattern', option.targetpattern);
+                }
+
+                // Render icon properly using Bootstrap Icons.
+                if (option.icon) {
+                    if (option.icon.indexOf('bi-') === 0) {
+                        var iconEl = $('<i>').addClass('bi ' + option.icon);
+                        btn.append(iconEl).append(' ');
+                    } else {
+                        btn.append(option.icon + ' ');
+                    }
+                }
+                btn.append(option.text);
+
+                // NO inline handler - rely on event delegation only.
+                optionsDiv.append(btn);
+            });
+
+            return optionsDiv;
+        },
+
+        /**
+         * Create feedback buttons.
+         *
+         * @param {string} msgId - Message ID
+         * @param {number} ruleid - Rule ID
+         * @return {jQuery} Feedback container element
+         */
+        createFeedbackButtons: function(msgId, ruleid) {
+            var self = this;
+            var feedbackDiv = $('<div>').addClass('educambot-feedback');
+
+            var thumbsUp = $('<button>')
+                .addClass('educambot-feedback-btn educambot-thumbs-up')
+                .attr('type', 'button')
+                .attr('title', M.util.get_string('feedback_helpful', 'local_educambot') || 'Helpful')
+                .html('<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>')
+                .on('click', function() {
+                    self.sendFeedback(msgId, ruleid, 1, $(this));
+                });
+
+            var thumbsDown = $('<button>')
+                .addClass('educambot-feedback-btn educambot-thumbs-down')
+                .attr('type', 'button')
+                .attr('title', M.util.get_string('feedback_nothelpful', 'local_educambot') || 'Not helpful')
+                .html('<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>')
+                .on('click', function() {
+                    self.sendFeedback(msgId, ruleid, 0, $(this));
+                });
+
+            feedbackDiv.append(thumbsUp).append(thumbsDown);
+            return feedbackDiv;
+        },
+
+        // ==============================================
+        // Shortcuts Loading
+        // ==============================================
+
+        /**
+         * Load and display shortcuts with descriptions.
+         */
+        loadShortcuts: function() {
+            var self = this;
+
+            if (!self.urls.shortcuts) {
+                self.shortcutsLoaded = true;
+                return;
+            }
+
+            // Remove existing shortcuts container before loading new ones.
+            self.elements.messages.find('.educambot-shortcuts-container').remove();
+
+            self.ajaxRequest(
+                self.urls.shortcuts,
+                {
+                    sesskey: self.sesskey,
+                    courseid: self.courseid,
+                    userrole: self.userRole
+                },
+                function(data) {
+                    if (data.success && data.shortcuts && data.shortcuts.length > 0) {
+                        self.renderShortcuts(data.shortcuts);
+                    }
+                    self.shortcutsLoaded = true;
+                },
+                function() {
+                    self.shortcutsLoaded = true;
+                },
+                2 // Retry up to 2 times.
+            );
+        },
+
+        /**
+         * Render shortcuts in the chat.
+         *
+         * @param {array} shortcuts - Array of shortcut objects
+         */
+        renderShortcuts: function(shortcuts) {
+            var self = this;
+            var messages = self.elements.messages;
+
+            var greetingMessage = messages.find('.educambot-message').first();
+            if (!greetingMessage.length) {
+                return;
+            }
+
+            var shortcutsContainer = $('<div>').addClass('educambot-shortcuts-container');
+            var shortcutsTitle = $('<div>')
+                .addClass('educambot-shortcuts-title')
+                .text(M.util.get_string('shortcuts_title', 'local_educambot') || 'Quick actions');
+            shortcutsContainer.append(shortcutsTitle);
+
+            var shortcutsGrid = $('<div>').addClass('educambot-shortcuts-grid');
+
+            shortcuts.forEach(function(shortcut) {
+                var shortcutBtn = $('<button>')
+                    .addClass('educambot-shortcut-btn')
+                    .attr('type', 'button')
+                    .attr('data-educambot-action', 'shortcut') // Unified action attribute.
+                    .attr('data-action', shortcut.action);
+
+                // Icon (Bootstrap Icons).
+                if (shortcut.icon) {
+                    var iconSpan = $('<span>')
+                        .addClass('educambot-shortcut-icon')
+                        .html('<i class="bi ' + shortcut.icon + '"></i>');
+                    shortcutBtn.append(iconSpan);
+                }
+
+                // Text container with name and description.
+                var textContainer = $('<span>').addClass('educambot-shortcut-text');
+                var nameSpan = $('<span>')
+                    .addClass('educambot-shortcut-name')
+                    .text(shortcut.name);
+                textContainer.append(nameSpan);
+
+                if (shortcut.description) {
+                    var descSpan = $('<span>')
+                        .addClass('educambot-shortcut-desc')
+                        .text(shortcut.description);
+                    textContainer.append(descSpan);
+                }
+
+                shortcutBtn.append(textContainer);
+                shortcutsGrid.append(shortcutBtn);
+            });
+
+            shortcutsContainer.append(shortcutsGrid);
+            greetingMessage.after(shortcutsContainer);
+        },
+
+        // ==============================================
+        // Chat History Methods
         // ==============================================
 
         /**
          * Load chat history from server.
-         *
-         * @param {jQuery} messages - Messages container
-         * @param {string} sesskey - Session key
          */
-        loadChatHistory: function(messages, sesskey) {
+        loadChatHistory: function() {
             var self = this;
 
             if (!self.enableHistory || !self.historyUrl || self.historyLoaded) {
                 return;
             }
 
-            $.ajax({
-                url: self.historyUrl,
-                type: 'POST',
-                data: {
-                    sesskey: sesskey,
+            self.ajaxRequest(
+                self.historyUrl,
+                {
+                    sesskey: self.sesskey,
                     action: 'recent',
                     limit: 10
                 },
-                dataType: 'json',
-                success: function(data) {
+                function(data) {
                     if (data.success && data.history && data.history.length > 0) {
-                        // Add history divider.
-                        var divider = $('<div>')
-                            .addClass('educambot-history-divider')
-                            .text(M.util.get_string('previousconversation', 'local_educambot') || 'Previous conversation');
-                        messages.append(divider);
-
-                        // Add history messages.
-                        data.history.forEach(function(item) {
-                            self.addMessageFn(item.question, 'user', null, null, true);
-                            self.addMessageFn(item.response, 'bot', item.confidence, null, true);
-                        });
-
-                        // Scroll to bottom.
-                        messages.scrollTop(messages[0].scrollHeight);
+                        self.renderHistory(data.history);
                     }
                     self.historyLoaded = true;
                 },
-                error: function() {
+                function() {
                     self.historyLoaded = true;
-                }
+                },
+                2
+            );
+        },
+
+        /**
+         * Render history messages in the chat.
+         *
+         * @param {array} history - Array of history items
+         */
+        renderHistory: function(history) {
+            var self = this;
+            var messages = self.elements.messages;
+
+            // Add history divider.
+            var divider = $('<div>')
+                .addClass('educambot-history-divider')
+                .text(M.util.get_string('previousconversation', 'local_educambot') || 'Previous conversation');
+            messages.append(divider);
+
+            // Add history messages.
+            history.forEach(function(item) {
+                self.addMessage(item.question, 'user', null, null, true);
+                self.addMessage(item.response, 'bot', item.confidence, null, true);
             });
+
+            // Scroll to bottom.
+            messages.scrollTop(messages[0].scrollHeight);
         },
 
         // ==============================================
-        // Inactivity Timer Methods (v1.9.0)
+        // Inactivity Timer Methods
         // ==============================================
 
         /**
          * Reset the inactivity timer.
-         *
-         * @param {jQuery} educambotchat - Chat container
-         * @param {jQuery} messages - Messages container
          */
-        resetInactivityTimer: function(educambotchat, messages) {
+        resetInactivityTimer: function() {
             var self = this;
 
             // Clear existing timers.
@@ -492,26 +1127,23 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
             // Remove any existing warning.
             if (self.warningShown) {
-                messages.find('.educambot-inactivity-warning').remove();
+                self.elements.messages.find('.educambot-inactivity-warning').remove();
                 self.warningShown = false;
             }
 
             // Don't start timer if chat is closed or timeout is 0.
-            if (!educambotchat.hasClass('educambot-active') || self.inactivityTimeout <= 0) {
+            if (!self.elements.chat.hasClass('educambot-active') || self.inactivityTimeout <= 0) {
                 return;
             }
 
-            // Set warning timer (1 minute before close).
-            var warningTime = Math.max(0, self.inactivityTimeout - self.inactivityWarningTime);
-            if (warningTime > 0) {
-                self.inactivityWarningTimer = setTimeout(function() {
-                    self.showInactivityWarning(educambotchat, messages);
-                }, warningTime);
-            }
+            // Set warning timer.
+            self.inactivityWarningTimer = setTimeout(function() {
+                self.showInactivityWarning();
 
-            // Set close timer.
-            self.inactivityTimer = setTimeout(function() {
-                self.handleInactivityTimeout(educambotchat);
+                // After showing warning, set close timer.
+                self.inactivityTimer = setTimeout(function() {
+                    self.handleInactivityTimeout();
+                }, self.inactivityWarningTime);
             }, self.inactivityTimeout);
         },
 
@@ -534,11 +1166,8 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
         /**
          * Show inactivity warning message.
-         *
-         * @param {jQuery} educambotchat - Chat container
-         * @param {jQuery} messages - Messages container
          */
-        showInactivityWarning: function(educambotchat, messages) {
+        showInactivityWarning: function() {
             var self = this;
 
             if (self.warningShown) {
@@ -558,40 +1187,48 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 );
 
             warningDiv.find('button').on('click', function() {
-                self.resetInactivityTimer(educambotchat, messages);
+                self.resetInactivityTimer();
             });
 
-            messages.append(warningDiv);
-            messages.scrollTop(messages[0].scrollHeight);
+            self.elements.messages.append(warningDiv);
+            self.elements.messages.scrollTop(self.elements.messages[0].scrollHeight);
 
-            // Set mascot to confused/concerned state.
             self.setMascotState('confused');
         },
 
         /**
-         * Handle inactivity timeout - minimize the chat.
-         *
-         * @param {jQuery} educambotchat - Chat container
+         * Handle inactivity timeout.
          */
-        handleInactivityTimeout: function(educambotchat) {
+        handleInactivityTimeout: function() {
             var self = this;
 
-            // Minimize the chat.
-            educambotchat.removeClass('educambot-active');
-            localStorage.removeItem('educambot-isopen');
+            // Remove warning message.
+            self.elements.messages.find('.educambot-inactivity-warning').remove();
 
-            // Stop timers.
-            self.stopInactivityTimer();
+            // Minimize the chat.
+            self.closeChat();
+
+            // Reset state.
             self.warningShown = false;
 
             // Stop mascot suggestion timer.
             if (self.suggestionTimer) {
                 clearTimeout(self.suggestionTimer);
             }
+
+            // Clear local conversation data on inactivity timeout.
+            self.conversationData = [];
+            self.saveLocalConversation();
+
+            // Generate new session ID.
+            self.sessionId = self.generateSessionId();
+
+            // Reset mascot state.
+            self.setMascotState('idle');
         },
 
         // ==============================================
-        // Mascot Methods (v1.8.1)
+        // Mascot Methods
         // ==============================================
 
         /**
@@ -610,7 +1247,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             // Start with greeting animation.
             self.setMascotState('greeting');
 
-            // Show archetype-specific greeting (v1.9.0).
+            // Show archetype-specific greeting.
             var greetingKey = 'mascot_greeting';
             var archetypeGreetings = {
                 'student': 'mascot_greeting_student',
@@ -737,7 +1374,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         },
 
         /**
-         * Start the suggestion timer (shows random suggestions every 15s).
+         * Start the suggestion timer.
          */
         startSuggestionTimer: function() {
             var self = this;
@@ -754,17 +1391,14 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
         /**
          * Show a random suggestion in the tooltip.
-         * Archetype-specific suggestions (v1.9.0).
          */
         showRandomSuggestion: function() {
             var self = this;
 
-            // Base suggestions for all users.
             var suggestions = [
                 M.util.get_string('mascot_suggest_help', 'local_educambot') || 'Click me for popular questions!'
             ];
 
-            // Archetype-specific suggestions.
             var archetypeSuggestions = {
                 'student': [
                     M.util.get_string('mascot_suggest_tasks', 'local_educambot') || 'Need help with your tasks?',
@@ -807,11 +1441,9 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 ]
             };
 
-            // Add archetype-specific suggestions.
             if (archetypeSuggestions[self.userRole]) {
                 suggestions = suggestions.concat(archetypeSuggestions[self.userRole]);
             } else {
-                // Fallback to student suggestions for unknown archetypes.
                 suggestions = suggestions.concat(archetypeSuggestions['student']);
             }
 
@@ -822,7 +1454,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         },
 
         /**
-         * Fetch and display popular questions from the server.
+         * Fetch and display popular questions.
          */
         showPopularQuestions: function() {
             var self = this;
@@ -843,22 +1475,13 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 html += '<strong>' + (M.util.get_string('mascot_popularheader', 'local_educambot') || 'Popular questions:') + '</strong>';
 
                 questions.forEach(function(q) {
-                    html += '<a href="#" class="educambot-popular-q" data-question="' +
+                    html += '<a href="#" class="educambot-popular-q" data-educambot-action="popular-question" data-question="' +
                             self.escapeHtml(q.pattern) + '">' + self.escapeHtml(q.pattern) + '</a>';
                 });
 
                 html += '</div>';
 
                 self.showTooltip(html);
-
-                // Add click handlers to the question links.
-                self.tooltip.find('.educambot-popular-q').on('click', function(e) {
-                    e.preventDefault();
-                    var question = $(this).data('question');
-                    $('#educambot-textarea').val(question);
-                    self.hideTooltip();
-                    $('#educambot-send').trigger('click');
-                });
             }).fail(function() {
                 self.showTooltip(
                     M.util.get_string('mascot_error', 'local_educambot') || 'Could not load questions',
@@ -868,7 +1491,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         },
 
         /**
-         * Fetch and display similar questions based on the last user question.
+         * Fetch and display similar questions.
          */
         showSimilarQuestions: function() {
             var self = this;
@@ -899,22 +1522,13 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 html += '<strong>' + (M.util.get_string('mascot_similarheader', 'local_educambot') || 'Did you mean:') + '</strong>';
 
                 questions.forEach(function(q) {
-                    html += '<a href="#" class="educambot-similar-q" data-question="' +
+                    html += '<a href="#" class="educambot-similar-q" data-educambot-action="similar-question" data-question="' +
                             self.escapeHtml(q.pattern) + '">' + self.escapeHtml(q.pattern) + '</a>';
                 });
 
                 html += '</div>';
 
                 self.showTooltip(html);
-
-                // Add click handlers.
-                self.tooltip.find('.educambot-similar-q').on('click', function(e) {
-                    e.preventDefault();
-                    var question = $(this).data('question');
-                    $('#educambot-textarea').val(question);
-                    self.hideTooltip();
-                    $('#educambot-send').trigger('click');
-                });
             }).fail(function() {
                 self.showTooltip(
                     M.util.get_string('mascot_tryagain', 'local_educambot') ||
@@ -925,7 +1539,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         },
 
         /**
-         * Escape HTML entities in a string.
+         * Escape HTML entities.
          *
          * @param {string} text - Text to escape
          * @return {string} Escaped text
@@ -934,6 +1548,330 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             var div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        },
+
+        // ==============================================
+        // Sound Notification Methods
+        // ==============================================
+
+        /**
+         * Initialize the notification sound.
+         */
+        initNotificationSound: function() {
+            var self = this;
+
+            if (!self.soundEnabled) {
+                return;
+            }
+
+            try {
+                self.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                self.soundEnabled = false;
+            }
+        },
+
+        /**
+         * Play a notification sound.
+         */
+        playNotificationSound: function() {
+            var self = this;
+
+            if (!self.soundEnabled || !self.audioContext) {
+                return;
+            }
+
+            try {
+                var oscillator = self.audioContext.createOscillator();
+                var gainNode = self.audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(self.audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, self.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, self.audioContext.currentTime + 0.1);
+
+                oscillator.start(self.audioContext.currentTime);
+                oscillator.stop(self.audioContext.currentTime + 0.1);
+            } catch (e) {
+                // Silently fail.
+            }
+        },
+
+        // ==============================================
+        // Feedback Methods
+        // ==============================================
+
+        /**
+         * Send feedback for a bot response.
+         *
+         * @param {string} msgId - Message element ID
+         * @param {number} ruleid - Rule ID
+         * @param {number} helpful - 1 for helpful, 0 for not helpful
+         * @param {jQuery} btn - The clicked button
+         */
+        sendFeedback: function(msgId, ruleid, helpful, btn) {
+            var self = this;
+
+            if (!self.feedbackUrl) {
+                return;
+            }
+
+            var msgElement = $('#' + msgId);
+            msgElement.find('.educambot-feedback-btn').prop('disabled', true);
+            btn.addClass('selected');
+
+            self.ajaxRequest(
+                self.feedbackUrl,
+                {
+                    sesskey: self.sesskey,
+                    ruleid: ruleid,
+                    helpful: helpful
+                },
+                function(data) {
+                    if (data.success) {
+                        var thankYou = $('<span>')
+                            .addClass('educambot-feedback-thanks')
+                            .text(M.util.get_string('feedback_thanks', 'local_educambot') || 'Thanks!');
+                        msgElement.find('.educambot-feedback').append(thankYou);
+                    }
+                },
+                function() {
+                    msgElement.find('.educambot-feedback-btn').prop('disabled', false);
+                    btn.removeClass('selected');
+                },
+                2
+            );
+        },
+
+        // ==============================================
+        // Export Methods
+        // ==============================================
+
+        /**
+         * Export the conversation as a text file.
+         */
+        exportConversation: function() {
+            var self = this;
+
+            if (!self.messagesContainer || !self.messagesContainer.length) {
+                return;
+            }
+
+            var exportText = '';
+            var botName = self.botName;
+            var youLabel = M.util.get_string('export_you', 'local_educambot') || 'You';
+
+            exportText += '='.repeat(50) + '\n';
+            exportText += (M.util.get_string('export_header', 'local_educambot', botName) || 'Conversation with ' + botName) + '\n';
+            exportText += (M.util.get_string('export_datetime', 'local_educambot', new Date().toLocaleString()) || new Date().toLocaleString()) + '\n';
+            exportText += '='.repeat(50) + '\n\n';
+
+            self.messagesContainer.find('.educambot-message').each(function() {
+                var $msg = $(this);
+                var sender = $msg.data('sender');
+                var content = $msg.find('.educambot-message-content').text().trim();
+                var timestamp = $msg.find('.educambot-timestamp').text() || '';
+
+                if (content) {
+                    var senderName = sender === 'user' ? youLabel : botName;
+                    var prefix = '[' + timestamp + '] ' + senderName + ':\n';
+                    exportText += prefix + content + '\n\n';
+                }
+            });
+
+            exportText += '-'.repeat(50) + '\n';
+            exportText += M.util.get_string('export_footer', 'local_educambot') || 'End of conversation';
+
+            var blob = new Blob([exportText], {type: 'text/plain;charset=utf-8'});
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            var filename = M.util.get_string('export_filename', 'local_educambot') || 'conversation';
+            a.download = filename + '-' + new Date().toISOString().slice(0, 10) + '.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        },
+
+        // ==============================================
+        // Local Conversation Persistence Methods
+        // ==============================================
+
+        /**
+         * Save conversation to localStorage.
+         */
+        saveLocalConversation: function() {
+            var self = this;
+
+            try {
+                var dataToSave = self.conversationData.slice(-50);
+                localStorage.setItem(self.localStorageKey, JSON.stringify({
+                    version: 2,
+                    timestamp: Date.now(),
+                    sessionId: self.sessionId,
+                    messages: dataToSave
+                }));
+            } catch (e) {
+                // Storage might be full or disabled.
+            }
+        },
+
+        /**
+         * Load conversation from localStorage.
+         *
+         * @param {jQuery} messages - Messages container
+         */
+        loadLocalConversation: function(messages) {
+            var self = this;
+
+            try {
+                var stored = localStorage.getItem(self.localStorageKey);
+                if (!stored) {
+                    return;
+                }
+
+                var data = JSON.parse(stored);
+                if (!data || !data.messages || data.messages.length === 0) {
+                    return;
+                }
+
+                // Check if data is older than 24 hours.
+                var maxAge = 24 * 60 * 60 * 1000;
+                if (Date.now() - data.timestamp > maxAge) {
+                    localStorage.removeItem(self.localStorageKey);
+                    return;
+                }
+
+                // Restore session ID if available.
+                if (data.sessionId) {
+                    self.sessionId = data.sessionId;
+                }
+
+                // Store in memory.
+                self.conversationData = data.messages;
+
+                // Clear existing messages except greeting.
+                messages.find('.educambot-message').not(':first').remove();
+
+                // Restore messages.
+                data.messages.forEach(function(msg) {
+                    self.restoreMessage(messages, msg);
+                });
+
+                // Scroll to bottom.
+                setTimeout(function() {
+                    messages.scrollTop(messages[0].scrollHeight);
+                }, 100);
+
+            } catch (e) {
+                // Parse error.
+            }
+        },
+
+        /**
+         * Restore a single message from stored data.
+         *
+         * @param {jQuery} messages - Messages container
+         * @param {object} msg - Stored message object
+         */
+        restoreMessage: function(messages, msg) {
+            var self = this;
+
+            self.messageCounter++;
+            var msgId = 'educambot-msg-' + self.messageCounter;
+
+            var messageDiv = $('<div>')
+                .addClass('educambot-message')
+                .addClass('educambot-' + msg.sender)
+                .attr('id', msgId)
+                .attr('data-sender', msg.sender)
+                .attr('data-timestamp', msg.timestamp);
+
+            if (msg.ruleid) {
+                messageDiv.attr('data-ruleid', msg.ruleid);
+            }
+
+            if (msg.isError) {
+                messageDiv.addClass('educambot-error');
+            }
+
+            var contentDiv = $('<div>')
+                .addClass('educambot-message-content')
+                .html(msg.text);
+
+            messageDiv.append(contentDiv);
+
+            var footerDiv = $('<div>').addClass('educambot-message-footer');
+
+            var msgDate = new Date(msg.timestamp);
+            var timeStr = msgDate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            var timestampSpan = $('<span>')
+                .addClass('educambot-timestamp')
+                .text(timeStr);
+            footerDiv.append(timestampSpan);
+
+            if (msg.sender === 'bot' && !msg.isError && msg.confidence) {
+                var confidencePercent = Math.round(msg.confidence * 100);
+                var confidenceSpan = $('<span>')
+                    .addClass('educambot-confidence')
+                    .text(confidencePercent + '%');
+                footerDiv.append(confidenceSpan);
+            }
+
+            messageDiv.append(footerDiv);
+
+            messages.append(messageDiv);
+        },
+
+        /**
+         * Initialize storage event listener for cross-tab sync.
+         *
+         * @param {jQuery} messages - Messages container
+         */
+        initStorageListener: function(messages) {
+            var self = this;
+
+            $(window).on('storage', function(e) {
+                var event = e.originalEvent;
+
+                if (event.key !== self.localStorageKey) {
+                    return;
+                }
+
+                if (event.newValue) {
+                    try {
+                        var data = JSON.parse(event.newValue);
+                        if (data && data.messages) {
+                            if (data.messages.length > self.conversationData.length) {
+                                var newMessages = data.messages.slice(self.conversationData.length);
+
+                                newMessages.forEach(function(msg) {
+                                    self.restoreMessage(messages, msg);
+                                });
+
+                                self.conversationData = data.messages;
+                                messages.scrollTop(messages[0].scrollHeight);
+
+                                var lastMsg = newMessages[newMessages.length - 1];
+                                if (lastMsg && lastMsg.sender === 'bot') {
+                                    self.playNotificationSound();
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore.
+                    }
+                } else {
+                    self.conversationData = [];
+                    messages.find('.educambot-message').not(':first').remove();
+                    messages.find('.educambot-options').remove();
+                }
+            });
         }
     };
 

@@ -1,0 +1,180 @@
+{
+    "version": "3.0.1",
+    "description": "EducamBot - Actividades y tareas",
+    "rules": [
+        {
+            "id": "entregar_tarea",
+            "category": "tareas",
+            "pattern": "Como entrego una tarea",
+            "keywords": ["entregar tarea", "subir tarea", "enviar tarea", "adjuntar archivo", "assignment", "cargar tarea", "subir archivo", "enviar trabajo"],
+            "response": "Para entregar una tarea:<br><br>1. Entra al curso y busca la <strong>Tarea</strong><br>2. Haz clic en <strong>Agregar entrega</strong><br>3. Arrastra tu archivo o haz clic para seleccionarlo<br>4. Haz clic en <strong>Guardar cambios</strong><br>5. Si se requiere: haz clic en <strong>Enviar tarea</strong><br><br><strong>Verifica:</strong> Formato correcto, tamano y fecha limite.",
+            "tags": ["tarea", "entrega"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Tareas pendientes", "icon": "bi-journal-check", "action": "mis tareas"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "estado_tarea",
+            "category": "tareas",
+            "pattern": "Como veo el estado de mi tarea",
+            "keywords": ["estado tarea", "mi entrega", "tarea enviada", "revision tarea", "entregue tarea", "ya envie", "se envio mi tarea"],
+            "response": "Para ver el estado de tu tarea:<br><br>1. Abre la tarea<br>2. Veras el resumen de entrega<br><br><strong>Estados:</strong><br>- Sin entregar: No has subido nada<br>- Borrador: Guardado, no enviado<br>- Enviado: Esperando revision<br>- Calificado: Ya revisado",
+            "tags": ["estado", "entrega"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tarea_tarde",
+            "category": "tareas",
+            "pattern": "Que pasa si entrego tarde",
+            "keywords": ["tarea tarde", "entrega tardia", "fuera plazo", "fecha vencida", "despues de la fecha", "se me paso la fecha", "no entregue a tiempo"],
+            "response": "Sobre entregas tardias:<br><br>Depende de la configuracion:<br>- <strong>Permitidas:</strong> Puedes entregar (puede haber penalizacion)<br>- <strong>Fecha estricta:</strong> No puedes entregar despues<br>- <strong>Extension:</strong> El profesor puede darte mas tiempo<br><br>Contacta al profesor ANTES si tienes problemas.",
+            "tags": ["tarde", "plazo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis profesores", "icon": "bi-person-badge", "action": "mis profesores"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "cuestionario",
+            "category": "tareas",
+            "pattern": "Como hago un cuestionario",
+            "keywords": ["cuestionario", "examen", "test", "quiz", "hacer examen", "evaluacion", "presentar examen", "responder cuestionario"],
+            "response": "Para realizar un cuestionario:<br><br><strong>Antes:</strong> Verifica tiempo limite e intentos permitidos.<br><br><strong>Durante:</strong><br>1. Clic en <strong>Comenzar intento</strong><br>2. Responde las preguntas<br>3. Panel lateral muestra tu avance<br>4. Clic en <strong>Enviar todo y terminar</strong><br><br><strong>Colores:</strong> Blanco=Sin responder, Azul=Respondida",
+            "tags": ["cuestionario", "examen"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tiempo_cuestionario",
+            "category": "tareas",
+            "pattern": "Que pasa si se acaba el tiempo",
+            "keywords": ["tiempo cuestionario", "tiempo limite", "se acabo tiempo", "temporizador", "termino tiempo", "cronometro examen"],
+            "response": "Cuando el tiempo termina:<br><br>- El cuestionario se <strong>envia automaticamente</strong><br>- Se guardan las respuestas hasta ese momento<br>- Preguntas sin responder quedan vacias<br><br><strong>Tip:</strong> No dejes preguntas para el final.",
+            "tags": ["tiempo", "limite"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "foro",
+            "category": "tareas",
+            "pattern": "Como participo en un foro",
+            "keywords": ["foro", "participar foro", "responder foro", "crear tema", "discusion", "publicar foro", "comentar foro"],
+            "response": "Para participar en un foro:<br><br><strong>Crear tema:</strong><br>1. Clic en <strong>Anadir tema de discusion</strong><br>2. Escribe asunto y mensaje<br>3. Envia<br><br><strong>Responder:</strong><br>1. Abre el tema<br>2. Clic en <strong>Responder</strong><br>3. Escribe tu respuesta",
+            "tags": ["foro", "discusion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "clase_virtual",
+            "category": "tareas",
+            "pattern": "Como entro a una clase virtual",
+            "keywords": ["bigbluebutton", "clase virtual", "videoconferencia", "sesion virtual", "clase en vivo", "zoom", "meet", "videollamada", "sesion en linea"],
+            "response": "Para entrar a una clase virtual:<br><br>1. Busca la actividad de videoconferencia<br>2. Verifica que sea la hora programada<br>3. Haz clic en <strong>Unirse a la sesion</strong><br>4. Permite acceso a microfono/camara<br><br>Las grabaciones pueden estar disponibles despues.",
+            "tags": ["videoconferencia", "virtual"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calendario", "icon": "bi-calendar-event", "action": "calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "h5p",
+            "category": "tareas",
+            "pattern": "Que es H5P",
+            "keywords": ["h5p", "contenido interactivo", "interactivo", "video interactivo", "actividad interactiva"],
+            "response": "H5P es contenido interactivo:<br><br><strong>Tipos:</strong><br>- Video interactivo con preguntas<br>- Presentaciones interactivas<br>- Arrastrar y soltar<br>- Lineas de tiempo<br><br>Abre la actividad e interactua con el contenido.",
+            "tags": ["h5p", "interactivo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "taller",
+            "category": "tareas",
+            "pattern": "Como funciona el taller",
+            "keywords": ["taller", "workshop", "evaluacion pares", "coevaluacion", "evaluar companeros"],
+            "response": "El Taller tiene fases:<br><br>1. <strong>Envio:</strong> Subes tu trabajo<br>2. <strong>Evaluacion:</strong> Evaluas trabajos de companeros<br>3. <strong>Calificacion:</strong> Tu nota = tu trabajo + tus evaluaciones<br><br>Sigue las fechas de cada fase.",
+            "tags": ["taller", "pares"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "encuesta",
+            "category": "tareas",
+            "pattern": "Como completo una encuesta",
+            "keywords": ["retroalimentacion", "feedback", "encuesta", "cuestionario opinion", "llenar encuesta", "responder encuesta"],
+            "response": "Para completar una encuesta:<br><br>1. Abre la actividad<br>2. Responde todas las preguntas<br>3. Haz clic en <strong>Enviar</strong><br><br>Generalmente es anonima y NO tiene calificacion.",
+            "tags": ["encuesta", "feedback"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "scorm",
+            "category": "tareas",
+            "pattern": "Que es un SCORM",
+            "keywords": ["scorm", "paquete scorm", "contenido scorm", "modulo scorm"],
+            "response": "SCORM es un paquete de contenido interactivo:<br><br><strong>Caracteristicas:</strong><br>- Contenido multimedia<br>- Avance guardado automaticamente<br>- Puede incluir evaluaciones internas<br><br><strong>Uso:</strong><br>1. Haz clic en la actividad SCORM<br>2. Clic en <strong>Entrar</strong><br>3. Navega por el contenido<br>4. Tu progreso se guarda automaticamente",
+            "tags": ["scorm", "paquete"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "wiki",
+            "category": "tareas",
+            "pattern": "Como uso la wiki",
+            "keywords": ["wiki", "crear wiki", "editar wiki", "wiki colaborativa"],
+            "response": "La Wiki es una herramienta colaborativa:<br><br><strong>Para editar:</strong><br>1. Abre la wiki<br>2. Clic en <strong>Editar</strong><br>3. Modifica el contenido<br>4. Guarda cambios<br><br><strong>Historial:</strong> Puedes ver versiones anteriores y quien edito.",
+            "tags": ["wiki", "colaborativo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "glosario",
+            "category": "tareas",
+            "pattern": "Como uso el glosario",
+            "keywords": ["glosario", "agregar termino", "definicion", "diccionario curso"],
+            "response": "El Glosario es un diccionario del curso:<br><br><strong>Agregar termino:</strong><br>1. Abre el glosario<br>2. Clic en <strong>Agregar entrada</strong><br>3. Escribe el termino y definicion<br>4. Guarda<br><br>Los terminos pueden aparecer resaltados en el curso.",
+            "tags": ["glosario", "definiciones"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

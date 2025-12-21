@@ -18,7 +18,8 @@
  * Privacy provider implementation for local_educambot (v1.9.0).
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

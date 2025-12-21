@@ -17,7 +17,12 @@
 {{!
     @template local_educambot/widget
 
-    Nexo Bot chat widget template.
+    EducamBot chat widget template.
+
+    @package    local_educambot
+    @author     Alonso Arias <soporte@ingeweb.co>
+    @copyright  2025 Ingeweb <https://ingeweb.co>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
     Context variables required for this template:
     * botname - The name of the bot
@@ -35,8 +40,8 @@
      --educambot-user: {{usercolor}};
      --educambot-bot: {{botcolor}};"
      data-serviceurl="{{serviceurl}}"
-     data-startupurl="{{startupurl}}"
      data-historyurl="{{historyurl}}"
+     data-shortcutsurl="{{shortcutsurl}}"
      data-sesskey="{{sesskey}}"
      data-botname="{{botname}}"
      data-courseid="{{courseid}}"
@@ -48,6 +53,8 @@
      data-userlastname="{{userlastname}}"
      data-userfullname="{{userfullname}}"
      data-userrolearchetype="{{userrolearchetype}}"
+     data-feedbackurl="{{feedbackurl}}"
+     data-sound-enabled="{{soundenabled}}"
      class="educambot-role-{{userrolearchetype}}">
 
     <!-- Chat popup panel -->
@@ -65,9 +72,9 @@
                         {{#isemoji}}
                         <span class="educambot-emoji-icon">{{iconcode}}</span>
                         {{/isemoji}}
-                        {{#isfontawesome}}
-                        <i class="{{faprefix}} {{iconcode}} educambot-fa-icon"></i>
-                        {{/isfontawesome}}
+                        {{#isbootstrap}}
+                        <i class="bi {{iconcode}} educambot-bs-icon"></i>
+                        {{/isbootstrap}}
                         {{#iscustom}}
                         <img src="{{iconurl}}" width="32" height="32" alt="{{botname}}" class="educambot-custom-icon">
                         {{/iscustom}}
@@ -79,6 +86,11 @@
                 </div>
             </div>
             <div class="educambot-actions">
+                <a href="#" id="educambot-export" class="educambot-action-btn" title="{{#str}}exportchat, local_educambot{{/str}}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                </a>
                 <a href="#" id="educambot-clear" class="educambot-action-btn" title="{{#str}}clearhistory, local_educambot{{/str}}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
@@ -100,12 +112,20 @@
                     {{{greetingmessage}}}
                 </div>
             </div>
+
+            <!-- Typing indicator (v2.0.0) -->
+            <div class="educambot-typing" id="educambot-typing" style="display:none">
+                <div class="educambot-typing-dots">
+                    <span class="educambot-typing-dot"></span>
+                    <span class="educambot-typing-dot"></span>
+                    <span class="educambot-typing-dot"></span>
+                </div>
+            </div>
         </div>
 
         {{#mascot}}
             {{#enabled}}
-        <!-- Mascot container (v1.9.11 - positioned relative to popup, not messages) -->
-        <div class="educambot-mascot-wrapper">
+            <!-- Mascot container (v2.0.1) - positioned outside messages area to stay visible -->
             <div class="educambot-mascot-container"
                  id="educambot-mascot"
                  data-type="{{type}}"
@@ -123,7 +143,6 @@
                     <div class="tooltip-arrow"></div>
                 </div>
             </div>
-        </div>
             {{/enabled}}
         {{/mascot}}
 
@@ -142,6 +161,12 @@
         <!-- Loading indicator -->
         <div class="educambot-loading" id="educambot-loading" style="display:none">
             <div class="educambot-spinner"></div>
+        </div>
+
+        <!-- Credits (v2.0.4) -->
+        <div class="educambot-credits">
+            {{#str}}developedby, local_educambot{{/str}}
+            <a href="https://ingeweb.co" target="_blank" rel="noopener">Ingeweb</a>
         </div>
     </div>
 

@@ -18,7 +18,8 @@
  * Scheduled tasks for local_educambot.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,6 +31,15 @@ $tasks = [
         'blocking' => 0,
         'minute' => '0',
         'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ],
+    [
+        'classname' => 'local_educambot\task\analyze_feedback',
+        'blocking' => 0,
+        'minute' => '30',
+        'hour' => '4',
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*',
