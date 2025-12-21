@@ -218,6 +218,104 @@ class pattern_loader {
     }
 
     /**
+     * Get role knowledge patterns.
+     *
+     * @return array Role knowledge patterns
+     */
+    public static function get_role_knowledge(): array {
+        return self::get('role_knowledge');
+    }
+
+    /**
+     * Get role-specific data for an archetype.
+     *
+     * @param string $archetype User's archetype (student, teacher, etc.)
+     * @return array Role-specific data or default user data
+     */
+    public static function get_role_data(string $archetype): array {
+        $roleKnowledge = self::get_role_knowledge();
+        $archetypes = $roleKnowledge['archetypes'] ?? [];
+
+        // Return specific archetype data or fallback to 'user'.
+        return $archetypes[$archetype] ?? $archetypes['user'] ?? [];
+    }
+
+    /**
+     * Get priority topics for an archetype.
+     *
+     * @param string $archetype User's archetype
+     * @return array Priority topics for scoring boost
+     */
+    public static function get_archetype_priority_topics(string $archetype): array {
+        $roleData = self::get_role_data($archetype);
+        return $roleData['priority_topics'] ?? [];
+    }
+
+    /**
+     * Get quick actions for an archetype.
+     *
+     * @param string $archetype User's archetype
+     * @return array Quick action buttons
+     */
+    public static function get_archetype_quick_actions(string $archetype): array {
+        $roleData = self::get_role_data($archetype);
+        return $roleData['quick_actions'] ?? [];
+    }
+
+    /**
+     * Get menu options for an archetype.
+     *
+     * @param string $archetype User's archetype
+     * @return array Menu options
+     */
+    public static function get_archetype_menu_options(string $archetype): array {
+        $roleData = self::get_role_data($archetype);
+        return $roleData['menu_options'] ?? [];
+    }
+
+    /**
+     * Get greeting for an archetype.
+     *
+     * @param string $archetype User's archetype
+     * @return string Greeting message
+     */
+    public static function get_archetype_greeting(string $archetype): string {
+        $roleData = self::get_role_data($archetype);
+        return $roleData['greeting'] ?? '';
+    }
+
+    /**
+     * Get response templates (fallbacks, greetings, etc.).
+     *
+     * @return array Response templates
+     */
+    public static function get_responses(): array {
+        return self::get('response');
+    }
+
+    /**
+     * Get fallback responses.
+     *
+     * @return array Fallback response options
+     */
+    public static function get_fallback_responses(): array {
+        $responses = self::get_responses();
+        return $responses['fallback'] ?? [];
+    }
+
+    /**
+     * Get topic suggestions for fallback.
+     *
+     * @param string $topic Topic name
+     * @return array Suggested actions for the topic
+     */
+    public static function get_topic_suggestions(string $topic): array {
+        $responses = self::get_responses();
+        $suggestions = $responses['topic_suggestions'] ?? [];
+        return $suggestions[$topic] ?? $suggestions['general'] ?? [];
+    }
+
+    /**
      * Get follow-up detection patterns.
      *
      * @return array Follow-up detection patterns

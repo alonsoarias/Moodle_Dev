@@ -490,6 +490,54 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025122102, 'local', 'educambot');
     }
 
+    // v3.4.0 - Add role-aware responses with archetype priority scoring.
+    if ($oldversion < 2025122103) {
+
+        // Add useroleoptions field to rule table.
+        $table = new xmldb_table('local_educambot_rule');
+        $field = new xmldb_field('useroleoptions', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'needs_review');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $datapath = __DIR__ . '/data/';
+        $now = time();
+
+        // Load role_knowledge.json for archetype-specific responses.
+        load_simple_patterns($datapath . 'role_knowledge.json', 'role_knowledge', $now);
+
+        // Update navigation rules with fixed keywords (menu vs dashboard separation).
+        $navfile = $datapath . 'navigation.json';
+        if (file_exists($navfile)) {
+            $json = file_get_contents($navfile);
+            $data = json_decode($json, true);
+
+            if ($data && isset($data['rules'])) {
+                foreach ($data['rules'] as $rule) {
+                    // Update existing rules.
+                    $existingRule = $DB->get_record('local_educambot_rule', ['pattern' => $rule['pattern']]);
+
+                    if ($existingRule) {
+                        // Update keywords and tags.
+                        $keywords = is_array($rule['keywords']) ? implode("\n", $rule['keywords']) : $rule['keywords'];
+                        $tags = is_array($rule['tags']) ? implode(', ', $rule['tags']) : ($rule['tags'] ?? '');
+
+                        $update = new stdClass();
+                        $update->id = $existingRule->id;
+                        $update->keywords = $keywords;
+                        $update->tags = $tags;
+                        $update->useroleoptions = isset($rule['use_role_options']) && $rule['use_role_options'] ? 1 : 0;
+                        $update->timemodified = $now;
+                        $DB->update_record('local_educambot_rule', $update);
+                    }
+                }
+            }
+        }
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025122103, 'local', 'educambot');
+    }
+
     return true;
 }
 

@@ -1,0 +1,186 @@
+{
+    "version": "1.0.0",
+    "description": "EducamBot role-specific knowledge - responses and actions adapted by user archetype",
+    "lang": "es",
+    "archetypes": {
+        "student": {
+            "name": "Estudiante",
+            "greeting": "¡Hola! Soy tu asistente virtual para ayudarte con tus estudios.",
+            "quick_actions": [
+                {"text": "Mis Tareas", "action": "tareas pendientes", "icon": "bi-list-task"},
+                {"text": "Mis Calificaciones", "action": "mis calificaciones", "icon": "bi-bar-chart"},
+                {"text": "Mi Calendario", "action": "calendario", "icon": "bi-calendar3"},
+                {"text": "Mis Cursos", "action": "mis cursos", "icon": "bi-book"}
+            ],
+            "menu_options": [
+                {"text": "Ver mis tareas pendientes", "action": "tareas pendientes"},
+                {"text": "Consultar mis calificaciones", "action": "mis calificaciones"},
+                {"text": "Ver mi calendario", "action": "calendario"},
+                {"text": "Ver mis cursos", "action": "mis cursos"},
+                {"text": "Enviar un mensaje", "action": "enviar mensaje"},
+                {"text": "Ver mi progreso", "action": "mi progreso"}
+            ],
+            "context_responses": {
+                "grades_intro": "Aquí puedes ver todas tus calificaciones. Recuerda que tu esfuerzo vale mucho.",
+                "assignments_intro": "Estas son tus tareas pendientes. ¡Organiza tu tiempo para completarlas!",
+                "calendar_intro": "Tu calendario te ayudará a estar al día con las fechas importantes.",
+                "encouragement": "¡Sigue adelante! Cada paso cuenta en tu aprendizaje."
+            },
+            "priority_topics": ["assignments", "grades", "calendar", "course", "quiz", "progress"]
+        },
+        "teacher": {
+            "name": "Docente",
+            "greeting": "¡Hola! Estoy aquí para asistirte con la gestión de tus cursos.",
+            "quick_actions": [
+                {"text": "Calificar Tareas", "action": "calificar tareas", "icon": "bi-check2-square"},
+                {"text": "Ver Participantes", "action": "participantes del curso", "icon": "bi-people"},
+                {"text": "Informes", "action": "informes del curso", "icon": "bi-graph-up"},
+                {"text": "Mensajes", "action": "mensajes", "icon": "bi-envelope"}
+            ],
+            "menu_options": [
+                {"text": "Calificar tareas pendientes", "action": "calificar tareas"},
+                {"text": "Ver lista de participantes", "action": "participantes del curso"},
+                {"text": "Consultar informes del curso", "action": "informes del curso"},
+                {"text": "Gestionar actividades", "action": "actividades del curso"},
+                {"text": "Ver calendario del curso", "action": "calendario del curso"},
+                {"text": "Enviar mensaje a estudiantes", "action": "mensaje a estudiantes"}
+            ],
+            "context_responses": {
+                "grades_intro": "Panel de calificaciones. Desde aquí puedes evaluar el trabajo de tus estudiantes.",
+                "assignments_intro": "Tareas del curso. Puedes revisar entregas y dar retroalimentación.",
+                "participants_intro": "Lista de participantes del curso con su información de contacto.",
+                "reports_intro": "Informes detallados sobre la actividad y progreso de tus estudiantes."
+            },
+            "priority_topics": ["grades", "forum", "resources", "enrollment", "messages", "calendar"]
+        },
+        "editingteacher": {
+            "name": "Profesor Editor",
+            "greeting": "¡Hola! Puedo ayudarte con la creación y gestión de contenido del curso.",
+            "quick_actions": [
+                {"text": "Agregar Actividad", "action": "agregar actividad", "icon": "bi-plus-circle"},
+                {"text": "Editar Curso", "action": "editar configuracion curso", "icon": "bi-gear"},
+                {"text": "Calificar", "action": "calificar tareas", "icon": "bi-check2-square"},
+                {"text": "Participantes", "action": "gestionar participantes", "icon": "bi-people"}
+            ],
+            "menu_options": [
+                {"text": "Agregar nueva actividad", "action": "agregar actividad"},
+                {"text": "Agregar nuevo recurso", "action": "agregar recurso"},
+                {"text": "Editar configuración del curso", "action": "configuracion del curso"},
+                {"text": "Gestionar calificaciones", "action": "libro de calificaciones"},
+                {"text": "Gestionar participantes", "action": "gestionar participantes"},
+                {"text": "Ver informes del curso", "action": "informes del curso"},
+                {"text": "Hacer copia de seguridad", "action": "backup del curso"}
+            ],
+            "context_responses": {
+                "grades_intro": "Libro de calificaciones. Puedes configurar categorías, pesos y evaluar estudiantes.",
+                "activities_intro": "Puedes agregar tareas, foros, cuestionarios, lecciones y más.",
+                "resources_intro": "Sube archivos, crea páginas, enlaces y organiza el contenido del curso.",
+                "settings_intro": "Configura formato, fechas, inscripción y opciones del curso."
+            },
+            "priority_topics": ["resources", "grades", "enrollment", "forum", "quiz", "progress"]
+        },
+        "coursecreator": {
+            "name": "Creador de Cursos",
+            "greeting": "¡Hola! Puedo asistirte en la creación y organización de cursos.",
+            "quick_actions": [
+                {"text": "Crear Curso", "action": "crear nuevo curso", "icon": "bi-plus-lg"},
+                {"text": "Categorías", "action": "gestionar categorias", "icon": "bi-folder"},
+                {"text": "Plantillas", "action": "plantillas de cursos", "icon": "bi-files"},
+                {"text": "Mis Cursos", "action": "mis cursos creados", "icon": "bi-book"}
+            ],
+            "menu_options": [
+                {"text": "Crear un nuevo curso", "action": "crear nuevo curso"},
+                {"text": "Ver categorías de cursos", "action": "categorias de cursos"},
+                {"text": "Usar plantilla de curso", "action": "plantillas de cursos"},
+                {"text": "Restaurar curso desde backup", "action": "restaurar curso"},
+                {"text": "Ver cursos creados", "action": "mis cursos creados"}
+            ],
+            "context_responses": {
+                "course_creation": "Para crear un curso, define nombre, categoría, fechas y formato.",
+                "templates": "Las plantillas te permiten crear cursos con estructura predefinida.",
+                "categories": "Organiza los cursos en categorías para una mejor navegación."
+            },
+            "priority_topics": ["course", "enrollment", "resources", "calendar"]
+        },
+        "manager": {
+            "name": "Administrador",
+            "greeting": "¡Hola! Estoy disponible para asistirte con la administración del sitio.",
+            "quick_actions": [
+                {"text": "Usuarios", "action": "administrar usuarios", "icon": "bi-people-fill"},
+                {"text": "Cursos", "action": "administrar cursos", "icon": "bi-mortarboard"},
+                {"text": "Informes", "action": "informes del sitio", "icon": "bi-graph-up-arrow"},
+                {"text": "Configuración", "action": "configuracion del sitio", "icon": "bi-gear-fill"}
+            ],
+            "menu_options": [
+                {"text": "Administrar usuarios", "action": "administrar usuarios"},
+                {"text": "Administrar cursos", "action": "administrar cursos"},
+                {"text": "Ver informes del sitio", "action": "informes del sitio"},
+                {"text": "Configuración del sitio", "action": "configuracion del sitio"},
+                {"text": "Gestionar plugins", "action": "plugins del sitio"},
+                {"text": "Copias de seguridad", "action": "backups del sitio"},
+                {"text": "Logs del sistema", "action": "logs del sistema"}
+            ],
+            "context_responses": {
+                "users_intro": "Panel de administración de usuarios. Crea, edita y gestiona cuentas.",
+                "courses_intro": "Gestión de cursos del sitio. Crea, archiva y administra cursos.",
+                "reports_intro": "Informes y estadísticas del sitio completo.",
+                "settings_intro": "Configuración general del sitio y sus funcionalidades."
+            },
+            "priority_topics": ["technical", "enrollment", "course", "profile"]
+        },
+        "guest": {
+            "name": "Invitado",
+            "greeting": "¡Bienvenido! Soy un asistente virtual. Inicia sesión para acceder a más funciones.",
+            "quick_actions": [
+                {"text": "Ver Cursos", "action": "cursos disponibles", "icon": "bi-book"},
+                {"text": "Iniciar Sesión", "action": "como iniciar sesion", "icon": "bi-box-arrow-in-right"},
+                {"text": "Registrarse", "action": "como registrarme", "icon": "bi-person-plus"}
+            ],
+            "menu_options": [
+                {"text": "Ver cursos disponibles", "action": "cursos disponibles"},
+                {"text": "Cómo iniciar sesión", "action": "como iniciar sesion"},
+                {"text": "Cómo registrarme", "action": "como registrarme"},
+                {"text": "Contactar administrador", "action": "contactar administrador"}
+            ],
+            "context_responses": {
+                "limited_access": "Como invitado, tu acceso es limitado. Inicia sesión para más opciones.",
+                "courses_preview": "Puedes ver algunos cursos disponibles, pero necesitas una cuenta para inscribirte."
+            },
+            "priority_topics": ["help", "navigation", "enrollment"]
+        },
+        "user": {
+            "name": "Usuario",
+            "greeting": "¡Hola! ¿En qué puedo ayudarte hoy?",
+            "quick_actions": [
+                {"text": "Mi Perfil", "action": "mi perfil", "icon": "bi-person"},
+                {"text": "Mis Cursos", "action": "mis cursos", "icon": "bi-book"},
+                {"text": "Calendario", "action": "calendario", "icon": "bi-calendar3"},
+                {"text": "Mensajes", "action": "mensajes", "icon": "bi-envelope"}
+            ],
+            "menu_options": [
+                {"text": "Ver mi perfil", "action": "mi perfil"},
+                {"text": "Ver mis cursos", "action": "mis cursos"},
+                {"text": "Ver calendario", "action": "calendario"},
+                {"text": "Ver mensajes", "action": "mensajes"},
+                {"text": "Explorar cursos disponibles", "action": "cursos disponibles"}
+            ],
+            "context_responses": {
+                "profile_intro": "Tu perfil contiene tu información personal y preferencias.",
+                "courses_intro": "Aquí puedes ver los cursos en los que estás inscrito."
+            },
+            "priority_topics": ["course", "calendar", "messages", "profile"]
+        }
+    },
+    "common_responses": {
+        "main_menu": {
+            "intro": "¿En qué puedo ayudarte? Selecciona una opción o escribe tu pregunta:",
+            "show_options": true
+        },
+        "help_menu": {
+            "intro": "Estas son algunas cosas en las que puedo ayudarte:",
+            "show_options": true
+        },
+        "error_no_permission": "No tienes permisos para acceder a esta función.",
+        "error_not_in_course": "Necesitas estar dentro de un curso para usar esta función."
+    }
+}

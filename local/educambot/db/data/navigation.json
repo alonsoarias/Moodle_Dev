@@ -1,6 +1,6 @@
 {
-    "version": "3.2.0",
-    "description": "EducamBot navigation rules - comprehensive navigation, tutorials and help",
+    "version": "3.4.0",
+    "description": "EducamBot navigation rules - comprehensive navigation, tutorials and help with role-aware responses",
     "rules": [
         {
             "id": "startup",
@@ -11,6 +11,7 @@
             "tags": ["inicio", "startup"],
             "enabled": true,
             "showoptions": true,
+            "use_role_options": true,
             "options": [
                 {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
                 {"text": "Mis Tareas", "icon": "bi-list-task", "action": "mis tareas pendientes"},
@@ -23,16 +24,17 @@
             "category": "general",
             "pattern": "Menu principal",
             "keywords": [
-                "menu", "menu principal", "inicio", "ayuda", "que puedes hacer",
+                "menu", "menu principal", "ayuda", "que puedes hacer",
                 "opciones", "empezar", "volver", "volver al inicio", "volver al menu",
                 "volver al menu principal", "regresar", "regresar al menu",
-                "ir al inicio", "mostrar menu", "mostrar opciones", "home",
-                "principal", "dashboard", "tablero"
+                "mostrar menu", "mostrar opciones", "que opciones tengo",
+                "menu de opciones", "ir al menu", "quiero ver el menu"
             ],
             "response": "¿En que puedo ayudarte? Selecciona una opcion o escribe tu pregunta:",
-            "tags": ["menu", "inicio", "navegacion"],
+            "tags": ["menu", "navegacion", "opciones"],
             "enabled": true,
             "showoptions": true,
+            "use_role_options": true,
             "options": [
                 {"text": "Cursos", "icon": "bi-book", "action": "mis cursos"},
                 {"text": "Tareas", "icon": "bi-list-task", "action": "mis tareas"},
@@ -626,12 +628,13 @@
             "category": "general",
             "pattern": "Tablero principal",
             "keywords": [
-                "dashboard", "tablero", "area personal", "pagina principal", "inicio",
+                "dashboard", "tablero", "area personal", "pagina principal",
                 "mi pagina", "mi tablero", "panel principal", "resumen", "vista general",
-                "home", "ir al inicio", "pagina de inicio"
+                "pagina de inicio", "panel de control", "escritorio", "desk",
+                "ir al tablero", "ver tablero", "mi dashboard", "mi area personal"
             ],
             "response": "Tu <strong>Tablero</strong> es tu pagina de inicio personalizada:<br><br><a href='/my/' target='_blank'><strong>Ir al Tablero</strong></a><br><br>Desde ahi puedes ver:<br>• Linea de tiempo con proximas actividades<br>• Vista general de tus cursos<br>• Calendario con eventos<br>• Archivos recientes<br>• Mensajes y notificaciones",
-            "tags": ["dashboard", "inicio", "tablero"],
+            "tags": ["dashboard", "tablero", "area personal"],
             "enabled": true,
             "showoptions": true,
             "options": [

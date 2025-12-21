@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Bot engine - handles question processing and response generation (v3.3.0).
+ * Bot engine - handles question processing and response generation (v3.4.0).
  *
  * Major improvements:
  * - Advanced text normalization with abbreviation expansion
@@ -30,6 +30,8 @@
  * - Context-aware scoring boost (v3.3.0)
  * - Multi-word keyword matching (v3.3.0)
  * - Database-driven response templates (v3.3.0)
+ * - Role-aware responses with archetype priority scoring (v3.4.0)
+ * - Archetype-specific menu options and quick actions (v3.4.0)
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -51,6 +53,12 @@ class engine {
 
     /** @var int User ID for role filtering */
     protected $userid;
+
+    /** @var string Primary user archetype for role-aware responses (v3.4.0) */
+    protected $userArchetype;
+
+    /** @var array Priority topics for the current user archetype (v3.4.0) */
+    protected $archetypePriorityTopics;
 
     /** @var text_normalizer Text normalizer instance */
     protected $normalizer;
@@ -85,6 +93,7 @@ class engine {
         'ngram_match' => 18,
         'levenshtein' => 15,
         'context_boost' => 12,
+        'archetype_priority' => 12,   // Boost for archetype priority topics (v3.4.0).
         'topic_match' => 10,
         'feedback_boost' => 10,
         'priority_boost' => 5,
@@ -109,6 +118,10 @@ class engine {
         $this->conversationContext = new conversation_context($this->userid, $this->courseid);
         $this->moodleContext = new context_handler($this->courseid, $this->userid);
         $this->responseBuilder = new response_builder($this->moodleContext);
+
+        // Initialize archetype-aware features (v3.4.0).
+        $this->userArchetype = $this->moodleContext->get_user_archetype();
+        $this->archetypePriorityTopics = pattern_loader::get_archetype_priority_topics($this->userArchetype);
     }
 
     /**
@@ -247,22 +260,32 @@ class engine {
             $timeGreeting = get_string('greeting_evening', 'local_educambot');
         }
 
-        // Greeting templates from language file.
-        $params = (object)['greeting' => $timeGreeting, 'firstname' => $userInfo['firstname']];
-        $greetings = [
-            get_string('greeting_response_1', 'local_educambot', $params),
-            get_string('greeting_response_2', 'local_educambot', $params),
-            get_string('greeting_response_3', 'local_educambot', $params),
-            get_string('greeting_response_4', 'local_educambot', $params),
-        ];
+        // Try to get archetype-specific greeting (v3.4.0).
+        $archetypeGreeting = pattern_loader::get_archetype_greeting($this->userArchetype);
+
+        if (!empty($archetypeGreeting)) {
+            // Use archetype greeting with time prefix.
+            $response = $timeGreeting . ', ' . $userInfo['firstname'] . '. ' . $archetypeGreeting;
+        } else {
+            // Fallback to generic greeting templates from language file.
+            $params = (object)['greeting' => $timeGreeting, 'firstname' => $userInfo['firstname']];
+            $greetings = [
+                get_string('greeting_response_1', 'local_educambot', $params),
+                get_string('greeting_response_2', 'local_educambot', $params),
+                get_string('greeting_response_3', 'local_educambot', $params),
+                get_string('greeting_response_4', 'local_educambot', $params),
+            ];
+            $response = $greetings[array_rand($greetings)];
+        }
 
         return [
             'success' => true,
-            'response' => $greetings[array_rand($greetings)],
+            'response' => $response,
             'ruleid' => null,
             'confidence' => 1.0,
             'type' => 'greeting',
             'options' => $this->get_quick_start_options(),
+            'archetype' => $this->userArchetype,
         ];
     }
 
@@ -648,6 +671,17 @@ class engine {
             $score += $boost;
         }
 
+        // 11. Archetype priority boost (v3.4.0) - boost rules matching user's priority topics.
+        if (!empty($this->archetypePriorityTopics) && !empty($rule->tags)) {
+            $ruleTags = array_map('trim', explode(',', mb_strtolower($rule->tags)));
+            $priorityMatches = array_intersect($ruleTags, $this->archetypePriorityTopics);
+            if (!empty($priorityMatches)) {
+                // Higher boost for more priority matches.
+                $boost = min(self::SCORE_WEIGHTS['archetype_priority'], count($priorityMatches) * 4);
+                $score += $boost;
+            }
+        }
+
         return $score;
     }
 
@@ -741,25 +775,45 @@ class engine {
         // Get options for this rule.
         $options = [];
         if ($rule->showoptions) {
-            $dbOptions = $DB->get_records('local_educambot_option', [
-                'ruleid' => $rule->id,
-                'enabled' => 1,
-            ], 'sortorder ASC');
+            // Check if rule requests role-specific options (v3.4.0).
+            $useRoleOptions = !empty($rule->useroleoptions);
 
-            foreach ($dbOptions as $opt) {
-                $option = [
-                    'text' => $opt->text,
-                    'icon' => $opt->icon,
-                ];
-
-                if ($opt->targetruleid) {
-                    $targetRule = $DB->get_record('local_educambot_rule', ['id' => $opt->targetruleid]);
-                    if ($targetRule) {
-                        $option['targetpattern'] = $targetRule->pattern;
+            if ($useRoleOptions) {
+                // Get archetype-specific menu options.
+                $roleOptions = pattern_loader::get_archetype_menu_options($this->userArchetype);
+                if (!empty($roleOptions)) {
+                    foreach ($roleOptions as $opt) {
+                        $options[] = [
+                            'text' => $opt['text'] ?? '',
+                            'icon' => $opt['icon'] ?? 'bi-chevron-right',
+                            'action' => $opt['action'] ?? '',
+                        ];
                     }
                 }
+            }
 
-                $options[] = $option;
+            // If no role options or not using role options, get from database.
+            if (empty($options)) {
+                $dbOptions = $DB->get_records('local_educambot_option', [
+                    'ruleid' => $rule->id,
+                    'enabled' => 1,
+                ], 'sortorder ASC');
+
+                foreach ($dbOptions as $opt) {
+                    $option = [
+                        'text' => $opt->text,
+                        'icon' => $opt->icon,
+                    ];
+
+                    if ($opt->targetruleid) {
+                        $targetRule = $DB->get_record('local_educambot_rule', ['id' => $opt->targetruleid]);
+                        if ($targetRule) {
+                            $option['targetpattern'] = $targetRule->pattern;
+                        }
+                    }
+
+                    $options[] = $option;
+                }
             }
         }
 
@@ -772,6 +826,7 @@ class engine {
             'confidence' => $confidence,
             'type' => 'matched',
             'options' => $options,
+            'archetype' => $this->userArchetype,  // Include archetype in response (v3.4.0).
         ];
     }
 
@@ -908,9 +963,25 @@ class engine {
     /**
      * Get quick start options for greetings.
      *
+     * Uses archetype-specific quick actions if available (v3.4.0).
+     *
      * @return array Options
      */
     protected function get_quick_start_options(): array {
+        // Try to get archetype-specific quick actions (v3.4.0).
+        $quickActions = pattern_loader::get_archetype_quick_actions($this->userArchetype);
+
+        if (!empty($quickActions)) {
+            return array_map(function($action) {
+                return [
+                    'text' => $action['text'] ?? '',
+                    'icon' => $action['icon'] ?? 'bi-chevron-right',
+                    'action' => $action['action'] ?? '',
+                ];
+            }, array_slice($quickActions, 0, 4));  // Limit to 4 quick actions.
+        }
+
+        // Fallback to default options.
         return [
             ['text' => get_string('option_view_tasks', 'local_educambot'), 'icon' => 'bi-list-check', 'action' => 'mis tareas pendientes'],
             ['text' => get_string('option_view_grades', 'local_educambot'), 'icon' => 'bi-trophy', 'action' => 'mis calificaciones'],
