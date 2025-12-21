@@ -18,7 +18,8 @@
  * Context handler for educambot - detects and manages Moodle context.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -509,6 +510,65 @@ class context_handler {
      */
     public function get_pending_tasks_count() {
         return count($this->get_user_assignments());
+    }
+
+    /**
+     * Get user's role archetype (student, teacher, manager, etc.).
+     *
+     * @return string Role archetype or 'student' as default
+     */
+    public function get_user_archetype() {
+        global $DB;
+
+        // Priority order for archetypes (highest first).
+        $priority = [
+            'manager' => 5,
+            'coursecreator' => 4,
+            'editingteacher' => 3,
+            'teacher' => 2,
+            'student' => 1,
+            'guest' => 0,
+            'user' => 0,
+            'frontpage' => 0,
+        ];
+
+        $archetype = 'student'; // Default.
+        $highestpriority = -1;
+
+        // Get user's role assignments in current context or any parent context.
+        if ($this->context) {
+            $roles = get_user_roles($this->context, $this->userid, true);
+
+            foreach ($roles as $role) {
+                $rolerec = $DB->get_record('role', ['id' => $role->roleid]);
+                if ($rolerec && !empty($rolerec->archetype)) {
+                    $p = $priority[$rolerec->archetype] ?? 0;
+                    if ($p > $highestpriority) {
+                        $highestpriority = $p;
+                        $archetype = $rolerec->archetype;
+                    }
+                }
+            }
+        }
+
+        // If no role found, check system level roles.
+        if ($highestpriority < 0) {
+            $systemcontext = \context_system::instance();
+            $roles = get_user_roles($systemcontext, $this->userid, true);
+
+            foreach ($roles as $role) {
+                $rolerec = $DB->get_record('role', ['id' => $role->roleid]);
+                if ($rolerec && !empty($rolerec->archetype)) {
+                    $p = $priority[$rolerec->archetype] ?? 0;
+                    if ($p > $highestpriority) {
+                        $highestpriority = $p;
+                        $archetype = $rolerec->archetype;
+                    }
+                }
+            }
+        }
+
+        return $archetype;
     }
 
     /**

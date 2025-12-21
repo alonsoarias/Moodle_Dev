@@ -1,0 +1,90 @@
+{
+    "version": "2.2.0",
+    "description": "EducamBot visual themes with mascot configuration",
+    "themes": [
+        {
+            "id": "default",
+            "name": "Default",
+            "isdefault": true,
+            "colors": {
+                "primary": "#0f6fc5",
+                "secondary": "#084a8a",
+                "text": "#1f2937",
+                "background": "#f9fafb",
+                "user": "#0f6fc5",
+                "bot": "#ffffff"
+            },
+            "widgeticon": {
+                "type": "default",
+                "value": ""
+            },
+            "mascot": {
+                "enabled": true,
+                "type": "robot"
+            }
+        },
+        {
+            "id": "nature",
+            "name": "Nature",
+            "isdefault": false,
+            "colors": {
+                "primary": "#059669",
+                "secondary": "#047857",
+                "text": "#1f2937",
+                "background": "#f0fdf4",
+                "user": "#059669",
+                "bot": "#ffffff"
+            },
+            "widgeticon": {
+                "type": "default",
+                "value": ""
+            },
+            "mascot": {
+                "enabled": true,
+                "type": "owl"
+            }
+        },
+        {
+            "id": "sunset",
+            "name": "Sunset",
+            "isdefault": false,
+            "colors": {
+                "primary": "#ea580c",
+                "secondary": "#c2410c",
+                "text": "#1f2937",
+                "background": "#fff7ed",
+                "user": "#ea580c",
+                "bot": "#ffffff"
+            },
+            "widgeticon": {
+                "type": "default",
+                "value": ""
+            },
+            "mascot": {
+                "enabled": true,
+                "type": "cat"
+            }
+        },
+        {
+            "id": "professional",
+            "name": "Professional",
+            "isdefault": false,
+            "colors": {
+                "primary": "#4f46e5",
+                "secondary": "#4338ca",
+                "text": "#1f2937",
+                "background": "#f8fafc",
+                "user": "#4f46e5",
+                "bot": "#ffffff"
+            },
+            "widgeticon": {
+                "type": "default",
+                "value": ""
+            },
+            "mascot": {
+                "enabled": true,
+                "type": "lightbulb"
+            }
+        }
+    ]
+}

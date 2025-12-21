@@ -1,0 +1,185 @@
+{
+    "version": "3.0.1",
+    "description": "EducamBot - Administracion del sitio (solo admin/manager)",
+    "rules": [
+        {
+            "id": "menu_admin",
+            "category": "administracion",
+            "pattern": "Menu de administrador",
+            "keywords": ["menu administrador", "opciones admin", "que puedo hacer como admin", "administracion sitio", "panel admin", "opciones administrador"],
+            "response": "Como administrador tienes acceso a:<br><br><strong>Gestion:</strong><br>- Usuarios y roles<br>- Cursos y categorias<br>- Plugins y temas<br><br><strong>Monitoreo:</strong><br>- Logs y reportes<br>- Tareas programadas<br>- Rendimiento",
+            "tags": ["admin", "administrador"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Usuarios", "icon": "bi-people-fill", "action": "gestionar usuarios"},
+                {"text": "Cursos", "icon": "bi-journal-bookmark-fill", "action": "gestionar cursos"},
+                {"text": "Reportes", "icon": "bi-graph-up-arrow", "action": "reportes sitio"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_curso",
+            "category": "administracion",
+            "pattern": "Como creo un curso",
+            "keywords": ["crear curso", "nuevo curso", "anadir curso", "agregar curso", "configurar curso", "abrir curso"],
+            "response": "Para crear un curso:<br><br>1. <strong>Administracion > Cursos > Gestionar cursos</strong><br>2. Selecciona la categoria<br>3. Clic en <strong>Crear nuevo curso</strong><br>4. Completa: nombre, formato, fechas<br>5. Guarda",
+            "tags": ["crear", "curso"],
+            "archetypes": ["manager", "coursecreator", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Cursos", "icon": "bi-journal-bookmark-fill", "action": "gestionar cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "gestionar_usuarios",
+            "category": "administracion",
+            "pattern": "Como gestiono usuarios",
+            "keywords": ["gestionar usuarios", "crear usuario", "agregar usuario", "editar usuario", "administrar usuarios", "nuevo usuario"],
+            "response": "Para gestionar usuarios:<br><br><strong>Crear usuario:</strong><br>1. <strong>Administracion > Usuarios > Agregar usuario</strong><br>2. Completa datos y guarda<br><br><strong>Carga masiva:</strong><br>1. <strong>Usuarios > Subir usuarios</strong><br>2. Prepara CSV y sube",
+            "tags": ["usuarios", "crear"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Usuarios", "icon": "bi-people-fill", "action": "gestionar usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_reportes",
+            "category": "administracion",
+            "pattern": "Como veo los reportes",
+            "keywords": ["reportes sitio", "logs", "registros", "estadisticas", "actividad sitio", "informes", "analytics"],
+            "response": "Para ver reportes:<br><br>1. <strong>Administracion > Informes</strong><br><br><strong>Disponibles:</strong><br>- Logs (actividad detallada)<br>- Logs en vivo<br>- Estadisticas de uso<br>- Seguridad del sistema",
+            "tags": ["reportes", "logs"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Reportes", "icon": "bi-graph-up-arrow", "action": "reportes sitio"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "backup_sitio",
+            "category": "administracion",
+            "pattern": "Como hago backup",
+            "keywords": ["backup", "respaldo", "copia seguridad", "respaldar", "guardar copia", "restaurar"],
+            "response": "Para gestionar backups:<br><br><strong>Backup de curso:</strong><br>1. Curso > Administracion > Backup<br>2. Selecciona elementos<br>3. Genera archivo .mbz<br><br><strong>Automaticos:</strong><br>Administracion > Cursos > Backups automaticos",
+            "tags": ["backup", "respaldo"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Backups", "icon": "bi-cloud-arrow-up-fill", "action": "backup"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "seguridad",
+            "category": "administracion",
+            "pattern": "Como configuro la seguridad",
+            "keywords": ["seguridad", "politicas", "contrasenas", "https", "ssl", "configurar seguridad"],
+            "response": "Configuracion de seguridad:<br><br><strong>Administracion > Seguridad:</strong><br>- Politicas de contrasenas<br>- HTTPS y cookies<br>- Anti-spam (reCAPTCHA)<br>- Bloqueo de IPs",
+            "tags": ["seguridad", "politicas"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Seguridad", "icon": "bi-shield-fill-check", "action": "seguridad"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "plugins",
+            "category": "administracion",
+            "pattern": "Como gestiono plugins",
+            "keywords": ["plugins", "instalar plugin", "desactivar plugin", "modulos", "extensiones", "complementos"],
+            "response": "Para gestionar plugins:<br><br>1. <strong>Administracion > Plugins > Vista general</strong><br><br><strong>Opciones:</strong><br>- Activar/desactivar<br>- Configurar cada plugin<br>- Instalar desde ZIP",
+            "tags": ["plugins", "modulos"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Plugins", "icon": "bi-puzzle-fill", "action": "plugins"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "configuracion",
+            "category": "administracion",
+            "pattern": "Como configuro el sitio",
+            "keywords": ["configurar sitio", "configuracion moodle", "ajustes sitio", "configuracion general", "opciones sitio"],
+            "response": "Configuracion del sitio:<br><br><strong>Administracion del sitio:</strong><br>- General: Nombre, zona horaria<br>- Apariencia: Tema, logo<br>- Usuarios: Autenticacion<br>- Cursos: Formatos<br><br>Usa el buscador para encontrar opciones.",
+            "tags": ["configuracion", "ajustes"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Configuracion", "icon": "bi-gear-fill", "action": "configuracion"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "cache",
+            "category": "administracion",
+            "pattern": "Como limpio el cache",
+            "keywords": ["cache", "limpiar cache", "purgar", "rendimiento", "borrar cache", "vaciar cache"],
+            "response": "Para purgar cache:<br><br>1. <strong>Desarrollo > Purgar caches</strong><br>2. Clic <strong>Purgar todos</strong><br><br>Hazlo despues de cambios en configuracion o plugins.",
+            "tags": ["cache", "purgar"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "roles",
+            "category": "administracion",
+            "pattern": "Como gestiono roles",
+            "keywords": ["roles", "permisos", "capabilities", "asignar rol", "crear rol", "modificar rol"],
+            "response": "Gestion de roles:<br><br><strong>Ver roles:</strong><br>Usuarios > Permisos > Definir roles<br><br><strong>Roles por defecto:</strong><br>Manager, Course creator, Teacher, Student, Guest<br><br><strong>Asignar:</strong><br>- Global: Usuarios > Asignar roles<br>- Curso: Participantes > Inscribir",
+            "tags": ["roles", "permisos"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Usuarios", "icon": "bi-people-fill", "action": "gestionar usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "matricular_usuarios",
+            "category": "administracion",
+            "pattern": "Como matriculo usuarios en un curso",
+            "keywords": ["matricular", "inscribir usuarios", "agregar estudiantes", "enrollar", "agregar al curso"],
+            "response": "Para matricular usuarios:<br><br><strong>Individual:</strong><br>1. Curso > Participantes<br>2. Clic en <strong>Matricular usuarios</strong><br>3. Busca el usuario y asigna rol<br><br><strong>Masivo:</strong><br>1. Administracion > Usuarios > Subir usuarios<br>2. CSV con columna course1",
+            "tags": ["matricular", "inscribir"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tareas_programadas",
+            "category": "administracion",
+            "pattern": "Como veo las tareas programadas",
+            "keywords": ["tareas programadas", "cron", "scheduled tasks", "tareas cron", "trabajos programados"],
+            "response": "Para ver tareas programadas:<br><br>1. <strong>Administracion > Servidor > Tareas programadas</strong><br><br><strong>Puedes:</strong><br>- Ver proxima ejecucion<br>- Ejecutar manualmente<br>- Desactivar tareas<br>- Ver logs de ejecucion",
+            "tags": ["cron", "tareas"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

@@ -18,15 +18,17 @@
  * Plugin strings are defined here.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 // Plugin general.
-$string['pluginname'] = 'Nexo Bot';
-$string['educambot'] = 'Nexo Bot';
+$string['pluginname'] = 'EducamBot';
+$string['educambot'] = 'EducamBot';
+$string['developedby'] = 'Desarrollado por';
 
 // Capabilities.
 $string['educambot:use'] = 'Usar Nexo Bot';
@@ -101,7 +103,7 @@ $string['error_savingrule'] = 'Error al guardar la regla';
 
 // Widget.
 $string['typeaquestion'] = 'Escribe tu pregunta...';
-$string['online'] = 'En línea';
+$string['online'] = 'En linea';
 $string['clearhistory'] = 'Limpiar historial';
 
 // Reports.
@@ -115,7 +117,7 @@ $string['recentconversations'] = 'Conversaciones Recientes';
 $string['averageconfidence'] = 'Confianza Prom.';
 $string['topquestions'] = 'Preguntas Frecuentes';
 $string['questionswithoutrule'] = 'Preguntas Sin Regla';
-$string['nologs'] = 'No hay conversaciones registradas aún';
+$string['nologs'] = 'No hay conversaciones registradas aun';
 $string['nounmatchedquestions'] = 'Todas las preguntas han sido respondidas. No hay preguntas sin respuesta.';
 $string['matched'] = 'Respondida';
 $string['unmatched'] = 'Sin respuesta';
@@ -171,7 +173,7 @@ $string['parentcategory'] = 'Categoria Padre';
 $string['addcategory'] = 'Agregar Categoria';
 $string['editcategory'] = 'Editar Categoria';
 $string['deletecategory'] = 'Eliminar Categoria';
-$string['nocategories'] = 'No hay categorías definidas aún';
+$string['nocategories'] = 'No hay categorias definidas aun';
 $string['categorycreated'] = 'Categoria creada exitosamente';
 $string['categoryupdated'] = 'Categoria actualizada exitosamente';
 $string['categorydeleted'] = 'Categoria eliminada exitosamente';
@@ -225,7 +227,7 @@ $string['manageshortcuts'] = 'Gestionar Accesos Rapidos';
 $string['addshortcut'] = 'Agregar Acceso Rapido';
 $string['editshortcut'] = 'Editar Acceso Rapido';
 $string['deleteshortcut'] = 'Eliminar Acceso Rapido';
-$string['noshortcuts'] = 'No hay accesos rápidos definidos aún';
+$string['noshortcuts'] = 'No hay accesos rapidos definidos aun';
 $string['shortcutname'] = 'Nombre del Acceso';
 $string['shortcutname_help'] = 'Nombre descriptivo del acceso rapido';
 $string['shortcutkeywords'] = 'Palabras Clave';
@@ -251,6 +253,9 @@ $string['actiontype_messages'] = 'Mensajes recientes';
 $string['actiontype_teachers'] = 'Profesores del curso';
 $string['actiontype_course'] = 'Informacion del curso';
 $string['actiontype_progress'] = 'Progreso en el curso';
+$string['actiontype_courses'] = 'Mis cursos matriculados';
+$string['actiontype_participants'] = 'Participantes del curso';
+$string['actiontype_badges'] = 'Mis insignias';
 
 // Shortcut responses.
 $string['shortcut_nocourse'] = 'Esta funcion solo esta disponible dentro de un curso. Por favor, navega a un curso primero.';
@@ -264,6 +269,20 @@ $string['shortcut_eventsheader'] = 'Proximos eventos (7 dias):';
 $string['shortcut_messagesheader'] = 'Tus mensajes:';
 $string['shortcut_teachersheader'] = 'Profesores de {$a}:';
 $string['shortcut_progressheader'] = 'Tu progreso en {$a}:';
+$string['shortcut_nocourses'] = 'No estas matriculado en ningun curso actualmente.';
+$string['shortcut_coursesheader'] = 'Tus cursos matriculados:';
+$string['viewallcourses'] = 'Ver todos los cursos';
+$string['shortcut_noparticipants'] = 'No hay participantes en este curso.';
+$string['shortcut_participantsheader'] = 'Participantes de {$a}:';
+$string['totalparticipants'] = 'Total de participantes: {$a}';
+$string['viewallparticipants'] = 'Ver todos los participantes';
+$string['shortcut_nobadges'] = 'Aun no has obtenido ninguna insignia. ¡Sigue adelante!';
+$string['shortcut_badgesheader'] = 'Tus insignias obtenidas:';
+$string['issuedon'] = 'Obtenida el {$a}';
+$string['viewallbadges'] = 'Ver todas las insignias';
+
+// Menu help (v3.0.3).
+$string['menu_help'] = '¿En que puedo ayudarte? Selecciona una opcion o escribe tu pregunta:';
 
 // Context and placeholders.
 $string['contextaware'] = 'Sensible al contexto';
@@ -396,12 +415,12 @@ $string['widgeticontype'] = 'Tipo de icono';
 $string['widgeticontype_help'] = 'Seleccione el tipo de icono que aparecera en el encabezado del widget.';
 $string['icontype_default'] = 'Icono por defecto (globo)';
 $string['icontype_emoji'] = 'Emoji';
-$string['icontype_fontawesome'] = 'Font Awesome';
+$string['icontype_bootstrap'] = 'Bootstrap Icons';
 $string['icontype_custom'] = 'Imagen personalizada';
 $string['widgeticonemoji'] = 'Emoji';
 $string['widgeticonemoji_help'] = 'Ingrese un emoji Unicode (ej: 🤖, 💬, 🎓)';
-$string['widgeticonfa'] = 'Icono Font Awesome';
-$string['widgeticonfa_help'] = 'Ingrese una clase de icono Font Awesome 6. Ejemplos: robot, fa-robot, fa-comment-dots, fa-graduation-cap. Para iconos de marcas use: fa-brands fa-apple. Para iconos regulares (contorno) use: fa-regular fa-comment. Por defecto es estilo solido. Vea https://fontawesome.com/search para iconos disponibles.';
+$string['widgeticonbs'] = 'Clase Bootstrap Icons';
+$string['widgeticonbs_help'] = 'Ingrese la clase de Bootstrap Icons sin el prefijo "bi-" (ej: robot, chat-dots, mortarboard). Consulte https://icons.getbootstrap.com para ver todos los iconos disponibles.';
 $string['widgeticonfile'] = 'Archivo de icono';
 $string['widgeticonfile_help'] = 'Suba una imagen PNG, SVG, JPG o GIF. Tamano recomendado: 32x32px. Maximo: 100KB.';
 
@@ -415,7 +434,7 @@ $string['mascot_none'] = 'Sin mascota';
 $string['mascot_clippy'] = 'Clippy (clip de papel)';
 $string['mascot_robot'] = 'Robot amigable';
 $string['mascot_owl'] = 'Buho academico';
-$string['mascot_cat'] = 'Gato amigable';
+$string['mascot_cat'] = 'Gato estudioso';
 $string['mascot_lightbulb'] = 'Bombilla de ideas';
 $string['mascot_custom'] = 'Mascota personalizada (SVG)';
 $string['mascotfile'] = 'Archivo SVG de mascota';
@@ -450,6 +469,7 @@ $string['retention_3months'] = '3 meses';
 $string['retention_6months'] = '6 meses';
 $string['retention_1year'] = '1 año';
 $string['task_cleanup_history'] = 'Limpiar historial de conversaciones antiguo';
+$string['task_analyze_feedback'] = 'Analizar feedback y marcar reglas problemáticas';
 $string['previousconversation'] = 'Conversacion anterior';
 $string['historydeleted'] = 'Historial eliminado correctamente';
 $string['recorddeleted'] = 'Registro eliminado correctamente';
@@ -461,7 +481,7 @@ $string['loadinghistory'] = 'Cargando historial...';
 $string['timeout_heading'] = 'Tiempo de Inactividad';
 $string['inactivitytimeout'] = 'Tiempo de inactividad (ms)';
 $string['inactivitytimeout_desc'] = 'Tiempo en milisegundos antes de cerrar el chat por inactividad (0 = deshabilitado). Predeterminado: 600000 (10 minutos)';
-$string['inactivity_warning'] = 'El chat se cerrara por inactividad en {$a} segundos';
+$string['inactivity_warning'] = 'El chat se cerrara pronto por inactividad';
 $string['keepchatopen'] = 'Mantener abierto';
 $string['chat_closed_inactivity'] = 'El chat se ha cerrado por inactividad. Haz clic para reabrir.';
 
@@ -520,20 +540,122 @@ $string['archetype_manager'] = 'Gestor / Administrador';
 $string['archetype_guest'] = 'Invitado';
 $string['archetype_user'] = 'Usuario autenticado (sin rol especifico)';
 
-// v2.0.0 - Import/Export strings.
-$string['importexport'] = 'Importar/Exportar Base de Conocimiento';
-$string['exportkb'] = 'Exportar Base de Conocimiento';
-$string['exportkb_desc'] = 'Descarga todas las categorías, reglas y opciones como un archivo JSON para respaldo o transferencia a otro sitio.';
-$string['exportfile'] = 'Descargar archivo JSON';
-$string['importkb'] = 'Importar Base de Conocimiento';
-$string['importkb_desc'] = 'Sube un archivo JSON previamente exportado para importar categorías, reglas y opciones.';
-$string['selectfile'] = 'Seleccionar archivo';
-$string['clearexisting'] = 'Borrar datos existentes';
-$string['clearexisting_help'] = 'Si está habilitado, todas las categorías, reglas y opciones existentes serán eliminadas antes de importar. ¡Usar con precaución!';
-$string['import'] = 'Importar';
-$string['importsuccess'] = 'Se importaron exitosamente {\->categories} categorías, {\->rules} reglas, y {\->options} opciones.';
-$string['importerror'] = 'Error durante la importación';
-$string['importinvalidjson'] = 'Formato de archivo JSON inválido';
-$string['importinvalidversion'] = 'Versión inválida o faltante en el archivo de importación';
-$string['currentstats'] = 'Base de conocimiento actual: {\->categories} categorías, {\->rules} reglas, {\->options} opciones.';
+// v2.0.0 - Caracteristicas Comerciales.
+// Exportar.
+$string['exportchat'] = 'Exportar conversacion';
+$string['exportchat_desc'] = 'Descargar la conversacion actual como archivo de texto';
 
+// Feedback.
+$string['feedback_heading'] = 'Retroalimentacion de Usuario';
+$string['enablefeedback'] = 'Habilitar feedback';
+$string['enablefeedback_desc'] = 'Permitir que los usuarios califiquen las respuestas del bot con me gusta/no me gusta. Esto ayuda a mejorar la base de conocimientos.';
+$string['feedback_helpful'] = 'Util';
+$string['feedback_nothelpful'] = 'No util';
+$string['feedback_thanks'] = '¡Gracias por tu retroalimentacion!';
+$string['rulenotfound'] = 'Regla no encontrada';
+
+// Notificaciones de sonido.
+$string['sound_heading'] = 'Notificaciones de Sonido';
+$string['enablesound'] = 'Habilitar sonido de notificacion';
+$string['enablesound_desc'] = 'Reproducir un sonido cuando el bot responda. Los usuarios pueden desactivarlo en su navegador.';
+
+// Indicador de escritura.
+$string['typing'] = 'esta escribiendo...';
+
+// Metadatos de privacidad para feedback.
+$string['privacy:metadata:feedback'] = 'Retroalimentacion enviada por usuarios sobre las respuestas del bot.';
+$string['privacy:metadata:feedback:userid'] = 'ID del usuario que envio la retroalimentacion.';
+$string['privacy:metadata:feedback:ruleid'] = 'ID de la regla calificada.';
+$string['privacy:metadata:feedback:helpful'] = 'Si la respuesta fue marcada como util.';
+$string['privacy:metadata:feedback:timecreated'] = 'Cuando se envio la retroalimentacion.';
+
+// v2.0.0 - Mensajes de error.
+$string['error_noresponse'] = 'Error: No se recibio respuesta.';
+$string['error_connection'] = 'Error: No se pudo conectar con el servidor.';
+
+// v3.0.1 - Widget rewrite.
+$string['retrying'] = 'Reintentando...';
+
+// v2.0.0 - Cadenas de exportacion.
+$string['export_header'] = 'Conversacion con {$a}';
+$string['export_datetime'] = 'Exportado: {$a}';
+$string['export_you'] = 'Tu';
+$string['export_footer'] = 'Fin de la conversacion';
+$string['export_filename'] = 'chat-exportado';
+
+// v2.2.2 - Shortcuts con descripciones.
+$string['shortcuts_title'] = 'Acciones rapidas';
+
+// v2.2.7 - Nuevos tipos de acciones administrativas.
+$string['actiontype_teacher_grades'] = 'Gestionar calificaciones del curso';
+$string['actiontype_admin_users'] = 'Gestion de usuarios del sitio';
+$string['actiontype_admin_courses'] = 'Administracion de cursos';
+$string['actiontype_admin_reports'] = 'Reportes y estadisticas del sitio';
+$string['actiontype_admin_settings'] = 'Configuracion del sitio';
+$string['actiontype_admin_plugins'] = 'Gestion de plugins';
+$string['actiontype_admin_security'] = 'Seguridad del sitio';
+$string['actiontype_admin_backup'] = 'Copias de seguridad';
+
+// v2.2.7 - Cabeceras de shortcuts administrativos.
+$string['shortcut_teachergradesheader'] = 'Gestion de calificaciones de {$a}:';
+$string['shortcut_adminusersheader'] = 'Gestion de usuarios del sitio:';
+$string['shortcut_admincoursesheader'] = 'Administracion de cursos:';
+$string['shortcut_adminreportsheader'] = 'Reportes del sitio:';
+$string['shortcut_adminsettingsheader'] = 'Configuracion del sitio:';
+$string['shortcut_adminpluginsheader'] = 'Gestion de plugins:';
+$string['shortcut_adminsecurityheader'] = 'Seguridad del sitio:';
+$string['shortcut_adminbackupheader'] = 'Copias de seguridad:';
+
+// v2.2.7 - Strings para gestion de calificaciones (profesores).
+$string['viewgraderreport'] = 'Ver libro de calificaciones';
+$string['gradebooksetup'] = 'Configurar libro de calificaciones';
+$string['importgrades'] = 'Importar calificaciones';
+$string['exportgrades'] = 'Exportar calificaciones';
+
+// v2.2.7 - Strings para gestion de usuarios.
+$string['totalusers'] = 'Usuarios activos en el sitio: {$a}';
+$string['browseusers'] = 'Explorar usuarios';
+$string['addnewuser'] = 'Agregar nuevo usuario';
+$string['uploadusers'] = 'Cargar usuarios masivamente';
+$string['managecohorts'] = 'Gestionar cohortes';
+
+// v2.2.7 - Strings para gestion de cursos.
+$string['totalcourses'] = 'Total de cursos: {$a}';
+$string['managecourses'] = 'Gestionar cursos y categorias';
+$string['addnewcourse'] = 'Crear nuevo curso';
+$string['managecategories'] = 'Gestionar categorias';
+$string['restorecourse'] = 'Restaurar curso';
+
+// v2.2.7 - Strings para reportes.
+$string['viewlogs'] = 'Ver logs del sistema';
+$string['viewlivelogs'] = 'Ver logs en tiempo real';
+$string['activityreport'] = 'Reporte de actividad';
+$string['viewstatistics'] = 'Ver estadisticas';
+$string['configchanges'] = 'Cambios de configuracion';
+
+// v2.2.7 - Strings para configuracion.
+$string['siteadministration'] = 'Administracion del sitio';
+$string['frontpagesettings'] = 'Configuracion de la pagina principal';
+$string['appearancesettings'] = 'Configuracion de apariencia';
+$string['languagesettings'] = 'Configuracion de idioma';
+$string['notificationsettings'] = 'Configuracion de notificaciones';
+
+// v2.2.7 - Strings para plugins.
+$string['pluginsoverview'] = 'Vista general de plugins';
+$string['installplugins'] = 'Instalar plugins';
+$string['manageactivities'] = 'Gestionar modulos de actividad';
+$string['manageauthentication'] = 'Gestionar metodos de autenticacion';
+$string['manageenrolments'] = 'Gestionar metodos de matriculacion';
+
+// v2.2.7 - Strings para seguridad.
+$string['sitepolicies'] = 'Politicas del sitio';
+$string['httpsecurity'] = 'Seguridad HTTP';
+$string['ipblocker'] = 'Bloqueador de IP';
+$string['securitynotifications'] = 'Notificaciones de seguridad';
+$string['securityreport'] = 'Reporte de seguridad';
+
+// v2.2.7 - Strings para backups.
+$string['backupsettings'] = 'Configuracion de copias de seguridad';
+$string['automatedbackups'] = 'Copias automatizadas';
+$string['restoresite'] = 'Restaurar sitio/curso';
+$string['importcourse'] = 'Importar curso';

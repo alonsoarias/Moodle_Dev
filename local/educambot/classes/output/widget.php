@@ -18,7 +18,8 @@
  * Widget renderable class.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -53,16 +54,15 @@ class widget implements renderable, templatable {
         $inactivitytimeout = get_config('local_educambot', 'inactivitytimeout') ?: 600000; // 10 minutes default.
         $enablehistory = get_config('local_educambot', 'enablehistory') ?? 1;
 
+        // Get v2.0.0 configuration options.
+        $enablefeedback = get_config('local_educambot', 'enablefeedback') ?? 1;
+        $enablesound = get_config('local_educambot', 'enablesound') ?? 1;
+
         // Get selected theme (v1.8.0).
         $theme = $this->get_current_theme();
 
-        // Interpolate greeting message and sanitize for XSS protection.
+        // Interpolate greeting message.
         $greetingmessage = $this->interpolate_message($greetingtemplate, $USER, $botname);
-        $greetingmessage = format_text($greetingmessage, FORMAT_HTML, [
-            'trusted' => false,
-            'noclean' => false,
-            'filter' => false,
-        ]);
 
         // Get current course ID for context.
         $courseid = isset($COURSE->id) ? $COURSE->id : SITEID;
@@ -87,8 +87,8 @@ class widget implements renderable, templatable {
             'botcolor' => $theme->botcolor,
             'greetingmessage' => $greetingmessage,
             'serviceurl' => $CFG->wwwroot . '/local/educambot/service.php',
-            'startupurl' => $CFG->wwwroot . '/local/educambot/startup.php',
             'historyurl' => $CFG->wwwroot . '/local/educambot/history.php',
+            'shortcutsurl' => $CFG->wwwroot . '/local/educambot/shortcuts_ajax.php',
             'sesskey' => sesskey(),
             'courseid' => $courseid,
             // Widget icon (v1.8.1).
@@ -104,6 +104,9 @@ class widget implements renderable, templatable {
             // Configuration options (v1.9.0).
             'inactivitytimeout' => (int) $inactivitytimeout,
             'enablehistory' => (int) $enablehistory,
+            // Configuration options (v2.0.0).
+            'feedbackurl' => $enablefeedback ? $CFG->wwwroot . '/local/educambot/feedback.php' : '',
+            'soundenabled' => (int) $enablesound,
         ];
     }
 
@@ -240,11 +243,10 @@ class widget implements renderable, templatable {
         $icon = [
             'isdefault' => false,
             'isemoji' => false,
-            'isfontawesome' => false,
+            'isbootstrap' => false,
             'iscustom' => false,
             'iconcode' => '',
             'iconurl' => '',
-            'faprefix' => '', // Font Awesome family prefix (fa, fa-solid, etc.).
         ];
 
         $icontype = $theme->widgeticontype ?? 'default';
@@ -256,45 +258,14 @@ class widget implements renderable, templatable {
                 $icon['iconcode'] = $iconurl;
                 break;
 
-            case 'fontawesome':
-                $icon['isfontawesome'] = true;
-                // Handle Font Awesome 6 icon classes properly.
-                // FA6 families: fa-solid, fa-regular, fa-brands, fa-light, fa-thin, fa-duotone, fa-sharp.
-                // For backward compatibility, 'fa' class also works as fa-solid.
-                $faclass = trim($iconurl);
-
-                if (empty($faclass)) {
-                    $icon['isdefault'] = true;
-                    $icon['isfontawesome'] = false;
-                    break;
+            case 'bootstrap':
+                $icon['isbootstrap'] = true;
+                // Ensure class starts with 'bi-'.
+                $bsclass = $iconurl;
+                if (!empty($bsclass) && strpos($bsclass, 'bi-') !== 0) {
+                    $bsclass = 'bi-' . $bsclass;
                 }
-
-                // FA6 family classes.
-                $fa6families = ['fa-solid', 'fa-regular', 'fa-brands', 'fa-light', 'fa-thin', 'fa-duotone', 'fa-sharp', 'fab', 'far', 'fas'];
-
-                // Check if user provided a family class.
-                $hasfamily = false;
-                foreach ($fa6families as $family) {
-                    if (strpos($faclass, $family) !== false) {
-                        $hasfamily = true;
-                        break;
-                    }
-                }
-
-                // Ensure icon name starts with 'fa-'.
-                if (!$hasfamily) {
-                    // Simple icon name like "robot" or "fa-robot".
-                    if (strpos($faclass, 'fa-') !== 0) {
-                        $faclass = 'fa-' . $faclass;
-                    }
-                    // Add default solid family for FA6 compatibility.
-                    $icon['faprefix'] = 'fa';
-                } else {
-                    // User provided family, don't add prefix.
-                    $icon['faprefix'] = '';
-                }
-
-                $icon['iconcode'] = $faclass;
+                $icon['iconcode'] = $bsclass;
                 break;
 
             case 'custom':

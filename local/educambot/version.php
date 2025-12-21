@@ -18,15 +18,15 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025121200;  // YYYYMMDDXX format.
-$plugin->requires = 2022041900; // Moodle 4.0 minimum (compatible with 4.0 - 4.5).
+$plugin->version = 2025121946;  // YYYYMMDDXX format.
+$plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.0.0';
-$plugin->supported = [400, 405]; // Moodle 4.0 to 4.5.
+$plugin->release = '3.0.6';  // Add fallback navigation rules for menu options.

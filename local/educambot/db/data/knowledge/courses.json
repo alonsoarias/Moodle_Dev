@@ -1,0 +1,172 @@
+{
+    "version": "3.0.1",
+    "description": "EducamBot - Cursos e inscripciones",
+    "rules": [
+        {
+            "id": "como_inscribo",
+            "category": "cursos",
+            "pattern": "Como me inscribo en un curso",
+            "keywords": ["inscribirme", "inscripcion", "entrar curso", "matricularme", "clave inscripcion", "unirme curso", "registrarme curso", "acceder curso", "ingresar curso"],
+            "response": "Para inscribirte en un curso:<br><br>1. Busca el curso en el catalogo<br>2. Haz clic en el nombre del curso<br>3. Haz clic en <strong>Inscribirme</strong><br><br><strong>Tipos:</strong><br>- Libre: Solo clic en inscribirme<br>- Con clave: Ingresa la contrasena del profesor<br>- Manual: El profesor te agrega",
+            "tags": ["inscripcion", "matricula"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis cursos", "icon": "bi-collection", "action": "mis cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "navegar_curso",
+            "category": "cursos",
+            "pattern": "Como navego en el curso",
+            "keywords": ["navegar curso", "indice curso", "secciones", "temas", "dentro del curso", "moverme curso", "explorar curso", "estructura curso"],
+            "response": "Navegacion del curso:<br><br><strong>Panel izquierdo:</strong><br>- Indice con secciones y actividades<br>- Circulos indican progreso (○ pendiente, ● completado)<br><br><strong>Navegacion:</strong><br>- Flechas entre actividades<br>- Breadcrumb muestra tu ubicacion<br>- Clic en nombre del curso = inicio",
+            "tags": ["navegacion", "indice"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_progreso",
+            "category": "cursos",
+            "pattern": "Como veo mi progreso",
+            "keywords": ["progreso", "mi progreso", "avance", "como voy", "porcentaje completado", "cuanto llevo", "estado curso", "completado"],
+            "response": "Para ver tu progreso:<br><br><strong>En el indice:</strong><br>- ○ Pendiente / ● Completado<br><br><strong>Barra de progreso:</strong><br>- Parte superior del curso<br>- Muestra porcentaje total<br><br><strong>Informe detallado:</strong><br>- Menu del curso > Informes",
+            "tags": ["progreso", "avance"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi progreso", "icon": "bi-graph-up", "action": "mi progreso"},
+                {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "destacar_curso",
+            "category": "cursos",
+            "pattern": "Como destaco un curso",
+            "keywords": ["favorito", "destacar", "estrella", "curso favorito", "marcar curso", "priorizar curso"],
+            "response": "Para marcar curso como favorito:<br><br>1. Ve a <strong>Mis cursos</strong><br>2. Haz clic en los tres puntos (⋮)<br>3. Selecciona <strong>Destacar este curso</strong><br><br>Los cursos destacados aparecen primero.",
+            "tags": ["favorito", "destacar"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis cursos", "icon": "bi-collection", "action": "mis cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ocultar_curso",
+            "category": "cursos",
+            "pattern": "Como oculto un curso",
+            "keywords": ["ocultar curso", "esconder curso", "quitar vista", "no ver curso", "eliminar curso vista"],
+            "response": "Para ocultar un curso:<br><br>1. Ve a <strong>Mis cursos</strong><br>2. Haz clic en los tres puntos (⋮)<br>3. Selecciona <strong>Ocultar de la vista</strong><br><br>Para verlos: usa filtro \"Ocultos\".<br><strong>Nota:</strong> Ocultar NO te desinscribe.",
+            "tags": ["ocultar", "esconder"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "certificado",
+            "category": "cursos",
+            "pattern": "Como obtengo mi certificado",
+            "keywords": ["certificado", "diploma", "constancia", "descargar certificado", "obtener certificado", "imprimir certificado"],
+            "response": "Para obtener tu certificado:<br><br><strong>Requisitos:</strong><br>- Completar actividades requeridas<br>- Alcanzar calificacion minima<br><br><strong>Pasos:</strong><br>1. Busca la actividad <strong>Certificado</strong><br>2. Haz clic en ella<br>3. Descarga en PDF",
+            "tags": ["certificado", "diploma"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi progreso", "icon": "bi-graph-up", "action": "mi progreso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "timeline",
+            "category": "cursos",
+            "pattern": "Que es la linea de tiempo",
+            "keywords": ["timeline", "linea tiempo", "proximas actividades", "pendientes", "que tengo pendiente", "actividades pendientes", "que debo hacer"],
+            "response": "La <strong>Timeline</strong> muestra actividades pendientes:<br><br><strong>Ubicacion:</strong> En tu Tablero<br><br><strong>Muestra:</strong><br>- Tareas por entregar<br>- Cuestionarios programados<br>- Eventos del calendario<br><br><strong>Filtros:</strong> Vencidas, Hoy, 7 dias, 30 dias",
+            "tags": ["timeline", "pendientes"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Tareas pendientes", "icon": "bi-journal-check", "action": "mis tareas"},
+                {"text": "Calendario", "icon": "bi-calendar-event", "action": "calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "restricciones",
+            "category": "cursos",
+            "pattern": "Por que no puedo ver una actividad",
+            "keywords": ["actividad bloqueada", "no puedo ver", "restriccion", "bloqueado", "no aparece", "actividad oculta", "no tengo acceso", "acceso denegado"],
+            "response": "Si no ves una actividad, puede ser por:<br><br><strong>Restricciones:</strong><br>- <strong>Fecha:</strong> Aun no se abre<br>- <strong>Completar otra:</strong> Termina algo antes<br>- <strong>Calificacion:</strong> Necesitas cierta nota<br>- <strong>Grupo:</strong> Solo para tu grupo<br><br>Completa las actividades previas requeridas.",
+            "tags": ["restriccion", "bloqueado"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi progreso", "icon": "bi-graph-up", "action": "mi progreso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "darse_baja",
+            "category": "cursos",
+            "pattern": "Como me doy de baja de un curso",
+            "keywords": ["darme de baja", "desinscribirme", "salir curso", "abandonar curso", "eliminar inscripcion", "cancelar inscripcion"],
+            "response": "Para darte de baja:<br><br>1. Entra al curso<br>2. Ve a <strong>Participantes</strong><br>3. Busca tu nombre<br>4. Clic en engranaje > <strong>Darme de baja</strong><br><br><strong>Nota:</strong> Puede no estar permitido. Alternativa: oculta el curso.",
+            "tags": ["baja", "desinscribir"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "descargar_contenido",
+            "category": "cursos",
+            "pattern": "Como descargo el contenido",
+            "keywords": ["descargar curso", "descargar materiales", "offline", "guardar contenido", "bajar archivos", "descargar recursos"],
+            "response": "Para descargar contenido:<br><br><strong>Archivos individuales:</strong><br>- Clic en cada archivo para descargarlo<br><br><strong>App Moodle (offline):</strong><br>1. Descarga la app<br>2. Toca <strong>Descargar</strong> en el curso<br>3. Accede sin conexion",
+            "tags": ["descargar", "offline"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "contactar_profesor",
+            "category": "cursos",
+            "pattern": "Como contacto a mi profesor",
+            "keywords": ["contactar profesor", "mensaje profesor", "hablar profesor", "escribir profesor", "comunicar profesor", "profesor contacto"],
+            "response": "Para contactar a tu profesor:<br><br><strong>Opcion 1 - Mensajeria:</strong><br>1. Haz clic en el icono de mensajes<br>2. Busca el nombre del profesor<br>3. Escribe tu mensaje<br><br><strong>Opcion 2 - Participantes:</strong><br>1. En el curso > Participantes<br>2. Busca al profesor<br>3. Clic en su nombre > Mensaje",
+            "tags": ["profesor", "contacto", "mensaje"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis profesores", "icon": "bi-person-badge", "action": "mis profesores"},
+                {"text": "Mensajes", "icon": "bi-envelope", "action": "mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "grupos",
+            "category": "cursos",
+            "pattern": "Que son los grupos",
+            "keywords": ["grupos", "mi grupo", "grupo curso", "pertenezco grupo", "asignacion grupo"],
+            "response": "Los <strong>grupos</strong> organizan a los estudiantes:<br><br><strong>Usos:</strong><br>- Actividades solo para tu grupo<br>- Foros grupales<br>- Entregas por equipo<br><br><strong>Ver tu grupo:</strong><br>- En Participantes > Filtrar por grupo<br>- O en tu perfil dentro del curso",
+            "tags": ["grupos", "equipo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

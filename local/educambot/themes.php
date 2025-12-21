@@ -18,7 +18,8 @@
  * Theme management page for educambot.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -90,8 +91,8 @@ switch ($action) {
                 case 'emoji':
                     $record->widgeticonurl = clean_param($data->widgeticonemoji ?? '', PARAM_TEXT);
                     break;
-                case 'fontawesome':
-                    $record->widgeticonurl = clean_param($data->widgeticonfa ?? '', PARAM_TEXT);
+                case 'bootstrap':
+                    $record->widgeticonurl = clean_param($data->widgeticonbs ?? '', PARAM_TEXT);
                     break;
                 case 'custom':
                     // Will be handled after record is saved.
@@ -170,9 +171,6 @@ switch ($action) {
             if ($record->isdefault) {
                 $DB->execute("UPDATE {local_educambot_theme} SET isdefault = 0 WHERE id != ?", [$themeid]);
             }
-
-            // Purge all caches to ensure theme changes are applied immediately.
-            purge_all_caches();
 
             redirect($baseurl);
         }

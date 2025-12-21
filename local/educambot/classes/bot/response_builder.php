@@ -18,7 +18,8 @@
  * Response builder for educambot - builds dynamic responses with placeholders.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -102,6 +103,9 @@ class response_builder {
 
             // Messages placeholders.
             '{{unread.messages}}' => $this->get_unread_count(),
+
+            // Site placeholders.
+            '{{site.name}}' => $this->get_site_name(),
         ];
     }
 
@@ -132,6 +136,7 @@ class response_builder {
             '{{next.event}}' => 'Proximo evento del calendario',
             '{{events.week}}' => 'Eventos de esta semana',
             '{{unread.messages}}' => 'Numero de mensajes no leidos',
+            '{{site.name}}' => 'Nombre del sitio Moodle',
         ];
     }
 
@@ -422,5 +427,17 @@ class response_builder {
      */
     public static function has_placeholders($response) {
         return preg_match('/\{\{[a-z.]+\}\}/', $response) === 1;
+    }
+
+    // Site methods.
+
+    /**
+     * Get site name.
+     *
+     * @return string Site full name
+     */
+    private function get_site_name() {
+        global $SITE;
+        return format_string($SITE->fullname);
     }
 }

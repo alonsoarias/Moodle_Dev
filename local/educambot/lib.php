@@ -18,7 +18,8 @@
  * Plugin library functions.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -95,12 +96,77 @@ function local_educambot_before_footer() {
         // Ignore if method not available.
     }
 
+    // Output Bootstrap Icons CSS directly (v2.2.11).
+    // Cannot use $PAGE->requires->css() because head is already printed.
+    echo '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">';
+
     // Prepare data for template.
     $widget = new \local_educambot\output\widget();
     $data = $widget->export_for_template($OUTPUT);
 
     // Render and output the widget directly.
     echo $OUTPUT->render_from_template('local_educambot/widget', $data);
+
+    // Load JavaScript strings for the widget (v2.0.2).
+    $PAGE->requires->strings_for_js([
+        // Error messages.
+        'error_noresponse',
+        'error_connection',
+        // Export strings.
+        'export_header',
+        'export_datetime',
+        'export_you',
+        'export_footer',
+        'export_filename',
+        // Feedback strings.
+        'feedback_helpful',
+        'feedback_nothelpful',
+        'feedback_thanks',
+        // Inactivity strings.
+        'inactivity_warning',
+        'keepchatopen',
+        // Mascot strings.
+        'mascot_greeting',
+        'mascot_greeting_student',
+        'mascot_greeting_teacher',
+        'mascot_greeting_editingteacher',
+        'mascot_greeting_coursecreator',
+        'mascot_greeting_manager',
+        'mascot_greeting_guest',
+        'mascot_greeting_user',
+        'mascot_needmore',
+        'mascot_tryagain',
+        'mascot_nopopular',
+        'mascot_error',
+        'mascot_popularheader',
+        'mascot_similarheader',
+        // Mascot suggestions.
+        'mascot_suggest_activities',
+        'mascot_suggest_admin',
+        'mascot_suggest_attendance',
+        'mascot_suggest_browse',
+        'mascot_suggest_calendar',
+        'mascot_suggest_categories',
+        'mascot_suggest_course',
+        'mascot_suggest_courses',
+        'mascot_suggest_deadlines',
+        'mascot_suggest_grades',
+        'mascot_suggest_grading',
+        'mascot_suggest_help',
+        'mascot_suggest_login',
+        'mascot_suggest_newcourse',
+        'mascot_suggest_profile',
+        'mascot_suggest_reports',
+        'mascot_suggest_settings',
+        'mascot_suggest_students',
+        'mascot_suggest_tasks',
+        'mascot_suggest_templates',
+        'mascot_suggest_users',
+        // History.
+        'previousconversation',
+        // Shortcuts (v2.2.2).
+        'shortcuts_title',
+    ], 'local_educambot');
 
     // Include JavaScript module.
     $PAGE->requires->js_call_amd('local_educambot/widget', 'init');

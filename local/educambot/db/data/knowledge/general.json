@@ -1,0 +1,217 @@
+{
+    "version": "3.0.1",
+    "description": "EducamBot - General questions and main menu for all users",
+    "rules": [
+        {
+            "id": "menu_principal",
+            "category": "general",
+            "pattern": "Menu principal",
+            "keywords": ["menu", "inicio", "ayuda", "opciones", "que puedo hacer", "como me ayudas", "que opciones tengo", "mostrar menu", "ver menu", "inicio chat", "empezar"],
+            "response": "¿En que puedo ayudarte? Selecciona una opcion o escribe tu pregunta:",
+            "tags": ["menu", "inicio"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis cursos", "icon": "bi-collection", "action": "mis cursos"},
+                {"text": "Calendario", "icon": "bi-calendar-event", "action": "calendario"},
+                {"text": "Mensajes", "icon": "bi-envelope", "action": "mensajes"},
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"}
+            ]
+        },
+        {
+            "id": "saludo",
+            "category": "general",
+            "pattern": "Hola",
+            "keywords": ["hola", "buenos dias", "buenas tardes", "buenas noches", "saludos", "hey", "ola", "hi", "hello", "que tal", "como estas", "que hay"],
+            "response": "¡Hola! Soy tu asistente virtual en <strong>{{site.name}}</strong>. ¿En que puedo ayudarte hoy?",
+            "tags": ["saludo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver menu", "icon": "bi-list", "action": "menu"}
+            ]
+        },
+        {
+            "id": "login",
+            "category": "general",
+            "pattern": "Como inicio sesion",
+            "keywords": ["iniciar sesion", "login", "entrar", "acceder", "ingresar", "conectarme", "loguearme", "entrar al sistema", "acceso", "como entro", "no puedo entrar"],
+            "response": "Para iniciar sesion:<br><br>1. Ve a la pagina principal<br>2. Haz clic en <strong>Acceder</strong><br>3. Ingresa tu usuario y contrasena<br>4. Haz clic en <strong>Acceder</strong><br><br>Si olvidaste tu contrasena, haz clic en <strong>¿Olvidaste tu contrasena?</strong>",
+            "tags": ["login", "sesion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Olvide mi contrasena", "icon": "bi-key", "action": "olvide contrasena"},
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "logout",
+            "category": "general",
+            "pattern": "Como cierro sesion",
+            "keywords": ["cerrar sesion", "logout", "salir", "desconectar", "desloguearme", "terminar sesion", "finalizar sesion"],
+            "response": "Para cerrar sesion:<br><br>1. Haz clic en tu foto/avatar (arriba derecha)<br>2. Selecciona <strong>Cerrar sesion</strong><br><br>Siempre cierra sesion en computadoras compartidas.",
+            "tags": ["logout", "sesion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "password",
+            "category": "general",
+            "pattern": "Como cambio mi contrasena",
+            "keywords": ["cambiar contrasena", "nueva contrasena", "password", "clave", "olvide contrasena", "resetear contrasena", "recuperar contrasena", "modificar clave", "actualizar contrasena"],
+            "response": "Para cambiar tu contrasena:<br><br>1. Haz clic en tu foto/avatar<br>2. Ve a <strong>Preferencias</strong><br>3. Selecciona <strong>Cambiar contrasena</strong><br>4. Ingresa tu contrasena actual y la nueva<br>5. Guarda cambios<br><br><strong>Requisitos:</strong> Minimo 8 caracteres, 1 numero, 1 mayuscula.",
+            "tags": ["contrasena", "password"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "perfil",
+            "category": "general",
+            "pattern": "Como edito mi perfil",
+            "keywords": ["editar perfil", "mi perfil", "cambiar foto", "actualizar perfil", "datos personales", "modificar perfil", "cambiar nombre", "mi informacion", "mis datos"],
+            "response": "Para editar tu perfil:<br><br>1. Haz clic en tu foto/avatar<br>2. Selecciona <strong>Perfil</strong><br>3. Haz clic en <strong>Editar perfil</strong><br>4. Modifica tus datos (nombre, email, foto, descripcion)<br>5. Haz clic en <strong>Actualizar perfil</strong>",
+            "tags": ["perfil", "foto"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "notificaciones",
+            "category": "general",
+            "pattern": "Como configuro las notificaciones",
+            "keywords": ["notificaciones", "alertas", "avisos", "configurar notificaciones", "emails", "correos", "mensajes sistema", "desactivar notificaciones", "silenciar"],
+            "response": "Para configurar notificaciones:<br><br>1. Haz clic en tu foto/avatar<br>2. Ve a <strong>Preferencias</strong><br>3. Selecciona <strong>Preferencias de notificacion</strong><br><br>Puedes activar/desactivar notificaciones por:<br>- Web (en el sitio)<br>- Email<br>- App movil",
+            "tags": ["notificaciones", "alertas"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "app_movil",
+            "category": "general",
+            "pattern": "Existe app movil",
+            "keywords": ["app movil", "aplicacion", "moodle app", "celular", "telefono", "android", "iphone", "ios", "smartphone", "descargar app", "aplicacion movil"],
+            "response": "Si, existe la <strong>App Moodle</strong>:<br><br><strong>Descargar:</strong><br>- Android: Google Play Store<br>- iPhone: App Store<br><br><strong>Conectar:</strong><br>1. Abre la app<br>2. Ingresa: <strong>{{site.url}}</strong><br>3. Inicia sesion con tus credenciales",
+            "tags": ["app", "movil"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "idioma",
+            "category": "general",
+            "pattern": "Como cambio el idioma",
+            "keywords": ["cambiar idioma", "idioma", "espanol", "ingles", "language", "lenguaje", "traduccion", "otro idioma"],
+            "response": "Para cambiar el idioma:<br><br>1. Haz clic en tu foto/avatar<br>2. Ve a <strong>Preferencias</strong><br>3. Busca <strong>Idioma preferido</strong><br>4. Selecciona tu idioma<br>5. Guarda cambios",
+            "tags": ["idioma"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "buscar",
+            "category": "general",
+            "pattern": "Como busco contenido",
+            "keywords": ["buscar", "buscador", "encontrar", "search", "busqueda", "como encuentro", "donde esta"],
+            "response": "Para buscar contenido:<br><br>1. Usa la <strong>lupa</strong> en la barra superior<br>2. Escribe tu busqueda<br>3. Presiona Enter<br><br>Puedes buscar: cursos, actividades, usuarios, mensajes de foros.",
+            "tags": ["buscar", "search"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "soporte",
+            "category": "general",
+            "pattern": "Soporte tecnico",
+            "keywords": ["soporte", "contacto", "ayuda tecnica", "reportar problema", "error", "falla", "no funciona", "problema tecnico", "bug", "necesito ayuda", "asistencia"],
+            "response": "Para obtener ayuda:<br><br><strong>Problemas academicos:</strong><br>Contacta a tu profesor por mensajeria.<br><br><strong>Problemas tecnicos:</strong><br>Contacta al administrador del sitio.<br><br><strong>Al reportar incluye:</strong><br>- Descripcion del problema<br>- Captura de pantalla<br>- Navegador utilizado",
+            "tags": ["soporte", "ayuda"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tablero",
+            "category": "general",
+            "pattern": "Que es el tablero",
+            "keywords": ["tablero", "dashboard", "pagina inicio", "area personal", "mi tablero", "panel principal", "pagina principal"],
+            "response": "El <strong>Tablero</strong> es tu pagina personal:<br><br>- <strong>Timeline:</strong> Actividades proximas<br>- <strong>Cursos:</strong> Tus cursos recientes<br>- <strong>Calendario:</strong> Eventos importantes<br><br>Accede haciendo clic en <strong>Tablero</strong> o <strong>Inicio</strong>.",
+            "tags": ["tablero", "dashboard"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "gracias",
+            "category": "general",
+            "pattern": "Gracias",
+            "keywords": ["gracias", "muchas gracias", "te agradezco", "genial", "perfecto", "excelente", "muy bien", "ok", "vale", "entendido", "listo", "claro"],
+            "response": "¡De nada! Estoy aqui para ayudarte. Si tienes mas preguntas, no dudes en escribirme.",
+            "tags": ["gracias"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "despedida",
+            "category": "general",
+            "pattern": "Adios",
+            "keywords": ["adios", "hasta luego", "bye", "chao", "nos vemos", "hasta pronto", "me voy", "chau", "hasta la proxima"],
+            "response": "¡Hasta luego! Fue un gusto ayudarte. Estoy disponible 24/7 cuando me necesites.",
+            "tags": ["adios"],
+            "enabled": true,
+            "showoptions": false
+        },
+        {
+            "id": "quien_eres",
+            "category": "general",
+            "pattern": "Quien eres",
+            "keywords": ["quien eres", "que eres", "eres un bot", "eres una persona", "como te llamas", "tu nombre", "que haces", "para que sirves"],
+            "response": "Soy <strong>{{botname}}</strong>, tu asistente virtual en <strong>{{site.name}}</strong>.<br><br>Puedo ayudarte con:<br>- Informacion sobre cursos y actividades<br>- Calificaciones y progreso<br>- Navegacion en la plataforma<br>- Soporte general<br><br>¡Preguntame lo que necesites!",
+            "tags": ["identidad", "bot"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver menu", "icon": "bi-list", "action": "menu"}
+            ]
+        },
+        {
+            "id": "no_entiendo",
+            "category": "general",
+            "pattern": "No entiendo",
+            "keywords": ["no entiendo", "no comprendo", "explicame mejor", "mas claro", "no me queda claro", "puedes repetir", "otra vez"],
+            "response": "Disculpa si no fui claro. Intenta reformular tu pregunta de forma diferente o selecciona una opcion del menu.<br><br>Si el problema persiste, puedes contactar a soporte tecnico.",
+            "tags": ["confusion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver menu", "icon": "bi-list", "action": "menu"},
+                {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"}
+            ]
+        }
+    ]
+}

@@ -1,12 +1,42 @@
-# Nexo Bot - Chatbot Inteligente para Moodle
+# EducamBot - Chatbot Inteligente para Moodle
 
-**Version**: 1.9.6
-**Requiere**: Moodle 4.0+
+**Version**: 2.2.1
+**Requiere**: Moodle 4.0 - 4.5
 **Licencia**: GPL v3+
+**Autor**: Alonso Arias <soporte@ingeweb.co>
+**Copyright**: 2025 Ingeweb <https://ingeweb.co>
 
 ## Descripcion
 
-Nexo Bot es un plugin de chatbot completo para Moodle que proporciona asistencia automatizada a estudiantes, profesores y administradores. Incluye un sistema de reglas avanzado, respuestas dinamicas basadas en contexto, y personalizacion completa de la interfaz.
+EducamBot es un plugin de chatbot completo para Moodle que proporciona asistencia automatizada a estudiantes, profesores y administradores. Incluye un sistema de reglas avanzado, respuestas dinamicas basadas en contexto, feedback de usuarios, y personalizacion completa de la interfaz.
+
+## Novedades en v2.2.1
+
+- **Bordes rectos**: Apariencia limpia sin border-radius
+- **Mascota externa**: Posicionada fuera del chat para no obstruir contenido
+- **Animacion del boton**: Mantenida la animacion pulse en el boton flotante
+
+## Novedades en v2.2.0
+
+- **Nuevas mascotas**: Gato estudioso y Bombilla de ideas
+- **Mascotas por defecto**: Todos los temas ahora incluyen mascota habilitada
+- **Nuevo tema Professional**: Colores indigo con mascota Bombilla
+
+## Novedades en v2.1.0
+
+- **Base de conocimientos expandida**: 201 reglas cubriendo todos los arquetipos
+- **Arquitectura JSON modular**: KB organizada en 9 archivos JSON tematicos
+- **Placeholder {{site.name}}**: Respuestas personalizadas con el nombre del sitio
+- **Terminologia Moodle 4.x**: Actualizada toda la KB (indice del curso, cajon de bloques, etc.)
+
+## Novedades en v2.0.0
+
+- **Indicador de escritura**: Animacion visual mientras el bot procesa
+- **Timestamps**: Hora en cada mensaje
+- **Sistema de feedback**: Thumbs up/down para mejorar respuestas
+- **Exportar conversacion**: Descarga como archivo .txt
+- **Sonidos de notificacion**: Audio sutil al recibir respuestas
+- **Estado online**: Indicador visual de disponibilidad
 
 ## Caracteristicas Principales
 
@@ -16,9 +46,15 @@ Nexo Bot es un plugin de chatbot completo para Moodle que proporciona asistencia
 - Soporte multi-idioma con auto-deteccion
 - Filtrado por arquetipos de rol de Moodle
 - Restriccion por cursos especificos
+- Contadores de feedback por regla
 
 ### Widget de Chat Interactivo
 - Interfaz flotante responsiva
+- Indicador de escritura animado (v2.0.0)
+- Timestamps en cada mensaje (v2.0.0)
+- Botones de feedback thumbs up/down (v2.0.0)
+- Exportar conversacion a texto (v2.0.0)
+- Sonidos de notificacion (v2.0.0)
 - Mascotas animadas (Clippy, Robot, Buho, personalizada)
 - Temas visuales personalizables
 - Opciones de respuesta rapida (Quick Replies)
@@ -53,7 +89,7 @@ Comandos que muestran datos dinamicos de Moodle:
 1. Copiar la carpeta `educambot` a `/local/`
 2. Acceder a **Administracion del sitio > Notificaciones**
 3. Seguir el proceso de instalacion/actualizacion
-4. Configurar en **Administracion del sitio > Plugins > Plugins locales > Nexo Bot**
+4. Configurar en **Administracion del sitio > Plugins > Plugins locales > EducamBot**
 
 ## Configuracion
 
@@ -87,7 +123,7 @@ Comandos que muestran datos dinamicos de Moodle:
 ### Para Administradores
 
 #### Gestionar Reglas
-1. Ir a **Administracion > Plugins locales > Nexo Bot > Gestionar Reglas**
+1. Ir a **Administracion > Plugins locales > EducamBot > Gestionar Reglas**
 2. Crear reglas con:
    - **Patron**: Pregunta principal que activa la regla
    - **Palabras clave**: Terminos adicionales para matching
@@ -153,6 +189,7 @@ En respuestas dinamicas puedes usar:
 | `{{pendingassignments}}` | Lista de tareas pendientes |
 | `{{nextevent}}` | Proximo evento del calendario |
 | `{{botname}}` | Nombre configurado del bot |
+| `{{site.name}}` | Nombre del sitio Moodle |
 
 ## Algoritmo de Matching
 
@@ -181,6 +218,14 @@ La regla con mayor puntaje gana (si score > 0).
 | `local_educambot_log` | Registro de conversaciones |
 | `local_educambot_theme` | Temas visuales |
 | `local_educambot_schedule` | Horarios de disponibilidad |
+| `local_educambot_feedback` | Feedback de usuarios (v2.0.0) |
+
+### Campos de Feedback en Reglas (v2.0.0)
+
+| Campo | Tipo | Descripcion |
+|-------|------|-------------|
+| `helpfulcount` | INT | Contador de feedback positivo |
+| `nothelpfulcount` | INT | Contador de feedback negativo |
 
 ## API AJAX
 
@@ -218,6 +263,29 @@ fetch('/local/educambot/service.php', {
 }
 ```
 
+### Endpoint: `/local/educambot/feedback.php` (v2.0.0)
+
+```javascript
+fetch('/local/educambot/feedback.php', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'sesskey=' + M.cfg.sesskey + '&ruleid=5&helpful=1'
+})
+.then(r => r.json())
+.then(data => console.log(data));
+```
+
+### Respuesta Feedback
+
+```json
+{
+    "success": true,
+    "message": "Gracias por tu retroalimentacion!"
+}
+```
+
 ## Permisos
 
 | Capacidad | Descripcion |
@@ -246,7 +314,7 @@ Ver [CHANGELOG.md](CHANGELOG.md) para el historial completo de versiones.
 
 Para reportar problemas o sugerencias:
 - Crear un issue en el repositorio
-- Contactar al equipo de desarrollo EducamBot
+- Contactar a soporte@ingeweb.co
 
 ## Licencia
 
@@ -255,4 +323,4 @@ Consulta el archivo LICENSE para mas detalles.
 
 ---
 
-**EducamBot Team** - 2025
+**Desarrollado por [Ingeweb](https://ingeweb.co)** - 2025

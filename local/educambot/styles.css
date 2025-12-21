@@ -1,8 +1,9 @@
 /**
- * Nexo Bot widget styles.
+ * EducamBot widget styles.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -91,7 +92,7 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     z-index: 999997;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible; /* v2.0.1: Allow mascot tooltip to overflow */
     transition: all 0.3s ease;
 }
 
@@ -160,8 +161,9 @@
 .educambot-messages {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 16px;
-    padding-bottom: 24px; /* Extra space at bottom for mascot overlap */
+    padding-bottom: 90px; /* v2.0.1: Space for mascot */
     background: var(--educambot-background);
     display: flex;
     flex-direction: column;
@@ -382,10 +384,13 @@
     line-height: 1;
 }
 
-/* Font Awesome icon in header */
-.educambot-fa-icon {
+/* Bootstrap icon in header */
+.educambot-bs-icon {
     font-size: 24px;
     color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Custom icon in header */
@@ -395,41 +400,24 @@
 }
 
 /* ==============================================
-   Mascot Styles (v1.9.11 - Fixed positioning)
+   Mascot Styles (v2.0.1 - fixed positioning)
    ============================================== */
 
-/* Mascot wrapper - positioned relative to popup, not scrolling messages */
-.educambot-mascot-wrapper {
-    position: relative;
-    height: 85px;
-    flex-shrink: 0;
-    background: linear-gradient(to top, var(--educambot-background) 0%, transparent 100%);
-    pointer-events: none;
-    margin-top: -20px;
-    z-index: 5;
-}
-
-/* Mascot container */
+/* Mascot container - positioned relative to popup, not messages */
 .educambot-mascot-container {
     position: absolute;
-    bottom: 8px;
-    left: 12px;
-    width: 65px;
-    height: 65px;
-    z-index: 10;
+    bottom: 70px; /* Above the input area */
+    left: 10px;
+    width: 70px;
+    height: 70px;
+    z-index: 999998; /* High z-index to stay above messages */
     cursor: pointer;
-    transition: transform 0.3s ease, filter 0.3s ease;
+    transition: transform 0.3s ease;
     pointer-events: auto;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .educambot-mascot-container:hover {
-    transform: scale(1.08) translateY(-2px);
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-}
-
-.educambot-mascot-container:active {
-    transform: scale(1.02);
+    transform: scale(1.1);
 }
 
 /* SVG container */
@@ -443,22 +431,23 @@
     height: 100%;
 }
 
-/* Mascot tooltip - improved positioning */
+/* Mascot tooltip */
 .educambot-mascot-tooltip {
     display: none;
     position: absolute;
-    bottom: calc(100% + 8px);
-    left: 0;
-    transform: none;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
     background: white;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 12px 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    min-width: 200px;
-    max-width: 280px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    max-width: 260px;
+    margin-bottom: 12px;
     animation: educambot-tooltip-fade-in 0.3s ease;
-    z-index: 100;
+    z-index: 999999; /* v2.0.1: Higher than mascot */
 }
 
 .educambot-mascot-tooltip.visible {
@@ -475,14 +464,13 @@
     display: block;
     margin-bottom: 8px;
     color: #111827;
-    font-size: 14px;
 }
 
 .educambot-mascot-tooltip .tooltip-arrow {
     position: absolute;
     bottom: -8px;
-    left: 24px;
-    transform: rotate(45deg);
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
     width: 14px;
     height: 14px;
     background: white;
@@ -493,28 +481,12 @@
 @keyframes educambot-tooltip-fade-in {
     from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateX(-50%) translateY(5px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(-50%) translateY(0);
     }
-}
-
-/* Mascot entrance animation */
-@keyframes educambot-mascot-entrance {
-    from {
-        opacity: 0;
-        transform: scale(0.5) translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-.educambot-mascot-container[data-state="greeting"] {
-    animation: educambot-mascot-entrance 0.5s ease-out;
 }
 
 /* Popular questions in tooltip */
@@ -795,158 +767,6 @@
 }
 
 /* ==============================================
-   Mascot Type-Specific Styles (v1.9.10)
-   ============================================== */
-
-/* Cat mascot - tail and ear animations */
-.educambot-mascot-container[data-type="cat"][data-state="idle"] #ears {
-    animation: educambot-cat-ears 4s ease-in-out infinite;
-}
-
-@keyframes educambot-cat-ears {
-    0%, 90%, 100% {
-        transform: rotate(0deg);
-    }
-    93% {
-        transform: rotate(-5deg);
-    }
-    96% {
-        transform: rotate(5deg);
-    }
-}
-
-.educambot-mascot-container[data-type="cat"][data-state="thinking"] #eyes {
-    animation: educambot-cat-curious 1.5s ease-in-out infinite;
-}
-
-@keyframes educambot-cat-curious {
-    0%, 100% {
-        transform: scaleX(1);
-    }
-    50% {
-        transform: scaleX(0.9);
-    }
-}
-
-/* Lightbulb mascot - glow pulse */
-.educambot-mascot-container[data-type="lightbulb"][data-state="success"] #sparkles {
-    animation: educambot-lightbulb-sparkle 0.5s ease-out 3;
-}
-
-@keyframes educambot-lightbulb-sparkle {
-    0% {
-        opacity: 0.5;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.3);
-    }
-    100% {
-        opacity: 0.5;
-        transform: scale(1);
-    }
-}
-
-.educambot-mascot-container[data-type="lightbulb"][data-state="thinking"] #body {
-    animation: educambot-lightbulb-pulse 1s ease-in-out infinite;
-}
-
-@keyframes educambot-lightbulb-pulse {
-    0%, 100% {
-        filter: brightness(1);
-    }
-    50% {
-        filter: brightness(1.2);
-    }
-}
-
-/* Robot mascot - LED blink */
-.educambot-mascot-container[data-type="robot"][data-state="idle"] #antenna-light {
-    animation: educambot-robot-antenna 2s ease-in-out infinite;
-}
-
-@keyframes educambot-robot-antenna {
-    0%, 100% {
-        opacity: 0.7;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-
-.educambot-mascot-container[data-type="robot"][data-state="thinking"] #buttons circle {
-    animation: educambot-robot-buttons 0.3s ease-in-out infinite;
-}
-
-@keyframes educambot-robot-buttons {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-}
-
-/* Owl mascot - blink animation */
-.educambot-mascot-container[data-type="owl"][data-state="idle"] #eyes {
-    animation: educambot-owl-blink 5s ease-in-out infinite;
-}
-
-@keyframes educambot-owl-blink {
-    0%, 94%, 100% {
-        transform: scaleY(1);
-    }
-    96% {
-        transform: scaleY(0.1);
-    }
-    98% {
-        transform: scaleY(1);
-    }
-}
-
-/* Clippy mascot - bounce more */
-.educambot-mascot-container[data-type="clippy"][data-state="greeting"] #body {
-    animation: educambot-clippy-bounce 0.4s ease-out 3;
-}
-
-@keyframes educambot-clippy-bounce {
-    0%, 100% {
-        transform: translateY(0) scaleY(1);
-    }
-    30% {
-        transform: translateY(-8px) scaleY(1.05);
-    }
-    60% {
-        transform: translateY(0) scaleY(0.95);
-    }
-}
-
-/* Eye tracking animation - follows cursor conceptually */
-.educambot-mascot-container:hover #eye-left,
-.educambot-mascot-container:hover #eye-right {
-    transform: translateX(1px);
-    transition: transform 0.2s ease;
-}
-
-/* Arms wave on hover */
-.educambot-mascot-container:hover #arm-right {
-    animation: educambot-wave-right 0.6s ease-in-out;
-}
-
-@keyframes educambot-wave-right {
-    0%, 100% {
-        transform: rotate(0deg);
-    }
-    25% {
-        transform: rotate(-15deg);
-    }
-    75% {
-        transform: rotate(10deg);
-    }
-}
-
-/* ==============================================
    Accessibility - Reduced Motion
    ============================================== */
 
@@ -994,35 +814,626 @@
         font-size: 12px;
     }
 
-    /* Smaller mascot on mobile */
-    .educambot-mascot-wrapper {
-        height: 70px;
-        margin-top: -15px;
-    }
-
+    /* Smaller mascot on mobile (v2.0.1) */
     .educambot-mascot-container {
         width: 55px;
         height: 55px;
-        bottom: 5px;
-        left: 8px;
+        bottom: 65px; /* Above input area on mobile */
+        left: 5px;
     }
 
     .educambot-mascot-tooltip {
         min-width: 160px;
-        max-width: 200px;
+        max-width: 220px;
         padding: 10px 12px;
         font-size: 12px;
-        left: 0;
-    }
-
-    .educambot-mascot-tooltip .tooltip-arrow {
-        left: 20px;
     }
 }
 
 /* Hide mascot on very small screens */
 @media (max-width: 360px) {
-    .educambot-mascot-wrapper {
+    .educambot-mascot-container {
         display: none;
+    }
+}
+
+/* ==============================================
+   Typing Indicator (v2.0.0)
+   ============================================== */
+
+.educambot-typing {
+    display: none;
+    align-self: flex-start;
+    padding: 12px 16px;
+    background: var(--educambot-bot);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    margin-top: 8px;
+}
+
+.educambot-typing-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.educambot-typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #9ca3af;
+    border-radius: 50%;
+    animation: educambot-typing-bounce 1.4s ease-in-out infinite;
+}
+
+.educambot-typing-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.educambot-typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.educambot-typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes educambot-typing-bounce {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        background: #9ca3af;
+    }
+    30% {
+        transform: translateY(-8px);
+        background: var(--educambot-primary);
+    }
+}
+
+/* ==============================================
+   Message Footer (Timestamp & Actions) (v2.0.0)
+   ============================================== */
+
+.educambot-message-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 0 4px;
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.educambot-timestamp {
+    flex-shrink: 0;
+}
+
+.educambot-bot .educambot-message-footer {
+    justify-content: flex-start;
+}
+
+.educambot-user .educambot-message-footer {
+    justify-content: flex-end;
+}
+
+.educambot-user .educambot-timestamp {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.educambot-bot .educambot-confidence {
+    margin: 0;
+    padding: 0;
+    color: #6b7280;
+    font-size: 11px;
+}
+
+/* ==============================================
+   Feedback Buttons (v2.0.0)
+   ============================================== */
+
+.educambot-feedback {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.educambot-feedback-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: all 0.2s;
+}
+
+.educambot-feedback-btn:hover {
+    background: #f3f4f6;
+}
+
+.educambot-feedback-btn.educambot-thumbs-up:hover,
+.educambot-feedback-btn.educambot-thumbs-up.selected {
+    color: #10b981;
+    background: #d1fae5;
+}
+
+.educambot-feedback-btn.educambot-thumbs-down:hover,
+.educambot-feedback-btn.educambot-thumbs-down.selected {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+.educambot-feedback-btn:disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.educambot-feedback-btn.selected:disabled {
+    opacity: 1;
+}
+
+.educambot-feedback-thanks {
+    font-size: 10px;
+    color: #10b981;
+    margin-left: 4px;
+    animation: educambot-fadeIn 0.3s ease;
+}
+
+/* ==============================================
+   Export Button (v2.0.0)
+   ============================================== */
+
+#educambot-export {
+    cursor: pointer;
+}
+
+#educambot-export:hover svg {
+    transform: scale(1.1);
+}
+
+#educambot-export svg {
+    transition: transform 0.2s;
+}
+
+/* ==============================================
+   Rich Message Content (v2.0.0)
+   ============================================== */
+
+.educambot-message-content a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.educambot-message-content a:hover {
+    opacity: 0.8;
+}
+
+.educambot-bot .educambot-message-content a {
+    color: var(--educambot-primary);
+}
+
+.educambot-message-content ul,
+.educambot-message-content ol {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.educambot-message-content li {
+    margin: 4px 0;
+}
+
+.educambot-message-content code {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.educambot-message-content pre {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+
+.educambot-message-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.educambot-message-content strong {
+    font-weight: 600;
+}
+
+.educambot-message-content em {
+    font-style: italic;
+}
+
+/* ==============================================
+   Online Status Indicator (v2.0.0)
+   ============================================== */
+
+.educambot-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.educambot-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: educambot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes educambot-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.9);
+    }
+}
+
+/* ==============================================
+   Mobile Responsive Updates (v2.0.0)
+   ============================================== */
+
+@media (max-width: 480px) {
+    .educambot-message-footer {
+        font-size: 10px;
+        gap: 6px;
+    }
+
+    .educambot-feedback-btn {
+        width: 22px;
+        height: 22px;
+    }
+
+    .educambot-feedback-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+/* ==============================================
+   Credits Section (v2.0.4)
+   ============================================== */
+
+.educambot-credits {
+    padding: 6px 16px;
+    text-align: center;
+    font-size: 11px;
+    color: #9ca3af;
+    background: #f3f4f6;
+    border-top: 1px solid #e5e7eb;
+    flex-shrink: 0;
+}
+
+.educambot-credits a {
+    color: var(--educambot-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.educambot-credits a:hover {
+    text-decoration: underline;
+}
+
+/* ==============================================
+   Bootstrap 5 Compatibility Fallbacks (v2.0.9)
+   ============================================== */
+
+/* Badge fallbacks for Bootstrap 5 compatibility */
+/* These ensure badge-* classes work when bg-* is expected */
+.badge.badge-success {
+    background-color: #198754 !important;
+    color: #fff !important;
+}
+
+.badge.badge-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.badge.badge-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.badge.badge-primary {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+.badge.badge-secondary {
+    background-color: #6c757d !important;
+    color: #fff !important;
+}
+
+.badge.badge-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* Close button compatibility (Bootstrap 4/5) */
+.close.btn-close {
+    background: transparent;
+    border: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: .5;
+}
+
+.close.btn-close:hover {
+    opacity: .75;
+}
+
+/* Ensure Font Awesome icons display correctly */
+.fa {
+    display: inline-block;
+    font-style: normal;
+}
+
+/* ==============================================
+   v2.2.0 Enhancements - Button Animation Only
+   ============================================== */
+
+/* Enhanced floating button with gradient and animation */
+#educambot-btn {
+    background: linear-gradient(135deg, var(--educambot-primary) 0%, var(--educambot-secondary) 100%);
+    box-shadow:
+        0 4px 15px rgba(15, 111, 197, 0.4),
+        0 0 30px rgba(15, 111, 197, 0.15);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+#educambot-btn:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow:
+        0 8px 25px rgba(15, 111, 197, 0.5),
+        0 0 40px rgba(15, 111, 197, 0.25);
+}
+
+/* Subtle pulse animation on button */
+#educambot-btn::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid var(--educambot-primary);
+    opacity: 0;
+    animation: educambot-btn-pulse 3s ease-in-out infinite;
+}
+
+@keyframes educambot-btn-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.15);
+        opacity: 0.4;
+    }
+}
+
+/* ==============================================
+   v2.2.1 - Straight Borders & External Mascot
+   ============================================== */
+
+/* Popup with straight borders */
+.educambot-popup {
+    border-radius: 0 !important;
+}
+
+/* Header with straight borders */
+.educambot-header {
+    border-radius: 0 !important;
+}
+
+/* Credits with straight borders */
+.educambot-credits {
+    border-radius: 0 !important;
+}
+
+/* Messages area - no padding at bottom for external mascot */
+.educambot-messages {
+    padding-bottom: 16px !important;
+}
+
+/* ==============================================
+   External Mascot Positioning (v2.2.1)
+   Mascot positioned outside chat container
+   ============================================== */
+
+/* Move mascot outside the chat popup - to the left */
+.educambot-mascot-container {
+    position: fixed !important;
+    bottom: 100px !important;
+    right: 410px !important; /* Position to the left of the popup (380px width + 20px gap + 10px) */
+    left: auto !important;
+    width: 80px !important;
+    height: 80px !important;
+    z-index: 999999 !important;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+/* Tooltip repositioned for external mascot */
+.educambot-mascot-tooltip {
+    left: auto !important;
+    right: 0 !important;
+    transform: none !important;
+    bottom: 100% !important;
+    margin-bottom: 10px !important;
+}
+
+.educambot-mascot-tooltip .tooltip-arrow {
+    left: auto !important;
+    right: 30px !important;
+    transform: rotate(45deg) !important;
+}
+
+/* Hide mascot when chat is closed */
+#educambot-chat:not(.educambot-active) .educambot-mascot-container {
+    display: none !important;
+}
+
+/* Mobile - mascot below the popup on the left */
+@media (max-width: 480px) {
+    .educambot-popup {
+        border-radius: 0 !important;
+    }
+
+    .educambot-header {
+        border-radius: 0 !important;
+    }
+
+    .educambot-credits {
+        border-radius: 0 !important;
+    }
+
+    /* On mobile, position mascot at bottom left corner */
+    .educambot-mascot-container {
+        right: auto !important;
+        left: 10px !important;
+        bottom: 10px !important;
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .educambot-mascot-tooltip {
+        left: 0 !important;
+        right: auto !important;
+        min-width: 200px !important;
+    }
+
+    .educambot-mascot-tooltip .tooltip-arrow {
+        left: 20px !important;
+        right: auto !important;
+    }
+}
+
+/* ==============================================
+   Shortcuts with Descriptions (v2.2.2)
+   ============================================== */
+
+.educambot-shortcuts-container {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.educambot-shortcuts-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    margin-bottom: 10px;
+    padding-left: 2px;
+}
+
+.educambot-shortcuts-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.educambot-shortcut-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1 1 calc(50% - 3px);
+    min-width: 140px;
+    max-width: calc(50% - 3px);
+    text-align: left;
+}
+
+.educambot-shortcut-btn:hover {
+    background: var(--educambot-primary);
+    border-color: var(--educambot-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.educambot-shortcut-btn:hover .educambot-shortcut-icon,
+.educambot-shortcut-btn:hover .educambot-shortcut-name,
+.educambot-shortcut-btn:hover .educambot-shortcut-desc {
+    color: #ffffff;
+}
+
+.educambot-shortcut-btn:active {
+    transform: translateY(0);
+}
+
+.educambot-shortcut-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--educambot-primary);
+    font-size: 16px;
+}
+
+.educambot-shortcut-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    flex: 1;
+}
+
+.educambot-shortcut-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--educambot-text);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.educambot-shortcut-desc {
+    font-size: 10px;
+    color: #6b7280;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Mobile adjustments for shortcuts */
+@media (max-width: 480px) {
+    .educambot-shortcuts-grid {
+        max-height: 140px;
+    }
+
+    .educambot-shortcut-btn {
+        flex: 1 1 100%;
+        max-width: 100%;
     }
 }

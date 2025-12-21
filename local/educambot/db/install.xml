@@ -40,6 +40,10 @@
         <FIELD NAME="courses" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated course IDs (empty = all courses)"/>
         <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="es" SEQUENCE="false" COMMENT="Language code"/>
         <FIELD NAME="langparent" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Parent rule ID for translations"/>
+        <FIELD NAME="helpfulcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of helpful feedback"/>
+        <FIELD NAME="nothelpfulcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of not helpful feedback"/>
+        <FIELD NAME="priority" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Manual priority for rule ordering"/>
+        <FIELD NAME="needs_review" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Flag for rules needing review"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
@@ -73,7 +77,6 @@
       <INDEXES>
         <INDEX NAME="matched_idx" UNIQUE="false" FIELDS="matched"/>
         <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
-        <INDEX NAME="userid_time_idx" UNIQUE="false" FIELDS="userid, timecreated" COMMENT="Composite index for user history queries"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_educambot_option" COMMENT="Quick reply options for rules">
@@ -81,6 +84,7 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Rule that shows this option"/>
         <FIELD NAME="text" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Button text"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Action text to send when clicked"/>
         <FIELD NAME="targetruleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Rule to trigger when clicked"/>
         <FIELD NAME="icon" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Emoji or icon"/>
         <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -103,6 +107,8 @@
         <FIELD NAME="actiontype" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Action type: assignments, grades, calendar, messages, course"/>
         <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Description of what this shortcut does"/>
         <FIELD NAME="icon" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Emoji or icon for the shortcut"/>
+        <FIELD NAME="roles" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated role archetypes that can use this shortcut"/>
+        <FIELD NAME="context" TYPE="char" LENGTH="20" NOTNULL="false" DEFAULT="any" SEQUENCE="false" COMMENT="Required context: any, course, activity"/>
         <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -157,6 +163,47 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="isdefault_idx" UNIQUE="false" FIELDS="isdefault"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_educambot_feedback" COMMENT="User feedback on bot responses (v2.0.0)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User who submitted feedback"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Rule being rated"/>
+        <FIELD NAME="helpful" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=helpful, 0=not helpful"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="ruleid_fk" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_educambot_rule" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_ruleid_idx" UNIQUE="false" FIELDS="userid, ruleid"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_educambot_context" COMMENT="Conversation context for improved bot behavior (v3.0.0)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User ID"/>
+        <FIELD NAME="sessionid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Session identifier"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Course ID"/>
+        <FIELD NAME="state" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON encoded conversation state"/>
+        <FIELD NAME="last_topic" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Last detected topic"/>
+        <FIELD NAME="last_ruleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Last matched rule ID"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="last_ruleid_fk" TYPE="foreign" FIELDS="last_ruleid" REFTABLE="local_educambot_rule" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_sessionid_idx" UNIQUE="true" FIELDS="userid, sessionid"/>
+        <INDEX NAME="timemodified_idx" UNIQUE="false" FIELDS="timemodified"/>
       </INDEXES>
     </TABLE>
   </TABLES>

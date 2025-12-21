@@ -1,0 +1,209 @@
+{
+    "version": "3.0.5",
+    "description": "EducamBot navigation rules - menus, greetings, and core navigation",
+    "rules": [
+        {
+            "id": "startup",
+            "category": "general",
+            "pattern": "__startup__",
+            "keywords": ["__startup__", "__init__"],
+            "response": "Selecciona una opcion o escribe tu pregunta:",
+            "tags": ["inicio", "startup"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "📚", "action": "mis cursos"},
+                {"text": "Mis Tareas", "icon": "📝", "action": "mis tareas pendientes"},
+                {"text": "Calificaciones", "icon": "📊", "action": "ver mis calificaciones"},
+                {"text": "Ayuda", "icon": "❓", "action": "necesito ayuda"}
+            ]
+        },
+        {
+            "id": "menu",
+            "category": "general",
+            "pattern": "Menu principal",
+            "keywords": [
+                "menu", "menu principal", "inicio", "ayuda", "que puedes hacer",
+                "opciones", "empezar", "volver", "volver al inicio", "volver al menu",
+                "volver al menu principal", "regresar", "regresar al menu",
+                "ir al inicio", "mostrar menu", "mostrar opciones"
+            ],
+            "response": "¿En que puedo ayudarte? Selecciona una opcion o escribe tu pregunta:",
+            "tags": ["menu", "inicio", "navegacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Cursos", "icon": "📚", "action": "mis cursos"},
+                {"text": "Tareas", "icon": "📝", "action": "mis tareas"},
+                {"text": "Calificaciones", "icon": "📊", "action": "mis calificaciones"},
+                {"text": "Mensajes", "icon": "💬", "action": "mis mensajes"},
+                {"text": "Calendario", "icon": "📅", "action": "calendario"},
+                {"text": "Perfil", "icon": "👤", "action": "mi perfil"}
+            ]
+        },
+        {
+            "id": "greeting",
+            "category": "general",
+            "pattern": "Hola",
+            "keywords": [
+                "hola", "buenas", "buenos dias", "buenas tardes", "buenas noches",
+                "que tal", "saludos", "hey", "hi", "ola"
+            ],
+            "response": "¡Hola! Soy tu asistente virtual. Estoy aqui para ayudarte con cualquier duda sobre la plataforma. ¿En que puedo ayudarte?",
+            "tags": ["saludo", "bienvenida"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver mis cursos", "icon": "📚", "action": "mis cursos"},
+                {"text": "Ayuda con tareas", "icon": "📝", "action": "como entrego una tarea"},
+                {"text": "Ver calificaciones", "icon": "📊", "action": "mis calificaciones"}
+            ]
+        },
+        {
+            "id": "thanks",
+            "category": "general",
+            "pattern": "Gracias",
+            "keywords": [
+                "gracias", "muchas gracias", "te lo agradezco", "genial", "perfecto",
+                "excelente", "ok gracias", "gracias por tu ayuda", "eres genial", "me ayudaste mucho"
+            ],
+            "response": "¡De nada! Me alegra poder ayudarte. Si tienes mas preguntas, aqui estoy. ¡Exito en tu aprendizaje!",
+            "tags": ["agradecimiento"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu Principal", "icon": "🏠", "action": "menu"}
+            ]
+        },
+        {
+            "id": "goodbye",
+            "category": "general",
+            "pattern": "Adios",
+            "keywords": [
+                "adios", "hasta luego", "nos vemos", "chao", "bye",
+                "hasta pronto", "me voy", "hasta manana"
+            ],
+            "response": "¡Hasta pronto! Recuerda que estoy disponible cuando me necesites. ¡Exito!",
+            "tags": ["despedida"],
+            "enabled": true,
+            "showoptions": false
+        },
+        {
+            "id": "about",
+            "category": "general",
+            "pattern": "¿Quien eres?",
+            "keywords": [
+                "quien eres", "que eres", "como te llamas", "eres un bot",
+                "eres humano", "que haces", "para que sirves", "cual es tu funcion"
+            ],
+            "response": "Soy <strong>EducamBot</strong>, tu asistente virtual inteligente.<br><br>Estoy aqui para ayudarte con:<br>• Navegacion en la plataforma<br>• Dudas sobre cursos y actividades<br>• Calificaciones y tareas<br>• Configuracion de tu perfil<br>• Soporte tecnico<br><br>¡Preguntame lo que necesites!",
+            "tags": ["bot", "informacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Empezar", "icon": "🚀", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tasks_fallback",
+            "category": "general",
+            "pattern": "Mis tareas",
+            "keywords": [
+                "mis tareas", "tareas pendientes", "ver tareas", "tareas",
+                "que tareas tengo", "entregas pendientes", "trabajos pendientes"
+            ],
+            "response": "Para ver tus <strong>tareas pendientes</strong>, necesitas estar dentro de un curso.<br><br><strong>Pasos:</strong><br>1. Ve a <a href='/my/courses.php' target='_blank'>Mis Cursos</a><br>2. Selecciona el curso<br>3. Ahi podras ver tus tareas<br><br>Tambien puedes ver todas tus tareas en el <a href='/calendar/view.php' target='_blank'>Calendario</a>.",
+            "tags": ["tareas", "navegacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "📚", "action": "mis cursos"},
+                {"text": "Calendario", "icon": "📅", "action": "calendario"},
+                {"text": "Menu", "icon": "🏠", "action": "menu"}
+            ]
+        },
+        {
+            "id": "grades_fallback",
+            "category": "general",
+            "pattern": "Mis calificaciones",
+            "keywords": [
+                "mis calificaciones", "mis notas", "ver calificaciones", "calificaciones",
+                "ver notas", "consultar notas", "como voy en notas"
+            ],
+            "response": "Para ver tus <strong>calificaciones</strong>, necesitas estar dentro de un curso.<br><br><strong>Pasos:</strong><br>1. Ve a <a href='/my/courses.php' target='_blank'>Mis Cursos</a><br>2. Selecciona el curso<br>3. En el menu del curso, busca <strong>Calificaciones</strong><br><br>O accede directamente desde el panel del curso.",
+            "tags": ["calificaciones", "navegacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "📚", "action": "mis cursos"},
+                {"text": "Menu", "icon": "🏠", "action": "menu"}
+            ]
+        },
+        {
+            "id": "messages_fallback",
+            "category": "general",
+            "pattern": "Mis mensajes",
+            "keywords": [
+                "mis mensajes", "mensajes", "ver mensajes", "correos",
+                "bandeja entrada", "inbox", "conversaciones"
+            ],
+            "response": "Puedes acceder a tus <strong>mensajes</strong> de las siguientes formas:<br><br>1. Haz clic en el icono de <strong>mensaje</strong> en la barra superior<br>2. O ve directamente a <a href='/message/index.php' target='_blank'>Mensajes</a><br><br>Ahi podras ver todas tus conversaciones y enviar nuevos mensajes.",
+            "tags": ["mensajes", "navegacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "🏠", "action": "menu"}
+            ]
+        },
+        {
+            "id": "profile_fallback",
+            "category": "general",
+            "pattern": "Mi perfil",
+            "keywords": [
+                "mi perfil", "perfil", "ver perfil", "editar perfil",
+                "cambiar foto", "mis datos", "configurar perfil"
+            ],
+            "response": "Para acceder a tu <strong>perfil</strong>:<br><br>1. Haz clic en tu foto/nombre en la esquina superior derecha<br>2. Selecciona <strong>Perfil</strong><br><br>Desde ahi puedes:<br>• Ver tu informacion<br>• Editar tu perfil<br>• Cambiar tu foto<br>• Ver tus cursos y actividad",
+            "tags": ["perfil", "navegacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "🏠", "action": "menu"}
+            ]
+        },
+        {
+            "id": "courses_fallback",
+            "category": "general",
+            "pattern": "Mis cursos",
+            "keywords": [
+                "mis cursos", "ver cursos", "cursos inscritos", "cursos",
+                "en que cursos estoy", "lista de cursos", "cursos matriculados"
+            ],
+            "response": "Puedes ver todos tus <strong>cursos</strong> en:<br><br><a href='/my/courses.php' target='_blank'><strong>📚 Mis Cursos</strong></a><br><br>Desde ahi puedes acceder a cada curso, ver tu progreso y actividades pendientes.",
+            "tags": ["cursos", "navegacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calendario", "icon": "📅", "action": "calendario"},
+                {"text": "Menu", "icon": "🏠", "action": "menu"}
+            ]
+        },
+        {
+            "id": "calendar_fallback",
+            "category": "general",
+            "pattern": "Calendario",
+            "keywords": [
+                "calendario", "eventos", "proximos eventos", "fechas",
+                "agenda", "que hay hoy", "actividades programadas"
+            ],
+            "response": "Accede a tu <strong>calendario</strong> aqui:<br><br><a href='/calendar/view.php' target='_blank'><strong>📅 Ver Calendario</strong></a><br><br>El calendario muestra:<br>• Entregas de tareas<br>• Fechas de examenes<br>• Eventos del curso<br>• Eventos personales",
+            "tags": ["calendario", "navegacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "📚", "action": "mis cursos"},
+                {"text": "Menu", "icon": "🏠", "action": "menu"}
+            ]
+        }
+    ]
+}

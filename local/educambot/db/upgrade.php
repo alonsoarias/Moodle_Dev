@@ -15,19 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin upgrade steps are defined here.
+ * Database upgrade script for local_educambot.
  *
  * @package     local_educambot
- * @copyright   2025 EducamBot Team
+ * @author      Alonso Arias <soporte@ingeweb.co>
+ * @copyright   2025 Ingeweb <https://ingeweb.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute local_educambot upgrade from the given old version.
+ * Upgrade the local_educambot plugin.
  *
- * @param int $oldversion
+ * @param int $oldversion The old version of the plugin.
  * @return bool
  */
 function xmldb_local_educambot_upgrade($oldversion) {
@@ -35,1410 +36,302 @@ function xmldb_local_educambot_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-    // Automatically generated Moodle v4.0.0 release upgrade line.
-    // Put any upgrade step following this.
+    // v2.0.0 - Add feedback table and helpfulcount/nothelpfulcount to rules.
+    if ($oldversion < 2025121200) {
 
-    if ($oldversion < 2025112004) {
-        // Define table local_educambot_log to be created.
-        $table = new xmldb_table('local_educambot_log');
+        // Add helpfulcount field to rule table.
+        $table = new xmldb_table('local_educambot_rule');
+        $field = new xmldb_field('helpfulcount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'langparent');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
 
-        // Adding fields to table local_educambot_log.
+        // Add nothelpfulcount field to rule table.
+        $field = new xmldb_field('nothelpfulcount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'helpfulcount');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Create feedback table.
+        $table = new xmldb_table('local_educambot_feedback');
+
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('question', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-        $table->add_field('response', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('confidence', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, null);
-        $table->add_field('matched', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('helpful', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
-        // Adding keys to table local_educambot_log.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
         $table->add_key('userid_fk', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
         $table->add_key('ruleid_fk', XMLDB_KEY_FOREIGN, ['ruleid'], 'local_educambot_rule', ['id']);
 
-        // Adding indexes to table local_educambot_log.
-        // Note: userid and ruleid already have indexes from foreign keys.
-        $table->add_index('matched_idx', XMLDB_INDEX_NOTUNIQUE, ['matched']);
+        $table->add_index('userid_ruleid_idx', XMLDB_INDEX_NOTUNIQUE, ['userid', 'ruleid']);
         $table->add_index('timecreated_idx', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
 
-        // Conditionally launch create table for local_educambot_log.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
 
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025112004, 'local', 'educambot');
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121200, 'local', 'educambot');
     }
 
-    if ($oldversion < 2025112005) {
-        // Add showoptions field to local_educambot_rule table.
-        $table = new xmldb_table('local_educambot_rule');
-        $field = new xmldb_field('showoptions', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'enabled');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define table local_educambot_option to be created.
-        $table = new xmldb_table('local_educambot_option');
-
-        // Adding fields to table local_educambot_option.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('text', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('targetruleid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('icon', XMLDB_TYPE_CHAR, '50', null, null, null, null);
-        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
-
-        // Adding keys to table local_educambot_option.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_key('ruleid_fk', XMLDB_KEY_FOREIGN, ['ruleid'], 'local_educambot_rule', ['id']);
-        $table->add_key('targetruleid_fk', XMLDB_KEY_FOREIGN, ['targetruleid'], 'local_educambot_rule', ['id']);
-
-        // Adding indexes to table local_educambot_option.
-        // Note: ruleid already has an index from foreign key.
-        $table->add_index('sortorder_idx', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
-
-        // Conditionally launch create table for local_educambot_option.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025112005, 'local', 'educambot');
-    }
-
-    if ($oldversion < 2025112006) {
-        // Define table local_educambot_category to be created.
-        $table = new xmldb_table('local_educambot_category');
-
-        // Adding fields to table local_educambot_category.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
-        $table->add_field('parent', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table local_educambot_category.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_key('parent_fk', XMLDB_KEY_FOREIGN, ['parent'], 'local_educambot_category', ['id']);
-
-        // Adding indexes to table local_educambot_category.
-        // Note: parent already has an index from foreign key.
-        $table->add_index('sortorder_idx', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
-
-        // Conditionally launch create table for local_educambot_category.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Add categoryid field to local_educambot_rule table.
-        $table = new xmldb_table('local_educambot_rule');
-        $field = new xmldb_field('categoryid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'id');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add categoryid index.
-        $index = new xmldb_index('categoryid_idx', XMLDB_INDEX_NOTUNIQUE, ['categoryid']);
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
-        // Add tags field to local_educambot_rule table.
-        $field = new xmldb_field('tags', XMLDB_TYPE_TEXT, null, null, null, null, null, 'response');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025112006, 'local', 'educambot');
-    }
-
-    if ($oldversion < 2025112007) {
-        // Version 1.6.1: Extended knowledge base + Startup suggestions.
-        $now = time();
-
-        // Add 'Recursos y Materiales' category if it doesn't exist.
-        $recursoscat = $DB->get_record('local_educambot_category', ['name' => 'Recursos y Materiales']);
-        if (!$recursoscat) {
-            $recursoscat = new stdClass();
-            $recursoscat->name = 'Recursos y Materiales';
-            $recursoscat->description = 'Acceso a archivos, videos y materiales de estudio';
-            $recursoscat->parent = null;
-            $recursoscat->sortorder = 6;
-            $recursoscat->enabled = 1;
-            $recursoscat->timecreated = $now;
-            $recursoscat->timemodified = $now;
-            $recursoscat->id = $DB->insert_record('local_educambot_category', $recursoscat);
-        }
-
-        // Get existing category IDs.
-        $catgeneral = $DB->get_record('local_educambot_category', ['name' => 'General']);
-        $catcursos = $DB->get_record('local_educambot_category', ['name' => 'Cursos']);
-        $cattareas = $DB->get_record('local_educambot_category', ['name' => 'Tareas y Actividades']);
-        $catevaluaciones = $DB->get_record('local_educambot_category', ['name' => 'Evaluaciones']);
-        $catperfil = $DB->get_record('local_educambot_category', ['name' => 'Perfil y Cuenta']);
-        $catsoporte = $DB->get_record('local_educambot_category', ['name' => 'Soporte']);
-
-        // Helper function to create rule if not exists.
-        // Note: pattern is a TEXT field, must use sql_compare_text() for comparison.
-        $createrule = function($pattern, $data) use ($DB, $now) {
-            $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
-                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
-            $existing = $DB->get_record_sql($sql, ['pattern' => $pattern]);
-            if (!$existing) {
-                $data['timecreated'] = $now;
-                $data['timemodified'] = $now;
-                return $DB->insert_record('local_educambot_rule', (object)$data);
-            }
-            return $existing->id;
-        };
-
-        // Helper function to get rule ID by pattern (using sql_compare_text for TEXT field).
-        $getruleid = function($pattern) use ($DB) {
-            $sql = "SELECT id FROM {local_educambot_rule} WHERE " .
-                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
-            return $DB->get_field_sql($sql, ['pattern' => $pattern]);
-        };
-
-        // Create startup rule (special rule for initial options).
-        $startupid = $createrule('__startup__', [
-            'categoryid' => $catgeneral ? $catgeneral->id : null,
-            'pattern' => '__startup__',
-            'keywords' => "__startup__\n__init__",
-            'response' => 'Selecciona una de las opciones o escribe tu pregunta:',
-            'tags' => 'inicio, startup, opciones',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Get existing rule IDs for linking options (using helper function for TEXT comparison).
-        $menuid = $getruleid('Menu principal');
-        $assignmentid = $getruleid('¿Como entrego una tarea?');
-        $gradesid = $getruleid('¿Donde veo mis calificaciones?');
-        $quizid = $getruleid('¿Como hago un cuestionario o examen?');
-        $profileid = $getruleid('¿Como actualizo mi perfil?');
-        $supportid = $getruleid('¿Como contacto con soporte tecnico?');
-
-        // Create new rules for v1.6.1.
-        $mycoursesid = $createrule('¿Donde veo mis cursos?', [
-            'categoryid' => $catcursos ? $catcursos->id : null,
-            'pattern' => '¿Donde veo mis cursos?',
-            'keywords' => "mis cursos\nver cursos\ncursos inscritos\npanel de cursos\nlista de cursos\nacceder a curso",
-            'response' => 'Puedes ver tus cursos de varias formas:<br><br>1. <strong>Panel principal:</strong> Al iniciar sesion, veras el bloque "Mis cursos" en tu tablero<br>2. <strong>Menu de navegacion:</strong> Haz clic en "Mis cursos" en el menu superior o lateral<br>3. <strong>Perfil:</strong> En tu perfil puedes ver todos los cursos en los que estas inscrito',
-            'tags' => 'cursos, panel, acceso',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $aboutbotid = $createrule('¿Quien eres?', [
-            'categoryid' => $catgeneral ? $catgeneral->id : null,
-            'pattern' => '¿Quien eres?',
-            'keywords' => "quien eres\nque eres\neres un robot\neres humano\ncomo te llamas\ntu nombre",
-            'response' => 'Soy Nexo Bot, un asistente virtual disenado para ayudarte a navegar y utilizar esta plataforma educativa Moodle. Puedo responder preguntas sobre cursos, tareas, calificaciones, tu perfil y mucho mas.',
-            'tags' => 'bot, identidad, presentacion',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $goodbyeid = $createrule('Adios', [
-            'categoryid' => $catgeneral ? $catgeneral->id : null,
-            'pattern' => 'Adios',
-            'keywords' => "adios\nhasta luego\nnos vemos\nchao\nbyte\nhasta pronto\nme voy",
-            'response' => '¡Hasta pronto! Fue un placer ayudarte. Recuerda que estoy aqui cuando me necesites. ¡Exito en tus estudios!',
-            'tags' => 'despedida, adios',
-            'enabled' => 1,
-            'showoptions' => 0,
-        ]);
-
-        $findcoursesid = $createrule('¿Como busco cursos disponibles?', [
-            'categoryid' => $catcursos ? $catcursos->id : null,
-            'pattern' => '¿Como busco cursos disponibles?',
-            'keywords' => "buscar cursos\ncursos disponibles\ncatalogo de cursos\nencontrar curso\nver todos los cursos",
-            'response' => 'Para buscar cursos disponibles:<br><br>1. Ve a "Todos los cursos" en el menu de navegacion<br>2. Usa el cuadro de busqueda para encontrar cursos por nombre<br>3. Navega por las categorias para explorar temas especificos<br>4. Haz clic en cualquier curso para ver su descripcion',
-            'tags' => 'buscar, catalogo, explorar',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $coursekeyid = $createrule('¿Que es la clave de inscripcion?', [
-            'categoryid' => $catcursos ? $catcursos->id : null,
-            'pattern' => '¿Que es la clave de inscripcion?',
-            'keywords' => "clave de inscripcion\nclave de curso\npassword del curso\ncontrasena de inscripcion",
-            'response' => 'La clave de inscripcion es una contrasena que protege el acceso a ciertos cursos:<br><br>- <strong>¿Quien la proporciona?</strong> Tu profesor o coordinador te dara la clave<br>- <strong>¿Cuando se usa?</strong> Solo al inscribirte por primera vez<br>- <strong>¿Es lo mismo que tu contrasena?</strong> No, es diferente a tu contrasena de usuario',
-            'tags' => 'clave, inscripcion, password, acceso',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $courseprogressid = $createrule('¿Como veo mi progreso en el curso?', [
-            'categoryid' => $catcursos ? $catcursos->id : null,
-            'pattern' => '¿Como veo mi progreso en el curso?',
-            'keywords' => "progreso del curso\navance del curso\nporcentaje completado\nactividades completadas",
-            'response' => 'Para ver tu progreso en un curso:<br><br>1. Entra al curso deseado<br>2. Busca la barra de progreso en la parte superior o lateral<br>3. Tambien puedes ir a "Informe de actividad" en el menu del curso',
-            'tags' => 'progreso, avance, completado',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $certificateid = $createrule('¿Como obtengo mi certificado?', [
-            'categoryid' => $catcursos ? $catcursos->id : null,
-            'pattern' => '¿Como obtengo mi certificado?',
-            'keywords' => "certificado\ndiploma\nconstancia\ncertificacion\nobtener certificado",
-            'response' => 'Para obtener tu certificado:<br><br>1. Completa todas las actividades requeridas del curso<br>2. Asegurate de cumplir con los requisitos minimos de calificacion<br>3. Busca la actividad "Certificado" al final del curso<br>4. Haz clic para generar y descargar tu certificado en PDF',
-            'tags' => 'certificado, diploma, constancia, finalizacion',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $editassignmentid = $createrule('¿Puedo modificar una tarea enviada?', [
-            'categoryid' => $cattareas ? $cattareas->id : null,
-            'pattern' => '¿Puedo modificar una tarea enviada?',
-            'keywords' => "modificar tarea\neditar entrega\ncambiar archivo\nreenviar tarea",
-            'response' => 'La posibilidad de modificar una tarea depende de la configuracion:<br><br>- <strong>Antes del cierre:</strong> Generalmente puedes editar tu entrega haciendo clic en "Editar entrega"<br>- <strong>Despues del cierre:</strong> Solo si el profesor habilita intentos adicionales',
-            'tags' => 'editar, modificar, reenviar, tarea',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $latesubmissionid = $createrule('¿Puedo entregar una tarea tarde?', [
-            'categoryid' => $cattareas ? $cattareas->id : null,
-            'pattern' => '¿Puedo entregar una tarea tarde?',
-            'keywords' => "entrega tardia\ntarea atrasada\nfuera de plazo\nextension\nprorroga",
-            'response' => 'Las entregas tardias dependen de la configuracion del profesor:<br><br>- <strong>Entrega cerrada:</strong> No podras enviar despues de la fecha limite<br>- <strong>Con penalizacion:</strong> Puedes entregar pero con descuento<br>- <strong>Con extension:</strong> Algunos profesores otorgan extensiones individuales',
-            'tags' => 'tardia, extension, prorroga, plazo',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $quizattemptsid = $createrule('¿Cuantos intentos tengo en el cuestionario?', [
-            'categoryid' => $catevaluaciones ? $catevaluaciones->id : null,
-            'pattern' => '¿Cuantos intentos tengo en el cuestionario?',
-            'keywords' => "intentos cuestionario\nvolver a intentar\nreintentar examen\nnumero de intentos",
-            'response' => 'El numero de intentos permitidos lo define el profesor:<br><br>1. Abre el cuestionario<br>2. Lee la informacion inicial que indica los intentos permitidos<br>3. En "Tus intentos previos" veras cuantos has usado',
-            'tags' => 'intentos, reintentar, cuestionario',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $quizreviewid = $createrule('¿Puedo ver las respuestas correctas del examen?', [
-            'categoryid' => $catevaluaciones ? $catevaluaciones->id : null,
-            'pattern' => '¿Puedo ver las respuestas correctas del examen?',
-            'keywords' => "respuestas correctas\nrevision examen\nver errores\nretroalimentacion quiz",
-            'response' => 'La revision del cuestionario depende de la configuracion del profesor:<br><br>- Solo tu puntuacion<br>- Tus respuestas sin marcar las correctas<br>- Las respuestas correctas e incorrectas<br>- Retroalimentacion detallada',
-            'tags' => 'revision, respuestas, retroalimentacion, examen',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $feedbackid = $createrule('¿Donde veo los comentarios de mi profesor?', [
-            'categoryid' => $catevaluaciones ? $catevaluaciones->id : null,
-            'pattern' => '¿Donde veo los comentarios de mi profesor?',
-            'keywords' => "comentarios profesor\nretroalimentacion\nfeedback\nobservaciones",
-            'response' => 'Para ver la retroalimentacion de tu profesor:<br><br><strong>En tareas:</strong><br>1. Ve a la tarea<br>2. Haz clic en "Ver envio" o "Estado de la entrega"<br>3. Busca la seccion "Retroalimentacion"',
-            'tags' => 'retroalimentacion, feedback, comentarios',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $profilepicid = $createrule('¿Como cambio mi foto de perfil?', [
-            'categoryid' => $catperfil ? $catperfil->id : null,
-            'pattern' => '¿Como cambio mi foto de perfil?',
-            'keywords' => "cambiar foto\nsubir imagen\navatar\nfoto de perfil",
-            'response' => 'Para cambiar tu foto de perfil:<br><br>1. Ve a tu Perfil > Editar perfil<br>2. Busca la seccion "Imagen de usuario"<br>3. Haz clic en el area de la imagen o arrastra una foto<br>4. Ajusta el recorte si es necesario<br>5. Haz clic en "Actualizar perfil"',
-            'tags' => 'foto, imagen, avatar, perfil',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $notificationsid = $createrule('¿Como configuro mis notificaciones?', [
-            'categoryid' => $catperfil ? $catperfil->id : null,
-            'pattern' => '¿Como configuro mis notificaciones?',
-            'keywords' => "notificaciones\nalertas\navisos\ncorreos\nconfigurar alertas",
-            'response' => 'Para configurar tus notificaciones:<br><br>1. Haz clic en tu foto de perfil<br>2. Ve a "Preferencias"<br>3. Selecciona "Preferencias de notificacion"<br>4. Para cada tipo elige: En linea o Correo',
-            'tags' => 'notificaciones, alertas, correos, preferencias',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $downloadfilesid = $createrule('¿Como descargo los materiales del curso?', [
-            'categoryid' => $recursoscat->id,
-            'pattern' => '¿Como descargo los materiales del curso?',
-            'keywords' => "descargar archivo\nbajar material\ndescargar pdf\nobtener documentos\nmateriales del curso",
-            'response' => 'Para descargar materiales del curso:<br><br>1. Entra al curso<br>2. Localiza el recurso que deseas descargar<br>3. Haz clic en el nombre del archivo<br>4. El archivo se descargara o abrira en nueva pestana',
-            'tags' => 'descargar, materiales, archivos, recursos',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $videosid = $createrule('¿Por que no puedo ver los videos?', [
-            'categoryid' => $recursoscat->id,
-            'pattern' => '¿Por que no puedo ver los videos?',
-            'keywords' => "video no carga\nvideo no funciona\nno reproduce video\nproblemas con video",
-            'response' => 'Si tienes problemas con los videos:<br><br>1. Actualiza la pagina (F5)<br>2. Revisa tu conexion a internet<br>3. Prueba otro navegador<br>4. Desactiva el bloqueador de anuncios<br>5. Limpia la cache del navegador',
-            'tags' => 'video, reproduccion, problemas, multimedia',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $browserid = $createrule('¿Que navegador debo usar?', [
-            'categoryid' => $catsoporte ? $catsoporte->id : null,
-            'pattern' => '¿Que navegador debo usar?',
-            'keywords' => "navegador\nbrowser\nchrome\nfirefox\nedge\nsafari",
-            'response' => 'Moodle funciona mejor con navegadores actualizados:<br><br><strong>Recomendados:</strong><br>- Google Chrome (preferido)<br>- Mozilla Firefox<br>- Microsoft Edge<br>- Safari (Mac)',
-            'tags' => 'navegador, browser, compatibilidad',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $mobileappid = $createrule('¿Puedo usar Moodle en mi celular?', [
-            'categoryid' => $catsoporte ? $catsoporte->id : null,
-            'pattern' => '¿Puedo usar Moodle en mi celular?',
-            'keywords' => "celular\nmovil\napp\naplicacion\nsmartphone\nmoodle mobile",
-            'response' => 'Si, puedes usar Moodle en tu dispositivo movil:<br><br>1. Descarga "Moodle" desde App Store o Google Play<br>2. Abre la app y escribe la URL de tu sitio Moodle<br>3. Inicia sesion con tus credenciales',
-            'tags' => 'movil, app, celular, mobile',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $loginissuesid = $createrule('No puedo iniciar sesion', [
-            'categoryid' => $catsoporte ? $catsoporte->id : null,
-            'pattern' => 'No puedo iniciar sesion',
-            'keywords' => "no puedo entrar\nlogin falla\nacceso denegado\nusuario bloqueado\nno me deja entrar",
-            'response' => 'Si tienes problemas para iniciar sesion:<br><br>1. Verifica tu usuario (correo o ID asignado)<br>2. Revisa mayusculas/minusculas en contrasena<br>3. Asegurate de que Caps Lock este desactivado<br>4. Usa "¿Olvido su contrasena?" para recuperarla',
-            'tags' => 'login, acceso, sesion, problemas',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Additional rules for complete knowledge base.
-        $forumsubid = $createrule('¿Por que recibo tantos correos del foro?', [
-            'categoryid' => $cattareas ? $cattareas->id : null,
-            'pattern' => '¿Por que recibo tantos correos del foro?',
-            'keywords' => "suscripcion foro\ncorreos foro\nnotificaciones foro\ndejar de recibir correos",
-            'response' => 'Los correos del foro son por la suscripcion automatica. Para gestionarlos:<br><br>1. Ve al foro en cuestion<br>2. Busca el enlace "Suscribirse/Darse de baja del foro"<br>3. Haz clic para cancelar la suscripcion',
-            'tags' => 'suscripcion, correos, notificaciones, foro',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $wikiid = $createrule('¿Como uso un wiki?', [
-            'categoryid' => $cattareas ? $cattareas->id : null,
-            'pattern' => '¿Como uso un wiki?',
-            'keywords' => "wiki\neditar wiki\ncolaborar wiki\npagina wiki",
-            'response' => 'Un Wiki es una herramienta colaborativa:<br><br><strong>Para editar:</strong><br>1. Abre la pagina del wiki<br>2. Haz clic en la pestana "Editar"<br>3. Modifica el contenido<br>4. Haz clic en "Guardar"',
-            'tags' => 'wiki, colaborativo, editar, paginas',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $glossaryid = $createrule('¿Como agrego terminos al glosario?', [
-            'categoryid' => $cattareas ? $cattareas->id : null,
-            'pattern' => '¿Como agrego terminos al glosario?',
-            'keywords' => "glosario\nagregar termino\ndefinicion\ndiccionario",
-            'response' => 'Para agregar un termino al glosario:<br><br>1. Accede a la actividad Glosario<br>2. Haz clic en "Agregar entrada"<br>3. Escribe el concepto y la definicion<br>4. Haz clic en "Guardar cambios"',
-            'tags' => 'glosario, termino, definicion, diccionario',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $gradeappealid = $createrule('¿Como reclamo una calificacion?', [
-            'categoryid' => $catevaluaciones ? $catevaluaciones->id : null,
-            'pattern' => '¿Como reclamo una calificacion?',
-            'keywords' => "reclamar nota\napelacion\nrevision de nota\nno estoy de acuerdo",
-            'response' => 'Si tienes dudas sobre una calificacion:<br><br>1. Revisa la rubrica o criterios de evaluacion<br>2. Lee la retroalimentacion del profesor<br>3. Contacta al profesor a traves de mensajeria<br>4. Se respetuoso y especifico en tu reclamo',
-            'tags' => 'reclamacion, apelacion, revision, nota',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $languageid = $createrule('¿Como cambio el idioma?', [
-            'categoryid' => $catperfil ? $catperfil->id : null,
-            'pattern' => '¿Como cambio el idioma?',
-            'keywords' => "idioma\nlenguaje\ncambiar idioma\ningles\nespanol",
-            'response' => 'Para cambiar el idioma de la plataforma:<br><br>1. Haz clic en tu foto de perfil<br>2. Ve a "Preferencias"<br>3. Busca "Idioma preferido"<br>4. Selecciona el idioma deseado<br>5. Guarda los cambios',
-            'tags' => 'idioma, lenguaje, preferencias',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $scormid = $createrule('¿Que es un paquete SCORM?', [
-            'categoryid' => $recursoscat->id,
-            'pattern' => '¿Que es un paquete SCORM?',
-            'keywords' => "scorm\npaquete scorm\ncontenido interactivo\nmodulo scorm",
-            'response' => 'SCORM es un formato de contenido interactivo de aprendizaje:<br><br>1. Haz clic en la actividad SCORM<br>2. Haz clic en "Entrar"<br>3. Navega usando los controles internos<br>4. Completa todas las secciones<br><br>Si no abre, desactiva el bloqueador de ventanas emergentes.',
-            'tags' => 'scorm, interactivo, paquete, elearning',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $h5pid = $createrule('¿Que son las actividades H5P?', [
-            'categoryid' => $recursoscat->id,
-            'pattern' => '¿Que son las actividades H5P?',
-            'keywords' => "h5p\ncontenido h5p\ninteractivo h5p\nactividad interactiva",
-            'response' => 'H5P son actividades interactivas enriquecidas:<br><br>- Videos interactivos con preguntas<br>- Presentaciones con navegacion<br>- Cuestionarios gamificados<br>- Tarjetas de memoria<br><br>Tu progreso se guarda automaticamente.',
-            'tags' => 'h5p, interactivo, multimedia, actividad',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Get existing rule IDs for options (using helper function for TEXT comparison).
-        $enrollmentid = $getruleid('¿Como me inscribo en un curso?');
-        $forumid = $getruleid('¿Como participo en un foro?');
-        $calendarid = $getruleid('¿Como veo el calendario?');
-        $messagesid = $getruleid('¿Como envio un mensaje a mi profesor?');
-        $passwordid = $getruleid('¿Como cambio mi contrasena?');
-
-        // Helper function to add option if not exists.
-        $addoption = function($ruleid, $text, $targetruleid, $icon, $sortorder) use ($DB) {
-            if (!$ruleid || !$targetruleid) {
-                return;
-            }
-            $existing = $DB->get_record('local_educambot_option', [
-                'ruleid' => $ruleid,
-                'text' => $text
-            ]);
-            if (!$existing) {
-                $DB->insert_record('local_educambot_option', (object)[
-                    'ruleid' => $ruleid,
-                    'text' => $text,
-                    'targetruleid' => $targetruleid,
-                    'icon' => $icon,
-                    'sortorder' => $sortorder,
-                    'enabled' => 1
-                ]);
-            }
-        };
-
-        // Add startup options.
-        $addoption($startupid, 'Mis Cursos', $mycoursesid, '📚', 1);
-        $addoption($startupid, 'Entregar Tarea', $assignmentid, '📝', 2);
-        $addoption($startupid, 'Ver Calificaciones', $gradesid, '📊', 3);
-        $addoption($startupid, 'Examenes', $quizid, '✏️', 4);
-        $addoption($startupid, 'Mi Perfil', $profileid, '👤', 5);
-        $addoption($startupid, 'Ayuda', $supportid, '🆘', 6);
-
-        // Add menu options.
-        $addoption($menuid, 'Cursos', $mycoursesid, '📚', 1);
-        $addoption($menuid, 'Tareas', $assignmentid, '📝', 2);
-        $addoption($menuid, 'Calificaciones', $gradesid, '📊', 3);
-        $addoption($menuid, 'Mi Perfil', $profileid, '👤', 4);
-        $addoption($menuid, 'Soporte', $supportid, '🆘', 5);
-
-        // Add navigation options for each rule.
-        // Enrollment options.
-        $addoption($enrollmentid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($enrollmentid, 'Clave de Curso', $coursekeyid, '🔑', 2);
-        $addoption($enrollmentid, 'Buscar Cursos', $findcoursesid, '🔍', 3);
-
-        // My courses options.
-        $addoption($mycoursesid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($mycoursesid, 'Inscribirme', $enrollmentid, '➕', 2);
-        $addoption($mycoursesid, 'Ver Progreso', $courseprogressid, '📈', 3);
-
-        // Find courses options.
-        $addoption($findcoursesid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($findcoursesid, 'Inscribirme', $enrollmentid, '➕', 2);
-
-        // Course key options.
-        $addoption($coursekeyid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($coursekeyid, 'Inscribirme', $enrollmentid, '➕', 2);
-
-        // Course progress options.
-        $addoption($courseprogressid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($courseprogressid, 'Certificado', $certificateid, '🎓', 2);
-
-        // Certificate options.
-        $addoption($certificateid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($certificateid, 'Ver Progreso', $courseprogressid, '📈', 2);
-
-        // Assignment options.
-        $addoption($assignmentid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($assignmentid, 'Modificar Tarea', $editassignmentid, '✏️', 2);
-        $addoption($assignmentid, 'Entrega Tardia', $latesubmissionid, '⏰', 3);
-        $addoption($assignmentid, 'Calificaciones', $gradesid, '📊', 4);
-
-        // Edit assignment options.
-        $addoption($editassignmentid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($editassignmentid, 'Entregar Tarea', $assignmentid, '📝', 2);
-
-        // Late submission options.
-        $addoption($latesubmissionid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($latesubmissionid, 'Contactar Profesor', $messagesid, '✉️', 2);
-
-        // Forum options.
-        $addoption($forumid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($forumid, 'Suscripciones', $forumsubid, '📧', 2);
-        $addoption($forumid, 'Mensajes', $messagesid, '✉️', 3);
-
-        // Forum subscription options.
-        $addoption($forumsubid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($forumsubid, 'Notificaciones', $notificationsid, '🔔', 2);
-
-        // Wiki options.
-        $addoption($wikiid, 'Menu Principal', $menuid, '🏠', 1);
-
-        // Glossary options.
-        $addoption($glossaryid, 'Menu Principal', $menuid, '🏠', 1);
-
-        // Grades options.
-        $addoption($gradesid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($gradesid, 'Retroalimentacion', $feedbackid, '💬', 2);
-        $addoption($gradesid, 'Reclamar Nota', $gradeappealid, '⚖️', 3);
-        $addoption($gradesid, 'Cuestionarios', $quizid, '❓', 4);
-
-        // Quiz options.
-        $addoption($quizid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($quizid, 'Intentos', $quizattemptsid, '🔄', 2);
-        $addoption($quizid, 'Ver Respuestas', $quizreviewid, '👁️', 3);
-        $addoption($quizid, 'Calificaciones', $gradesid, '📊', 4);
-
-        // Quiz attempts options.
-        $addoption($quizattemptsid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($quizattemptsid, 'Hacer Examen', $quizid, '✏️', 2);
-
-        // Quiz review options.
-        $addoption($quizreviewid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($quizreviewid, 'Calificaciones', $gradesid, '📊', 2);
-
-        // Grade appeal options.
-        $addoption($gradeappealid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($gradeappealid, 'Contactar Profesor', $messagesid, '✉️', 2);
-
-        // Feedback options.
-        $addoption($feedbackid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($feedbackid, 'Calificaciones', $gradesid, '📊', 2);
-
-        // Profile options.
-        $addoption($profileid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($profileid, 'Cambiar Foto', $profilepicid, '📷', 2);
-        $addoption($profileid, 'Contrasena', $passwordid, '🔑', 3);
-        $addoption($profileid, 'Notificaciones', $notificationsid, '🔔', 4);
-
-        // Profile picture options.
-        $addoption($profilepicid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($profilepicid, 'Editar Perfil', $profileid, '👤', 2);
-
-        // Password options.
-        $addoption($passwordid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($passwordid, 'Problemas de Acceso', $loginissuesid, '🔒', 2);
-
-        // Notifications options.
-        $addoption($notificationsid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($notificationsid, 'Correos del Foro', $forumsubid, '📧', 2);
-
-        // Language options.
-        $addoption($languageid, 'Menu Principal', $menuid, '🏠', 1);
-
-        // Download files options.
-        $addoption($downloadfilesid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($downloadfilesid, 'Problemas Video', $videosid, '🎬', 2);
-
-        // Videos options.
-        $addoption($videosid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($videosid, 'Soporte Tecnico', $supportid, '🆘', 2);
-        $addoption($videosid, 'Navegadores', $browserid, '🌐', 3);
-
-        // SCORM options.
-        $addoption($scormid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($scormid, 'Navegadores', $browserid, '🌐', 2);
-
-        // H5P options.
-        $addoption($h5pid, 'Menu Principal', $menuid, '🏠', 1);
-
-        // Calendar options.
-        $addoption($calendarid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($calendarid, 'Tareas', $assignmentid, '📝', 2);
-
-        // Messages options.
-        $addoption($messagesid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($messagesid, 'Foros', $forumid, '💬', 2);
-
-        // Support options.
-        $addoption($supportid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($supportid, 'Navegadores', $browserid, '🌐', 2);
-        $addoption($supportid, 'App Movil', $mobileappid, '📱', 3);
-        $addoption($supportid, 'Login', $loginissuesid, '🔒', 4);
-
-        // Browser options.
-        $addoption($browserid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($browserid, 'Soporte', $supportid, '🆘', 2);
-
-        // Mobile app options.
-        $addoption($mobileappid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($mobileappid, 'Mis Cursos', $mycoursesid, '📚', 2);
-
-        // Login issues options.
-        $addoption($loginissuesid, 'Menu Principal', $menuid, '🏠', 1);
-        $addoption($loginissuesid, 'Cambiar Contrasena', $passwordid, '🔑', 2);
-        $addoption($loginissuesid, 'Soporte', $supportid, '🆘', 3);
-
-        // About bot options.
-        $addoption($aboutbotid, 'Ver Opciones', $menuid, '📋', 1);
-
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025112007, 'local', 'educambot');
-    }
-
-    if ($oldversion < 2025112008) {
-        // Version 1.7.0: Moodle Context Integration + Shortcuts.
-        $now = time();
-
-        // Add new fields to local_educambot_rule table.
-        $table = new xmldb_table('local_educambot_rule');
-
-        // Add contextaware field.
-        $field = new xmldb_field('contextaware', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'showoptions');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add dynamicresponse field.
-        $field = new xmldb_field('dynamicresponse', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'contextaware');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add requiredcontext field.
-        $field = new xmldb_field('requiredcontext', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'dynamicresponse');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add contextaware index.
-        $index = new xmldb_index('contextaware_idx', XMLDB_INDEX_NOTUNIQUE, ['contextaware']);
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
-        // Define table local_educambot_shortcut to be created.
-        $table = new xmldb_table('local_educambot_shortcut');
-
-        // Adding fields to table local_educambot_shortcut.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('keywords', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-        $table->add_field('actiontype', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
-        $table->add_field('icon', XMLDB_TYPE_CHAR, '50', null, null, null, null);
-        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table local_educambot_shortcut.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-
-        // Adding indexes to table local_educambot_shortcut.
-        $table->add_index('actiontype_idx', XMLDB_INDEX_NOTUNIQUE, ['actiontype']);
-        $table->add_index('enabled_idx', XMLDB_INDEX_NOTUNIQUE, ['enabled']);
-        $table->add_index('sortorder_idx', XMLDB_INDEX_NOTUNIQUE, ['sortorder']);
-
-        // Conditionally launch create table for local_educambot_shortcut.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Insert initial shortcuts.
-        $shortcuts = [
-            [
-                'name' => 'Ver mis tareas',
-                'keywords' => "ver mis tareas\nver tareas\ntareas pendientes\nque tareas tengo\nmostrar tareas",
-                'actiontype' => 'assignments',
-                'description' => 'Muestra lista de tareas pendientes del curso actual',
-                'icon' => '📝',
-                'sortorder' => 1,
-                'enabled' => 1,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Ver mis calificaciones',
-                'keywords' => "ver calificaciones\nver notas\nmis notas\nmi calificacion\ncomo voy\nmi promedio",
-                'actiontype' => 'grades',
-                'description' => 'Muestra resumen de calificaciones del curso',
-                'icon' => '📊',
-                'sortorder' => 2,
-                'enabled' => 1,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Proximos eventos',
-                'keywords' => "proximos eventos\neventos\ncalendario\nque hay esta semana\neventos pendientes\nfechas importantes",
-                'actiontype' => 'calendar',
-                'description' => 'Muestra eventos del calendario proximos 7 dias',
-                'icon' => '📅',
-                'sortorder' => 3,
-                'enabled' => 1,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Mis mensajes',
-                'keywords' => "mis mensajes\nver mensajes\nmensajes nuevos\nmensajes no leidos",
-                'actiontype' => 'messages',
-                'description' => 'Muestra mensajes recientes y no leidos',
-                'icon' => '✉️',
-                'sortorder' => 4,
-                'enabled' => 1,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Mis profesores',
-                'keywords' => "mis profesores\nquienes son mis profesores\nprofesores del curso\ncontactar profesor\ndocentes",
-                'actiontype' => 'teachers',
-                'description' => 'Muestra los profesores del curso actual',
-                'icon' => '👨‍🏫',
-                'sortorder' => 5,
-                'enabled' => 1,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Info del curso',
-                'keywords' => "info del curso\ninformacion del curso\ndatos del curso\nsobre este curso",
-                'actiontype' => 'course',
-                'description' => 'Muestra informacion del curso actual',
-                'icon' => '📚',
-                'sortorder' => 6,
-                'enabled' => 1,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Mi progreso',
-                'keywords' => "mi progreso\ncomo voy\navance del curso\nprogreso actual",
-                'actiontype' => 'progress',
-                'description' => 'Muestra el progreso en el curso actual',
-                'icon' => '📈',
-                'sortorder' => 7,
-                'enabled' => 1,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-        ];
-
-        foreach ($shortcuts as $shortcut) {
-            $DB->insert_record('local_educambot_shortcut', (object)$shortcut);
-        }
-
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025112008, 'local', 'educambot');
-    }
-
-    if ($oldversion < 2025112810) {
-        // Version 1.8.0: Advanced Personalization + Multi-language.
-        $now = time();
-
-        // Add new fields to local_educambot_rule table.
-        $table = new xmldb_table('local_educambot_rule');
-
-        // Add roles field.
-        $field = new xmldb_field('roles', XMLDB_TYPE_TEXT, null, null, null, null, null, 'requiredcontext');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add courses field.
-        $field = new xmldb_field('courses', XMLDB_TYPE_TEXT, null, null, null, null, null, 'roles');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add lang field.
-        $field = new xmldb_field('lang', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'es', 'courses');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add langparent field.
-        $field = new xmldb_field('langparent', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'lang');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add lang index.
-        $index = new xmldb_index('lang_idx', XMLDB_INDEX_NOTUNIQUE, ['lang']);
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
-        // Create schedule table.
-        $table = new xmldb_table('local_educambot_schedule');
-
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('dayofweek', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('timefrom', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('timeto', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
-
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_index('dayofweek_idx', XMLDB_INDEX_NOTUNIQUE, ['dayofweek']);
-        $table->add_index('enabled_idx', XMLDB_INDEX_NOTUNIQUE, ['enabled']);
-
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Create theme table.
-        $table = new xmldb_table('local_educambot_theme');
-
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('primarycolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('secondarycolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('textcolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('backgroundcolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('usercolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('botcolor', XMLDB_TYPE_CHAR, '7', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('isdefault', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_index('isdefault_idx', XMLDB_INDEX_NOTUNIQUE, ['isdefault']);
-
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Insert predefined themes.
-        $themes = [
-            [
-                'name' => 'Default',
-                'primarycolor' => '#0f6fc5',
-                'secondarycolor' => '#084a8a',
-                'textcolor' => '#1f2937',
-                'backgroundcolor' => '#f9fafb',
-                'usercolor' => '#0f6fc5',
-                'botcolor' => '#ffffff',
-                'isdefault' => 1,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Dark Mode',
-                'primarycolor' => '#1f2937',
-                'secondarycolor' => '#111827',
-                'textcolor' => '#f9fafb',
-                'backgroundcolor' => '#111827',
-                'usercolor' => '#3b82f6',
-                'botcolor' => '#374151',
-                'isdefault' => 0,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Nature',
-                'primarycolor' => '#059669',
-                'secondarycolor' => '#047857',
-                'textcolor' => '#1f2937',
-                'backgroundcolor' => '#ecfdf5',
-                'usercolor' => '#059669',
-                'botcolor' => '#ffffff',
-                'isdefault' => 0,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-            [
-                'name' => 'Sunset',
-                'primarycolor' => '#ea580c',
-                'secondarycolor' => '#c2410c',
-                'textcolor' => '#1f2937',
-                'backgroundcolor' => '#fff7ed',
-                'usercolor' => '#ea580c',
-                'botcolor' => '#ffffff',
-                'isdefault' => 0,
-                'timecreated' => $now,
-                'timemodified' => $now,
-            ],
-        ];
+    // v2.2.0 - Enable mascot by default on existing themes.
+    if ($oldversion < 2025121320) {
+
+        // Get all themes that don't have mascot enabled.
+        $themes = $DB->get_records('local_educambot_theme');
 
         foreach ($themes as $theme) {
-            $DB->insert_record('local_educambot_theme', (object)$theme);
+            // Only update if mascot is not already configured.
+            if (empty($theme->mascotenabled) && (empty($theme->mascottype) || $theme->mascottype === 'none')) {
+                $update = new stdClass();
+                $update->id = $theme->id;
+                $update->mascotenabled = 1;
+                $update->mascottype = 'robot'; // Default mascot.
+                $update->timemodified = time();
+                $DB->update_record('local_educambot_theme', $update);
+            }
         }
 
-        // Insert default schedule (24/7).
-        $daynames = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-        for ($day = 0; $day <= 6; $day++) {
-            $DB->insert_record('local_educambot_schedule', (object)[
-                'dayofweek' => $day,
-                'timefrom' => '00:00',
-                'timeto' => '23:59',
-                'enabled' => 1,
-            ]);
-        }
-
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025112810, 'local', 'educambot');
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121320, 'local', 'educambot');
     }
 
-    if ($oldversion < 2025112811) {
-        // Version 1.8.1: Widget icon and mascot customization.
+    // v3.0.0 - Add conversation context table for improved bot behavior.
+    if ($oldversion < 2025121940) {
 
-        $table = new xmldb_table('local_educambot_theme');
+        // Create conversation context table.
+        $table = new xmldb_table('local_educambot_context');
 
-        // Add widgeticontype field.
-        $field = new xmldb_field('widgeticontype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'default', 'isdefault');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sessionid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, null, null, '1');
+        $table->add_field('state', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('last_topic', XMLDB_TYPE_CHAR, '100', null, null, null, null);
+        $table->add_field('last_ruleid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('userid_fk', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('last_ruleid_fk', XMLDB_KEY_FOREIGN, ['last_ruleid'], 'local_educambot_rule', ['id']);
+
+        $table->add_index('userid_sessionid_idx', XMLDB_INDEX_UNIQUE, ['userid', 'sessionid']);
+        $table->add_index('timemodified_idx', XMLDB_INDEX_NOTUNIQUE, ['timemodified']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
         }
 
-        // Add widgeticonurl field.
-        $field = new xmldb_field('widgeticonurl', XMLDB_TYPE_TEXT, null, null, null, null, null, 'widgeticontype');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+        // Add priority field to rule table for manual rule prioritization.
+        $ruletable = new xmldb_table('local_educambot_rule');
+        $priorityfield = new xmldb_field('priority', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'nothelpfulcount');
+        if (!$dbman->field_exists($ruletable, $priorityfield)) {
+            $dbman->add_field($ruletable, $priorityfield);
         }
 
-        // Add mascottype field.
-        $field = new xmldb_field('mascottype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'none', 'widgeticonurl');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+        // Add needs_review field for flagging problematic rules.
+        $reviewfield = new xmldb_field('needs_review', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'priority');
+        if (!$dbman->field_exists($ruletable, $reviewfield)) {
+            $dbman->add_field($ruletable, $reviewfield);
         }
 
-        // Add mascoturl field.
-        $field = new xmldb_field('mascoturl', XMLDB_TYPE_TEXT, null, null, null, null, null, 'mascottype');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add mascotenabled field.
-        $field = new xmldb_field('mascotenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'mascoturl');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Update default theme to enable mascot.
-        $DB->execute("UPDATE {local_educambot_theme} SET mascottype = 'clippy', mascotenabled = 1 WHERE isdefault = 1");
-
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025112811, 'local', 'educambot');
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121940, 'local', 'educambot');
     }
 
-    if ($oldversion < 2025120502) {
-        // Version 1.9.2: Extended knowledge base for teachers and managers (archetype-based rules).
-        $now = time();
+    // v3.0.1 - Add roles and context fields to shortcuts for role-based filtering.
+    if ($oldversion < 2025121942) {
 
-        // Helper function to create rule if not exists.
-        $createrule = function($pattern, $data) use ($DB, $now) {
-            $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
-                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
-            $existing = $DB->get_record_sql($sql, ['pattern' => $pattern]);
-            if (!$existing) {
-                $data['timecreated'] = $now;
-                $data['timemodified'] = $now;
-                return $DB->insert_record('local_educambot_rule', (object)$data);
+        $table = new xmldb_table('local_educambot_shortcut');
+
+        // Add roles field.
+        $rolesfield = new xmldb_field('roles', XMLDB_TYPE_TEXT, null, null, null, null, null, 'icon');
+        if (!$dbman->field_exists($table, $rolesfield)) {
+            $dbman->add_field($table, $rolesfield);
+        }
+
+        // Add context field.
+        $contextfield = new xmldb_field('context', XMLDB_TYPE_CHAR, '20', null, null, null, 'any', 'roles');
+        if (!$dbman->field_exists($table, $contextfield)) {
+            $dbman->add_field($table, $contextfield);
+        }
+
+        // Update existing shortcuts with default roles and context based on actiontype.
+        $shortcuts = $DB->get_records('local_educambot_shortcut');
+        foreach ($shortcuts as $shortcut) {
+            $update = new stdClass();
+            $update->id = $shortcut->id;
+            $update->timemodified = time();
+
+            // Set default roles and context based on actiontype.
+            switch ($shortcut->actiontype) {
+                case 'assignments':
+                case 'grades':
+                case 'progress':
+                case 'teachers':
+                    $update->roles = 'student';
+                    $update->context = 'course';
+                    break;
+                case 'participants':
+                case 'teacher_grades':
+                    $update->roles = 'teacher,editingteacher,manager,siteadmin';
+                    $update->context = 'course';
+                    break;
+                case 'admin_users':
+                case 'admin_reports':
+                case 'admin_backup':
+                    $update->roles = 'manager,siteadmin';
+                    $update->context = 'any';
+                    break;
+                case 'admin_settings':
+                case 'admin_plugins':
+                case 'admin_security':
+                    $update->roles = 'siteadmin';
+                    $update->context = 'any';
+                    break;
+                case 'admin_courses':
+                    $update->roles = 'manager,siteadmin,coursecreator';
+                    $update->context = 'any';
+                    break;
+                default:
+                    // General shortcuts available to all.
+                    $update->roles = null;
+                    $update->context = 'any';
+                    break;
             }
-            return $existing->id;
-        };
 
-        // Helper function to get rule ID by pattern.
-        $getruleid = function($pattern) use ($DB) {
-            $sql = "SELECT id FROM {local_educambot_rule} WHERE " .
-                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
-            return $DB->get_field_sql($sql, ['pattern' => $pattern]);
-        };
-
-        // Helper function to add option if not exists.
-        $addoption = function($ruleid, $text, $targetruleid, $icon, $sortorder) use ($DB) {
-            if (!$ruleid || !$targetruleid) {
-                return;
-            }
-            $existing = $DB->get_record('local_educambot_option', [
-                'ruleid' => $ruleid,
-                'text' => $text
-            ]);
-            if (!$existing) {
-                $DB->insert_record('local_educambot_option', (object)[
-                    'ruleid' => $ruleid,
-                    'text' => $text,
-                    'targetruleid' => $targetruleid,
-                    'icon' => $icon,
-                    'sortorder' => $sortorder,
-                    'enabled' => 1
-                ]);
-            }
-        };
-
-        // Create new categories for teachers and managers.
-        $catdocentes = $DB->get_record('local_educambot_category', ['name' => 'Docentes y Gestion']);
-        if (!$catdocentes) {
-            $catdocentes = new stdClass();
-            $catdocentes->name = 'Docentes y Gestion';
-            $catdocentes->description = 'Gestion de cursos, calificaciones y estudiantes para profesores';
-            $catdocentes->parent = null;
-            $catdocentes->sortorder = 8;
-            $catdocentes->enabled = 1;
-            $catdocentes->timecreated = $now;
-            $catdocentes->timemodified = $now;
-            $catdocentes->id = $DB->insert_record('local_educambot_category', $catdocentes);
+            $DB->update_record('local_educambot_shortcut', $update);
         }
 
-        $catadmin = $DB->get_record('local_educambot_category', ['name' => 'Administracion']);
-        if (!$catadmin) {
-            $catadmin = new stdClass();
-            $catadmin->name = 'Administracion';
-            $catadmin->description = 'Gestion del sitio, usuarios y configuracion para administradores';
-            $catadmin->parent = null;
-            $catadmin->sortorder = 9;
-            $catadmin->enabled = 1;
-            $catadmin->timecreated = $now;
-            $catadmin->timemodified = $now;
-            $catadmin->id = $DB->insert_record('local_educambot_category', $catadmin);
-        }
-
-        // Create teacher rules.
-        $gradeassignmentid = $createrule('¿Como califico una tarea?', [
-            'categoryid' => $catdocentes->id,
-            'pattern' => '¿Como califico una tarea?',
-            'keywords' => "calificar tarea\ncalificar actividad\nponer nota\nevaluar estudiante\nrevisar entregas",
-            'response' => 'Para calificar tareas de tus estudiantes:<br><br>1. Accede al curso y haz clic en la actividad de tarea<br>2. Haz clic en "Ver todas las entregas"<br>3. Para cada estudiante:<br>   - Haz clic en "Calificar" junto a su nombre<br>   - Revisa el archivo entregado<br>   - Asigna la calificacion<br>   - Escribe retroalimentacion<br>4. Haz clic en "Guardar cambios"',
-            'tags' => 'calificar, evaluar, tarea, profesor',
-            'roles' => 'teacher,editingteacher',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $createquizid = $createrule('¿Como creo un cuestionario?', [
-            'categoryid' => $catdocentes->id,
-            'pattern' => '¿Como creo un cuestionario?',
-            'keywords' => "crear cuestionario\ncrear examen\ncrear quiz\nanadir preguntas",
-            'response' => 'Para crear un cuestionario:<br><br>1. Activa el modo de edicion<br>2. Haz clic en "Anadir una actividad o recurso"<br>3. Selecciona "Cuestionario"<br>4. Configura nombre, tiempo y fechas<br>5. Guarda y haz clic en "Editar cuestionario"<br>6. Anade preguntas desde el Banco de preguntas',
-            'tags' => 'crear, cuestionario, examen, profesor',
-            'roles' => 'editingteacher',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $studentprogressid = $createrule('¿Como veo el progreso de mis estudiantes?', [
-            'categoryid' => $catdocentes->id,
-            'pattern' => '¿Como veo el progreso de mis estudiantes?',
-            'keywords' => "progreso estudiantes\nver avance\ncompletion estudiantes\nreporte progreso",
-            'response' => 'Para ver el progreso de tus estudiantes:<br><br>1. Ve a Administracion del curso > Informes > Finalizacion de la actividad<br>2. O ve a Participantes y haz clic en un estudiante para ver sus informes',
-            'tags' => 'progreso, estudiantes, seguimiento, profesor',
-            'roles' => 'teacher,editingteacher',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $addresourcesid = $createrule('¿Como agrego materiales al curso?', [
-            'categoryid' => $catdocentes->id,
-            'pattern' => '¿Como agrego materiales al curso?',
-            'keywords' => "agregar material\nsubir archivo\nagregar recurso\nsubir pdf",
-            'response' => 'Para agregar materiales:<br><br>1. Activa el modo de edicion<br>2. Haz clic en "Agregar una actividad o recurso"<br>3. Selecciona: Archivo, Carpeta, URL o Pagina<br>4. Sube el archivo y guarda',
-            'tags' => 'agregar, material, recurso, archivo, profesor',
-            'roles' => 'editingteacher',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $teachermenuid = $createrule('Menu de profesor', [
-            'categoryid' => $catdocentes->id,
-            'pattern' => 'Menu de profesor',
-            'keywords' => "menu profesor\nopciones profesor\nherramientas docente",
-            'response' => 'Como profesor tienes acceso a:<br><br><strong>Gestion:</strong> Agregar actividades, configurar fechas<br><strong>Evaluacion:</strong> Calificar tareas y cuestionarios<br><strong>Seguimiento:</strong> Ver progreso de estudiantes<br><br>¿En que te puedo ayudar?',
-            'tags' => 'menu, profesor, herramientas',
-            'roles' => 'teacher,editingteacher',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Create manager rules.
-        $createcourseid = $createrule('¿Como creo un curso nuevo?', [
-            'categoryid' => $catadmin->id,
-            'pattern' => '¿Como creo un curso nuevo?',
-            'keywords' => "crear curso\nnuevo curso\nanadir curso",
-            'response' => 'Para crear un nuevo curso:<br><br>1. Administracion del sitio > Cursos > Gestionar cursos<br>2. Selecciona la categoria<br>3. Haz clic en "Crear un nuevo curso"<br>4. Completa la informacion y guarda',
-            'tags' => 'crear, curso, nuevo, administrador',
-            'roles' => 'manager,coursecreator',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $manageusersid = $createrule('¿Como gestiono usuarios?', [
-            'categoryid' => $catadmin->id,
-            'pattern' => '¿Como gestiono usuarios?',
-            'keywords' => "gestionar usuarios\nadministrar usuarios\ncrear usuario",
-            'response' => 'Para gestionar usuarios:<br><br><strong>Ver:</strong> Administracion > Usuarios > Examinar lista<br><strong>Crear:</strong> Administracion > Usuarios > Agregar un usuario<br><strong>Carga masiva:</strong> Administracion > Usuarios > Subir usuarios',
-            'tags' => 'usuarios, gestionar, administrador',
-            'roles' => 'manager',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $sitereportsid = $createrule('¿Como veo los reportes del sitio?', [
-            'categoryid' => $catadmin->id,
-            'pattern' => '¿Como veo los reportes del sitio?',
-            'keywords' => "reportes sitio\ninformes sistema\nlogs sitio",
-            'response' => 'Reportes del sitio:<br><br><strong>Logs:</strong> Administracion > Informes > Logs<br><strong>Estadisticas:</strong> Administracion > Informes > Estadisticas<br><strong>Rendimiento:</strong> Administracion > Informes > Rendimiento',
-            'tags' => 'reportes, informes, administrador',
-            'roles' => 'manager',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        $adminmenuid = $createrule('Menu de administrador', [
-            'categoryid' => $catadmin->id,
-            'pattern' => 'Menu de administrador',
-            'keywords' => "menu administrador\nopciones admin\nherramientas admin",
-            'response' => 'Como administrador tienes acceso a:<br><br><strong>Usuarios:</strong> Crear, editar, cargar masivamente<br><strong>Cursos:</strong> Crear, categorizar, restaurar<br><strong>Configuracion:</strong> Temas, plugins, seguridad<br><strong>Monitoreo:</strong> Logs, reportes, rendimiento',
-            'tags' => 'menu, administrador, herramientas',
-            'roles' => 'manager',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Get menu rule for linking.
-        $menuid = $getruleid('Menu principal');
-
-        // Add teacher options.
-        if ($teachermenuid && $gradeassignmentid) {
-            $addoption($teachermenuid, 'Calificar Tareas', $gradeassignmentid, '📝', 1);
-        }
-        if ($teachermenuid && $createquizid) {
-            $addoption($teachermenuid, 'Crear Cuestionario', $createquizid, '❓', 2);
-        }
-        if ($teachermenuid && $studentprogressid) {
-            $addoption($teachermenuid, 'Ver Progreso', $studentprogressid, '📈', 3);
-        }
-        if ($teachermenuid && $addresourcesid) {
-            $addoption($teachermenuid, 'Agregar Material', $addresourcesid, '📁', 4);
-        }
-        if ($teachermenuid && $menuid) {
-            $addoption($teachermenuid, 'Menu Principal', $menuid, '🏠', 5);
-        }
-
-        // Add admin options.
-        if ($adminmenuid && $createcourseid) {
-            $addoption($adminmenuid, 'Crear Curso', $createcourseid, '📚', 1);
-        }
-        if ($adminmenuid && $manageusersid) {
-            $addoption($adminmenuid, 'Gestionar Usuarios', $manageusersid, '👥', 2);
-        }
-        if ($adminmenuid && $sitereportsid) {
-            $addoption($adminmenuid, 'Ver Reportes', $sitereportsid, '📊', 3);
-        }
-        if ($adminmenuid && $menuid) {
-            $addoption($adminmenuid, 'Menu Principal', $menuid, '🏠', 4);
-        }
-
-        // Add back navigation for new rules.
-        if ($gradeassignmentid && $teachermenuid) {
-            $addoption($gradeassignmentid, 'Menu Profesor', $teachermenuid, '👨‍🏫', 1);
-        }
-        if ($createquizid && $teachermenuid) {
-            $addoption($createquizid, 'Menu Profesor', $teachermenuid, '👨‍🏫', 1);
-        }
-        if ($studentprogressid && $teachermenuid) {
-            $addoption($studentprogressid, 'Menu Profesor', $teachermenuid, '👨‍🏫', 1);
-        }
-        if ($addresourcesid && $teachermenuid) {
-            $addoption($addresourcesid, 'Menu Profesor', $teachermenuid, '👨‍🏫', 1);
-        }
-        if ($createcourseid && $adminmenuid) {
-            $addoption($createcourseid, 'Menu Admin', $adminmenuid, '⚙️', 1);
-        }
-        if ($manageusersid && $adminmenuid) {
-            $addoption($manageusersid, 'Menu Admin', $adminmenuid, '⚙️', 1);
-        }
-        if ($sitereportsid && $adminmenuid) {
-            $addoption($sitereportsid, 'Menu Admin', $adminmenuid, '⚙️', 1);
-        }
-
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025120502, 'local', 'educambot');
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121942, 'local', 'educambot');
     }
 
-    if ($oldversion < 2025121200) {
-        // Version 2.0.0: Performance and compatibility improvements.
-        $now = time();
+    // Version 2025121945: Add action field to options table and reload options.
+    if ($oldversion < 2025121945) {
+        $table = new xmldb_table('local_educambot_option');
 
-        // Add composite index for user history queries on local_educambot_log.
-        $table = new xmldb_table('local_educambot_log');
-        $index = new xmldb_index('userid_time_idx', XMLDB_INDEX_NOTUNIQUE, ['userid', 'timecreated']);
-
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
+        // Add action field.
+        $actionfield = new xmldb_field('action', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'text');
+        if (!$dbman->field_exists($table, $actionfield)) {
+            $dbman->add_field($table, $actionfield);
         }
 
-        // Helper function to create rule if not exists.
-        $createrule = function($pattern, $data) use ($DB, $now) {
-            $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
-                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
-            $existing = $DB->get_record_sql($sql, ['pattern' => $pattern]);
-            if (!$existing) {
-                $data['timecreated'] = $now;
-                $data['timemodified'] = $now;
-                return $DB->insert_record('local_educambot_rule', (object)$data);
+        // Delete all existing options (they have wrong field values).
+        $DB->delete_records('local_educambot_option');
+
+        // Reload options from navigation.json.
+        $datapath = __DIR__ . '/data/';
+        $navfile = $datapath . 'navigation.json';
+
+        if (file_exists($navfile)) {
+            $json = file_get_contents($navfile);
+            $data = json_decode($json, true);
+
+            if ($data && isset($data['rules'])) {
+                foreach ($data['rules'] as $rule) {
+                    // Find the rule in database by pattern.
+                    $dbrule = $DB->get_record('local_educambot_rule', ['pattern' => $rule['pattern']]);
+
+                    if ($dbrule && isset($rule['options']) && is_array($rule['options'])) {
+                        $sortorder = 1;
+                        foreach ($rule['options'] as $option) {
+                            $optrecord = new stdClass();
+                            $optrecord->ruleid = $dbrule->id;
+                            $optrecord->text = $option['text'];
+                            $optrecord->action = $option['action'] ?? '';
+                            $optrecord->icon = $option['icon'] ?? '';
+                            $optrecord->targetruleid = null;
+                            $optrecord->sortorder = $sortorder++;
+                            $optrecord->enabled = 1;
+
+                            $DB->insert_record('local_educambot_option', $optrecord);
+                        }
+                    }
+                }
             }
-            return $existing->id;
-        };
+        }
 
-        // Helper function to get rule ID by pattern.
-        $getruleid = function($pattern) use ($DB) {
-            $sql = "SELECT id FROM {local_educambot_rule} WHERE " .
-                   $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
-            return $DB->get_field_sql($sql, ['pattern' => $pattern]);
-        };
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121945, 'local', 'educambot');
+    }
 
-        // Helper function to add option if not exists.
-        $addoption = function($ruleid, $text, $targetruleid, $icon, $sortorder) use ($DB) {
-            if (!$ruleid || !$targetruleid) {
-                return;
+    // Version 2025121946: Add fallback navigation rules for menu options.
+    if ($oldversion < 2025121946) {
+        $datapath = __DIR__ . '/data/';
+        $navfile = $datapath . 'navigation.json';
+
+        if (file_exists($navfile)) {
+            $json = file_get_contents($navfile);
+            $data = json_decode($json, true);
+
+            if ($data && isset($data['rules'])) {
+                // Get the general category ID.
+                $generalcat = $DB->get_record('local_educambot_category', ['name' => 'General']);
+                $categoryid = $generalcat ? $generalcat->id : null;
+
+                $now = time();
+
+                // New fallback rules to add.
+                $newruleids = [
+                    'tasks_fallback', 'grades_fallback', 'messages_fallback',
+                    'profile_fallback', 'courses_fallback', 'calendar_fallback'
+                ];
+
+                foreach ($data['rules'] as $rule) {
+                    // Only process new fallback rules.
+                    if (!in_array($rule['id'], $newruleids)) {
+                        continue;
+                    }
+
+                    // Check if rule already exists.
+                    if ($DB->record_exists('local_educambot_rule', ['pattern' => $rule['pattern']])) {
+                        continue;
+                    }
+
+                    // Convert keywords array to newline-separated string.
+                    $keywords = is_array($rule['keywords']) ? implode("\n", $rule['keywords']) : $rule['keywords'];
+                    $tags = is_array($rule['tags']) ? implode(', ', $rule['tags']) : ($rule['tags'] ?? '');
+
+                    $record = new stdClass();
+                    $record->categoryid = $categoryid;
+                    $record->pattern = $rule['pattern'];
+                    $record->keywords = $keywords;
+                    $record->response = $rule['response'];
+                    $record->tags = $tags;
+                    $record->enabled = 1;
+                    $record->showoptions = isset($rule['showoptions']) && $rule['showoptions'] ? 1 : 0;
+                    $record->timecreated = $now;
+                    $record->timemodified = $now;
+
+                    $ruleid = $DB->insert_record('local_educambot_rule', $record);
+
+                    // Insert options for this rule.
+                    if (isset($rule['options']) && is_array($rule['options'])) {
+                        $sortorder = 1;
+                        foreach ($rule['options'] as $option) {
+                            $optrecord = new stdClass();
+                            $optrecord->ruleid = $ruleid;
+                            $optrecord->text = $option['text'];
+                            $optrecord->action = $option['action'] ?? '';
+                            $optrecord->icon = $option['icon'] ?? '';
+                            $optrecord->targetruleid = null;
+                            $optrecord->sortorder = $sortorder++;
+                            $optrecord->enabled = 1;
+
+                            $DB->insert_record('local_educambot_option', $optrecord);
+                        }
+                    }
+                }
             }
-            $existing = $DB->get_record('local_educambot_option', [
-                'ruleid' => $ruleid,
-                'text' => $text
-            ]);
-            if (!$existing) {
-                $DB->insert_record('local_educambot_option', (object)[
-                    'ruleid' => $ruleid,
-                    'text' => $text,
-                    'targetruleid' => $targetruleid,
-                    'icon' => $icon,
-                    'sortorder' => $sortorder,
-                    'enabled' => 1
-                ]);
-            }
-        };
-
-        // Get or create Plugins category.
-        $catplugins = $DB->get_record('local_educambot_category', ['name' => 'Plugins y Herramientas']);
-        if (!$catplugins) {
-            $catplugins = new stdClass();
-            $catplugins->name = 'Plugins y Herramientas';
-            $catplugins->description = 'Informacion sobre plugins y herramientas adicionales del sitio';
-            $catplugins->parent = null;
-            $catplugins->sortorder = 10;
-            $catplugins->enabled = 1;
-            $catplugins->timecreated = $now;
-            $catplugins->timemodified = $now;
-            $catplugins->id = $DB->insert_record('local_educambot_category', $catplugins);
         }
 
-        // Create rules for repository plugins.
-
-        // GeniAI plugin.
-        $geniaiiid = $createrule('¿Que es GeniAI?', [
-            'categoryid' => $catplugins->id,
-            'pattern' => '¿Que es GeniAI?',
-            'keywords' => "geniai\nia generativa\nchatgpt\ninteligencia artificial\ncrear contenido con ia\nh5p automatico",
-            'response' => 'GeniAI es un plugin que integra inteligencia artificial generativa en Moodle:<br><br><strong>Funciones principales:</strong><br>- Crear contenido H5P automaticamente<br>- Generar cuestionarios y actividades<br>- Asistente de chat con IA<br>- Crear glosarios, libros interactivos<br><br>Si tienes acceso, busca el enlace "GeniAI" en el menu de administracion.',
-            'tags' => 'geniai, ia, chatgpt, h5p, inteligencia artificial',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Download Center plugin.
-        $downloadid = $createrule('¿Como descargo todos los materiales de un curso?', [
-            'categoryid' => $catplugins->id,
-            'pattern' => '¿Como descargo todos los materiales de un curso?',
-            'keywords' => "descargar todo\ndescargar curso completo\ncentro de descargas\ndownload center\nzip del curso",
-            'response' => 'El Centro de Descargas te permite descargar todos los materiales del curso en un solo archivo ZIP:<br><br>1. Entra al curso deseado<br>2. Busca el enlace "Centro de Descargas" en el menu del curso o bloque lateral<br>3. Selecciona las secciones y tipos de archivo a incluir<br>4. Haz clic en "Crear ZIP"<br>5. Descarga el archivo generado',
-            'tags' => 'descargar, zip, materiales, curso completo',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // IntebChat (AI Chat) plugin.
-        $intebchatid = $createrule('¿Que es el Chat con IA?', [
-            'categoryid' => $catplugins->id,
-            'pattern' => '¿Que es el Chat con IA?',
-            'keywords' => "intebchat\nchat con ia\nasistente ia\nchat inteligente\nchatbot del curso",
-            'response' => 'El Chat con IA es una actividad que permite conversar con un asistente de inteligencia artificial dentro del curso:<br><br><strong>Caracteristicas:</strong><br>- Responde preguntas sobre el contenido<br>- Ayuda con dudas academicas<br>- Conserva el historial de conversaciones<br>- Disponible como actividad dentro del curso<br><br>Si tu profesor lo ha habilitado, lo encontraras como una actividad en el curso.',
-            'tags' => 'chat, ia, asistente, intebchat',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Quiz retake UI plugin.
-        $quizretakeid = $createrule('¿Como reintento un cuestionario?', [
-            'categoryid' => $catplugins->id,
-            'pattern' => '¿Como reintento un cuestionario?',
-            'keywords' => "reintentar cuestionario\nvolver a hacer quiz\nnuevo intento\nrepetir examen",
-            'response' => 'Para reintentar un cuestionario:<br><br>1. Abre el cuestionario<br>2. Si tienes intentos disponibles, veras el boton "Volver a intentar"<br>3. Haz clic para iniciar un nuevo intento<br><br><strong>Nota:</strong> El numero de intentos lo define el profesor. Revisa la informacion del cuestionario para ver cuantos intentos tienes permitidos.',
-            'tags' => 'reintentar, quiz, intentos, cuestionario',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // NexusPay enrollment.
-        $nexuspayid = $createrule('¿Como pago para inscribirme en un curso?', [
-            'categoryid' => $catplugins->id,
-            'pattern' => '¿Como pago para inscribirme en un curso?',
-            'keywords' => "pagar curso\ninscripcion de pago\nnexuspay\ncomprar curso\npasarela de pago",
-            'response' => 'Para inscribirte en un curso de pago:<br><br>1. Busca el curso en el catalogo<br>2. Haz clic en "Inscribirse"<br>3. Veras el precio y opciones de pago<br>4. Selecciona tu metodo de pago preferido<br>5. Completa el proceso de pago<br>6. Una vez confirmado, tendras acceso inmediato al curso',
-            'tags' => 'pago, inscripcion, comprar, nexuspay',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Custom login page.
-        $customloginid = $createrule('¿Por que la pagina de login se ve diferente?', [
-            'categoryid' => $catplugins->id,
-            'pattern' => '¿Por que la pagina de login se ve diferente?',
-            'keywords' => "login personalizado\npagina de acceso\neducamlogin\nentrar al sitio",
-            'response' => 'Esta plataforma tiene una pagina de inicio de sesion personalizada para ofrecer una mejor experiencia:<br><br>- Diseno adaptado a la institucion<br>- Opciones de recuperacion de contrasena<br>- Acceso rapido a la plataforma<br><br>Si tienes problemas para acceder, usa el enlace "Recuperar contrasena" o contacta a soporte.',
-            'tags' => 'login, acceso, personalizado',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Plugins menu.
-        $pluginsmenuid = $createrule('¿Que herramientas adicionales hay?', [
-            'categoryid' => $catplugins->id,
-            'pattern' => '¿Que herramientas adicionales hay?',
-            'keywords' => "herramientas\nplugins\nfunciones extra\nque mas puedo hacer",
-            'response' => 'Esta plataforma incluye varias herramientas adicionales:<br><br><strong>Para todos:</strong><br>- Centro de Descargas (ZIP del curso)<br>- Chat con IA (si esta habilitado)<br><br><strong>Para profesores:</strong><br>- GeniAI para crear contenido<br>- Herramientas de evaluacion avanzadas<br><br>Las herramientas disponibles dependen de tu rol y los permisos del curso.',
-            'tags' => 'herramientas, plugins, funciones',
-            'enabled' => 1,
-            'showoptions' => 1,
-        ]);
-
-        // Get menu for navigation.
-        $menuid = $getruleid('Menu principal');
-
-        // Add options for plugin rules.
-        if ($geniaiiid && $menuid) {
-            $addoption($geniaiiid, 'Menu Principal', $menuid, '🏠', 1);
-            $addoption($geniaiiid, 'Otras Herramientas', $pluginsmenuid, '🔧', 2);
-        }
-        if ($downloadid && $menuid) {
-            $addoption($downloadid, 'Menu Principal', $menuid, '🏠', 1);
-            $addoption($downloadid, 'Otras Herramientas', $pluginsmenuid, '🔧', 2);
-        }
-        if ($intebchatid && $menuid) {
-            $addoption($intebchatid, 'Menu Principal', $menuid, '🏠', 1);
-            $addoption($intebchatid, 'Otras Herramientas', $pluginsmenuid, '🔧', 2);
-        }
-        if ($quizretakeid && $menuid) {
-            $addoption($quizretakeid, 'Menu Principal', $menuid, '🏠', 1);
-        }
-        if ($nexuspayid && $menuid) {
-            $addoption($nexuspayid, 'Menu Principal', $menuid, '🏠', 1);
-        }
-        if ($customloginid && $menuid) {
-            $addoption($customloginid, 'Menu Principal', $menuid, '🏠', 1);
-        }
-        if ($pluginsmenuid) {
-            $addoption($pluginsmenuid, 'GeniAI', $geniaiiid, '🤖', 1);
-            $addoption($pluginsmenuid, 'Descargar Curso', $downloadid, '📥', 2);
-            $addoption($pluginsmenuid, 'Chat con IA', $intebchatid, '💬', 3);
-            $addoption($pluginsmenuid, 'Menu Principal', $menuid, '🏠', 4);
-        }
-
-        // Educambot savepoint reached.
-        upgrade_plugin_savepoint(true, 2025121200, 'local', 'educambot');
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025121946, 'local', 'educambot');
     }
 
     return true;

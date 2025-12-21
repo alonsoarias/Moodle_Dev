@@ -1,0 +1,23 @@
+{
+    "version": "2.0.9",
+    "description": "EducamBot menu for managers/administrators",
+    "archetype": "manager",
+    "menu": {
+        "title": "Menu Administrador",
+        "greeting": "¡Hola administrador! ¿En que puedo asistirte hoy?",
+        "options": [
+            {"id": "users", "label": "Gestion de Usuarios", "icon": "👥", "action": "gestionar usuarios", "enabled": true},
+            {"id": "courses", "label": "Gestion de Cursos", "icon": "📚", "action": "gestionar cursos", "enabled": true},
+            {"id": "reports", "label": "Reportes del Sitio", "icon": "📊", "action": "reportes del sitio", "enabled": true},
+            {"id": "security", "label": "Seguridad", "icon": "🔒", "action": "configuracion seguridad", "enabled": true},
+            {"id": "plugins", "label": "Plugins", "icon": "🔌", "action": "gestionar plugins", "enabled": true},
+            {"id": "backup", "label": "Backups", "icon": "💾", "action": "backup y restauracion", "enabled": true}
+        ]
+    },
+    "suggestions": [
+        "¿Como creo usuarios masivamente?",
+        "¿Como configuro la seguridad?",
+        "¿Como gestiono cohortes?",
+        "¿Como veo los logs?"
+    ]
+}
