@@ -1,12 +1,17 @@
 {
-    "version": "3.0.1",
-    "description": "EducamBot - General questions and main menu for all users",
+    "version": "3.5.1",
+    "description": "EducamBot - General questions and main menu for all users - Ampliada",
     "rules": [
         {
             "id": "menu_principal",
             "category": "general",
             "pattern": "Menu principal",
-            "keywords": ["menu", "inicio", "ayuda", "opciones", "que puedo hacer", "como me ayudas", "que opciones tengo", "mostrar menu", "ver menu", "inicio chat", "empezar"],
+            "keywords": [
+                "menu", "inicio", "ayuda", "opciones", "que puedo hacer", "como me ayudas",
+                "que opciones tengo", "mostrar menu", "ver menu", "inicio chat", "empezar",
+                "necesito ayuda", "ayudame", "que haces", "en que me puedes ayudar",
+                "como funciona", "guia", "asistencia"
+            ],
             "response": "¿En que puedo ayudarte? Selecciona una opcion o escribe tu pregunta:",
             "tags": ["menu", "inicio"],
             "enabled": true,
@@ -36,7 +41,12 @@
             "id": "login",
             "category": "general",
             "pattern": "Como inicio sesion",
-            "keywords": ["iniciar sesion", "login", "entrar", "acceder", "ingresar", "conectarme", "loguearme", "entrar al sistema", "acceso", "como entro", "no puedo entrar"],
+            "keywords": [
+                "iniciar sesion", "login", "entrar", "acceder", "ingresar", "conectarme",
+                "loguearme", "entrar al sistema", "acceso", "como entro", "no puedo entrar",
+                "ingresar a la plataforma", "como me conecto", "autenticar", "autenticacion",
+                "entrar a moodle", "acceso plataforma", "iniciar", "loguearse"
+            ],
             "response": "Para iniciar sesion:<br><br>1. Ve a la pagina principal<br>2. Haz clic en <strong>Acceder</strong><br>3. Ingresa tu usuario y contrasena<br>4. Haz clic en <strong>Acceder</strong><br><br>Si olvidaste tu contrasena, haz clic en <strong>¿Olvidaste tu contrasena?</strong>",
             "tags": ["login", "sesion"],
             "enabled": true,

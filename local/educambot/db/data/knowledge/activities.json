@@ -1,12 +1,17 @@
 {
-    "version": "3.0.1",
-    "description": "EducamBot - Actividades y tareas",
+    "version": "3.5.1",
+    "description": "EducamBot - Actividades y tareas - Ampliada con mas variaciones",
     "rules": [
         {
             "id": "entregar_tarea",
             "category": "tareas",
             "pattern": "Como entrego una tarea",
-            "keywords": ["entregar tarea", "subir tarea", "enviar tarea", "adjuntar archivo", "assignment", "cargar tarea", "subir archivo", "enviar trabajo"],
+            "keywords": [
+                "entregar tarea", "subir tarea", "enviar tarea", "adjuntar archivo", "assignment",
+                "cargar tarea", "subir archivo", "enviar trabajo", "como subo mi tarea",
+                "donde entrego la tarea", "como hago para entregar", "enviar mi trabajo",
+                "subir mi entrega", "hacer entrega", "mandar tarea", "tarea como entregar"
+            ],
             "response": "Para entregar una tarea:<br><br>1. Entra al curso y busca la <strong>Tarea</strong><br>2. Haz clic en <strong>Agregar entrega</strong><br>3. Arrastra tu archivo o haz clic para seleccionarlo<br>4. Haz clic en <strong>Guardar cambios</strong><br>5. Si se requiere: haz clic en <strong>Enviar tarea</strong><br><br><strong>Verifica:</strong> Formato correcto, tamano y fecha limite.",
             "tags": ["tarea", "entrega"],
             "enabled": true,
@@ -48,7 +53,12 @@
             "id": "cuestionario",
             "category": "tareas",
             "pattern": "Como hago un cuestionario",
-            "keywords": ["cuestionario", "examen", "test", "quiz", "hacer examen", "evaluacion", "presentar examen", "responder cuestionario"],
+            "keywords": [
+                "cuestionario", "examen", "test", "quiz", "hacer examen", "evaluacion",
+                "presentar examen", "responder cuestionario", "como presento el examen",
+                "como respondo el quiz", "como hago el test", "tomar examen", "rendir examen",
+                "como entro al examen", "como inicio el cuestionario", "comenzar examen"
+            ],
             "response": "Para realizar un cuestionario:<br><br><strong>Antes:</strong> Verifica tiempo limite e intentos permitidos.<br><br><strong>Durante:</strong><br>1. Clic en <strong>Comenzar intento</strong><br>2. Responde las preguntas<br>3. Panel lateral muestra tu avance<br>4. Clic en <strong>Enviar todo y terminar</strong><br><br><strong>Colores:</strong> Blanco=Sin responder, Azul=Respondida",
             "tags": ["cuestionario", "examen"],
             "enabled": true,
@@ -173,6 +183,156 @@
             "enabled": true,
             "showoptions": true,
             "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_tarea",
+            "category": "tareas",
+            "pattern": "Como creo una tarea",
+            "keywords": [
+                "crear tarea", "nueva tarea", "agregar tarea", "configurar tarea",
+                "asignar tarea", "poner tarea", "anadir tarea", "assignment crear",
+                "como pongo una tarea", "crear asignacion"
+            ],
+            "response": "Para crear una tarea como docente:<br><br>1. Activa el <strong>modo edicion</strong><br>2. En la seccion deseada, clic en <strong>Añadir actividad</strong><br>3. Selecciona <strong>Tarea</strong><br>4. Configura:<br>   - Nombre y descripcion<br>   - Fechas de entrega<br>   - Tipo de entrega (archivo/texto)<br>   - Calificacion<br>5. Guarda<br><br><strong>Tip:</strong> Usa rubricas para evaluar.",
+            "tags": ["crear", "tarea", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "como creo un cuestionario"},
+                {"text": "Ver entregas", "icon": "bi-file-earmark-check", "action": "ver entregas de tarea"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_entregas_tarea",
+            "category": "tareas",
+            "pattern": "Como veo las entregas de una tarea",
+            "keywords": [
+                "ver entregas", "entregas tarea", "revisar tareas", "calificar tareas",
+                "estudiantes entregaron", "quien entrego", "lista entregas",
+                "revisar entregas", "ver trabajos estudiantes"
+            ],
+            "response": "Para ver y calificar entregas:<br><br>1. Abre la tarea<br>2. Clic en <strong>Ver todas las entregas</strong><br><br><strong>Puedes:</strong><br>- Filtrar por estado (entregado, pendiente, calificado)<br>- Descargar todas las entregas<br>- Calificar individual o masivamente<br>- Dar extension de tiempo<br><br><strong>Tip:</strong> Usa calificacion rapida.",
+            "tags": ["entregas", "calificar", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Libro calificaciones", "icon": "bi-journal-text", "action": "libro de calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_cuestionario_docente",
+            "category": "tareas",
+            "pattern": "Como creo un cuestionario",
+            "keywords": [
+                "crear cuestionario", "crear examen", "crear test", "nuevo cuestionario",
+                "hacer quiz", "configurar examen", "agregar cuestionario", "poner examen",
+                "como pongo un examen", "disenar cuestionario"
+            ],
+            "response": "Para crear un cuestionario:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > Cuestionario</strong><br>3. Configura:<br>   - Nombre y descripcion<br>   - Fechas (apertura/cierre)<br>   - Limite de tiempo<br>   - Intentos permitidos<br>4. Guarda y luego <strong>Editar cuestionario</strong><br>5. Añade preguntas del banco o crea nuevas",
+            "tags": ["cuestionario", "examen", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Banco preguntas", "icon": "bi-collection", "action": "banco de preguntas"},
+                {"text": "Tipos de preguntas", "icon": "bi-question-square", "action": "tipos de preguntas"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "banco_preguntas",
+            "category": "tareas",
+            "pattern": "Como uso el banco de preguntas",
+            "keywords": [
+                "banco preguntas", "crear preguntas", "question bank", "preguntas guardadas",
+                "reutilizar preguntas", "organizar preguntas", "importar preguntas"
+            ],
+            "response": "El banco de preguntas permite reutilizar preguntas:<br><br><strong>Acceder:</strong><br>Curso > Administracion > <strong>Banco de preguntas</strong><br><br><strong>Organizar:</strong><br>- Crea categorias por tema<br>- Mueve preguntas entre categorias<br><br><strong>Importar:</strong><br>- Formato GIFT, Moodle XML, Aiken<br><br><strong>Exportar:</strong><br>- Para reusar en otros cursos",
+            "tags": ["preguntas", "banco", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "crear cuestionario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tipos_preguntas",
+            "category": "tareas",
+            "pattern": "Que tipos de preguntas hay",
+            "keywords": [
+                "tipos preguntas", "pregunta multiple", "verdadero falso", "pregunta abierta",
+                "ensayo", "emparejamiento", "respuesta corta", "numerica"
+            ],
+            "response": "Tipos de preguntas en cuestionarios:<br><br><strong>Automaticas:</strong><br>- <strong>Opcion multiple:</strong> Una o varias correctas<br>- <strong>Verdadero/Falso:</strong> Dos opciones<br>- <strong>Emparejamiento:</strong> Relacionar columnas<br>- <strong>Respuesta corta:</strong> Texto breve<br>- <strong>Numerica:</strong> Numero exacto o rango<br><br><strong>Manual:</strong><br>- <strong>Ensayo:</strong> Texto largo (revision manual)",
+            "tags": ["preguntas", "tipos", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "crear cuestionario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "modo_edicion",
+            "category": "tareas",
+            "pattern": "Como activo el modo edicion",
+            "keywords": [
+                "modo edicion", "editar curso", "activar edicion", "turn editing on",
+                "modificar curso", "agregar contenido", "anadir actividad"
+            ],
+            "response": "Para activar el modo edicion:<br><br>1. Entra a tu curso<br>2. Clic en <strong>Modo de edicion</strong> (boton superior derecho)<br><br><strong>Con modo edicion puedes:</strong><br>- Agregar actividades y recursos<br>- Mover contenido<br>- Editar secciones<br>- Ocultar/mostrar elementos<br>- Eliminar contenido",
+            "tags": ["edicion", "curso", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear tarea", "icon": "bi-file-earmark-plus", "action": "crear tarea"},
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "crear cuestionario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "subir_archivo_recurso",
+            "category": "tareas",
+            "pattern": "Como subo un archivo al curso",
+            "keywords": [
+                "subir archivo curso", "agregar pdf", "subir documento", "agregar recurso",
+                "subir material", "compartir archivo", "subir presentacion", "agregar archivo"
+            ],
+            "response": "Para subir un archivo al curso:<br><br>1. Activa el <strong>modo edicion</strong><br>2. En la seccion deseada, clic en <strong>Añadir actividad o recurso</strong><br>3. Selecciona <strong>Archivo</strong><br>4. Arrastra el archivo o seleccionalo<br>5. Configura opciones de visualizacion<br>6. Guarda<br><br><strong>Tip:</strong> Puedes subir PDFs, documentos, videos, etc.",
+            "tags": ["archivo", "recurso", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear carpeta", "icon": "bi-folder-plus", "action": "crear carpeta"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "libro_calificaciones",
+            "category": "tareas",
+            "pattern": "Como uso el libro de calificaciones",
+            "keywords": [
+                "libro calificaciones", "gradebook", "configurar calificaciones",
+                "ponderacion notas", "categorias calificacion", "calcular notas"
+            ],
+            "response": "El libro de calificaciones:<br><br><strong>Acceder:</strong><br>Curso > <strong>Calificaciones</strong> > <strong>Configuracion</strong><br><br><strong>Puedes:</strong><br>- Crear categorias (Parcial 1, Tareas, etc.)<br>- Asignar pesos/ponderaciones<br>- Excluir calificaciones<br>- Ver informe de estudiantes<br>- Exportar a Excel<br><br><strong>Vista:</strong> Informe del calificador",
+            "tags": ["calificaciones", "libro", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver entregas", "icon": "bi-file-earmark-check", "action": "ver entregas"},
                 {"text": "Menu", "icon": "bi-house", "action": "menu"}
             ]
         }

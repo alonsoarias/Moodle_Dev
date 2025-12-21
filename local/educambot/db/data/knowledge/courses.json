@@ -1,12 +1,37 @@
 {
-    "version": "3.0.1",
-    "description": "EducamBot - Cursos e inscripciones",
+    "version": "3.5.1",
+    "description": "EducamBot - Cursos e inscripciones - Ampliada con mas variaciones",
     "rules": [
+        {
+            "id": "mis_cursos",
+            "category": "cursos",
+            "pattern": "Cuales son mis cursos",
+            "keywords": [
+                "mis cursos", "ver cursos", "cursos inscritos", "que cursos tengo",
+                "mis asignaturas", "que asignaturas tengo", "asignaturas inscritas",
+                "cursos matriculados", "en que cursos estoy", "donde estoy inscrito",
+                "mis materias", "que materias tengo", "listar cursos", "mostrar cursos"
+            ],
+            "response": "Para ver tus cursos:<br><br>1. Haz clic en <strong>Mis cursos</strong> en el menu<br>2. O ve a tu <strong>Tablero</strong><br><br><strong>Filtros:</strong><br>- <strong>En progreso:</strong> Cursos activos<br>- <strong>Futuros:</strong> Proximos a iniciar<br>- <strong>Pasados:</strong> Finalizados<br>- <strong>Destacados:</strong> Marcados como favoritos",
+            "tags": ["cursos", "mis cursos", "asignaturas"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi progreso", "icon": "bi-graph-up", "action": "mi progreso"},
+                {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
         {
             "id": "como_inscribo",
             "category": "cursos",
             "pattern": "Como me inscribo en un curso",
-            "keywords": ["inscribirme", "inscripcion", "entrar curso", "matricularme", "clave inscripcion", "unirme curso", "registrarme curso", "acceder curso", "ingresar curso"],
+            "keywords": [
+                "inscribirme", "inscripcion", "entrar curso", "matricularme", "clave inscripcion",
+                "unirme curso", "registrarme curso", "acceder curso", "ingresar curso",
+                "como me inscribo", "quiero inscribirme", "inscribirme en un curso",
+                "como entro a un curso", "como accedo a un curso"
+            ],
             "response": "Para inscribirte en un curso:<br><br>1. Busca el curso en el catalogo<br>2. Haz clic en el nombre del curso<br>3. Haz clic en <strong>Inscribirme</strong><br><br><strong>Tipos:</strong><br>- Libre: Solo clic en inscribirme<br>- Con clave: Ingresa la contrasena del profesor<br>- Manual: El profesor te agrega",
             "tags": ["inscripcion", "matricula"],
             "enabled": true,

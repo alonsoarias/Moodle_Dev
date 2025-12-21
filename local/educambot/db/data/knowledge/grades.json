@@ -1,12 +1,18 @@
 {
-    "version": "3.0.1",
-    "description": "EducamBot - Calificaciones y evaluaciones",
+    "version": "3.5.1",
+    "description": "EducamBot - Calificaciones y evaluaciones - Ampliada",
     "rules": [
         {
             "id": "ver_calificaciones",
             "category": "calificaciones",
             "pattern": "Donde veo mis calificaciones",
-            "keywords": ["calificaciones", "notas", "ver notas", "mis calificaciones", "gradebook", "promedio", "mis notas", "consultar notas", "libro calificaciones"],
+            "keywords": [
+                "calificaciones", "notas", "ver notas", "mis calificaciones", "gradebook",
+                "promedio", "mis notas", "consultar notas", "libro calificaciones",
+                "donde estan mis notas", "como veo mis notas", "revisar calificaciones",
+                "ver mis calificaciones", "donde veo notas", "cual es mi nota",
+                "cual es mi calificacion", "cuanto saque", "mi promedio"
+            ],
             "response": "Para ver tus calificaciones:<br><br><strong>Desde tu perfil:</strong><br>1. Clic en tu foto/avatar<br>2. Selecciona <strong>Calificaciones</strong><br><br><strong>Desde el curso:</strong><br>1. Entra al curso<br>2. Menu > <strong>Calificaciones</strong><br><br>Veras: nota por actividad, total del curso y retroalimentacion.",
             "tags": ["calificaciones", "notas"],
             "enabled": true,

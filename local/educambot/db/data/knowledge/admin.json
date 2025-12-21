@@ -1,6 +1,6 @@
 {
-    "version": "3.0.1",
-    "description": "EducamBot - Administracion del sitio (solo admin/manager)",
+    "version": "3.5.1",
+    "description": "EducamBot - Administracion del sitio (solo admin/manager) - Ampliada con matriculacion y gestion",
     "rules": [
         {
             "id": "menu_admin",
@@ -157,13 +157,25 @@
             "id": "matricular_usuarios",
             "category": "administracion",
             "pattern": "Como matriculo usuarios en un curso",
-            "keywords": ["matricular", "inscribir usuarios", "agregar estudiantes", "enrollar", "agregar al curso"],
+            "keywords": [
+                "matricular", "matriculo", "matricular usuario", "matricular usuarios",
+                "matricular estudiante", "matricular estudiantes", "matricular alumno", "matricular alumnos",
+                "inscribir usuario", "inscribir usuarios", "inscribir estudiante", "inscribir estudiantes",
+                "agregar estudiante", "agregar estudiantes", "agregar alumno", "agregar alumnos",
+                "agregar usuario al curso", "anadir estudiante", "anadir alumno",
+                "enrollar", "agregar al curso", "meter al curso", "incluir en curso",
+                "como inscribo a un estudiante", "como agrego un estudiante",
+                "como matriculo a un estudiante", "como matriculo a un alumno"
+            ],
             "response": "Para matricular usuarios:<br><br><strong>Individual:</strong><br>1. Curso > Participantes<br>2. Clic en <strong>Matricular usuarios</strong><br>3. Busca el usuario y asigna rol<br><br><strong>Masivo:</strong><br>1. Administracion > Usuarios > Subir usuarios<br>2. CSV con columna course1",
-            "tags": ["matricular", "inscribir"],
+            "tags": ["matricular", "inscribir", "estudiante", "alumno"],
             "archetypes": ["manager", "editingteacher", "siteadmin"],
             "enabled": true,
             "showoptions": true,
             "options": [
+                {"text": "Ver participantes", "icon": "bi-people", "action": "ver participantes del curso"},
+                {"text": "Carga masiva", "icon": "bi-upload", "action": "como cargo usuarios masivamente"},
+                {"text": "Roles", "icon": "bi-person-badge", "action": "gestionar roles"},
                 {"text": "Menu", "icon": "bi-house", "action": "menu"}
             ]
         },
@@ -178,6 +190,154 @@
             "enabled": true,
             "showoptions": true,
             "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "carga_masiva_usuarios",
+            "category": "administracion",
+            "pattern": "Como cargo usuarios masivamente",
+            "keywords": [
+                "carga masiva", "subir usuarios", "importar usuarios", "cargar csv",
+                "subir csv", "usuarios csv", "crear muchos usuarios", "crear usuarios masivo",
+                "upload users", "bulk upload", "importar estudiantes", "carga usuarios"
+            ],
+            "response": "Para carga masiva de usuarios:<br><br>1. <strong>Administracion > Usuarios > Subir usuarios</strong><br>2. Prepara CSV con columnas:<br>   - username, password, firstname, lastname, email<br>   - course1 (para matricular)<br>3. Sube el archivo<br>4. Configura opciones<br>5. Ejecuta la carga<br><br><strong>Tip:</strong> Descarga la plantilla de ejemplo.",
+            "tags": ["usuarios", "csv", "masivo"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Gestionar usuarios", "icon": "bi-people", "action": "gestionar usuarios"},
+                {"text": "Matricular", "icon": "bi-person-plus", "action": "matricular usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "metodos_inscripcion",
+            "category": "administracion",
+            "pattern": "Como configuro los metodos de inscripcion",
+            "keywords": [
+                "metodos inscripcion", "auto inscripcion", "inscripcion manual", "clave inscripcion",
+                "contrasena curso", "matricula automatica", "enrollment methods", "habilitar inscripcion",
+                "configurar inscripcion", "tipos inscripcion"
+            ],
+            "response": "Para configurar metodos de inscripcion:<br><br>1. Curso > <strong>Participantes</strong><br>2. Engranaje > <strong>Metodos de inscripcion</strong><br><br><strong>Tipos comunes:</strong><br>- <strong>Manual:</strong> Tu agregas usuarios<br>- <strong>Auto inscripcion:</strong> Usuarios se inscriben (con/sin clave)<br>- <strong>Cohorte:</strong> Grupos sincronizados<br>- <strong>Meta:</strong> Vincula a otro curso",
+            "tags": ["inscripcion", "metodos", "matricula"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Matricular usuarios", "icon": "bi-person-plus", "action": "matricular usuarios"},
+                {"text": "Ver participantes", "icon": "bi-people", "action": "participantes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_categoria",
+            "category": "administracion",
+            "pattern": "Como creo una categoria de cursos",
+            "keywords": [
+                "crear categoria", "nueva categoria", "categoria cursos", "organizar cursos",
+                "agregar categoria", "anadir categoria", "subcategoria", "categorias"
+            ],
+            "response": "Para crear una categoria:<br><br>1. <strong>Administracion > Cursos > Gestionar categorias</strong><br>2. Clic en <strong>Crear categoria</strong><br>3. Completa:<br>   - Nombre de la categoria<br>   - Categoria padre (si es subcategoria)<br>   - Descripcion (opcional)<br>4. Guardar<br><br><strong>Tip:</strong> Organiza por departamento, periodo o tipo.",
+            "tags": ["categoria", "organizar", "cursos"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear curso", "icon": "bi-journal-plus", "action": "crear curso"},
+                {"text": "Gestionar cursos", "icon": "bi-journals", "action": "gestionar cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "cambiar_tema",
+            "category": "administracion",
+            "pattern": "Como cambio el tema del sitio",
+            "keywords": [
+                "cambiar tema", "tema moodle", "apariencia", "theme", "diseño sitio",
+                "personalizar apariencia", "boost", "classic", "instalar tema"
+            ],
+            "response": "Para cambiar el tema:<br><br>1. <strong>Administracion > Apariencia > Selector de tema</strong><br>2. Elige el tema (Boost es el predeterminado)<br>3. <strong>Usar tema</strong><br><br><strong>Personalizar:</strong><br>- Administracion > Apariencia > Boost/Tema<br>- Cambia logo, colores, fuentes<br><br><strong>Nuevo tema:</strong><br>- Instalar desde ZIP",
+            "tags": ["tema", "apariencia", "diseño"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Apariencia", "icon": "bi-palette", "action": "configurar apariencia"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "notificaciones_sitio",
+            "category": "administracion",
+            "pattern": "Como configuro las notificaciones",
+            "keywords": [
+                "notificaciones", "configurar notificaciones", "alertas", "avisos",
+                "email notificacion", "mensajes sistema", "preferencias notificacion"
+            ],
+            "response": "Para configurar notificaciones:<br><br><strong>Por defecto del sitio:</strong><br>1. Administracion > Mensajeria > Preferencias de notificacion<br><br><strong>Por usuario:</strong><br>1. Perfil > Preferencias > Notificaciones<br>2. Activa/desactiva por tipo:<br>   - Tareas asignadas<br>   - Mensajes<br>   - Calificaciones<br>   - Foros",
+            "tags": ["notificaciones", "email", "alertas"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ocultar_curso_admin",
+            "category": "administracion",
+            "pattern": "Como oculto un curso para estudiantes",
+            "keywords": [
+                "ocultar curso", "curso invisible", "esconder curso", "curso no visible",
+                "desactivar curso", "curso oculto", "visibilidad curso"
+            ],
+            "response": "Para ocultar un curso:<br><br>1. <strong>Editar configuracion</strong> del curso<br>2. En <strong>General</strong> busca <strong>Visibilidad del curso</strong><br>3. Selecciona <strong>Ocultar</strong><br>4. Guardar<br><br><strong>Resultado:</strong><br>- Estudiantes no lo ven<br>- Profesores y admins si lo ven (atenuado)<br>- Util para cursos en preparacion",
+            "tags": ["ocultar", "visibilidad", "curso"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Gestionar cursos", "icon": "bi-journals", "action": "gestionar cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "restablecer_curso",
+            "category": "administracion",
+            "pattern": "Como restablezco un curso",
+            "keywords": [
+                "restablecer curso", "reiniciar curso", "limpiar curso", "borrar entregas",
+                "nueva cohorte", "reset curso", "vaciar curso", "curso nuevo periodo"
+            ],
+            "response": "Para restablecer un curso (nuevo periodo):<br><br>1. Curso > <strong>Administracion > Restablecer</strong><br>2. Selecciona que borrar:<br>   - ✓ Inscripciones (quita estudiantes)<br>   - ✓ Calificaciones<br>   - ✓ Entregas de tareas<br>   - ✓ Intentos de cuestionarios<br>3. <strong>Restablecer curso</strong><br><br><strong>Nota:</strong> El contenido (actividades, recursos) se mantiene.",
+            "tags": ["restablecer", "reiniciar", "limpiar"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Backup", "icon": "bi-cloud-arrow-up", "action": "como hago backup"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_participantes",
+            "category": "administracion",
+            "pattern": "Como veo los participantes de un curso",
+            "keywords": [
+                "ver participantes", "participantes curso", "lista estudiantes", "alumnos curso",
+                "quienes estan inscritos", "ver inscritos", "estudiantes inscritos"
+            ],
+            "response": "Para ver participantes:<br><br>1. Entra al curso<br>2. Menu lateral > <strong>Participantes</strong><br><br><strong>Filtros disponibles:</strong><br>- Por rol (estudiante, profesor)<br>- Por grupo<br>- Por estado<br>- Nombre/email<br><br><strong>Acciones:</strong><br>- Ver perfil<br>- Enviar mensaje<br>- Modificar rol",
+            "tags": ["participantes", "estudiantes", "inscritos"],
+            "archetypes": ["manager", "editingteacher", "teacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Matricular", "icon": "bi-person-plus", "action": "matricular usuarios"},
                 {"text": "Menu", "icon": "bi-house", "action": "menu"}
             ]
         }
