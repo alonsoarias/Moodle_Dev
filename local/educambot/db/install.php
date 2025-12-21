@@ -163,8 +163,10 @@ function install_rules_from_json($filepath, $catids, $now) {
         $record->showoptions = isset($rule['showoptions']) && $rule['showoptions'] ? 1 : 0;
         $record->dynamicresponse = isset($rule['dynamicresponse']) && $rule['dynamicresponse'] ? 1 : 0;
         $record->requiredcontext = $rule['requiredcontext'] ?? null;
-        $record->language = $rule['language'] ?? null;
-        $record->archetypes = isset($rule['archetypes']) ? implode(',', $rule['archetypes']) : null;
+        $record->lang = $rule['lang'] ?? $rule['language'] ?? 'es';
+        // Map JSON 'archetypes' to DB 'roles' field (fix v3.6.0).
+        $record->roles = isset($rule['archetypes']) ? implode(',', $rule['archetypes']) : null;
+        $record->priority = $rule['priority'] ?? 0;
         $record->timecreated = $now;
         $record->timemodified = $now;
 

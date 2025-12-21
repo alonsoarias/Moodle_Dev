@@ -103,6 +103,7 @@ class engine {
         'levenshtein' => 15,
         'context_boost' => 12,
         'archetype_priority' => 12,      // Boost for archetype priority topics (v3.4.0).
+        'archetype_match' => 15,         // Boost when rule archetypes match user (v3.6.0).
         'topic_match' => 10,
         'feedback_boost' => 10,
         'position_bonus' => 8,           // Bonus for early position match (v3.6.0).
@@ -696,6 +697,22 @@ class engine {
                 // Higher boost for more priority matches.
                 $boost = min(self::SCORE_WEIGHTS['archetype_priority'], count($priorityMatches) * 4);
                 $score += $boost;
+            }
+        }
+
+        // 15. Archetype match boost (v3.6.0) - boost rules specifically for user's role.
+        // Rules with roles field that match user archetype get higher score.
+        if (!empty($rule->roles)) {
+            $ruleArchetypes = array_map('trim', explode(',', mb_strtolower($rule->roles)));
+            $userArchetypes = $this->get_user_archetypes();
+            $archetypeMatches = array_intersect($userArchetypes, $ruleArchetypes);
+            if (!empty($archetypeMatches)) {
+                // Higher boost for admin/manager roles (more specific).
+                $hasAdminRole = !empty(array_intersect(['siteadmin', 'manager'], $archetypeMatches));
+                $boost = $hasAdminRole
+                    ? self::SCORE_WEIGHTS['archetype_match'] * 1.5
+                    : self::SCORE_WEIGHTS['archetype_match'];
+                $score += (int)$boost;
             }
         }
 
