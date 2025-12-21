@@ -17,13 +17,10 @@
 /**
  * Intent detector for educambot - classifies user intent from questions.
  *
- * Detects:
- * - Query intents (questions about information)
- * - Action intents (requests to do something)
- * - Navigation intents (where to find something)
- * - Greeting intents (social interactions)
- * - Complaint intents (problems/frustrations)
- * - Sentiment (positive/negative/neutral)
+ * All patterns are loaded from database (local_educambot_pattern table):
+ * - intents: Intent patterns (greeting, farewell, query, etc.)
+ * - topics: Topic patterns (assignments, grades, calendar, etc.)
+ * - sentiments: Sentiment patterns (positive, negative, frustrated, etc.)
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -36,11 +33,11 @@ namespace local_educambot\bot;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Intent detector class - classifies user intent.
+ * Intent detector class - classifies user intent from external JSON data.
  */
 class intent_detector {
 
-    // Intent types.
+    // Intent type constants.
     public const INTENT_GREETING = 'greeting';
     public const INTENT_FAREWELL = 'farewell';
     public const INTENT_THANKS = 'thanks';
@@ -50,9 +47,11 @@ class intent_detector {
     public const INTENT_COMPLAINT = 'complaint';
     public const INTENT_AFFIRMATION = 'affirmation';
     public const INTENT_NEGATION = 'negation';
+    public const INTENT_CLARIFICATION = 'clarification';
+    public const INTENT_REPEAT = 'repeat';
     public const INTENT_UNKNOWN = 'unknown';
 
-    // Topic types.
+    // Topic type constants.
     public const TOPIC_ASSIGNMENTS = 'assignments';
     public const TOPIC_GRADES = 'grades';
     public const TOPIC_CALENDAR = 'calendar';
@@ -62,178 +61,51 @@ class intent_detector {
     public const TOPIC_PROFILE = 'profile';
     public const TOPIC_HELP = 'help';
     public const TOPIC_NAVIGATION = 'navigation';
+    public const TOPIC_RESOURCES = 'resources';
+    public const TOPIC_FORUM = 'forum';
+    public const TOPIC_QUIZ = 'quiz';
+    public const TOPIC_PROGRESS = 'progress';
+    public const TOPIC_ENROLLMENT = 'enrollment';
+    public const TOPIC_TECHNICAL = 'technical';
     public const TOPIC_GENERAL = 'general';
 
-    // Sentiment types.
+    // Sentiment type constants.
     public const SENTIMENT_POSITIVE = 'positive';
     public const SENTIMENT_NEGATIVE = 'negative';
     public const SENTIMENT_NEUTRAL = 'neutral';
     public const SENTIMENT_FRUSTRATED = 'frustrated';
     public const SENTIMENT_CONFUSED = 'confused';
-
-    /** @var array Intent patterns */
-    private const INTENT_PATTERNS = [
-        self::INTENT_GREETING => [
-            'patterns' => [
-                '/^(hola|buenas?|buenos|hey|hi|hello|saludos|qué tal|que tal)/ui',
-                '/^(buen(a|o)s?\s+(día|dias|tarde|tardes|noche|noches))/ui',
-            ],
-            'weight' => 1.0,
-        ],
-        self::INTENT_FAREWELL => [
-            'patterns' => [
-                '/^(adiós|adios|chao|chau|bye|hasta luego|nos vemos)/ui',
-                '/(gracias.*adiós|gracias.*chao)/ui',
-            ],
-            'weight' => 1.0,
-        ],
-        self::INTENT_THANKS => [
-            'patterns' => [
-                '/^(gracias|muchas gracias|te agradezco|thanks|thx)/ui',
-                '/(eres genial|me ayudaste|muy útil|excelente)/ui',
-            ],
-            'weight' => 1.0,
-        ],
-        self::INTENT_QUERY => [
-            'patterns' => [
-                '/(qué|que)\s+(es|son|significa|quiere decir)/ui',
-                '/(cómo|como)\s+(es|son|funciona|se hace|puedo)/ui',
-                '/(dónde|donde)\s+(está|estan|encuentro|queda|veo)/ui',
-                '/(cuándo|cuando)\s+(es|son|empieza|termina|vence)/ui',
-                '/(cuánto|cuanto|cuánta|cuanta)\s+(es|son|cuesta|falta|tengo)/ui',
-                '/(por qué|porque|porqué)\s+/ui',
-                '/(quién|quien)\s+(es|son|puede|debo)/ui',
-                '/(cuál|cual|cuáles|cuales)\s+(es|son)/ui',
-                '/^(hay|existe|tienen|tengo)\s+/ui',
-                '/\?$/u',  // Ends with question mark.
-            ],
-            'weight' => 0.9,
-        ],
-        self::INTENT_ACTION => [
-            'patterns' => [
-                '/^(quiero|necesito|dame|muéstrame|muestrame|déjame|dejame)/ui',
-                '/^(puedo|podría|podria|quisiera|me gustaría)/ui',
-                '/^(ayúdame|ayudame|ayuda|help)/ui',
-                '/(entregar|enviar|subir|descargar|ver|abrir|crear)/ui',
-                '/(inscribir|matricular|registrar|cambiar|modificar)/ui',
-            ],
-            'weight' => 0.85,
-        ],
-        self::INTENT_NAVIGATION => [
-            'patterns' => [
-                '/(dónde|donde)\s+(está|queda|encuentro|veo|accedo)/ui',
-                '/(cómo|como)\s+(llego|accedo|entro|voy)\s+a/ui',
-                '/(ir|llevar|mostrar|abrir)\s+(a|la|el|mi)/ui',
-                '/(link|enlace|url|dirección|página)\s+(de|del|a|para)/ui',
-            ],
-            'weight' => 0.8,
-        ],
-        self::INTENT_COMPLAINT => [
-            'patterns' => [
-                '/(no funciona|no sirve|no puedo|no me deja|error)/ui',
-                '/(problema|falla|fallo|bug|roto|mal)/ui',
-                '/(frustrado|frustrada|enojado|enojada|molesto|molesta)/ui',
-                '/(terrible|horrible|pésimo|malísimo|inútil)/ui',
-                '/(ayuda urgente|urgente|emergencia)/ui',
-                '/(no entiendo|no sé|no se|confundido|confundida|perdido|perdida)/ui',
-            ],
-            'weight' => 0.95,
-        ],
-        self::INTENT_AFFIRMATION => [
-            'patterns' => [
-                '/^(sí|si|claro|ok|okay|vale|bien|correcto|exacto|afirmativo)/ui',
-                '/^(eso|así|así es|eso mismo|exactamente)/ui',
-            ],
-            'weight' => 1.0,
-        ],
-        self::INTENT_NEGATION => [
-            'patterns' => [
-                '/^(no|nope|negativo|para nada|de ninguna manera)/ui',
-                '/^(tampoco|ni|nunca|jamás)/ui',
-            ],
-            'weight' => 1.0,
-        ],
-    ];
-
-    /** @var array Topic patterns */
-    private const TOPIC_PATTERNS = [
-        self::TOPIC_ASSIGNMENTS => [
-            'keywords' => ['tarea', 'tareas', 'trabajo', 'trabajos', 'entrega', 'entregas',
-                          'actividad', 'actividades', 'asignacion', 'assignment', 'enviar',
-                          'subir', 'entregar', 'pendiente', 'pendientes', 'ejercicio',
-                          'ejercicios', 'deber', 'deberes', 'homework', 'por entregar',
-                          'sin entregar', 'atrasado', 'atrasada', 'vencido', 'vencida'],
-        ],
-        self::TOPIC_GRADES => [
-            'keywords' => ['calificacion', 'calificaciones', 'nota', 'notas', 'puntuacion',
-                          'resultado', 'resultados', 'evaluacion', 'evaluaciones', 'aprobado',
-                          'reprobado', 'promedio', 'grade', 'grades', 'score', 'boletin',
-                          'libreta', 'puntaje', 'puntos', 'como voy', 'cuanto saque',
-                          'que saque', 'nota final', 'calificacion final'],
-        ],
-        self::TOPIC_CALENDAR => [
-            'keywords' => ['calendario', 'fecha', 'fechas', 'evento', 'eventos', 'horario',
-                          'agenda', 'programacion', 'cuando', 'cuanto falta', 'vence',
-                          'vencimiento', 'deadline', 'plazo', 'limite', 'manana', 'hoy',
-                          'semana', 'proxima', 'proximo', 'cronograma', 'schedule'],
-        ],
-        self::TOPIC_MESSAGES => [
-            'keywords' => ['mensaje', 'mensajes', 'correo', 'correos', 'email', 'notificacion',
-                          'notificaciones', 'bandeja', 'inbox', 'escribir', 'contactar',
-                          'comunicar', 'chat', 'avisos', 'aviso', 'enviar mensaje'],
-        ],
-        self::TOPIC_COURSE => [
-            'keywords' => ['curso', 'cursos', 'materia', 'materias', 'asignatura', 'asignaturas',
-                          'clase', 'clases', 'modulo', 'modulos', 'contenido', 'tema', 'temas',
-                          'unidad', 'leccion', 'inscrito', 'inscrita', 'inscritos', 'inscritas',
-                          'matriculado', 'matriculada', 'matriculados', 'matriculadas',
-                          'registrado', 'enrolado', 'mis cursos', 'mis materias', 'mis asignaturas',
-                          'ramo', 'ramos', 'catedra', 'catedras'],
-        ],
-        self::TOPIC_TEACHER => [
-            'keywords' => ['profesor', 'profesores', 'profe', 'profes', 'docente', 'docentes',
-                          'maestro', 'maestros', 'tutor', 'tutores', 'instructor', 'instructores',
-                          'teacher', 'contactar profesor', 'consulta', 'asesoria', 'catedratico'],
-        ],
-        self::TOPIC_PROFILE => [
-            'keywords' => ['perfil', 'cuenta', 'contrasena', 'password', 'clave', 'usuario',
-                          'foto', 'imagen', 'datos', 'configuracion', 'preferencias', 'settings',
-                          'mi cuenta', 'mis datos', 'informacion personal', 'ajustes'],
-        ],
-        self::TOPIC_HELP => [
-            'keywords' => ['ayuda', 'help', 'soporte', 'asistencia', 'manual', 'guia',
-                          'tutorial', 'explicar', 'explicacion', 'como', 'como hago',
-                          'no entiendo', 'no se', 'perdido', 'confundido', 'problema'],
-        ],
-        self::TOPIC_NAVIGATION => [
-            'keywords' => ['donde', 'encontrar', 'buscar', 'acceder', 'ir', 'llegar',
-                          'ubicacion', 'seccion', 'menu', 'pagina', 'link', 'enlace',
-                          'como llego', 'donde esta', 'donde queda', 'navegar'],
-        ],
-    ];
-
-    /** @var array Sentiment patterns */
-    private const SENTIMENT_PATTERNS = [
-        self::SENTIMENT_POSITIVE => [
-            'keywords' => ['gracias', 'excelente', 'genial', 'perfecto', 'increíble', 'bueno',
-                          'bien', 'fantástico', 'maravilloso', 'útil', 'me encanta', 'feliz'],
-        ],
-        self::SENTIMENT_NEGATIVE => [
-            'keywords' => ['malo', 'mal', 'terrible', 'horrible', 'pésimo', 'inútil',
-                          'decepcionado', 'triste', 'molesto', 'enojado', 'peor'],
-        ],
-        self::SENTIMENT_FRUSTRATED => [
-            'keywords' => ['frustrado', 'frustrada', 'harto', 'harta', 'cansado', 'cansada',
-                          'no puedo más', 'imposible', 'desesperado', 'urgente', 'ya no sé'],
-        ],
-        self::SENTIMENT_CONFUSED => [
-            'keywords' => ['confundido', 'confundida', 'perdido', 'perdida', 'no entiendo',
-                          'no sé', 'no comprendo', 'complicado', 'difícil', 'lío', 'enredo'],
-        ],
-    ];
+    public const SENTIMENT_ANXIOUS = 'anxious';
 
     /** @var text_normalizer Text normalizer instance */
     private $normalizer;
+
+    /** @var array Loaded intent patterns */
+    private $intentPatterns = [];
+
+    /** @var array Loaded topic patterns */
+    private $topicPatterns = [];
+
+    /** @var array Loaded sentiment patterns */
+    private $sentimentPatterns = [];
+
+    /** @var array Urgency keywords */
+    private $urgencyKeywords = [];
+
+    /** @var bool Whether data has been loaded */
+    private static $dataLoaded = false;
+
+    /** @var array Cached intent patterns */
+    private static $cachedIntents = [];
+
+    /** @var array Cached topic patterns */
+    private static $cachedTopics = [];
+
+    /** @var array Cached sentiment patterns */
+    private static $cachedSentiments = [];
+
+    /** @var array Cached urgency keywords */
+    private static $cachedUrgency = [];
 
     /**
      * Constructor.
@@ -242,6 +114,37 @@ class intent_detector {
      */
     public function __construct(?text_normalizer $normalizer = null) {
         $this->normalizer = $normalizer ?? new text_normalizer();
+        $this->load_data();
+    }
+
+    /**
+     * Load patterns from database via pattern_loader.
+     */
+    private function load_data(): void {
+        // Use cached data if available.
+        if (self::$dataLoaded) {
+            $this->intentPatterns = self::$cachedIntents;
+            $this->topicPatterns = self::$cachedTopics;
+            $this->sentimentPatterns = self::$cachedSentiments;
+            $this->urgencyKeywords = self::$cachedUrgency;
+            return;
+        }
+
+        // Load from database via pattern_loader.
+        pattern_loader::load();
+
+        // Get patterns from loader.
+        $this->intentPatterns = pattern_loader::get_intents();
+        $this->topicPatterns = pattern_loader::get_topics();
+        $this->sentimentPatterns = pattern_loader::get_sentiments();
+        $this->urgencyKeywords = pattern_loader::get_urgency_keywords();
+
+        // Cache the loaded data.
+        self::$cachedIntents = $this->intentPatterns;
+        self::$cachedTopics = $this->topicPatterns;
+        self::$cachedSentiments = $this->sentimentPatterns;
+        self::$cachedUrgency = $this->urgencyKeywords;
+        self::$dataLoaded = true;
     }
 
     /**
@@ -275,20 +178,31 @@ class intent_detector {
         $bestScore = 0;
         $allMatches = [];
 
-        foreach (self::INTENT_PATTERNS as $intent => $config) {
+        foreach ($this->intentPatterns as $intent => $config) {
             $score = 0;
             $matched = false;
+            $weight = $config['weight'] ?? 1.0;
 
-            foreach ($config['patterns'] as $pattern) {
-                // Check original text for patterns that need original casing/punctuation.
-                if (preg_match($pattern, $originalText)) {
-                    $matched = true;
-                    $score = max($score, $config['weight']);
+            // Check regex patterns.
+            if (!empty($config['patterns'])) {
+                foreach ($config['patterns'] as $pattern) {
+                    $regex = '/' . $pattern . '/ui';
+                    if (@preg_match($regex, $originalText) || @preg_match($regex, $normalizedText)) {
+                        $matched = true;
+                        $score = max($score, $weight);
+                        break;
+                    }
                 }
-                // Also check normalized text.
-                if (preg_match($pattern, $normalizedText)) {
-                    $matched = true;
-                    $score = max($score, $config['weight']);
+            }
+
+            // Check keywords.
+            if (!$matched && !empty($config['keywords'])) {
+                foreach ($config['keywords'] as $keyword) {
+                    if (mb_stripos($normalizedText, $keyword) !== false) {
+                        $matched = true;
+                        $score = max($score, $weight * 0.8);
+                        break;
+                    }
                 }
             }
 
@@ -318,19 +232,21 @@ class intent_detector {
         $scores = [];
         $words = explode(' ', $normalizedText);
 
-        foreach (self::TOPIC_PATTERNS as $topic => $config) {
+        foreach ($this->topicPatterns as $topic => $config) {
             $matchCount = 0;
             $matchedKeywords = [];
+            $keywords = $config['keywords'] ?? [];
+            $priority = $config['priority'] ?? 1.0;
 
-            foreach ($config['keywords'] as $keyword) {
-                // Check if keyword or its synonyms appear in text.
-                if (mb_strpos($normalizedText, $keyword) !== false) {
+            foreach ($keywords as $keyword) {
+                // Direct match.
+                if (mb_stripos($normalizedText, $keyword) !== false) {
                     $matchCount++;
                     $matchedKeywords[] = $keyword;
                 } else {
                     // Check synonyms.
                     foreach ($words as $word) {
-                        if ($this->normalizer->are_synonyms($word, $keyword)) {
+                        if (mb_strlen($word) > 2 && $this->normalizer->are_synonyms($word, $keyword)) {
                             $matchCount++;
                             $matchedKeywords[] = $keyword;
                             break;
@@ -340,9 +256,10 @@ class intent_detector {
             }
 
             if ($matchCount > 0) {
+                $baseScore = $matchCount / max(count($keywords), 1);
                 $scores[$topic] = [
                     'count' => $matchCount,
-                    'score' => $matchCount / count($config['keywords']),
+                    'score' => $baseScore * $priority,
                     'keywords' => array_unique($matchedKeywords),
                 ];
             }
@@ -359,7 +276,7 @@ class intent_detector {
 
         return [
             'primary' => $primaryTopic,
-            'confidence' => min(1.0, $confidence * 2), // Scale up for better thresholds.
+            'confidence' => min(1.0, $confidence * 2),
             'all_topics' => $scores,
         ];
     }
@@ -373,16 +290,23 @@ class intent_detector {
     private function detect_sentiment(string $normalizedText): array {
         $scores = [];
 
-        foreach (self::SENTIMENT_PATTERNS as $sentiment => $config) {
+        foreach ($this->sentimentPatterns as $sentiment => $config) {
+            $keywords = $config['keywords'] ?? [];
+            $weight = $config['weight'] ?? 1.0;
+
+            if (empty($keywords)) {
+                continue;
+            }
+
             $matchCount = 0;
-            foreach ($config['keywords'] as $keyword) {
-                if (mb_strpos($normalizedText, $keyword) !== false) {
+            foreach ($keywords as $keyword) {
+                if (mb_stripos($normalizedText, $keyword) !== false) {
                     $matchCount++;
                 }
             }
 
             if ($matchCount > 0) {
-                $scores[$sentiment] = $matchCount / count($config['keywords']);
+                $scores[$sentiment] = ($matchCount / count($keywords)) * $weight;
             }
         }
 
@@ -401,7 +325,7 @@ class intent_detector {
 
         return [
             'primary' => $primarySentiment,
-            'confidence' => min(1.0, $confidence * 3), // Scale up.
+            'confidence' => min(1.0, $confidence * 3),
             'all_sentiments' => $scores,
         ];
     }
@@ -430,12 +354,10 @@ class intent_detector {
      * @return array Urgency level
      */
     private function detect_urgency(string $normalizedText): array {
-        $urgentKeywords = ['urgente', 'emergencia', 'ahora', 'inmediato', 'rápido', 'pronto',
-                          'hoy', 'antes de', 'deadline', 'ya', 'ayuda', 'socorro'];
         $matchCount = 0;
 
-        foreach ($urgentKeywords as $keyword) {
-            if (mb_strpos($normalizedText, $keyword) !== false) {
+        foreach ($this->urgencyKeywords as $keyword) {
+            if (mb_stripos($normalizedText, $keyword) !== false) {
                 $matchCount++;
             }
         }
@@ -456,7 +378,7 @@ class intent_detector {
     }
 
     /**
-     * Get a human-friendly response based on detected intent.
+     * Get a response strategy based on detected intent.
      *
      * @param array $detection Detection results from detect()
      * @return string Suggested response approach
@@ -466,8 +388,8 @@ class intent_detector {
         $sentiment = $detection['sentiment']['primary'];
 
         // Handle negative sentiments first.
-        if (in_array($sentiment, [self::SENTIMENT_FRUSTRATED, self::SENTIMENT_NEGATIVE])) {
-            return 'empathetic'; // Be extra understanding.
+        if (in_array($sentiment, [self::SENTIMENT_FRUSTRATED, self::SENTIMENT_NEGATIVE, self::SENTIMENT_ANXIOUS])) {
+            return 'empathetic';
         }
 
         switch ($intent) {
@@ -481,9 +403,51 @@ class intent_detector {
                 return 'supportive';
             case self::INTENT_AFFIRMATION:
             case self::INTENT_NEGATION:
-                return 'follow_up'; // User is responding to something.
+                return 'follow_up';
+            case self::INTENT_CLARIFICATION:
+            case self::INTENT_REPEAT:
+                return 'clarify';
             default:
                 return 'informative';
         }
+    }
+
+    /**
+     * Get all loaded topic names.
+     *
+     * @return array Topic names
+     */
+    public function get_available_topics(): array {
+        return array_keys($this->topicPatterns);
+    }
+
+    /**
+     * Get all loaded intent names.
+     *
+     * @return array Intent names
+     */
+    public function get_available_intents(): array {
+        return array_keys($this->intentPatterns);
+    }
+
+    /**
+     * Get keywords for a specific topic.
+     *
+     * @param string $topic Topic name
+     * @return array Keywords or empty array
+     */
+    public function get_topic_keywords(string $topic): array {
+        return $this->topicPatterns[$topic]['keywords'] ?? [];
+    }
+
+    /**
+     * Clear cached data (useful for testing or after JSON updates).
+     */
+    public static function clear_cache(): void {
+        self::$dataLoaded = false;
+        self::$cachedIntents = [];
+        self::$cachedTopics = [];
+        self::$cachedSentiments = [];
+        self::$cachedUrgency = [];
     }
 }

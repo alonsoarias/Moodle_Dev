@@ -334,5 +334,243 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025121946, 'local', 'educambot');
     }
 
+    // v3.2.0 - Add pattern table for NLP knowledge base.
+    if ($oldversion < 2025122100) {
+
+        // Create pattern table.
+        $table = new xmldb_table('local_educambot_pattern');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('type', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('patternkey', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('patterndata', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('weight', XMLDB_TYPE_NUMBER, '5, 2', null, XMLDB_NOTNULL, null, '1.00');
+        $table->add_field('lang', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'es');
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        $table->add_index('type_idx', XMLDB_INDEX_NOTUNIQUE, ['type']);
+        $table->add_index('type_key_idx', XMLDB_INDEX_UNIQUE, ['type', 'patternkey', 'lang']);
+        $table->add_index('enabled_idx', XMLDB_INDEX_NOTUNIQUE, ['enabled']);
+        $table->add_index('lang_idx', XMLDB_INDEX_NOTUNIQUE, ['lang']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Load patterns from JSON files.
+        $datapath = __DIR__ . '/data/';
+        $now = time();
+
+        // Load intents.
+        load_patterns_from_json($datapath . 'intents.json', 'intent', $now);
+
+        // Load topics.
+        load_patterns_from_json($datapath . 'topics.json', 'topic', $now);
+
+        // Load sentiments.
+        load_patterns_from_json($datapath . 'sentiments.json', 'sentiment', $now);
+
+        // Load stopwords.
+        load_simple_patterns($datapath . 'stopwords.json', 'stopword', $now);
+
+        // Load abbreviations.
+        load_simple_patterns($datapath . 'abbreviations.json', 'abbreviation', $now);
+
+        // Load synonyms.
+        load_simple_patterns($datapath . 'synonyms.json', 'synonym', $now);
+
+        // Load entities.
+        load_simple_patterns($datapath . 'entities.json', 'entity', $now);
+
+        // Load conversation patterns.
+        load_simple_patterns($datapath . 'conversation.json', 'conversation', $now);
+
+        // Load new navigation rules added in 3.2.0.
+        $navfile = $datapath . 'navigation.json';
+        if (file_exists($navfile)) {
+            $json = file_get_contents($navfile);
+            $data = json_decode($json, true);
+
+            if ($data && isset($data['rules'])) {
+                // Get the general category ID.
+                $generalcat = $DB->get_record('local_educambot_category', ['name' => 'General']);
+                $categoryid = $generalcat ? $generalcat->id : null;
+
+                // New rules added in v3.2.0.
+                $newruleids = [
+                    'quiz_help', 'progress_tracking', 'enrollment_help', 'course_catalog',
+                    'password_reset', 'notifications_settings', 'badges_certificates',
+                    'mobile_app', 'technical_problems', 'language_settings', 'group_activities',
+                    'participants_list', 'edit_submission', 'video_conference', 'dashboard',
+                    'private_files', 'logout'
+                ];
+
+                foreach ($data['rules'] as $rule) {
+                    // Only process new rules.
+                    if (!isset($rule['id']) || !in_array($rule['id'], $newruleids)) {
+                        continue;
+                    }
+
+                    // Check if rule already exists.
+                    if ($DB->record_exists('local_educambot_rule', ['pattern' => $rule['pattern']])) {
+                        continue;
+                    }
+
+                    // Convert keywords array to newline-separated string.
+                    $keywords = is_array($rule['keywords']) ? implode("\n", $rule['keywords']) : $rule['keywords'];
+                    $tags = is_array($rule['tags']) ? implode(', ', $rule['tags']) : ($rule['tags'] ?? '');
+
+                    $record = new stdClass();
+                    $record->categoryid = $categoryid;
+                    $record->pattern = $rule['pattern'];
+                    $record->keywords = $keywords;
+                    $record->response = $rule['response'];
+                    $record->tags = $tags;
+                    $record->enabled = 1;
+                    $record->showoptions = isset($rule['showoptions']) && $rule['showoptions'] ? 1 : 0;
+                    $record->timecreated = $now;
+                    $record->timemodified = $now;
+
+                    $ruleid = $DB->insert_record('local_educambot_rule', $record);
+
+                    // Insert options for this rule.
+                    if (isset($rule['options']) && is_array($rule['options'])) {
+                        $sortorder = 1;
+                        foreach ($rule['options'] as $option) {
+                            $optrecord = new stdClass();
+                            $optrecord->ruleid = $ruleid;
+                            $optrecord->text = $option['text'];
+                            $optrecord->action = $option['action'] ?? '';
+                            $optrecord->icon = $option['icon'] ?? '';
+                            $optrecord->targetruleid = null;
+                            $optrecord->sortorder = $sortorder++;
+                            $optrecord->enabled = 1;
+
+                            $DB->insert_record('local_educambot_option', $optrecord);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025122100, 'local', 'educambot');
+    }
+
     return true;
+}
+
+/**
+ * Load patterns from JSON file into database.
+ *
+ * @param string $filepath Path to JSON file
+ * @param string $type Pattern type
+ * @param int $now Current timestamp
+ */
+function load_patterns_from_json($filepath, $type, $now) {
+    global $DB;
+
+    if (!file_exists($filepath)) {
+        return;
+    }
+
+    $json = file_get_contents($filepath);
+    $data = json_decode($json, true);
+
+    if (!$data) {
+        return;
+    }
+
+    $lang = $data['lang'] ?? 'es';
+
+    // Determine the key for the patterns based on type.
+    $patternsKey = $type . 's'; // intents, topics, sentiments.
+
+    if (!isset($data[$patternsKey])) {
+        return;
+    }
+
+    $sortorder = 0;
+    foreach ($data[$patternsKey] as $key => $patternData) {
+        $weight = $patternData['weight'] ?? $patternData['priority'] ?? 1.0;
+
+        $record = new stdClass();
+        $record->type = $type;
+        $record->patternkey = $key;
+        $record->patterndata = json_encode($patternData);
+        $record->weight = $weight;
+        $record->lang = $lang;
+        $record->enabled = 1;
+        $record->sortorder = $sortorder++;
+        $record->timecreated = $now;
+        $record->timemodified = $now;
+
+        // Check if already exists.
+        $existing = $DB->get_record('local_educambot_pattern', [
+            'type' => $type,
+            'patternkey' => $key,
+            'lang' => $lang
+        ]);
+
+        if ($existing) {
+            $record->id = $existing->id;
+            $DB->update_record('local_educambot_pattern', $record);
+        } else {
+            $DB->insert_record('local_educambot_pattern', $record);
+        }
+    }
+}
+
+/**
+ * Load simple patterns (full JSON as single record) into database.
+ *
+ * @param string $filepath Path to JSON file
+ * @param string $type Pattern type
+ * @param int $now Current timestamp
+ */
+function load_simple_patterns($filepath, $type, $now) {
+    global $DB;
+
+    if (!file_exists($filepath)) {
+        return;
+    }
+
+    $json = file_get_contents($filepath);
+    $data = json_decode($json, true);
+
+    if (!$data) {
+        return;
+    }
+
+    $lang = $data['lang'] ?? 'es';
+
+    $record = new stdClass();
+    $record->type = $type;
+    $record->patternkey = 'default';
+    $record->patterndata = $json;
+    $record->weight = 1.0;
+    $record->lang = $lang;
+    $record->enabled = 1;
+    $record->sortorder = 0;
+    $record->timecreated = $now;
+    $record->timemodified = $now;
+
+    // Check if already exists.
+    $existing = $DB->get_record('local_educambot_pattern', [
+        'type' => $type,
+        'patternkey' => 'default',
+        'lang' => $lang
+    ]);
+
+    if ($existing) {
+        $record->id = $existing->id;
+        $DB->update_record('local_educambot_pattern', $record);
+    } else {
+        $DB->insert_record('local_educambot_pattern', $record);
+    }
 }

@@ -1,0 +1,119 @@
+{
+    "version": "1.0.0",
+    "description": "EducamBot intent patterns - classifies user intent from questions",
+    "lang": "es",
+    "intents": {
+        "greeting": {
+            "patterns": [
+                "^(hola|buenas?|buenos|hey|hi|hello|saludos|que tal|qué tal)",
+                "^(buen(a|o)s?\\s+(dia|dias|día|días|tarde|tardes|noche|noches))",
+                "^(ola|wenas|buen dia|buen día|holi|holaa)"
+            ],
+            "keywords": ["hola", "buenas", "buenos dias", "buenas tardes", "buenas noches", "hey", "hi", "hello", "saludos", "que tal"],
+            "weight": 1.0
+        },
+        "farewell": {
+            "patterns": [
+                "^(adiós|adios|chao|chau|bye|hasta luego|nos vemos)",
+                "(gracias.*adiós|gracias.*chao|me voy|hasta pronto)",
+                "^(bay|byee|chau chau|hasta manana|hasta mañana)"
+            ],
+            "keywords": ["adios", "chao", "bye", "hasta luego", "nos vemos", "chau", "hasta pronto", "me retiro"],
+            "weight": 1.0
+        },
+        "thanks": {
+            "patterns": [
+                "^(gracias|muchas gracias|te agradezco|thanks|thx|grax|gcias)",
+                "(eres genial|me ayudaste|muy util|muy útil|excelente|perfecto)",
+                "^(te lo agradezco|mil gracias|super gracias)"
+            ],
+            "keywords": ["gracias", "muchas gracias", "te agradezco", "thanks", "genial", "perfecto", "excelente"],
+            "weight": 1.0
+        },
+        "query": {
+            "patterns": [
+                "(qué|que)\\s+(es|son|significa|quiere decir)",
+                "(cómo|como)\\s+(es|son|funciona|se hace|puedo|hago)",
+                "(dónde|donde)\\s+(está|estan|encuentro|queda|veo|miro)",
+                "(cuándo|cuando)\\s+(es|son|empieza|termina|vence|inicia)",
+                "(cuánto|cuanto|cuánta|cuanta)\\s+(es|son|cuesta|falta|tengo|vale)",
+                "(por qué|porque|porqué)\\s+",
+                "(quién|quien)\\s+(es|son|puede|debo|me)",
+                "(cuál|cual|cuáles|cuales)\\s+(es|son|hay)",
+                "^(hay|existe|tienen|tengo)\\s+",
+                "\\?$"
+            ],
+            "keywords": ["que", "como", "donde", "cuando", "cuanto", "porque", "quien", "cual", "hay"],
+            "weight": 0.9
+        },
+        "action": {
+            "patterns": [
+                "^(quiero|necesito|dame|muéstrame|muestrame|déjame|dejame)",
+                "^(puedo|podría|podria|quisiera|me gustaría|me gustaria)",
+                "^(ayúdame|ayudame|ayuda|help)",
+                "(entregar|enviar|subir|descargar|ver|abrir|crear|editar|borrar)",
+                "(inscribir|matricular|registrar|cambiar|modificar|actualizar)"
+            ],
+            "keywords": ["quiero", "necesito", "ayuda", "entregar", "subir", "descargar", "cambiar", "modificar"],
+            "weight": 0.85
+        },
+        "navigation": {
+            "patterns": [
+                "(dónde|donde)\\s+(está|queda|encuentro|veo|accedo|ubico)",
+                "(cómo|como)\\s+(llego|accedo|entro|voy|navego)\\s+a",
+                "(ir|llevar|mostrar|abrir)\\s+(a|la|el|mi)",
+                "(link|enlace|url|dirección|direccion|página|pagina)\\s+(de|del|a|para)"
+            ],
+            "keywords": ["donde esta", "como llego", "ir a", "abrir", "enlace", "pagina", "link"],
+            "weight": 0.8
+        },
+        "complaint": {
+            "patterns": [
+                "(no funciona|no sirve|no puedo|no me deja|error|falla)",
+                "(problema|falla|fallo|bug|roto|mal|dañado)",
+                "(frustrado|frustrada|enojado|enojada|molesto|molesta)",
+                "(terrible|horrible|pésimo|pesimo|malísimo|malisimo|inútil|inutil)",
+                "(ayuda urgente|urgente|emergencia|socorro)",
+                "(no entiendo|no sé|no se|confundido|confundida|perdido|perdida)"
+            ],
+            "keywords": ["no funciona", "error", "problema", "ayuda", "urgente", "no puedo", "falla"],
+            "weight": 0.95
+        },
+        "affirmation": {
+            "patterns": [
+                "^(sí|si|claro|ok|okay|vale|bien|correcto|exacto|afirmativo)",
+                "^(eso|así|asi|así es|eso mismo|exactamente|efectivamente)",
+                "^(dale|listo|de acuerdo|okey|okei|sep|sip)"
+            ],
+            "keywords": ["si", "claro", "ok", "vale", "bien", "correcto", "exacto", "dale", "listo"],
+            "weight": 1.0
+        },
+        "negation": {
+            "patterns": [
+                "^(no|nope|negativo|para nada|de ninguna manera)",
+                "^(tampoco|ni|nunca|jamás|jamas|nel|nop)",
+                "^(no gracias|no quiero|no necesito|no es eso)"
+            ],
+            "keywords": ["no", "nope", "negativo", "nunca", "tampoco", "no gracias"],
+            "weight": 1.0
+        },
+        "clarification": {
+            "patterns": [
+                "^(qué quieres decir|que quieres decir|a qué te refieres)",
+                "^(no entendí|no entendi|puedes explicar|explícame)",
+                "^(más claro|mas claro|más detalles|mas detalles)"
+            ],
+            "keywords": ["que quieres decir", "no entendi", "explicame", "mas claro", "mas detalles"],
+            "weight": 0.9
+        },
+        "repeat": {
+            "patterns": [
+                "^(repite|repetir|otra vez|de nuevo|nuevamente)",
+                "^(qué dijiste|que dijiste|cómo era|como era)",
+                "^(puedes repetir|repítelo|repitelo)"
+            ],
+            "keywords": ["repite", "otra vez", "de nuevo", "que dijiste"],
+            "weight": 0.85
+        }
+    }
+}

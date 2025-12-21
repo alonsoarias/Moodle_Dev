@@ -60,6 +60,15 @@ class conversation_context {
     /** @var bool Whether state was loaded from DB */
     private $loaded = false;
 
+    /** @var array Loaded conversation patterns from JSON */
+    private $conversationPatterns = [];
+
+    /** @var bool Whether patterns have been loaded */
+    private static $patternsLoaded = false;
+
+    /** @var array Cached conversation patterns (static) */
+    private static $cachedPatterns = [];
+
     /**
      * Constructor.
      *
@@ -72,7 +81,27 @@ class conversation_context {
         $this->courseid = $courseid;
         $this->sessionid = $sessionid ?? session_id() ?? uniqid('conv_');
 
+        $this->load_patterns();
         $this->init_state();
+    }
+
+    /**
+     * Load conversation patterns from database via pattern_loader.
+     */
+    private function load_patterns(): void {
+        // Use cached data if available.
+        if (self::$patternsLoaded) {
+            $this->conversationPatterns = self::$cachedPatterns;
+            return;
+        }
+
+        // Load from database via pattern_loader.
+        pattern_loader::load();
+        $this->conversationPatterns = pattern_loader::get_conversation();
+
+        // Cache the loaded data.
+        self::$cachedPatterns = $this->conversationPatterns;
+        self::$patternsLoaded = true;
     }
 
     /**
@@ -256,14 +285,19 @@ class conversation_context {
             return false;
         }
 
-        // Check for question marks in response.
-        if (strpos($response, '?') !== false) {
-            return true;
+        // Get configuration from loaded patterns.
+        $followUpConfig = $this->conversationPatterns['follow_up_prompts'] ?? [];
+
+        // Check for question indicators.
+        $questionIndicators = $followUpConfig['question_indicators'] ?? ['?', '¿'];
+        foreach ($questionIndicators as $indicator) {
+            if (strpos($response, $indicator) !== false) {
+                return true;
+            }
         }
 
-        // Check for follow-up prompts.
-        $prompts = ['¿algo más', '¿necesitas', '¿te gustaría', '¿quieres que',
-                    '¿puedo ayudarte', 'algo más', 'necesitas algo'];
+        // Check for follow-up prompts from JSON.
+        $prompts = $followUpConfig['detection_phrases'] ?? [];
         foreach ($prompts as $prompt) {
             if (mb_stripos($response, $prompt) !== false) {
                 return true;
@@ -322,24 +356,30 @@ class conversation_context {
             return true;
         }
 
-        // Check for short affirmative/negative responses.
-        $shortResponses = ['si', 'sí', 'no', 'ok', 'vale', 'claro', 'bien', 'eso', 'ese', 'esa'];
+        // Get follow-up detection config from JSON.
+        $followUpConfig = $this->conversationPatterns['follow_up_detection'] ?? [];
+
+        // Check for short affirmative/negative responses from JSON.
+        $shortResponses = $followUpConfig['short_responses'] ?? [];
         $normalized = mb_strtolower(trim($question), 'UTF-8');
         if (in_array($normalized, $shortResponses)) {
             return true;
         }
 
-        // Check for pronoun references.
-        $pronounPatterns = [
-            '/^(eso|ese|esa|esto|este|esta|aquello)\s/ui',
-            '/^(lo|la|los|las)\s+mismo/ui',
-            '/^y\s+(también|además|qué más)/ui',
-            '/^(qué|que)\s+más/ui',
-            '/^(otro|otra|más)/ui',
-        ];
-
+        // Check for pronoun reference patterns from JSON.
+        $pronounPatterns = $followUpConfig['pronoun_patterns'] ?? [];
         foreach ($pronounPatterns as $pattern) {
-            if (preg_match($pattern, $question)) {
+            $regex = '/' . $pattern . '/ui';
+            if (@preg_match($regex, $question)) {
+                return true;
+            }
+        }
+
+        // Check for continuation patterns from JSON.
+        $continuationPatterns = $followUpConfig['continuation_patterns'] ?? [];
+        foreach ($continuationPatterns as $pattern) {
+            $regex = '/' . $pattern . '/ui';
+            if (@preg_match($regex, $question)) {
                 return true;
             }
         }

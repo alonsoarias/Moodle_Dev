@@ -1,0 +1,92 @@
+{
+    "version": "1.0.0",
+    "description": "EducamBot conversation patterns - follow-up detection, pronouns, context",
+    "lang": "es",
+    "follow_up_detection": {
+        "short_responses": [
+            "si", "sí", "no", "ok", "vale", "claro", "bien", "eso", "ese", "esa",
+            "bueno", "dale", "listo", "perfecto", "genial", "exacto", "correcto",
+            "ajá", "aja", "mm", "mhm", "ya", "okey", "okay", "va", "sale",
+            "obvio", "seguro", "por supuesto", "afirmativo", "negativo",
+            "nop", "nel", "nope", "sip", "sep", "seh", "simon", "nel pastel"
+        ],
+        "pronoun_patterns": [
+            "^(eso|ese|esa|esto|este|esta|aquello)\\s",
+            "^(lo|la|los|las)\\s+mismo",
+            "^y\\s+(también|además|qué más|que mas)",
+            "^(qué|que)\\s+más",
+            "^(otro|otra|más)",
+            "^sobre\\s+(eso|ese|esa|esto|este|esta)",
+            "^de\\s+(eso|ese|esa|esto|este|esta)",
+            "^con\\s+(eso|ese|esa|esto|este|esta)",
+            "^(respecto|acerca)\\s+(de|a)\\s+(eso|ese|esa)"
+        ],
+        "continuation_patterns": [
+            "^y\\s+",
+            "^pero\\s+",
+            "^entonces\\s+",
+            "^también\\s+",
+            "^además\\s+",
+            "^igualmente\\s+",
+            "^asimismo\\s+"
+        ]
+    },
+    "follow_up_prompts": {
+        "detection_phrases": [
+            "algo más", "necesitas algo", "puedo ayudarte",
+            "te gustaría", "quieres que", "deseas",
+            "hay algo más", "tienes otra pregunta",
+            "en qué más", "qué más necesitas",
+            "te sirve", "te fue útil", "te ayudó"
+        ],
+        "question_indicators": [
+            "?", "¿"
+        ]
+    },
+    "pronoun_entity_mapping": {
+        "assignment": [
+            "esa tarea", "ese trabajo", "esa actividad", "esa entrega",
+            "la tarea", "el trabajo", "la actividad", "la entrega",
+            "esta tarea", "este trabajo", "esta actividad", "esta entrega"
+        ],
+        "course": [
+            "ese curso", "esa materia", "esa asignatura", "esa clase",
+            "el curso", "la materia", "la asignatura", "la clase",
+            "este curso", "esta materia", "esta asignatura", "esta clase"
+        ],
+        "teacher": [
+            "ese profesor", "esa profesora", "ese profe", "esa profe",
+            "el profesor", "la profesora", "el profe", "la profe",
+            "ese docente", "esa docente", "el docente", "la docente"
+        ],
+        "grade": [
+            "esa nota", "esa calificación", "esa calificacion", "ese resultado",
+            "la nota", "la calificación", "la calificacion", "el resultado",
+            "mi nota", "mi calificación", "mi calificacion", "mi resultado"
+        ],
+        "message": [
+            "ese mensaje", "esa notificación", "ese correo",
+            "el mensaje", "la notificación", "el correo",
+            "mi mensaje", "mi notificación", "mi correo"
+        ],
+        "event": [
+            "ese evento", "esa fecha", "esa actividad programada",
+            "el evento", "la fecha", "la actividad programada",
+            "mi evento", "mi cita", "mi reunion"
+        ]
+    },
+    "context_indicators": {
+        "reference_words": [
+            "eso", "esa", "ese", "esto", "esta", "este",
+            "aquello", "aquella", "aquel", "lo mismo", "la misma"
+        ],
+        "continuation_words": [
+            "también", "además", "igualmente", "asimismo",
+            "otro", "otra", "más", "siguiente", "anterior"
+        ],
+        "clarification_words": [
+            "o sea", "es decir", "me refiero a", "quiero decir",
+            "para ser claro", "específicamente", "exactamente"
+        ]
+    }
+}

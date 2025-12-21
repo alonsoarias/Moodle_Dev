@@ -1,0 +1,174 @@
+{
+    "version": "1.0.0",
+    "description": "EducamBot topic patterns - classifies the topic/subject of user questions",
+    "lang": "es",
+    "topics": {
+        "assignments": {
+            "keywords": [
+                "tarea", "tareas", "trabajo", "trabajos", "entrega", "entregas",
+                "actividad", "actividades", "asignacion", "asignaciones", "assignment",
+                "enviar", "subir", "entregar", "pendiente", "pendientes",
+                "ejercicio", "ejercicios", "deber", "deberes", "homework",
+                "por entregar", "sin entregar", "atrasado", "atrasada",
+                "vencido", "vencida", "fecha limite", "deadline",
+                "tarea pendiente", "trabajo pendiente", "que debo entregar",
+                "que tengo que entregar", "mis tareas", "mis trabajos",
+                "enviar tarea", "subir tarea", "adjuntar archivo"
+            ],
+            "priority": 1.0
+        },
+        "grades": {
+            "keywords": [
+                "calificacion", "calificaciones", "nota", "notas", "puntuacion",
+                "resultado", "resultados", "evaluacion", "evaluaciones",
+                "aprobado", "reprobado", "promedio", "grade", "grades", "score",
+                "boletin", "libreta", "puntaje", "puntos", "como voy",
+                "cuanto saque", "que saque", "nota final", "calificacion final",
+                "mis notas", "mis calificaciones", "ver notas", "consultar notas",
+                "mi promedio", "cuanto tengo", "que nota tengo", "mi puntaje",
+                "retroalimentacion", "feedback", "comentarios del profesor",
+                "calificacion parcial", "examen", "quiz", "parcial"
+            ],
+            "priority": 1.0
+        },
+        "calendar": {
+            "keywords": [
+                "calendario", "fecha", "fechas", "evento", "eventos", "horario",
+                "agenda", "programacion", "cuando", "cuanto falta", "vence",
+                "vencimiento", "deadline", "plazo", "limite", "manana", "hoy",
+                "semana", "proxima", "proximo", "cronograma", "schedule",
+                "fecha de entrega", "que hay hoy", "que tengo hoy",
+                "proximos eventos", "eventos del curso", "actividades programadas",
+                "fechas importantes", "examenes programados", "cuando es",
+                "que dia", "a que hora", "horarios", "programar"
+            ],
+            "priority": 0.9
+        },
+        "messages": {
+            "keywords": [
+                "mensaje", "mensajes", "correo", "correos", "email", "mail",
+                "notificacion", "notificaciones", "bandeja", "inbox",
+                "escribir", "contactar", "comunicar", "chat", "avisos", "aviso",
+                "enviar mensaje", "mis mensajes", "mensajes nuevos",
+                "mensajes no leidos", "responder mensaje", "leer mensajes",
+                "conversacion", "conversaciones", "comunicarme"
+            ],
+            "priority": 0.85
+        },
+        "course": {
+            "keywords": [
+                "curso", "cursos", "materia", "materias", "asignatura", "asignaturas",
+                "clase", "clases", "modulo", "modulos", "contenido", "tema", "temas",
+                "unidad", "leccion", "inscrito", "inscrita", "inscritos", "inscritas",
+                "matriculado", "matriculada", "matriculados", "matriculadas",
+                "registrado", "enrolado", "mis cursos", "mis materias", "mis asignaturas",
+                "ramo", "ramos", "catedra", "catedras", "en que estoy",
+                "cursos activos", "cursos inscritos", "ver mis cursos",
+                "informacion del curso", "detalles del curso", "contenido del curso",
+                "recursos del curso", "materiales", "syllabus", "programa"
+            ],
+            "priority": 1.0
+        },
+        "teacher": {
+            "keywords": [
+                "profesor", "profesores", "profe", "profes", "docente", "docentes",
+                "maestro", "maestros", "tutor", "tutores", "instructor", "instructores",
+                "teacher", "contactar profesor", "consulta", "asesoria", "catedratico",
+                "quien es el profesor", "quienes son los profesores",
+                "hablar con el profesor", "escribir al profesor", "mensaje al profesor",
+                "correo del profesor", "email del profesor", "atencion del profesor",
+                "horario de atencion", "tutoria", "consultar al docente"
+            ],
+            "priority": 0.9
+        },
+        "profile": {
+            "keywords": [
+                "perfil", "cuenta", "contrasena", "password", "clave", "usuario",
+                "foto", "imagen", "datos", "configuracion", "preferencias", "settings",
+                "mi cuenta", "mis datos", "informacion personal", "ajustes",
+                "cambiar foto", "cambiar contrasena", "actualizar perfil",
+                "editar perfil", "mi informacion", "datos personales",
+                "nombre de usuario", "correo electronico", "cambiar email",
+                "configurar cuenta", "privacidad", "seguridad de cuenta"
+            ],
+            "priority": 0.85
+        },
+        "help": {
+            "keywords": [
+                "ayuda", "help", "soporte", "asistencia", "manual", "guia",
+                "tutorial", "explicar", "explicacion", "como", "como hago",
+                "no entiendo", "no se", "perdido", "confundido", "problema",
+                "necesito ayuda", "me puedes ayudar", "como funciona",
+                "que debo hacer", "donde encuentro", "instrucciones",
+                "paso a paso", "documentacion", "faq", "preguntas frecuentes"
+            ],
+            "priority": 0.8
+        },
+        "navigation": {
+            "keywords": [
+                "donde", "encontrar", "buscar", "acceder", "ir", "llegar",
+                "ubicacion", "seccion", "menu", "pagina", "link", "enlace",
+                "como llego", "donde esta", "donde queda", "navegar",
+                "ubicar", "localizar", "abrir", "entrar a", "ir a",
+                "mostrar", "ver", "visualizar", "ruta", "camino"
+            ],
+            "priority": 0.75
+        },
+        "resources": {
+            "keywords": [
+                "recurso", "recursos", "material", "materiales", "archivo", "archivos",
+                "documento", "documentos", "pdf", "video", "videos",
+                "presentacion", "presentaciones", "lectura", "lecturas",
+                "descargar", "bajar", "download", "contenido", "contenidos",
+                "material de estudio", "material del curso", "bibliografia",
+                "enlaces", "links", "referencias", "adjunto", "adjuntos"
+            ],
+            "priority": 0.85
+        },
+        "forum": {
+            "keywords": [
+                "foro", "foros", "discusion", "discusiones", "debate", "debates",
+                "publicar", "publicacion", "post", "responder", "respuesta",
+                "tema de discusion", "hilo", "comentar", "comentario",
+                "participar", "participacion", "opinion", "aportar"
+            ],
+            "priority": 0.8
+        },
+        "quiz": {
+            "keywords": [
+                "quiz", "quizzes", "cuestionario", "cuestionarios", "examen", "examenes",
+                "test", "tests", "prueba", "pruebas", "evaluacion", "evaluaciones",
+                "parcial", "parciales", "final", "finales", "intentos",
+                "tiempo limite", "respuestas", "pregunta", "preguntas"
+            ],
+            "priority": 0.9
+        },
+        "progress": {
+            "keywords": [
+                "progreso", "avance", "completado", "completar", "porcentaje",
+                "cuanto llevo", "que me falta", "estado", "seguimiento",
+                "actividades completadas", "requisitos", "insignia", "insignias",
+                "badge", "badges", "certificado", "constancia", "logros"
+            ],
+            "priority": 0.85
+        },
+        "enrollment": {
+            "keywords": [
+                "inscripcion", "inscribirme", "inscribir", "matricula", "matricular",
+                "matricularme", "registro", "registrar", "registrarme",
+                "dar de alta", "agregar curso", "unirme", "entrar a curso",
+                "clave de inscripcion", "codigo de inscripcion", "auto inscripcion"
+            ],
+            "priority": 0.9
+        },
+        "technical": {
+            "keywords": [
+                "error", "problema tecnico", "no carga", "no abre", "lento",
+                "no funciona", "bug", "falla", "pantalla", "navegador",
+                "compatibilidad", "soporte tecnico", "reporte de error",
+                "no puedo entrar", "no me deja", "se traba", "se congela"
+            ],
+            "priority": 0.95
+        }
+    }
+}

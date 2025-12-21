@@ -1,0 +1,81 @@
+{
+    "version": "1.0.0",
+    "description": "EducamBot entity extraction patterns - dates, times, course references",
+    "lang": "es",
+    "relative_dates": {
+        "keywords": [
+            "hoy", "manana", "ayer", "pasado manana", "antes de ayer",
+            "esta semana", "proxima semana", "semana pasada", "semana que viene",
+            "este mes", "proximo mes", "mes pasado", "mes que viene",
+            "este ano", "proximo ano", "ano pasado",
+            "lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo",
+            "enero", "febrero", "marzo", "abril", "mayo", "junio",
+            "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+            "fin de semana", "entre semana", "esta tarde", "esta noche",
+            "manana por la manana", "manana temprano", "proxima clase",
+            "antes del examen", "despues del examen", "fecha limite",
+            "pronto", "ahora", "inmediatamente", "cuanto antes"
+        ],
+        "patterns": [
+            "\\d{1,2}[/\\-]\\d{1,2}(?:[/\\-]\\d{2,4})?",
+            "\\d{1,2}\\s+de\\s+\\w+(?:\\s+de\\s+\\d{4})?",
+            "en\\s+\\d+\\s+dias?",
+            "dentro\\s+de\\s+\\d+\\s+dias?",
+            "hace\\s+\\d+\\s+dias?",
+            "\\d+\\s+dias?\\s+(?:antes|despues)"
+        ]
+    },
+    "time_references": {
+        "keywords": [
+            "ahora", "en un momento", "en un rato", "mas tarde",
+            "por la manana", "por la tarde", "por la noche",
+            "temprano", "tarde", "a tiempo", "a las",
+            "mediodia", "medianoche", "antes de", "despues de"
+        ],
+        "patterns": [
+            "\\d{1,2}:\\d{2}(?:\\s*(?:am|pm|hrs?))?",
+            "a\\s+las\\s+\\d{1,2}(?::\\d{2})?(?:\\s*(?:am|pm))?"
+        ]
+    },
+    "course_references": {
+        "patterns": [
+            "curso\\s+(?:de\\s+)?[\\w\\s]+",
+            "materia\\s+(?:de\\s+)?[\\w\\s]+",
+            "asignatura\\s+(?:de\\s+)?[\\w\\s]+",
+            "clase\\s+(?:de\\s+)?[\\w\\s]+"
+        ],
+        "indicators": [
+            "el curso", "la materia", "la asignatura", "la clase",
+            "mi curso", "mi materia", "mi asignatura", "mi clase",
+            "este curso", "esta materia", "esta asignatura", "esta clase"
+        ]
+    },
+    "assignment_references": {
+        "patterns": [
+            "tarea\\s+(?:de\\s+)?[\\w\\s]+",
+            "trabajo\\s+(?:de\\s+)?[\\w\\s]+",
+            "actividad\\s+(?:de\\s+)?[\\w\\s]+",
+            "entrega\\s+(?:de\\s+)?[\\w\\s]+"
+        ],
+        "indicators": [
+            "la tarea", "el trabajo", "la actividad", "la entrega",
+            "mi tarea", "mi trabajo", "mi actividad", "mi entrega",
+            "esta tarea", "este trabajo", "esta actividad", "esta entrega",
+            "esa tarea", "ese trabajo", "esa actividad", "esa entrega"
+        ]
+    },
+    "teacher_references": {
+        "indicators": [
+            "el profesor", "la profesora", "el profe", "la profe",
+            "el docente", "la docente", "el maestro", "la maestra",
+            "mi profesor", "mi profesora", "mi tutor", "mi tutora"
+        ]
+    },
+    "grade_references": {
+        "indicators": [
+            "mi nota", "mi calificacion", "mi promedio", "mi puntaje",
+            "la nota", "la calificacion", "el promedio", "el puntaje",
+            "mis notas", "mis calificaciones", "mis resultados"
+        ]
+    }
+}

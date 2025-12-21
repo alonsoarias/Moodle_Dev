@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/educambot/db" VERSION="20251128" COMMENT="XMLDB file for Moodle local/educambot"
+<XMLDB PATH="local/educambot/db" VERSION="20251221" COMMENT="XMLDB file for Moodle local/educambot"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -204,6 +204,29 @@
       <INDEXES>
         <INDEX NAME="userid_sessionid_idx" UNIQUE="true" FIELDS="userid, sessionid"/>
         <INDEX NAME="timemodified_idx" UNIQUE="false" FIELDS="timemodified"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_educambot_pattern" COMMENT="Knowledge base patterns for bot NLP (v3.2.0)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Pattern type: intent, topic, sentiment, stopword, abbreviation, synonym, entity, conversation"/>
+        <FIELD NAME="patternkey" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Pattern key/identifier"/>
+        <FIELD NAME="patterndata" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="JSON encoded pattern data"/>
+        <FIELD NAME="weight" TYPE="number" LENGTH="5" DECIMALS="2" NOTNULL="true" DEFAULT="1.00" SEQUENCE="false" COMMENT="Pattern weight/priority"/>
+        <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="es" SEQUENCE="false" COMMENT="Language code"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="type_idx" UNIQUE="false" FIELDS="type"/>
+        <INDEX NAME="type_key_idx" UNIQUE="true" FIELDS="type, patternkey, lang"/>
+        <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
+        <INDEX NAME="lang_idx" UNIQUE="false" FIELDS="lang"/>
       </INDEXES>
     </TABLE>
   </TABLES>

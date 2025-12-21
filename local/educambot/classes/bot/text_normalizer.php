@@ -41,24 +41,17 @@ defined('MOODLE_INTERNAL') || die();
  */
 class text_normalizer {
 
-    /** @var array Spanish stopwords to optionally remove */
-    private const STOPWORDS = [
-        'el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas',
-        'de', 'del', 'al', 'a', 'en', 'con', 'por', 'para',
-        'y', 'o', 'u', 'e', 'ni', 'que', 'se', 'su', 'sus',
-        'lo', 'le', 'les', 'me', 'te', 'nos', 'os',
-        'mi', 'tu', 'mis', 'tus', 'este', 'esta', 'esto',
-        'ese', 'esa', 'eso', 'aquel', 'aquella', 'aquello',
-        'es', 'son', 'fue', 'era', 'ser', 'estar', 'esta',
-        'muy', 'mas', 'menos', 'tan', 'tanto',
-        'yo', 'tu', 'el', 'ella', 'nosotros', 'ellos', 'ellas',
-    ];
+    /** @var array Loaded stopwords from JSON */
+    private $stopwords = [];
 
     /** @var array Loaded abbreviations from JSON */
     private $abbreviations = [];
 
     /** @var array Loaded synonyms from JSON */
     private $synonyms = [];
+
+    /** @var array Loaded entity patterns from JSON */
+    private $entityPatterns = [];
 
     /** @var array Reverse synonym map for quick lookup */
     private $reverseSynonymMap = [];
@@ -72,6 +65,9 @@ class text_normalizer {
     /** @var bool Whether data has been loaded */
     private static $dataLoaded = false;
 
+    /** @var array Cached stopwords (static for performance) */
+    private static $cachedStopwords = [];
+
     /** @var array Cached abbreviations (static for performance) */
     private static $cachedAbbreviations = [];
 
@@ -80,6 +76,9 @@ class text_normalizer {
 
     /** @var array Cached reverse map (static for performance) */
     private static $cachedReverseMap = [];
+
+    /** @var array Cached entity patterns (static for performance) */
+    private static $cachedEntities = [];
 
     /**
      * Constructor.
@@ -95,46 +94,39 @@ class text_normalizer {
     }
 
     /**
-     * Load abbreviations and synonyms from JSON files.
+     * Load all data from database via pattern_loader.
      */
     private function load_data(): void {
-        global $CFG;
-
         // Use cached data if available.
         if (self::$dataLoaded) {
+            $this->stopwords = self::$cachedStopwords;
             $this->abbreviations = self::$cachedAbbreviations;
             $this->synonyms = self::$cachedSynonyms;
             $this->reverseSynonymMap = self::$cachedReverseMap;
+            $this->entityPatterns = self::$cachedEntities;
             return;
         }
 
-        $datapath = $CFG->dirroot . '/local/educambot/db/data/';
+        // Load from database via pattern_loader.
+        pattern_loader::load();
 
-        // Load abbreviations.
-        $abbrevFile = $datapath . 'abbreviations.json';
-        if (file_exists($abbrevFile)) {
-            $content = file_get_contents($abbrevFile);
-            $data = json_decode($content, true);
-            if (isset($data['abbreviations'])) {
-                $this->abbreviations = $data['abbreviations'];
-            }
-        }
+        // Get patterns from loader.
+        $this->stopwords = pattern_loader::get_stopwords();
+        $this->abbreviations = pattern_loader::get_abbreviations();
+        $this->synonyms = pattern_loader::get_synonyms();
+        $this->entityPatterns = pattern_loader::get_entities();
 
-        // Load synonyms.
-        $synFile = $datapath . 'synonyms.json';
-        if (file_exists($synFile)) {
-            $content = file_get_contents($synFile);
-            $data = json_decode($content, true);
-            if (isset($data['synonyms'])) {
-                $this->synonyms = $data['synonyms'];
-                $this->build_reverse_synonym_map();
-            }
+        // Build reverse synonym map.
+        if (!empty($this->synonyms)) {
+            $this->build_reverse_synonym_map();
         }
 
         // Cache the loaded data.
+        self::$cachedStopwords = $this->stopwords;
         self::$cachedAbbreviations = $this->abbreviations;
         self::$cachedSynonyms = $this->synonyms;
         self::$cachedReverseMap = $this->reverseSynonymMap;
+        self::$cachedEntities = $this->entityPatterns;
         self::$dataLoaded = true;
     }
 
@@ -187,10 +179,11 @@ class text_normalizer {
     public function analyze(string $text): array {
         $normalized = $this->normalize($text);
         $words = array_filter(explode(' ', $normalized));
+        $stopwords = $this->stopwords;
 
         // Extract meaningful keywords (non-stopwords).
-        $keywords = array_filter($words, function($word) {
-            return !in_array($word, self::STOPWORDS) && mb_strlen($word) > 2;
+        $keywords = array_filter($words, function($word) use ($stopwords) {
+            return !in_array($word, $stopwords) && mb_strlen($word) > 2;
         });
 
         return [
@@ -234,8 +227,9 @@ class text_normalizer {
      */
     public function remove_stopwords(string $text): string {
         $words = explode(' ', $text);
-        $filtered = array_filter($words, function($word) {
-            return !in_array($word, self::STOPWORDS) && mb_strlen($word) > 1;
+        $stopwords = $this->stopwords;
+        $filtered = array_filter($words, function($word) use ($stopwords) {
+            return !in_array($word, $stopwords) && mb_strlen($word) > 1;
         });
         return implode(' ', $filtered);
     }
@@ -566,26 +560,89 @@ class text_normalizer {
     public function extract_entities(string $text): array {
         $entities = [
             'dates' => [],
+            'times' => [],
             'numbers' => [],
             'course_references' => [],
+            'assignment_references' => [],
         ];
 
         // Extract numbers.
         preg_match_all('/\d+/', $text, $numbers);
         $entities['numbers'] = $numbers[0] ?? [];
 
-        // Extract date-like patterns.
-        preg_match_all('/\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?/', $text, $dates);
-        $entities['dates'] = $dates[0] ?? [];
+        // Extract dates using patterns from JSON.
+        if (isset($this->entityPatterns['relative_dates'])) {
+            $dateConfig = $this->entityPatterns['relative_dates'];
 
-        // Extract relative dates.
-        $relativeDates = ['hoy', 'manana', 'ayer', 'esta semana', 'proxima semana',
-                          'este mes', 'proximo mes', 'lunes', 'martes', 'miercoles',
-                          'jueves', 'viernes', 'sabado', 'domingo'];
-        foreach ($relativeDates as $relDate) {
-            if (mb_stripos($text, $relDate) !== false) {
-                $entities['dates'][] = $relDate;
+            // Check date regex patterns.
+            if (!empty($dateConfig['patterns'])) {
+                foreach ($dateConfig['patterns'] as $pattern) {
+                    if (@preg_match_all('/' . $pattern . '/ui', $text, $matches)) {
+                        $entities['dates'] = array_merge($entities['dates'], $matches[0]);
+                    }
+                }
             }
+
+            // Check relative date keywords.
+            if (!empty($dateConfig['keywords'])) {
+                foreach ($dateConfig['keywords'] as $relDate) {
+                    if (mb_stripos($text, $relDate) !== false) {
+                        $entities['dates'][] = $relDate;
+                    }
+                }
+            }
+        }
+
+        // Extract time references.
+        if (isset($this->entityPatterns['time_references'])) {
+            $timeConfig = $this->entityPatterns['time_references'];
+
+            // Check time regex patterns.
+            if (!empty($timeConfig['patterns'])) {
+                foreach ($timeConfig['patterns'] as $pattern) {
+                    if (@preg_match_all('/' . $pattern . '/ui', $text, $matches)) {
+                        $entities['times'] = array_merge($entities['times'], $matches[0]);
+                    }
+                }
+            }
+
+            // Check time keywords.
+            if (!empty($timeConfig['keywords'])) {
+                foreach ($timeConfig['keywords'] as $timeRef) {
+                    if (mb_stripos($text, $timeRef) !== false) {
+                        $entities['times'][] = $timeRef;
+                    }
+                }
+            }
+        }
+
+        // Extract course references.
+        if (isset($this->entityPatterns['course_references'])) {
+            $courseConfig = $this->entityPatterns['course_references'];
+            if (!empty($courseConfig['indicators'])) {
+                foreach ($courseConfig['indicators'] as $indicator) {
+                    if (mb_stripos($text, $indicator) !== false) {
+                        $entities['course_references'][] = $indicator;
+                    }
+                }
+            }
+        }
+
+        // Extract assignment references.
+        if (isset($this->entityPatterns['assignment_references'])) {
+            $assignConfig = $this->entityPatterns['assignment_references'];
+            if (!empty($assignConfig['indicators'])) {
+                foreach ($assignConfig['indicators'] as $indicator) {
+                    if (mb_stripos($text, $indicator) !== false) {
+                        $entities['assignment_references'][] = $indicator;
+                    }
+                }
+            }
+        }
+
+        // Remove duplicates.
+        foreach ($entities as $key => $values) {
+            $entities[$key] = array_unique($values);
         }
 
         return $entities;
@@ -596,9 +653,11 @@ class text_normalizer {
      */
     public static function clear_cache(): void {
         self::$dataLoaded = false;
+        self::$cachedStopwords = [];
         self::$cachedAbbreviations = [];
         self::$cachedSynonyms = [];
         self::$cachedReverseMap = [];
+        self::$cachedEntities = [];
     }
 
     /**

@@ -1,6 +1,6 @@
 {
-    "version": "3.1.0",
-    "description": "EducamBot navigation rules - menus, greetings, and core navigation",
+    "version": "3.2.0",
+    "description": "EducamBot navigation rules - comprehensive navigation, tutorials and help",
     "rules": [
         {
             "id": "startup",
@@ -344,6 +344,333 @@
                 {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
                 {"text": "Menu", "icon": "bi-house", "action": "menu"}
             ]
+        },
+        {
+            "id": "quiz_help",
+            "category": "general",
+            "pattern": "Hacer un quiz",
+            "keywords": [
+                "quiz", "quizzes", "examen", "examenes", "cuestionario", "cuestionarios",
+                "test", "prueba", "pruebas", "evaluacion en linea", "hacer quiz",
+                "presentar examen", "responder quiz", "como hago un quiz",
+                "como presento un examen", "intentos quiz", "tiempo limite",
+                "abrir quiz", "comenzar examen", "empezar quiz", "iniciar examen",
+                "parcial", "parciales", "final", "evaluacion"
+            ],
+            "response": "Para <strong>realizar un quiz o examen</strong>:<br><br>1. Ve a <a href='/my/courses.php' target='_blank'>Mis Cursos</a><br>2. Selecciona el curso<br>3. Busca la actividad de Quiz o Cuestionario<br>4. Haz clic y lee las instrucciones<br>5. Pulsa <strong>Comenzar intento</strong><br><br><strong>Consejos:</strong><br>• Revisa el tiempo limite<br>• Lee bien cada pregunta<br>• Guarda tus respuestas periodicamente<br>• Al terminar, pulsa <strong>Enviar todo y terminar</strong>",
+            "tags": ["quiz", "examen", "evaluacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Calendario", "icon": "bi-calendar3", "action": "calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "progress_tracking",
+            "category": "general",
+            "pattern": "Ver mi progreso",
+            "keywords": [
+                "mi progreso", "progreso", "avance", "como voy", "cuanto he avanzado",
+                "cuanto llevo", "porcentaje completado", "que me falta", "actividades completadas",
+                "seguimiento", "completar curso", "requisitos del curso", "ver avance",
+                "estado de curso", "porcentaje curso", "completado", "incompleto",
+                "que he hecho", "actividades pendientes curso", "rastreo de progreso"
+            ],
+            "response": "Para ver tu <strong>progreso</strong> en un curso:<br><br>1. Ve a <a href='/my/courses.php' target='_blank'>Mis Cursos</a><br>2. Selecciona el curso<br>3. Busca la barra de progreso (si esta habilitada)<br>4. O ve a <strong>Calificaciones</strong> para ver actividades completadas<br><br>Las actividades marcadas con ✓ estan completadas. Los requisitos pendientes aparecen sin marcar.",
+            "tags": ["progreso", "avance", "seguimiento"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "enrollment_help",
+            "category": "general",
+            "pattern": "Inscribirme a un curso",
+            "keywords": [
+                "inscribirme", "inscripcion", "inscribir", "matricularme", "matricula",
+                "registrarme en curso", "agregar curso", "unirme a curso", "entrar a curso",
+                "clave de inscripcion", "codigo de inscripcion", "auto inscripcion",
+                "como me inscribo", "como me matriculo", "como entro a un curso",
+                "nuevo curso", "acceder a curso", "darme de alta", "enrolarme",
+                "enroll", "enrollment", "unirme"
+            ],
+            "response": "Para <strong>inscribirte en un curso</strong>:<br><br><strong>Opcion 1 - Buscar curso:</strong><br>1. Ve a <a href='/course/index.php' target='_blank'>Todos los cursos</a><br>2. Busca el curso deseado<br>3. Haz clic en <strong>Inscribirme</strong><br>4. Si pide clave, ingresa la proporcionada por tu profesor<br><br><strong>Opcion 2 - Con enlace directo:</strong><br>Si tienes un enlace al curso, usalo y sigue las instrucciones.<br><br>Si tienes problemas, contacta a tu profesor o soporte.",
+            "tags": ["inscripcion", "matricula", "curso nuevo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver todos los cursos", "icon": "bi-grid", "action": "catalogo de cursos"},
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "course_catalog",
+            "category": "general",
+            "pattern": "Catalogo de cursos",
+            "keywords": [
+                "catalogo de cursos", "todos los cursos", "buscar cursos", "cursos disponibles",
+                "ver cursos", "lista de cursos disponibles", "oferta de cursos",
+                "cursos abiertos", "explorar cursos", "que cursos hay", "catalogo"
+            ],
+            "response": "Puedes explorar el <strong>catalogo de cursos</strong> disponibles aqui:<br><br><a href='/course/index.php' target='_blank'><strong>Ver todos los cursos</strong></a><br><br>Navega por categorias o usa el buscador para encontrar cursos especificos. Si encuentras uno que te interesa, haz clic para ver mas informacion e inscribirte.",
+            "tags": ["catalogo", "cursos", "buscar"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "password_reset",
+            "category": "general",
+            "pattern": "Cambiar contraseña",
+            "keywords": [
+                "cambiar contrasena", "cambiar clave", "nueva contrasena", "olvide mi contrasena",
+                "recuperar contrasena", "restablecer contrasena", "password", "clave de acceso",
+                "no puedo entrar", "no recuerdo mi contrasena", "como cambio mi clave",
+                "cambiar password", "actualizar contrasena", "mi clave no funciona",
+                "resetear contrasena", "reset password"
+            ],
+            "response": "Para <strong>cambiar tu contrasena</strong>:<br><br><strong>Si puedes iniciar sesion:</strong><br>1. Haz clic en tu foto/nombre (esquina superior derecha)<br>2. Selecciona <strong>Preferencias</strong><br>3. Busca <strong>Cambiar contrasena</strong><br>4. Ingresa la actual y la nueva<br><br><strong>Si olvidaste tu contrasena:</strong><br>1. En la pagina de login, haz clic en <strong>¿Olvidaste tu contrasena?</strong><br>2. Ingresa tu email<br>3. Revisa tu correo y sigue las instrucciones",
+            "tags": ["contrasena", "password", "seguridad"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi Perfil", "icon": "bi-person", "action": "mi perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "notifications_settings",
+            "category": "general",
+            "pattern": "Configurar notificaciones",
+            "keywords": [
+                "notificaciones", "configurar notificaciones", "preferencias de notificacion",
+                "alertas", "avisos", "como activo notificaciones", "desactivar notificaciones",
+                "no me llegan notificaciones", "recibir alertas", "email de avisos",
+                "notificaciones por correo", "configurar alertas", "ajustes de notificacion"
+            ],
+            "response": "Para <strong>configurar tus notificaciones</strong>:<br><br>1. Haz clic en tu foto/nombre (esquina superior derecha)<br>2. Selecciona <strong>Preferencias</strong><br>3. Busca <strong>Preferencias de notificacion</strong><br>4. Configura que avisos quieres recibir:<br>&nbsp;&nbsp;• Por correo electronico<br>&nbsp;&nbsp;• En la plataforma (web)<br>&nbsp;&nbsp;• En la app movil<br><br>Puedes activar/desactivar cada tipo de notificacion.",
+            "tags": ["notificaciones", "alertas", "configuracion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi Perfil", "icon": "bi-person", "action": "mi perfil"},
+                {"text": "Mensajes", "icon": "bi-chat-dots", "action": "mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "badges_certificates",
+            "category": "general",
+            "pattern": "Ver mis insignias",
+            "keywords": [
+                "insignias", "badges", "mis insignias", "ver insignias", "medallas",
+                "certificado", "certificados", "constancia", "constancias", "diploma",
+                "logros", "mis logros", "reconocimientos", "obtener certificado",
+                "descargar certificado", "como obtengo certificado", "badge"
+            ],
+            "response": "Para ver tus <strong>insignias y certificados</strong>:<br><br><strong>Insignias:</strong><br>1. Haz clic en tu foto/nombre<br>2. Selecciona <strong>Perfil</strong><br>3. Busca la seccion de <strong>Insignias</strong><br><br><strong>Certificados:</strong><br>1. Ve al curso correspondiente<br>2. Busca la actividad de Certificado<br>3. Si cumples los requisitos, podras descargarlo<br><br>Los certificados requieren completar ciertas actividades del curso.",
+            "tags": ["insignias", "certificados", "logros"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi Perfil", "icon": "bi-person", "action": "mi perfil"},
+                {"text": "Mi Progreso", "icon": "bi-graph-up", "action": "mi progreso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "mobile_app",
+            "category": "general",
+            "pattern": "App movil",
+            "keywords": [
+                "app", "aplicacion", "movil", "celular", "smartphone", "moodle app",
+                "descargar app", "app de moodle", "usar en celular", "version movil",
+                "aplicacion movil", "como uso en mi celular", "app android", "app ios",
+                "app iphone", "instalar app", "app moodle mobile"
+            ],
+            "response": "Puedes acceder desde tu <strong>dispositivo movil</strong>:<br><br><strong>Moodle App:</strong><br>1. Descarga <strong>Moodle</strong> desde:<br>&nbsp;&nbsp;• <a href='https://play.google.com/store/apps/details?id=com.moodle.moodlemobile' target='_blank'>Google Play</a> (Android)<br>&nbsp;&nbsp;• <a href='https://apps.apple.com/app/moodle/id633359593' target='_blank'>App Store</a> (iOS)<br><br>2. Abre la app e ingresa la URL de la plataforma<br>3. Inicia sesion con tus credenciales<br><br><strong>Navegador movil:</strong><br>Tambien puedes acceder desde el navegador de tu celular.",
+            "tags": ["app", "movil", "celular"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "technical_problems",
+            "category": "general",
+            "pattern": "Problemas tecnicos",
+            "keywords": [
+                "problema tecnico", "error", "no carga", "no abre", "pagina en blanco",
+                "no funciona", "falla", "bug", "no puedo acceder", "se traba",
+                "muy lento", "no me deja entrar", "pantalla blanca", "error de sistema",
+                "no responde", "se congela", "no carga la pagina", "mensaje de error",
+                "problema con la plataforma", "la pagina no funciona"
+            ],
+            "response": "Si tienes <strong>problemas tecnicos</strong>, prueba lo siguiente:<br><br><strong>Soluciones rapidas:</strong><br>1. Actualiza la pagina (F5 o Ctrl+R)<br>2. Limpia la cache del navegador<br>3. Prueba en otro navegador (Chrome, Firefox)<br>4. Verifica tu conexion a internet<br>5. Intenta en modo incognito<br><br><strong>Si el problema persiste:</strong><br>• Contacta a soporte tecnico<br>• Describe el error exacto<br>• Indica que estabas haciendo",
+            "tags": ["error", "soporte", "tecnico"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "language_settings",
+            "category": "general",
+            "pattern": "Cambiar idioma",
+            "keywords": [
+                "idioma", "cambiar idioma", "language", "espanol", "ingles", "english",
+                "configurar idioma", "como cambio el idioma", "plataforma en ingles",
+                "poner en espanol", "traducir", "otro idioma"
+            ],
+            "response": "Para <strong>cambiar el idioma</strong> de la plataforma:<br><br>1. Haz clic en tu foto/nombre (esquina superior derecha)<br>2. Selecciona <strong>Preferencias</strong><br>3. Busca <strong>Idioma preferido</strong><br>4. Selecciona el idioma deseado<br>5. Guarda los cambios<br><br>Algunos cursos pueden tener contenido solo en un idioma especifico.",
+            "tags": ["idioma", "configuracion", "preferencias"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi Perfil", "icon": "bi-person", "action": "mi perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "group_activities",
+            "category": "general",
+            "pattern": "Trabajo en grupo",
+            "keywords": [
+                "grupo", "grupos", "trabajo en grupo", "actividad grupal", "equipo",
+                "equipos", "mis grupos", "companeros de grupo", "integrantes de grupo",
+                "actividad de grupo", "tarea grupal", "trabajo colaborativo",
+                "ver mi grupo", "quienes estan en mi grupo", "como trabajo en grupo"
+            ],
+            "response": "Para trabajar en <strong>actividades de grupo</strong>:<br><br>1. Ve al curso correspondiente<br>2. Busca la actividad grupal<br>3. Si estas asignado a un grupo, veras la informacion<br><br><strong>Ver tus grupos:</strong><br>1. Dentro del curso, ve a <strong>Participantes</strong><br>2. Usa el filtro de grupos para ver los miembros<br><br>Algunos cursos asignan grupos automaticamente, otros permiten que elijas.",
+            "tags": ["grupos", "equipo", "colaborativo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "participants_list",
+            "category": "general",
+            "pattern": "Ver participantes",
+            "keywords": [
+                "participantes", "companeros", "estudiantes del curso", "lista de estudiantes",
+                "quienes estan en el curso", "ver companeros", "alumnos", "compañeros de clase",
+                "miembros del curso", "quienes son mis companeros", "otros estudiantes"
+            ],
+            "response": "Para ver los <strong>participantes</strong> de un curso:<br><br>1. Ve a <a href='/my/courses.php' target='_blank'>Mis Cursos</a><br>2. Selecciona el curso<br>3. En el menu del curso, busca <strong>Participantes</strong><br>4. Veras la lista de estudiantes y profesores<br><br>Puedes enviar mensajes a otros participantes haciendo clic en su nombre.",
+            "tags": ["participantes", "companeros", "estudiantes"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Mensajes", "icon": "bi-chat-dots", "action": "mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "edit_submission",
+            "category": "general",
+            "pattern": "Editar entrega",
+            "keywords": [
+                "editar entrega", "modificar tarea", "cambiar entrega", "reenviar tarea",
+                "corregir tarea", "actualizar tarea", "volver a enviar", "resubir archivo",
+                "me equivoque en la tarea", "quiero cambiar mi tarea", "eliminar entrega",
+                "borrar entrega", "subir otro archivo"
+            ],
+            "response": "Para <strong>editar una entrega</strong> de tarea:<br><br>1. Ve al curso y busca la tarea<br>2. Haz clic en la tarea<br>3. Si esta permitido, veras <strong>Editar entrega</strong><br>4. Elimina el archivo anterior si es necesario<br>5. Sube el nuevo archivo<br>6. Pulsa <strong>Guardar cambios</strong><br><br><strong>Importante:</strong><br>• Verifica la fecha limite<br>• Algunos profesores no permiten ediciones<br>• Si ya fue calificada, puede que no puedas editarla",
+            "tags": ["tareas", "editar", "entrega"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Tareas", "icon": "bi-list-task", "action": "mis tareas"},
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "video_conference",
+            "category": "general",
+            "pattern": "Clase en vivo",
+            "keywords": [
+                "clase en vivo", "videollamada", "videoconferencia", "zoom", "meet",
+                "bigbluebutton", "bbb", "sesion en vivo", "clase virtual", "clase online",
+                "reunion virtual", "webinar", "como entro a la clase", "enlace de la clase",
+                "donde es la clase virtual", "conferencia", "teams"
+            ],
+            "response": "Para unirte a una <strong>clase en vivo</strong>:<br><br>1. Ve al curso correspondiente<br>2. Busca la actividad de videoconferencia (BigBlueButton, Zoom, etc.)<br>3. Haz clic cuando sea la hora<br>4. Sigue las instrucciones para unirte<br><br><strong>Consejos:</strong><br>• Verifica la hora en el calendario<br>• Asegurate de tener microfono/camara si se requiere<br>• Prueba tu conexion antes<br>• Llega unos minutos antes",
+            "tags": ["videoconferencia", "clase virtual", "en vivo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calendario", "icon": "bi-calendar3", "action": "calendario"},
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "dashboard",
+            "category": "general",
+            "pattern": "Tablero principal",
+            "keywords": [
+                "dashboard", "tablero", "area personal", "pagina principal", "inicio",
+                "mi pagina", "mi tablero", "panel principal", "resumen", "vista general",
+                "home", "ir al inicio", "pagina de inicio"
+            ],
+            "response": "Tu <strong>Tablero</strong> es tu pagina de inicio personalizada:<br><br><a href='/my/' target='_blank'><strong>Ir al Tablero</strong></a><br><br>Desde ahi puedes ver:<br>• Linea de tiempo con proximas actividades<br>• Vista general de tus cursos<br>• Calendario con eventos<br>• Archivos recientes<br>• Mensajes y notificaciones",
+            "tags": ["dashboard", "inicio", "tablero"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+                {"text": "Calendario", "icon": "bi-calendar3", "action": "calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "private_files",
+            "category": "general",
+            "pattern": "Mis archivos",
+            "keywords": [
+                "mis archivos", "archivos privados", "guardar archivos", "subir archivos",
+                "almacenamiento", "donde guardo mis archivos", "espacio de archivos",
+                "archivos personales", "carpeta de archivos", "repositorio personal"
+            ],
+            "response": "Tu espacio de <strong>Archivos Privados</strong>:<br><br>1. Haz clic en tu foto/nombre (esquina superior derecha)<br>2. Selecciona <strong>Archivos privados</strong><br>3. Aqui puedes subir y organizar tus archivos<br><br>Estos archivos son personales y solo tu puedes verlos. Puedes usarlos en tus entregas de tareas.",
+            "tags": ["archivos", "almacenamiento", "personal"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi Perfil", "icon": "bi-person", "action": "mi perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "logout",
+            "category": "general",
+            "pattern": "Cerrar sesion",
+            "keywords": [
+                "cerrar sesion", "salir", "logout", "desconectar", "log out",
+                "como salgo", "como cierro sesion", "cerrar mi cuenta", "desloguear",
+                "terminar sesion", "finalizar sesion"
+            ],
+            "response": "Para <strong>cerrar sesion</strong>:<br><br>1. Haz clic en tu foto/nombre (esquina superior derecha)<br>2. Selecciona <strong>Cerrar sesion</strong> o <strong>Salir</strong><br><br><strong>Importante:</strong><br>• Cierra sesion en computadoras compartidas<br>• Esto protege tu cuenta<br>• Deberas volver a iniciar sesion la proxima vez",
+            "tags": ["sesion", "logout", "salir"],
+            "enabled": true,
+            "showoptions": false
         }
     ]
 }

@@ -17,7 +17,7 @@
 /**
  * Plugin installation script - loads knowledge base from JSON files.
  *
- * EducamBot v2.0.9 - JSON-based knowledge base architecture.
+ * EducamBot v3.2.0 - Complete JSON-based knowledge base architecture.
  *
  * This file reads data from db/data/*.json files and inserts them
  * into the database. This modular approach allows:
@@ -25,6 +25,7 @@
  * - Separation of data and logic
  * - Simpler translations
  * - Independent versioning of KB content
+ * - NLP patterns loaded from external JSON files
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -66,6 +67,9 @@ function xmldb_local_educambot_install() {
 
         // Step 6: Install default schedule (24/7).
         install_default_schedule($now);
+
+        // Step 7: Install NLP patterns (v3.2.0).
+        install_nlp_patterns($datapath, $now);
 
         return true;
 
@@ -298,4 +302,108 @@ function install_default_schedule($now) {
 
         $DB->insert_record('local_educambot_schedule', $record);
     }
+}
+
+/**
+ * Install NLP patterns from JSON files (v3.2.0).
+ *
+ * @param string $datapath Path to data directory
+ * @param int $now Current timestamp
+ */
+function install_nlp_patterns($datapath, $now) {
+    // Load structured patterns (intents, topics, sentiments).
+    install_structured_patterns($datapath . 'intents.json', 'intent', $now);
+    install_structured_patterns($datapath . 'topics.json', 'topic', $now);
+    install_structured_patterns($datapath . 'sentiments.json', 'sentiment', $now);
+
+    // Load simple patterns (full JSON as single record).
+    install_simple_patterns($datapath . 'stopwords.json', 'stopword', $now);
+    install_simple_patterns($datapath . 'abbreviations.json', 'abbreviation', $now);
+    install_simple_patterns($datapath . 'synonyms.json', 'synonym', $now);
+    install_simple_patterns($datapath . 'entities.json', 'entity', $now);
+    install_simple_patterns($datapath . 'conversation.json', 'conversation', $now);
+}
+
+/**
+ * Install structured patterns from JSON file.
+ *
+ * @param string $filepath Path to JSON file
+ * @param string $type Pattern type (intent, topic, sentiment)
+ * @param int $now Current timestamp
+ */
+function install_structured_patterns($filepath, $type, $now) {
+    global $DB;
+
+    if (!file_exists($filepath)) {
+        return;
+    }
+
+    $json = file_get_contents($filepath);
+    $data = json_decode($json, true);
+
+    if (!$data) {
+        return;
+    }
+
+    $lang = $data['lang'] ?? 'es';
+    $patternsKey = $type . 's'; // intents, topics, sentiments.
+
+    if (!isset($data[$patternsKey])) {
+        return;
+    }
+
+    $sortorder = 0;
+    foreach ($data[$patternsKey] as $key => $patternData) {
+        $weight = $patternData['weight'] ?? $patternData['priority'] ?? 1.0;
+
+        $record = new stdClass();
+        $record->type = $type;
+        $record->patternkey = $key;
+        $record->patterndata = json_encode($patternData);
+        $record->weight = $weight;
+        $record->lang = $lang;
+        $record->enabled = 1;
+        $record->sortorder = $sortorder++;
+        $record->timecreated = $now;
+        $record->timemodified = $now;
+
+        $DB->insert_record('local_educambot_pattern', $record);
+    }
+}
+
+/**
+ * Install simple patterns (full JSON as single record).
+ *
+ * @param string $filepath Path to JSON file
+ * @param string $type Pattern type
+ * @param int $now Current timestamp
+ */
+function install_simple_patterns($filepath, $type, $now) {
+    global $DB;
+
+    if (!file_exists($filepath)) {
+        return;
+    }
+
+    $json = file_get_contents($filepath);
+    $data = json_decode($json, true);
+
+    if (!$data) {
+        return;
+    }
+
+    $lang = $data['lang'] ?? 'es';
+
+    $record = new stdClass();
+    $record->type = $type;
+    $record->patternkey = 'default';
+    $record->patterndata = $json;
+    $record->weight = 1.0;
+    $record->lang = $lang;
+    $record->enabled = 1;
+    $record->sortorder = 0;
+    $record->timecreated = $now;
+    $record->timemodified = $now;
+
+    $DB->insert_record('local_educambot_pattern', $record);
 }
