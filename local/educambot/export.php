@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Export knowledge base to JSON or CSV file (v3.5.0).
+ * Export knowledge base to JSON or CSV file (v3.6.0).
  *
  * Exports the complete knowledge base including all fields.
+ * CSV now includes options as JSON array field for full compatibility.
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -89,8 +90,9 @@ foreach ($rules as $rule) {
 }
 
 $exportoptions = [];
+$optionsByRule = [];
 foreach ($options as $opt) {
-    $exportoptions[] = [
+    $optData = [
         'id' => (int)$opt->id,
         'ruleid' => (int)$opt->ruleid,
         'text' => $opt->text,
@@ -100,10 +102,21 @@ foreach ($options as $opt) {
         'sortorder' => (int)$opt->sortorder,
         'enabled' => (int)$opt->enabled,
     ];
+    $exportoptions[] = $optData;
+
+    // Group options by rule ID for CSV export.
+    if (!isset($optionsByRule[$opt->ruleid])) {
+        $optionsByRule[$opt->ruleid] = [];
+    }
+    $optionsByRule[$opt->ruleid][] = [
+        'text' => $opt->text,
+        'action' => $opt->action ?? '',
+        'icon' => $opt->icon ?? '',
+    ];
 }
 
 if ($format === 'csv') {
-    // Export as CSV (rules only - flat format).
+    // Export as CSV with options included as JSON field (v3.6.0).
     // Using semicolon separator for Excel compatibility (Spanish/European locale).
     $filename = 'educambot_rules_' . date('Y-m-d_His') . '.csv';
 
@@ -113,7 +126,7 @@ if ($format === 'csv') {
     header('Pragma: no-cache');
     header('Expires: 0');
 
-    // CSV header - all fields.
+    // CSV header - all fields including options as JSON (v3.6.0).
     $csvHeader = [
         'id',
         'category',
@@ -124,6 +137,7 @@ if ($format === 'csv') {
         'tags',
         'enabled',
         'showoptions',
+        'options',  // JSON array of options (v3.6.0).
         'contextaware',
         'dynamicresponse',
         'requiredcontext',
@@ -149,7 +163,14 @@ if ($format === 'csv') {
     foreach ($exportrules as $rule) {
         $row = [];
         foreach ($csvHeader as $field) {
-            $value = $rule[$field] ?? '';
+            if ($field === 'options') {
+                // Include options as JSON array (v3.6.0).
+                $ruleId = $rule['id'] ?? 0;
+                $ruleOptions = $optionsByRule[$ruleId] ?? [];
+                $value = !empty($ruleOptions) ? json_encode($ruleOptions, JSON_UNESCAPED_UNICODE) : '';
+            } else {
+                $value = $rule[$field] ?? '';
+            }
             // Handle multiline fields - preserve as literal \n for Excel.
             if (is_string($value)) {
                 $value = str_replace(["\r\n", "\r", "\n"], "\\n", $value);
@@ -164,7 +185,7 @@ if ($format === 'csv') {
 } else {
     // Export as JSON (full export with categories, rules, options).
     $exportdata = [
-        'version' => '3.5.0',
+        'version' => '3.6.0',
         'exported_at' => date('Y-m-d H:i:s'),
         'exported_by' => fullname($USER),
         'site' => $CFG->wwwroot,

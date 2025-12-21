@@ -1,9 +1,9 @@
 {
-    "version": "3.5.0",
+    "version": "3.6.0",
     "description": "Plantilla de ejemplo para importar reglas de conocimiento a EducamBot",
     "instructions": {
-        "es": "Modifica las categorias, reglas y opciones segun tus necesidades. Puedes eliminar las secciones que no necesites.",
-        "en": "Modify categories, rules and options according to your needs. You can remove sections you don't need."
+        "es": "Modifica las categorias, reglas y opciones segun tus necesidades. Puedes eliminar las secciones que no necesites. En CSV, las opciones van como array JSON en el campo 'options'.",
+        "en": "Modify categories, rules and options according to your needs. You can remove sections you don't need. In CSV, options go as JSON array in the 'options' field."
     },
     "field_descriptions": {
         "pattern": "Patron principal de pregunta que activa esta regla",

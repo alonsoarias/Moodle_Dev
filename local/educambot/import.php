@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Import/Export page for knowledge base (v3.5.0).
+ * Import/Export page for knowledge base (v3.6.0).
  *
  * Supports both JSON and CSV file formats for importing and exporting.
+ * CSV now supports options as JSON array field for full compatibility.
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -73,8 +74,9 @@ class import_form extends moodleform {
 }
 
 /**
- * Parse CSV content into rules array.
+ * Parse CSV content into rules array (v3.6.0).
  * Supports both comma (,) and semicolon (;) as delimiters.
+ * Now also parses options from JSON field.
  *
  * @param string $content CSV content
  * @return array|false Parsed data or false on error
@@ -105,6 +107,7 @@ function parse_csv_import($content) {
     }
 
     $rules = [];
+    $options = [];
     $rownum = 1;
     foreach ($lines as $line) {
         if (empty(trim($line))) {
@@ -123,24 +126,46 @@ function parse_csv_import($content) {
 
         // Convert escaped newlines back to real newlines.
         foreach ($row as $key => $value) {
-            if (is_string($value)) {
+            if (is_string($value) && $key !== 'options') {
                 $row[$key] = str_replace('\\n', "\n", $value);
             }
         }
 
         // Add row number as ID if not present.
-        if (!isset($row['id'])) {
+        if (!isset($row['id']) || empty($row['id'])) {
             $row['id'] = $rownum;
         }
-        $rownum++;
+        $ruleId = $row['id'];
 
+        // Parse options from JSON field (v3.6.0).
+        if (!empty($row['options'])) {
+            $optionsData = json_decode($row['options'], true);
+            if (is_array($optionsData)) {
+                $sortorder = 0;
+                foreach ($optionsData as $opt) {
+                    $options[] = [
+                        'ruleid' => $ruleId,
+                        'text' => $opt['text'] ?? '',
+                        'action' => $opt['action'] ?? '',
+                        'icon' => $opt['icon'] ?? '',
+                        'sortorder' => $sortorder++,
+                        'enabled' => 1,
+                    ];
+                }
+            }
+            // Remove options from rule data (it's handled separately).
+            unset($row['options']);
+        }
+
+        $rownum++;
         $rules[] = $row;
     }
 
     return [
-        'version' => '3.5.0',
+        'version' => '3.6.0',
         'format' => 'csv',
         'rules' => $rules,
+        'options' => $options,
     ];
 }
 
