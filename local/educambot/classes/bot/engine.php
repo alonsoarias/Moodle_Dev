@@ -110,13 +110,8 @@ class engine {
         'priority_boost' => 5,
     ];
 
-    /** @var array Question words in Spanish for enhanced detection (v3.6.0) */
-    protected const QUESTION_WORDS = [
-        'como', 'cómo', 'que', 'qué', 'cual', 'cuál', 'cuales', 'cuáles',
-        'donde', 'dónde', 'cuando', 'cuándo', 'quien', 'quién', 'quienes', 'quiénes',
-        'cuanto', 'cuánto', 'cuanta', 'cuánta', 'cuantos', 'cuántos', 'cuantas', 'cuántas',
-        'porque', 'por qué', 'para que', 'para qué',
-    ];
+    /** @var array Question words loaded from database for question detection (v3.6.0) */
+    protected $questionWords = [];
 
     /**
      * Constructor.
@@ -140,6 +135,9 @@ class engine {
         // Initialize archetype-aware features (v3.4.0).
         $this->userArchetype = $this->moodleContext->get_user_archetype();
         $this->archetypePriorityTopics = pattern_loader::get_archetype_priority_topics($this->userArchetype);
+
+        // Load question words from database (v3.6.0).
+        $this->questionWords = pattern_loader::get_question_words();
     }
 
     /**
@@ -887,9 +885,9 @@ class engine {
         $firstQWord = $questionWords[0] ?? '';
         $firstPWord = $patternWords[0] ?? '';
 
-        // Check if both start with a question word.
-        $qIsQuestion = in_array($firstQWord, self::QUESTION_WORDS);
-        $pIsQuestion = in_array($firstPWord, self::QUESTION_WORDS);
+        // Check if both start with a question word (loaded from database v3.6.0).
+        $qIsQuestion = in_array($firstQWord, $this->questionWords);
+        $pIsQuestion = in_array($firstPWord, $this->questionWords);
 
         if ($qIsQuestion && $pIsQuestion) {
             // Same question word = higher bonus.

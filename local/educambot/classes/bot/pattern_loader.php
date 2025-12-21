@@ -142,6 +142,26 @@ class pattern_loader {
     }
 
     /**
+     * Get question words for question detection (v3.6.0).
+     *
+     * @return array Question words
+     */
+    public static function get_question_words(): array {
+        $intents = self::get('intent');
+        return $intents['question_words']['words'] ?? [];
+    }
+
+    /**
+     * Get question word patterns (v3.6.0).
+     *
+     * @return array Question word regex patterns
+     */
+    public static function get_question_patterns(): array {
+        $intents = self::get('intent');
+        return $intents['question_words']['patterns'] ?? [];
+    }
+
+    /**
      * Get topic patterns.
      *
      * @return array Topic patterns

@@ -1,7 +1,26 @@
 {
-    "version": "2.0.0",
+    "version": "3.6.0",
     "description": "EducamBot intent patterns - comprehensive user intent classification",
     "lang": "es",
+    "question_words": {
+        "description": "Palabras interrogativas en español para detección de preguntas",
+        "words": [
+            "como", "cómo", "que", "qué", "cual", "cuál", "cuales", "cuáles",
+            "donde", "dónde", "cuando", "cuándo", "quien", "quién", "quienes", "quiénes",
+            "cuanto", "cuánto", "cuanta", "cuánta", "cuantos", "cuántos", "cuantas", "cuántas",
+            "porque", "por qué", "para que", "para qué"
+        ],
+        "patterns": [
+            "^(cómo|como)\\s+",
+            "^(qué|que)\\s+",
+            "^(cuál|cual|cuáles|cuales)\\s+",
+            "^(dónde|donde)\\s+",
+            "^(cuándo|cuando)\\s+",
+            "^(quién|quien|quiénes|quienes)\\s+",
+            "^(cuánto|cuanto|cuánta|cuanta|cuántos|cuantos|cuántas|cuantas)\\s+",
+            "^(por qué|porque|para qué|para que)\\s+"
+        ]
+    },
     "intents": {
         "greeting": {
             "patterns": [
