@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025122105;  // YYYYMMDDXX format.
+$plugin->version = 2025122106;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.5.1';  // Enhanced import/export with JSON and CSV support.
+$plugin->release = '3.6.0';  // Engine improvements: phrase matching, position weighting, prefix/stem matching.

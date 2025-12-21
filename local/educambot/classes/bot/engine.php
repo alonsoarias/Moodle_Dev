@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Bot engine - handles question processing and response generation (v3.4.0).
+ * Bot engine - handles question processing and response generation (v3.6.0).
  *
  * Major improvements:
  * - Advanced text normalization with abbreviation expansion
@@ -32,6 +32,11 @@
  * - Database-driven response templates (v3.3.0)
  * - Role-aware responses with archetype priority scoring (v3.4.0)
  * - Archetype-specific menu options and quick actions (v3.4.0)
+ * - Phrase matching with word order consideration (v3.6.0)
+ * - Improved keyword scoring with position weighting (v3.6.0)
+ * - Prefix/stem matching for partial words (v3.6.0)
+ * - Sub-phrase detection for longer queries (v3.6.0)
+ * - Enhanced question word detection (v3.6.0)
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -86,18 +91,31 @@ class engine {
         'exact_match' => 100,
         'pattern_contains' => 45,
         'question_contains' => 35,
+        'phrase_order_match' => 32,      // Phrase with correct word order (v3.6.0).
         'word_overlap' => 30,
-        'keyword_match' => 25,
         'multi_word_keyword' => 28,
+        'keyword_match' => 25,
+        'sub_phrase_match' => 23,        // Partial phrase match (v3.6.0).
+        'prefix_match' => 22,            // Word prefix/stem match (v3.6.0).
         'synonym_match' => 20,
         'ngram_match' => 18,
+        'question_word_bonus' => 16,     // Bonus for matching question words (v3.6.0).
         'levenshtein' => 15,
         'context_boost' => 12,
-        'archetype_priority' => 12,   // Boost for archetype priority topics (v3.4.0).
+        'archetype_priority' => 12,      // Boost for archetype priority topics (v3.4.0).
         'topic_match' => 10,
         'feedback_boost' => 10,
-        'priority_boost' => 5,
+        'position_bonus' => 8,           // Bonus for early position match (v3.6.0).
         'intent_match' => 8,
+        'priority_boost' => 5,
+    ];
+
+    /** @var array Question words in Spanish for enhanced detection (v3.6.0) */
+    protected const QUESTION_WORDS = [
+        'como', 'cómo', 'que', 'qué', 'cual', 'cuál', 'cuales', 'cuáles',
+        'donde', 'dónde', 'cuando', 'cuándo', 'quien', 'quién', 'quienes', 'quiénes',
+        'cuanto', 'cuánto', 'cuanta', 'cuánta', 'cuantos', 'cuántos', 'cuantas', 'cuántas',
+        'porque', 'por qué', 'para que', 'para qué',
     ];
 
     /**
@@ -596,44 +614,45 @@ class engine {
             }
         }
 
-        // 3. Word overlap (Jaccard-like).
+        // 3. Phrase matching with word order consideration (v3.6.0).
+        $phraseScore = $this->calculate_phrase_order_score($questionWords, $patternWords);
+        if ($phraseScore > 0.5) {
+            $score += (int)(self::SCORE_WEIGHTS['phrase_order_match'] * $phraseScore);
+        }
+
+        // 4. Word overlap (Jaccard-like).
         $commonWords = array_intersect($questionWords, $patternWords);
         if (count($patternWords) > 0) {
             $overlapRatio = count($commonWords) / count($patternWords);
             $score += (int)(self::SCORE_WEIGHTS['word_overlap'] * $overlapRatio);
         }
 
-        // 4. Keyword matching from rule keywords (improved).
+        // 5. Keyword matching from rule keywords (improved with position weighting v3.6.0).
         if (!empty($rule->keywords)) {
             $keywords = array_filter(array_map('trim', explode("\n", $rule->keywords)));
-            foreach ($keywords as $keyword) {
-                $normalizedKeyword = $this->normalizer->normalize($keyword);
-                if (!empty($normalizedKeyword)) {
-                    // Check for multi-word keywords (higher score).
-                    $keywordWordCount = count(explode(' ', $normalizedKeyword));
-                    if ($keywordWordCount > 1 && mb_strpos($question, $normalizedKeyword) !== false) {
-                        $score += self::SCORE_WEIGHTS['multi_word_keyword'];
-                    } else if (mb_strpos($question, $normalizedKeyword) !== false) {
-                        // Direct single word match.
-                        $score += self::SCORE_WEIGHTS['keyword_match'];
-                    } else {
-                        // Synonym match.
-                        $keywordResult = $this->normalizer->contains_keywords($question, [$normalizedKeyword], true);
-                        if ($keywordResult['found']) {
-                            $score += self::SCORE_WEIGHTS['synonym_match'];
-                        }
-                    }
-                }
-            }
+            $keywordScore = $this->calculate_keyword_score($question, $questionWords, $keywords);
+            $score += $keywordScore;
         }
 
-        // 5. N-gram matching for partial phrase matching.
+        // 6. N-gram matching for partial phrase matching.
         $ngramScore = $this->calculate_ngram_score($question, $pattern);
         if ($ngramScore > 0.3) {
             $score += (int)(self::SCORE_WEIGHTS['ngram_match'] * $ngramScore);
         }
 
-        // 6. Levenshtein distance for typo tolerance.
+        // 7. Prefix/stem matching for partial words (v3.6.0).
+        $prefixScore = $this->calculate_prefix_match_score($questionWords, $patternWords);
+        if ($prefixScore > 0) {
+            $score += (int)(self::SCORE_WEIGHTS['prefix_match'] * $prefixScore);
+        }
+
+        // 8. Question word bonus (v3.6.0) - boost when question structure matches.
+        $questionWordBonus = $this->calculate_question_word_bonus($questionWords, $patternWords);
+        if ($questionWordBonus > 0) {
+            $score += $questionWordBonus;
+        }
+
+        // 9. Levenshtein distance for typo tolerance.
         if (mb_strlen($pattern) <= 100 && mb_strlen($question) <= 100) {
             $similarity = $this->normalizer->calculate_similarity($question, $pattern);
             if ($similarity > 0.5) {
@@ -641,7 +660,7 @@ class engine {
             }
         }
 
-        // 7. Context boost - if matches current conversation topic.
+        // 10. Context boost - if matches current conversation topic.
         if (!empty($analysis['context_topic']) && !empty($rule->tags)) {
             $ruleTags = array_map('trim', explode(',', mb_strtolower($rule->tags)));
             if (in_array($analysis['context_topic'], $ruleTags)) {
@@ -649,7 +668,7 @@ class engine {
             }
         }
 
-        // 8. Topic match bonus.
+        // 11. Topic match bonus.
         if (!empty($rule->tags) && isset($analysis['topic']['primary'])) {
             $ruleTags = array_map('trim', explode(',', mb_strtolower($rule->tags)));
             if (in_array($analysis['topic']['primary'], $ruleTags)) {
@@ -657,7 +676,7 @@ class engine {
             }
         }
 
-        // 9. Intent match bonus.
+        // 12. Intent match bonus.
         if (!empty($rule->tags) && isset($analysis['intent']['primary'])) {
             $ruleTags = array_map('trim', explode(',', mb_strtolower($rule->tags)));
             if (in_array($analysis['intent']['primary'], $ruleTags)) {
@@ -665,13 +684,13 @@ class engine {
             }
         }
 
-        // 10. Feedback boost (rules with positive feedback score higher).
+        // 13. Feedback boost (rules with positive feedback score higher).
         if (isset($rule->feedback_score) && $rule->feedback_score > 0) {
             $boost = min(self::SCORE_WEIGHTS['feedback_boost'], $rule->feedback_score);
             $score += $boost;
         }
 
-        // 11. Archetype priority boost (v3.4.0) - boost rules matching user's priority topics.
+        // 14. Archetype priority boost (v3.4.0) - boost rules matching user's priority topics.
         if (!empty($this->archetypePriorityTopics) && !empty($rule->tags)) {
             $ruleTags = array_map('trim', explode(',', mb_strtolower($rule->tags)));
             $priorityMatches = array_intersect($ruleTags, $this->archetypePriorityTopics);
@@ -683,6 +702,205 @@ class engine {
         }
 
         return $score;
+    }
+
+    /**
+     * Calculate phrase order score - checks if words appear in similar order (v3.6.0).
+     *
+     * @param array $questionWords Question words
+     * @param array $patternWords Pattern words
+     * @return float Score between 0 and 1
+     */
+    protected function calculate_phrase_order_score(array $questionWords, array $patternWords): float {
+        if (empty($patternWords) || empty($questionWords)) {
+            return 0.0;
+        }
+
+        $patternWords = array_values($patternWords);
+        $questionWords = array_values($questionWords);
+
+        // Find consecutive matching sequences.
+        $maxSequence = 0;
+        $currentSequence = 0;
+        $patternIndex = 0;
+
+        foreach ($questionWords as $qWord) {
+            if ($patternIndex < count($patternWords) && $qWord === $patternWords[$patternIndex]) {
+                $currentSequence++;
+                $patternIndex++;
+                $maxSequence = max($maxSequence, $currentSequence);
+            } else {
+                // Try to find the word later in pattern.
+                $found = false;
+                for ($i = $patternIndex; $i < count($patternWords); $i++) {
+                    if ($qWord === $patternWords[$i]) {
+                        $patternIndex = $i + 1;
+                        $currentSequence = 1;
+                        $maxSequence = max($maxSequence, $currentSequence);
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found) {
+                    $currentSequence = 0;
+                }
+            }
+        }
+
+        // Score based on longest matching sequence relative to pattern length.
+        return $maxSequence / count($patternWords);
+    }
+
+    /**
+     * Calculate keyword score with position weighting (v3.6.0).
+     *
+     * Keywords that appear early in the question get higher scores.
+     *
+     * @param string $question Normalized question
+     * @param array $questionWords Question words
+     * @param array $keywords Keywords to match
+     * @return int Total keyword score
+     */
+    protected function calculate_keyword_score(string $question, array $questionWords, array $keywords): int {
+        $score = 0;
+        $matchedKeywords = [];
+
+        foreach ($keywords as $keyword) {
+            $normalizedKeyword = $this->normalizer->normalize($keyword);
+            if (empty($normalizedKeyword) || isset($matchedKeywords[$normalizedKeyword])) {
+                continue;
+            }
+
+            $keywordWords = explode(' ', $normalizedKeyword);
+            $keywordWordCount = count($keywordWords);
+
+            // Check for multi-word keywords (higher score).
+            if ($keywordWordCount > 1 && mb_strpos($question, $normalizedKeyword) !== false) {
+                $score += self::SCORE_WEIGHTS['multi_word_keyword'];
+                $matchedKeywords[$normalizedKeyword] = true;
+
+                // Position bonus - earlier match = higher score.
+                $position = mb_strpos($question, $normalizedKeyword);
+                if ($position !== false && $position < 20) {
+                    $score += self::SCORE_WEIGHTS['position_bonus'];
+                }
+
+                // Sub-phrase match bonus for longer keywords (v3.6.0).
+                if ($keywordWordCount >= 3) {
+                    $score += self::SCORE_WEIGHTS['sub_phrase_match'];
+                }
+            } else if (mb_strpos($question, $normalizedKeyword) !== false) {
+                // Direct single word match.
+                $score += self::SCORE_WEIGHTS['keyword_match'];
+                $matchedKeywords[$normalizedKeyword] = true;
+
+                // Position bonus.
+                $position = mb_strpos($question, $normalizedKeyword);
+                if ($position !== false && $position < 15) {
+                    $score += (int)(self::SCORE_WEIGHTS['position_bonus'] * 0.5);
+                }
+            } else {
+                // Try prefix matching first (v3.6.0).
+                $prefixMatched = false;
+                foreach ($keywordWords as $kw) {
+                    if (mb_strlen($kw) >= 4) {
+                        foreach ($questionWords as $qw) {
+                            // Check if question word starts with keyword prefix (stem matching).
+                            if (mb_strlen($qw) >= 4 && mb_strpos($qw, mb_substr($kw, 0, 4)) === 0) {
+                                $score += (int)(self::SCORE_WEIGHTS['prefix_match'] * 0.5);
+                                $prefixMatched = true;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+
+                // Synonym match if no prefix match.
+                if (!$prefixMatched) {
+                    $keywordResult = $this->normalizer->contains_keywords($question, [$normalizedKeyword], true);
+                    if ($keywordResult['found']) {
+                        $score += self::SCORE_WEIGHTS['synonym_match'];
+                        $matchedKeywords[$normalizedKeyword] = true;
+                    }
+                }
+            }
+        }
+
+        return $score;
+    }
+
+    /**
+     * Calculate prefix/stem match score (v3.6.0).
+     *
+     * Matches words that share common prefixes (stems).
+     *
+     * @param array $questionWords Question words
+     * @param array $patternWords Pattern words
+     * @return float Score between 0 and 1
+     */
+    protected function calculate_prefix_match_score(array $questionWords, array $patternWords): float {
+        if (empty($patternWords) || empty($questionWords)) {
+            return 0.0;
+        }
+
+        $matches = 0;
+        $minPrefixLen = 4;  // Minimum prefix length for matching.
+
+        foreach ($patternWords as $pw) {
+            if (mb_strlen($pw) < $minPrefixLen) {
+                continue;
+            }
+            $prefix = mb_substr($pw, 0, $minPrefixLen);
+
+            foreach ($questionWords as $qw) {
+                if (mb_strlen($qw) >= $minPrefixLen && mb_strpos($qw, $prefix) === 0) {
+                    $matches++;
+                    break;
+                }
+            }
+        }
+
+        $longPatternWords = array_filter($patternWords, function($w) use ($minPrefixLen) {
+            return mb_strlen($w) >= $minPrefixLen;
+        });
+
+        return count($longPatternWords) > 0 ? $matches / count($longPatternWords) : 0.0;
+    }
+
+    /**
+     * Calculate question word bonus (v3.6.0).
+     *
+     * Gives bonus when both question and pattern start with same question word.
+     *
+     * @param array $questionWords Question words
+     * @param array $patternWords Pattern words
+     * @return int Bonus score
+     */
+    protected function calculate_question_word_bonus(array $questionWords, array $patternWords): int {
+        if (empty($questionWords) || empty($patternWords)) {
+            return 0;
+        }
+
+        $questionWords = array_values($questionWords);
+        $patternWords = array_values($patternWords);
+
+        $firstQWord = $questionWords[0] ?? '';
+        $firstPWord = $patternWords[0] ?? '';
+
+        // Check if both start with a question word.
+        $qIsQuestion = in_array($firstQWord, self::QUESTION_WORDS);
+        $pIsQuestion = in_array($firstPWord, self::QUESTION_WORDS);
+
+        if ($qIsQuestion && $pIsQuestion) {
+            // Same question word = higher bonus.
+            if ($firstQWord === $firstPWord) {
+                return self::SCORE_WEIGHTS['question_word_bonus'];
+            }
+            // Similar question words (both are question words).
+            return (int)(self::SCORE_WEIGHTS['question_word_bonus'] * 0.5);
+        }
+
+        return 0;
     }
 
     /**
