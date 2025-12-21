@@ -515,9 +515,11 @@ function xmldb_local_educambot_upgrade($oldversion) {
             if ($data && isset($data['rules'])) {
                 foreach ($data['rules'] as $rule) {
                     // Update existing rules - use sql_compare_text for TEXT column comparison.
+                    // Use get_records_sql with limit to handle potential duplicates.
                     $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
                            $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
-                    $existingRule = $DB->get_record_sql($sql, ['pattern' => $rule['pattern']]);
+                    $existingRules = $DB->get_records_sql($sql, ['pattern' => $rule['pattern']], 0, 1);
+                    $existingRule = !empty($existingRules) ? reset($existingRules) : null;
 
                     if ($existingRule) {
                         // Update keywords and tags.
