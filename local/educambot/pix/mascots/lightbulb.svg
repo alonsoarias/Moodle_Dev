@@ -1,166 +1,63 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Lightbulb Mascot - Creative idea lightbulb -->
   <defs>
-    <linearGradient id="bulb-glass" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#fff9db"/>
-      <stop offset="30%" style="stop-color:#fff3bf"/>
-      <stop offset="70%" style="stop-color:#ffe066"/>
-      <stop offset="100%" style="stop-color:#ffd43b"/>
+    <linearGradient id="bulbGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFEB3B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFC107;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="bulb-glow" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9"/>
-      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.3"/>
-      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
-    </linearGradient>
-    <linearGradient id="bulb-base" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#868e96"/>
-      <stop offset="50%" style="stop-color:#495057"/>
-      <stop offset="100%" style="stop-color:#343a40"/>
-    </linearGradient>
-    <filter id="bulb-shadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.2"/>
-    </filter>
-    <filter id="bulb-glow-filter" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
+    <radialGradient id="glowEffect" cx="50%" cy="30%" r="50%" fx="50%" fy="30%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#FFEB3B;stop-opacity:0" />
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
       <feMerge>
-        <feMergeNode in="blur"/>
+        <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
-
   <!-- Glow effect -->
-  <ellipse cx="40" cy="32" rx="30" ry="28" fill="#ffd43b" opacity="0.15" filter="url(#bulb-glow-filter)">
-    <animate attributeName="opacity" values="0.1;0.2;0.1" dur="2s" repeatCount="indefinite"/>
-  </ellipse>
-
-  <!-- Shadow -->
-  <ellipse cx="40" cy="77" rx="14" ry="3" fill="#00000015"/>
-
-  <!-- Idea sparkles -->
-  <g id="sparkles" opacity="0.8">
-    <path d="M 12,18 L 8,16 L 12,14 L 10,10" stroke="#ffd43b" stroke-width="2" fill="none" stroke-linecap="round">
-      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
-    </path>
-    <path d="M 68,18 L 72,16 L 68,14 L 70,10" stroke="#ffd43b" stroke-width="2" fill="none" stroke-linecap="round">
-      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
-    </path>
-    <circle cx="40" cy="4" r="2" fill="#ffd43b">
-      <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite" begin="0.3s"/>
-    </circle>
-    <circle cx="20" cy="8" r="1.5" fill="#ffd43b">
-      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="60" cy="8" r="1.5" fill="#ffd43b">
-      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="0.6s"/>
-    </circle>
-  </g>
-
-  <!-- Body - Light bulb glass -->
-  <g id="body" filter="url(#bulb-shadow)">
-    <!-- Main bulb shape -->
-    <path d="M 22,34
-             C 22,18 28,8 40,8
-             C 52,8 58,18 58,34
-             C 58,44 54,50 50,54
-             L 50,58
-             L 30,58
-             L 30,54
-             C 26,50 22,44 22,34
-             Z"
-          fill="url(#bulb-glass)"
-          stroke="#fab005"
-          stroke-width="2"/>
-
-    <!-- Glass highlight -->
-    <path d="M 28,20
-             C 28,14 32,10 40,10
-             L 40,16
-             C 35,16 32,20 32,26
-             L 32,40
-             C 32,44 34,48 36,50
-             L 34,52
-             C 30,48 28,42 28,36
-             Z"
-          fill="url(#bulb-glow)"/>
-
-    <!-- Filament glow -->
-    <ellipse cx="40" cy="38" rx="8" ry="10" fill="#ffffff" opacity="0.6"/>
-  </g>
-
-  <!-- Base/Screw part -->
-  <g id="base">
-    <rect x="30" y="58" width="20" height="4" fill="#495057"/>
-    <rect x="32" y="62" width="16" height="3" fill="#6c757d"/>
-    <rect x="30" y="65" width="20" height="4" fill="#495057"/>
-    <rect x="32" y="69" width="16" height="3" fill="#6c757d"/>
-    <rect x="34" y="72" width="12" height="4" rx="2" fill="#343a40"/>
-  </g>
-
-  <!-- Eyes -->
+  <circle cx="50" cy="35" r="35" fill="url(#glowEffect)" filter="url(#glow)"/>
+  <!-- Bulb glass -->
+  <path d="M 30 45 Q 20 30 30 15 Q 40 0 50 0 Q 60 0 70 15 Q 80 30 70 45 Q 65 55 65 60 L 35 60 Q 35 55 30 45" 
+        fill="url(#bulbGlow)" stroke="#FFA000" stroke-width="2"/>
+  <!-- Highlight on glass -->
+  <path d="M 35 25 Q 40 15 50 12" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <!-- Face -->
   <g id="eyes">
-    <!-- Left eye -->
-    <g id="eye-left" transform-origin="34 32">
-      <ellipse cx="34" cy="32" rx="5" ry="6" fill="#2d3748"/>
-      <ellipse cx="35" cy="30" rx="2" ry="2.5" fill="#ffffff"/>
-      <circle cx="33" cy="34" r="1" fill="#ffffff" opacity="0.4"/>
-    </g>
-
-    <!-- Right eye -->
-    <g id="eye-right" transform-origin="46 32">
-      <ellipse cx="46" cy="32" rx="5" ry="6" fill="#2d3748"/>
-      <ellipse cx="47" cy="30" rx="2" ry="2.5" fill="#ffffff"/>
-      <circle cx="45" cy="34" r="1" fill="#ffffff" opacity="0.4"/>
-    </g>
+    <circle cx="40" cy="35" r="5" fill="white"/>
+    <circle cx="60" cy="35" r="5" fill="white"/>
+    <circle cx="41" cy="35" r="3" fill="#333"/>
+    <circle cx="61" cy="35" r="3" fill="#333"/>
+    <circle cx="42" cy="34" r="1" fill="white"/>
+    <circle cx="62" cy="34" r="1" fill="white"/>
   </g>
-
-  <!-- Eyebrows - expressive -->
-  <g id="eyebrows">
-    <path d="M 28,26 Q 34,23 40,26" fill="none" stroke="#fab005" stroke-width="2" stroke-linecap="round"/>
-    <path d="M 40,26 Q 46,23 52,26" fill="none" stroke="#fab005" stroke-width="2" stroke-linecap="round"/>
-  </g>
-
-  <!-- Mouth - friendly smile -->
-  <g id="mouth">
-    <path d="M 35,44 Q 40,50 45,44"
-          fill="none"
-          stroke="#2d3748"
-          stroke-width="2.5"
-          stroke-linecap="round"/>
-  </g>
-
-  <!-- Arms -->
+  <!-- Happy smile -->
+  <path d="M 42 45 Q 50 52 58 45" fill="none" stroke="#5D4037" stroke-width="2" stroke-linecap="round"/>
+  <!-- Rosy cheeks -->
+  <circle cx="32" cy="42" r="4" fill="#FF8A80" opacity="0.5"/>
+  <circle cx="68" cy="42" r="4" fill="#FF8A80" opacity="0.5"/>
+  <!-- Base/screw part -->
+  <rect x="35" y="60" width="30" height="8" fill="#9E9E9E"/>
+  <rect x="33" y="68" width="34" height="4" rx="1" fill="#757575"/>
+  <rect x="35" y="72" width="30" height="4" rx="1" fill="#9E9E9E"/>
+  <rect x="33" y="76" width="34" height="4" rx="1" fill="#757575"/>
+  <rect x="35" y="80" width="30" height="4" rx="1" fill="#9E9E9E"/>
+  <!-- Contact point -->
+  <rect x="42" y="84" width="16" height="8" rx="2" fill="#424242"/>
+  <circle cx="50" cy="90" r="4" fill="#616161"/>
+  <!-- Arms (waving) -->
   <g id="arms">
-    <!-- Left arm -->
-    <g id="arm-left" transform-origin="22 40">
-      <path d="M 22,38 Q 12,36 8,42 Q 6,48 10,52"
-            fill="none"
-            stroke="#ffd43b"
-            stroke-width="5"
-            stroke-linecap="round"/>
-      <!-- Hand -->
-      <circle cx="10" cy="52" r="5" fill="#ffd43b" stroke="#fab005" stroke-width="1"/>
-      <!-- Fingers -->
-      <path d="M 6,50 L 4,46" stroke="#fab005" stroke-width="2" stroke-linecap="round"/>
-      <path d="M 8,48 L 6,44" stroke="#fab005" stroke-width="2" stroke-linecap="round"/>
-    </g>
-
-    <!-- Right arm -->
-    <g id="arm-right" transform-origin="58 40">
-      <path d="M 58,38 Q 68,36 72,42 Q 74,48 70,52"
-            fill="none"
-            stroke="#ffd43b"
-            stroke-width="5"
-            stroke-linecap="round"/>
-      <!-- Hand -->
-      <circle cx="70" cy="52" r="5" fill="#ffd43b" stroke="#fab005" stroke-width="1"/>
-      <!-- Fingers -->
-      <path d="M 74,50 L 76,46" stroke="#fab005" stroke-width="2" stroke-linecap="round"/>
-      <path d="M 72,48 L 74,44" stroke="#fab005" stroke-width="2" stroke-linecap="round"/>
-    </g>
+    <path d="M 25 50 Q 15 45 12 35" fill="none" stroke="#FFC107" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="10" cy="33" r="5" fill="#FFEB3B" stroke="#FFA000" stroke-width="1"/>
+    <path d="M 75 50 Q 85 45 88 35" fill="none" stroke="#FFC107" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="90" cy="33" r="5" fill="#FFEB3B" stroke="#FFA000" stroke-width="1"/>
   </g>
-
-  <!-- Cheek blush -->
-  <ellipse cx="28" cy="40" rx="3" ry="2" fill="#ffb6c1" opacity="0.5"/>
-  <ellipse cx="52" cy="40" rx="3" ry="2" fill="#ffb6c1" opacity="0.5"/>
+  <!-- Sparkles -->
+  <g fill="#FFD54F">
+    <polygon points="15,15 17,20 22,20 18,24 20,29 15,26 10,29 12,24 8,20 13,20"/>
+    <polygon points="85,20 86,23 89,23 87,26 88,29 85,27 82,29 83,26 81,23 84,23" transform="scale(0.8) translate(10,-5)"/>
+    <polygon points="50,5 51,8 54,8 52,10 53,13 50,11 47,13 48,10 46,8 49,8" transform="scale(0.6) translate(30,-8)"/>
+  </g>
 </svg>
