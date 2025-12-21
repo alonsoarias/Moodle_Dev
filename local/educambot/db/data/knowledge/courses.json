@@ -30,10 +30,14 @@
                 "inscribirme", "inscripcion", "entrar curso", "matricularme", "clave inscripcion",
                 "unirme curso", "registrarme curso", "acceder curso", "ingresar curso",
                 "como me inscribo", "quiero inscribirme", "inscribirme en un curso",
-                "como entro a un curso", "como accedo a un curso"
+                "como entro a un curso", "como accedo a un curso",
+                "como me matriculo", "quiero matricularme", "necesito inscribirme",
+                "donde me inscribo", "donde me matriculo", "quiero entrar a un curso",
+                "unirme a un curso", "como puedo inscribirme", "como puedo matricularme"
             ],
             "response": "Para inscribirte en un curso:<br><br>1. Busca el curso en el catalogo<br>2. Haz clic en el nombre del curso<br>3. Haz clic en <strong>Inscribirme</strong><br><br><strong>Tipos:</strong><br>- Libre: Solo clic en inscribirme<br>- Con clave: Ingresa la contrasena del profesor<br>- Manual: El profesor te agrega",
-            "tags": ["inscripcion", "matricula"],
+            "tags": ["inscripcion", "matricula", "estudiante"],
+            "archetypes": ["student", "user"],
             "enabled": true,
             "showoptions": true,
             "options": [

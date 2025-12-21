@@ -165,11 +165,17 @@
                 "agregar usuario al curso", "anadir estudiante", "anadir alumno",
                 "enrollar", "agregar al curso", "meter al curso", "incluir en curso",
                 "como inscribo a un estudiante", "como agrego un estudiante",
-                "como matriculo a un estudiante", "como matriculo a un alumno"
+                "como matriculo a un estudiante", "como matriculo a un alumno",
+                "matriculo a un", "inscribo a un", "agrego a un",
+                "matricular a un estudiante", "inscribir a un estudiante",
+                "como matriculo estudiantes", "como inscribo estudiantes",
+                "añadir estudiante al curso", "agregar alumno al curso",
+                "meter estudiante", "incluir estudiante", "registrar estudiante"
             ],
-            "response": "Para matricular usuarios:<br><br><strong>Individual:</strong><br>1. Curso > Participantes<br>2. Clic en <strong>Matricular usuarios</strong><br>3. Busca el usuario y asigna rol<br><br><strong>Masivo:</strong><br>1. Administracion > Usuarios > Subir usuarios<br>2. CSV con columna course1",
-            "tags": ["matricular", "inscribir", "estudiante", "alumno"],
+            "response": "Para matricular usuarios en un curso:<br><br><strong>Individual:</strong><br>1. Curso > Participantes<br>2. Clic en <strong>Matricular usuarios</strong><br>3. Busca el usuario y asigna rol<br><br><strong>Masivo:</strong><br>1. Administracion > Usuarios > Subir usuarios<br>2. CSV con columna course1",
+            "tags": ["matricular", "inscribir", "estudiante", "alumno", "agregar"],
             "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "priority": 10,
             "enabled": true,
             "showoptions": true,
             "options": [
