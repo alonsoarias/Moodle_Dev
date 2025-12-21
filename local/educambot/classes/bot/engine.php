@@ -1042,9 +1042,10 @@ class engine {
 
         $archetypes = [];
 
-        // Check for site administrator.
+        // Check for site administrator (v3.4.0 - prioritize siteadmin archetype).
         if (is_siteadmin($this->userid)) {
-            $archetypes[] = 'manager';
+            $archetypes[] = 'siteadmin';
+            $archetypes[] = 'manager';  // Also include manager for compatibility.
         }
 
         try {

@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "EducamBot role-specific knowledge - responses and actions adapted by user archetype",
     "lang": "es",
     "archetypes": {
@@ -103,8 +103,8 @@
             "priority_topics": ["course", "enrollment", "resources", "calendar"]
         },
         "manager": {
-            "name": "Administrador",
-            "greeting": "¡Hola! Estoy disponible para asistirte con la administración del sitio.",
+            "name": "Gestor",
+            "greeting": "¡Hola! Estoy disponible para asistirte con la gestión del sitio.",
             "quick_actions": [
                 {"text": "Usuarios", "action": "administrar usuarios", "icon": "bi-people-fill"},
                 {"text": "Cursos", "action": "administrar cursos", "icon": "bi-mortarboard"},
@@ -116,17 +116,60 @@
                 {"text": "Administrar cursos", "action": "administrar cursos"},
                 {"text": "Ver informes del sitio", "action": "informes del sitio"},
                 {"text": "Configuración del sitio", "action": "configuracion del sitio"},
-                {"text": "Gestionar plugins", "action": "plugins del sitio"},
-                {"text": "Copias de seguridad", "action": "backups del sitio"},
-                {"text": "Logs del sistema", "action": "logs del sistema"}
+                {"text": "Gestionar categorías", "action": "gestionar categorias"},
+                {"text": "Copias de seguridad", "action": "backups del sitio"}
             ],
             "context_responses": {
-                "users_intro": "Panel de administración de usuarios. Crea, edita y gestiona cuentas.",
-                "courses_intro": "Gestión de cursos del sitio. Crea, archiva y administra cursos.",
-                "reports_intro": "Informes y estadísticas del sitio completo.",
-                "settings_intro": "Configuración general del sitio y sus funcionalidades."
+                "users_intro": "Panel de gestión de usuarios. Crea, edita y asigna roles.",
+                "courses_intro": "Gestión de cursos. Crea, archiva y organiza cursos por categorías.",
+                "reports_intro": "Informes y estadísticas de actividad del sitio.",
+                "settings_intro": "Configuración general del área que administras."
             },
-            "priority_topics": ["technical", "enrollment", "course", "profile"]
+            "priority_topics": ["technical", "enrollment", "course", "profile", "messages"]
+        },
+        "siteadmin": {
+            "name": "Administrador del Sitio",
+            "greeting": "¡Hola Administrador! Estoy aquí para asistirte con la administración completa de Moodle.",
+            "quick_actions": [
+                {"text": "Admin. del Sitio", "action": "administracion del sitio", "icon": "bi-gear-wide-connected"},
+                {"text": "Usuarios", "action": "administrar todos los usuarios", "icon": "bi-people-fill"},
+                {"text": "Plugins", "action": "gestionar plugins", "icon": "bi-puzzle"},
+                {"text": "Seguridad", "action": "configuracion de seguridad", "icon": "bi-shield-check"}
+            ],
+            "menu_options": [
+                {"text": "Administración del sitio", "action": "administracion del sitio"},
+                {"text": "Gestionar usuarios y cuentas", "action": "administrar todos los usuarios"},
+                {"text": "Configurar plugins", "action": "gestionar plugins"},
+                {"text": "Configuración de seguridad", "action": "configuracion de seguridad"},
+                {"text": "Ver logs del sistema", "action": "logs del sistema"},
+                {"text": "Gestionar apariencia y temas", "action": "temas del sitio"},
+                {"text": "Configurar idiomas", "action": "configurar idiomas"},
+                {"text": "Backup y restauración", "action": "backup y restauracion"},
+                {"text": "Tareas programadas", "action": "tareas programadas"},
+                {"text": "Informes del sistema", "action": "informes del sistema"}
+            ],
+            "context_responses": {
+                "admin_intro": "Panel de administración completo. Tienes acceso a todas las configuraciones del sitio.",
+                "users_intro": "Gestión completa de usuarios: cuentas, roles, permisos, cohortes y políticas.",
+                "plugins_intro": "Instala, configura y actualiza plugins. Gestiona repositorios y servicios externos.",
+                "security_intro": "Políticas de seguridad, autenticación, contraseñas y protección del sitio.",
+                "appearance_intro": "Personaliza temas, logos, página principal y navegación del sitio.",
+                "server_intro": "Configuración del servidor, rendimiento, caché, rutas y variables del sistema.",
+                "development_intro": "Modo de depuración, SMTP, servicios web y configuraciones de desarrollo.",
+                "reports_intro": "Logs del sistema, estadísticas de uso, informes de rendimiento y actividad."
+            },
+            "priority_topics": ["technical", "general", "navigation", "help"],
+            "admin_sections": [
+                {"name": "Usuarios", "path": "/admin/user.php", "icon": "bi-people"},
+                {"name": "Cursos", "path": "/admin/category.php", "icon": "bi-mortarboard"},
+                {"name": "Calificaciones", "path": "/admin/settings.php?section=gradessettings", "icon": "bi-bar-chart"},
+                {"name": "Plugins", "path": "/admin/plugins.php", "icon": "bi-puzzle"},
+                {"name": "Apariencia", "path": "/admin/settings.php?section=themesettings", "icon": "bi-palette"},
+                {"name": "Servidor", "path": "/admin/settings.php?section=serversettings", "icon": "bi-hdd-rack"},
+                {"name": "Seguridad", "path": "/admin/settings.php?section=sitepolicies", "icon": "bi-shield-lock"},
+                {"name": "Desarrollo", "path": "/admin/settings.php?section=development", "icon": "bi-code-slash"},
+                {"name": "Informes", "path": "/admin/reports.php", "icon": "bi-file-earmark-bar-graph"}
+            ]
         },
         "guest": {
             "name": "Invitado",

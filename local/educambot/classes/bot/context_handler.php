@@ -513,12 +513,17 @@ class context_handler {
     }
 
     /**
-     * Get user's role archetype (student, teacher, manager, etc.).
+     * Get user's role archetype (student, teacher, manager, siteadmin, etc.).
      *
      * @return string Role archetype or 'student' as default
      */
     public function get_user_archetype() {
         global $DB;
+
+        // Site administrator always gets highest priority (v3.4.0).
+        if (is_siteadmin($this->userid)) {
+            return 'siteadmin';
+        }
 
         // Priority order for archetypes (highest first).
         $priority = [
