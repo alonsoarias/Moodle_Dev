@@ -99,21 +99,6 @@ if ($hassiteconfig) {
             '#0f6fc5'
         ));
 
-        // Schedule section (v1.8.0).
-        $settings->add(new admin_setting_heading(
-            'local_educambot/schedule_heading',
-            get_string('schedule_heading', 'local_educambot'),
-            ''
-        ));
-
-        // Enable schedule setting.
-        $settings->add(new admin_setting_configcheckbox(
-            'local_educambot/scheduleenabled',
-            get_string('scheduleenabled', 'local_educambot'),
-            get_string('scheduleenabled_desc', 'local_educambot'),
-            0
-        ));
-
         // Language section (v1.8.0).
         $settings->add(new admin_setting_heading(
             'local_educambot/language_heading',
@@ -176,6 +161,21 @@ if ($hassiteconfig) {
             600000,
             PARAM_INT
         ));
+
+        // Feedback section (v3.5.0).
+        $settings->add(new admin_setting_heading(
+            'local_educambot/feedback_heading',
+            get_string('feedback_heading', 'local_educambot'),
+            ''
+        ));
+
+        // Enable feedback setting.
+        $settings->add(new admin_setting_configcheckbox(
+            'local_educambot/enablefeedback',
+            get_string('enablefeedback', 'local_educambot'),
+            get_string('enablefeedback_desc', 'local_educambot'),
+            1
+        ));
     }
 
     $ADMIN->add('local_educambot', $settings);
@@ -217,14 +217,6 @@ if ($hassiteconfig) {
         'local_educambot_shortcuts',
         get_string('shortcuts', 'local_educambot'),
         new moodle_url('/local/educambot/shortcuts.php'),
-        'local/educambot:manage'
-    ));
-
-    // Schedule page (v1.8.0).
-    $ADMIN->add('local_educambot', new admin_externalpage(
-        'local_educambot_schedule',
-        get_string('manageschedule', 'local_educambot'),
-        new moodle_url('/local/educambot/schedule.php'),
         'local/educambot:manage'
     ));
 

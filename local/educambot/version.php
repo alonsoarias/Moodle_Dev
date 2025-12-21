@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025122103;  // YYYYMMDDXX format.
+$plugin->version = 2025122104;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.4.0';  // Role-aware responses, archetype priority scoring, role-specific menu options and greetings.
+$plugin->release = '3.5.0';  // Add retro theme with clippy mascot, remove schedule feature.

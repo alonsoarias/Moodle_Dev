@@ -65,10 +65,7 @@ function xmldb_local_educambot_install() {
         // Step 5: Install themes.
         install_themes_from_json($datapath . 'themes.json', $now);
 
-        // Step 6: Install default schedule (24/7).
-        install_default_schedule($now);
-
-        // Step 7: Install NLP patterns (v3.2.0).
+        // Step 6: Install NLP patterns (v3.2.0).
         install_nlp_patterns($datapath, $now);
 
         return true;
@@ -277,30 +274,6 @@ function install_themes_from_json($filepath, $now) {
         $record->timemodified = $now;
 
         $DB->insert_record('local_educambot_theme', $record);
-    }
-}
-
-/**
- * Install default 24/7 schedule.
- *
- * @param int $now Current timestamp
- */
-function install_default_schedule($now) {
-    global $DB;
-
-    // Days of week: 0 = Sunday, 1 = Monday, ..., 6 = Saturday.
-    $days = [0, 1, 2, 3, 4, 5, 6];
-
-    foreach ($days as $day) {
-        $record = new stdClass();
-        $record->dayofweek = $day;
-        $record->timefrom = '00:00';
-        $record->timeto = '23:59';
-        $record->enabled = 1;
-        $record->timecreated = $now;
-        $record->timemodified = $now;
-
-        $DB->insert_record('local_educambot_schedule', $record);
     }
 }
 

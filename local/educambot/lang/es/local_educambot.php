@@ -332,24 +332,6 @@ $string['overdue'] = 'Vencida';
 $string['duein'] = 'Vence en {$a}';
 
 // v1.8.0 - Personalizacion avanzada.
-// Horarios.
-$string['schedule_heading'] = 'Horario de Disponibilidad';
-$string['manageschedule'] = 'Gestionar Horario';
-$string['scheduleenabled'] = 'Habilitar horario';
-$string['scheduleenabled_desc'] = 'Restringir la disponibilidad del bot a horas especificas. Cuando esta deshabilitado, el bot esta siempre disponible.';
-$string['schedule_help'] = 'Configure las horas en que el chatbot esta disponible. Fuera de estas horas, el widget no se mostrara.';
-$string['schedule_disabled_notice'] = 'Nota: El control de horario esta actualmente deshabilitado en la configuracion. Habilite "Habilitar horario" en la configuracion del plugin para activarlo.';
-$string['scheduleupdated'] = 'Horario actualizado correctamente';
-$string['dayofweek'] = 'Dia';
-$string['timefrom'] = 'Desde';
-$string['timeto'] = 'Hasta';
-$string['currentstatus'] = 'Estado Actual';
-$string['botonline'] = 'El bot esta actualmente EN LINEA y disponible.';
-$string['botoffline'] = 'El bot esta actualmente fuera de linea. Estara disponible nuevamente: {$a}';
-$string['todayat'] = 'Hoy a las {$a}';
-$string['dayat'] = '{$a->day} a las {$a->time}';
-$string['notscheduled'] = 'Sin disponibilidad programada';
-
 // Configuracion de idioma.
 $string['language_heading'] = 'Configuracion de Idioma';
 $string['autolang'] = 'Auto-detectar idioma';

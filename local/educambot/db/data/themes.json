@@ -1,6 +1,6 @@
 {
-    "version": "2.2.0",
-    "description": "EducamBot visual themes with mascot configuration",
+    "version": "2.3.0",
+    "description": "EducamBot visual themes with mascot configuration - one theme per mascot",
     "themes": [
         {
             "id": "default",
@@ -84,6 +84,27 @@
             "mascot": {
                 "enabled": true,
                 "type": "lightbulb"
+            }
+        },
+        {
+            "id": "retro",
+            "name": "Retro",
+            "isdefault": false,
+            "colors": {
+                "primary": "#6b7280",
+                "secondary": "#4b5563",
+                "text": "#1f2937",
+                "background": "#f3f4f6",
+                "user": "#6b7280",
+                "bot": "#ffffff"
+            },
+            "widgeticon": {
+                "type": "default",
+                "value": ""
+            },
+            "mascot": {
+                "enabled": true,
+                "type": "clippy"
             }
         }
     ]

@@ -123,22 +123,6 @@
         <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="local_educambot_schedule" COMMENT="Bot availability schedule">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="dayofweek" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="0=Sunday, 6=Saturday"/>
-        <FIELD NAME="timefrom" TYPE="char" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="HH:MM format"/>
-        <FIELD NAME="timeto" TYPE="char" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="HH:MM format"/>
-        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="dayofweek_idx" UNIQUE="false" FIELDS="dayofweek"/>
-        <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
-      </INDEXES>
-    </TABLE>
     <TABLE NAME="local_educambot_theme" COMMENT="Visual themes for widget">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>

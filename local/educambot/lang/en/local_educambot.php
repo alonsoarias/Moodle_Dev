@@ -332,24 +332,6 @@ $string['overdue'] = 'Overdue';
 $string['duein'] = 'Due in {$a}';
 
 // v1.8.0 - Advanced personalization.
-// Schedule.
-$string['schedule_heading'] = 'Availability Schedule';
-$string['manageschedule'] = 'Manage Schedule';
-$string['scheduleenabled'] = 'Enable schedule';
-$string['scheduleenabled_desc'] = 'Restrict bot availability to specific hours. When disabled, the bot is always available.';
-$string['schedule_help'] = 'Configure the hours when the chatbot is available. Outside these hours, the widget will not be displayed.';
-$string['schedule_disabled_notice'] = 'Note: Schedule enforcement is currently disabled in settings. Enable "Enable schedule" in plugin settings to activate.';
-$string['scheduleupdated'] = 'Schedule updated successfully';
-$string['dayofweek'] = 'Day';
-$string['timefrom'] = 'From';
-$string['timeto'] = 'To';
-$string['currentstatus'] = 'Current Status';
-$string['botonline'] = 'The bot is currently ONLINE and available.';
-$string['botoffline'] = 'The bot is currently offline. It will be available again: {$a}';
-$string['todayat'] = 'Today at {$a}';
-$string['dayat'] = '{$a->day} at {$a->time}';
-$string['notscheduled'] = 'No scheduled availability';
-
 // Language settings.
 $string['language_heading'] = 'Language Settings';
 $string['autolang'] = 'Auto-detect language';

@@ -542,6 +542,44 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025122103, 'local', 'educambot');
     }
 
+    // v3.5.0 - Add retro theme with clippy mascot and remove schedule feature.
+    if ($oldversion < 2025122104) {
+        global $CFG;
+
+        $now = time();
+
+        // Add retro theme if it doesn't exist.
+        if (!$DB->record_exists('local_educambot_theme', ['name' => 'Retro'])) {
+            $theme = new stdClass();
+            $theme->name = 'Retro';
+            $theme->primarycolor = '#6b7280';
+            $theme->secondarycolor = '#4b5563';
+            $theme->textcolor = '#1f2937';
+            $theme->backgroundcolor = '#f3f4f6';
+            $theme->usercolor = '#6b7280';
+            $theme->botcolor = '#ffffff';
+            $theme->isdefault = 0;
+            $theme->widgeticontype = 'default';
+            $theme->widgeticonurl = '';
+            $theme->mascotenabled = 1;
+            $theme->mascottype = 'clippy';
+            $theme->mascoturl = null;
+            $theme->timecreated = $now;
+            $theme->timemodified = $now;
+            $DB->insert_record('local_educambot_theme', $theme);
+        }
+
+        // Drop the schedule table - feature removed.
+        $dbman = $DB->get_manager();
+        $table = new xmldb_table('local_educambot_schedule');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025122104, 'local', 'educambot');
+    }
+
     return true;
 }
 
