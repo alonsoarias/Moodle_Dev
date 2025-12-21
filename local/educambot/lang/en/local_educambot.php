@@ -202,7 +202,21 @@ $string['importsuccess'] = 'Import successful! Imported {$a->categories} categor
 $string['importerror'] = 'Error reading import file';
 $string['importinvalidjson'] = 'Invalid JSON format in import file';
 $string['importinvalidversion'] = 'Invalid or missing version in import file';
+$string['importinvalidcsv'] = 'Invalid CSV format. Make sure to include required columns: pattern, response';
 $string['currentstats'] = 'Current knowledge base: {$a->categories} categories, {$a->rules} rules, {$a->options} options.';
+
+// v3.5.0 - Import/Export improvements.
+$string['export_json'] = 'Export JSON';
+$string['export_csv'] = 'Export CSV';
+$string['import_type'] = 'Import type';
+$string['import_type_full'] = 'Full (categories, rules and options)';
+$string['import_type_rules'] = 'Rules only';
+$string['importkb_desc_v2'] = 'Upload a JSON or CSV file to import rules. JSON format supports categories, rules and options. CSV format only supports rules.';
+$string['importsuccess_v2'] = 'Import completed: {$a->categories} categories, {$a->rules_imported} new rules, {$a->rules_updated} updated rules, {$a->options} options.';
+$string['templates'] = 'Example Templates';
+$string['templates_desc'] = 'Download example templates to understand the import structure.';
+$string['download_json_template'] = 'Download JSON template';
+$string['download_csv_template'] = 'Download CSV template';
 
 // Duplicate.
 $string['duplicate'] = 'Duplicate';

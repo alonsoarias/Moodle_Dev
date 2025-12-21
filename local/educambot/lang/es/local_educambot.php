@@ -202,7 +202,21 @@ $string['importsuccess'] = '¡Importacion exitosa! Se importaron {$a->categories
 $string['importerror'] = 'Error al leer el archivo de importacion';
 $string['importinvalidjson'] = 'Formato JSON invalido en el archivo de importacion';
 $string['importinvalidversion'] = 'Version invalida o faltante en el archivo de importacion';
+$string['importinvalidcsv'] = 'Formato CSV invalido. Asegurate de incluir las columnas requeridas: pattern, response';
 $string['currentstats'] = 'Base de conocimiento actual: {$a->categories} categorias, {$a->rules} reglas, {$a->options} opciones.';
+
+// v3.5.0 - Import/Export improvements.
+$string['export_json'] = 'Exportar JSON';
+$string['export_csv'] = 'Exportar CSV';
+$string['import_type'] = 'Tipo de importacion';
+$string['import_type_full'] = 'Completa (categorias, reglas y opciones)';
+$string['import_type_rules'] = 'Solo reglas';
+$string['importkb_desc_v2'] = 'Sube un archivo JSON o CSV para importar reglas. El formato JSON soporta categorias, reglas y opciones. El formato CSV solo soporta reglas.';
+$string['importsuccess_v2'] = 'Importacion completada: {$a->categories} categorias, {$a->rules_imported} reglas nuevas, {$a->rules_updated} reglas actualizadas, {$a->options} opciones.';
+$string['templates'] = 'Plantillas de Ejemplo';
+$string['templates_desc'] = 'Descarga plantillas de ejemplo para conocer la estructura de importacion.';
+$string['download_json_template'] = 'Descargar plantilla JSON';
+$string['download_csv_template'] = 'Descargar plantilla CSV';
 
 // Duplicar.
 $string['duplicate'] = 'Duplicar';

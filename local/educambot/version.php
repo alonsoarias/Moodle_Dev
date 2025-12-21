@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025122104;  // YYYYMMDDXX format.
+$plugin->version = 2025122105;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.5.0';  // Add retro theme with clippy mascot, remove schedule feature.
+$plugin->release = '3.5.1';  // Enhanced import/export with JSON and CSV support.

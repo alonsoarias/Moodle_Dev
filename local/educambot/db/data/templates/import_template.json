@@ -1,0 +1,204 @@
+{
+    "version": "3.5.0",
+    "description": "Plantilla de ejemplo para importar reglas de conocimiento a EducamBot",
+    "instructions": {
+        "es": "Modifica las categorias, reglas y opciones segun tus necesidades. Puedes eliminar las secciones que no necesites.",
+        "en": "Modify categories, rules and options according to your needs. You can remove sections you don't need."
+    },
+    "field_descriptions": {
+        "pattern": "Patron principal de pregunta que activa esta regla",
+        "keywords": "Palabras clave adicionales para coincidencia (separadas por salto de linea)",
+        "response": "Texto de respuesta (puede contener HTML y placeholders)",
+        "tags": "Etiquetas separadas por coma para categorizacion",
+        "enabled": "1=activa, 0=deshabilitada",
+        "showoptions": "1=mostrar opciones rapidas despues de respuesta, 0=ocultar",
+        "contextaware": "1=usa datos de contexto en respuesta, 0=estatica",
+        "dynamicresponse": "1=tiene placeholders como {USER_NAME}, 0=estatica",
+        "requiredcontext": "Contexto requerido: site, course, o activity",
+        "roles": "Nombres cortos de roles separados por coma (student,teacher,manager)",
+        "courses": "IDs de cursos separados por coma (vacio = todos los cursos)",
+        "lang": "Codigo de idioma (es, en, etc.)",
+        "priority": "Prioridad manual para ordenar reglas (mayor = primero)",
+        "useroleoptions": "1=mostrar opciones de menu segun rol, 0=mostrar opciones de regla"
+    },
+    "placeholders_available": {
+        "{USER_NAME}": "Nombre completo del usuario",
+        "{USER_FIRSTNAME}": "Primer nombre del usuario",
+        "{USER_LASTNAME}": "Apellido del usuario",
+        "{COURSE_NAME}": "Nombre del curso actual",
+        "{COURSE_SHORTNAME}": "Nombre corto del curso",
+        "{SITE_NAME}": "Nombre del sitio Moodle",
+        "{CURRENT_DATE}": "Fecha actual",
+        "{CURRENT_TIME}": "Hora actual"
+    },
+    "categories": [
+        {
+            "id": 1,
+            "name": "Preguntas Frecuentes",
+            "description": "Preguntas frecuentes de los usuarios",
+            "parent": null,
+            "sortorder": 1,
+            "enabled": 1
+        },
+        {
+            "id": 2,
+            "name": "Soporte Tecnico",
+            "description": "Consultas tecnicas y problemas",
+            "parent": null,
+            "sortorder": 2,
+            "enabled": 1
+        },
+        {
+            "id": 3,
+            "name": "Tutoriales",
+            "description": "Guias y tutoriales paso a paso",
+            "parent": null,
+            "sortorder": 3,
+            "enabled": 1
+        }
+    ],
+    "rules": [
+        {
+            "id": 1,
+            "categoryid": 1,
+            "pattern": "Como me registro en la plataforma",
+            "keywords": "registro\nregistrarme\ncrear cuenta\nnuevo usuario\ninscribirme",
+            "response": "Para registrarte en la plataforma:<br><br>1. Haz clic en <strong>Crear cuenta</strong> en la pagina de inicio<br>2. Completa el formulario con tus datos<br>3. Verifica tu correo electronico<br>4. Inicia sesion con tu nueva cuenta<br><br>¿Necesitas ayuda adicional?",
+            "tags": "registro, cuenta, nuevo usuario",
+            "enabled": 1,
+            "showoptions": 1,
+            "contextaware": 0,
+            "dynamicresponse": 0,
+            "requiredcontext": "",
+            "roles": "",
+            "courses": "",
+            "lang": "es",
+            "priority": 0,
+            "useroleoptions": 0
+        },
+        {
+            "id": 2,
+            "categoryid": 1,
+            "pattern": "Como recupero mi contraseña",
+            "keywords": "contraseña olvidada\nolvide contraseña\nrecuperar contraseña\nreset password\nno puedo entrar",
+            "response": "Para recuperar tu contraseña:<br><br>1. Ve a la pagina de inicio de sesion<br>2. Haz clic en <strong>¿Olvidaste tu contraseña?</strong><br>3. Ingresa tu correo electronico o nombre de usuario<br>4. Revisa tu correo y sigue el enlace de recuperacion<br>5. Crea una nueva contraseña segura<br><br><strong>Nota:</strong> El enlace expira en 30 minutos.",
+            "tags": "contraseña, acceso, seguridad",
+            "enabled": 1,
+            "showoptions": 1,
+            "contextaware": 0,
+            "dynamicresponse": 0,
+            "requiredcontext": "",
+            "roles": "",
+            "courses": "",
+            "lang": "es",
+            "priority": 0,
+            "useroleoptions": 0
+        },
+        {
+            "id": 3,
+            "categoryid": 2,
+            "pattern": "No puedo subir archivos",
+            "keywords": "subir archivo\ncargar archivo\nupload\nadjuntar\narchivo grande\nerror subir",
+            "response": "Si tienes problemas al subir archivos, verifica lo siguiente:<br><br>• <strong>Tamaño maximo:</strong> Los archivos no deben superar el limite establecido<br>• <strong>Formato:</strong> Asegurate de usar formatos permitidos (PDF, DOC, JPG, etc.)<br>• <strong>Conexion:</strong> Verifica tu conexion a internet<br>• <strong>Navegador:</strong> Intenta con otro navegador o limpia la cache<br><br>Si el problema persiste, contacta a soporte tecnico.",
+            "tags": "archivos, subir, problemas tecnicos",
+            "enabled": 1,
+            "showoptions": 1,
+            "contextaware": 0,
+            "dynamicresponse": 0,
+            "requiredcontext": "",
+            "roles": "",
+            "courses": "",
+            "lang": "es",
+            "priority": 0,
+            "useroleoptions": 0
+        },
+        {
+            "id": 4,
+            "categoryid": 3,
+            "pattern": "Como entregar una tarea",
+            "keywords": "entregar tarea\nsubir tarea\nenviar tarea\nasignacion\ntrabajo",
+            "response": "Hola {USER_FIRSTNAME}, para entregar una tarea:<br><br>1. Ingresa al curso correspondiente<br>2. Busca la tarea en la seccion indicada<br>3. Haz clic en <strong>Agregar entrega</strong><br>4. Sube tu archivo o escribe tu texto<br>5. Haz clic en <strong>Guardar cambios</strong><br>6. Confirma tu envio<br><br><strong>Importante:</strong> Verifica la fecha limite antes de enviar.",
+            "tags": "tarea, entrega, estudiante",
+            "enabled": 1,
+            "showoptions": 1,
+            "contextaware": 0,
+            "dynamicresponse": 1,
+            "requiredcontext": "",
+            "roles": "student",
+            "courses": "",
+            "lang": "es",
+            "priority": 0,
+            "useroleoptions": 0
+        },
+        {
+            "id": 5,
+            "categoryid": 3,
+            "pattern": "Como crear un cuestionario",
+            "keywords": "crear cuestionario\ncrear examen\ncrear test\nquiz\nevaluacion",
+            "response": "Para crear un cuestionario como docente:<br><br>1. Activa el <strong>modo edicion</strong> en tu curso<br>2. En la seccion deseada, haz clic en <strong>Añadir una actividad o recurso</strong><br>3. Selecciona <strong>Cuestionario</strong><br>4. Configura nombre, descripcion y fechas<br>5. Guarda y haz clic en <strong>Editar cuestionario</strong><br>6. Añade preguntas desde el banco o crea nuevas<br><br>¿Quieres que te explique como crear preguntas?",
+            "tags": "cuestionario, docente, evaluacion, quiz",
+            "enabled": 1,
+            "showoptions": 1,
+            "contextaware": 0,
+            "dynamicresponse": 0,
+            "requiredcontext": "course",
+            "roles": "teacher,editingteacher",
+            "courses": "",
+            "lang": "es",
+            "priority": 0,
+            "useroleoptions": 0
+        }
+    ],
+    "options": [
+        {
+            "id": 1,
+            "ruleid": 1,
+            "text": "Ver video tutorial",
+            "action": "tutorial de registro",
+            "targetruleid": null,
+            "icon": "bi-play-circle",
+            "sortorder": 1,
+            "enabled": 1
+        },
+        {
+            "id": 2,
+            "ruleid": 1,
+            "text": "Contactar soporte",
+            "action": "contactar soporte",
+            "targetruleid": null,
+            "icon": "bi-headset",
+            "sortorder": 2,
+            "enabled": 1
+        },
+        {
+            "id": 3,
+            "ruleid": 2,
+            "text": "Cambiar contraseña",
+            "action": "como cambiar contraseña",
+            "targetruleid": null,
+            "icon": "bi-key",
+            "sortorder": 1,
+            "enabled": 1
+        },
+        {
+            "id": 4,
+            "ruleid": 4,
+            "text": "Ver mis tareas",
+            "action": "mis tareas pendientes",
+            "targetruleid": null,
+            "icon": "bi-list-task",
+            "sortorder": 1,
+            "enabled": 1
+        },
+        {
+            "id": 5,
+            "ruleid": 5,
+            "text": "Tipos de preguntas",
+            "action": "tipos de preguntas en cuestionario",
+            "targetruleid": null,
+            "icon": "bi-question-circle",
+            "sortorder": 1,
+            "enabled": 1
+        }
+    ]
+}
