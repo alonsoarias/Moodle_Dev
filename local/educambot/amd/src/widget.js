@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Nexo Bot widget JavaScript (v3.0.0).
+ * EducamBot widget JavaScript (v3.8.0).
  *
  * Major rewrite to fix event handling inconsistencies.
  *
@@ -33,6 +33,12 @@
  * - Export conversation
  * - Sound notifications
  * - Cross-tab conversation sync
+ * - Scroll-to-bottom button (v3.8.0)
+ * - Dark mode support (v3.8.0)
+ * - Character counter (v3.8.0)
+ * - Improved accessibility (v3.8.0)
+ * - Keyboard shortcuts indicator (v3.8.0)
+ * - Message time grouping (v3.8.0)
  *
  * @module     local_educambot/widget
  * @author     Alonso Arias <soporte@ingeweb.co>
@@ -98,7 +104,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         maxRetries: 3,
         retryDelays: [1000, 2000, 4000], // Exponential backoff delays in ms.
 
-        // DOM references (v3.0.0).
+        // DOM references (v3.0.0, v3.8.0).
         elements: {
             chat: null,
             popup: null,
@@ -110,7 +116,11 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             sendBtn: null,
             messages: null,
             loading: null,
-            typingIndicator: null
+            typingIndicator: null,
+            scrollBtn: null,        // v3.8.0
+            charCounter: null,      // v3.8.0
+            darkModeBtn: null,      // v3.8.0
+            keyboardHelper: null    // v3.8.0
         },
 
         // URLs (v3.0.0).
@@ -123,6 +133,14 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         shortcutsLoaded: false,
         isProcessing: false,
         courseid: 1,
+
+        // v3.8.0 - New features.
+        scrollThreshold: 100, // Pixels from bottom to show scroll button.
+        isUserScrolled: false,
+        darkModeEnabled: false,
+        maxCharacters: 500, // Max characters in textarea.
+        lastMessageTime: null,
+        messageGroupInterval: 300000, // 5 minutes for grouping messages.
 
         // ==============================================
         // Initialization
@@ -189,6 +207,12 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
             // Store references for export.
             self.messagesContainer = self.elements.messages;
+
+            // v3.8.0 - Create and initialize new UI elements.
+            self.createScrollToBottomButton();
+            self.createCharacterCounter();
+            self.createKeyboardHelper();
+            self.initDarkMode();
 
             // Initialize notification sound.
             self.initNotificationSound();
@@ -794,6 +818,13 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
             var isError = sender.indexOf('error') !== -1;
             var senderClass = sender.replace(' error', '');
+            var timestamp = Date.now();
+
+            // v3.8.0 - Check for time separator.
+            if (!isHistory && self.shouldAddTimeSeparator(timestamp)) {
+                var separator = self.createTimeSeparator(timestamp);
+                messages.append(separator);
+            }
 
             // Generate unique message ID.
             self.messageCounter++;
@@ -860,8 +891,16 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
             messages.append(messageDiv);
 
-            // Scroll to bottom.
-            messages.scrollTop(messages[0].scrollHeight);
+            // Scroll to bottom if user hasn't scrolled up (v3.8.0).
+            if (!self.isUserScrolled) {
+                self.scrollToBottom(false);
+            }
+
+            // v3.8.0 - Announce to screen readers.
+            if (!isHistory && senderClass === 'bot') {
+                var plainText = $('<div>').html(text).text();
+                self.announceToScreenReader(self.botName + ': ' + plainText.substring(0, 100));
+            }
 
             // Save to local conversation - only for new messages, not history.
             if (!isHistory) {
@@ -1872,6 +1911,327 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                     messages.find('.educambot-options').remove();
                 }
             });
+        },
+
+        // ==============================================
+        // v3.8.0 - Scroll to Bottom Button
+        // ==============================================
+
+        /**
+         * Create the scroll-to-bottom button.
+         */
+        createScrollToBottomButton: function() {
+            var self = this;
+
+            var scrollBtn = $('<button>')
+                .addClass('educambot-scroll-btn')
+                .attr('type', 'button')
+                .attr('aria-label', M.util.get_string('scrolltobottom', 'local_educambot') || 'Scroll to bottom')
+                .html('<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>')
+                .hide();
+
+            self.elements.popup.find('.educambot-messages').after(scrollBtn);
+            self.elements.scrollBtn = scrollBtn;
+
+            // Click handler.
+            scrollBtn.on('click', function() {
+                self.scrollToBottom(true);
+            });
+
+            // Scroll handler to show/hide button.
+            self.elements.messages.on('scroll', function() {
+                self.handleMessagesScroll();
+            });
+        },
+
+        /**
+         * Handle messages container scroll event.
+         */
+        handleMessagesScroll: function() {
+            var self = this;
+            var container = self.elements.messages[0];
+            var distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+
+            if (distanceFromBottom > self.scrollThreshold) {
+                self.isUserScrolled = true;
+                self.elements.scrollBtn.fadeIn(200);
+            } else {
+                self.isUserScrolled = false;
+                self.elements.scrollBtn.fadeOut(200);
+            }
+        },
+
+        /**
+         * Scroll to bottom of messages.
+         *
+         * @param {boolean} smooth - Whether to use smooth scrolling
+         */
+        scrollToBottom: function(smooth) {
+            var self = this;
+            var container = self.elements.messages[0];
+
+            if (smooth) {
+                self.elements.messages.animate({
+                    scrollTop: container.scrollHeight
+                }, 300);
+            } else {
+                container.scrollTop = container.scrollHeight;
+            }
+
+            self.isUserScrolled = false;
+            self.elements.scrollBtn.fadeOut(200);
+        },
+
+        // ==============================================
+        // v3.8.0 - Character Counter
+        // ==============================================
+
+        /**
+         * Create character counter for textarea.
+         */
+        createCharacterCounter: function() {
+            var self = this;
+
+            var counterDiv = $('<div>')
+                .addClass('educambot-char-counter')
+                .html('<span class="educambot-char-count">0</span>/<span class="educambot-char-max">' +
+                      self.maxCharacters + '</span>');
+
+            self.elements.textarea.after(counterDiv);
+            self.elements.charCounter = counterDiv;
+
+            // Update counter on input.
+            self.elements.textarea.on('input', function() {
+                self.updateCharacterCounter();
+            });
+        },
+
+        /**
+         * Update the character counter.
+         */
+        updateCharacterCounter: function() {
+            var self = this;
+            var length = self.elements.textarea.val().length;
+            var countSpan = self.elements.charCounter.find('.educambot-char-count');
+
+            countSpan.text(length);
+
+            if (length > self.maxCharacters) {
+                self.elements.charCounter.addClass('over-limit');
+                // Trim to max.
+                self.elements.textarea.val(self.elements.textarea.val().substring(0, self.maxCharacters));
+                countSpan.text(self.maxCharacters);
+            } else if (length > self.maxCharacters * 0.9) {
+                self.elements.charCounter.addClass('near-limit').removeClass('over-limit');
+            } else {
+                self.elements.charCounter.removeClass('near-limit over-limit');
+            }
+        },
+
+        // ==============================================
+        // v3.8.0 - Keyboard Shortcuts Helper
+        // ==============================================
+
+        /**
+         * Create keyboard shortcuts helper.
+         */
+        createKeyboardHelper: function() {
+            var self = this;
+
+            var helperDiv = $('<div>')
+                .addClass('educambot-keyboard-helper')
+                .html(
+                    '<span class="educambot-kbd-hint">' +
+                    '<kbd>Enter</kbd> ' +
+                    (M.util.get_string('tosend', 'local_educambot') || 'to send') +
+                    '</span>'
+                );
+
+            self.elements.textarea.parent().append(helperDiv);
+            self.elements.keyboardHelper = helperDiv;
+        },
+
+        // ==============================================
+        // v3.8.0 - Dark Mode Support
+        // ==============================================
+
+        /**
+         * Initialize dark mode support.
+         */
+        initDarkMode: function() {
+            var self = this;
+
+            // Check for system preference.
+            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            // Check for saved preference.
+            var savedPreference = localStorage.getItem('educambot-darkmode');
+            if (savedPreference !== null) {
+                self.darkModeEnabled = savedPreference === 'true';
+            } else {
+                self.darkModeEnabled = prefersDark;
+            }
+
+            // Apply dark mode if enabled.
+            if (self.darkModeEnabled) {
+                self.elements.chat.addClass('educambot-dark-mode');
+            }
+
+            // Create dark mode toggle button in header.
+            var darkModeBtn = $('<a>')
+                .attr('href', '#')
+                .attr('id', 'educambot-darkmode')
+                .addClass('educambot-action-btn')
+                .attr('title', M.util.get_string('toggledarkmode', 'local_educambot') || 'Toggle dark mode')
+                .html(self.getDarkModeIcon());
+
+            self.elements.chat.find('.educambot-actions').prepend(darkModeBtn);
+            self.elements.darkModeBtn = darkModeBtn;
+
+            // Click handler.
+            darkModeBtn.on('click', function(e) {
+                e.preventDefault();
+                self.toggleDarkMode();
+            });
+
+            // Listen for system preference changes.
+            if (window.matchMedia) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                    if (localStorage.getItem('educambot-darkmode') === null) {
+                        self.darkModeEnabled = e.matches;
+                        self.applyDarkMode();
+                    }
+                });
+            }
+        },
+
+        /**
+         * Toggle dark mode.
+         */
+        toggleDarkMode: function() {
+            var self = this;
+            self.darkModeEnabled = !self.darkModeEnabled;
+            localStorage.setItem('educambot-darkmode', self.darkModeEnabled);
+            self.applyDarkMode();
+        },
+
+        /**
+         * Apply dark mode state.
+         */
+        applyDarkMode: function() {
+            var self = this;
+
+            if (self.darkModeEnabled) {
+                self.elements.chat.addClass('educambot-dark-mode');
+            } else {
+                self.elements.chat.removeClass('educambot-dark-mode');
+            }
+
+            // Update button icon.
+            if (self.elements.darkModeBtn) {
+                self.elements.darkModeBtn.html(self.getDarkModeIcon());
+            }
+        },
+
+        /**
+         * Get the appropriate dark mode icon.
+         *
+         * @return {string} SVG icon HTML
+         */
+        getDarkModeIcon: function() {
+            var self = this;
+
+            if (self.darkModeEnabled) {
+                // Sun icon (to switch to light).
+                return '<svg width="20" height="20" viewBox="0 0 24 24" fill="white">' +
+                       '<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>' +
+                       '</svg>';
+            } else {
+                // Moon icon (to switch to dark).
+                return '<svg width="20" height="20" viewBox="0 0 24 24" fill="white">' +
+                       '<path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>' +
+                       '</svg>';
+            }
+        },
+
+        // ==============================================
+        // v3.8.0 - Message Time Grouping
+        // ==============================================
+
+        /**
+         * Check if a time separator should be added before a message.
+         *
+         * @param {number} timestamp - Message timestamp
+         * @return {boolean} Whether to add separator
+         */
+        shouldAddTimeSeparator: function(timestamp) {
+            var self = this;
+
+            if (!self.lastMessageTime) {
+                self.lastMessageTime = timestamp;
+                return false;
+            }
+
+            var diff = timestamp - self.lastMessageTime;
+            self.lastMessageTime = timestamp;
+
+            return diff > self.messageGroupInterval;
+        },
+
+        /**
+         * Create a time separator element.
+         *
+         * @param {number} timestamp - Timestamp for the separator
+         * @return {jQuery} Time separator element
+         */
+        createTimeSeparator: function(timestamp) {
+            var date = new Date(timestamp);
+            var now = new Date();
+            var label;
+
+            // Format based on how recent.
+            if (date.toDateString() === now.toDateString()) {
+                label = M.util.get_string('today', 'local_educambot') || 'Today';
+            } else {
+                var yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                if (date.toDateString() === yesterday.toDateString()) {
+                    label = M.util.get_string('yesterday', 'local_educambot') || 'Yesterday';
+                } else {
+                    label = date.toLocaleDateString(undefined, {
+                        weekday: 'long',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                }
+            }
+
+            return $('<div>')
+                .addClass('educambot-time-separator')
+                .html('<span>' + label + '</span>');
+        },
+
+        // ==============================================
+        // v3.8.0 - Accessibility Improvements
+        // ==============================================
+
+        /**
+         * Announce a message to screen readers.
+         *
+         * @param {string} message - Message to announce
+         */
+        announceToScreenReader: function(message) {
+            var announcement = $('<div>')
+                .addClass('educambot-sr-announcement')
+                .attr('role', 'status')
+                .attr('aria-live', 'polite')
+                .text(message);
+
+            $('body').append(announcement);
+
+            setTimeout(function() {
+                announcement.remove();
+            }, 1000);
         }
     };
 

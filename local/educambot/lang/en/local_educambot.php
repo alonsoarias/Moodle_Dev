@@ -734,3 +734,17 @@ $string['followup_general_3'] = 'What events do I have coming up?';
 
 // Context prompts.
 $string['context_follow_up_prompts'] = 'anything else,need,would you like,want me to,can I help';
+
+// v3.8.0 - Widget UI Improvements.
+// Scroll button.
+$string['scrolltobottom'] = 'Scroll to bottom';
+
+// Dark mode.
+$string['toggledarkmode'] = 'Toggle dark mode';
+
+// Keyboard shortcuts.
+$string['tosend'] = 'to send';
+
+// Time separators.
+$string['today'] = 'Today';
+$string['yesterday'] = 'Yesterday';
