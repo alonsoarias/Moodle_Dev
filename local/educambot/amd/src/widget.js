@@ -921,7 +921,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         },
 
         /**
-         * Create options buttons container.
+         * Create options buttons container (v3.8.1 - card-style design).
          * Uses data attributes for unified event delegation.
          *
          * @param {array} options - Array of option objects
@@ -929,6 +929,11 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
          */
         createOptionsButtons: function(options) {
             var optionsDiv = $('<div>').addClass('educambot-options');
+
+            // Use single column layout for 1-2 options.
+            if (options.length <= 2) {
+                optionsDiv.addClass('single-column');
+            }
 
             options.forEach(function(option) {
                 var btn = $('<button>')
@@ -944,16 +949,34 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                     btn.attr('data-targetpattern', option.targetpattern);
                 }
 
-                // Render icon properly using Bootstrap Icons.
+                // v3.8.1 - Create icon container with proper styling.
+                var iconContainer = $('<span>').addClass('educambot-option-icon');
+
                 if (option.icon) {
                     if (option.icon.indexOf('bi-') === 0) {
+                        // Bootstrap icon.
                         var iconEl = $('<i>').addClass('bi ' + option.icon);
-                        btn.append(iconEl).append(' ');
+                        iconContainer.append(iconEl);
+                    } else if (option.icon.length <= 2) {
+                        // Emoji icon.
+                        iconContainer.text(option.icon);
                     } else {
-                        btn.append(option.icon + ' ');
+                        // Fallback text.
+                        iconContainer.text(option.icon.charAt(0));
                     }
+                } else {
+                    // Default icon if none provided.
+                    iconContainer.html('<i class="bi bi-arrow-right-circle"></i>');
                 }
-                btn.append(option.text);
+
+                btn.append(iconContainer);
+
+                // v3.8.1 - Create text container.
+                var textContainer = $('<span>')
+                    .addClass('educambot-option-text')
+                    .text(option.text);
+
+                btn.append(textContainer);
 
                 // NO inline handler - rely on event delegation only.
                 optionsDiv.append(btn);

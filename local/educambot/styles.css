@@ -335,36 +335,79 @@
 }
 
 /* Quick reply options - uses theme colors */
+/* ==============================================
+   v3.8.1 - Enhanced Menu Options (card-style)
+   ============================================== */
+
 .educambot-options {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 14px;
+    padding: 4px;
+}
+
+/* Single column for 1-2 options, 2 columns for 3+ */
+.educambot-options.single-column {
+    grid-template-columns: 1fr;
+    max-width: 280px;
 }
 
 .educambot-option-btn {
-    padding: 8px 16px;
-    border: 1px solid var(--educambot-primary);
-    border-radius: 20px;
-    background: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
     cursor: pointer;
     font-size: 13px;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--educambot-primary);
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--educambot-text, #1f2937);
     font-family: inherit;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    min-height: 48px;
+}
+
+/* Subtle gradient overlay on hover */
+.educambot-option-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--educambot-primary) 0%, color-mix(in srgb, var(--educambot-primary) 80%, #000) 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 0;
+}
+
+.educambot-option-btn:hover::before {
+    opacity: 1;
 }
 
 .educambot-option-btn:hover {
-    background: var(--educambot-primary);
-    color: white;
-    transform: translateY(-1px);
+    border-color: var(--educambot-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12),
+                0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.educambot-option-btn:hover .educambot-option-icon,
+.educambot-option-btn:hover .educambot-option-text {
+    color: #ffffff;
+    position: relative;
+    z-index: 1;
 }
 
 .educambot-option-btn:active {
     transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .educambot-option-btn:disabled,
@@ -372,6 +415,56 @@
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+/* Option icon container */
+.educambot-option-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--educambot-primary) 0%, color-mix(in srgb, var(--educambot-primary) 85%, #000) 100%);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 16px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.25s ease;
+}
+
+.educambot-option-btn:hover .educambot-option-icon {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Option text */
+.educambot-option-text {
+    flex: 1;
+    min-width: 0;
+    font-weight: 500;
+    line-height: 1.3;
+    position: relative;
+    z-index: 1;
+    color: var(--educambot-text, #374151);
+}
+
+/* Fallback for browsers without color-mix */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+    .educambot-option-btn::before {
+        background: var(--educambot-primary);
+    }
+    .educambot-option-icon {
+        background: var(--educambot-primary);
+    }
+}
+
+/* Mobile: single column on small screens */
+@media (max-width: 400px) {
+    .educambot-options {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ==============================================
@@ -809,9 +902,17 @@
         height: 56px;
     }
 
+    /* v3.8.1 - Compact card options on mobile */
     .educambot-option-btn {
-        padding: 6px 12px;
+        padding: 10px 12px;
         font-size: 12px;
+        min-height: 44px;
+    }
+
+    .educambot-option-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
     }
 
     /* Smaller mascot on mobile (v2.0.1) */
@@ -1619,15 +1720,29 @@
     color: #9ca3af;
 }
 
+/* v3.8.1 - Enhanced dark mode for card-style options */
 .educambot-dark-mode .educambot-option-btn {
-    background: #374151;
-    border-color: var(--educambot-primary);
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    border-color: #4b5563;
     color: #f9fafb;
 }
 
 .educambot-dark-mode .educambot-option-btn:hover {
-    background: var(--educambot-primary);
-    color: white;
+    border-color: var(--educambot-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3),
+                0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.educambot-dark-mode .educambot-option-text {
+    color: #f9fafb;
+}
+
+.educambot-dark-mode .educambot-option-icon {
+    background: linear-gradient(135deg, var(--educambot-primary) 0%, color-mix(in srgb, var(--educambot-primary) 70%, #000) 100%);
+}
+
+.educambot-dark-mode .educambot-option-btn:hover .educambot-option-icon {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .educambot-dark-mode .educambot-shortcuts-container {
@@ -1812,16 +1927,6 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Option buttons enhanced animation */
-.educambot-option-btn {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.educambot-option-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
 /* ==============================================
    v3.8.0 - Enhanced Mobile Experience
    ============================================== */
@@ -1843,10 +1948,17 @@
         display: none;
     }
 
-    /* Larger touch targets on mobile */
+    /* v3.8.1 - Card options on small mobile */
     .educambot-option-btn {
         min-height: 44px;
-        padding: 10px 16px;
+        padding: 10px 12px;
+    }
+
+    .educambot-option-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        border-radius: 6px;
     }
 
     .educambot-action-btn {
