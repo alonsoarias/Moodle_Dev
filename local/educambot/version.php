@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025122207;  // YYYYMMDDXX format.
+$plugin->version = 2025122208;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.6.1';  // KB expansion: +60 rules, messages.json, improved categories.
+$plugin->release = '3.7.0';  // Transitive/reflexive detection, verb conjugations, +40 rules, calendar.json, teachers.json.

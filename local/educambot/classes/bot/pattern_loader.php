@@ -162,6 +162,75 @@ class pattern_loader {
     }
 
     /**
+     * Get verb analysis data for transitive/reflexive detection (v3.7.0).
+     *
+     * @return array Verb analysis patterns
+     */
+    public static function get_verb_analysis(): array {
+        $intents = self::get('intent');
+        return $intents['verb_analysis'] ?? [];
+    }
+
+    /**
+     * Get reflexive markers (v3.7.0).
+     *
+     * @return array Reflexive marker words and patterns
+     */
+    public static function get_reflexive_markers(): array {
+        $verbAnalysis = self::get_verb_analysis();
+        return $verbAnalysis['reflexive_markers'] ?? [];
+    }
+
+    /**
+     * Get transitive markers (v3.7.0).
+     *
+     * @return array Transitive marker words and patterns
+     */
+    public static function get_transitive_markers(): array {
+        $verbAnalysis = self::get_verb_analysis();
+        return $verbAnalysis['transitive_markers'] ?? [];
+    }
+
+    /**
+     * Get action objects for Moodle context (v3.7.0).
+     *
+     * @return array Action objects by category
+     */
+    public static function get_action_objects(): array {
+        $verbAnalysis = self::get_verb_analysis();
+        return $verbAnalysis['action_objects'] ?? [];
+    }
+
+    /**
+     * Get verb conjugations (v3.7.0).
+     *
+     * @return array Verb conjugation data
+     */
+    public static function get_verb_conjugations(): array {
+        $intents = self::get('intent');
+        return $intents['verb_conjugations'] ?? [];
+    }
+
+    /**
+     * Get all conjugations for a verb stem (v3.7.0).
+     *
+     * @param string $stem Verb stem to search
+     * @return array|null Verb data or null
+     */
+    public static function get_verb_by_stem(string $stem): ?array {
+        $conjugations = self::get_verb_conjugations();
+        foreach ($conjugations as $verb => $data) {
+            $stems = $data['stems'] ?? [];
+            foreach ($stems as $verbStem) {
+                if (mb_strpos($stem, $verbStem) === 0 || mb_strpos($verbStem, $stem) === 0) {
+                    return array_merge(['verb' => $verb], $data);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get topic patterns.
      *
      * @return array Topic patterns

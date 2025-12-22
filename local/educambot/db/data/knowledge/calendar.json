@@ -1,0 +1,173 @@
+{
+    "version": "3.7.0",
+    "description": "EducamBot - Calendario, eventos y fechas",
+    "rules": [
+        {
+            "id": "ver_calendario",
+            "category": "calendario",
+            "pattern": "Como veo el calendario",
+            "keywords": [
+                "calendario", "ver calendario", "mi calendario", "abrir calendario",
+                "donde esta calendario", "eventos", "agenda", "horario"
+            ],
+            "response": "Para ver el <strong>calendario</strong>:<br><br><strong>Opcion 1:</strong><br>1. Clic en <strong>Calendario</strong> en el menu lateral<br><br><strong>Opcion 2:</strong><br>1. Desde tu Tablero > Bloque Calendario<br><br><strong>Vistas:</strong><br>- Mes: Vista completa<br>- Dia: Detalle de un dia<br>- Proximos eventos: Lista de pendientes",
+            "tags": ["calendario", "eventos"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Eventos proximos", "icon": "bi-calendar-check", "action": "eventos proximos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "eventos_proximos",
+            "category": "calendario",
+            "pattern": "Cuales son mis eventos proximos",
+            "keywords": [
+                "eventos proximos", "proximos eventos", "que tengo pendiente",
+                "eventos semana", "eventos mes", "proximas fechas", "que viene"
+            ],
+            "response": "Para ver <strong>eventos proximos</strong>:<br><br>1. Ve al <strong>Calendario</strong><br>2. Mira el bloque <strong>Proximos eventos</strong><br>3. O en tu Tablero > Timeline<br><br><strong>Muestra:</strong><br>- Fechas limite de tareas<br>- Cuestionarios programados<br>- Eventos del curso<br>- Eventos personales",
+            "tags": ["eventos", "proximos", "pendientes"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver calendario", "icon": "bi-calendar", "action": "ver calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_evento",
+            "category": "calendario",
+            "pattern": "Como creo un evento",
+            "keywords": [
+                "crear evento", "nuevo evento", "agregar evento", "anadir evento",
+                "programar evento", "agendar", "recordatorio", "añadir recordatorio"
+            ],
+            "response": "Para crear un <strong>evento personal</strong>:<br><br>1. Ve al <strong>Calendario</strong><br>2. Clic en el dia deseado<br>3. O clic en <strong>Nuevo evento</strong><br>4. Completa: titulo, descripcion, fecha y hora<br>5. Guarda<br><br><strong>Tipos:</strong><br>- Usuario: Solo tu lo ves<br>- Curso: Visible para el curso (si tienes permiso)",
+            "tags": ["crear", "evento", "recordatorio"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver calendario", "icon": "bi-calendar", "action": "ver calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "editar_evento",
+            "category": "calendario",
+            "pattern": "Como edito un evento",
+            "keywords": [
+                "editar evento", "modificar evento", "cambiar evento",
+                "actualizar evento", "reprogramar", "mover evento"
+            ],
+            "response": "Para <strong>editar un evento</strong>:<br><br>1. Ve al <strong>Calendario</strong><br>2. Clic en el evento<br>3. Clic en <strong>Editar</strong> (icono lapiz)<br>4. Modifica los datos<br>5. Guarda cambios<br><br><strong>Nota:</strong> Solo puedes editar eventos que tu creaste o si tienes permisos.",
+            "tags": ["editar", "modificar", "evento"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "eliminar_evento",
+            "category": "calendario",
+            "pattern": "Como elimino un evento",
+            "keywords": [
+                "eliminar evento", "borrar evento", "quitar evento",
+                "cancelar evento", "eliminar recordatorio"
+            ],
+            "response": "Para <strong>eliminar un evento</strong>:<br><br>1. Ve al <strong>Calendario</strong><br>2. Clic en el evento<br>3. Clic en <strong>Eliminar</strong><br>4. Confirma la eliminacion<br><br><strong>Importante:</strong><br>- Solo puedes eliminar eventos personales<br>- Los eventos del curso los elimina el profesor",
+            "tags": ["eliminar", "borrar", "evento"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tipos_eventos",
+            "category": "calendario",
+            "pattern": "Que tipos de eventos hay",
+            "keywords": [
+                "tipos eventos", "colores eventos", "evento curso",
+                "evento sitio", "evento usuario", "categorias eventos"
+            ],
+            "response": "<strong>Tipos de eventos</strong> en el calendario:<br><br><strong>Por color:</strong><br>- <span style='color:#1177d1'>Azul</span>: Eventos del sitio<br>- <span style='color:#5d63f6'>Morado</span>: Eventos del curso<br>- <span style='color:#f0ad4e'>Naranja</span>: Eventos de grupo<br>- <span style='color:#0f6cbf'>Azul claro</span>: Eventos de usuario<br><br><strong>Automaticos:</strong><br>- Fechas limite de tareas<br>- Cuestionarios programados",
+            "tags": ["tipos", "colores", "categorias"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "exportar_calendario",
+            "category": "calendario",
+            "pattern": "Como exporto el calendario",
+            "keywords": [
+                "exportar calendario", "descargar calendario", "ical",
+                "sincronizar calendario", "google calendar", "outlook"
+            ],
+            "response": "Para <strong>exportar el calendario</strong>:<br><br>1. Ve al <strong>Calendario</strong><br>2. Clic en <strong>Exportar calendario</strong><br>3. Selecciona: todos los eventos o rango de fechas<br>4. Descarga el archivo .ics<br><br><strong>Sincronizar:</strong><br>- Usa la URL del calendario<br>- Agregala a Google Calendar, Outlook, etc.",
+            "tags": ["exportar", "sincronizar", "ical"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "App movil", "icon": "bi-phone", "action": "app movil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "fechas_importantes",
+            "category": "calendario",
+            "pattern": "Cuales son las fechas importantes",
+            "keywords": [
+                "fechas importantes", "fechas limite", "deadlines",
+                "vencimientos", "fechas entrega", "cuando vence"
+            ],
+            "response": "Para ver <strong>fechas importantes</strong>:<br><br><strong>En el Tablero:</strong><br>- <strong>Timeline</strong>: Muestra actividades pendientes<br>- Filtros: Vencidas, Hoy, 7 dias, 30 dias<br><br><strong>En el Calendario:</strong><br>- Las fechas limite aparecen automaticamente<br>- Iconos indican tipo de actividad<br><br><strong>Consejo:</strong> Revisa el Timeline diariamente.",
+            "tags": ["fechas", "limite", "importante"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis tareas", "icon": "bi-journal-check", "action": "tareas pendientes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "configurar_calendario",
+            "category": "calendario",
+            "pattern": "Como configuro el calendario",
+            "keywords": [
+                "configurar calendario", "preferencias calendario",
+                "ajustes calendario", "primer dia semana", "formato fecha"
+            ],
+            "response": "Para <strong>configurar el calendario</strong>:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Preferencias del calendario</strong><br><br><strong>Opciones:</strong><br>- Primer dia de la semana<br>- Formato de hora (12h/24h)<br>- Proximos eventos a mostrar<br>- Duracion recordatorio eventos",
+            "tags": ["configurar", "preferencias", "ajustes"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver calendario", "icon": "bi-calendar", "action": "ver calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "recordatorios_eventos",
+            "category": "calendario",
+            "pattern": "Como recibo recordatorios de eventos",
+            "keywords": [
+                "recordatorios", "notificaciones eventos", "alertas calendario",
+                "avisos eventos", "recordar fecha", "no olvidar"
+            ],
+            "response": "Para recibir <strong>recordatorios de eventos</strong>:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Preferencias de notificacion</strong><br>4. Busca <strong>Calendario</strong><br>5. Activa notificaciones por web/email/app<br><br><strong>Tiempo:</strong><br>Configura cuanto tiempo antes quieres el aviso en Preferencias del calendario.",
+            "tags": ["recordatorios", "notificaciones", "alertas"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Notificaciones", "icon": "bi-bell", "action": "configurar notificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

@@ -1,5 +1,5 @@
 {
-    "version": "3.6.0",
+    "version": "3.7.0",
     "description": "EducamBot category definitions",
     "categories": [
         {
@@ -31,52 +31,59 @@
             "enabled": true
         },
         {
+            "id": "calendario",
+            "name": "Calendario",
+            "description": "Eventos, fechas importantes y recordatorios",
+            "sortorder": 5,
+            "enabled": true
+        },
+        {
             "id": "mensajes",
             "name": "Mensajes",
             "description": "Mensajeria privada y comunicacion entre usuarios",
-            "sortorder": 5,
+            "sortorder": 6,
             "enabled": true
         },
         {
             "id": "perfil",
             "name": "Perfil y Cuenta",
             "description": "Configuracion de perfil, contrasena y preferencias",
-            "sortorder": 6,
+            "sortorder": 7,
             "enabled": true
         },
         {
             "id": "recursos",
             "name": "Recursos y Materiales",
             "description": "Acceso a archivos, videos y materiales de estudio",
-            "sortorder": 7,
+            "sortorder": 8,
             "enabled": true
         },
         {
             "id": "comunicacion",
             "name": "Comunicacion",
             "description": "Foros, chat y notificaciones",
-            "sortorder": 8,
+            "sortorder": 9,
             "enabled": true
         },
         {
             "id": "soporte",
             "name": "Soporte Tecnico",
             "description": "Ayuda tecnica, problemas y soluciones",
-            "sortorder": 9,
+            "sortorder": 10,
             "enabled": true
         },
         {
             "id": "docentes",
             "name": "Docentes",
             "description": "Gestion de cursos, calificaciones y estudiantes para profesores",
-            "sortorder": 10,
+            "sortorder": 11,
             "enabled": true
         },
         {
             "id": "administracion",
             "name": "Administracion",
             "description": "Gestion del sitio, usuarios y configuracion para administradores",
-            "sortorder": 11,
+            "sortorder": 12,
             "enabled": true
         }
     ]

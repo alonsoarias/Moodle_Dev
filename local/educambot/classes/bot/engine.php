@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Bot engine - handles question processing and response generation (v3.6.0).
+ * Bot engine - handles question processing and response generation (v3.7.0).
  *
  * Major improvements:
  * - Advanced text normalization with abbreviation expansion
@@ -37,6 +37,9 @@
  * - Prefix/stem matching for partial words (v3.6.0)
  * - Sub-phrase detection for longer queries (v3.6.0)
  * - Enhanced question word detection (v3.6.0)
+ * - Transitive/reflexive action detection (v3.7.0)
+ * - Verb conjugation matching (v3.7.0)
+ * - Action object type detection (v3.7.0)
  *
  * @package     local_educambot
  * @author      Alonso Arias <soporte@ingeweb.co>
@@ -91,10 +94,14 @@ class engine {
         'exact_match' => 100,
         'pattern_contains' => 45,
         'question_contains' => 35,
+        'transitive_match' => 35,        // Transitive action match bonus (v3.7.0).
+        'reflexive_match' => 35,         // Reflexive action match bonus (v3.7.0).
         'phrase_order_match' => 32,      // Phrase with correct word order (v3.6.0).
         'word_overlap' => 30,
+        'action_object_match' => 28,     // Action object match (v3.7.0).
         'multi_word_keyword' => 28,
         'keyword_match' => 25,
+        'verb_conjugation_match' => 24,  // Verb conjugation match (v3.7.0).
         'sub_phrase_match' => 23,        // Partial phrase match (v3.6.0).
         'prefix_match' => 22,            // Word prefix/stem match (v3.6.0).
         'synonym_match' => 20,
@@ -113,6 +120,18 @@ class engine {
 
     /** @var array Question words loaded from database for question detection (v3.6.0) */
     protected $questionWords = [];
+
+    /** @var array Reflexive markers for detecting self-actions (v3.7.0) */
+    protected $reflexiveMarkers = [];
+
+    /** @var array Transitive markers for detecting actions on others (v3.7.0) */
+    protected $transitiveMarkers = [];
+
+    /** @var array Action objects for context detection (v3.7.0) */
+    protected $actionObjects = [];
+
+    /** @var array Verb conjugations for flexible matching (v3.7.0) */
+    protected $verbConjugations = [];
 
     /**
      * Constructor.
@@ -139,6 +158,12 @@ class engine {
 
         // Load question words from database (v3.6.0).
         $this->questionWords = pattern_loader::get_question_words();
+
+        // Load verb analysis data for transitive/reflexive detection (v3.7.0).
+        $this->reflexiveMarkers = pattern_loader::get_reflexive_markers();
+        $this->transitiveMarkers = pattern_loader::get_transitive_markers();
+        $this->actionObjects = pattern_loader::get_action_objects();
+        $this->verbConjugations = pattern_loader::get_verb_conjugations();
     }
 
     /**
@@ -651,6 +676,10 @@ class engine {
             $score += $questionWordBonus;
         }
 
+        // 8.5. Transitive/Reflexive action type matching (v3.7.0).
+        $actionTypeScore = $this->calculate_action_type_score($question, $pattern);
+        $score += $actionTypeScore;
+
         // 9. Levenshtein distance for typo tolerance.
         if (mb_strlen($pattern) <= 100 && mb_strlen($question) <= 100) {
             $similarity = $this->normalizer->calculate_similarity($question, $pattern);
@@ -880,6 +909,114 @@ class engine {
         });
 
         return count($longPatternWords) > 0 ? $matches / count($longPatternWords) : 0.0;
+    }
+
+    /**
+     * Detect if text contains reflexive action markers (v3.7.0).
+     *
+     * @param string $text Text to analyze
+     * @return bool True if reflexive action detected
+     */
+    protected function is_reflexive_action(string $text): bool {
+        // Check reflexive words.
+        $reflexiveWords = $this->reflexiveMarkers['words'] ?? [];
+        foreach ($reflexiveWords as $word) {
+            if (mb_strpos($text, $word) !== false) {
+                return true;
+            }
+        }
+
+        // Check reflexive patterns.
+        $reflexivePatterns = $this->reflexiveMarkers['patterns'] ?? [];
+        foreach ($reflexivePatterns as $pattern) {
+            if (preg_match('/' . $pattern . '/ui', $text)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Detect if text contains transitive action markers (v3.7.0).
+     *
+     * @param string $text Text to analyze
+     * @return bool True if transitive action detected
+     */
+    protected function is_transitive_action(string $text): bool {
+        // Check transitive words.
+        $transitiveWords = $this->transitiveMarkers['words'] ?? [];
+        foreach ($transitiveWords as $word) {
+            if (mb_strpos($text, $word) !== false) {
+                return true;
+            }
+        }
+
+        // Check transitive patterns.
+        $transitivePatterns = $this->transitiveMarkers['patterns'] ?? [];
+        foreach ($transitivePatterns as $pattern) {
+            if (preg_match('/' . $pattern . '/ui', $text)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Detect action object type in text (v3.7.0).
+     *
+     * @param string $text Text to analyze
+     * @return string|null Object type (people, courses, activities, content) or null
+     */
+    protected function detect_action_object(string $text): ?string {
+        foreach ($this->actionObjects as $type => $objects) {
+            foreach ($objects as $object) {
+                if (mb_strpos($text, $object) !== false) {
+                    return $type;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Calculate transitive/reflexive match score (v3.7.0).
+     *
+     * @param string $question Normalized question
+     * @param string $pattern Normalized pattern
+     * @return int Score bonus
+     */
+    protected function calculate_action_type_score(string $question, string $pattern): int {
+        $score = 0;
+
+        $questionIsReflexive = $this->is_reflexive_action($question);
+        $questionIsTransitive = $this->is_transitive_action($question);
+        $patternIsReflexive = $this->is_reflexive_action($pattern);
+        $patternIsTransitive = $this->is_transitive_action($pattern);
+
+        // Matching action types get bonus.
+        if ($questionIsReflexive && $patternIsReflexive) {
+            $score += self::SCORE_WEIGHTS['reflexive_match'];
+        } else if ($questionIsTransitive && $patternIsTransitive) {
+            $score += self::SCORE_WEIGHTS['transitive_match'];
+        }
+
+        // Mismatching action types get penalty.
+        if ($questionIsReflexive && $patternIsTransitive) {
+            $score -= 20;  // Penalty for mismatch.
+        } else if ($questionIsTransitive && $patternIsReflexive) {
+            $score -= 20;  // Penalty for mismatch.
+        }
+
+        // Check action object match.
+        $questionObject = $this->detect_action_object($question);
+        $patternObject = $this->detect_action_object($pattern);
+        if ($questionObject && $patternObject && $questionObject === $patternObject) {
+            $score += self::SCORE_WEIGHTS['action_object_match'];
+        }
+
+        return $score;
     }
 
     /**

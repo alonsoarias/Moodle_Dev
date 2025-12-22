@@ -1,0 +1,188 @@
+{
+    "version": "3.7.0",
+    "description": "EducamBot - Funciones para docentes y profesores",
+    "rules": [
+        {
+            "id": "calificar_tareas",
+            "category": "docentes",
+            "pattern": "Como califico las tareas",
+            "keywords": [
+                "calificar tareas", "poner notas", "evaluar tareas", "calificar entregas",
+                "revisar tareas", "asignar calificacion", "como califico", "dar notas"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para <strong>calificar tareas</strong>:<br><br>1. Entra al curso<br>2. Abre la <strong>Tarea</strong><br>3. Clic en <strong>Ver todas las entregas</strong><br>4. Para cada estudiante:<br>&nbsp;&nbsp;- Clic en <strong>Calificar</strong><br>&nbsp;&nbsp;- Ingresa la nota y retroalimentacion<br>&nbsp;&nbsp;- Guarda cambios<br><br><strong>Consejo:</strong> Usa la calificacion rapida para evaluar multiples entregas.",
+            "tags": ["calificar", "tareas", "notas", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Libro calificaciones", "icon": "bi-journal-text", "action": "libro de calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "libro_calificaciones_docente",
+            "category": "docentes",
+            "pattern": "Como uso el libro de calificaciones",
+            "keywords": [
+                "libro calificaciones", "gradebook", "calificador", "configurar notas",
+                "ponderaciones", "categorias notas", "gestionar calificaciones"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para usar el <strong>Libro de calificaciones</strong>:<br><br>1. En el curso > <strong>Calificaciones</strong><br>2. Pestana <strong>Vista</strong>: Ver todas las notas<br>3. Pestana <strong>Configuracion</strong>: Organizar categorias<br><br><strong>Opciones:</strong><br>- Crear categorias (parciales, trabajos, etc.)<br>- Asignar pesos/porcentajes<br>- Excluir notas vacias<br>- Exportar a Excel",
+            "tags": ["libro", "calificaciones", "gradebook", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Exportar notas", "icon": "bi-download", "action": "exportar calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "agregar_actividad",
+            "category": "docentes",
+            "pattern": "Como agrego una actividad al curso",
+            "keywords": [
+                "agregar actividad", "crear actividad", "nueva actividad",
+                "anadir tarea", "crear tarea", "agregar cuestionario",
+                "agregar foro", "anadir recurso", "añadir actividad"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para <strong>agregar una actividad</strong>:<br><br>1. Activa el <strong>Modo de edicion</strong> (arriba derecha)<br>2. En la seccion deseada, clic en <strong>Agregar una actividad o recurso</strong><br>3. Selecciona el tipo (Tarea, Cuestionario, Foro, etc.)<br>4. Configura las opciones<br>5. Guarda cambios<br><br><strong>Tipos populares:</strong> Tarea, Cuestionario, Foro, Archivo, URL",
+            "tags": ["agregar", "actividad", "crear", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "como creo un cuestionario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "matricular_estudiantes_docente",
+            "category": "docentes",
+            "pattern": "Como matriculo estudiantes en mi curso",
+            "keywords": [
+                "matricular estudiantes", "inscribir estudiantes", "agregar alumnos",
+                "anadir estudiantes", "matricular a un estudiante", "inscribir usuario",
+                "agregar participantes", "añadir estudiantes"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "priority": 10,
+            "response": "Para <strong>matricular estudiantes</strong> en tu curso:<br><br>1. En el curso > <strong>Participantes</strong><br>2. Clic en <strong>Matricular usuarios</strong><br>3. Busca por nombre o email<br>4. Selecciona el rol (Estudiante)<br>5. Clic en <strong>Matricular</strong><br><br><strong>Alternativas:</strong><br>- Autoinscripcion con clave<br>- Matriculacion masiva (CSV)<br>- Enlace de inscripcion",
+            "tags": ["matricular", "inscribir", "estudiantes", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver participantes", "icon": "bi-people", "action": "ver participantes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "configurar_grupos",
+            "category": "docentes",
+            "pattern": "Como configuro grupos en el curso",
+            "keywords": [
+                "configurar grupos", "crear grupos", "grupos estudiantes",
+                "asignar grupos", "dividir clase", "equipos", "trabajo grupal"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para <strong>configurar grupos</strong>:<br><br>1. En el curso > <strong>Participantes</strong><br>2. Icono engranaje > <strong>Grupos</strong><br>3. <strong>Crear grupo</strong>: Define nombre y descripcion<br>4. <strong>Agregar/quitar usuarios</strong> a cada grupo<br><br><strong>Opciones:</strong><br>- Autocrear grupos (por numero o tamano)<br>- Agrupamientos para combinar grupos<br>- Actividades visibles solo para ciertos grupos",
+            "tags": ["grupos", "equipos", "organizar", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_cuestionario",
+            "category": "docentes",
+            "pattern": "Como creo un cuestionario",
+            "keywords": [
+                "crear cuestionario", "crear examen", "crear quiz", "nuevo examen",
+                "hacer cuestionario", "banco preguntas", "agregar preguntas"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para <strong>crear un cuestionario</strong>:<br><br>1. Modo edicion > <strong>Agregar actividad</strong> > <strong>Cuestionario</strong><br>2. Configura: nombre, tiempo, intentos, calificacion<br>3. Guarda<br>4. Clic en <strong>Editar cuestionario</strong><br>5. <strong>Agregar preguntas</strong>:<br>&nbsp;&nbsp;- Nueva pregunta<br>&nbsp;&nbsp;- Del banco de preguntas<br>&nbsp;&nbsp;- Pregunta aleatoria<br><br><strong>Tipos:</strong> Opcion multiple, V/F, Respuesta corta, Emparejamiento, etc.",
+            "tags": ["cuestionario", "examen", "quiz", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Banco preguntas", "icon": "bi-collection", "action": "banco de preguntas"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "banco_preguntas",
+            "category": "docentes",
+            "pattern": "Como uso el banco de preguntas",
+            "keywords": [
+                "banco preguntas", "crear preguntas", "organizar preguntas",
+                "categorias preguntas", "importar preguntas", "reutilizar preguntas"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para usar el <strong>Banco de preguntas</strong>:<br><br>1. En el curso > Menu > <strong>Banco de preguntas</strong><br>2. Crea <strong>categorias</strong> para organizar<br>3. <strong>Crear pregunta</strong>: Selecciona tipo y completa<br><br><strong>Ventajas:</strong><br>- Reutilizar en multiples cuestionarios<br>- Importar/Exportar (formato GIFT, XML)<br>- Preguntas aleatorias de categorias",
+            "tags": ["banco", "preguntas", "organizar", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "como creo un cuestionario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ocultar_seccion",
+            "category": "docentes",
+            "pattern": "Como oculto una seccion del curso",
+            "keywords": [
+                "ocultar seccion", "ocultar tema", "esconder contenido",
+                "hacer invisible", "seccion oculta", "ocultar modulo"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para <strong>ocultar una seccion</strong>:<br><br>1. Activa <strong>Modo de edicion</strong><br>2. En la seccion, clic en <strong>Editar</strong> (engranaje)<br>3. Selecciona <strong>Ocultar seccion</strong><br><br><strong>Resultado:</strong><br>- Estudiantes no la veran<br>- Tu la ves sombreada<br>- Puedes mostrarla cuando quieras<br><br><strong>Alternativa:</strong> Usar restricciones de acceso por fecha.",
+            "tags": ["ocultar", "seccion", "visibilidad", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Restricciones acceso", "icon": "bi-lock", "action": "restricciones de acceso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "informe_actividad",
+            "category": "docentes",
+            "pattern": "Como veo la actividad de los estudiantes",
+            "keywords": [
+                "actividad estudiantes", "ver progreso", "informe participacion",
+                "quien accedio", "logs", "registro actividad", "seguimiento"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para ver <strong>actividad de estudiantes</strong>:<br><br>1. En el curso > <strong>Informes</strong><br><br><strong>Informes disponibles:</strong><br>- <strong>Logs:</strong> Registro detallado de acciones<br>- <strong>Actividad del curso:</strong> Resumen por actividad<br>- <strong>Participacion:</strong> Quien hizo que<br>- <strong>Finalizacion de actividad:</strong> Progreso por estudiante<br><br><strong>Participantes:</strong> Clic en un estudiante para ver su actividad individual.",
+            "tags": ["informes", "actividad", "seguimiento", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Libro calificaciones", "icon": "bi-journal-text", "action": "libro de calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "enviar_mensaje_masivo",
+            "category": "docentes",
+            "pattern": "Como envio mensaje a todos los estudiantes",
+            "keywords": [
+                "mensaje masivo", "mensaje todos", "comunicar clase",
+                "enviar a todos", "notificar estudiantes", "anuncio estudiantes"
+            ],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "response": "Para <strong>enviar mensaje a todos</strong>:<br><br><strong>Opcion 1 - Foro de anuncios:</strong><br>1. Publica en el Foro de anuncios del curso<br>2. Todos reciben notificacion automatica<br><br><strong>Opcion 2 - Participantes:</strong><br>1. Curso > <strong>Participantes</strong><br>2. Selecciona estudiantes (checkbox)<br>3. Menu desplegable > <strong>Enviar mensaje</strong><br>4. Escribe y envia<br><br><strong>Recomendacion:</strong> Usa el Foro de anuncios para avisos oficiales.",
+            "tags": ["mensaje", "masivo", "comunicacion", "docente"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver participantes", "icon": "bi-people", "action": "ver participantes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

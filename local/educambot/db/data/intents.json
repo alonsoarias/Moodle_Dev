@@ -1,6 +1,6 @@
 {
-    "version": "3.6.0",
-    "description": "EducamBot intent patterns - comprehensive user intent classification",
+    "version": "3.7.0",
+    "description": "EducamBot intent patterns - comprehensive user intent classification with verb analysis",
     "lang": "es",
     "question_words": {
         "description": "Palabras interrogativas en español para detección de preguntas",
@@ -20,6 +20,166 @@
             "^(cuánto|cuanto|cuánta|cuanta|cuántos|cuantos|cuántas|cuantas)\\s+",
             "^(por qué|porque|para qué|para que)\\s+"
         ]
+    },
+    "verb_analysis": {
+        "description": "Análisis de verbos para detectar acciones transitivas vs reflexivas (v3.7.0)",
+        "reflexive_markers": {
+            "description": "Pronombres reflexivos que indican acción sobre sí mismo",
+            "words": ["me", "mi", "yo", "mío", "mía", "conmigo", "a mi mismo", "a mí mismo"],
+            "patterns": [
+                "\\bme\\s+(matriculo|inscribo|registro|doy de baja|desinscribo)",
+                "\\bcomo\\s+me\\s+",
+                "\\byo\\s+(quiero|necesito|puedo)",
+                "\\b(matricularme|inscribirme|registrarme|darme de baja)"
+            ]
+        },
+        "transitive_markers": {
+            "description": "Palabras que indican acción sobre otra persona/cosa",
+            "words": ["a un", "a una", "a los", "a las", "al", "estudiante", "estudiantes", "usuario", "usuarios", "alumno", "alumnos", "persona", "personas", "participante", "participantes"],
+            "patterns": [
+                "\\b(matricular|inscribir|registrar|agregar|añadir|eliminar|dar de baja)\\s+(a\\s+)?(un|una|el|la|los|las|al)",
+                "\\b(matriculo|inscribo|registro|agrego|añado|elimino)\\s+(a\\s+)?(un|una|el|la)",
+                "\\b(crear|configurar|gestionar|administrar)\\s+(un|una|el|la|los|las)"
+            ]
+        },
+        "action_objects": {
+            "description": "Objetos comunes de acciones en Moodle",
+            "people": ["estudiante", "estudiantes", "alumno", "alumnos", "usuario", "usuarios", "profesor", "profesores", "docente", "docentes", "participante", "participantes", "persona", "personas"],
+            "courses": ["curso", "cursos", "asignatura", "asignaturas", "materia", "materias", "clase", "clases"],
+            "activities": ["tarea", "tareas", "cuestionario", "cuestionarios", "foro", "foros", "actividad", "actividades", "recurso", "recursos", "archivo", "archivos"],
+            "content": ["seccion", "secciones", "tema", "temas", "modulo", "modulos", "bloque", "bloques", "contenido", "contenidos"]
+        }
+    },
+    "verb_conjugations": {
+        "description": "Conjugaciones de verbos comunes para matching flexible (v3.7.0)",
+        "matricular": {
+            "infinitive": "matricular",
+            "stems": ["matricul", "matric"],
+            "conjugations": ["matriculo", "matriculas", "matricula", "matriculamos", "matriculan", "matricule", "matriculen", "matriculé", "matriculaste", "matriculó", "matricularon"],
+            "reflexive": ["matricularme", "matricularte", "matricularse", "matricularnos"],
+            "gerund": "matriculando",
+            "participle": "matriculado"
+        },
+        "inscribir": {
+            "infinitive": "inscribir",
+            "stems": ["inscrib", "inscri"],
+            "conjugations": ["inscribo", "inscribes", "inscribe", "inscribimos", "inscriben", "inscriba", "inscriban", "inscribí", "inscribiste", "inscribió", "inscribieron"],
+            "reflexive": ["inscribirme", "inscribirte", "inscribirse", "inscribirnos"],
+            "gerund": "inscribiendo",
+            "participle": "inscrito"
+        },
+        "crear": {
+            "infinitive": "crear",
+            "stems": ["cre", "crea"],
+            "conjugations": ["creo", "creas", "crea", "creamos", "crean", "cree", "creen", "creé", "creaste", "creó", "crearon"],
+            "gerund": "creando",
+            "participle": "creado"
+        },
+        "configurar": {
+            "infinitive": "configurar",
+            "stems": ["configur", "config"],
+            "conjugations": ["configuro", "configuras", "configura", "configuramos", "configuran", "configure", "configuren"],
+            "gerund": "configurando",
+            "participle": "configurado"
+        },
+        "calificar": {
+            "infinitive": "calificar",
+            "stems": ["calific", "calif"],
+            "conjugations": ["califico", "calificas", "califica", "calificamos", "califican", "califique", "califiquen"],
+            "gerund": "calificando",
+            "participle": "calificado"
+        },
+        "agregar": {
+            "infinitive": "agregar",
+            "stems": ["agreg", "agre"],
+            "conjugations": ["agrego", "agregas", "agrega", "agregamos", "agregan", "agregue", "agreguen"],
+            "gerund": "agregando",
+            "participle": "agregado"
+        },
+        "eliminar": {
+            "infinitive": "eliminar",
+            "stems": ["elimin", "elim"],
+            "conjugations": ["elimino", "eliminas", "elimina", "eliminamos", "eliminan", "elimine", "eliminen"],
+            "gerund": "eliminando",
+            "participle": "eliminado"
+        },
+        "enviar": {
+            "infinitive": "enviar",
+            "stems": ["envi", "envia"],
+            "conjugations": ["envio", "envías", "envía", "enviamos", "envían", "envíe", "envíen", "envié", "enviaste", "envió"],
+            "gerund": "enviando",
+            "participle": "enviado"
+        },
+        "entregar": {
+            "infinitive": "entregar",
+            "stems": ["entreg", "entre"],
+            "conjugations": ["entrego", "entregas", "entrega", "entregamos", "entregan", "entregue", "entreguen"],
+            "gerund": "entregando",
+            "participle": "entregado"
+        },
+        "descargar": {
+            "infinitive": "descargar",
+            "stems": ["descarg", "desca"],
+            "conjugations": ["descargo", "descargas", "descarga", "descargamos", "descargan", "descargue", "descarguen"],
+            "gerund": "descargando",
+            "participle": "descargado"
+        },
+        "subir": {
+            "infinitive": "subir",
+            "stems": ["sub", "subi"],
+            "conjugations": ["subo", "subes", "sube", "subimos", "suben", "suba", "suban", "subí", "subiste", "subió"],
+            "gerund": "subiendo",
+            "participle": "subido"
+        },
+        "ver": {
+            "infinitive": "ver",
+            "stems": ["v", "ve"],
+            "conjugations": ["veo", "ves", "ve", "vemos", "ven", "vea", "vean", "vi", "viste", "vio", "vieron"],
+            "gerund": "viendo",
+            "participle": "visto"
+        },
+        "editar": {
+            "infinitive": "editar",
+            "stems": ["edit", "edi"],
+            "conjugations": ["edito", "editas", "edita", "editamos", "editan", "edite", "editen"],
+            "gerund": "editando",
+            "participle": "editado"
+        },
+        "modificar": {
+            "infinitive": "modificar",
+            "stems": ["modific", "modif"],
+            "conjugations": ["modifico", "modificas", "modifica", "modificamos", "modifican", "modifique", "modifiquen"],
+            "gerund": "modificando",
+            "participle": "modificado"
+        },
+        "cambiar": {
+            "infinitive": "cambiar",
+            "stems": ["cambi", "cambia"],
+            "conjugations": ["cambio", "cambias", "cambia", "cambiamos", "cambian", "cambie", "cambien"],
+            "gerund": "cambiando",
+            "participle": "cambiado"
+        },
+        "acceder": {
+            "infinitive": "acceder",
+            "stems": ["acced", "acce"],
+            "conjugations": ["accedo", "accedes", "accede", "accedemos", "acceden", "acceda", "accedan"],
+            "gerund": "accediendo",
+            "participle": "accedido"
+        },
+        "gestionar": {
+            "infinitive": "gestionar",
+            "stems": ["gestion", "gesti"],
+            "conjugations": ["gestiono", "gestionas", "gestiona", "gestionamos", "gestionan", "gestione", "gestionen"],
+            "gerund": "gestionando",
+            "participle": "gestionado"
+        },
+        "administrar": {
+            "infinitive": "administrar",
+            "stems": ["administr", "admin"],
+            "conjugations": ["administro", "administras", "administra", "administramos", "administran", "administre", "administren"],
+            "gerund": "administrando",
+            "participle": "administrado"
+        }
     },
     "intents": {
         "greeting": {
