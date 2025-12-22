@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname'] = 'EducamBot';
 $string['educambot'] = 'EducamBot';
 $string['developedby'] = 'Desarrollado por';
+$string['instructionaldesignby'] = 'y diseño instruccional de';
 
 // Capabilities.
 $string['educambot:use'] = 'Usar Nexo Bot';
