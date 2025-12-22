@@ -222,6 +222,142 @@
                 {"text": "Ver menu", "icon": "bi-list", "action": "menu"},
                 {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"}
             ]
+        },
+        {
+            "id": "accesibilidad",
+            "category": "general",
+            "pattern": "Como configuro la accesibilidad",
+            "keywords": [
+                "accesibilidad", "discapacidad", "lector pantalla", "alto contraste",
+                "tamano letra", "fuente grande", "screen reader", "acceso visual",
+                "dificultad visual", "teclado solo"
+            ],
+            "response": "Opciones de <strong>accesibilidad</strong> en Moodle:<br><br><strong>En tu perfil:</strong><br>1. Avatar > Preferencias<br>2. Busca opciones de accesibilidad<br><br><strong>En tu navegador:</strong><br>- Zoom: Ctrl + / Ctrl -<br>- Alto contraste: Configuracion del SO<br><br>Moodle es compatible con lectores de pantalla.",
+            "tags": ["accesibilidad", "discapacidad"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "privacidad",
+            "category": "general",
+            "pattern": "Como configuro mi privacidad",
+            "keywords": [
+                "privacidad", "datos personales", "quien ve mi perfil", "ocultar email",
+                "visibilidad", "proteger datos", "configuracion privacidad", "gdpr"
+            ],
+            "response": "Para configurar tu <strong>privacidad</strong>:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Privacidad</strong><br><br><strong>Puedes configurar:</strong><br>- Quien ve tu perfil<br>- Visibilidad del email<br>- Ultimo acceso visible<br>- Consentimiento de datos",
+            "tags": ["privacidad", "datos"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "navegadores",
+            "category": "general",
+            "pattern": "Que navegador debo usar",
+            "keywords": [
+                "navegador", "browser", "chrome", "firefox", "edge", "safari",
+                "navegador recomendado", "compatible", "que navegador", "internet explorer"
+            ],
+            "response": "<strong>Navegadores recomendados:</strong><br><br>- Google Chrome (ultima version)<br>- Mozilla Firefox (ultima version)<br>- Microsoft Edge (ultima version)<br>- Safari (Mac)<br><br><strong>Importante:</strong><br>- Manten tu navegador actualizado<br>- Internet Explorer NO es compatible<br>- Habilita JavaScript y cookies",
+            "tags": ["navegador", "browser", "compatible"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "problema_carga",
+            "category": "general",
+            "pattern": "La pagina no carga correctamente",
+            "keywords": [
+                "no carga", "carga lenta", "pagina blanca", "error carga", "no abre",
+                "se congela", "pantalla blanca", "no responde", "tarda mucho"
+            ],
+            "response": "Si la pagina no carga correctamente:<br><br><strong>Soluciones:</strong><br>1. <strong>Recargar:</strong> Ctrl+F5 (borrar cache)<br>2. <strong>Borrar cache:</strong> Configuracion del navegador<br>3. <strong>Otro navegador:</strong> Prueba Chrome o Firefox<br>4. <strong>Conexion:</strong> Verifica tu internet<br><br>Si persiste, contacta a soporte.",
+            "tags": ["carga", "error", "lento"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "zona_horaria",
+            "category": "general",
+            "pattern": "Como cambio la zona horaria",
+            "keywords": [
+                "zona horaria", "hora incorrecta", "cambiar hora", "timezone",
+                "hora diferente", "horario", "hora del sistema", "desfase horario"
+            ],
+            "response": "Para cambiar tu <strong>zona horaria</strong>:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Editar perfil</strong><br>4. Busca <strong>Zona horaria</strong><br>5. Selecciona tu zona<br>6. Guardar cambios<br><br><strong>Importante:</strong> Afecta como ves fechas limite y eventos.",
+            "tags": ["zona horaria", "hora", "timezone"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "atajos_teclado",
+            "category": "general",
+            "pattern": "Existen atajos de teclado",
+            "keywords": [
+                "atajos teclado", "shortcuts", "teclas rapidas", "comandos teclado",
+                "acceso rapido", "hotkeys", "combinacion teclas"
+            ],
+            "response": "<strong>Atajos utiles en Moodle:</strong><br><br><strong>Navegador:</strong><br>- Ctrl+F: Buscar en pagina<br>- Ctrl+P: Imprimir<br>- Tab: Navegar entre elementos<br><br><strong>Editor de texto:</strong><br>- Ctrl+B: Negrita<br>- Ctrl+I: Cursiva<br>- Ctrl+Z: Deshacer<br><br>Los atajos varian segun el navegador.",
+            "tags": ["atajos", "teclado", "shortcuts"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "modo_edicion",
+            "category": "general",
+            "pattern": "Que es el modo edicion",
+            "keywords": [
+                "modo edicion", "editar curso", "activar edicion", "modo editor",
+                "edicion activada", "modificar curso", "anadir contenido"
+            ],
+            "response": "El <strong>modo edicion</strong> permite modificar el curso:<br><br><strong>Solo para profesores/editores:</strong><br>1. Entra al curso<br>2. Activa <strong>Modo de edicion</strong> (arriba derecha)<br><br><strong>Permite:</strong><br>- Agregar actividades y recursos<br>- Reorganizar contenido<br>- Modificar configuraciones<br><br>Los estudiantes NO ven esta opcion.",
+            "tags": ["edicion", "modificar", "profesor"],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "archivo_personal",
+            "category": "general",
+            "pattern": "Que es el archivo personal",
+            "keywords": [
+                "archivos privados", "mis archivos", "archivo personal", "almacenamiento",
+                "subir archivos", "espacio personal", "guardar archivos", "repositorio personal"
+            ],
+            "response": "El <strong>Archivo personal</strong> es tu espacio de almacenamiento:<br><br><strong>Acceder:</strong><br>1. Clic en tu avatar<br>2. <strong>Archivos privados</strong><br><br><strong>Usos:</strong><br>- Guardar archivos para usar en cursos<br>- Almacenar borradores<br>- Organizar en carpetas<br><br><strong>Limite:</strong> Consulta el espacio disponible con tu administrador.",
+            "tags": ["archivos", "almacenamiento", "personal"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
         }
     ]
 }

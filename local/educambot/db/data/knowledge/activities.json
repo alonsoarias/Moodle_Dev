@@ -1,6 +1,6 @@
 {
     "version": "3.6.0",
-    "description": "EducamBot - Actividades y tareas - Ampliada con mas variaciones",
+    "description": "EducamBot - Actividades y recursos - Expandida v3.6.0 con 33 reglas",
     "rules": [
         {
             "id": "entregar_tarea",
@@ -333,6 +333,211 @@
             "showoptions": true,
             "options": [
                 {"text": "Ver entregas", "icon": "bi-file-earmark-check", "action": "ver entregas"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "leccion",
+            "category": "actividades",
+            "pattern": "Como uso la leccion",
+            "keywords": [
+                "leccion", "lesson", "contenido interactivo", "leccion moodle",
+                "paginas leccion", "ramificacion", "leccion con preguntas"
+            ],
+            "response": "La <strong>Leccion</strong> presenta contenido con preguntas:<br><br><strong>Como estudiante:</strong><br>1. Abre la leccion<br>2. Lee cada pagina<br>3. Responde preguntas para avanzar<br>4. Navega segun tus respuestas<br><br><strong>Tip:</strong> Respuestas correctas te llevan adelante, incorrectas pueden regresarte.",
+            "tags": ["leccion", "interactivo", "contenido"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "base_datos",
+            "category": "actividades",
+            "pattern": "Como uso la base de datos",
+            "keywords": [
+                "base datos", "database", "agregar entrada", "campos base datos",
+                "registros", "coleccion datos", "formulario base datos"
+            ],
+            "response": "La <strong>Base de datos</strong> permite crear colecciones:<br><br><strong>Como estudiante:</strong><br>1. Abre la base de datos<br>2. Clic en <strong>Agregar entrada</strong><br>3. Completa los campos<br>4. Guarda<br><br><strong>Puedes:</strong> Ver entradas de otros, buscar, filtrar, comentar.",
+            "tags": ["base datos", "database", "entradas"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "chat",
+            "category": "actividades",
+            "pattern": "Como uso el chat",
+            "keywords": [
+                "chat", "sala chat", "conversacion tiempo real", "chat moodle",
+                "chatear", "mensaje instantaneo", "chat curso"
+            ],
+            "response": "Para usar el <strong>Chat</strong>:<br><br>1. Abre la actividad Chat<br>2. Clic en <strong>Entrar al chat</strong><br>3. Escribe tu mensaje<br>4. Presiona Enter para enviar<br><br><strong>Nota:</strong> Es en tiempo real. Todos los presentes ven los mensajes.",
+            "tags": ["chat", "tiempo real", "mensajes"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mensajes", "icon": "bi-chat", "action": "mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "eleccion",
+            "category": "actividades",
+            "pattern": "Como respondo una eleccion",
+            "keywords": [
+                "eleccion", "choice", "votacion", "encuesta simple", "seleccionar opcion",
+                "elegir opcion", "poll", "sondeo"
+            ],
+            "response": "Para responder una <strong>Eleccion</strong>:<br><br>1. Abre la actividad<br>2. Lee la pregunta<br>3. Selecciona tu opcion<br>4. Clic en <strong>Guardar mi eleccion</strong><br><br><strong>Nota:</strong> Algunas permiten cambiar respuesta, otras no. Revisa antes de enviar.",
+            "tags": ["eleccion", "votacion", "encuesta"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "consulta_feedback",
+            "category": "actividades",
+            "pattern": "Como respondo una consulta",
+            "keywords": [
+                "consulta", "feedback", "encuesta moodle", "cuestionario anonimo",
+                "evaluacion curso", "opinion", "formulario feedback"
+            ],
+            "response": "Para responder una <strong>Consulta/Feedback</strong>:<br><br>1. Abre la actividad<br>2. Responde cada pregunta<br>3. Clic en <strong>Enviar respuestas</strong><br><br><strong>Tipos de preguntas:</strong><br>- Opcion multiple<br>- Texto corto/largo<br>- Escala numerica<br><br>Generalmente es anonimo.",
+            "tags": ["consulta", "feedback", "encuesta"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_pagina",
+            "category": "recursos",
+            "pattern": "Como creo una pagina",
+            "keywords": [
+                "crear pagina", "page", "agregar pagina", "pagina html",
+                "contenido pagina", "recurso pagina", "pagina texto"
+            ],
+            "response": "Para crear una <strong>Pagina</strong>:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > Pagina</strong><br>3. Escribe nombre<br>4. Agrega contenido con el editor<br>5. Puedes insertar imagenes, videos, enlaces<br>6. Guardar<br><br><strong>Ideal para:</strong> Instrucciones, explicaciones, contenido HTML.",
+            "tags": ["pagina", "recurso", "contenido"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Modo edicion", "icon": "bi-pencil", "action": "modo edicion"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_etiqueta",
+            "category": "recursos",
+            "pattern": "Como creo una etiqueta",
+            "keywords": [
+                "etiqueta", "label", "separador", "titulo seccion",
+                "texto decorativo", "banner", "agregar etiqueta"
+            ],
+            "response": "Para crear una <strong>Etiqueta</strong>:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > Etiqueta</strong><br>3. Agrega texto, imagenes o multimedia<br>4. Guardar<br><br><strong>Usos:</strong><br>- Separar secciones<br>- Agregar instrucciones visuales<br>- Insertar videos/imagenes en el curso",
+            "tags": ["etiqueta", "label", "separador"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_url",
+            "category": "recursos",
+            "pattern": "Como agrego un enlace URL",
+            "keywords": [
+                "url", "enlace", "link", "agregar url", "enlace externo",
+                "pagina web", "sitio externo", "vincular pagina"
+            ],
+            "response": "Para agregar un <strong>Enlace URL</strong>:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > URL</strong><br>3. Escribe nombre descriptivo<br>4. Pega la URL completa (con https://)<br>5. Elige: abrir en misma ventana o nueva<br>6. Guardar",
+            "tags": ["url", "enlace", "link"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_carpeta",
+            "category": "recursos",
+            "pattern": "Como creo una carpeta de archivos",
+            "keywords": [
+                "carpeta", "folder", "carpeta archivos", "organizar archivos",
+                "multiples archivos", "directorio", "agregar carpeta"
+            ],
+            "response": "Para crear una <strong>Carpeta</strong>:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > Carpeta</strong><br>3. Asigna nombre<br>4. Arrastra archivos o crea subcarpetas<br>5. Guardar<br><br><strong>Ideal para:</strong> Agrupar materiales relacionados, lecturas, recursos complementarios.",
+            "tags": ["carpeta", "folder", "archivos"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Subir archivo", "icon": "bi-upload", "action": "subir archivo"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "restricciones_acceso",
+            "category": "configuracion",
+            "pattern": "Como configuro restricciones de acceso",
+            "keywords": [
+                "restricciones", "acceso condicional", "prerequisitos", "condiciones acceso",
+                "bloquear actividad", "desbloquear", "disponibilidad"
+            ],
+            "response": "Para configurar <strong>Restricciones de acceso</strong>:<br><br>1. Edita la actividad/recurso<br>2. Busca <strong>Restriccion de acceso</strong><br>3. <strong>Agregar restriccion</strong>:<br>   - Fecha<br>   - Calificacion<br>   - Completar otra actividad<br>   - Grupo/agrupamiento<br>   - Perfil de usuario<br>4. Guardar",
+            "tags": ["restricciones", "acceso", "condiciones"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Modo edicion", "icon": "bi-pencil", "action": "modo edicion"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "completar_actividad",
+            "category": "configuracion",
+            "pattern": "Como configuro finalizacion de actividad",
+            "keywords": [
+                "finalizacion actividad", "completar actividad", "activity completion",
+                "marcar completado", "progreso actividad", "rastreo finalizacion"
+            ],
+            "response": "Para configurar <strong>Finalizacion de actividad</strong>:<br><br>1. Edita la actividad<br>2. Busca <strong>Finalizacion de actividad</strong><br>3. Elige condicion:<br>   - Manual: Estudiante marca<br>   - Automatica: Al ver, entregar, aprobar<br>4. Guardar<br><br><strong>Requisito:</strong> Rastreo de finalizacion activo en el curso.",
+            "tags": ["finalizacion", "completar", "progreso"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Progreso", "icon": "bi-check-circle", "action": "progreso curso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_leccion_docente",
+            "category": "actividades",
+            "pattern": "Como creo una leccion como docente",
+            "keywords": [
+                "crear leccion", "nueva leccion", "lesson docente", "disenar leccion",
+                "paginas leccion", "agregar leccion", "leccion ramificada"
+            ],
+            "response": "Para crear una <strong>Leccion</strong>:<br><br>1. <strong>Añadir actividad > Leccion</strong><br>2. Configura nombre y opciones<br>3. <strong>Agregar paginas</strong>:<br>   - Pagina de contenido<br>   - Pagina de pregunta<br>   - Cluster (ramificacion)<br>4. Define flujo entre paginas<br>5. Guarda<br><br><strong>Tip:</strong> Usa ramificacion para rutas personalizadas.",
+            "tags": ["leccion", "crear", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Modo edicion", "icon": "bi-pencil", "action": "modo edicion"},
                 {"text": "Menu", "icon": "bi-house", "action": "menu"}
             ]
         }

@@ -1,0 +1,144 @@
+{
+    "version": "3.6.0",
+    "description": "EducamBot - Mensajeria y comunicacion",
+    "rules": [
+        {
+            "id": "enviar_mensaje",
+            "category": "mensajes",
+            "pattern": "Como envio un mensaje",
+            "keywords": [
+                "enviar mensaje", "escribir mensaje", "mandar mensaje", "nuevo mensaje",
+                "mensaje privado", "contactar", "comunicar", "escribir a alguien",
+                "como mando mensaje", "como escribo", "mensaje a compañero"
+            ],
+            "response": "Para enviar un mensaje:<br><br><strong>Opcion 1 - Icono mensajes:</strong><br>1. Clic en el icono de mensajes (arriba)<br>2. Busca la persona<br>3. Escribe y envia<br><br><strong>Opcion 2 - Desde perfil:</strong><br>1. Ve al perfil del usuario<br>2. Clic en <strong>Mensaje</strong><br><br>Puedes adjuntar archivos en algunos casos.",
+            "tags": ["mensaje", "enviar", "comunicacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver mensajes", "icon": "bi-envelope", "action": "ver mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_mensajes",
+            "category": "mensajes",
+            "pattern": "Donde veo mis mensajes",
+            "keywords": [
+                "ver mensajes", "mis mensajes", "bandeja entrada", "inbox",
+                "mensajes recibidos", "leer mensajes", "revisar mensajes",
+                "donde estan mensajes", "mensajes nuevos"
+            ],
+            "response": "Para ver tus mensajes:<br><br>1. Clic en el <strong>icono de mensajes</strong> (burbuja, arriba derecha)<br>2. Veras conversaciones recientes<br>3. Clic en una para abrirla<br><br><strong>Panel completo:</strong><br>- Clic en <strong>Ver todos</strong><br>- O Avatar > Mensajes",
+            "tags": ["mensajes", "ver", "bandeja"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Enviar mensaje", "icon": "bi-send", "action": "enviar mensaje"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "eliminar_mensaje",
+            "category": "mensajes",
+            "pattern": "Como elimino un mensaje",
+            "keywords": [
+                "eliminar mensaje", "borrar mensaje", "quitar mensaje",
+                "eliminar conversacion", "borrar chat", "limpiar mensajes"
+            ],
+            "response": "Para eliminar mensajes:<br><br>1. Abre la conversacion<br>2. Clic en los tres puntos (⋮)<br>3. Selecciona <strong>Eliminar conversacion</strong><br><br><strong>Nota importante:</strong><br>- Solo se borra de TU vista<br>- La otra persona aun lo vera<br>- No se puede recuperar",
+            "tags": ["eliminar", "borrar", "mensaje"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver mensajes", "icon": "bi-envelope", "action": "ver mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "buscar_contacto",
+            "category": "mensajes",
+            "pattern": "Como busco un contacto",
+            "keywords": [
+                "buscar contacto", "encontrar persona", "buscar usuario",
+                "agregar contacto", "contactos", "lista contactos", "buscar compañero"
+            ],
+            "response": "Para buscar un contacto:<br><br>1. Clic en el icono de mensajes<br>2. Usa el <strong>buscador</strong> en la parte superior<br>3. Escribe el nombre<br>4. Selecciona de la lista<br><br><strong>Tambien puedes:</strong><br>- Buscar en Participantes del curso<br>- Usar el buscador global",
+            "tags": ["buscar", "contacto", "persona"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Enviar mensaje", "icon": "bi-send", "action": "enviar mensaje"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "bloquear_usuario",
+            "category": "mensajes",
+            "pattern": "Como bloqueo a un usuario",
+            "keywords": [
+                "bloquear", "bloquear usuario", "bloquear contacto", "no recibir mensajes",
+                "evitar mensajes", "silenciar", "ignorar usuario"
+            ],
+            "response": "Para bloquear a alguien:<br><br>1. Abre la conversacion con esa persona<br>2. Clic en los tres puntos (⋮)<br>3. Selecciona <strong>Bloquear usuario</strong><br><br><strong>Efecto:</strong><br>- No recibiras sus mensajes<br>- No podra contactarte<br><br>Puedes desbloquear desde Preferencias > Mensajes.",
+            "tags": ["bloquear", "silenciar", "privacidad"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Configurar mensajes", "icon": "bi-gear", "action": "configurar mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "configurar_mensajes",
+            "category": "mensajes",
+            "pattern": "Como configuro los mensajes",
+            "keywords": [
+                "configurar mensajes", "preferencias mensajes", "notificaciones mensaje",
+                "ajustes mensajes", "quien puede mensajearme", "opciones mensajes"
+            ],
+            "response": "Para configurar mensajes:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Preferencias de mensajes</strong><br><br><strong>Puedes configurar:</strong><br>- Quien puede contactarte<br>- Notificaciones de nuevos mensajes<br>- Sonidos<br>- Donde recibir (web, email, app)",
+            "tags": ["configurar", "preferencias", "mensajes"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Notificaciones", "icon": "bi-bell", "action": "configurar notificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "mensajes_grupales",
+            "category": "mensajes",
+            "pattern": "Puedo enviar mensajes grupales",
+            "keywords": [
+                "mensaje grupal", "mensajes grupales", "mensaje a varios",
+                "mensaje masivo", "mensaje grupo", "escribir a todos"
+            ],
+            "response": "Sobre mensajes grupales:<br><br><strong>Mensajeria estandar:</strong><br>- Es principalmente 1 a 1<br>- No hay chats grupales nativos<br><br><strong>Alternativas:</strong><br>- <strong>Foro del curso:</strong> Para comunicacion grupal<br>- <strong>Foro de anuncios:</strong> Profesor a todos<br>- <strong>Mensajes de curso:</strong> Algunos plugins lo permiten<br><br>Usa foros para comunicacion colectiva.",
+            "tags": ["grupal", "masivo", "varios"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Foros", "icon": "bi-chat-dots", "action": "como uso el foro"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "estado_conexion",
+            "category": "mensajes",
+            "pattern": "Pueden ver si estoy conectado",
+            "keywords": [
+                "estado conexion", "conectado", "en linea", "online",
+                "ultimo acceso", "cuando entre", "visible", "ocultar conexion"
+            ],
+            "response": "Sobre tu estado de conexion:<br><br><strong>Por defecto:</strong><br>- Otros pueden ver si estas \"en linea\"<br>- Se muestra tu ultimo acceso<br><br><strong>Para ocultarlo:</strong><br>1. Avatar > Preferencias<br>2. Privacidad<br>3. Desactiva \"Mostrar estado en linea\"<br><br>Esto afecta quien ve cuando estas conectado.",
+            "tags": ["conexion", "online", "estado", "privacidad"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Privacidad", "icon": "bi-shield-lock", "action": "configurar privacidad"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

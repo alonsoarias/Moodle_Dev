@@ -117,6 +117,174 @@
                 {"text": "Mis profesores", "icon": "bi-person-badge", "action": "mis profesores"},
                 {"text": "Menu", "icon": "bi-house", "action": "menu"}
             ]
+        },
+        {
+            "id": "escala_calificacion",
+            "category": "calificaciones",
+            "pattern": "Que es una escala de calificacion",
+            "keywords": [
+                "escala", "escala calificacion", "escala notas", "sistema notas",
+                "letras", "numeros", "A B C D", "aprobado reprobado", "tipo calificacion"
+            ],
+            "response": "Las <strong>escalas de calificacion</strong> pueden ser:<br><br><strong>Numericas:</strong><br>- 0-100 puntos<br>- 0-10 puntos<br>- 1-5 estrellas<br><br><strong>Letras:</strong><br>- A, B, C, D, F<br><br><strong>Personalizadas:</strong><br>- Aprobado/Reprobado<br>- Competente/En desarrollo<br><br>El profesor define la escala para cada actividad.",
+            "tags": ["escala", "sistema", "notas"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "categorias_calificaciones",
+            "category": "calificaciones",
+            "pattern": "Que son las categorias de calificaciones",
+            "keywords": [
+                "categorias calificaciones", "categoria notas", "agrupar notas",
+                "seccion calificaciones", "parciales", "examenes", "tareas categoria"
+            ],
+            "response": "Las <strong>categorias</strong> agrupan actividades:<br><br><strong>Ejemplo:</strong><br>- Tareas: 30%<br>- Cuestionarios: 40%<br>- Proyecto final: 30%<br><br><strong>Ver categorias:</strong><br>1. Ve a Calificaciones<br>2. Observa los subtotales por grupo<br><br>Cada categoria puede tener su propio peso en la nota final.",
+            "tags": ["categorias", "agrupacion", "peso"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "credito_extra",
+            "category": "calificaciones",
+            "pattern": "Que es el credito extra",
+            "keywords": [
+                "credito extra", "puntos extra", "puntos bonus", "actividades extra",
+                "subir nota", "puntos adicionales", "trabajo extra", "nota extra"
+            ],
+            "response": "El <strong>credito extra</strong> son puntos adicionales:<br><br><strong>Caracteristicas:</strong><br>- No son obligatorios<br>- Pueden subir tu promedio<br>- El profesor los configura<br><br><strong>Como obtenerlos:</strong><br>- Completa actividades opcionales marcadas como extra<br>- Participacion destacada<br><br>Revisa si tu curso ofrece estas opciones.",
+            "tags": ["extra", "bonus", "adicional"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "calificacion_anulada",
+            "category": "calificaciones",
+            "pattern": "Que significa calificacion anulada",
+            "keywords": [
+                "calificacion anulada", "nota anulada", "overridden", "modificada manualmente",
+                "ajustada", "corregida", "cambiada profesor"
+            ],
+            "response": "Una calificacion <strong>anulada</strong> (override):<br><br><strong>Significa que:</strong><br>- El profesor modifico manualmente la nota<br>- No se calculo automaticamente<br><br><strong>Reconocerla:</strong><br>- Aparece resaltada en color diferente<br>- Puede tener un icono o marca especial<br><br>Si tienes dudas, pregunta a tu profesor.",
+            "tags": ["anulada", "override", "manual"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Contactar profesor", "icon": "bi-person-badge", "action": "contactar profesor"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "informe_usuario",
+            "category": "calificaciones",
+            "pattern": "Que es el informe de usuario",
+            "keywords": [
+                "informe usuario", "reporte notas", "informe calificaciones", "resumen notas",
+                "vista calificaciones", "detalle notas", "informe estudiante"
+            ],
+            "response": "El <strong>Informe de usuario</strong> muestra:<br><br><strong>Contenido:</strong><br>- Todas tus calificaciones del curso<br>- Porcentaje y puntos<br>- Total del curso<br>- Retroalimentacion<br><br><strong>Acceder:</strong><br>1. Curso > Calificaciones<br>2. O desde tu perfil > Calificaciones",
+            "tags": ["informe", "reporte", "resumen"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "historial_calificaciones",
+            "category": "calificaciones",
+            "pattern": "Puedo ver el historial de calificaciones",
+            "keywords": [
+                "historial notas", "historial calificaciones", "cambios notas",
+                "cuando califico", "fecha calificacion", "registro notas"
+            ],
+            "response": "El historial de calificaciones:<br><br><strong>Para estudiantes:</strong><br>- Normalmente solo ves la nota actual<br>- Puedes ver fecha de calificacion en algunas actividades<br><br><strong>Historial detallado:</strong><br>- Solo disponible para profesores<br>- Muestra todos los cambios realizados<br><br>Si necesitas el historial, pidelo a tu profesor.",
+            "tags": ["historial", "registro", "cambios"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "mejorar_nota",
+            "category": "calificaciones",
+            "pattern": "Como puedo mejorar mi nota",
+            "keywords": [
+                "mejorar nota", "subir nota", "recuperar nota", "segunda oportunidad",
+                "reintento", "volver a hacer", "mejorar calificacion", "subir promedio"
+            ],
+            "response": "Para mejorar tu calificacion:<br><br><strong>Opciones:</strong><br>- <strong>Reintentos:</strong> Algunos cuestionarios permiten multiples intentos<br>- <strong>Reenvio:</strong> Algunas tareas permiten corregir y reenviar<br>- <strong>Credito extra:</strong> Completa actividades adicionales<br><br><strong>Importante:</strong><br>Depende de la configuracion del profesor. Consulta con el si tienes dudas.",
+            "tags": ["mejorar", "subir", "recuperar"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi progreso", "icon": "bi-graph-up", "action": "mi progreso"},
+                {"text": "Contactar profesor", "icon": "bi-person-badge", "action": "contactar profesor"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "guia_calificacion",
+            "category": "calificaciones",
+            "pattern": "Que es una guia de calificacion",
+            "keywords": [
+                "guia calificacion", "marking guide", "guia evaluacion",
+                "criterios", "como me evaluan", "puntos criterio"
+            ],
+            "response": "La <strong>guia de calificacion</strong> es similar a la rubrica:<br><br><strong>Diferencias:</strong><br>- Mas flexible que la rubrica<br>- Criterios con puntos maximos<br>- Comentarios frecuentes predefinidos<br><br><strong>Ver la guia:</strong><br>1. Abre la actividad<br>2. Busca \"Criterios de calificacion\"<br>3. Revisa ANTES de entregar",
+            "tags": ["guia", "criterios", "evaluacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Que es rubrica", "icon": "bi-list-check", "action": "que es una rubrica"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "calificacion_actividad",
+            "category": "calificaciones",
+            "pattern": "Como veo la calificacion de una actividad",
+            "keywords": [
+                "nota actividad", "calificacion tarea", "ver nota tarea",
+                "resultado actividad", "puntos actividad", "calificacion especifica"
+            ],
+            "response": "Para ver la calificacion de una actividad:<br><br><strong>Opcion 1 - En la actividad:</strong><br>1. Abre la tarea o cuestionario<br>2. Busca \"Estado de la entrega\" o \"Resultados\"<br><br><strong>Opcion 2 - Calificaciones:</strong><br>1. Ve a Calificaciones del curso<br>2. Busca la actividad en la lista<br>3. Clic para ver detalles",
+            "tags": ["actividad", "tarea", "especifica"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "descargar_calificaciones",
+            "category": "calificaciones",
+            "pattern": "Puedo descargar mis calificaciones",
+            "keywords": [
+                "descargar notas", "exportar calificaciones", "imprimir notas",
+                "guardar calificaciones", "pdf notas", "excel calificaciones"
+            ],
+            "response": "Para guardar tus calificaciones:<br><br><strong>Opcion manual:</strong><br>1. Ve a Calificaciones<br>2. Usa Ctrl+P para imprimir como PDF<br><br><strong>Nota:</strong><br>La exportacion automatica generalmente solo esta disponible para profesores.<br><br>Si necesitas un documento oficial, solicita un certificado o constancia a tu institucion.",
+            "tags": ["descargar", "exportar", "imprimir"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Certificado", "icon": "bi-award", "action": "como obtengo mi certificado"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
         }
     ]
 }

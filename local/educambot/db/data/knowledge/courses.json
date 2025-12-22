@@ -196,6 +196,177 @@
             "options": [
                 {"text": "Menu", "icon": "bi-house", "action": "menu"}
             ]
+        },
+        {
+            "id": "buscar_curso",
+            "category": "cursos",
+            "pattern": "Como busco un curso",
+            "keywords": [
+                "buscar curso", "encontrar curso", "donde esta el curso", "catalogo cursos",
+                "lista cursos", "cursos disponibles", "explorar cursos", "ver catalogo",
+                "busqueda cursos", "hallar curso", "localizar curso"
+            ],
+            "response": "Para buscar un curso:<br><br><strong>Opcion 1 - Buscador:</strong><br>1. Usa la lupa en la barra superior<br>2. Escribe el nombre del curso<br>3. Filtra por \"Cursos\"<br><br><strong>Opcion 2 - Catalogo:</strong><br>1. Ve a <strong>Inicio del sitio</strong><br>2. Explora por categorias<br>3. Haz clic en el curso deseado",
+            "tags": ["buscar", "catalogo", "cursos"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis cursos", "icon": "bi-collection", "action": "mis cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "resumen_curso",
+            "category": "cursos",
+            "pattern": "Que es el resumen del curso",
+            "keywords": [
+                "resumen curso", "descripcion curso", "informacion curso", "detalles curso",
+                "acerca del curso", "sobre el curso", "ficha curso", "datos curso"
+            ],
+            "response": "El resumen del curso muestra:<br><br>- <strong>Descripcion:</strong> Objetivos y contenido<br>- <strong>Profesor:</strong> Quien imparte el curso<br>- <strong>Fechas:</strong> Inicio y fin (si aplica)<br>- <strong>Metodo inscripcion:</strong> Como unirse<br><br><strong>Ver resumen:</strong><br>Clic en el curso desde el catalogo (antes de inscribirte).",
+            "tags": ["resumen", "descripcion", "informacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "competencias_curso",
+            "category": "cursos",
+            "pattern": "Que son las competencias del curso",
+            "keywords": [
+                "competencias", "competencias curso", "habilidades", "objetivos aprendizaje",
+                "logros", "capacidades", "resultados aprendizaje", "learning outcomes"
+            ],
+            "response": "Las <strong>competencias</strong> son habilidades que desarrollaras:<br><br><strong>Donde verlas:</strong><br>1. Entra al curso<br>2. Menu > <strong>Competencias</strong><br><br><strong>Muestra:</strong><br>- Competencias vinculadas<br>- Tu nivel en cada una<br>- Actividades que las evaluan<br><br>Completar actividades mejora tus competencias.",
+            "tags": ["competencias", "habilidades", "objetivos"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi progreso", "icon": "bi-graph-up", "action": "mi progreso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "anuncios_curso",
+            "category": "cursos",
+            "pattern": "Como veo los anuncios del curso",
+            "keywords": [
+                "anuncios", "novedades", "avisos", "noticias curso", "comunicados",
+                "foro anuncios", "mensajes profesor", "avisos docente", "anuncios foro"
+            ],
+            "response": "Los anuncios del profesor aparecen en:<br><br><strong>Foro de anuncios:</strong><br>- Generalmente al inicio del curso<br>- Solo el profesor puede publicar<br>- Recibes notificaciones automaticas<br><br><strong>Bloque novedades:</strong><br>- En la barra lateral<br>- Muestra los anuncios mas recientes",
+            "tags": ["anuncios", "novedades", "avisos"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Notificaciones", "icon": "bi-bell", "action": "configurar notificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "participantes_curso",
+            "category": "cursos",
+            "pattern": "Como veo los participantes del curso",
+            "keywords": [
+                "participantes", "companeros", "otros estudiantes", "ver estudiantes",
+                "quien esta en el curso", "lista alumnos", "miembros curso", "compaeros clase"
+            ],
+            "response": "Para ver los participantes:<br><br>1. Entra al curso<br>2. En el menu lateral: <strong>Participantes</strong><br><br><strong>Puedes ver:</strong><br>- Nombre y foto<br>- Rol (estudiante/profesor)<br>- Ultimo acceso<br>- Grupos asignados<br><br>Haz clic en un nombre para ver su perfil o enviar mensaje.",
+            "tags": ["participantes", "estudiantes", "companeros"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Contactar profesor", "icon": "bi-person-badge", "action": "contactar profesor"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "insignias_curso",
+            "category": "cursos",
+            "pattern": "Que son las insignias del curso",
+            "keywords": [
+                "insignias curso", "badges", "medallas", "logros curso", "premios",
+                "reconocimientos", "ganar insignia", "obtener badge"
+            ],
+            "response": "Las <strong>insignias</strong> son reconocimientos digitales:<br><br><strong>Tipos:</strong><br>- Por completar curso<br>- Por calificacion destacada<br>- Por participacion<br><br><strong>Ver tus insignias:</strong><br>1. Clic en tu avatar<br>2. <strong>Perfil > Insignias</strong><br><br>Se otorgan automaticamente al cumplir criterios.",
+            "tags": ["insignias", "badges", "logros"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "fechas_curso",
+            "category": "cursos",
+            "pattern": "Cuando inicia o termina el curso",
+            "keywords": [
+                "fecha inicio", "fecha fin", "cuando empieza", "cuando termina",
+                "duracion curso", "periodo curso", "inicio curso", "fin curso",
+                "cuanto dura", "vigencia curso"
+            ],
+            "response": "Para ver las fechas del curso:<br><br><strong>Antes de inscribirte:</strong><br>- En la descripcion del curso en el catalogo<br><br><strong>Ya inscrito:</strong><br>1. Entra al curso<br>2. Menu > <strong>Ajustes</strong> (si tienes acceso)<br>3. O revisa el <strong>Calendario</strong> del curso<br><br>Algunos cursos no tienen fecha limite.",
+            "tags": ["fechas", "inicio", "fin", "duracion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calendario", "icon": "bi-calendar-event", "action": "calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "acceso_invitado",
+            "category": "cursos",
+            "pattern": "Puedo acceder como invitado",
+            "keywords": [
+                "acceso invitado", "invitado", "sin inscripcion", "guest", "ver sin inscribirse",
+                "probar curso", "preview curso", "acceso anonimo", "sin registrarse"
+            ],
+            "response": "El acceso como <strong>invitado</strong> depende del curso:<br><br><strong>Si esta habilitado:</strong><br>1. Abre el curso desde el catalogo<br>2. Haz clic en <strong>Acceder como invitado</strong><br>3. Puede requerir contrasena<br><br><strong>Limitaciones:</strong><br>- No puedes hacer actividades<br>- No se guarda progreso<br>- Solo puedes ver contenido",
+            "tags": ["invitado", "guest", "acceso"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Como inscribirme", "icon": "bi-box-arrow-in-right", "action": "como me inscribo"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "categorias_cursos",
+            "category": "cursos",
+            "pattern": "Que son las categorias de cursos",
+            "keywords": [
+                "categorias", "categorias cursos", "clasificacion", "areas",
+                "departamentos", "organizar cursos", "tipos cursos", "seccion cursos"
+            ],
+            "response": "Las <strong>categorias</strong> organizan los cursos:<br><br><strong>Ejemplo:</strong><br>- Ciencias > Matematicas > Algebra<br>- Humanidades > Historia<br><br><strong>Navegar por categorias:</strong><br>1. Ve al <strong>Inicio del sitio</strong><br>2. Explora las categorias disponibles<br>3. Haz clic para ver cursos de esa area",
+            "tags": ["categorias", "clasificacion", "organizacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Buscar curso", "icon": "bi-search", "action": "buscar curso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "formato_curso",
+            "category": "cursos",
+            "pattern": "Que formatos de curso existen",
+            "keywords": [
+                "formato curso", "tipo curso", "estructura curso", "presentacion curso",
+                "semanal", "temas", "formato temas", "formato semanal", "formato actividad unica"
+            ],
+            "response": "Los cursos pueden tener diferentes <strong>formatos</strong>:<br><br><strong>Temas:</strong> Secciones numeradas<br><strong>Semanal:</strong> Una seccion por semana<br><strong>Actividad unica:</strong> Solo una actividad principal<br><strong>Social:</strong> Basado en foro<br><br>El profesor elige el formato. La navegacion funciona igual en todos.",
+            "tags": ["formato", "estructura", "tipo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Navegar curso", "icon": "bi-signpost", "action": "navegar curso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
         }
     ]
 }
