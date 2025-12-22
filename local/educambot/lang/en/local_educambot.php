@@ -740,9 +740,6 @@ $string['context_follow_up_prompts'] = 'anything else,need,would you like,want m
 // Scroll button.
 $string['scrolltobottom'] = 'Scroll to bottom';
 
-// Dark mode.
-$string['toggledarkmode'] = 'Toggle dark mode';
-
 // Keyboard shortcuts.
 $string['tosend'] = 'to send';
 

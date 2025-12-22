@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_educambot';
-$plugin->version = 2025122210;  // YYYYMMDDXX format.
+$plugin->version = 2025122211;  // YYYYMMDDXX format.
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.8.1';  // Enhanced menu options with card-style design matching shortcuts.
+$plugin->release = '3.8.2';  // Removed dark mode feature.

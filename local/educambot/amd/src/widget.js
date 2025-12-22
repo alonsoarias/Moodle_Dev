@@ -119,7 +119,6 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             typingIndicator: null,
             scrollBtn: null,        // v3.8.0
             charCounter: null,      // v3.8.0
-            darkModeBtn: null,      // v3.8.0
             keyboardHelper: null    // v3.8.0
         },
 
@@ -137,7 +136,6 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         // v3.8.0 - New features.
         scrollThreshold: 100, // Pixels from bottom to show scroll button.
         isUserScrolled: false,
-        darkModeEnabled: false,
         maxCharacters: 500, // Max characters in textarea.
         lastMessageTime: null,
         messageGroupInterval: 300000, // 5 minutes for grouping messages.
@@ -212,7 +210,6 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
             self.createScrollToBottomButton();
             self.createCharacterCounter();
             self.createKeyboardHelper();
-            self.initDarkMode();
 
             // Initialize notification sound.
             self.initNotificationSound();
@@ -2072,109 +2069,6 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
 
             self.elements.textarea.parent().append(helperDiv);
             self.elements.keyboardHelper = helperDiv;
-        },
-
-        // ==============================================
-        // v3.8.0 - Dark Mode Support
-        // ==============================================
-
-        /**
-         * Initialize dark mode support.
-         */
-        initDarkMode: function() {
-            var self = this;
-
-            // Check for system preference.
-            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-            // Check for saved preference.
-            var savedPreference = localStorage.getItem('educambot-darkmode');
-            if (savedPreference !== null) {
-                self.darkModeEnabled = savedPreference === 'true';
-            } else {
-                self.darkModeEnabled = prefersDark;
-            }
-
-            // Apply dark mode if enabled.
-            if (self.darkModeEnabled) {
-                self.elements.chat.addClass('educambot-dark-mode');
-            }
-
-            // Create dark mode toggle button in header.
-            var darkModeBtn = $('<a>')
-                .attr('href', '#')
-                .attr('id', 'educambot-darkmode')
-                .addClass('educambot-action-btn')
-                .attr('title', M.util.get_string('toggledarkmode', 'local_educambot') || 'Toggle dark mode')
-                .html(self.getDarkModeIcon());
-
-            self.elements.chat.find('.educambot-actions').prepend(darkModeBtn);
-            self.elements.darkModeBtn = darkModeBtn;
-
-            // Click handler.
-            darkModeBtn.on('click', function(e) {
-                e.preventDefault();
-                self.toggleDarkMode();
-            });
-
-            // Listen for system preference changes.
-            if (window.matchMedia) {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-                    if (localStorage.getItem('educambot-darkmode') === null) {
-                        self.darkModeEnabled = e.matches;
-                        self.applyDarkMode();
-                    }
-                });
-            }
-        },
-
-        /**
-         * Toggle dark mode.
-         */
-        toggleDarkMode: function() {
-            var self = this;
-            self.darkModeEnabled = !self.darkModeEnabled;
-            localStorage.setItem('educambot-darkmode', self.darkModeEnabled);
-            self.applyDarkMode();
-        },
-
-        /**
-         * Apply dark mode state.
-         */
-        applyDarkMode: function() {
-            var self = this;
-
-            if (self.darkModeEnabled) {
-                self.elements.chat.addClass('educambot-dark-mode');
-            } else {
-                self.elements.chat.removeClass('educambot-dark-mode');
-            }
-
-            // Update button icon.
-            if (self.elements.darkModeBtn) {
-                self.elements.darkModeBtn.html(self.getDarkModeIcon());
-            }
-        },
-
-        /**
-         * Get the appropriate dark mode icon.
-         *
-         * @return {string} SVG icon HTML
-         */
-        getDarkModeIcon: function() {
-            var self = this;
-
-            if (self.darkModeEnabled) {
-                // Sun icon (to switch to light).
-                return '<svg width="20" height="20" viewBox="0 0 24 24" fill="white">' +
-                       '<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>' +
-                       '</svg>';
-            } else {
-                // Moon icon (to switch to dark).
-                return '<svg width="20" height="20" viewBox="0 0 24 24" fill="white">' +
-                       '<path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>' +
-                       '</svg>';
-            }
         },
 
         // ==============================================
