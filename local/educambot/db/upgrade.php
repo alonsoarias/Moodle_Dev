@@ -542,6 +542,97 @@ function xmldb_local_educambot_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025122103, 'local', 'educambot');
     }
 
+    // v3.8.0 - Reload options from all knowledge base files.
+    if ($oldversion < 2025122209) {
+
+        $datapath = __DIR__ . '/data/knowledge/';
+        $now = time();
+
+        // Get all JSON files from knowledge directory.
+        $files = glob($datapath . '*.json');
+
+        foreach ($files as $filepath) {
+            if (!file_exists($filepath)) {
+                continue;
+            }
+
+            $json = file_get_contents($filepath);
+            $data = json_decode($json, true);
+
+            if (!$data || !isset($data['rules'])) {
+                continue;
+            }
+
+            foreach ($data['rules'] as $rule) {
+                // Find the rule in database by pattern.
+                $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
+                       $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+                $existingRules = $DB->get_records_sql($sql, ['pattern' => $rule['pattern']], 0, 1);
+                $dbrule = !empty($existingRules) ? reset($existingRules) : null;
+
+                if ($dbrule && isset($rule['options']) && is_array($rule['options'])) {
+                    // Delete existing options for this rule.
+                    $DB->delete_records('local_educambot_option', ['ruleid' => $dbrule->id]);
+
+                    // Insert new options.
+                    $sortorder = 1;
+                    foreach ($rule['options'] as $option) {
+                        $optrecord = new stdClass();
+                        $optrecord->ruleid = $dbrule->id;
+                        $optrecord->text = $option['text'];
+                        $optrecord->action = $option['action'] ?? '';
+                        $optrecord->icon = $option['icon'] ?? '';
+                        $optrecord->targetruleid = null;
+                        $optrecord->sortorder = $sortorder++;
+                        $optrecord->enabled = 1;
+
+                        $DB->insert_record('local_educambot_option', $optrecord);
+                    }
+                }
+            }
+        }
+
+        // Also reload from navigation.json.
+        $navfile = __DIR__ . '/data/navigation.json';
+        if (file_exists($navfile)) {
+            $json = file_get_contents($navfile);
+            $data = json_decode($json, true);
+
+            if ($data && isset($data['rules'])) {
+                foreach ($data['rules'] as $rule) {
+                    $sql = "SELECT * FROM {local_educambot_rule} WHERE " .
+                           $DB->sql_compare_text('pattern') . " = " . $DB->sql_compare_text(':pattern');
+                    $existingRules = $DB->get_records_sql($sql, ['pattern' => $rule['pattern']], 0, 1);
+                    $dbrule = !empty($existingRules) ? reset($existingRules) : null;
+
+                    if ($dbrule && isset($rule['options']) && is_array($rule['options'])) {
+                        // Check if options already exist.
+                        $existingOptions = $DB->count_records('local_educambot_option', ['ruleid' => $dbrule->id]);
+
+                        if ($existingOptions == 0) {
+                            $sortorder = 1;
+                            foreach ($rule['options'] as $option) {
+                                $optrecord = new stdClass();
+                                $optrecord->ruleid = $dbrule->id;
+                                $optrecord->text = $option['text'];
+                                $optrecord->action = $option['action'] ?? '';
+                                $optrecord->icon = $option['icon'] ?? '';
+                                $optrecord->targetruleid = null;
+                                $optrecord->sortorder = $sortorder++;
+                                $optrecord->enabled = 1;
+
+                                $DB->insert_record('local_educambot_option', $optrecord);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2025122209, 'local', 'educambot');
+    }
+
     // v3.5.0 - Add retro theme with clippy mascot and remove schedule feature.
     if ($oldversion < 2025122104) {
         global $CFG;

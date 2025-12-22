@@ -1175,6 +1175,11 @@ class engine {
                         'icon' => $opt->icon,
                     ];
 
+                    // v3.8.0 - Include action field for triggering other rules.
+                    if (!empty($opt->action)) {
+                        $option['action'] = $opt->action;
+                    }
+
                     if ($opt->targetruleid) {
                         $targetRule = $DB->get_record('local_educambot_rule', ['id' => $opt->targetruleid]);
                         if ($targetRule) {
