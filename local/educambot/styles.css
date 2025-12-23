@@ -336,7 +336,7 @@
 
 /* Quick reply options - uses theme colors */
 /* ==============================================
-   v3.8.1 - Enhanced Menu Options (card-style)
+   v3.8.2 - Enhanced Menu Options (card-style)
    ============================================== */
 
 .educambot-options {
@@ -358,51 +358,33 @@
     align-items: center;
     gap: 10px;
     padding: 12px 14px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--educambot-text, #1f2937);
+    transition: all 0.2s ease;
+    color: var(--educambot-text, #374151);
     font-family: inherit;
     text-align: left;
-    position: relative;
-    overflow: hidden;
     min-height: 48px;
 }
 
-/* Subtle gradient overlay on hover */
-.educambot-option-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, var(--educambot-primary) 0%, color-mix(in srgb, var(--educambot-primary) 80%, #000) 100%);
-    opacity: 0;
-    transition: opacity 0.25s ease;
-    z-index: 0;
-}
-
-.educambot-option-btn:hover::before {
-    opacity: 1;
-}
-
 .educambot-option-btn:hover {
+    background: var(--educambot-primary);
     border-color: var(--educambot-primary);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12),
-                0 2px 4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.educambot-option-btn:hover .educambot-option-icon,
+.educambot-option-btn:hover .educambot-option-icon {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
 .educambot-option-btn:hover .educambot-option-text {
     color: #ffffff;
-    position: relative;
-    z-index: 1;
 }
 
 .educambot-option-btn:active {
@@ -425,18 +407,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--educambot-primary) 0%, color-mix(in srgb, var(--educambot-primary) 85%, #000) 100%);
+    background: var(--educambot-primary);
     border-radius: 8px;
     color: #ffffff;
     font-size: 16px;
-    position: relative;
-    z-index: 1;
-    transition: all 0.25s ease;
-}
-
-.educambot-option-btn:hover .educambot-option-icon {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
+    transition: all 0.2s ease;
 }
 
 /* Option text */
@@ -445,19 +420,8 @@
     min-width: 0;
     font-weight: 500;
     line-height: 1.3;
-    position: relative;
-    z-index: 1;
     color: var(--educambot-text, #374151);
-}
-
-/* Fallback for browsers without color-mix */
-@supports not (color: color-mix(in srgb, red 50%, blue)) {
-    .educambot-option-btn::before {
-        background: var(--educambot-primary);
-    }
-    .educambot-option-icon {
-        background: var(--educambot-primary);
-    }
+    transition: color 0.2s ease;
 }
 
 /* Mobile: single column on small screens */
@@ -902,7 +866,7 @@
         height: 56px;
     }
 
-    /* v3.8.1 - Compact card options on mobile */
+    /* v3.8.2 - Compact card options on mobile */
     .educambot-option-btn {
         padding: 10px 12px;
         font-size: 12px;
@@ -913,6 +877,7 @@
         width: 28px;
         height: 28px;
         font-size: 14px;
+        border-radius: 6px;
     }
 
     /* Smaller mascot on mobile (v2.0.1) */
@@ -1744,7 +1709,7 @@
         display: none;
     }
 
-    /* v3.8.1 - Card options on small mobile */
+    /* v3.8.2 - Card options on small mobile */
     .educambot-option-btn {
         min-height: 44px;
         padding: 10px 12px;
