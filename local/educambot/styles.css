@@ -376,6 +376,7 @@
     border-color: var(--educambot-primary);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #ffffff;
 }
 
 .educambot-option-btn:hover .educambot-option-icon {
@@ -383,8 +384,14 @@
     color: #ffffff;
 }
 
+/* Ensure Bootstrap icon inherits color on hover */
+.educambot-option-btn:hover .educambot-option-icon i,
+.educambot-option-btn:hover .educambot-option-icon .bi {
+    color: #ffffff !important;
+}
+
 .educambot-option-btn:hover .educambot-option-text {
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .educambot-option-btn:active {
