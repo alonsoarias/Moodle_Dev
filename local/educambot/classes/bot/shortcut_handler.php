@@ -962,70 +962,71 @@ class shortcut_handler {
     private function get_shortcut_options($actiontype) {
         $options = [];
 
+        // v3.8.2 - Use Bootstrap icons consistently for better cross-browser support.
         switch ($actiontype) {
             case 'assignments':
-                $options[] = ['text' => 'Ver Calificaciones', 'icon' => '📊', 'action' => 'ver mis calificaciones'];
-                $options[] = ['text' => 'Calendario', 'icon' => '📅', 'action' => 'eventos'];
+                $options[] = ['text' => 'Ver Calificaciones', 'icon' => 'bi-bar-chart', 'action' => 'ver mis calificaciones'];
+                $options[] = ['text' => 'Calendario', 'icon' => 'bi-calendar-event', 'action' => 'eventos'];
                 break;
             case 'grades':
-                $options[] = ['text' => 'Ver Tareas', 'icon' => '📝', 'action' => 'ver mis tareas'];
-                $options[] = ['text' => 'Profesores', 'icon' => '👨‍🏫', 'action' => 'quienes son mis profesores'];
+                $options[] = ['text' => 'Ver Tareas', 'icon' => 'bi-journal-check', 'action' => 'ver mis tareas'];
+                $options[] = ['text' => 'Profesores', 'icon' => 'bi-person-badge', 'action' => 'quienes son mis profesores'];
                 break;
             case 'calendar':
-                $options[] = ['text' => 'Ver Tareas', 'icon' => '📝', 'action' => 'ver mis tareas'];
-                $options[] = ['text' => 'Mi Progreso', 'icon' => '📈', 'action' => 'mi progreso'];
+                $options[] = ['text' => 'Ver Tareas', 'icon' => 'bi-journal-check', 'action' => 'ver mis tareas'];
+                $options[] = ['text' => 'Mi Progreso', 'icon' => 'bi-graph-up', 'action' => 'mi progreso'];
                 break;
             case 'messages':
-                $options[] = ['text' => 'Profesores', 'icon' => '👨‍🏫', 'action' => 'quienes son mis profesores'];
+                $options[] = ['text' => 'Profesores', 'icon' => 'bi-person-badge', 'action' => 'quienes son mis profesores'];
                 break;
             case 'courses':
-                $options[] = ['text' => 'Mis Tareas', 'icon' => '📝', 'action' => 'mis tareas'];
-                $options[] = ['text' => 'Mis Calificaciones', 'icon' => '📊', 'action' => 'mis calificaciones'];
+                $options[] = ['text' => 'Mis Tareas', 'icon' => 'bi-journal-check', 'action' => 'mis tareas'];
+                $options[] = ['text' => 'Mis Calificaciones', 'icon' => 'bi-bar-chart', 'action' => 'mis calificaciones'];
                 break;
             case 'participants':
-                $options[] = ['text' => 'Profesores', 'icon' => '👨‍🏫', 'action' => 'quienes son mis profesores'];
-                $options[] = ['text' => 'Info del Curso', 'icon' => '📖', 'action' => 'informacion del curso'];
+                $options[] = ['text' => 'Profesores', 'icon' => 'bi-person-badge', 'action' => 'quienes son mis profesores'];
+                $options[] = ['text' => 'Info del Curso', 'icon' => 'bi-info-circle', 'action' => 'informacion del curso'];
                 break;
             case 'badges':
-                $options[] = ['text' => 'Mis Cursos', 'icon' => '📚', 'action' => 'mis cursos'];
-                $options[] = ['text' => 'Mi Progreso', 'icon' => '📈', 'action' => 'mi progreso'];
+                $options[] = ['text' => 'Mis Cursos', 'icon' => 'bi-book', 'action' => 'mis cursos'];
+                $options[] = ['text' => 'Mi Progreso', 'icon' => 'bi-graph-up', 'action' => 'mi progreso'];
                 break;
             case 'teacher_grades':
-                $options[] = ['text' => 'Participantes', 'icon' => '👥', 'action' => 'participantes'];
-                $options[] = ['text' => 'Info del Curso', 'icon' => '📖', 'action' => 'informacion del curso'];
+                $options[] = ['text' => 'Participantes', 'icon' => 'bi-people', 'action' => 'participantes'];
+                $options[] = ['text' => 'Info del Curso', 'icon' => 'bi-info-circle', 'action' => 'informacion del curso'];
                 break;
             case 'admin_users':
-                $options[] = ['text' => 'Cursos', 'icon' => '📚', 'action' => 'gestionar cursos'];
-                $options[] = ['text' => 'Reportes', 'icon' => '📊', 'action' => 'reportes sitio'];
+                $options[] = ['text' => 'Cursos', 'icon' => 'bi-book', 'action' => 'gestionar cursos'];
+                $options[] = ['text' => 'Reportes', 'icon' => 'bi-bar-chart', 'action' => 'reportes sitio'];
                 break;
             case 'admin_courses':
-                $options[] = ['text' => 'Usuarios', 'icon' => '👥', 'action' => 'gestionar usuarios'];
-                $options[] = ['text' => 'Backups', 'icon' => '💾', 'action' => 'backup'];
+                $options[] = ['text' => 'Usuarios', 'icon' => 'bi-people', 'action' => 'gestionar usuarios'];
+                $options[] = ['text' => 'Backups', 'icon' => 'bi-hdd', 'action' => 'backup'];
                 break;
             case 'admin_reports':
-                $options[] = ['text' => 'Usuarios', 'icon' => '👥', 'action' => 'gestionar usuarios'];
-                $options[] = ['text' => 'Configuracion', 'icon' => '⚙️', 'action' => 'configuracion'];
+                $options[] = ['text' => 'Usuarios', 'icon' => 'bi-people', 'action' => 'gestionar usuarios'];
+                $options[] = ['text' => 'Configuracion', 'icon' => 'bi-gear', 'action' => 'configuracion'];
                 break;
             case 'admin_settings':
-                $options[] = ['text' => 'Plugins', 'icon' => '🧩', 'action' => 'plugins'];
-                $options[] = ['text' => 'Seguridad', 'icon' => '🛡️', 'action' => 'seguridad'];
+                $options[] = ['text' => 'Plugins', 'icon' => 'bi-puzzle', 'action' => 'plugins'];
+                $options[] = ['text' => 'Seguridad', 'icon' => 'bi-shield-check', 'action' => 'seguridad'];
                 break;
             case 'admin_plugins':
-                $options[] = ['text' => 'Configuracion', 'icon' => '⚙️', 'action' => 'configuracion'];
-                $options[] = ['text' => 'Seguridad', 'icon' => '🛡️', 'action' => 'seguridad'];
+                $options[] = ['text' => 'Configuracion', 'icon' => 'bi-gear', 'action' => 'configuracion'];
+                $options[] = ['text' => 'Seguridad', 'icon' => 'bi-shield-check', 'action' => 'seguridad'];
                 break;
             case 'admin_security':
-                $options[] = ['text' => 'Configuracion', 'icon' => '⚙️', 'action' => 'configuracion'];
-                $options[] = ['text' => 'Reportes', 'icon' => '📊', 'action' => 'reportes sitio'];
+                $options[] = ['text' => 'Configuracion', 'icon' => 'bi-gear', 'action' => 'configuracion'];
+                $options[] = ['text' => 'Reportes', 'icon' => 'bi-bar-chart', 'action' => 'reportes sitio'];
                 break;
             case 'admin_backup':
-                $options[] = ['text' => 'Cursos', 'icon' => '📚', 'action' => 'gestionar cursos'];
-                $options[] = ['text' => 'Reportes', 'icon' => '📊', 'action' => 'reportes sitio'];
+                $options[] = ['text' => 'Cursos', 'icon' => 'bi-book', 'action' => 'gestionar cursos'];
+                $options[] = ['text' => 'Reportes', 'icon' => 'bi-bar-chart', 'action' => 'reportes sitio'];
                 break;
         }
 
         // Always add menu option.
-        $options[] = ['text' => 'Menu Principal', 'icon' => '🏠', 'action' => 'menu'];
+        $options[] = ['text' => 'Menu Principal', 'icon' => 'bi-house', 'action' => 'menu'];
 
         return $options;
     }
