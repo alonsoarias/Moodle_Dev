@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EducamBot - Guía de Usuario v3.8.2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0f6fc5;
+            --secondary-color: #084a8a;
+            --accent-color: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            color: #1f2937;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            overflow-y: auto;
+            padding: 20px 0;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-brand h1 {
+            color: white;
+            font-size: 1.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-brand .version {
+            font-size: 0.75rem;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-nav {
+            padding: 0 15px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 10px 15px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .sidebar-nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-nav .nav-section {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px 15px 8px;
+            margin-top: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 40px 60px;
+            max-width: 1000px;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 60px;
+            scroll-margin-top: 30px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-top: 35px;
+            margin-bottom: 20px;
+        }
+
+        h4 {
+            font-weight: 600;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        /* Alert Boxes */
+        .alert-box {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .alert-box.info {
+            background: #e0f2fe;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .alert-box.warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .alert-box.success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-box.danger {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-box i {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        /* Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .feature-card .icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h5 {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Steps */
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-list li {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 30px;
+            min-height: 50px;
+        }
+
+        .step-list li::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* Code blocks */
+        code {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #e11d48;
+        }
+
+        pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Images */
+        .img-container {
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .img-container img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .img-caption {
+            margin-top: 10px;
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Keyboard keys */
+        kbd {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.85em;
+            font-family: inherit;
+            background: linear-gradient(180deg, #f9fafb, #e5e7eb);
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            box-shadow: 0 2px 0 #d1d5db;
+        }
+
+        /* Accordion */
+        .accordion-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px !important;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .accordion-button {
+            font-weight: 600;
+            background: #f9fafb;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        /* Footer */
+        .doc-footer {
+            margin-top: 60px;
+            padding: 40px 0;
+            border-top: 2px solid #e5e7eb;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 30px 20px;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Badge */
+        .badge-new {
+            background: var(--accent-color);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* Placeholder showcase */
+        .placeholder-box {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .placeholder-box code {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <h1>
+                <i class="bi bi-robot"></i>
+                EducamBot
+                <span class="version">v3.8.2</span>
+            </h1>
+        </div>
+
+        <div class="sidebar-nav">
+            <a href="#introduccion"><i class="bi bi-house"></i> Introduccion</a>
+            <a href="#caracteristicas"><i class="bi bi-stars"></i> Caracteristicas</a>
+
+            <div class="nav-section">Instalacion</div>
+            <a href="#requisitos"><i class="bi bi-check-circle"></i> Requisitos</a>
+            <a href="#instalacion"><i class="bi bi-download"></i> Instalacion</a>
+
+            <div class="nav-section">Configuracion</div>
+            <a href="#configuracion-basica"><i class="bi bi-gear"></i> Configuracion Basica</a>
+            <a href="#identidad"><i class="bi bi-person-badge"></i> Identidad del Bot</a>
+            <a href="#apariencia"><i class="bi bi-palette"></i> Apariencia y Temas</a>
+            <a href="#mascota"><i class="bi bi-emoji-smile"></i> Mascota</a>
+            <a href="#icono"><i class="bi bi-image"></i> Icono del Widget</a>
+
+            <div class="nav-section">Base de Conocimiento</div>
+            <a href="#categorias"><i class="bi bi-folder"></i> Categorias</a>
+            <a href="#reglas"><i class="bi bi-list-check"></i> Reglas</a>
+            <a href="#opciones"><i class="bi bi-ui-radios-grid"></i> Opciones Rapidas</a>
+            <a href="#shortcuts"><i class="bi bi-lightning"></i> Accesos Rapidos</a>
+
+            <div class="nav-section">Herramientas</div>
+            <a href="#reportes"><i class="bi bi-graph-up"></i> Reportes</a>
+            <a href="#importar-exportar"><i class="bi bi-arrow-left-right"></i> Importar/Exportar</a>
+
+            <div class="nav-section">Ayuda</div>
+            <a href="#uso"><i class="bi bi-chat-dots"></i> Uso del Chat</a>
+            <a href="#faq"><i class="bi bi-question-circle"></i> FAQ</a>
+            <a href="#creditos"><i class="bi bi-info-circle"></i> Creditos</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Introduccion -->
+        <section id="introduccion">
+            <h2><i class="bi bi-house me-2"></i>Introduccion</h2>
+
+            <p class="lead">
+                <strong>EducamBot</strong> es un asistente virtual inteligente disenado especificamente para plataformas Moodle.
+                Permite a los usuarios obtener respuestas inmediatas a sus preguntas, acceder a informacion del curso y
+                mejorar su experiencia de aprendizaje.
+            </p>
+
+            <div class="alert-box info">
+                <i class="bi bi-info-circle"></i>
+                <div>
+                    <strong>Version actual:</strong> 3.8.2<br>
+                    <strong>Compatibilidad:</strong> Moodle 4.0 o superior<br>
+                    <strong>Licencia:</strong> GNU GPL v3
+                </div>
+            </div>
+
+            <h3>Para que sirve EducamBot?</h3>
+            <p>
+                EducamBot actua como un primer nivel de soporte automatizado dentro de tu plataforma Moodle.
+                Los estudiantes, profesores y administradores pueden hacer preguntas en lenguaje natural y
+                obtener respuestas inmediatas basadas en una base de conocimiento configurable.
+            </p>
+
+            <h3>Beneficios principales</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-clock"></i></div>
+                    <h5>Soporte 24/7</h5>
+                    <p>Los usuarios obtienen respuestas inmediatas sin esperar a un agente humano.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-mortarboard"></i></div>
+                    <h5>Contexto Educativo</h5>
+                    <p>Disenado especificamente para entornos educativos con datos dinamicos de Moodle.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-sliders"></i></div>
+                    <h5>Totalmente Personalizable</h5>
+                    <p>Configura respuestas, apariencia, mascota e idiomas segun tus necesidades.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h5>Analiticas Integradas</h5>
+                    <p>Reportes detallados para mejorar continuamente la base de conocimiento.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Caracteristicas -->
+        <section id="caracteristicas">
+            <h2><i class="bi bi-stars me-2"></i>Caracteristicas Principales</h2>
+
+            <h3>Sistema de Reglas Inteligente</h3>
+            <ul>
+                <li>Coincidencia basada en patrones y palabras clave</li>
+                <li>Soporte para multiples idiomas con autodeteccion</li>
+                <li>Respuestas dinamicas con marcadores (placeholders)</li>
+                <li>Restricciones por rol, curso y contexto</li>
+                <li>Sistema de confianza con porcentaje de coincidencia</li>
+            </ul>
+
+            <h3>Widget de Chat Interactivo</h3>
+            <ul>
+                <li>Diseno moderno y responsive</li>
+                <li>Mascota animada con estados emocionales</li>
+                <li>Indicador de escritura ("esta escribiendo...")</li>
+                <li>Botones de respuesta rapida</li>
+                <li>Historial de conversacion persistente</li>
+                <li>Exportacion de conversaciones</li>
+                <li>Sonidos de notificacion</li>
+                <li>Sincronizacion entre pestanas <span class="badge-new">Nuevo</span></li>
+            </ul>
+
+            <h3>Accesos Rapidos con Datos Dinamicos</h3>
+            <ul>
+                <li>Mis tareas pendientes</li>
+                <li>Mis calificaciones</li>
+                <li>Eventos del calendario</li>
+                <li>Profesores del curso</li>
+                <li>Mis cursos matriculados</li>
+                <li>Mis insignias</li>
+                <li>Participantes del curso</li>
+                <li>Funciones administrativas (para gestores)</li>
+            </ul>
+
+            <h3>Personalizacion Completa</h3>
+            <ul>
+                <li>Temas de colores personalizables</li>
+                <li>5 mascotas predefinidas + personalizadas</li>
+                <li>Iconos del widget (emoji, Bootstrap Icons, imagen)</li>
+                <li>Mensajes de saludo configurables</li>
+                <li>Comportamiento adaptado por rol</li>
+            </ul>
+
+            <h3>Cumplimiento y Privacidad</h3>
+            <ul>
+                <li>Compatible con GDPR</li>
+                <li>Retencion de datos configurable</li>
+                <li>Sistema de feedback con retroalimentacion</li>
+                <li>Limpieza automatica de historial</li>
+            </ul>
+        </section>
+
+        <!-- Requisitos -->
+        <section id="requisitos">
+            <h2><i class="bi bi-check-circle me-2"></i>Requisitos del Sistema</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Requisito</th>
+                            <th>Minimo</th>
+                            <th>Recomendado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Moodle</strong></td>
+                            <td>4.0</td>
+                            <td>4.3 o superior</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PHP</strong></td>
+                            <td>7.4</td>
+                            <td>8.1 o superior</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Navegador</strong></td>
+                            <td>Chrome 90+, Firefox 90+, Safari 14+</td>
+                            <td>Ultima version</td>
+                        </tr>
+                        <tr>
+                            <td><strong>JavaScript</strong></td>
+                            <td>ES6 (habilitado)</td>
+                            <td>ES6+</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert-box warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div>
+                    <strong>Importante:</strong> JavaScript debe estar habilitado en el navegador.
+                    El widget no funcionara en navegadores con JavaScript deshabilitado.
+                </div>
+            </div>
+        </section>
+
+        <!-- Instalacion -->
+        <section id="instalacion">
+            <h2><i class="bi bi-download me-2"></i>Instalacion</h2>
+
+            <h3>Metodo 1: Instalacion Manual</h3>
+            <ol class="step-list">
+                <li>
+                    <strong>Descarga el plugin</strong><br>
+                    Obtén el archivo ZIP del plugin desde el repositorio oficial o el marketplace de Moodle.
+                </li>
+                <li>
+                    <strong>Extrae los archivos</strong><br>
+                    Descomprime el archivo ZIP y renombra la carpeta a <code>educambot</code>.
+                </li>
+                <li>
+                    <strong>Sube al servidor</strong><br>
+                    Copia la carpeta <code>educambot</code> al directorio <code>/local/</code> de tu instalacion de Moodle.
+                    <pre><code>/tu-moodle/local/educambot/</code></pre>
+                </li>
+                <li>
+                    <strong>Actualiza la base de datos</strong><br>
+                    Inicia sesion como administrador en Moodle. Navega a:
+                    <br><em>Administracion del sitio → Notificaciones</em>
+                    <br>Moodle detectara el nuevo plugin y procedera con la instalacion.
+                </li>
+                <li>
+                    <strong>Configura el plugin</strong><br>
+                    Despues de la instalacion, seras redirigido a la pagina de configuracion del plugin.
+                </li>
+            </ol>
+
+            <h3>Metodo 2: Via Git</h3>
+            <pre><code>cd /tu-moodle/local/
+git clone https://github.com/tu-repo/educambot.git</code></pre>
+
+            <p>Luego accede a <em>Administracion del sitio → Notificaciones</em> para completar la instalacion.</p>
+
+            <div class="alert-box success">
+                <i class="bi bi-check-circle"></i>
+                <div>
+                    <strong>Verificacion:</strong> Una vez instalado, deberas ver el widget de chat en la esquina
+                    inferior derecha de tu sitio Moodle (si tienes permisos).
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuracion Basica -->
+        <section id="configuracion-basica">
+            <h2><i class="bi bi-gear me-2"></i>Configuracion Basica</h2>
+
+            <p>
+                Accede a la configuracion del plugin desde:<br>
+                <em>Administracion del sitio → Plugins → Plugins locales → EducamBot</em>
+            </p>
+
+            <h3>Opciones Generales</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Opcion</th>
+                            <th>Descripcion</th>
+                            <th>Valor por Defecto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Habilitar widget</strong></td>
+                            <td>Muestra u oculta el widget de chat en todas las paginas</td>
+                            <td>Habilitado</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nombre del bot</strong></td>
+                            <td>El nombre que se muestra en el encabezado del chat</td>
+                            <td>Nexo Bot</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Etiqueta del widget</strong></td>
+                            <td>Texto mostrado en el boton del widget (solo lectura)</td>
+                            <td>Chat Bot</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mensaje de saludo</strong></td>
+                            <td>El mensaje inicial al abrir el chat</td>
+                            <td>Hola {{userfirstname}}! Soy {{botname}}...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Marcadores disponibles para el saludo</h4>
+            <div class="placeholder-box">
+                <code>{{userfirstname}}</code> - Nombre del usuario<br>
+                <code>{{userlastname}}</code> - Apellido del usuario<br>
+                <code>{{fullname}}</code> - Nombre completo<br>
+                <code>{{username}}</code> - Nombre de usuario (alias de fullname)<br>
+                <code>{{botname}}</code> - Nombre del bot
+            </div>
+
+            <h3>Historial de Conversaciones</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Opcion</th>
+                            <th>Descripcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Habilitar historial</strong></td>
+                            <td>Permite guardar y retomar conversaciones anteriores</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Periodo de retencion</strong></td>
+                            <td>Tiempo que se conservan los registros (1 semana a 1 año, o siempre)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Tiempo de Inactividad</h3>
+            <p>
+                Configura el tiempo (en milisegundos) antes de cerrar automaticamente el chat por inactividad.
+                El valor predeterminado es <strong>600000ms</strong> (10 minutos). Usa <strong>0</strong> para deshabilitarlo.
+            </p>
+
+            <h3>Feedback y Sonido</h3>
+            <ul>
+                <li><strong>Habilitar feedback:</strong> Permite a los usuarios calificar las respuestas (me gusta/no me gusta)</li>
+                <li><strong>Habilitar sonido:</strong> Reproduce un sonido de notificacion cuando el bot responde</li>
+            </ul>
+        </section>
+
+        <!-- Identidad del Bot -->
+        <section id="identidad">
+            <h2><i class="bi bi-person-badge me-2"></i>Identidad del Bot</h2>
+
+            <p>
+                Personaliza como se presenta el bot a los usuarios. Esto incluye el nombre,
+                mensaje de bienvenida y comportamiento segun el rol del usuario.
+            </p>
+
+            <h3>Nombre del Bot</h3>
+            <p>
+                El nombre del bot aparece en:
+            </p>
+            <ul>
+                <li>Encabezado del widget de chat</li>
+                <li>Mensajes de saludo</li>
+                <li>Exportaciones de conversacion</li>
+            </ul>
+
+            <h3>Saludos Personalizados por Rol</h3>
+            <p>
+                El bot muestra saludos diferentes segun el arquetipo de rol del usuario:
+            </p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>Saludo por Defecto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><i class="bi bi-mortarboard me-2"></i>Estudiante</td>
+                            <td>Hola estudiante! Tienes dudas sobre tus tareas o calificaciones?</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-person-video3 me-2"></i>Profesor</td>
+                            <td>Hola profesor! Puedo ayudarte a gestionar tu curso?</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-pencil me-2"></i>Profesor con edicion</td>
+                            <td>Hola! Necesitas ayuda con la configuracion del curso?</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-shield-check me-2"></i>Gestor/Admin</td>
+                            <td>Hola administrador! En que puedo asistirte hoy?</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-person me-2"></i>Invitado</td>
+                            <td>Bienvenido! Como invitado puedo responder preguntas generales.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Apariencia y Temas -->
+        <section id="apariencia">
+            <h2><i class="bi bi-palette me-2"></i>Apariencia y Temas</h2>
+
+            <p>
+                Personaliza los colores del widget para que coincidan con la identidad visual de tu institucion.
+            </p>
+
+            <h3>Gestionar Temas</h3>
+            <p>
+                Accede a <em>Administracion del sitio → Plugins → Plugins locales → EducamBot → Gestionar Temas</em>
+            </p>
+
+            <h4>Crear un Tema</h4>
+            <ol>
+                <li>Haz clic en <strong>"Agregar Tema"</strong></li>
+                <li>Ingresa un nombre descriptivo para el tema</li>
+                <li>Configura los colores:</li>
+            </ol>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Color</th>
+                            <th>Uso</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Color Primario</strong></td>
+                            <td>Encabezado, boton flotante, enlaces</td>
+                            <td><span style="display:inline-block;width:20px;height:20px;background:#0f6fc5;border-radius:4px;vertical-align:middle;"></span> #0f6fc5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color Secundario</strong></td>
+                            <td>Estados hover, acentos</td>
+                            <td><span style="display:inline-block;width:20px;height:20px;background:#084a8a;border-radius:4px;vertical-align:middle;"></span> #084a8a</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color de Texto</strong></td>
+                            <td>Contenido textual del chat</td>
+                            <td><span style="display:inline-block;width:20px;height:20px;background:#1f2937;border-radius:4px;vertical-align:middle;"></span> #1f2937</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color de Fondo</strong></td>
+                            <td>Area de mensajes</td>
+                            <td><span style="display:inline-block;width:20px;height:20px;background:#f9fafb;border-radius:4px;vertical-align:middle;"></span> #f9fafb</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color del Usuario</strong></td>
+                            <td>Burbujas de mensaje del usuario</td>
+                            <td><span style="display:inline-block;width:20px;height:20px;background:#0f6fc5;border-radius:4px;vertical-align:middle;"></span> #0f6fc5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Color del Bot</strong></td>
+                            <td>Burbujas de mensaje del bot</td>
+                            <td><span style="display:inline-block;width:20px;height:20px;background:#ffffff;border:1px solid #ccc;border-radius:4px;vertical-align:middle;"></span> #ffffff</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert-box info">
+                <i class="bi bi-palette2"></i>
+                <div>
+                    <strong>Formato de colores:</strong> Usa formato hexadecimal (ej: #FF5500 o #F50).
+                    Otros formatos no son soportados.
+                </div>
+            </div>
+
+            <h4>Establecer Tema por Defecto</h4>
+            <p>
+                Desde la lista de temas, haz clic en <strong>"Establecer como predeterminado"</strong>
+                junto al tema que deseas usar. Solo puede haber un tema activo a la vez.
+            </p>
+        </section>
+
+        <!-- Mascota -->
+        <section id="mascota">
+            <h2><i class="bi bi-emoji-smile me-2"></i>Mascota del Chatbot</h2>
+
+            <p>
+                La mascota es un personaje animado que aparece junto al chat y reacciona a diferentes
+                situaciones (pensando, exito, confusion, etc.). Ayuda a hacer la experiencia mas amigable.
+            </p>
+
+            <h3>Habilitar Mascota</h3>
+            <p>
+                En la configuracion del plugin, activa la opcion <strong>"Habilitar mascota"</strong>.
+            </p>
+
+            <h3>Tipos de Mascota Disponibles</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">📎</div>
+                    <h5>Clippy</h5>
+                    <p>Un clasico clip de papel nostalgico al estilo del asistente de Microsoft.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🤖</div>
+                    <h5>Robot</h5>
+                    <p>Un robot amigable con antenas y ojos expresivos.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🦉</div>
+                    <h5>Buho</h5>
+                    <p>Un buho academico sabio, ideal para entornos educativos.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🐱</div>
+                    <h5>Gato</h5>
+                    <p>Un gato estudioso con lentes, simpatico y curioso.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">💡</div>
+                    <h5>Bombilla</h5>
+                    <p>Una bombilla de ideas que representa inspiracion y ayuda.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🎨</div>
+                    <h5>Personalizada</h5>
+                    <p>Sube tu propio archivo SVG con animaciones personalizadas.</p>
+                </div>
+            </div>
+
+            <h3>Estados de la Mascota</h3>
+            <p>La mascota cambia de animacion segun el estado del bot:</p>
+            <ul>
+                <li><strong>Idle (inactivo):</strong> Flotacion suave mientras espera</li>
+                <li><strong>Thinking (pensando):</strong> Movimiento de lado a lado, ojos parpadeando</li>
+                <li><strong>Success (exito):</strong> Celebracion cuando encuentra una buena respuesta</li>
+                <li><strong>Confused (confundido):</strong> Movimiento de confusion cuando no entiende</li>
+                <li><strong>Greeting (saludo):</strong> Animacion de bienvenida al abrir el chat</li>
+                <li><strong>Suggesting (sugiriendo):</strong> Rebote para llamar la atencion</li>
+            </ul>
+
+            <h3>Interaccion con la Mascota</h3>
+            <p>
+                Los usuarios pueden hacer clic en la mascota para ver <strong>preguntas populares</strong>.
+                Tambien muestra sugerencias periodicas basadas en el rol del usuario.
+            </p>
+
+            <h3>Mascota Personalizada (SVG)</h3>
+            <p>
+                Si deseas usar tu propia mascota, sube un archivo SVG con las siguientes caracteristicas:
+            </p>
+            <ul>
+                <li>ViewBox de 80x80 pixeles</li>
+                <li>Elementos con IDs: <code>body</code>, <code>eyes</code>, <code>arms</code></li>
+                <li>Tamano maximo: 50KB</li>
+            </ul>
+        </section>
+
+        <!-- Icono del Widget -->
+        <section id="icono">
+            <h2><i class="bi bi-image me-2"></i>Icono del Widget</h2>
+
+            <p>
+                Personaliza el icono que aparece en el encabezado del widget y en el boton flotante.
+            </p>
+
+            <h3>Tipos de Icono</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripcion</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Por defecto</strong></td>
+                            <td>Icono de globo de chat integrado</td>
+                            <td><i class="bi bi-chat-dots"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Emoji</strong></td>
+                            <td>Cualquier emoji Unicode</td>
+                            <td>🤖 💬 🎓 🦉</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bootstrap Icons</strong></td>
+                            <td>Cualquier icono de la libreria Bootstrap Icons</td>
+                            <td><i class="bi bi-robot"></i> <i class="bi bi-mortarboard"></i> <i class="bi bi-book"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Imagen personalizada</strong></td>
+                            <td>Archivo PNG, SVG, JPG o GIF</td>
+                            <td>Tu logo o mascota</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Usando Bootstrap Icons</h4>
+            <p>
+                Ingresa el nombre del icono <strong>sin</strong> el prefijo "bi-". Por ejemplo:
+            </p>
+            <ul>
+                <li><code>robot</code> → <i class="bi bi-robot"></i></li>
+                <li><code>chat-dots</code> → <i class="bi bi-chat-dots"></i></li>
+                <li><code>mortarboard</code> → <i class="bi bi-mortarboard"></i></li>
+                <li><code>question-circle</code> → <i class="bi bi-question-circle"></i></li>
+            </ul>
+            <p>
+                Consulta la lista completa en: <a href="https://icons.getbootstrap.com" target="_blank">icons.getbootstrap.com</a>
+            </p>
+
+            <h4>Imagen Personalizada</h4>
+            <ul>
+                <li>Formatos soportados: PNG, SVG, JPG, GIF</li>
+                <li>Tamano recomendado: 32x32 pixeles</li>
+                <li>Tamano maximo: 100KB</li>
+            </ul>
+        </section>
+
+        <!-- Categorias -->
+        <section id="categorias">
+            <h2><i class="bi bi-folder me-2"></i>Categorias</h2>
+
+            <p>
+                Las categorias te permiten organizar las reglas de respuesta en grupos logicos.
+                Esto facilita la gestion cuando tienes muchas reglas.
+            </p>
+
+            <h3>Crear una Categoria</h3>
+            <ol>
+                <li>Accede a <em>Administracion → Plugins → EducamBot → Gestionar Categorias</em></li>
+                <li>Haz clic en <strong>"Agregar Categoria"</strong></li>
+                <li>Ingresa:
+                    <ul>
+                        <li><strong>Nombre:</strong> Nombre descriptivo (ej: "Inscripciones")</li>
+                        <li><strong>Descripcion:</strong> Breve explicacion del contenido</li>
+                        <li><strong>Categoria padre:</strong> Para crear jerarquias (opcional)</li>
+                    </ul>
+                </li>
+                <li>Guarda los cambios</li>
+            </ol>
+
+            <h3>Jerarquia de Categorias</h3>
+            <p>
+                Puedes crear subcategorias seleccionando una "Categoria padre". Esto es util para
+                organizar temas complejos:
+            </p>
+            <pre><code>📁 Academico
+   ├── 📁 Inscripciones
+   ├── 📁 Calificaciones
+   └── 📁 Certificados
+📁 Tecnico
+   ├── 📁 Acceso
+   └── 📁 Problemas</code></pre>
+
+            <div class="alert-box warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div>
+                    <strong>Nota:</strong> No puedes eliminar una categoria que contenga reglas o subcategorias.
+                    Mueve o elimina el contenido primero.
+                </div>
+            </div>
+        </section>
+
+        <!-- Reglas -->
+        <section id="reglas">
+            <h2><i class="bi bi-list-check me-2"></i>Reglas de Respuesta</h2>
+
+            <p>
+                Las reglas son el corazon de EducamBot. Definen que responde el bot ante diferentes preguntas.
+            </p>
+
+            <h3>Crear una Regla</h3>
+            <ol>
+                <li>Accede a <em>Administracion → Plugins → EducamBot → Gestionar Reglas</em></li>
+                <li>Haz clic en <strong>"Agregar Regla"</strong></li>
+                <li>Completa el formulario:</li>
+            </ol>
+
+            <h4>Campos Basicos</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Descripcion</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Patron de Pregunta</strong></td>
+                            <td>La pregunta principal que activa esta regla</td>
+                            <td>Como me inscribo en un curso?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Palabras Clave</strong></td>
+                            <td>Palabras adicionales para coincidir (una por linea)</td>
+                            <td>inscribir<br>inscripcion<br>matricular</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Respuesta</strong></td>
+                            <td>El texto que respondera el bot</td>
+                            <td>Para inscribirte, ve a la seccion de cursos...</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Categoria</strong></td>
+                            <td>Categoria para organizar la regla</td>
+                            <td>Inscripciones</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Habilitado</strong></td>
+                            <td>Activar o desactivar la regla</td>
+                            <td>Si</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Campos Avanzados</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campo</th>
+                            <th>Descripcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Etiquetas</strong></td>
+                            <td>Tags separados por comas para busqueda interna</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Idioma</strong></td>
+                            <td>Idioma de la regla (para sitios multiidioma)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Arquetipos de rol</strong></td>
+                            <td>Roles que pueden ver esta regla (estudiante, profesor, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Contexto requerido</strong></td>
+                            <td>Donde aplica: cualquiera, solo sitio, solo curso, solo actividad</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Respuesta dinamica</strong></td>
+                            <td>Si usa marcadores para datos en tiempo real</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mostrar opciones</strong></td>
+                            <td>Mostrar botones de respuesta rapida despues de esta respuesta</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Respuestas Dinamicas</h3>
+            <p>
+                Puedes usar marcadores en las respuestas que seran reemplazados por datos reales:
+            </p>
+            <div class="placeholder-box">
+                <strong>Usuario:</strong><br>
+                <code>{{userfirstname}}</code>, <code>{{userlastname}}</code>, <code>{{fullname}}</code><br><br>
+
+                <strong>Curso (requiere contexto de curso):</strong><br>
+                <code>{{coursename}}</code>, <code>{{courseshortname}}</code>, <code>{{courseenddate}}</code><br>
+                <code>{{teachername}}</code>, <code>{{currentgrade}}</code>, <code>{{completion}}</code><br><br>
+
+                <strong>Tareas:</strong><br>
+                <code>{{nextassignment}}</code>, <code>{{pendingassignments}}</code>, <code>{{nextquiz}}</code><br><br>
+
+                <strong>Calendario:</strong><br>
+                <code>{{nextevent}}</code>, <code>{{weekevents}}</code>
+            </div>
+
+            <h3>Duplicar Reglas</h3>
+            <p>
+                Puedes duplicar una regla existente haciendo clic en el icono de duplicar.
+                Esto crea una copia con todas sus opciones, util para crear variantes o traducciones.
+            </p>
+        </section>
+
+        <!-- Opciones Rapidas -->
+        <section id="opciones">
+            <h2><i class="bi bi-ui-radios-grid me-2"></i>Opciones de Respuesta Rapida</h2>
+
+            <p>
+                Las opciones son botones que aparecen despues de una respuesta del bot,
+                permitiendo al usuario continuar la conversacion con un solo clic.
+            </p>
+
+            <h3>Agregar Opciones a una Regla</h3>
+            <ol>
+                <li>Desde la lista de reglas, haz clic en <strong>"Opciones"</strong> junto a la regla</li>
+                <li>Haz clic en <strong>"Agregar Opcion"</strong></li>
+                <li>Completa:
+                    <ul>
+                        <li><strong>Texto del boton:</strong> Lo que vera el usuario (max 100 caracteres)</li>
+                        <li><strong>Regla destino:</strong> La regla que se activara al hacer clic</li>
+                        <li><strong>Icono:</strong> Emoji o icono Bootstrap (opcional)</li>
+                        <li><strong>Orden:</strong> Posicion del boton</li>
+                    </ul>
+                </li>
+                <li>Guarda la opcion</li>
+            </ol>
+
+            <h3>Ejemplo de Flujo con Opciones</h3>
+            <pre><code>Usuario: Hola
+
+Bot: Hola! En que puedo ayudarte?
+     [📚 Ver mis tareas] [📊 Consultar calificaciones] [📅 Ver calendario]
+
+Usuario: (clic en "Ver mis tareas")
+
+Bot: Tus tareas pendientes son:
+     - Tarea 1: Vence en 2 dias
+     - Tarea 2: Vence en 5 dias
+     [📝 Detalles de Tarea 1] [❓ Tengo un problema con una tarea]</code></pre>
+
+            <div class="alert-box info">
+                <i class="bi bi-lightbulb"></i>
+                <div>
+                    <strong>Consejo:</strong> Usa opciones para guiar a los usuarios hacia las respuestas
+                    que necesitan sin que tengan que escribir. Esto mejora la experiencia del usuario.
+                </div>
+            </div>
+        </section>
+
+        <!-- Accesos Rapidos -->
+        <section id="shortcuts">
+            <h2><i class="bi bi-lightning me-2"></i>Accesos Rapidos (Shortcuts)</h2>
+
+            <p>
+                Los accesos rapidos muestran <strong>datos dinamicos de Moodle</strong> en tiempo real,
+                como tareas pendientes, calificaciones, eventos del calendario, etc.
+            </p>
+
+            <h3>Tipos de Acciones Disponibles</h3>
+
+            <h4>Para Estudiantes</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><i class="bi bi-journal-check me-2"></i><strong>Tareas pendientes</strong></td>
+                            <td>Lista de tareas por entregar con fechas de vencimiento</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-bar-chart me-2"></i><strong>Calificaciones</strong></td>
+                            <td>Calificaciones actuales en el curso</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-calendar me-2"></i><strong>Calendario</strong></td>
+                            <td>Eventos de los proximos 7 dias</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-chat-left-text me-2"></i><strong>Mensajes</strong></td>
+                            <td>Mensajes recientes y no leidos</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-person-video3 me-2"></i><strong>Profesores</strong></td>
+                            <td>Lista de profesores del curso actual</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-info-circle me-2"></i><strong>Info del curso</strong></td>
+                            <td>Informacion general del curso actual</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-graph-up me-2"></i><strong>Progreso</strong></td>
+                            <td>Porcentaje de progreso en el curso</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-collection me-2"></i><strong>Mis cursos</strong></td>
+                            <td>Lista de cursos matriculados</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-people me-2"></i><strong>Participantes</strong></td>
+                            <td>Lista de participantes del curso</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-award me-2"></i><strong>Insignias</strong></td>
+                            <td>Insignias obtenidas</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Para Profesores y Administradores</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><i class="bi bi-card-checklist me-2"></i><strong>Gestionar calificaciones</strong></td>
+                            <td>Enlaces al libro de calificaciones, exportar/importar</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-people-fill me-2"></i><strong>Gestion de usuarios</strong></td>
+                            <td>Administrar usuarios, cohortes, carga masiva</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-journal-bookmark me-2"></i><strong>Administracion de cursos</strong></td>
+                            <td>Crear cursos, gestionar categorias</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-graph-up-arrow me-2"></i><strong>Reportes</strong></td>
+                            <td>Logs del sistema, estadisticas</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-gear-fill me-2"></i><strong>Configuracion</strong></td>
+                            <td>Ajustes del sitio, apariencia, idiomas</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-puzzle me-2"></i><strong>Plugins</strong></td>
+                            <td>Gestion de plugins instalados</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-shield-lock me-2"></i><strong>Seguridad</strong></td>
+                            <td>Politicas, bloqueador IP, reportes de seguridad</td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-cloud-download me-2"></i><strong>Copias de seguridad</strong></td>
+                            <td>Backup automatizado, restauracion</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Crear un Acceso Rapido</h3>
+            <ol>
+                <li>Accede a <em>Administracion → Plugins → EducamBot → Gestionar Accesos Rapidos</em></li>
+                <li>Haz clic en <strong>"Agregar Acceso Rapido"</strong></li>
+                <li>Completa:
+                    <ul>
+                        <li><strong>Nombre:</strong> Texto que vera el usuario (ej: "Mis tareas")</li>
+                        <li><strong>Descripcion:</strong> Texto descriptivo que aparece debajo</li>
+                        <li><strong>Icono:</strong> Icono Bootstrap (ej: bi-journal-check)</li>
+                        <li><strong>Palabras clave:</strong> Frases que activan este acceso (una por linea)</li>
+                        <li><strong>Tipo de accion:</strong> El dato de Moodle a mostrar</li>
+                        <li><strong>Arquetipos:</strong> Roles que pueden usar este acceso</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <div class="alert-box info">
+                <i class="bi bi-info-circle"></i>
+                <div>
+                    <strong>Datos en contexto:</strong> Algunos accesos rapidos (como tareas o calificaciones)
+                    requieren que el usuario este dentro de un curso. Si no esta en un curso, el bot mostrara
+                    un mensaje indicando que debe navegar a un curso primero.
+                </div>
+            </div>
+        </section>
+
+        <!-- Reportes -->
+        <section id="reportes">
+            <h2><i class="bi bi-graph-up me-2"></i>Reportes y Analiticas</h2>
+
+            <p>
+                Los reportes te permiten analizar el uso del bot y mejorar la base de conocimiento.
+            </p>
+
+            <h3>Acceder a los Reportes</h3>
+            <p>
+                <em>Administracion → Plugins → EducamBot → Ver Reportes</em>
+            </p>
+
+            <h3>Metricas Disponibles</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-chat-square-text"></i></div>
+                    <h5>Total Conversaciones</h5>
+                    <p>Numero total de interacciones registradas.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-check2-circle"></i></div>
+                    <h5>Preguntas Respondidas</h5>
+                    <p>Preguntas que coincidieron con una regla.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-x-circle"></i></div>
+                    <h5>Sin Respuesta</h5>
+                    <p>Preguntas que no encontraron coincidencia.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-percent"></i></div>
+                    <h5>Tasa de Exito</h5>
+                    <p>Porcentaje de preguntas respondidas correctamente.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-speedometer2"></i></div>
+                    <h5>Confianza Promedio</h5>
+                    <p>Nivel promedio de confianza de las coincidencias.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon"><i class="bi bi-people"></i></div>
+                    <h5>Usuarios Unicos</h5>
+                    <p>Numero de usuarios diferentes que usaron el bot.</p>
+                </div>
+            </div>
+
+            <h3>Preguntas Frecuentes</h3>
+            <p>
+                Esta seccion muestra las preguntas mas comunes ordenadas por frecuencia.
+                Usa esta informacion para:
+            </p>
+            <ul>
+                <li>Identificar temas populares que necesitan mas reglas</li>
+                <li>Mejorar las respuestas existentes</li>
+                <li>Crear contenido de ayuda adicional</li>
+            </ul>
+
+            <h3>Preguntas Sin Regla</h3>
+            <p>
+                Lista de preguntas que no encontraron ninguna coincidencia.
+                Desde aqui puedes crear reglas directamente haciendo clic en <strong>"Crear Regla"</strong>.
+            </p>
+
+            <h3>Filtros</h3>
+            <p>Puedes filtrar los datos por:</p>
+            <ul>
+                <li><strong>Fecha:</strong> Desde / Hasta</li>
+                <li><strong>Estado:</strong> Todas, solo respondidas, solo sin respuesta</li>
+                <li><strong>Busqueda:</strong> Texto libre para buscar preguntas especificas</li>
+            </ul>
+        </section>
+
+        <!-- Importar/Exportar -->
+        <section id="importar-exportar">
+            <h2><i class="bi bi-arrow-left-right me-2"></i>Importar y Exportar</h2>
+
+            <p>
+                Gestiona tu base de conocimiento exportandola como respaldo o importando desde otros sistemas.
+            </p>
+
+            <h3>Exportar Base de Conocimiento</h3>
+            <p>
+                Accede a <em>Administracion → Plugins → EducamBot → Importar/Exportar</em>
+            </p>
+
+            <h4>Formatos de Exportacion</h4>
+            <ul>
+                <li><strong>JSON:</strong> Exportacion completa (categorias, reglas, opciones).
+                    Ideal para respaldos y migraciones.</li>
+                <li><strong>CSV:</strong> Solo reglas. Ideal para edicion en hojas de calculo.</li>
+            </ul>
+
+            <h3>Importar Base de Conocimiento</h3>
+            <ol>
+                <li>Prepara tu archivo JSON o CSV</li>
+                <li>Selecciona el tipo de importacion:
+                    <ul>
+                        <li><strong>Completa:</strong> Categorias, reglas y opciones</li>
+                        <li><strong>Solo reglas:</strong> Importa unicamente reglas</li>
+                    </ul>
+                </li>
+                <li>Opcionalmente, marca <strong>"Borrar datos existentes"</strong> para limpiar todo antes de importar</li>
+                <li>Sube el archivo y haz clic en <strong>"Importar"</strong></li>
+            </ol>
+
+            <div class="alert-box danger">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div>
+                    <strong>Precaucion:</strong> La opcion "Borrar datos existentes" eliminara TODAS las
+                    categorias, reglas y opciones actuales. Esta accion no se puede deshacer.
+                    Haz un respaldo antes de usar esta opcion.
+                </div>
+            </div>
+
+            <h3>Plantillas de Ejemplo</h3>
+            <p>
+                Descarga las plantillas de ejemplo para conocer el formato correcto:
+            </p>
+            <ul>
+                <li><strong>Plantilla JSON:</strong> Estructura completa con ejemplos</li>
+                <li><strong>Plantilla CSV:</strong> Columnas requeridas y opcionales</li>
+            </ul>
+
+            <h4>Estructura JSON</h4>
+            <pre><code>{
+  "version": "3.8",
+  "exported": "2025-01-15T10:30:00",
+  "categories": [...],
+  "rules": [...],
+  "options": [...]
+}</code></pre>
+
+            <h4>Estructura CSV</h4>
+            <pre><code>pattern,response,keywords,category,enabled
+"Como me inscribo?","Para inscribirte...","inscribir,matricular",Inscripciones,1</code></pre>
+        </section>
+
+        <!-- Uso del Chat -->
+        <section id="uso">
+            <h2><i class="bi bi-chat-dots me-2"></i>Uso del Chat</h2>
+
+            <p>
+                Esta seccion explica como los usuarios interactuan con el widget de chat.
+            </p>
+
+            <h3>Abrir el Chat</h3>
+            <p>
+                Haz clic en el <strong>boton flotante</strong> en la esquina inferior derecha de la pantalla.
+                El boton tiene forma circular con el icono configurado del bot.
+            </p>
+
+            <h3>Enviar un Mensaje</h3>
+            <ol>
+                <li>Escribe tu pregunta en el campo de texto</li>
+                <li>Presiona <kbd>Enter</kbd> para enviar, o haz clic en el boton de enviar</li>
+                <li>Usa <kbd>Shift</kbd> + <kbd>Enter</kbd> para agregar una nueva linea</li>
+            </ol>
+
+            <h3>Usar Accesos Rapidos</h3>
+            <p>
+                Debajo del mensaje de bienvenida aparecen botones de <strong>acciones rapidas</strong>.
+                Haz clic en cualquiera para ejecutar esa accion inmediatamente.
+            </p>
+
+            <h3>Interactuar con la Mascota</h3>
+            <ul>
+                <li>Haz clic en la mascota para ver <strong>preguntas populares</strong></li>
+                <li>La mascota muestra sugerencias periodicas basadas en tu rol</li>
+                <li>Cuando no encuentra una buena respuesta, muestra preguntas similares</li>
+            </ul>
+
+            <h3>Funciones del Encabezado</h3>
+            <ul>
+                <li><i class="bi bi-download me-1"></i><strong>Exportar:</strong> Descarga la conversacion como archivo de texto</li>
+                <li><i class="bi bi-trash me-1"></i><strong>Limpiar:</strong> Borra el historial de la conversacion actual</li>
+                <li><i class="bi bi-x-lg me-1"></i><strong>Cerrar:</strong> Minimiza el chat</li>
+            </ul>
+
+            <h3>Dar Feedback</h3>
+            <p>
+                Debajo de cada respuesta del bot aparecen botones de <i class="bi bi-hand-thumbs-up"></i> y
+                <i class="bi bi-hand-thumbs-down"></i>. Usa estos botones para indicar si la respuesta fue util.
+            </p>
+
+            <h3>Indicador de Tiempo de Inactividad</h3>
+            <p>
+                Si no interactuas con el chat durante un tiempo (configurable), aparecera una advertencia
+                antes de cerrarse automaticamente. Haz clic en <strong>"Mantener abierto"</strong> para continuar.
+            </p>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq">
+            <h2><i class="bi bi-question-circle me-2"></i>Preguntas Frecuentes</h2>
+
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            El widget no aparece en mi sitio
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Verifica lo siguiente:
+                            <ul>
+                                <li>El widget esta habilitado en la configuracion del plugin</li>
+                                <li>Tu usuario tiene el permiso <code>local/educambot:use</code></li>
+                                <li>No estas en un layout embedded o de mantenimiento</li>
+                                <li>JavaScript esta habilitado en tu navegador</li>
+                                <li>No hay errores en la consola del navegador (F12)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            El bot no responde a mis preguntas
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            <ul>
+                                <li>Asegurate de que existan reglas creadas y habilitadas</li>
+                                <li>Verifica que las palabras clave de tus reglas coincidan con lo que preguntas</li>
+                                <li>Revisa si la regla tiene restricciones de rol o contexto</li>
+                                <li>Consulta los reportes para ver si la pregunta fue registrada</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Como configuro reglas para diferentes idiomas?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            <ol>
+                                <li>Crea la regla principal en el idioma base</li>
+                                <li>Habilita "Auto-detectar idioma" en la configuracion</li>
+                                <li>Duplica la regla y selecciona el nuevo idioma</li>
+                                <li>Vincula como "Regla padre" la regla original</li>
+                            </ol>
+                            El bot mostrara automaticamente la version en el idioma del usuario.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            Como muestro datos del curso en las respuestas?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            <ol>
+                                <li>En la regla, marca "Respuesta dinamica"</li>
+                                <li>Selecciona "Contexto requerido: Solo nivel curso"</li>
+                                <li>Usa marcadores como <code>{{coursename}}</code>, <code>{{teachername}}</code>, etc.</li>
+                            </ol>
+                            El bot reemplazara estos marcadores con datos reales cuando el usuario este en un curso.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            Como puedo respaldar mi base de conocimiento?
+                        </button>
+                    </h2>
+                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Ve a <em>Importar/Exportar</em> y haz clic en <strong>"Exportar JSON"</strong>.
+                            Esto descargara un archivo con todas las categorias, reglas y opciones.
+                            Guarda este archivo en un lugar seguro.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                            Como veo las preguntas que no fueron respondidas?
+                        </button>
+                    </h2>
+                    <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            En <em>Ver Reportes</em>, baja a la seccion <strong>"Preguntas Sin Regla"</strong>.
+                            Aqui veras todas las preguntas que no encontraron coincidencia.
+                            Puedes crear reglas directamente desde esta lista.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
+                            La mascota no aparece
+                        </button>
+                    </h2>
+                    <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            <ul>
+                                <li>Verifica que "Habilitar mascota" este activado en la configuracion</li>
+                                <li>Asegurate de haber seleccionado un tipo de mascota (no "Sin mascota")</li>
+                                <li>En pantallas muy pequenas (&lt;360px) la mascota se oculta automaticamente</li>
+                                <li>Si usas mascota personalizada, verifica que el SVG cumpla con los requisitos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Creditos -->
+        <section id="creditos">
+            <h2><i class="bi bi-info-circle me-2"></i>Creditos</h2>
+
+            <div class="alert-box info">
+                <i class="bi bi-c-circle"></i>
+                <div>
+                    <strong>EducamBot</strong> - Plugin de Chatbot Inteligente para Moodle<br>
+                    Version 3.8.2 (Build 2025122211)<br>
+                    Licencia GNU GPL v3 o posterior
+                </div>
+            </div>
+
+            <h3>Desarrollo</h3>
+            <p>
+                <strong>Desarrollado por:</strong> Alonso Arias / <a href="https://ingeweb.co" target="_blank">Ingeweb</a><br>
+                <strong>Diseno Instruccional:</strong> Marcela Arias<br>
+                <strong>Soporte:</strong> <a href="mailto:soporte@ingeweb.co">soporte@ingeweb.co</a>
+            </p>
+
+            <h3>Tecnologias Utilizadas</h3>
+            <ul>
+                <li>PHP 7.4+</li>
+                <li>JavaScript ES6 (AMD modules)</li>
+                <li>jQuery</li>
+                <li>Moodle Web Services</li>
+                <li>Bootstrap Icons</li>
+                <li>CSS3 Custom Properties</li>
+                <li>SVG Animations</li>
+            </ul>
+
+            <h3>Recursos Adicionales</h3>
+            <ul>
+                <li><a href="https://docs.moodle.org/en/Local_plugins" target="_blank">Documentacion de Plugins Locales de Moodle</a></li>
+                <li><a href="https://icons.getbootstrap.com" target="_blank">Bootstrap Icons</a></li>
+            </ul>
+        </section>
+
+        <!-- Footer -->
+        <footer class="doc-footer">
+            <p>
+                <strong>EducamBot v3.8.2</strong> - Documentacion de Usuario<br>
+                &copy; 2025 Ingeweb. Todos los derechos reservados.<br>
+                Ultima actualizacion: Diciembre 2025
+            </p>
+        </footer>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling for sidebar links
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    // Update active state
+                    document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Update active link on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
