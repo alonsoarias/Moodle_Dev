@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EducamBot - Guía de Usuario | Ingeweb</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --primary-blue: #2B4D99;
+            --bright-blue: #0080FE;
+            --orange: #FD5E1F;
+            --orange-dark: #de6906;
+            --navy: #013251;
+            --teal: #14BDE8;
+            --white: #FFFFFF;
+            --gray-light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-dark: #343a40;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--gray-dark);
+            background-color: var(--gray-light);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 2.2rem; }
+        h2 { font-size: 1.8rem; border-bottom: 3px solid var(--orange); padding-bottom: 0.5rem; margin-top: 2rem; }
+        h3 { font-size: 1.4rem; color: var(--primary-blue); margin-top: 1.5rem; }
+        h4 { font-size: 1.2rem; }
+
+        a {
+            color: var(--bright-blue);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: var(--orange);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--navy) 0%, var(--primary-blue) 100%);
+            color: var(--white);
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 0;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-logo {
+            max-width: 180px;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-title {
+            font-family: 'Rubik', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--teal);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .sidebar-nav a i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-nav .nav-section {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .sidebar-footer a {
+            color: var(--teal);
+        }
+
+        .sidebar-footer p {
+            margin: 0.25rem 0;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem 3rem;
+            max-width: 1000px;
+        }
+
+        .content-section {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* Commercial Banner */
+        .commercial-banner {
+            background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .commercial-banner h3 {
+            color: var(--white);
+            margin: 0 0 0.5rem 0;
+            font-size: 1.3rem;
+        }
+
+        .commercial-banner p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .commercial-banner a {
+            color: var(--white);
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1rem 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Code */
+        code {
+            background: #e9ecef;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--navy);
+        }
+
+        pre {
+            background: var(--gray-dark);
+            color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: var(--primary-blue);
+            color: var(--white);
+            font-family: 'Rubik', sans-serif;
+        }
+
+        tr:hover {
+            background: var(--gray-light);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e7f5ff;
+            border-color: var(--bright-blue);
+            color: var(--navy);
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: var(--orange);
+            color: #856404;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        /* Images placeholders */
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--gray);
+            margin: 1.5rem 0;
+        }
+
+        .screenshot-placeholder i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+            color: #adb5bd;
+        }
+
+        /* Steps */
+        .step {
+            display: flex;
+            margin: 1.5rem 0;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: var(--orange);
+            color: var(--white);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            margin: 0 0 0.5rem 0;
+        }
+
+        /* Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-card {
+            background: var(--gray-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--bright-blue);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin: 0;
+        }
+
+        /* FAQ */
+        .faq-item {
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 0;
+        }
+
+        .faq-question {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 500;
+            color: var(--navy);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: var(--orange);
+        }
+
+        .faq-answer {
+            padding-top: 1rem;
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 0.5rem;
+            }
+
+            .sidebar-nav a {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .sidebar-nav .nav-section {
+                width: 100%;
+            }
+        }
+
+        /* Version badge */
+        .version-badge {
+            display: inline-block;
+            background: var(--teal);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+
+        /* Print styles */
+        @media print {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://ingeweb.co/images/ingeweb/logos/default.svg" alt="Ingeweb" class="sidebar-logo" onerror="this.style.display='none'">
+            <div class="sidebar-title">EducamBot - Guía de Usuario</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">Inicio</div>
+            <a href="#introduccion"><i class="bi bi-house"></i> Introducción</a>
+            <a href="#requisitos"><i class="bi bi-check-circle"></i> Requisitos</a>
+
+            <div class="nav-section">Instalación</div>
+            <a href="#instalacion"><i class="bi bi-download"></i> Instalación</a>
+            <a href="#configuracion"><i class="bi bi-gear"></i> Configuración Inicial</a>
+
+            <div class="nav-section">Uso del Plugin</div>
+            <a href="#uso-admin"><i class="bi bi-shield-lock"></i> Para Administradores</a>
+            <a href="#uso-usuario"><i class="bi bi-person"></i> Para Usuarios</a>
+            <a href="#caracteristicas"><i class="bi bi-stars"></i> Características</a>
+
+            <div class="nav-section">Ayuda</div>
+            <a href="#faq"><i class="bi bi-question-circle"></i> Preguntas Frecuentes</a>
+            <a href="#problemas"><i class="bi bi-tools"></i> Solución de Problemas</a>
+            <a href="#soporte"><i class="bi bi-headset"></i> Soporte</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p><i class="bi bi-telephone"></i> (+57) 300 911 4307</p>
+            <p><i class="bi bi-envelope"></i> <a href="mailto:ventas@ingeweb.co">ventas@ingeweb.co</a></p>
+            <p><i class="bi bi-globe"></i> <a href="https://ingeweb.co" target="_blank">ingeweb.co</a></p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Commercial Banner -->
+        <div class="commercial-banner">
+            <h3><i class="bi bi-cart-check"></i> Este plugin es un producto comercial</h3>
+            <p>Para cotización y adquisición, contacte a: <a href="mailto:ventas@ingeweb.co">ventas@ingeweb.co</a></p>
+        </div>
+
+        <!-- Introducción -->
+        <section id="introduccion" class="content-section">
+            <h1><i class="bi bi-robot"></i> EducamBot <span class="version-badge">v3.8.2</span></h1>
+            <p><strong>Chatbot Inteligente para Moodle</strong></p>
+
+            <p>EducamBot es un asistente virtual integrado en Moodle que proporciona ayuda automatizada a estudiantes, profesores y administradores. El chatbot responde preguntas frecuentes, guía a los usuarios en la plataforma y ofrece acceso rápido a información relevante del curso.</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="bi bi-chat-dots"></i>
+                    <h4>Respuestas Inteligentes</h4>
+                    <p>Sistema de reglas avanzado con detección de intención y coincidencia flexible.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-palette"></i>
+                    <h4>Personalizable</h4>
+                    <p>Temas visuales, mascotas animadas e iconos configurables.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-speedometer2"></i>
+                    <h4>Accesos Rápidos</h4>
+                    <p>Comandos dinámicos para tareas, calificaciones, calendario y más.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-translate"></i>
+                    <h4>Multi-idioma</h4>
+                    <p>Soporte para español e inglés con detección automática.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Requisitos -->
+        <section id="requisitos" class="content-section">
+            <h2><i class="bi bi-check-circle"></i> Requisitos Previos</h2>
+
+            <h3>Requisitos del Sistema</h3>
+            <table>
+                <tr>
+                    <th>Componente</th>
+                    <th>Requisito</th>
+                </tr>
+                <tr>
+                    <td>Moodle</td>
+                    <td>Versión 4.0 o superior (compatible hasta 4.5)</td>
+                </tr>
+                <tr>
+                    <td>PHP</td>
+                    <td>Versión 7.4 o superior (recomendado PHP 8.x)</td>
+                </tr>
+                <tr>
+                    <td>Base de datos</td>
+                    <td>MySQL, PostgreSQL, MariaDB u Oracle</td>
+                </tr>
+                <tr>
+                    <td>Navegador</td>
+                    <td>JavaScript habilitado (Chrome, Firefox, Safari, Edge)</td>
+                </tr>
+            </table>
+
+            <h3>Permisos Necesarios</h3>
+            <ul>
+                <li>Acceso de administrador al sitio Moodle</li>
+                <li>Permisos para instalar plugins locales</li>
+                <li>Acceso FTP o al sistema de archivos del servidor (para instalación manual)</li>
+            </ul>
+        </section>
+
+        <!-- Instalación -->
+        <section id="instalacion" class="content-section">
+            <h2><i class="bi bi-download"></i> Instalación Paso a Paso</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Descargar el Plugin</h4>
+                    <p>Obtenga el archivo ZIP del plugin <code>local_educambot</code> proporcionado por Ingeweb.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Subir al Servidor</h4>
+                    <p>Extraiga el contenido del ZIP y copie la carpeta <code>educambot</code> al directorio:</p>
+                    <pre><code>/path/to/moodle/local/educambot</code></pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Ejecutar la Instalación</h4>
+                    <p>Acceda a su sitio Moodle como administrador y vaya a:</p>
+                    <p><strong>Administración del sitio → Notificaciones</strong></p>
+                    <p>Moodle detectará el nuevo plugin y le pedirá que complete la instalación.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h4>Confirmar la Instalación</h4>
+                    <p>Haga clic en <strong>"Actualizar base de datos de Moodle ahora"</strong> para crear las tablas necesarias e importar la base de conocimientos inicial.</p>
+                </div>
+            </div>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-image"></i>
+                <p>Captura: Pantalla de notificaciones de Moodle mostrando la instalación del plugin</p>
+            </div>
+
+            <div class="alert alert-success">
+                <strong><i class="bi bi-check-circle"></i> ¡Listo!</strong> Una vez completada la instalación, el widget del chatbot aparecerá automáticamente en todas las páginas de Moodle para usuarios autenticados.
+            </div>
+        </section>
+
+        <!-- Configuración -->
+        <section id="configuracion" class="content-section">
+            <h2><i class="bi bi-gear"></i> Configuración Inicial</h2>
+
+            <p>Acceda a la configuración del plugin en:</p>
+            <p><strong>Administración del sitio → Plugins → Plugins locales → EducamBot → Configuración</strong></p>
+
+            <h3>Configuración General</h3>
+            <table>
+                <tr>
+                    <th>Opción</th>
+                    <th>Descripción</th>
+                    <th>Valor por Defecto</th>
+                </tr>
+                <tr>
+                    <td>Habilitar widget</td>
+                    <td>Mostrar/ocultar el chatbot en todas las páginas</td>
+                    <td>Sí</td>
+                </tr>
+                <tr>
+                    <td>Nombre del bot</td>
+                    <td>Nombre que aparece en el encabezado del chat</td>
+                    <td>EducamBot</td>
+                </tr>
+                <tr>
+                    <td>Etiqueta del widget</td>
+                    <td>Texto del tooltip del botón flotante</td>
+                    <td>¿Necesitas ayuda?</td>
+                </tr>
+                <tr>
+                    <td>Mensaje de saludo</td>
+                    <td>Mensaje inicial al abrir el chat</td>
+                    <td>¡Hola {{userfirstname}}! ¿En qué puedo ayudarte?</td>
+                </tr>
+            </table>
+
+            <h3>Personalización Visual</h3>
+            <table>
+                <tr>
+                    <th>Opción</th>
+                    <th>Descripción</th>
+                </tr>
+                <tr>
+                    <td>Color primario</td>
+                    <td>Color principal del widget (encabezado, botones)</td>
+                </tr>
+                <tr>
+                    <td>Auto-detectar idioma</td>
+                    <td>Preferir reglas en el idioma del usuario</td>
+                </tr>
+            </table>
+
+            <h3>Historial y Retención</h3>
+            <table>
+                <tr>
+                    <th>Opción</th>
+                    <th>Descripción</th>
+                </tr>
+                <tr>
+                    <td>Habilitar historial</td>
+                    <td>Guardar conversaciones de los usuarios</td>
+                </tr>
+                <tr>
+                    <td>Período de retención</td>
+                    <td>Cuánto tiempo conservar los registros (1 semana a 1 año, o para siempre)</td>
+                </tr>
+                <tr>
+                    <td>Timeout por inactividad</td>
+                    <td>Tiempo en milisegundos antes de cerrar el chat por inactividad</td>
+                </tr>
+            </table>
+
+            <h3>Sistema de Feedback</h3>
+            <p>Permite a los usuarios calificar las respuestas del bot con botones de "útil" / "no útil". Esta información ayuda a mejorar las respuestas con el tiempo.</p>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-sliders"></i>
+                <p>Captura: Página de configuración del plugin EducamBot</p>
+            </div>
+        </section>
+
+        <!-- Uso para Administradores -->
+        <section id="uso-admin" class="content-section">
+            <h2><i class="bi bi-shield-lock"></i> Guía para Administradores</h2>
+
+            <h3>Gestionar Reglas de Respuesta</h3>
+            <p>Acceda a: <strong>Administración → Plugins locales → EducamBot → Gestionar Reglas</strong></p>
+
+            <p>Cada regla tiene los siguientes campos:</p>
+            <table>
+                <tr>
+                    <th>Campo</th>
+                    <th>Descripción</th>
+                </tr>
+                <tr>
+                    <td>Patrón</td>
+                    <td>Pregunta principal que activa la regla</td>
+                </tr>
+                <tr>
+                    <td>Palabras clave</td>
+                    <td>Términos adicionales para mejorar el matching (uno por línea)</td>
+                </tr>
+                <tr>
+                    <td>Respuesta</td>
+                    <td>Texto que devuelve el bot (puede incluir HTML)</td>
+                </tr>
+                <tr>
+                    <td>Categoría</td>
+                    <td>Organización temática de la regla</td>
+                </tr>
+                <tr>
+                    <td>Tags</td>
+                    <td>Etiquetas para búsqueda y filtrado</td>
+                </tr>
+                <tr>
+                    <td>Idioma</td>
+                    <td>Idioma de la regla (es/en)</td>
+                </tr>
+            </table>
+
+            <h4>Opciones Avanzadas de Reglas</h4>
+            <ul>
+                <li><strong>Sensible al contexto:</strong> Usa información del curso actual en la respuesta</li>
+                <li><strong>Respuesta dinámica:</strong> Contiene marcadores como <code>{{user.firstname}}</code></li>
+                <li><strong>Contexto requerido:</strong> Solo funciona en sitio/curso/actividad</li>
+                <li><strong>Arquetipos permitidos:</strong> Filtrar por roles (student, teacher, manager, etc.)</li>
+                <li><strong>Cursos:</strong> Limitar a cursos específicos por ID</li>
+            </ul>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-list-ul"></i>
+                <p>Captura: Panel de gestión de reglas con filtros y acciones</p>
+            </div>
+
+            <h3>Gestionar Categorías</h3>
+            <p>Organice las reglas en categorías jerárquicas para facilitar la administración. Acceda a: <strong>EducamBot → Categorías</strong></p>
+
+            <h3>Gestionar Accesos Rápidos (Shortcuts)</h3>
+            <p>Los shortcuts son comandos que muestran datos dinámicos de Moodle. Acceda a: <strong>EducamBot → Accesos Rápidos</strong></p>
+
+            <p>Tipos de acciones disponibles:</p>
+            <table>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                </tr>
+                <tr>
+                    <td>assignments</td>
+                    <td>Muestra tareas pendientes del usuario</td>
+                </tr>
+                <tr>
+                    <td>grades</td>
+                    <td>Muestra calificaciones del curso</td>
+                </tr>
+                <tr>
+                    <td>calendar</td>
+                    <td>Muestra próximos eventos</td>
+                </tr>
+                <tr>
+                    <td>messages</td>
+                    <td>Muestra mensajes recientes</td>
+                </tr>
+                <tr>
+                    <td>teachers</td>
+                    <td>Muestra profesores del curso</td>
+                </tr>
+                <tr>
+                    <td>progress</td>
+                    <td>Muestra progreso en el curso</td>
+                </tr>
+                <tr>
+                    <td>admin_*</td>
+                    <td>Accesos rápidos para administradores</td>
+                </tr>
+            </table>
+
+            <h3>Gestionar Temas Visuales</h3>
+            <p>Personalice la apariencia del widget. Acceda a: <strong>EducamBot → Temas</strong></p>
+
+            <p>Opciones de personalización:</p>
+            <ul>
+                <li>Colores: primario, secundario, texto, fondo, burbujas de usuario y bot</li>
+                <li>Iconos del widget: predeterminado, emoji, Bootstrap Icons, imagen personalizada</li>
+                <li>Mascotas animadas: Robot, Búho, Clippy, Gato, Bombilla o SVG personalizado</li>
+            </ul>
+
+            <h3>Importar/Exportar Base de Conocimientos</h3>
+            <p>Acceda a: <strong>EducamBot → Importar/Exportar</strong></p>
+            <ul>
+                <li><strong>Exportar:</strong> Descarga toda la configuración en formato JSON</li>
+                <li><strong>Importar:</strong> Carga reglas, categorías y opciones desde un archivo JSON</li>
+                <li>Opción para limpiar datos existentes antes de importar</li>
+            </ul>
+
+            <h3>Ver Reportes y Estadísticas</h3>
+            <p>Acceda a: <strong>EducamBot → Reportes</strong></p>
+            <p>Visualice métricas como:</p>
+            <ul>
+                <li>Total de conversaciones</li>
+                <li>Preguntas respondidas vs. sin respuesta</li>
+                <li>Tasa de éxito y confianza promedio</li>
+                <li>Preguntas más frecuentes</li>
+                <li>Reglas que necesitan revisión (bajo feedback)</li>
+            </ul>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-graph-up"></i>
+                <p>Captura: Dashboard de reportes con estadísticas de uso</p>
+            </div>
+        </section>
+
+        <!-- Uso para Usuarios -->
+        <section id="uso-usuario" class="content-section">
+            <h2><i class="bi bi-person"></i> Guía para Usuarios Finales</h2>
+
+            <h3>Abrir el Chat</h3>
+            <p>El widget de EducamBot aparece como un botón flotante en la esquina inferior derecha de la pantalla. Haga clic para abrir el chat.</p>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-chat-square-dots"></i>
+                <p>Captura: Botón flotante del chatbot en la esquina de la pantalla</p>
+            </div>
+
+            <h3>Hacer Preguntas</h3>
+            <ol>
+                <li>Escriba su pregunta en el campo de texto</li>
+                <li>Presione Enter o haga clic en el botón de enviar</li>
+                <li>El bot responderá automáticamente</li>
+                <li>Use los botones de respuesta rápida para explorar temas relacionados</li>
+            </ol>
+
+            <h3>Ejemplos de Preguntas</h3>
+            <table>
+                <tr>
+                    <th>Tipo de Usuario</th>
+                    <th>Ejemplos de Preguntas</th>
+                </tr>
+                <tr>
+                    <td>Estudiante</td>
+                    <td>
+                        "¿Cuáles son mis tareas pendientes?"<br>
+                        "¿Cómo veo mis calificaciones?"<br>
+                        "¿Quién es mi profesor?"
+                    </td>
+                </tr>
+                <tr>
+                    <td>Profesor</td>
+                    <td>
+                        "¿Cómo califico tareas?"<br>
+                        "¿Cómo creo un foro?"<br>
+                        "¿Cómo veo el progreso de mis estudiantes?"
+                    </td>
+                </tr>
+                <tr>
+                    <td>Administrador</td>
+                    <td>
+                        "¿Cómo gestiono usuarios?"<br>
+                        "¿Cómo hago un backup?"<br>
+                        "¿Cómo configuro inscripciones?"
+                    </td>
+                </tr>
+            </table>
+
+            <h3>Funciones del Chat</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="bi bi-download"></i>
+                    <h4>Exportar Conversación</h4>
+                    <p>Descargue la conversación como archivo de texto.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-trash"></i>
+                    <h4>Limpiar Historial</h4>
+                    <p>Borre la conversación actual.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-hand-thumbs-up"></i>
+                    <h4>Dar Feedback</h4>
+                    <p>Califique las respuestas para mejorar el bot.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-x-lg"></i>
+                    <h4>Cerrar Chat</h4>
+                    <p>Cierre el widget pero mantenga la conversación.</p>
+                </div>
+            </div>
+
+            <h3>Accesos Rápidos Disponibles</h3>
+            <p>Puede usar comandos especiales para obtener información rápida:</p>
+            <ul>
+                <li><strong>"mis tareas"</strong> - Ver tareas pendientes</li>
+                <li><strong>"mis calificaciones"</strong> - Ver notas del curso</li>
+                <li><strong>"calendario"</strong> o <strong>"eventos"</strong> - Ver próximos eventos</li>
+                <li><strong>"mensajes"</strong> - Ver mensajes recientes</li>
+                <li><strong>"profesores"</strong> - Ver profesores del curso</li>
+                <li><strong>"mi progreso"</strong> - Ver avance en el curso</li>
+            </ul>
+        </section>
+
+        <!-- Características -->
+        <section id="caracteristicas" class="content-section">
+            <h2><i class="bi bi-stars"></i> Características Principales</h2>
+
+            <h3>Marcadores Dinámicos</h3>
+            <p>En las respuestas se pueden usar marcadores que se reemplazan con datos reales:</p>
+            <table>
+                <tr>
+                    <th>Marcador</th>
+                    <th>Descripción</th>
+                </tr>
+                <tr><td><code>{{user.firstname}}</code></td><td>Nombre del usuario</td></tr>
+                <tr><td><code>{{user.fullname}}</code></td><td>Nombre completo</td></tr>
+                <tr><td><code>{{course.name}}</code></td><td>Nombre del curso actual</td></tr>
+                <tr><td><code>{{course.teacher}}</code></td><td>Profesor del curso</td></tr>
+                <tr><td><code>{{pending.tasks}}</code></td><td>Número de tareas pendientes</td></tr>
+                <tr><td><code>{{next.assignment}}</code></td><td>Próxima tarea con fecha</td></tr>
+                <tr><td><code>{{next.event}}</code></td><td>Próximo evento del calendario</td></tr>
+                <tr><td><code>{{user.grade}}</code></td><td>Calificación actual</td></tr>
+                <tr><td><code>{{site.name}}</code></td><td>Nombre del sitio Moodle</td></tr>
+            </table>
+
+            <h3>Arquetipos de Rol</h3>
+            <p>El bot filtra respuestas según el arquetipo de rol del usuario:</p>
+            <table>
+                <tr>
+                    <th>Arquetipo</th>
+                    <th>Descripción</th>
+                </tr>
+                <tr><td>student</td><td>Estudiantes matriculados</td></tr>
+                <tr><td>teacher</td><td>Profesores sin edición</td></tr>
+                <tr><td>editingteacher</td><td>Profesores con edición</td></tr>
+                <tr><td>coursecreator</td><td>Creadores de cursos</td></tr>
+                <tr><td>manager</td><td>Gestores y administradores</td></tr>
+                <tr><td>guest</td><td>Usuarios invitados</td></tr>
+                <tr><td>user</td><td>Usuarios autenticados sin rol específico</td></tr>
+            </table>
+
+            <h3>Motor de Matching Inteligente</h3>
+            <p>El algoritmo de coincidencia utiliza múltiples técnicas:</p>
+            <ul>
+                <li>Coincidencia exacta y parcial de patrones</li>
+                <li>Matching de palabras clave con ponderación</li>
+                <li>Detección de intención (saludo, despedida, agradecimiento)</li>
+                <li>Tolerancia a errores tipográficos (distancia Levenshtein)</li>
+                <li>Coincidencia de sinónimos</li>
+                <li>N-gramas para frases parciales</li>
+                <li>Boost por feedback positivo</li>
+            </ul>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" class="content-section">
+            <h2><i class="bi bi-question-circle"></i> Preguntas Frecuentes</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿El chatbot usa inteligencia artificial?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>EducamBot utiliza un sistema de reglas basado en patrones y procesamiento de lenguaje natural (NLP) local. No requiere conexión a servicios externos de IA ni envía datos fuera de su servidor Moodle.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿Puedo personalizar las respuestas del bot?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Sí, los administradores pueden crear, editar y eliminar reglas de respuesta. También pueden importar bases de conocimiento personalizadas en formato JSON.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿El plugin afecta el rendimiento de Moodle?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>El impacto es mínimo. El widget se carga de forma asíncrona y las consultas AJAX son ligeras. La limpieza automática del historial ayuda a mantener la base de datos optimizada.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿Se almacenan las conversaciones de los usuarios?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Sí, las conversaciones se almacenan para análisis y mejora del bot. El plugin incluye un Privacy Provider compatible con GDPR que permite exportar y eliminar datos de usuario bajo solicitud.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿Funciona en dispositivos móviles?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Sí, el widget es completamente responsivo y se adapta a pantallas pequeñas. También funciona con la app oficial de Moodle.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿Puedo desactivar el bot para ciertos usuarios?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Sí, el acceso al bot se controla mediante la capacidad <code>local/educambot:use</code>. Puede modificar los permisos por rol desde la administración de roles de Moodle.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solución de Problemas -->
+        <section id="problemas" class="content-section">
+            <h2><i class="bi bi-tools"></i> Solución de Problemas Comunes</h2>
+
+            <h3>El widget no aparece</h3>
+            <div class="alert alert-info">
+                <strong>Posibles causas:</strong>
+                <ul>
+                    <li>Verifique que el widget esté habilitado en la configuración</li>
+                    <li>Confirme que el usuario tiene la capacidad <code>local/educambot:use</code></li>
+                    <li>Asegúrese de que no hay conflictos CSS con el tema de Moodle</li>
+                    <li>Revise la consola del navegador por errores JavaScript</li>
+                </ul>
+            </div>
+
+            <h3>El bot no responde</h3>
+            <div class="alert alert-info">
+                <strong>Posibles causas:</strong>
+                <ul>
+                    <li>Verifique que existan reglas activas en la base de conocimientos</li>
+                    <li>Compruebe que el servicio AJAX (<code>service.php</code>) sea accesible</li>
+                    <li>Revise los logs de Moodle por errores PHP</li>
+                    <li>Confirme que la sesión del usuario no ha expirado</li>
+                </ul>
+            </div>
+
+            <h3>Las respuestas son incorrectas</h3>
+            <div class="alert alert-info">
+                <strong>Soluciones:</strong>
+                <ul>
+                    <li>Revise y ajuste las palabras clave de las reglas</li>
+                    <li>Agregue más variantes de patrones</li>
+                    <li>Utilice el sistema de feedback para identificar reglas problemáticas</li>
+                    <li>Consulte los reportes para ver preguntas sin respuesta</li>
+                </ul>
+            </div>
+
+            <h3>Error al instalar el plugin</h3>
+            <div class="alert alert-info">
+                <strong>Posibles causas:</strong>
+                <ul>
+                    <li>Verifique los requisitos de versión de Moodle (4.0+) y PHP (7.4+)</li>
+                    <li>Asegúrese de que la carpeta tenga los permisos correctos</li>
+                    <li>Compruebe que todos los archivos se copiaron correctamente</li>
+                    <li>Revise los logs del servidor por errores de base de datos</li>
+                </ul>
+            </div>
+
+            <h3>Problemas de rendimiento</h3>
+            <div class="alert alert-warning">
+                <strong>Recomendaciones:</strong>
+                <ul>
+                    <li>Configure un período de retención para el historial (ej: 3 meses)</li>
+                    <li>Optimice las reglas eliminando duplicados</li>
+                    <li>Desactive características no utilizadas (ej: mascotas, sonidos)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Soporte -->
+        <section id="soporte" class="content-section">
+            <h2><i class="bi bi-headset"></i> Soporte y Contacto</h2>
+
+            <div class="commercial-banner">
+                <h3><i class="bi bi-envelope-heart"></i> ¿Necesita ayuda?</h3>
+                <p>Nuestro equipo de soporte está disponible para asistirle</p>
+            </div>
+
+            <h3>Información de Contacto</h3>
+            <table>
+                <tr>
+                    <th>Canal</th>
+                    <th>Detalles</th>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-envelope"></i> Email de Ventas</td>
+                    <td><a href="mailto:ventas@ingeweb.co">ventas@ingeweb.co</a></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-envelope"></i> Email de Soporte</td>
+                    <td><a href="mailto:soporte@ingeweb.co">soporte@ingeweb.co</a></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-telephone"></i> Teléfono Colombia</td>
+                    <td>(+57) 300 911 4307</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-telephone"></i> Bogotá</td>
+                    <td>(601) 770 2907</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-telephone"></i> Toll Free (USA)</td>
+                    <td>(+1) 888 407 0977</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-globe"></i> Sitio Web</td>
+                    <td><a href="https://ingeweb.co" target="_blank">https://ingeweb.co</a></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-geo-alt"></i> Dirección</td>
+                    <td>Cra 31 # 35-12 Of. 503, Bucaramanga, Colombia</td>
+                </tr>
+            </table>
+
+            <h3>Antes de Contactar Soporte</h3>
+            <p>Para agilizar la atención, por favor tenga disponible:</p>
+            <ul>
+                <li>Versión de Moodle instalada</li>
+                <li>Versión de EducamBot</li>
+                <li>Descripción detallada del problema</li>
+                <li>Capturas de pantalla (si aplica)</li>
+                <li>Mensajes de error del log de Moodle</li>
+            </ul>
+
+            <div class="alert alert-success">
+                <strong><i class="bi bi-info-circle"></i> Versión del Plugin:</strong> 3.8.2<br>
+                <strong>Compatibilidad:</strong> Moodle 4.0 - 4.5<br>
+                <strong>Licencia:</strong> GNU GPL v3 o posterior
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="background: var(--navy); color: var(--white); padding: 3rem 2rem; margin-top: 2rem; border-radius: 8px;">
+            <div style="max-width: 900px; margin: 0 auto;">
+                <h3 style="color: var(--teal); text-align: center; margin-bottom: 2rem; font-family: 'Rubik', sans-serif;">
+                    <i class="bi bi-building"></i> Ingeweb - Soluciones para triunfar en Internet
+                </h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                    <!-- Teléfonos -->
+                    <div>
+                        <h4 style="color: var(--orange); font-size: 1rem; margin-bottom: 1rem;"><i class="bi bi-telephone-fill"></i> Teléfonos</h4>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Colombia:</strong> (+57) 300 911 4307</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Bogotá:</strong> (601) 770 2907</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Toll Free:</strong> (+1) 888 407 0977</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Internacional:</strong> (+1) 713 554 8397</p>
+                    </div>
+
+                    <!-- Email y Soporte -->
+                    <div>
+                        <h4 style="color: var(--orange); font-size: 1rem; margin-bottom: 1rem;"><i class="bi bi-envelope-fill"></i> Correo y Soporte</h4>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Ventas:</strong> <a href="mailto:ventas@ingeweb.co" style="color: var(--teal);">ventas@ingeweb.co</a></p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Soporte:</strong> <a href="mailto:soporte@ingeweb.co" style="color: var(--teal);">soporte@ingeweb.co</a></p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Portal:</strong> <a href="https://soporte.ingeweb.co" target="_blank" style="color: var(--teal);">soporte.ingeweb.co</a></p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Tickets:</strong> <a href="https://soporte.ingeweb.co/portal/es/newticket" target="_blank" style="color: var(--teal);">Crear ticket</a></p>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div>
+                        <h4 style="color: var(--orange); font-size: 1rem; margin-bottom: 1rem;"><i class="bi bi-geo-alt-fill"></i> Ubicación</h4>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;">Cra 31 # 35-12 Of. 503</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;">Bucaramanga, Colombia</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><a href="https://ingeweb.co/contacto" target="_blank" style="color: var(--teal);"><i class="bi bi-chat-dots"></i> Formulario de contacto</a></p>
+                    </div>
+                </div>
+
+                <!-- Redes Sociales -->
+                <div style="text-align: center; padding: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h4 style="color: var(--orange); font-size: 1rem; margin-bottom: 1rem;">Síguenos en Redes Sociales</h4>
+                    <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+                        <a href="https://wa.me/573009114307" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                        <a href="https://facebook.com/ingewebco" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://instagram.com/ingewebco" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://linkedin.com/company/ingewebco" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://twitter.com/ingewebco" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+
+                <!-- Copyright -->
+                <div style="text-align: center; padding-top: 1.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.7);">
+                    <p style="margin: 0.25rem 0;">© 2025 <a href="https://ingeweb.co" target="_blank" style="color: var(--teal);">Ingeweb</a>. Todos los derechos reservados.</p>
+                    <p style="margin: 0.25rem 0;">EducamBot es un producto desarrollado por Ingeweb para plataformas Moodle.</p>
+                    <p style="margin: 0.25rem 0;">Diseño instruccional por <a href="https://americasbps.com" target="_blank" style="color: var(--teal);">americasbps</a></p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                // Update active state
+                document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Highlight current section on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.content-section');
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (window.scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // FAQ toggle (simple version)
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', function() {
+                const answer = this.nextElementSibling;
+                const icon = this.querySelector('i');
+                if (answer.style.display === 'none' || !answer.style.display) {
+                    answer.style.display = 'block';
+                    icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+                } else {
+                    answer.style.display = 'none';
+                    icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+                }
+            });
+        });
+
+        // Initialize FAQ answers as hidden
+        document.querySelectorAll('.faq-answer').forEach(answer => {
+            answer.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
