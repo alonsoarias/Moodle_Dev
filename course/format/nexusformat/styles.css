@@ -303,7 +303,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 }
 
 /* =============================================
-   Sidebar - Units List
+   Sidebar - Units List (Hierarchical Tree Structure)
    ============================================= */
 
 .nexus-units-list {
@@ -322,10 +322,17 @@ body.format-nexusformat.drawer-open-left #page-content {
     background-color: #fff;
     transition: background-color 0.2s ease;
     gap: 0.5rem;
+    border-left: 3px solid transparent;
 }
 
 .nexus-unit-header:hover {
     background-color: #f8f9fa;
+}
+
+/* Expanded section highlight */
+.nexus-unit.expanded > .nexus-unit-header {
+    background-color: #f0f4f8;
+    border-left-color: #0d6efd;
 }
 
 .nexus-unit-toggle {
@@ -335,6 +342,21 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 .nexus-unit-toggle i {
     transition: transform 0.2s ease;
+}
+
+/* Section folder icon */
+.nexus-unit-header::before {
+    content: '\f07b';  /* FontAwesome folder icon */
+    font-family: 'Font Awesome 5 Free', 'FontAwesome';
+    font-weight: 900;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-right: 0.25rem;
+}
+
+.nexus-unit.expanded > .nexus-unit-header::before {
+    content: '\f07c';  /* FontAwesome open folder icon */
+    color: #0d6efd;
 }
 
 .nexus-unit-name {
@@ -347,20 +369,37 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-unit-count {
     color: #adb5bd;
     font-size: 0.8rem;
+    background-color: #e9ecef;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
 }
 
+/* Lessons container with tree structure */
 .nexus-unit-lessons {
     background-color: #f8f9fa;
+    position: relative;
+    padding-left: 1rem;
+}
+
+/* Vertical tree line connecting all lessons */
+.nexus-unit-lessons::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    bottom: 0.75rem;
+    width: 2px;
+    background-color: #dee2e6;
 }
 
 /* =============================================
-   Sidebar - Lessons
+   Sidebar - Lessons (Subsections with Tree Structure)
    ============================================= */
 
 .nexus-lesson {
     display: flex;
     align-items: flex-start;
-    padding: 0.75rem 1rem 0.75rem 1.5rem;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
     cursor: pointer;
     border-bottom: 1px solid #e9ecef;
     transition: background-color 0.2s ease;
@@ -368,6 +407,29 @@ body.format-nexusformat.drawer-open-left #page-content {
     text-decoration: none;
     color: inherit;
     flex-wrap: nowrap;
+    position: relative;
+}
+
+/* Horizontal branch line connecting to vertical tree */
+.nexus-lesson::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 1.25rem;
+    width: 0.75rem;
+    height: 2px;
+    background-color: #dee2e6;
+}
+
+/* Last lesson - cut the vertical line at the right point */
+.nexus-lesson:last-child::after {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 1.25rem;
+    bottom: 0;
+    width: 2px;
+    background-color: #f8f9fa;
 }
 
 .nexus-lesson:hover {
@@ -379,7 +441,12 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-lesson.active {
     background-color: #e7f1ff;
     border-left: 3px solid #0d6efd;
-    padding-left: calc(1.5rem - 3px);
+    padding-left: calc(2.5rem - 3px);
+}
+
+/* Adjust branch line position for active state */
+.nexus-lesson.active::before {
+    left: calc(1.5rem - 3px);
 }
 
 .nexus-lesson-status {
@@ -502,12 +569,34 @@ body.format-nexusformat.drawer-open-left #page-content {
         font-size: 1.25rem;
     }
 
+    /* Reduce tree indentation on mobile */
+    .nexus-unit-lessons {
+        padding-left: 0.5rem;
+    }
+
+    .nexus-unit-lessons::before {
+        left: 1rem;
+    }
+
     .nexus-lesson {
-        padding-left: 1rem;
+        padding-left: 2rem;
+    }
+
+    .nexus-lesson::before {
+        left: 1rem;
+        width: 0.5rem;
+    }
+
+    .nexus-lesson:last-child::after {
+        left: 1rem;
     }
 
     .nexus-lesson.active {
-        padding-left: calc(1rem - 3px);
+        padding-left: calc(2rem - 3px);
+    }
+
+    .nexus-lesson.active::before {
+        left: calc(1rem - 3px);
     }
 
     .nexus-lesson-icon {
