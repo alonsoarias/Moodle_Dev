@@ -71,10 +71,12 @@ $string['edit_note'] = 'Editar apunte';
 $string['delete_note'] = 'Eliminar apunte';
 $string['save_note'] = 'Guardar apunte';
 $string['cancel'] = 'Cancelar';
+$string['note_title'] = 'Título del apunte (opcional)';
 $string['note_placeholder'] = 'Escribe tu apunte aquí...';
 $string['no_notes'] = 'Aún no has creado ningún apunte.';
 $string['note_saved'] = 'Apunte guardado correctamente.';
 $string['note_deleted'] = 'Apunte eliminado correctamente.';
+$string['notenotfound'] = 'Apunte no encontrado.';
 $string['confirm_delete_note'] = '¿Estás seguro de que deseas eliminar este apunte?';
 
 // Activity content.

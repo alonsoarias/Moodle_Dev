@@ -390,13 +390,76 @@
                     {{/hasgradableactivities}}
                 </div>
 
-                {{! Notes Tab - Placeholder for Phase 5 }}
+                {{! Notes Tab }}
                 <div class="nexus-tab-pane" id="nexus-tab-notes" data-tab="notes" style="display: none;">
-                    <div class="nexus-coming-soon">
-                        <i class="fa fa-pencil fa-2x" aria-hidden="true"></i>
-                        <p>{{#str}}my_notes, format_nexusformat{{/str}}</p>
-                        <small>{{#str}}tab_notes, format_nexusformat{{/str}} - Phase 5</small>
+                    <div class="nexus-notes-header mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">{{#str}}my_notes, format_nexusformat{{/str}}</h6>
+                            <button type="button" class="btn btn-sm btn-primary nexus-add-note-btn" id="nexus-add-note-btn">
+                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                <span>{{#str}}add_note, format_nexusformat{{/str}}</span>
+                            </button>
+                        </div>
                     </div>
+
+                    {{! Note Editor (hidden by default) }}
+                    <div class="nexus-note-editor" id="nexus-note-editor" style="display: none;">
+                        <input type="hidden" id="nexus-note-id" value="0">
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm" id="nexus-note-title"
+                                   placeholder="{{#str}}note_title, format_nexusformat{{/str}}" maxlength="255">
+                        </div>
+                        <div class="mb-2">
+                            <textarea class="form-control" id="nexus-note-content" rows="4"
+                                      placeholder="{{#str}}note_placeholder, format_nexusformat{{/str}}"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-primary nexus-save-note-btn" id="nexus-save-note-btn">
+                                <i class="fa fa-save" aria-hidden="true"></i>
+                                {{#str}}save_note, format_nexusformat{{/str}}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary nexus-cancel-note-btn" id="nexus-cancel-note-btn">
+                                {{#str}}cancel, format_nexusformat{{/str}}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{! Notes List }}
+                    <div class="nexus-notes-list" id="nexus-notes-list">
+                        <div class="nexus-notes-loading text-center py-3">
+                            <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                            <span>{{#str}}loading, format_nexusformat{{/str}}</span>
+                        </div>
+                    </div>
+
+                    {{! Empty state template (hidden, used by JS) }}
+                    <template id="nexus-no-notes-template">
+                        <div class="nexus-no-notes text-center py-4">
+                            <i class="fa fa-sticky-note-o fa-2x text-muted mb-2" aria-hidden="true"></i>
+                            <p class="text-muted mb-0">{{#str}}no_notes, format_nexusformat{{/str}}</p>
+                        </div>
+                    </template>
+
+                    {{! Note item template (hidden, used by JS) }}
+                    <template id="nexus-note-template">
+                        <div class="nexus-note-item" data-noteid="">
+                            <div class="nexus-note-header">
+                                <span class="nexus-note-title"></span>
+                                <div class="nexus-note-actions">
+                                    <button type="button" class="btn btn-sm btn-link nexus-edit-note" title="{{#str}}edit_note, format_nexusformat{{/str}}">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-link text-danger nexus-delete-note" title="{{#str}}delete_note, format_nexusformat{{/str}}">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="nexus-note-content"></div>
+                            <div class="nexus-note-footer">
+                                <small class="text-muted nexus-note-date"></small>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -555,5 +618,165 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         // Load the first activity content
         loadActivityContent(firstActivityCmid);
     }
+
+    // ==========================================
+    // NOTES FUNCTIONALITY
+    // ==========================================
+    var $notesList = $('#nexus-notes-list');
+    var $noteEditor = $('#nexus-note-editor');
+    var $noteId = $('#nexus-note-id');
+    var $noteTitle = $('#nexus-note-title');
+    var $noteContent = $('#nexus-note-content');
+    var notesLoaded = false;
+
+    // Load notes when notes tab is activated
+    $('.nexus-tab[data-tab="notes"]').on('click', function() {
+        if (!notesLoaded) {
+            loadNotes();
+        }
+    });
+
+    // Load notes from server
+    function loadNotes() {
+        $notesList.html('<div class="nexus-notes-loading text-center py-3"><i class="fa fa-spinner fa-spin"></i> {{#str}}loading, format_nexusformat{{/str}}</div>');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_get_notes',
+            args: { courseid: courseid }
+        }])[0].done(function(response) {
+            notesLoaded = true;
+            renderNotes(response.notes);
+        }).fail(function(error) {
+            $notesList.html('<div class="alert alert-danger">{{#str}}error_loading, format_nexusformat{{/str}}</div>');
+            Notification.exception(error);
+        });
+    }
+
+    // Render notes list
+    function renderNotes(notes) {
+        $notesList.empty();
+
+        if (!notes || notes.length === 0) {
+            var $template = $('#nexus-no-notes-template');
+            if ($template.length) {
+                $notesList.html($template.html());
+            } else {
+                $notesList.html('<div class="nexus-no-notes text-center py-4"><i class="fa fa-sticky-note-o fa-2x text-muted mb-2"></i><p class="text-muted mb-0">{{#str}}no_notes, format_nexusformat{{/str}}</p></div>');
+            }
+            return;
+        }
+
+        var $template = $('#nexus-note-template');
+        notes.forEach(function(note) {
+            var $noteItem;
+            if ($template.length) {
+                $noteItem = $($template.html());
+            } else {
+                $noteItem = $('<div class="nexus-note-item"><div class="nexus-note-header"><span class="nexus-note-title"></span><div class="nexus-note-actions"><button type="button" class="btn btn-sm btn-link nexus-edit-note"><i class="fa fa-pencil"></i></button><button type="button" class="btn btn-sm btn-link text-danger nexus-delete-note"><i class="fa fa-trash"></i></button></div></div><div class="nexus-note-content"></div><div class="nexus-note-footer"><small class="text-muted nexus-note-date"></small></div></div>');
+            }
+
+            $noteItem.attr('data-noteid', note.id);
+            $noteItem.find('.nexus-note-title').text(note.title || '{{#str}}my_notes, format_nexusformat{{/str}}');
+            $noteItem.find('.nexus-note-content').html(note.content);
+            $noteItem.find('.nexus-note-date').text(note.timemodifiedformatted);
+
+            $notesList.append($noteItem);
+        });
+    }
+
+    // Add note button
+    $('#nexus-add-note-btn').on('click', function() {
+        $noteId.val(0);
+        $noteTitle.val('');
+        $noteContent.val('');
+        $noteEditor.slideDown(200);
+        $noteTitle.focus();
+    });
+
+    // Cancel button
+    $('#nexus-cancel-note-btn').on('click', function() {
+        $noteEditor.slideUp(200);
+        $noteId.val(0);
+        $noteTitle.val('');
+        $noteContent.val('');
+    });
+
+    // Save note button
+    $('#nexus-save-note-btn').on('click', function() {
+        var content = $noteContent.val().trim();
+        if (!content) {
+            $noteContent.focus();
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{#str}}loading, format_nexusformat{{/str}}');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_save_note',
+            args: {
+                courseid: courseid,
+                content: content,
+                title: $noteTitle.val().trim(),
+                noteid: parseInt($noteId.val()) || 0,
+                cmid: 0
+            }
+        }])[0].done(function(response) {
+            $btn.prop('disabled', false).html('<i class="fa fa-save"></i> {{#str}}save_note, format_nexusformat{{/str}}');
+            $noteEditor.slideUp(200);
+            $noteId.val(0);
+            $noteTitle.val('');
+            $noteContent.val('');
+            loadNotes();
+        }).fail(function(error) {
+            $btn.prop('disabled', false).html('<i class="fa fa-save"></i> {{#str}}save_note, format_nexusformat{{/str}}');
+            Notification.exception(error);
+        });
+    });
+
+    // Edit note (delegated)
+    $notesList.on('click', '.nexus-edit-note', function() {
+        var $item = $(this).closest('.nexus-note-item');
+        var noteid = $item.data('noteid');
+        var title = $item.find('.nexus-note-title').text();
+        var content = $item.find('.nexus-note-content').html();
+
+        $noteId.val(noteid);
+        $noteTitle.val(title);
+        $noteContent.val(content);
+        $noteEditor.slideDown(200);
+        $noteTitle.focus();
+    });
+
+    // Delete note (delegated)
+    $notesList.on('click', '.nexus-delete-note', function() {
+        if (!confirm('{{#str}}confirm_delete_note, format_nexusformat{{/str}}')) {
+            return;
+        }
+
+        var $item = $(this).closest('.nexus-note-item');
+        var noteid = $item.data('noteid');
+
+        $item.css('opacity', '0.5');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_delete_note',
+            args: {
+                noteid: noteid,
+                courseid: courseid
+            }
+        }])[0].done(function(response) {
+            $item.slideUp(200, function() {
+                $(this).remove();
+                // Check if list is now empty
+                if ($notesList.find('.nexus-note-item').length === 0) {
+                    renderNotes([]);
+                }
+            });
+        }).fail(function(error) {
+            $item.css('opacity', '1');
+            Notification.exception(error);
+        });
+    });
 });
 {{/js}}

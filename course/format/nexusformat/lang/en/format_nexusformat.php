@@ -71,10 +71,12 @@ $string['edit_note'] = 'Edit note';
 $string['delete_note'] = 'Delete note';
 $string['save_note'] = 'Save note';
 $string['cancel'] = 'Cancel';
+$string['note_title'] = 'Note title (optional)';
 $string['note_placeholder'] = 'Write your note here...';
 $string['no_notes'] = 'You have not created any notes yet.';
 $string['note_saved'] = 'Note saved successfully.';
 $string['note_deleted'] = 'Note deleted successfully.';
+$string['notenotfound'] = 'Note not found.';
 $string['confirm_delete_note'] = 'Are you sure you want to delete this note?';
 
 // Activity content.

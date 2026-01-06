@@ -32,4 +32,29 @@ $functions = [
         'ajax'          => true,
         'loginrequired' => true,
     ],
+
+    // Notes services.
+    'format_nexusformat_get_notes' => [
+        'classname'     => 'format_nexusformat\external\get_notes',
+        'description'   => 'Get user notes for a course',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+
+    'format_nexusformat_save_note' => [
+        'classname'     => 'format_nexusformat\external\save_note',
+        'description'   => 'Save a user note',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+
+    'format_nexusformat_delete_note' => [
+        'classname'     => 'format_nexusformat\external\delete_note',
+        'description'   => 'Delete a user note',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
 ];
