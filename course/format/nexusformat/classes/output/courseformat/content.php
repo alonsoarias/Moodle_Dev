@@ -145,7 +145,7 @@ class content extends content_base {
     }
 
     /**
-     * Get sidebar units data.
+     * Get sidebar units data - replicates Moodle courseindex structure.
      *
      * @param \course_modinfo $modinfo The course modinfo
      * @param renderer_base $output The renderer
@@ -161,11 +161,19 @@ class content extends content_base {
         $context = \context_course::instance($course->id);
         $units = [];
 
+        // Get section preferences for collapsed state.
+        $preferences = $format->get_sections_preferences();
+
         $sections = $modinfo->get_section_info_all();
 
         foreach ($sections as $section) {
             // Skip section 0 (general section) in the sidebar.
             if ($section->section == 0) {
+                continue;
+            }
+
+            // Skip delegated sections (they are handled as part of their parent activity).
+            if (!empty($section->component)) {
                 continue;
             }
 
@@ -179,97 +187,193 @@ class content extends content_base {
                 continue;
             }
 
-            $unit = new stdClass();
-            $unit->id = $section->id;
-            $unit->num = $section->section;
-            $unit->name = $format->get_section_name($section);
-            $unit->expanded = ($section->section == 1); // First unit expanded by default.
-            $unit->lessons = [];
+            // Build section data similar to courseindex.
+            $unit = $this->export_section_for_sidebar($section, $modinfo, $completion, $canviewhidden, $preferences);
 
-            // Section visibility flags for teachers.
-            $unit->ishidden = !$sectionvisible ? 1 : 0;
-            $unit->hiddentext = get_string('hiddenfromstudents');
-
-            // Get availability info for section.
-            if (!empty($section->availability)) {
-                $ci = new \core_availability\info_section($section);
-                $unit->hasrestrictions = 1;
-                $unit->availabilityinfo = $ci->get_full_information();
+            if ($unit !== null) {
+                $units[] = $unit;
             }
-
-            // Get activities in this section.
-            if (!empty($modinfo->sections[$section->section])) {
-                $lessonnum = 1;
-                foreach ($modinfo->sections[$section->section] as $cmid) {
-                    $cm = $modinfo->get_cm($cmid);
-
-                    // Determine activity visibility.
-                    $activityvisible = $cm->visible;
-                    $activityuservisible = $cm->uservisible;
-                    $isstealth = $cm->is_stealth();
-
-                    // For teachers: show all activities with visibility indicators.
-                    // For students: only show activities they can access.
-                    if (!$canviewhidden) {
-                        if (!$activityuservisible || $isstealth) {
-                            continue;
-                        }
-                    }
-
-                    $lesson = new stdClass();
-                    $lesson->id = $cm->id;
-                    $lesson->num = $section->section . '.' . $lessonnum;
-                    $lesson->name = $cm->get_formatted_name();
-                    $lesson->url = $cm->url ? $cm->url->out(false) : '';
-                    $lesson->modname = $cm->modname;
-                    $lesson->icon = $cm->get_icon_url()->out(false);
-                    $lesson->active = false;
-
-                    // Visibility flags.
-                    $lesson->ishidden = !$activityvisible ? 1 : 0;
-                    $lesson->isstealth = $isstealth ? 1 : 0;
-                    $lesson->isrestricted = (!$activityuservisible && $activityvisible) ? 1 : 0;
-
-                    // Visibility badge text.
-                    if ($lesson->ishidden) {
-                        $lesson->visibilitybadge = get_string('hiddenfromstudents');
-                        $lesson->badgeclass = 'badge-hidden';
-                    } else if ($lesson->isstealth) {
-                        $lesson->visibilitybadge = get_string('hiddenoncoursepage');
-                        $lesson->badgeclass = 'badge-stealth';
-                    } else if ($lesson->isrestricted) {
-                        $lesson->visibilitybadge = get_string('restricted');
-                        $lesson->badgeclass = 'badge-restricted';
-                    }
-
-                    // Get availability info.
-                    if ($cm->availableinfo) {
-                        $lesson->availabilityinfo = $cm->availableinfo;
-                    }
-
-                    // Get completion status.
-                    $lesson->completed = false;
-                    $lesson->hascompletion = 0;
-                    if ($completion->is_enabled() && $cm->completion != COMPLETION_TRACKING_NONE) {
-                        $lesson->hascompletion = 1;
-                        $completiondata = $completion->get_data($cm, true, $USER->id);
-                        $lesson->completed = ($completiondata->completionstate == COMPLETION_COMPLETE ||
-                                             $completiondata->completionstate == COMPLETION_COMPLETE_PASS) ? 1 : 0;
-                        $lesson->completionfailed = ($completiondata->completionstate == COMPLETION_COMPLETE_FAIL) ? 1 : 0;
-                    }
-
-                    $unit->lessons[] = $lesson;
-                    $lessonnum++;
-                }
-            }
-
-            $unit->haslessons = !empty($unit->lessons);
-            $unit->lessoncount = count($unit->lessons);
-
-            $units[] = $unit;
         }
 
         return $units;
+    }
+
+    /**
+     * Export a single section for the sidebar.
+     *
+     * @param \section_info $section The section info
+     * @param \course_modinfo $modinfo The course modinfo
+     * @param completion_info $completion The completion info
+     * @param bool $canviewhidden Whether user can view hidden
+     * @param array $preferences Section preferences
+     * @param int $depth Nesting depth (for subsections)
+     * @return stdClass|null Section data or null if should be skipped
+     */
+    protected function export_section_for_sidebar(
+        \section_info $section,
+        \course_modinfo $modinfo,
+        completion_info $completion,
+        bool $canviewhidden,
+        array $preferences,
+        int $depth = 0
+    ): ?stdClass {
+        global $USER;
+
+        $format = $this->format;
+        $course = $format->get_course();
+
+        // Determine collapsed state from preferences.
+        $indexcollapsed = false;
+        if (isset($preferences[$section->id]) && !empty($preferences[$section->id]->indexcollapsed)) {
+            $indexcollapsed = true;
+        }
+
+        $unit = new stdClass();
+        $unit->id = $section->id;
+        $unit->num = $section->section;
+        $unit->name = $format->get_section_name($section);
+        $unit->sectionurl = course_get_url($course, $section->section, ['navigation' => true])->out(false);
+
+        // Collapsed state - first section expanded by default, rest collapsed.
+        $unit->expanded = ($section->section == 1 && !$indexcollapsed) ? 1 : 0;
+        $unit->indexcollapsed = $indexcollapsed ? 1 : 0;
+
+        // Section visibility flags.
+        $unit->visible = !empty($section->visible) ? 1 : 0;
+        $unit->ishidden = !$section->visible ? 1 : 0;
+        $unit->hiddentext = get_string('hiddenfromstudents');
+        $unit->current = $format->is_section_current($section) ? 1 : 0;
+        $unit->depth = $depth;
+        $unit->issubsection = ($depth > 0) ? 1 : 0;
+
+        // For delegated/subsections.
+        $unit->isdelegated = !empty($section->component) ? 1 : 0;
+        $unit->component = $section->component ?? '';
+
+        // Get availability info for section.
+        $unit->hasrestrictions = 0;
+        if (!empty($section->availability)) {
+            $ci = new \core_availability\info_section($section);
+            $fullinfo = $ci->get_full_information();
+            if (!empty($fullinfo)) {
+                $unit->hasrestrictions = 1;
+                $unit->availabilityinfo = $fullinfo;
+            }
+        }
+
+        // Get course modules in this section.
+        $unit->cms = [];
+        if (!empty($modinfo->sections[$section->section])) {
+            $cmindex = 1;
+            foreach ($modinfo->sections[$section->section] as $cmid) {
+                $cm = $modinfo->get_cm($cmid);
+
+                // Check visibility.
+                $activityvisible = $cm->visible;
+                $activityuservisible = $cm->uservisible;
+                $isstealth = $cm->is_stealth();
+
+                // For students: only show visible activities.
+                if (!$canviewhidden && (!$activityuservisible || $isstealth)) {
+                    continue;
+                }
+
+                // Check for delegated section (subsection activity).
+                $delegatedsectioninfo = $cm->get_delegated_section_info();
+
+                $cmdata = new stdClass();
+                $cmdata->id = $cm->id;
+                $cmdata->num = $section->section . '.' . $cmindex;
+                $cmdata->name = $cm->get_formatted_name();
+                $cmdata->url = $cm->url ? $cm->url->out(false) : '';
+                $cmdata->modname = $cm->modname;
+                $cmdata->icon = $cm->get_icon_url()->out(false);
+                $cmdata->anchor = "module-{$cm->id}";
+                $cmdata->active = 0;
+                $cmdata->uservisible = $activityuservisible ? 1 : 0;
+
+                // Visibility flags.
+                $cmdata->visible = $activityvisible ? 1 : 0;
+                $cmdata->ishidden = !$activityvisible ? 1 : 0;
+                $cmdata->isstealth = $isstealth ? 1 : 0;
+                $cmdata->isrestricted = (!$activityuservisible && $activityvisible) ? 1 : 0;
+                $cmdata->accessvisible = ($activityvisible && $activityuservisible) ? 1 : 0;
+
+                // Visibility badge.
+                if ($cmdata->ishidden) {
+                    $cmdata->visibilitybadge = get_string('hiddenfromstudents');
+                    $cmdata->badgeclass = 'badge-hidden';
+                } else if ($cmdata->isstealth) {
+                    $cmdata->visibilitybadge = get_string('hiddenoncoursepage');
+                    $cmdata->badgeclass = 'badge-stealth';
+                } else if ($cmdata->isrestricted) {
+                    $cmdata->visibilitybadge = get_string('restricted');
+                    $cmdata->badgeclass = 'badge-restricted';
+                }
+
+                // Availability info.
+                if ($cm->availableinfo) {
+                    $cmdata->availabilityinfo = $cm->availableinfo;
+                    $cmdata->hascmrestrictions = 1;
+                }
+
+                // Completion status - using courseindex pattern.
+                $cmdata->hascompletion = 0;
+                $cmdata->iscomplete = 0;
+                $cmdata->isincomplete = 0;
+                $cmdata->isfail = 0;
+                $cmdata->completionstate = 0;
+
+                if ($completion->is_enabled($cm) && $cm->completion != COMPLETION_TRACKING_NONE) {
+                    $completiondata = $completion->get_data($cm, true, $USER->id);
+                    $cmdata->completionstate = $completiondata->completionstate;
+                    $cmdata->hascompletion = 1;
+
+                    if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                        $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                        $cmdata->iscomplete = 1;
+                    } else if ($completiondata->completionstate == COMPLETION_COMPLETE_FAIL) {
+                        $cmdata->isfail = 1;
+                    } else {
+                        $cmdata->isincomplete = 1;
+                    }
+                }
+
+                // Handle delegated sections (subsections).
+                $cmdata->hasdelegatedsection = 0;
+                if (!empty($delegatedsectioninfo)) {
+                    $cmdata->hasdelegatedsection = 1;
+                    $cmdata->delegatedsectionid = $delegatedsectioninfo->id;
+
+                    // Recursively export the subsection.
+                    $subsectiondata = $this->export_section_for_sidebar(
+                        $delegatedsectioninfo,
+                        $modinfo,
+                        $completion,
+                        $canviewhidden,
+                        $preferences,
+                        $depth + 1
+                    );
+
+                    if ($subsectiondata !== null) {
+                        $cmdata->sectioninfo = $subsectiondata;
+                    }
+                }
+
+                $unit->cms[] = $cmdata;
+                $cmindex++;
+            }
+        }
+
+        $unit->hascms = !empty($unit->cms);
+        $unit->cmcount = count($unit->cms);
+
+        // For backward compatibility with existing template.
+        $unit->lessons = $unit->cms;
+        $unit->haslessons = $unit->hascms;
+        $unit->lessoncount = $unit->cmcount;
+
+        return $unit;
     }
 
     /**

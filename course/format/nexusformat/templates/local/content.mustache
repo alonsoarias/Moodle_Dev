@@ -155,11 +155,14 @@
                     </div>
                     {{/progress.enabled}}
 
-                    {{! Units List }}
-                    <div class="nexus-units-list">
+                    {{! Units List - Replicates Moodle courseindex structure }}
+                    <div class="nexus-units-list" role="tree">
                         {{#sidebarunits}}
-                        <div class="nexus-unit {{#expanded}}expanded{{/expanded}} {{#ishidden}}hidden-section{{/ishidden}}" data-unitid="{{id}}">
-                            <div class="nexus-unit-header" role="button" tabindex="0" aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}">
+                        <div class="nexus-unit {{#expanded}}expanded{{/expanded}} {{#ishidden}}dimmed{{/ishidden}} {{#current}}current{{/current}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
+                             data-unitid="{{id}}" data-sectionnumber="{{num}}" role="treeitem">
+                            <div class="nexus-unit-header" role="button" tabindex="0"
+                                 aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}"
+                                 data-toggle="collapse" data-target="#nexus-section-{{id}}">
                                 <span class="nexus-unit-toggle">
                                     {{#expanded}}
                                     <i class="fa fa-chevron-down" aria-hidden="true"></i>
@@ -168,54 +171,131 @@
                                     <i class="fa fa-chevron-right" aria-hidden="true"></i>
                                     {{/expanded}}
                                 </span>
-                                <span class="nexus-unit-name">{{name}}</span>
-                                <span class="nexus-unit-count">({{lessoncount}})</span>
+                                <a href="{{sectionurl}}" class="nexus-unit-name text-truncate" data-action="view-section">{{name}}</a>
+                                <span class="nexus-unit-count">({{cmcount}})</span>
+                                {{#current}}
+                                <span class="badge bg-primary text-white ms-2 px-2 rounded-pill nexus-current-badge">
+                                    {{#str}}currentsection, format_topics{{/str}}
+                                </span>
+                                {{/current}}
                                 {{#ishidden}}
                                 <span class="nexus-unit-badge" title="{{hiddentext}}">
                                     <i class="fa fa-eye-slash" aria-hidden="true"></i>
                                 </span>
                                 {{/ishidden}}
+                                {{#hasrestrictions}}
+                                <span class="nexus-unit-badge restrictions" title="{{#str}}restricted{{/str}}">
+                                    <i class="fa fa-lock" aria-hidden="true"></i>
+                                </span>
+                                {{/hasrestrictions}}
                             </div>
-                            <div class="nexus-unit-lessons" {{^expanded}}style="display: none;"{{/expanded}}>
-                                {{#lessons}}
-                                <div class="nexus-lesson {{#active}}active{{/active}} {{#completed}}completed{{/completed}} {{#ishidden}}hidden-activity{{/ishidden}} {{#isstealth}}stealth-activity{{/isstealth}} {{#isrestricted}}restricted-activity{{/isrestricted}}"
-                                     data-cmid="{{id}}" data-url="{{url}}" role="button" tabindex="0">
+                            <div class="nexus-unit-lessons" id="nexus-section-{{id}}" {{^expanded}}style="display: none;"{{/expanded}} role="group">
+                                {{#cms}}
+                                {{^hasdelegatedsection}}
+                                {{! Regular course module }}
+                                <div class="nexus-lesson {{#active}}active{{/active}} {{#iscomplete}}completed{{/iscomplete}} {{^accessvisible}}dimmed{{/accessvisible}} {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}"
+                                     data-cmid="{{id}}" data-url="{{url}}" data-anchor="{{anchor}}" role="treeitem" tabindex="0">
                                     <span class="nexus-lesson-status">
                                         {{#hascompletion}}
-                                            {{#completed}}
-                                            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                                            {{/completed}}
-                                            {{#completionfailed}}
-                                            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                                            {{/completionfailed}}
-                                            {{^completed}}
-                                            {{^completionfailed}}
-                                            <i class="fa fa-circle-o" aria-hidden="true"></i>
-                                            {{/completionfailed}}
-                                            {{/completed}}
+                                            {{#iscomplete}}
+                                            <i class="fa fa-check-circle text-success" aria-hidden="true" title="{{#str}}done, completion{{/str}}"></i>
+                                            {{/iscomplete}}
+                                            {{#isfail}}
+                                            <i class="fa fa-times-circle text-danger" aria-hidden="true" title="{{#str}}failed, completion{{/str}}"></i>
+                                            {{/isfail}}
+                                            {{#isincomplete}}
+                                            <i class="fa fa-circle-o" aria-hidden="true" title="{{#str}}todo, completion{{/str}}"></i>
+                                            {{/isincomplete}}
                                         {{/hascompletion}}
                                         {{^hascompletion}}
-                                        <i class="fa fa-minus text-muted" aria-hidden="true"></i>
+                                        <span class="nexus-no-completion"></span>
                                         {{/hascompletion}}
                                     </span>
                                     <img src="{{icon}}" alt="" class="nexus-lesson-icon" />
                                     <div class="nexus-lesson-info">
-                                        <span class="nexus-lesson-num">{{num}}</span>
-                                        <span class="nexus-lesson-name">{{name}}</span>
+                                        <span class="nexus-lesson-name text-truncate">{{name}}</span>
                                         {{#availabilityinfo}}
-                                        <span class="nexus-availability-info">{{{availabilityinfo}}}</span>
+                                        <span class="nexus-availability-info small text-muted">{{{availabilityinfo}}}</span>
                                         {{/availabilityinfo}}
                                     </div>
                                     {{#visibilitybadge}}
                                     <span class="nexus-lesson-badge {{badgeclass}}">{{visibilitybadge}}</span>
                                     {{/visibilitybadge}}
+                                    {{#hascmrestrictions}}
+                                    <span class="nexus-lesson-lock">
+                                        <i class="fa fa-lock" aria-hidden="true"></i>
+                                    </span>
+                                    {{/hascmrestrictions}}
                                 </div>
-                                {{/lessons}}
-                                {{^haslessons}}
+                                {{/hasdelegatedsection}}
+                                {{#hasdelegatedsection}}
+                                {{! Delegated section (subsection) - render as nested unit }}
+                                {{#sectioninfo}}
+                                <div class="nexus-subsection {{#expanded}}expanded{{/expanded}} {{#ishidden}}dimmed{{/ishidden}}"
+                                     data-unitid="{{id}}" data-sectionnumber="{{num}}" role="treeitem">
+                                    <div class="nexus-subsection-header" role="button" tabindex="0"
+                                         aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}"
+                                         data-toggle="collapse" data-target="#nexus-subsection-{{id}}">
+                                        <span class="nexus-unit-toggle">
+                                            {{#expanded}}
+                                            <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                            {{/expanded}}
+                                            {{^expanded}}
+                                            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                                            {{/expanded}}
+                                        </span>
+                                        <span class="nexus-subsection-name text-truncate">{{name}}</span>
+                                        <span class="nexus-unit-count">({{cmcount}})</span>
+                                        {{#ishidden}}
+                                        <span class="nexus-unit-badge" title="{{hiddentext}}">
+                                            <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                                        </span>
+                                        {{/ishidden}}
+                                    </div>
+                                    <div class="nexus-subsection-content" id="nexus-subsection-{{id}}" {{^expanded}}style="display: none;"{{/expanded}} role="group">
+                                        {{#cms}}
+                                        <div class="nexus-lesson {{#active}}active{{/active}} {{#iscomplete}}completed{{/iscomplete}} {{^accessvisible}}dimmed{{/accessvisible}}"
+                                             data-cmid="{{id}}" data-url="{{url}}" data-anchor="{{anchor}}" role="treeitem" tabindex="0">
+                                            <span class="nexus-lesson-status">
+                                                {{#hascompletion}}
+                                                    {{#iscomplete}}
+                                                    <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                                                    {{/iscomplete}}
+                                                    {{#isfail}}
+                                                    <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                                                    {{/isfail}}
+                                                    {{#isincomplete}}
+                                                    <i class="fa fa-circle-o" aria-hidden="true"></i>
+                                                    {{/isincomplete}}
+                                                {{/hascompletion}}
+                                                {{^hascompletion}}
+                                                <span class="nexus-no-completion"></span>
+                                                {{/hascompletion}}
+                                            </span>
+                                            <img src="{{icon}}" alt="" class="nexus-lesson-icon" />
+                                            <div class="nexus-lesson-info">
+                                                <span class="nexus-lesson-name text-truncate">{{name}}</span>
+                                            </div>
+                                            {{#visibilitybadge}}
+                                            <span class="nexus-lesson-badge {{badgeclass}}">{{visibilitybadge}}</span>
+                                            {{/visibilitybadge}}
+                                        </div>
+                                        {{/cms}}
+                                        {{^hascms}}
+                                        <div class="nexus-no-lessons">
+                                            <em>{{#str}}no_gradable_activities, format_nexusformat{{/str}}</em>
+                                        </div>
+                                        {{/hascms}}
+                                    </div>
+                                </div>
+                                {{/sectioninfo}}
+                                {{/hasdelegatedsection}}
+                                {{/cms}}
+                                {{^hascms}}
                                 <div class="nexus-no-lessons">
                                     <em>{{#str}}no_gradable_activities, format_nexusformat{{/str}}</em>
                                 </div>
-                                {{/haslessons}}
+                                {{/hascms}}
                             </div>
                         </div>
                         {{/sidebarunits}}
@@ -293,9 +373,13 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
             return;
         }
+        // Don't prevent default if clicking on the section link
+        if ($(e.target).closest('.nexus-unit-name').length) {
+            return;
+        }
         e.preventDefault();
         var $unit = $(this).closest('.nexus-unit');
-        var $lessons = $unit.find('.nexus-unit-lessons');
+        var $lessons = $unit.find('> .nexus-unit-lessons');
         var $icon = $(this).find('.nexus-unit-toggle i');
         var expanded = $unit.hasClass('expanded');
 
@@ -307,6 +391,31 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         } else {
             $lessons.slideDown(200);
             $unit.addClass('expanded');
+            $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            $(this).attr('aria-expanded', 'true');
+        }
+    });
+
+    // Subsection expand/collapse (delegated sections)
+    $('.nexus-subsection-header').on('click keypress', function(e) {
+        if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
+            return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        var $subsection = $(this).closest('.nexus-subsection');
+        var $content = $subsection.find('> .nexus-subsection-content');
+        var $icon = $(this).find('.nexus-unit-toggle i');
+        var expanded = $subsection.hasClass('expanded');
+
+        if (expanded) {
+            $content.slideUp(200);
+            $subsection.removeClass('expanded');
+            $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+            $(this).attr('aria-expanded', 'false');
+        } else {
+            $content.slideDown(200);
+            $subsection.addClass('expanded');
             $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
             $(this).attr('aria-expanded', 'true');
         }

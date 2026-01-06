@@ -904,3 +904,136 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-editing-mode .activity-item:last-child {
     border-bottom: none;
 }
+
+/* =============================================
+   Subsections (Delegated Sections - mod_subsection)
+   ============================================= */
+
+.nexus-subsection {
+    margin: 0;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    position: relative;
+}
+
+.nexus-subsection-header {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    cursor: pointer;
+    background-color: #eef2f6;
+    transition: background-color 0.2s ease;
+    gap: 0.5rem;
+    border-left: 3px solid transparent;
+    position: relative;
+}
+
+/* Horizontal branch line for subsection header */
+.nexus-subsection-header::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    width: 0.75rem;
+    height: 2px;
+    background-color: #dee2e6;
+}
+
+.nexus-subsection-header:hover {
+    background-color: #e2e8ee;
+}
+
+.nexus-subsection.expanded > .nexus-subsection-header {
+    background-color: #e2e8f0;
+    border-left-color: #6c757d;
+}
+
+.nexus-subsection-name {
+    flex: 1;
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.85rem;
+}
+
+.nexus-subsection.expanded > .nexus-subsection-header .nexus-subsection-name {
+    color: #212529;
+    font-weight: 600;
+}
+
+/* Subsection content area with deeper indentation */
+.nexus-subsection-content {
+    background-color: #f1f3f5;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+/* Vertical tree line for subsection content */
+.nexus-subsection-content::before {
+    content: '';
+    position: absolute;
+    left: 3rem;
+    top: 0;
+    bottom: 0.75rem;
+    width: 2px;
+    background-color: #ced4da;
+}
+
+/* Lessons inside subsections have deeper indentation */
+.nexus-subsection-content .nexus-lesson {
+    padding-left: 4rem;
+}
+
+.nexus-subsection-content .nexus-lesson::before {
+    left: 3rem;
+    width: 0.75rem;
+}
+
+.nexus-subsection-content .nexus-lesson:last-child::after {
+    left: 3rem;
+    background-color: #f1f3f5;
+}
+
+/* Subsection visibility styles */
+.nexus-subsection.dimmed {
+    opacity: 0.7;
+}
+
+.nexus-subsection.dimmed > .nexus-subsection-header {
+    background-color: #fff3cd;
+}
+
+.nexus-subsection.dimmed > .nexus-subsection-header:hover {
+    background-color: #ffecb5;
+}
+
+/* Mobile adjustments for subsections */
+@media (max-width: 576px) {
+    .nexus-subsection-header {
+        padding-left: 2rem;
+    }
+
+    .nexus-subsection-header::before {
+        left: 1rem;
+        width: 0.5rem;
+    }
+
+    .nexus-subsection-content {
+        padding-left: 1rem;
+    }
+
+    .nexus-subsection-content::before {
+        left: 2rem;
+    }
+
+    .nexus-subsection-content .nexus-lesson {
+        padding-left: 3rem;
+    }
+
+    .nexus-subsection-content .nexus-lesson::before {
+        left: 2rem;
+    }
+
+    .nexus-subsection-content .nexus-lesson:last-child::after {
+        left: 2rem;
+    }
+}
