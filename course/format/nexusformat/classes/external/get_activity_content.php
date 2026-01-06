@@ -705,43 +705,109 @@ class get_activity_content extends external_api {
     }
 
     /**
-     * Get forum module content.
+     * Get forum module content - replicates view.php display.
      */
     protected static function get_forum_content($cm, $instance, $course, $context): string {
-        global $DB, $USER, $CFG;
+        global $DB, $USER, $CFG, $OUTPUT;
         require_once($CFG->dirroot . '/mod/forum/lib.php');
 
         $html = '<div class="nexus-forum-content">';
 
-        // Get recent discussions.
+        // Forum type info.
+        $forumtypes = forum_get_forum_types();
+        $html .= '<div class="nexus-forum-info mb-3">';
+        if (isset($forumtypes[$instance->type])) {
+            $html .= '<span class="badge bg-secondary">' . $forumtypes[$instance->type] . '</span>';
+        }
+        $html .= '</div>';
+
+        // Get discussions with full details like view.php.
         $discussions = $DB->get_records_sql(
-            "SELECT d.*, u.firstname, u.lastname, u.picture, u.imagealt, u.email,
-                    (SELECT COUNT(*) FROM {forum_posts} p WHERE p.discussion = d.id) as replycount
+            "SELECT d.*, d.pinned,
+                    u.id as userid, u.firstname, u.lastname, u.picture, u.imagealt, u.email,
+                    (SELECT COUNT(*) FROM {forum_posts} p WHERE p.discussion = d.id) as replycount,
+                    (SELECT MAX(p.modified) FROM {forum_posts} p WHERE p.discussion = d.id) as lastposttime,
+                    lastpost.userid as lastuserid,
+                    lastuser.firstname as lastfirstname, lastuser.lastname as lastlastname
              FROM {forum_discussions} d
              JOIN {user} u ON u.id = d.userid
+             LEFT JOIN {forum_posts} lastpost ON lastpost.id = d.usermodified
+             LEFT JOIN {user} lastuser ON lastuser.id = lastpost.userid
              WHERE d.forum = ?
-             ORDER BY d.timemodified DESC
-             LIMIT 10",
+             ORDER BY d.pinned DESC, d.timemodified DESC",
             [$instance->id]
         );
 
-        if ($discussions) {
-            $html .= '<div class="nexus-forum-discussions">';
-            $html .= '<h5><i class="fa fa-comments"></i> ' . get_string('discussions', 'forum') . '</h5>';
+        // Count total for display.
+        $totaldiscussions = count($discussions);
+        $html .= '<div class="nexus-forum-stats mb-3">';
+        $html .= '<small class="text-muted">';
+        $html .= '<i class="fa fa-comments"></i> ' . $totaldiscussions . ' ' . get_string('discussions', 'forum');
+        $html .= '</small></div>';
 
+        if ($discussions) {
+            $html .= '<div class="nexus-forum-discussions list-group">';
+
+            $showncount = 0;
             foreach ($discussions as $discussion) {
+                if ($showncount >= 15) {
+                    break; // Limit to 15 discussions in panel.
+                }
+
                 $discussionurl = new \moodle_url('/mod/forum/discuss.php', ['d' => $discussion->id]);
-                $html .= '<div class="nexus-discussion card mb-2">';
-                $html .= '<div class="card-body py-2">';
-                $html .= '<h6 class="mb-1"><a href="' . $discussionurl->out() . '">' . format_string($discussion->name) . '</a></h6>';
+                $replies = max(0, $discussion->replycount - 1);
+
+                $html .= '<div class="list-group-item list-group-item-action nexus-discussion';
+                if ($discussion->pinned) {
+                    $html .= ' border-warning bg-light';
+                }
+                $html .= '">';
+
+                // Pinned indicator.
+                if ($discussion->pinned) {
+                    $html .= '<span class="badge bg-warning text-dark float-end"><i class="fa fa-thumb-tack"></i></span>';
+                }
+
+                // Discussion title.
+                $html .= '<h6 class="mb-1"><a href="' . $discussionurl->out() . '" class="text-decoration-none">';
+                $html .= format_string($discussion->name) . '</a></h6>';
+
+                // Started by.
+                $html .= '<p class="mb-1 small text-muted">';
+                $html .= get_string('startedby', 'forum') . ' <strong>' . fullname($discussion) . '</strong>';
+                $html .= '</p>';
+
+                // Stats row.
+                $html .= '<div class="d-flex justify-content-between align-items-center">';
                 $html .= '<small class="text-muted">';
-                $html .= get_string('by') . ' ' . fullname($discussion) . ' - ';
-                $html .= userdate($discussion->timemodified, get_string('strftimedatetimeshort', 'langconfig'));
-                $html .= ' - ' . ($discussion->replycount - 1) . ' ' . get_string('replies', 'forum');
+                $html .= '<i class="fa fa-reply"></i> ' . $replies . ' ' . get_string('replies', 'forum');
                 $html .= '</small>';
-                $html .= '</div></div>';
+
+                // Last post info.
+                if ($discussion->lastposttime) {
+                    $html .= '<small class="text-muted">';
+                    $html .= get_string('lastpost', 'forum') . ': ';
+                    $html .= userdate($discussion->lastposttime, get_string('strftimedatetimeshort', 'langconfig'));
+                    if ($discussion->lastfirstname) {
+                        $html .= ' ' . get_string('by') . ' ' . $discussion->lastfirstname . ' ' . $discussion->lastlastname;
+                    }
+                    $html .= '</small>';
+                }
+                $html .= '</div>';
+
+                $html .= '</div>';
+                $showncount++;
             }
             $html .= '</div>';
+
+            // Show more link if there are more discussions.
+            if ($totaldiscussions > 15) {
+                $html .= '<div class="text-center mt-2">';
+                $viewallurl = new \moodle_url('/mod/forum/view.php', ['id' => $cm->id]);
+                $html .= '<a href="' . $viewallurl->out() . '" class="btn btn-sm btn-outline-secondary">';
+                $html .= get_string('viewalldiscussions', 'forum', $totaldiscussions) . '</a>';
+                $html .= '</div>';
+            }
         } else {
             $html .= '<div class="alert alert-info">';
             $html .= '<i class="fa fa-info-circle"></i> ' . get_string('nodiscussions', 'forum');
@@ -755,6 +821,12 @@ class get_activity_content extends external_api {
             $html .= '<a href="' . $addurl->out() . '" class="btn btn-primary">';
             $html .= '<i class="fa fa-plus"></i> ' . get_string('addanewdiscussion', 'forum') . '</a>';
         }
+
+        // View all button.
+        $viewurl = new \moodle_url('/mod/forum/view.php', ['id' => $cm->id]);
+        $html .= ' <a href="' . $viewurl->out() . '" class="btn btn-outline-primary">';
+        $html .= '<i class="fa fa-list"></i> ' . get_string('viewforum', 'forum') . '</a>';
+
         $html .= '</div>';
 
         $html .= '</div>';
@@ -762,18 +834,42 @@ class get_activity_content extends external_api {
     }
 
     /**
-     * Get lesson module content.
+     * Get lesson module content - replicates view.php display.
      */
     protected static function get_lesson_content($cm, $instance, $course, $context): string {
-        global $DB, $USER, $CFG;
+        global $DB, $USER, $CFG, $PAGE;
         require_once($CFG->dirroot . '/mod/lesson/lib.php');
         require_once($CFG->dirroot . '/mod/lesson/locallib.php');
 
         $html = '<div class="nexus-lesson-content">';
 
-        // Lesson info.
+        // Create lesson object.
+        $lesson = new \lesson($instance, $cm, $course);
+
+        // Get user's lesson timer/attempt info.
+        $canmanage = has_capability('mod/lesson:manage', $context);
+
+        // Check if lesson is available.
+        $available = true;
+        $availablemessage = '';
+
+        // Time restrictions.
+        if ($instance->available > 0 && time() < $instance->available) {
+            $available = false;
+            $availablemessage = get_string('lessonnotavailable', 'lesson', userdate($instance->available));
+        } else if ($instance->deadline > 0 && time() > $instance->deadline) {
+            $available = false;
+            $availablemessage = get_string('lessonclosed', 'lesson', userdate($instance->deadline));
+        }
+
+        // Lesson info card.
         $html .= '<div class="nexus-lesson-info card mb-3">';
         $html .= '<div class="card-body">';
+
+        // Number of pages.
+        $pagecount = $DB->count_records('lesson_pages', ['lessonid' => $instance->id]);
+        $html .= '<p><i class="fa fa-file-text-o"></i> <strong>' . get_string('numberoflessons', 'lesson') . ':</strong> ';
+        $html .= $pagecount . ' ' . get_string('pages', 'lesson') . '</p>';
 
         // Time limit.
         if ($instance->timelimit) {
@@ -781,35 +877,122 @@ class get_activity_content extends external_api {
             $html .= format_time($instance->timelimit) . '</p>';
         }
 
-        // Number of pages.
-        $pagecount = $DB->count_records('lesson_pages', ['lessonid' => $instance->id]);
-        $html .= '<p><i class="fa fa-file-text-o"></i> <strong>' . get_string('numberofpagesviewed', 'lesson') . ':</strong> ';
-        $html .= $pagecount . ' ' . get_string('pages', 'lesson') . '</p>';
+        // Availability dates.
+        if ($instance->available > 0) {
+            $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('available', 'lesson') . ':</strong> ';
+            $html .= userdate($instance->available) . '</p>';
+        }
+        if ($instance->deadline > 0) {
+            $dueclass = ($instance->deadline < time()) ? 'text-danger' : 'text-success';
+            $html .= '<p><i class="fa fa-calendar-times-o"></i> <strong>' . get_string('deadline', 'lesson') . ':</strong> ';
+            $html .= '<span class="' . $dueclass . '">' . userdate($instance->deadline) . '</span></p>';
+        }
 
-        // Attempts.
-        $attempts = $DB->get_records('lesson_grades', ['lessonid' => $instance->id, 'userid' => $USER->id], 'completed DESC');
-        if ($attempts) {
-            $lastattempt = reset($attempts);
-            $html .= '<p><i class="fa fa-check"></i> <strong>' . get_string('attempts', 'lesson') . ':</strong> ';
-            $html .= count($attempts) . '</p>';
-            $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('bestgrade', 'lesson') . ':</strong> ';
-            $bestgrade = 0;
-            foreach ($attempts as $attempt) {
-                if ($attempt->grade > $bestgrade) {
-                    $bestgrade = $attempt->grade;
-                }
-            }
-            $html .= format_float($bestgrade, 2) . '%</p>';
+        // Max attempts.
+        if ($instance->maxattempts > 0) {
+            $html .= '<p><i class="fa fa-repeat"></i> <strong>' . get_string('maximumnumberofattempts', 'lesson') . ':</strong> ';
+            $html .= $instance->maxattempts . '</p>';
         }
 
         $html .= '</div></div>';
 
-        // Start lesson button.
+        // User progress - only for non-managers.
+        if (!$canmanage) {
+            // Get user attempts.
+            $attempts = $DB->get_records('lesson_grades', ['lessonid' => $instance->id, 'userid' => $USER->id], 'completed DESC');
+
+            if ($attempts) {
+                $html .= '<div class="nexus-lesson-attempts card mb-3">';
+                $html .= '<div class="card-header"><strong>' . get_string('yourattempts', 'lesson') . '</strong></div>';
+                $html .= '<div class="card-body">';
+
+                $html .= '<table class="table table-sm">';
+                $html .= '<thead><tr>';
+                $html .= '<th>' . get_string('attempt', 'lesson') . '</th>';
+                $html .= '<th>' . get_string('grade', 'grades') . '</th>';
+                $html .= '<th>' . get_string('completed', 'lesson') . '</th>';
+                $html .= '</tr></thead><tbody>';
+
+                $attemptnum = count($attempts);
+                $bestgrade = 0;
+                foreach ($attempts as $attempt) {
+                    if ($attempt->grade > $bestgrade) {
+                        $bestgrade = $attempt->grade;
+                    }
+                    $html .= '<tr>';
+                    $html .= '<td>' . $attemptnum-- . '</td>';
+                    $html .= '<td>' . format_float($attempt->grade, 1) . '%</td>';
+                    $html .= '<td>' . userdate($attempt->completed, get_string('strftimedatetimeshort', 'langconfig')) . '</td>';
+                    $html .= '</tr>';
+                }
+                $html .= '</tbody></table>';
+
+                $html .= '<p class="mb-0"><strong>' . get_string('bestgrade', 'lesson') . ':</strong> ';
+                $html .= format_float($bestgrade, 1) . '%</p>';
+                $html .= '</div></div>';
+
+                // Check if can retake.
+                if ($instance->maxattempts > 0 && count($attempts) >= $instance->maxattempts) {
+                    $available = false;
+                    $availablemessage = get_string('maximumnumberofattemptsreached', 'lesson');
+                }
+            }
+
+            // Check for incomplete attempt (in progress).
+            $timer = $DB->get_record('lesson_timer', [
+                'lessonid' => $instance->id,
+                'userid' => $USER->id,
+                'completed' => 0
+            ]);
+
+            if ($timer) {
+                $html .= '<div class="alert alert-info">';
+                $html .= '<i class="fa fa-info-circle"></i> ' . get_string('youhaveaninprogressattempt', 'lesson');
+                $html .= '</div>';
+            }
+        }
+
+        // Availability message.
+        if (!$available && !$canmanage) {
+            $html .= '<div class="alert alert-warning">';
+            $html .= '<i class="fa fa-exclamation-triangle"></i> ' . $availablemessage;
+            $html .= '</div>';
+        }
+
+        // Action buttons.
         $html .= '<div class="nexus-lesson-action text-center">';
-        $url = new \moodle_url('/mod/lesson/view.php', ['id' => $cm->id]);
-        $buttontext = $attempts ? get_string('retakelesson', 'lesson') : get_string('startlesson', 'lesson');
-        $html .= '<a href="' . $url->out() . '" class="btn btn-primary btn-lg">';
-        $html .= '<i class="fa fa-play-circle"></i> ' . $buttontext . '</a>';
+
+        if ($available || $canmanage) {
+            $url = new \moodle_url('/mod/lesson/view.php', ['id' => $cm->id]);
+
+            // Determine button text.
+            $buttontext = get_string('startlesson', 'lesson');
+            $buttonicon = 'fa-play-circle';
+
+            if (isset($timer) && $timer) {
+                $buttontext = get_string('continuelesson', 'lesson');
+                $buttonicon = 'fa-forward';
+            } else if (isset($attempts) && $attempts) {
+                $buttontext = get_string('retakelesson', 'lesson');
+                $buttonicon = 'fa-refresh';
+            }
+
+            if ($canmanage) {
+                $buttontext = get_string('preview', 'lesson');
+                $buttonicon = 'fa-eye';
+            }
+
+            $html .= '<a href="' . $url->out() . '" class="btn btn-primary btn-lg me-2">';
+            $html .= '<i class="fa ' . $buttonicon . '"></i> ' . $buttontext . '</a>';
+        }
+
+        // Edit button for managers.
+        if ($canmanage) {
+            $editurl = new \moodle_url('/mod/lesson/edit.php', ['id' => $cm->id]);
+            $html .= '<a href="' . $editurl->out() . '" class="btn btn-secondary btn-lg">';
+            $html .= '<i class="fa fa-pencil"></i> ' . get_string('edit', 'lesson') . '</a>';
+        }
+
         $html .= '</div>';
 
         $html .= '</div>';
@@ -817,7 +1000,7 @@ class get_activity_content extends external_api {
     }
 
     /**
-     * Get choice module content.
+     * Get choice module content - replicates view.php display.
      */
     protected static function get_choice_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG;
@@ -825,75 +1008,140 @@ class get_activity_content extends external_api {
 
         $html = '<div class="nexus-choice-content">';
 
-        // Get options.
-        $options = $DB->get_records('choice_options', ['choiceid' => $instance->id], 'id');
-        $answers = $DB->get_records('choice_answers', ['choiceid' => $instance->id, 'userid' => $USER->id]);
-        $useranswer = $answers ? reset($answers) : null;
+        // Check availability.
+        $timenow = time();
+        $isopen = true;
+        $isclosed = false;
 
-        if ($useranswer) {
-            // User has already answered.
-            $html .= '<div class="alert alert-success">';
-            $html .= '<i class="fa fa-check-circle"></i> ' . get_string('yourselection', 'choice') . ': ';
-            if (isset($options[$useranswer->optionid])) {
-                $html .= '<strong>' . format_string($options[$useranswer->optionid]->text) . '</strong>';
+        if ($instance->timeopen > 0 && $timenow < $instance->timeopen) {
+            $isopen = false;
+            $html .= '<div class="alert alert-warning">';
+            $html .= '<i class="fa fa-clock-o"></i> ' . get_string('notopenyet', 'choice', userdate($instance->timeopen));
+            $html .= '</div>';
+        }
+
+        if ($instance->timeclose > 0 && $timenow > $instance->timeclose) {
+            $isclosed = true;
+            $html .= '<div class="alert alert-warning">';
+            $html .= '<i class="fa fa-lock"></i> ' . get_string('expired', 'choice');
+            $html .= '</div>';
+        }
+
+        // Show remaining time if applicable.
+        if ($instance->timeclose > 0 && $timenow < $instance->timeclose && $isopen) {
+            $html .= '<div class="alert alert-info mb-3">';
+            $html .= '<i class="fa fa-info-circle"></i> ' . get_string('choiceclose', 'choice') . ': ';
+            $html .= userdate($instance->timeclose);
+            $html .= '</div>';
+        }
+
+        // Get options with limit info.
+        $options = $DB->get_records('choice_options', ['choiceid' => $instance->id], 'id');
+
+        // Get response counts for limits.
+        $optionids = array_keys($options);
+        if ($optionids) {
+            $sql = "SELECT optionid, COUNT(*) as count
+                    FROM {choice_answers}
+                    WHERE choiceid = ?
+                    GROUP BY optionid";
+            $responsecounts = $DB->get_records_sql_menu($sql, [$instance->id]);
+        } else {
+            $responsecounts = [];
+        }
+
+        // Get user's answers.
+        $answers = $DB->get_records('choice_answers', ['choiceid' => $instance->id, 'userid' => $USER->id]);
+        $useranswers = [];
+        foreach ($answers as $answer) {
+            $useranswers[$answer->optionid] = $answer;
+        }
+        $hasanswered = !empty($useranswers);
+
+        // Determine if user can vote.
+        $canchoose = has_capability('mod/choice:choose', $context);
+        $canupdate = $instance->allowupdate && $hasanswered && $isopen && !$isclosed;
+        $canmakechoice = $canchoose && $isopen && !$isclosed && (!$hasanswered || $canupdate);
+
+        if ($hasanswered) {
+            // User has already answered - show their selection(s).
+            $html .= '<div class="alert alert-success mb-3">';
+            $html .= '<i class="fa fa-check-circle"></i> <strong>' . get_string('yourselection', 'choice') . ':</strong><br>';
+            foreach ($useranswers as $optionid => $answer) {
+                if (isset($options[$optionid])) {
+                    $html .= '&bull; ' . format_string($options[$optionid]->text) . '<br>';
+                }
             }
             $html .= '</div>';
 
-            // Show results if allowed.
-            if ($instance->showresults == CHOICE_SHOWRESULTS_ALWAYS ||
-                ($instance->showresults == CHOICE_SHOWRESULTS_AFTER_ANSWER && $useranswer)) {
-                $html .= self::get_choice_results($instance, $options);
+            // Update allowed message.
+            if ($canupdate) {
+                $html .= '<div class="alert alert-info">';
+                $html .= '<i class="fa fa-edit"></i> ' . get_string('allowupdate', 'choice');
+                $html .= '</div>';
             }
-        } else {
-            // Show voting form.
+        }
+
+        // Show voting form if can make choice.
+        if ($canmakechoice) {
             $html .= '<form method="post" action="' . (new \moodle_url('/mod/choice/view.php', ['id' => $cm->id]))->out() . '" class="nexus-choice-form">';
             $html .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
             $html .= '<input type="hidden" name="action" value="makechoice">';
             $html .= '<input type="hidden" name="id" value="' . $cm->id . '">';
 
-            $html .= '<div class="nexus-choice-options">';
+            $html .= '<div class="nexus-choice-options list-group mb-3">';
+
+            $inputtype = $instance->allowmultiple ? 'checkbox' : 'radio';
+            $inputname = $instance->allowmultiple ? 'answer[]' : 'answer';
+
             foreach ($options as $option) {
-                $html .= '<div class="form-check mb-2">';
-                $html .= '<input class="form-check-input" type="radio" name="answer" id="option' . $option->id . '" value="' . $option->id . '">';
-                $html .= '<label class="form-check-label" for="option' . $option->id . '">' . format_string($option->text) . '</label>';
-                $html .= '</div>';
+                $responsecount = isset($responsecounts[$option->id]) ? $responsecounts[$option->id] : 0;
+                $isfull = ($instance->limitanswers && $option->maxanswers > 0 && $responsecount >= $option->maxanswers);
+                $isselected = isset($useranswers[$option->id]);
+                $disabled = $isfull && !$isselected ? 'disabled' : '';
+
+                $html .= '<label class="list-group-item d-flex gap-2' . ($isfull && !$isselected ? ' list-group-item-secondary' : '') . '">';
+                $html .= '<input class="form-check-input flex-shrink-0" type="' . $inputtype . '" ';
+                $html .= 'name="' . $inputname . '" value="' . $option->id . '" ' . $disabled;
+                if ($isselected) {
+                    $html .= ' checked';
+                }
+                $html .= '>';
+                $html .= '<span class="flex-grow-1">';
+                $html .= format_string($option->text);
+
+                // Show limit info.
+                if ($instance->limitanswers && $option->maxanswers > 0) {
+                    $remaining = max(0, $option->maxanswers - $responsecount);
+                    if ($isfull) {
+                        $html .= ' <span class="badge bg-danger">' . get_string('full', 'choice') . '</span>';
+                    } else {
+                        $html .= ' <span class="badge bg-secondary">' . $remaining . ' ' . get_string('spaceleft', 'choice') . '</span>';
+                    }
+                }
+                $html .= '</span>';
+                $html .= '</label>';
             }
             $html .= '</div>';
 
-            $html .= '<div class="text-center mt-3">';
-            $html .= '<button type="submit" class="btn btn-primary">';
-            $html .= '<i class="fa fa-check"></i> ' . get_string('savemychoice', 'choice') . '</button>';
+            $html .= '<div class="text-center">';
+            $buttontext = $hasanswered ? get_string('updatechoice', 'choice') : get_string('savemychoice', 'choice');
+            $html .= '<button type="submit" class="btn btn-primary btn-lg">';
+            $html .= '<i class="fa fa-check"></i> ' . $buttontext . '</button>';
             $html .= '</div>';
             $html .= '</form>';
         }
 
-        $html .= '</div>';
-        return $html;
-    }
+        // Determine if results should be shown.
+        $canviewresults = choice_can_view_results($instance, $hasanswered, $timenow);
 
-    /**
-     * Get choice results.
-     */
-    protected static function get_choice_results($instance, $options): string {
-        global $DB;
-
-        $html = '<div class="nexus-choice-results mt-3">';
-        $html .= '<h5>' . get_string('responses', 'choice') . '</h5>';
-
-        $totalanswers = $DB->count_records('choice_answers', ['choiceid' => $instance->id]);
-
-        foreach ($options as $option) {
-            $count = $DB->count_records('choice_answers', ['choiceid' => $instance->id, 'optionid' => $option->id]);
-            $percent = $totalanswers > 0 ? round(($count / $totalanswers) * 100) : 0;
-
-            $html .= '<div class="mb-2">';
-            $html .= '<div class="d-flex justify-content-between">';
-            $html .= '<span>' . format_string($option->text) . '</span>';
-            $html .= '<span>' . $count . ' (' . $percent . '%)</span>';
+        if ($canviewresults) {
+            $html .= self::get_choice_results($instance, $options, $responsecounts);
+        } else if (!$canmakechoice && !$hasanswered && $isopen && !$isclosed) {
+            // Can't choose and hasn't answered.
+            $html .= '<div class="alert alert-info">';
+            $html .= '<i class="fa fa-info-circle"></i> ' . get_string('havetologin', 'choice');
             $html .= '</div>';
-            $html .= '<div class="progress" style="height: 20px;">';
-            $html .= '<div class="progress-bar" role="progressbar" style="width: ' . $percent . '%"></div>';
-            $html .= '</div></div>';
         }
 
         $html .= '</div>';
@@ -901,7 +1149,57 @@ class get_activity_content extends external_api {
     }
 
     /**
-     * Get feedback module content.
+     * Get choice results - displays bar chart of responses.
+     */
+    protected static function get_choice_results($instance, $options, $responsecounts = null): string {
+        global $DB;
+
+        $html = '<div class="nexus-choice-results mt-3">';
+        $html .= '<h5><i class="fa fa-bar-chart"></i> ' . get_string('responses', 'choice') . '</h5>';
+
+        // Get counts if not provided.
+        if ($responsecounts === null) {
+            $sql = "SELECT optionid, COUNT(*) as count
+                    FROM {choice_answers}
+                    WHERE choiceid = ?
+                    GROUP BY optionid";
+            $responsecounts = $DB->get_records_sql_menu($sql, [$instance->id]);
+        }
+
+        $totalanswers = array_sum($responsecounts);
+
+        $html .= '<div class="nexus-choice-chart">';
+        foreach ($options as $option) {
+            $count = isset($responsecounts[$option->id]) ? (int)$responsecounts[$option->id] : 0;
+            $percent = $totalanswers > 0 ? round(($count / $totalanswers) * 100) : 0;
+
+            $html .= '<div class="mb-3">';
+            $html .= '<div class="d-flex justify-content-between mb-1">';
+            $html .= '<span class="fw-medium">' . format_string($option->text) . '</span>';
+            $html .= '<span class="text-muted">' . $count . ' (' . $percent . '%)</span>';
+            $html .= '</div>';
+            $html .= '<div class="progress" style="height: 24px;">';
+            $html .= '<div class="progress-bar bg-primary" role="progressbar" style="width: ' . $percent . '%" ';
+            $html .= 'aria-valuenow="' . $percent . '" aria-valuemin="0" aria-valuemax="100">';
+            if ($percent >= 10) {
+                $html .= $percent . '%';
+            }
+            $html .= '</div>';
+            $html .= '</div></div>';
+        }
+        $html .= '</div>';
+
+        // Total responses.
+        $html .= '<p class="text-muted mt-2"><small>';
+        $html .= '<i class="fa fa-users"></i> ' . get_string('numberofuser', 'choice') . ': ' . $totalanswers;
+        $html .= '</small></p>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get feedback module content - replicates view.php display.
      */
     protected static function get_feedback_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG;
@@ -909,30 +1207,155 @@ class get_activity_content extends external_api {
 
         $html = '<div class="nexus-feedback-content">';
 
+        // Check capabilities.
+        $canedititems = has_capability('mod/feedback:edititems', $context);
+        $canviewreports = has_capability('mod/feedback:viewreports', $context);
+        $cancomplete = has_capability('mod/feedback:complete', $context);
+
+        // Check availability.
+        $timenow = time();
+        $isopen = true;
+
+        if ($instance->timeopen > 0 && $timenow < $instance->timeopen) {
+            $isopen = false;
+            if (!$canedititems) {
+                $html .= '<div class="alert alert-warning">';
+                $html .= '<i class="fa fa-clock-o"></i> ' . get_string('feedback_is_not_open', 'feedback');
+                $html .= ' (' . userdate($instance->timeopen) . ')';
+                $html .= '</div>';
+            }
+        }
+
+        if ($instance->timeclose > 0 && $timenow > $instance->timeclose) {
+            $isopen = false;
+            if (!$canedititems) {
+                $html .= '<div class="alert alert-warning">';
+                $html .= '<i class="fa fa-lock"></i> ' . get_string('feedback_is_not_open', 'feedback');
+                $html .= '</div>';
+            }
+        }
+
         // Check if user has completed.
         $completed = $DB->get_record('feedback_completed', ['feedback' => $instance->id, 'userid' => $USER->id]);
 
-        if ($completed) {
-            $html .= '<div class="alert alert-success">';
-            $html .= '<i class="fa fa-check-circle"></i> ' . get_string('this_feedback_is_already_submitted', 'feedback');
+        // Show teacher/instructor summary.
+        if ($canedititems || $canviewreports) {
+            $html .= '<div class="nexus-feedback-summary card mb-3">';
+            $html .= '<div class="card-header"><strong>' . get_string('overview', 'feedback') . '</strong></div>';
+            $html .= '<div class="card-body">';
+
+            // Count items.
+            $itemcount = $DB->count_records('feedback_item', ['feedback' => $instance->id, 'hasvalue' => 1]);
+            $html .= '<p><i class="fa fa-list"></i> <strong>' . get_string('questions', 'feedback') . ':</strong> ' . $itemcount . '</p>';
+
+            // Count completed responses.
+            $completedcount = $DB->count_records('feedback_completed', ['feedback' => $instance->id]);
+            $html .= '<p><i class="fa fa-check-circle"></i> <strong>' . get_string('completed_feedbacks', 'feedback') . ':</strong> ' . $completedcount . '</p>';
+
+            // Count in progress.
+            $inprogresscount = $DB->count_records_sql(
+                "SELECT COUNT(DISTINCT userid)
+                 FROM {feedback_completedtmp}
+                 WHERE feedback = ?",
+                [$instance->id]
+            );
+            if ($inprogresscount > 0) {
+                $html .= '<p><i class="fa fa-spinner"></i> <strong>' . get_string('started', 'feedback') . ':</strong> ' . $inprogresscount . '</p>';
+            }
+
+            // Availability dates.
+            if ($instance->timeopen > 0) {
+                $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('feedbackopen', 'feedback') . ':</strong> ';
+                $html .= userdate($instance->timeopen) . '</p>';
+            }
+            if ($instance->timeclose > 0) {
+                $dueclass = ($instance->timeclose < time()) ? 'text-danger' : 'text-success';
+                $html .= '<p><i class="fa fa-calendar-times-o"></i> <strong>' . get_string('feedbackclose', 'feedback') . ':</strong> ';
+                $html .= '<span class="' . $dueclass . '">' . userdate($instance->timeclose) . '</span></p>';
+            }
+
+            // Anonymous indicator.
+            if ($instance->anonymous == FEEDBACK_ANONYMOUS_YES) {
+                $html .= '<p><i class="fa fa-user-secret"></i> ' . get_string('anonymous', 'feedback') . '</p>';
+            }
+
+            $html .= '</div></div>';
+
+            // Action buttons for instructors.
+            $html .= '<div class="nexus-feedback-actions text-center mb-3">';
+
+            if ($canviewreports && $completedcount > 0) {
+                $analysisurl = new \moodle_url('/mod/feedback/analysis.php', ['id' => $cm->id]);
+                $html .= '<a href="' . $analysisurl->out() . '" class="btn btn-primary me-2 mb-2">';
+                $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('analysis', 'feedback') . '</a>';
+
+                $showentriesurl = new \moodle_url('/mod/feedback/show_entries.php', ['id' => $cm->id]);
+                $html .= '<a href="' . $showentriesurl->out() . '" class="btn btn-secondary me-2 mb-2">';
+                $html .= '<i class="fa fa-list-alt"></i> ' . get_string('show_entries', 'feedback') . '</a>';
+            }
+
+            if ($canedititems) {
+                $editurl = new \moodle_url('/mod/feedback/edit.php', ['id' => $cm->id]);
+                $html .= '<a href="' . $editurl->out() . '" class="btn btn-outline-secondary mb-2">';
+                $html .= '<i class="fa fa-pencil"></i> ' . get_string('edit_items', 'feedback') . '</a>';
+            }
+
             $html .= '</div>';
-        } else {
-            // Show info about feedback.
-            $itemcount = $DB->count_records('feedback_item', ['feedback' => $instance->id]);
-            $html .= '<div class="card mb-3"><div class="card-body">';
-            $html .= '<p><i class="fa fa-list"></i> ' . get_string('questions', 'feedback') . ': ' . $itemcount . '</p>';
+        }
+
+        // Show student view.
+        if ($cancomplete && !$canedititems) {
+            $itemcount = $DB->count_records('feedback_item', ['feedback' => $instance->id, 'hasvalue' => 1]);
+
+            $html .= '<div class="nexus-feedback-info card mb-3">';
+            $html .= '<div class="card-body">';
+
+            $html .= '<p><i class="fa fa-list"></i> <strong>' . get_string('questions', 'feedback') . ':</strong> ' . $itemcount . '</p>';
 
             if ($instance->anonymous == FEEDBACK_ANONYMOUS_YES) {
                 $html .= '<p><i class="fa fa-user-secret"></i> ' . get_string('anonymous', 'feedback') . '</p>';
             }
+
+            // Availability dates for student.
+            if ($instance->timeclose > 0 && $isopen) {
+                $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('feedbackclose', 'feedback') . ':</strong> ';
+                $html .= userdate($instance->timeclose) . '</p>';
+            }
+
             $html .= '</div></div>';
 
-            // Start button.
-            $html .= '<div class="text-center">';
-            $url = new \moodle_url('/mod/feedback/complete.php', ['id' => $cm->id]);
-            $html .= '<a href="' . $url->out() . '" class="btn btn-primary btn-lg">';
-            $html .= '<i class="fa fa-play-circle"></i> ' . get_string('start', 'feedback') . '</a>';
-            $html .= '</div>';
+            if ($completed) {
+                $html .= '<div class="alert alert-success">';
+                $html .= '<i class="fa fa-check-circle"></i> ' . get_string('this_feedback_is_already_submitted', 'feedback');
+                $html .= '</div>';
+
+                // Show page after submit if configured.
+                if (!empty($instance->page_after_submit)) {
+                    $html .= '<div class="card mb-3"><div class="card-body">';
+                    $html .= format_text($instance->page_after_submit, $instance->page_after_submitformat);
+                    $html .= '</div></div>';
+                }
+            } else if ($isopen) {
+                // Check for incomplete attempt.
+                $incompletetmp = $DB->get_record('feedback_completedtmp', [
+                    'feedback' => $instance->id,
+                    'userid' => $USER->id
+                ]);
+
+                if ($incompletetmp) {
+                    $html .= '<div class="alert alert-info">';
+                    $html .= '<i class="fa fa-info-circle"></i> ' . get_string('feedbacknotstarted', 'feedback');
+                    $html .= '</div>';
+                }
+
+                // Start/continue button.
+                $html .= '<div class="text-center">';
+                $url = new \moodle_url('/mod/feedback/complete.php', ['id' => $cm->id]);
+                $buttontext = $incompletetmp ? get_string('continue', 'feedback') : get_string('complete_the_form', 'feedback');
+                $html .= '<a href="' . $url->out() . '" class="btn btn-primary btn-lg">';
+                $html .= '<i class="fa fa-play-circle"></i> ' . $buttontext . '</a>';
+                $html .= '</div>';
+            }
         }
 
         $html .= '</div>';
@@ -940,7 +1363,7 @@ class get_activity_content extends external_api {
     }
 
     /**
-     * Get glossary module content.
+     * Get glossary module content - replicates view.php display.
      */
     protected static function get_glossary_content($cm, $instance, $course, $context): string {
         global $DB, $CFG;
@@ -948,39 +1371,147 @@ class get_activity_content extends external_api {
 
         $html = '<div class="nexus-glossary-content">';
 
-        // Get recent entries.
+        // Count entries.
+        $totalentries = $DB->count_records('glossary_entries', ['glossaryid' => $instance->id, 'approved' => 1]);
+        $pendingentries = $DB->count_records('glossary_entries', ['glossaryid' => $instance->id, 'approved' => 0]);
+
+        // Stats.
+        $html .= '<div class="nexus-glossary-stats mb-3">';
+        $html .= '<small class="text-muted">';
+        $html .= '<i class="fa fa-book"></i> ' . $totalentries . ' ' . get_string('entries', 'glossary');
+        if ($pendingentries > 0 && has_capability('mod/glossary:approve', $context)) {
+            $html .= ' | <span class="text-warning"><i class="fa fa-clock-o"></i> ' . $pendingentries . ' ' . get_string('pendingapproval', 'glossary') . '</span>';
+        }
+        $html .= '</small></div>';
+
+        // Alphabet navigation.
+        $alphabet = explode(',', get_string('alphabet', 'langconfig'));
+        $html .= '<div class="nexus-glossary-alphabet mb-3">';
+        $html .= '<div class="btn-group btn-group-sm flex-wrap" role="group">';
+
+        // All button.
+        $viewurl = new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id, 'mode' => 'letter', 'hook' => 'ALL']);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-outline-primary">' . get_string('all', 'glossary') . '</a>';
+
+        // Special button.
+        $specialurl = new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id, 'mode' => 'letter', 'hook' => 'SPECIAL']);
+        $html .= '<a href="' . $specialurl->out() . '" class="btn btn-outline-secondary">' . get_string('special', 'glossary') . '</a>';
+
+        // Letter buttons.
+        foreach ($alphabet as $letter) {
+            $letter = trim($letter);
+            $letterurl = new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id, 'mode' => 'letter', 'hook' => $letter]);
+            $html .= '<a href="' . $letterurl->out() . '" class="btn btn-outline-secondary">' . $letter . '</a>';
+        }
+        $html .= '</div></div>';
+
+        // Get entries (sorted alphabetically by concept).
         $entries = $DB->get_records_sql(
-            "SELECT ge.*, u.firstname, u.lastname
+            "SELECT ge.*, u.id as userid, u.firstname, u.lastname, u.picture, u.imagealt, u.email
              FROM {glossary_entries} ge
              JOIN {user} u ON u.id = ge.userid
              WHERE ge.glossaryid = ? AND ge.approved = 1
-             ORDER BY ge.timecreated DESC
-             LIMIT 10",
-            [$instance->id]
+             ORDER BY ge.concept ASC",
+            [$instance->id],
+            0,
+            20 // Limit to 20 entries in panel.
         );
 
         if ($entries) {
-            $html .= '<div class="nexus-glossary-entries">';
+            $html .= '<div class="nexus-glossary-entries accordion" id="glossaryAccordion">';
+
+            $currentletter = '';
             foreach ($entries as $entry) {
-                $html .= '<div class="card mb-2">';
-                $html .= '<div class="card-header py-2"><strong>' . format_string($entry->concept) . '</strong></div>';
-                $html .= '<div class="card-body py-2">';
-                $html .= format_text($entry->definition, $entry->definitionformat, ['context' => $context]);
-                $html .= '<small class="text-muted d-block mt-2">' . get_string('by') . ' ' . fullname($entry) . '</small>';
-                $html .= '</div></div>';
+                $firstletter = \core_text::strtoupper(\core_text::substr($entry->concept, 0, 1));
+
+                // Letter separator.
+                if ($firstletter !== $currentletter) {
+                    $currentletter = $firstletter;
+                    $html .= '<div class="nexus-glossary-letter-header bg-light p-2 mb-2 rounded">';
+                    $html .= '<strong class="text-primary">' . $currentletter . '</strong>';
+                    $html .= '</div>';
+                }
+
+                // Entry card.
+                $entryid = 'entry' . $entry->id;
+                $html .= '<div class="accordion-item">';
+                $html .= '<h2 class="accordion-header">';
+                $html .= '<button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" ';
+                $html .= 'data-bs-target="#' . $entryid . '" aria-expanded="false" aria-controls="' . $entryid . '">';
+                $html .= '<strong>' . format_string($entry->concept) . '</strong>';
+                $html .= '</button></h2>';
+
+                $html .= '<div id="' . $entryid . '" class="accordion-collapse collapse">';
+                $html .= '<div class="accordion-body">';
+
+                // Definition.
+                $definition = file_rewrite_pluginfile_urls(
+                    $entry->definition,
+                    'pluginfile.php',
+                    $context->id,
+                    'mod_glossary',
+                    'entry',
+                    $entry->id
+                );
+                $html .= '<div class="nexus-glossary-definition">';
+                $html .= format_text($definition, $entry->definitionformat, ['context' => $context]);
+                $html .= '</div>';
+
+                // Author and date.
+                $html .= '<div class="nexus-glossary-meta text-muted small mt-2">';
+                $html .= '<i class="fa fa-user"></i> ' . fullname($entry);
+                $html .= ' | <i class="fa fa-calendar"></i> ' . userdate($entry->timecreated, get_string('strftimedatetimeshort', 'langconfig'));
+                $html .= '</div>';
+
+                $html .= '</div></div></div>';
             }
             $html .= '</div>';
+
+            // Show more link if there are more entries.
+            if ($totalentries > 20) {
+                $html .= '<div class="text-center mt-2">';
+                $viewallurl = new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id]);
+                $html .= '<a href="' . $viewallurl->out() . '" class="btn btn-sm btn-outline-secondary">';
+                $html .= get_string('viewall', 'glossary') . ' (' . $totalentries . ' ' . get_string('entries', 'glossary') . ')</a>';
+                $html .= '</div>';
+            }
         } else {
-            $html .= '<div class="alert alert-info">' . get_string('noentries', 'glossary') . '</div>';
+            $html .= '<div class="alert alert-info">';
+            $html .= '<i class="fa fa-info-circle"></i> ' . get_string('noentries', 'glossary');
+            $html .= '</div>';
         }
 
-        // Add entry button.
-        $html .= '<div class="text-center mt-3">';
+        // Search form.
+        $html .= '<div class="nexus-glossary-search mt-3">';
+        $html .= '<form action="' . (new \moodle_url('/mod/glossary/view.php'))->out() . '" method="get" class="input-group">';
+        $html .= '<input type="hidden" name="id" value="' . $cm->id . '">';
+        $html .= '<input type="hidden" name="mode" value="search">';
+        $html .= '<input type="text" name="hook" class="form-control" placeholder="' . get_string('search', 'glossary') . '...">';
+        $html .= '<button type="submit" class="btn btn-outline-secondary">';
+        $html .= '<i class="fa fa-search"></i></button>';
+        $html .= '</form></div>';
+
+        // Action buttons.
+        $html .= '<div class="nexus-glossary-actions text-center mt-3">';
+
         if (has_capability('mod/glossary:write', $context)) {
-            $url = new \moodle_url('/mod/glossary/edit.php', ['cmid' => $cm->id]);
-            $html .= '<a href="' . $url->out() . '" class="btn btn-primary">';
+            $addurl = new \moodle_url('/mod/glossary/edit.php', ['cmid' => $cm->id]);
+            $html .= '<a href="' . $addurl->out() . '" class="btn btn-primary me-2">';
             $html .= '<i class="fa fa-plus"></i> ' . get_string('addentry', 'glossary') . '</a>';
         }
+
+        // Pending approval button for teachers.
+        if ($pendingentries > 0 && has_capability('mod/glossary:approve', $context)) {
+            $approveurl = new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id, 'mode' => 'approval']);
+            $html .= '<a href="' . $approveurl->out() . '" class="btn btn-warning">';
+            $html .= '<i class="fa fa-check"></i> ' . get_string('waitingapproval', 'glossary') . ' (' . $pendingentries . ')</a>';
+        }
+
+        // View full glossary.
+        $viewurl = new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-outline-primary">';
+        $html .= '<i class="fa fa-book"></i> ' . get_string('viewglossary', 'glossary') . '</a>';
+
         $html .= '</div>';
 
         $html .= '</div>';
