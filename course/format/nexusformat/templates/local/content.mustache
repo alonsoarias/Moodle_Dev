@@ -18,73 +18,33 @@
     @template format_nexusformat/local/content
 
     Nexus Format main content template with two-column layout.
-
-    Classes required for JS:
-    * nexus-content-area - The main content area (left column)
-    * nexus-sidebar - The sidebar navigation (right column)
-    * nexus-unit - A collapsible unit in the sidebar
-    * nexus-lesson - A lesson item in the sidebar
-
-    Data attributes required for JS:
-    * data-courseid - Course ID for AJAX calls
-    * data-cmid - Course module ID for lessons
+    Activities open via direct links (no iframe due to Moodle's X-Frame-Options).
 
     Context variables required for this template:
     * nexusformat - Boolean indicating this is nexus format
     * courseid - The course ID
+    * editing / notediting - Editing mode flags (integers for Mustache)
     * progress - Progress data object
     * sidebarunits - Array of unit objects for sidebar
     * sections - Array of section objects (from parent)
-
-    Example context (json):
-    {
-        "nexusformat": true,
-        "courseid": 2,
-        "editing": false,
-        "progress": {
-            "enabled": true,
-            "percentage": 45,
-            "completed": 9,
-            "total": 20,
-            "displaytext": "45% completed"
-        },
-        "sidebarunits": [
-            {
-                "id": 1,
-                "num": 1,
-                "name": "Introduction",
-                "expanded": true,
-                "haslessons": true,
-                "lessoncount": 3,
-                "lessons": [
-                    {
-                        "id": 10,
-                        "num": "1.1",
-                        "name": "Welcome Video",
-                        "url": "/mod/page/view.php?id=10",
-                        "modname": "page",
-                        "icon": "/theme/image.php/boost/page/icon",
-                        "active": true,
-                        "completed": true
-                    }
-                ]
-            }
-        ],
-        "selectactivitytext": "Select an activity from the sidebar to view its content."
-    }
 }}
 
 <div id="nexus-format-container" class="nexus-format-container" data-courseid="{{courseid}}">
     {{#nexusformat}}
-    <div class="nexus-layout">
+    <div class="nexus-layout {{#editing}}nexus-editing{{/editing}}">
+
         {{! Left Column - Main Content Area }}
         <div class="nexus-content-area" id="nexus-content-area">
             {{#editing}}
-            {{! In editing mode, show the standard Moodle sections }}
+            {{! EDITING MODE: Show standard Moodle sections for editing }}
             <div class="nexus-editing-mode">
+                <div class="nexus-editing-banner">
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    <span>{{#str}}currentsection, format_nexusformat{{/str}} - {{#str}}pluginname, format_nexusformat{{/str}}</span>
+                </div>
                 <h2 class="accesshide">{{{title}}}</h2>
                 {{{completionhelp}}}
-                <ul class="{{format}}" data-for="course_sectionlist">
+                <ul class="nexusformat" data-for="course_sectionlist">
                     {{#initialsection}}
                         {{> core_courseformat/local/content/section }}
                     {{/initialsection}}
@@ -102,17 +62,50 @@
                 {{/bulkedittools}}
             </div>
             {{/editing}}
-            {{^editing}}
-            {{! In view mode, show content in iframe/embed style }}
-            <div class="nexus-activity-content" id="nexus-activity-content">
-                <div class="nexus-placeholder">
-                    <div class="nexus-placeholder-icon">
-                        <i class="fa fa-hand-pointer-o fa-3x" aria-hidden="true"></i>
+
+            {{#notediting}}
+            {{! VIEW MODE: Show welcome message with link to first activity }}
+            <div class="nexus-view-mode">
+                <div class="nexus-welcome-card">
+                    <div class="nexus-welcome-icon">
+                        <i class="fa fa-graduation-cap fa-4x" aria-hidden="true"></i>
                     </div>
-                    <p class="nexus-placeholder-text">{{selectactivitytext}}</p>
+                    <h2 class="nexus-welcome-title">{{{title}}}</h2>
+
+                    {{#hasfirstactivity}}
+                    <p class="nexus-welcome-text">{{selectactivitytext}}</p>
+                    <a href="{{firstactivity.url}}" class="btn btn-primary nexus-start-btn">
+                        <i class="fa fa-play-circle" aria-hidden="true"></i>
+                        {{#str}}lesson, format_nexusformat{{/str}}: {{firstactivity.name}}
+                    </a>
+                    {{/hasfirstactivity}}
+
+                    {{^hasfirstactivity}}
+                    <p class="nexus-welcome-text">{{#str}}no_gradable_activities, format_nexusformat{{/str}}</p>
+                    {{/hasfirstactivity}}
+
+                    <div class="nexus-course-stats">
+                        <div class="nexus-stat">
+                            <span class="nexus-stat-value">{{totalactivities}}</span>
+                            <span class="nexus-stat-label">{{#str}}tab_activities, format_nexusformat{{/str}}</span>
+                        </div>
+                        {{#progress.hasactivities}}
+                        <div class="nexus-stat">
+                            <span class="nexus-stat-value">{{progress.completed}}/{{progress.total}}</span>
+                            <span class="nexus-stat-label">{{#str}}status_completed, format_nexusformat{{/str}}</span>
+                        </div>
+                        {{/progress.hasactivities}}
+                    </div>
                 </div>
+
+                {{! Section 0 content (General section) if it exists }}
+                {{#initialsection}}
+                <div class="nexus-general-section">
+                    {{> core_courseformat/local/content/section }}
+                </div>
+                {{/initialsection}}
             </div>
-            {{/editing}}
+            {{/notediting}}
         </div>
 
         {{! Right Column - Sidebar }}
@@ -137,8 +130,8 @@
             <div class="nexus-tab-content">
                 {{! Content Tab }}
                 <div class="nexus-tab-pane active" id="nexus-tab-content" data-tab="content">
-                    {{! Progress Bar }}
-                    {{#progress.enabled}}
+                    {{! Progress Bar - Always show if there are activities }}
+                    {{#progress.hasactivities}}
                     <div class="nexus-progress-section">
                         <div class="nexus-progress-header">
                             <span class="nexus-progress-label">{{#str}}progress, format_nexusformat{{/str}}</span>
@@ -147,13 +140,16 @@
                         <div class="nexus-progress-bar">
                             <div class="nexus-progress-fill" style="width: {{progress.percentage}}%;"></div>
                         </div>
+                        <div class="nexus-progress-info">
+                            <span>{{progress.displaytext}}</span>
+                        </div>
                         <div class="nexus-progress-scale">
                             <span>0</span>
                             <span>50</span>
                             <span>100</span>
                         </div>
                     </div>
-                    {{/progress.enabled}}
+                    {{/progress.hasactivities}}
 
                     {{! Units List }}
                     <div class="nexus-units-list">
@@ -161,48 +157,42 @@
                         <div class="nexus-unit {{#expanded}}expanded{{/expanded}}" data-unitid="{{id}}">
                             <div class="nexus-unit-header" role="button" tabindex="0" aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}">
                                 <span class="nexus-unit-toggle">
-                                    {{#expanded}}
-                                    <i class="fa fa-chevron-down" aria-hidden="true"></i>
-                                    {{/expanded}}
-                                    {{^expanded}}
-                                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
-                                    {{/expanded}}
+                                    <i class="fa {{#expanded}}fa-chevron-down{{/expanded}}{{^expanded}}fa-chevron-right{{/expanded}}" aria-hidden="true"></i>
                                 </span>
                                 <span class="nexus-unit-name">{{name}}</span>
                                 <span class="nexus-unit-count">({{lessoncount}})</span>
                             </div>
                             <div class="nexus-unit-lessons" {{^expanded}}style="display: none;"{{/expanded}}>
                                 {{#lessons}}
-                                <div class="nexus-lesson {{#active}}active{{/active}} {{#completed}}completed{{/completed}}"
-                                     data-cmid="{{id}}"
-                                     data-url="{{url}}"
-                                     role="button"
-                                     tabindex="0">
+                                <a href="{{url}}" class="nexus-lesson {{#completed}}completed{{/completed}} {{#isfirst}}first-lesson{{/isfirst}}"
+                                   data-cmid="{{id}}">
                                     <span class="nexus-lesson-status">
-                                        {{#completed}}
-                                        <i class="fa fa-check-circle" aria-hidden="true"></i>
-                                        {{/completed}}
-                                        {{^completed}}
-                                        <i class="fa fa-circle-o" aria-hidden="true"></i>
-                                        {{/completed}}
+                                        {{#hascompletion}}
+                                            {{#completed}}
+                                            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                                            {{/completed}}
+                                            {{^completed}}
+                                            <i class="fa fa-circle-o" aria-hidden="true"></i>
+                                            {{/completed}}
+                                        {{/hascompletion}}
+                                        {{^hascompletion}}
+                                        <i class="fa fa-circle" aria-hidden="true"></i>
+                                        {{/hascompletion}}
                                     </span>
                                     <img src="{{icon}}" alt="" class="nexus-lesson-icon" />
                                     <div class="nexus-lesson-info">
                                         <span class="nexus-lesson-num">{{num}}</span>
                                         <span class="nexus-lesson-name">{{name}}</span>
                                     </div>
-                                </div>
+                                </a>
                                 {{/lessons}}
-                                {{^haslessons}}
-                                <div class="nexus-no-lessons">
-                                    <em>{{#str}}no_gradable_activities, format_nexusformat{{/str}}</em>
-                                </div>
-                                {{/haslessons}}
                             </div>
                         </div>
                         {{/sidebarunits}}
+
                         {{^sidebarunits}}
                         <div class="nexus-no-units">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
                             <p>{{#str}}no_gradable_activities, format_nexusformat{{/str}}</p>
                         </div>
                         {{/sidebarunits}}
@@ -214,7 +204,7 @@
                     <div class="nexus-coming-soon">
                         <i class="fa fa-tasks fa-2x" aria-hidden="true"></i>
                         <p>{{#str}}gradable_activities, format_nexusformat{{/str}}</p>
-                        <small>{{#str}}tab_activities, format_nexusformat{{/str}} - Phase 4</small>
+                        <small>Phase 4</small>
                     </div>
                 </div>
 
@@ -223,7 +213,7 @@
                     <div class="nexus-coming-soon">
                         <i class="fa fa-pencil fa-2x" aria-hidden="true"></i>
                         <p>{{#str}}my_notes, format_nexusformat{{/str}}</p>
-                        <small>{{#str}}tab_notes, format_nexusformat{{/str}} - Phase 5</small>
+                        <small>Phase 5</small>
                     </div>
                 </div>
             </div>
@@ -232,11 +222,11 @@
     {{/nexusformat}}
 
     {{^nexusformat}}
-    {{! Fallback to standard format if nexusformat flag is not set }}
-    <div id="course-format-{{uniqid}}">
+    {{! Fallback to standard format }}
+    <div id="course-format-fallback">
         <h2 class="accesshide">{{{title}}}</h2>
         {{{completionhelp}}}
-        <ul class="{{format}}" data-for="course_sectionlist">
+        <ul class="topics" data-for="course_sectionlist">
             {{#initialsection}}
                 {{> core_courseformat/local/content/section }}
             {{/initialsection}}
@@ -258,8 +248,10 @@
 
 {{#js}}
 require(['jquery'], function($) {
+    'use strict';
+
     // Tab switching
-    $('.nexus-tab').on('click', function() {
+    $(document).on('click', '.nexus-tab', function() {
         var tab = $(this).data('tab');
         $('.nexus-tab').removeClass('active');
         $(this).addClass('active');
@@ -268,11 +260,12 @@ require(['jquery'], function($) {
     });
 
     // Unit expand/collapse
-    $('.nexus-unit-header').on('click keypress', function(e) {
+    $(document).on('click keypress', '.nexus-unit-header', function(e) {
         if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
             return;
         }
         e.preventDefault();
+
         var $unit = $(this).closest('.nexus-unit');
         var $lessons = $unit.find('.nexus-unit-lessons');
         var $icon = $(this).find('.nexus-unit-toggle i');
@@ -291,49 +284,13 @@ require(['jquery'], function($) {
         }
     });
 
-    // Lesson click - load activity in iframe
-    $('.nexus-lesson').on('click keypress', function(e) {
-        if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
-            return;
+    // Highlight current lesson based on URL (for returning to course)
+    var currentUrl = window.location.href;
+    $('.nexus-lesson').each(function() {
+        var lessonUrl = $(this).attr('href');
+        if (lessonUrl && currentUrl.indexOf(lessonUrl) !== -1) {
+            $(this).addClass('active');
         }
-        e.preventDefault();
-
-        var url = $(this).data('url');
-        if (!url) {
-            return;
-        }
-
-        // Update active state
-        $('.nexus-lesson').removeClass('active');
-        $(this).addClass('active');
-
-        // Load content in iframe
-        var $contentArea = $('#nexus-activity-content');
-        $contentArea.html('<div class="nexus-loading"><i class="fa fa-spinner fa-spin fa-2x"></i><p>{{#str}}loading, format_nexusformat{{/str}}</p></div>');
-
-        // Create iframe to load activity
-        var iframe = $('<iframe>', {
-            src: url,
-            class: 'nexus-activity-iframe',
-            frameborder: '0',
-            allowfullscreen: true
-        });
-
-        iframe.on('load', function() {
-            $contentArea.find('.nexus-loading').remove();
-        });
-
-        iframe.on('error', function() {
-            $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-2x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
-        });
-
-        $contentArea.html(iframe);
     });
-
-    // Load first activity by default
-    var $firstLesson = $('.nexus-lesson').first();
-    if ($firstLesson.length && $firstLesson.data('url')) {
-        $firstLesson.trigger('click');
-    }
 });
 {{/js}}

@@ -31,7 +31,7 @@
     flex: 0 0 70%;
     max-width: 70%;
     background-color: #f8f9fa;
-    overflow: hidden;
+    overflow-y: auto;
     position: relative;
 }
 
@@ -44,76 +44,167 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 150px);
 }
 
 /* =============================================
-   Content Area
+   View Mode - Welcome Card
    ============================================= */
 
-.nexus-activity-content {
-    width: 100%;
-    height: 100%;
-    min-height: calc(100vh - 200px);
-}
-
-.nexus-activity-iframe {
-    width: 100%;
-    height: calc(100vh - 200px);
-    min-height: 600px;
-    border: none;
-}
-
-/* Placeholder */
-.nexus-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    min-height: 400px;
-    color: #6c757d;
-    text-align: center;
+.nexus-view-mode {
     padding: 2rem;
 }
 
-.nexus-placeholder-icon {
+.nexus-welcome-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+}
+
+.nexus-welcome-icon {
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+}
+
+.nexus-welcome-icon i {
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.nexus-welcome-title {
+    font-size: 1.75rem;
+    font-weight: 700;
     margin-bottom: 1rem;
-    opacity: 0.5;
+    color: #fff;
 }
 
-.nexus-placeholder-text {
+.nexus-welcome-text {
     font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.nexus-start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    background-color: #fff;
+    color: #667eea;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.nexus-start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    color: #764ba2;
+    text-decoration: none;
+}
+
+.nexus-course-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nexus-stat {
+    text-align: center;
+}
+
+.nexus-stat-value {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.nexus-stat-label {
+    display: block;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* General Section in view mode */
+.nexus-general-section {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.nexus-general-section .section-summary {
+    margin-bottom: 1rem;
+}
+
+/* =============================================
+   Editing Mode
+   ============================================= */
+
+.nexus-editing-mode {
+    padding: 1rem;
+    background-color: #fff;
+    min-height: calc(100vh - 200px);
+}
+
+.nexus-editing-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    color: #856404;
+    font-weight: 500;
+}
+
+.nexus-editing-banner i {
+    font-size: 1.1rem;
+}
+
+.nexus-editing-mode ul.nexusformat {
+    list-style: none;
     margin: 0;
+    padding: 0;
 }
 
-/* Loading state */
-.nexus-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    min-height: 400px;
-    color: #6c757d;
+.nexus-editing-mode .section {
+    margin-bottom: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
 }
 
-.nexus-loading p {
-    margin-top: 1rem;
+.nexus-editing-mode .section .sectionname {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
 }
 
-/* Error state */
-.nexus-error {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    min-height: 400px;
-    color: #dc3545;
+/* In editing mode, show sidebar at smaller width */
+.nexus-editing .nexus-content-area {
+    flex: 0 0 75%;
+    max-width: 75%;
 }
 
-.nexus-error p {
-    margin-top: 1rem;
+.nexus-editing .nexus-sidebar {
+    flex: 0 0 25%;
+    max-width: 25%;
 }
 
 /* =============================================
@@ -142,6 +233,7 @@
     align-items: center;
     gap: 0.25rem;
     transition: all 0.2s ease;
+    margin-bottom: -2px;
 }
 
 .nexus-tab:hover {
@@ -152,6 +244,7 @@
 .nexus-tab.active {
     color: #0d6efd;
     border-bottom-color: #0d6efd;
+    background-color: #fff;
 }
 
 .nexus-tab i {
@@ -207,39 +300,50 @@
 
 .nexus-progress-section {
     padding: 1rem;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
 }
 
 .nexus-progress-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 0.5rem;
-    font-size: 0.85rem;
 }
 
 .nexus-progress-label {
     color: #495057;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
 .nexus-progress-percentage {
     color: #0d6efd;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1.1rem;
 }
 
 .nexus-progress-bar {
-    height: 8px;
-    background-color: #e9ecef;
-    border-radius: 4px;
+    height: 10px;
+    background-color: #dee2e6;
+    border-radius: 5px;
     overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .nexus-progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #0d6efd, #0dcaf0);
-    border-radius: 4px;
-    transition: width 0.3s ease;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+    min-width: 2px;
+}
+
+.nexus-progress-info {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
 }
 
 .nexus-progress-scale {
@@ -270,15 +374,22 @@
     background-color: #fff;
     transition: background-color 0.2s ease;
     gap: 0.5rem;
+    user-select: none;
 }
 
 .nexus-unit-header:hover {
     background-color: #f8f9fa;
 }
 
+.nexus-unit-header:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
+}
+
 .nexus-unit-toggle {
     width: 20px;
     color: #6c757d;
+    flex-shrink: 0;
 }
 
 .nexus-unit-toggle i {
@@ -290,39 +401,75 @@
     font-weight: 600;
     color: #212529;
     font-size: 0.9rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .nexus-unit-count {
     color: #adb5bd;
     font-size: 0.8rem;
+    flex-shrink: 0;
 }
 
 .nexus-unit-lessons {
     background-color: #f8f9fa;
 }
 
+/* No units message */
+.nexus-no-units {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.nexus-no-units i {
+    font-size: 2rem;
+    opacity: 0.5;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.nexus-no-units p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
 /* =============================================
-   Sidebar - Lessons
+   Sidebar - Lessons (Links)
    ============================================= */
 
 .nexus-lesson {
     display: flex;
     align-items: flex-start;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
-    cursor: pointer;
+    padding: 0.75rem 1rem 0.75rem 2rem;
     border-bottom: 1px solid #e9ecef;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
     gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
 }
 
 .nexus-lesson:hover {
     background-color: #e9ecef;
+    text-decoration: none;
+    color: inherit;
+}
+
+.nexus-lesson:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
 }
 
 .nexus-lesson.active {
     background-color: #e7f1ff;
     border-left: 3px solid #0d6efd;
-    padding-left: calc(2.5rem - 3px);
+    padding-left: calc(2rem - 3px);
+}
+
+.nexus-lesson.first-lesson {
+    background-color: #f0fff4;
 }
 
 .nexus-lesson-status {
@@ -335,22 +482,33 @@
     font-size: 1rem;
 }
 
-.nexus-lesson.completed .nexus-lesson-status i {
+.nexus-lesson-status .fa-circle {
+    font-size: 0.5rem;
+    color: #adb5bd;
+    vertical-align: middle;
+}
+
+.nexus-lesson-status .fa-circle-o {
+    color: #adb5bd;
+}
+
+.nexus-lesson-status .fa-check-circle {
     color: #198754;
 }
 
-.nexus-lesson:not(.completed) .nexus-lesson-status i {
-    color: #adb5bd;
+.nexus-lesson.completed .nexus-lesson-name {
+    color: #198754;
 }
 
 .nexus-lesson-icon {
     width: 32px;
     height: 32px;
     flex-shrink: 0;
-    border-radius: 4px;
+    border-radius: 6px;
     object-fit: contain;
     background-color: #fff;
     padding: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .nexus-lesson-info {
@@ -363,6 +521,7 @@
     font-size: 0.7rem;
     color: #6c757d;
     margin-bottom: 0.125rem;
+    font-weight: 500;
 }
 
 .nexus-lesson-name {
@@ -375,36 +534,28 @@
 
 .nexus-lesson.active .nexus-lesson-name {
     color: #0d6efd;
-    font-weight: 500;
+    font-weight: 600;
 }
 
-/* No lessons message */
-.nexus-no-lessons,
-.nexus-no-units {
-    padding: 1.5rem;
-    text-align: center;
-    color: #6c757d;
-    font-size: 0.85rem;
-}
-
-/* =============================================
-   Editing Mode
-   ============================================= */
-
-.nexus-editing-mode {
-    padding: 1rem;
-    background-color: #fff;
-    min-height: calc(100vh - 200px);
-}
-
-.nexus-editing-mode ul {
-    margin: 0;
-    padding: 0;
+.nexus-lesson:hover .nexus-lesson-name {
+    color: #0d6efd;
 }
 
 /* =============================================
    Responsive Design
    ============================================= */
+
+@media (max-width: 1200px) {
+    .nexus-content-area {
+        flex: 0 0 65%;
+        max-width: 65%;
+    }
+
+    .nexus-sidebar {
+        flex: 0 0 35%;
+        max-width: 35%;
+    }
+}
 
 @media (max-width: 992px) {
     .nexus-layout {
@@ -420,15 +571,26 @@
     .nexus-sidebar {
         flex: none;
         max-width: 100%;
+        height: auto;
+        max-height: 50vh;
         border-left: none;
         border-bottom: 1px solid #dee2e6;
         order: 1;
-        max-height: 50vh;
+        position: relative;
     }
 
-    .nexus-activity-iframe {
-        height: 50vh;
-        min-height: 400px;
+    .nexus-editing .nexus-content-area,
+    .nexus-editing .nexus-sidebar {
+        flex: none;
+        max-width: 100%;
+    }
+
+    .nexus-welcome-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .nexus-course-stats {
+        gap: 2rem;
     }
 }
 
@@ -453,15 +615,18 @@
         width: 24px;
         height: 24px;
     }
-}
 
-/* =============================================
-   Dark Mode Support (if theme supports it)
-   ============================================= */
+    .nexus-welcome-title {
+        font-size: 1.25rem;
+    }
 
-@media (prefers-color-scheme: dark) {
-    .nexus-format-container {
-        /* Dark mode styles can be added here if needed */
+    .nexus-course-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .nexus-stat-value {
+        font-size: 1.5rem;
     }
 }
 
@@ -479,8 +644,41 @@
         flex: none;
     }
 
-    .nexus-activity-iframe {
-        height: auto;
-        min-height: auto;
+    .nexus-welcome-card {
+        background: #f8f9fa;
+        color: #212529;
+        box-shadow: none;
+    }
+}
+
+/* =============================================
+   Accessibility
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .nexus-progress-fill,
+    .nexus-unit-toggle i,
+    .nexus-lesson,
+    .nexus-start-btn {
+        transition: none;
+    }
+
+    .nexus-unit-lessons {
+        display: block !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .nexus-lesson.active {
+        border-left-width: 4px;
+    }
+
+    .nexus-progress-bar {
+        border: 1px solid #000;
+    }
+
+    .nexus-tab.active {
+        border-bottom-width: 4px;
     }
 }
