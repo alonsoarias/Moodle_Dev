@@ -96,6 +96,9 @@ body.format-nexusformat.drawer-open-left #page-content {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    height: calc(100vh - 150px);
+    position: sticky;
+    top: 0;
 }
 
 /* =============================================
@@ -222,6 +225,26 @@ body.format-nexusformat.drawer-open-left #page-content {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Webkit scrollbar styling */
+.nexus-tab-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.nexus-tab-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.nexus-tab-content::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 4px;
+}
+
+.nexus-tab-content::-webkit-scrollbar-thumb:hover {
+    background-color: #a1a1a1;
 }
 
 .nexus-tab-pane {
@@ -551,7 +574,9 @@ body.format-nexusformat.drawer-open-left #page-content {
         border-left: none;
         border-bottom: 1px solid #dee2e6;
         order: 1;
+        height: auto;
         max-height: 50vh;
+        position: relative;
     }
 
     .nexus-activity-iframe {
