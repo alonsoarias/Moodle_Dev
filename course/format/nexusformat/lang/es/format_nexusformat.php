@@ -181,3 +181,8 @@ $string['settings_sidebar_left'] = 'Izquierda';
 // Mobile/Responsive.
 $string['toggle_sidebar'] = 'Mostrar/ocultar barra lateral';
 $string['close_sidebar'] = 'Cerrar barra lateral';
+
+// Activity Navigation.
+$string['nav_previous'] = 'Anterior';
+$string['nav_next'] = 'Siguiente';
+$string['nav_activity_position'] = 'Actividad {$a->current} de {$a->total}';

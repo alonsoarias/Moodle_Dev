@@ -978,6 +978,89 @@ body.format-nexusformat.drawer-open-left #page-content {
     margin-bottom: 1.5rem;
 }
 
+/* Activity Navigation Buttons */
+.nexus-activity-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: #fff;
+    border-top: 1px solid #e9ecef;
+    gap: 1rem;
+}
+
+.nexus-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #495057;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: var(--nexus-border-radius);
+    cursor: pointer;
+    transition: all var(--nexus-transition);
+    min-width: 120px;
+    justify-content: center;
+}
+
+.nexus-nav-btn:hover:not(:disabled) {
+    background-color: var(--nexus-accent-color);
+    border-color: var(--nexus-accent-color);
+    color: #fff;
+}
+
+.nexus-nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.nexus-nav-btn i {
+    font-size: 0.85rem;
+}
+
+.nexus-nav-prev {
+    justify-content: flex-start;
+}
+
+.nexus-nav-next {
+    justify-content: flex-end;
+}
+
+.nexus-nav-info {
+    flex: 1;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Responsive navigation */
+@media (max-width: 576px) {
+    .nexus-activity-navigation {
+        padding: 0.75rem 1rem;
+    }
+
+    .nexus-nav-btn {
+        padding: 0.5rem 0.75rem;
+        min-width: auto;
+        font-size: 0.85rem;
+    }
+
+    .nexus-nav-btn span {
+        display: none;
+    }
+
+    .nexus-nav-btn i {
+        font-size: 1rem;
+    }
+
+    .nexus-nav-info {
+        font-size: 0.8rem;
+    }
+}
+
 .nexus-page-content,
 .nexus-book-content {
     line-height: 1.7;

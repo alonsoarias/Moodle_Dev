@@ -181,3 +181,8 @@ $string['settings_sidebar_left'] = 'Left';
 // Mobile/Responsive.
 $string['toggle_sidebar'] = 'Toggle sidebar';
 $string['close_sidebar'] = 'Close sidebar';
+
+// Activity Navigation.
+$string['nav_previous'] = 'Previous';
+$string['nav_next'] = 'Next';
+$string['nav_activity_position'] = 'Activity {$a->current} of {$a->total}';

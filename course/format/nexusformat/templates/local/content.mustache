@@ -120,6 +120,19 @@
                     <p class="nexus-placeholder-text">{{selectactivitytext}}</p>
                 </div>
             </div>
+
+            {{! Activity Navigation Buttons }}
+            <div class="nexus-activity-navigation" id="nexus-activity-navigation" style="display: none;">
+                <button type="button" class="nexus-nav-btn nexus-nav-prev" id="nexus-nav-prev" disabled>
+                    <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    <span>{{#str}}nav_previous, format_nexusformat{{/str}}</span>
+                </button>
+                <div class="nexus-nav-info" id="nexus-nav-info"></div>
+                <button type="button" class="nexus-nav-btn nexus-nav-next" id="nexus-nav-next" disabled>
+                    <span>{{#str}}nav_next, format_nexusformat{{/str}}</span>
+                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
             {{/editing}}
         </div>
 
@@ -670,6 +683,133 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
     }
 
     // ==========================================
+    // ACTIVITY NAVIGATION
+    // ==========================================
+    var $navContainer = $('#nexus-activity-navigation');
+    var $navPrev = $('#nexus-nav-prev');
+    var $navNext = $('#nexus-nav-next');
+    var $navInfo = $('#nexus-nav-info');
+    var activityList = [];
+
+    // Build ordered list of all visible activities
+    function buildActivityList() {
+        activityList = [];
+        $('.nexus-lesson').each(function() {
+            var cmid = $(this).data('cmid');
+            if (cmid) {
+                activityList.push(cmid);
+            }
+        });
+    }
+
+    // Get current activity position (1-indexed)
+    function getActivityPosition(cmid) {
+        var index = activityList.indexOf(cmid);
+        return index >= 0 ? index + 1 : 0;
+    }
+
+    // Update navigation buttons state
+    function updateNavigation(cmid) {
+        if (activityList.length === 0) {
+            buildActivityList();
+        }
+
+        var position = getActivityPosition(cmid);
+        var total = activityList.length;
+
+        if (position > 0 && total > 1) {
+            $navContainer.show();
+
+            // Update prev button
+            if (position > 1) {
+                $navPrev.prop('disabled', false);
+            } else {
+                $navPrev.prop('disabled', true);
+            }
+
+            // Update next button
+            if (position < total) {
+                $navNext.prop('disabled', false);
+            } else {
+                $navNext.prop('disabled', true);
+            }
+
+            // Update info text
+            $navInfo.text(position + ' / ' + total);
+        } else {
+            $navContainer.hide();
+        }
+    }
+
+    // Navigate to previous activity
+    function navigatePrev() {
+        var position = getActivityPosition(currentLoadedCmid);
+        if (position > 1) {
+            var prevCmid = activityList[position - 2];
+            navigateToActivity(prevCmid);
+        }
+    }
+
+    // Navigate to next activity
+    function navigateNext() {
+        var position = getActivityPosition(currentLoadedCmid);
+        if (position < activityList.length) {
+            var nextCmid = activityList[position];
+            navigateToActivity(nextCmid);
+        }
+    }
+
+    // Navigate to specific activity
+    function navigateToActivity(cmid) {
+        // Update sidebar selection
+        $('.nexus-lesson').removeClass('active');
+        var $lesson = $('.nexus-lesson[data-cmid="' + cmid + '"]');
+        if ($lesson.length) {
+            $lesson.addClass('active');
+
+            // Expand parent unit if needed
+            var $parentUnit = $lesson.closest('.nexus-unit');
+            if (!$parentUnit.hasClass('expanded')) {
+                $parentUnit.addClass('expanded');
+                $parentUnit.find('> .nexus-unit-lessons').show();
+                var $header = $parentUnit.find('> .nexus-unit-header');
+                $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+            }
+
+            // Scroll to lesson in sidebar on desktop
+            if ($(window).width() > 992) {
+                var $tabContent = $('#nexus-tab-content');
+                var lessonTop = $lesson.position().top;
+                $tabContent.animate({ scrollTop: $tabContent.scrollTop() + lessonTop - 100 }, 200);
+            }
+        }
+
+        // Load activity content
+        loadActivityContent(cmid);
+    }
+
+    // Navigation button click handlers
+    $navPrev.on('click', navigatePrev);
+    $navNext.on('click', navigateNext);
+
+    // Keyboard navigation
+    $(document).on('keydown', function(e) {
+        if (currentLoadedCmid > 0 && !$(e.target).is('input, textarea, select')) {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                navigatePrev();
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                navigateNext();
+            }
+        }
+    });
+
+    // Build activity list on page load
+    buildActivityList();
+
+    // ==========================================
     // MOBILE SIDEBAR TOGGLE
     // ==========================================
     var $sidebar = $('#nexus-sidebar');
@@ -838,9 +978,13 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
             showCommentsForActivity(cmid);
             // Update URL after successful load
             updateUrlWithCmid(cmid);
+            // Update navigation buttons
+            updateNavigation(cmid);
         }).fail(function(error) {
             $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-3x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
             Notification.exception(error);
+            // Hide navigation on error
+            $navContainer.hide();
         });
     }
 
