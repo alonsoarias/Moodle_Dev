@@ -108,8 +108,7 @@ body.format-nexusformat.drawer-open-left #page-content {
    ============================================= */
 
 .nexus-activity-content {
-    width: 100%;
-    min-height: 300px;
+    min-height: calc(100vh - 200px);
 }
 
 .nexus-activity-iframe {
