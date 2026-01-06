@@ -90,6 +90,11 @@ class content extends content_base {
         // Placeholder text.
         $data->selectactivitytext = get_string('select_activity', 'format_nexusformat');
 
+        // Get gradable activities for the Activities tab.
+        $data->gradableactivities = $this->get_gradable_activities($course, $modinfo);
+        $data->hasgradableactivities = !empty($data->gradableactivities) ? 1 : 0;
+        $data->gradablecount = count($data->gradableactivities);
+
         // Strings for JavaScript.
         $data->strings = [
             'loading' => get_string('loading', 'format_nexusformat'),
@@ -146,6 +151,176 @@ class content extends content_base {
         $progress->displaytext = get_string('progress_completed', 'format_nexusformat', $progress->percentage);
 
         return $progress;
+    }
+
+    /**
+     * Get gradable activities for the Activities tab.
+     *
+     * @param stdClass $course The course object
+     * @param \course_modinfo $modinfo The course modinfo
+     * @return array Array of gradable activity data
+     */
+    protected function get_gradable_activities(stdClass $course, \course_modinfo $modinfo): array {
+        global $USER, $CFG;
+        require_once($CFG->libdir . '/gradelib.php');
+
+        $activities = [];
+        $completion = new completion_info($course);
+
+        // Get all grade items for activities in this course.
+        $gradeitems = \grade_item::fetch_all([
+            'courseid' => $course->id,
+            'itemtype' => 'mod',
+        ]);
+
+        if (!$gradeitems) {
+            return $activities;
+        }
+
+        foreach ($gradeitems as $gradeitem) {
+            // Skip items without a valid module.
+            if (empty($gradeitem->iteminstance) || empty($gradeitem->itemmodule)) {
+                continue;
+            }
+
+            // Get the course module.
+            try {
+                $cm = $modinfo->get_cm($gradeitem->cmid ?? 0);
+            } catch (\Exception $e) {
+                // Try to find by module and instance.
+                $cm = null;
+                foreach ($modinfo->get_cms() as $coursemodule) {
+                    if ($coursemodule->modname === $gradeitem->itemmodule &&
+                        $coursemodule->instance == $gradeitem->iteminstance) {
+                        $cm = $coursemodule;
+                        break;
+                    }
+                }
+            }
+
+            if (!$cm || !$cm->uservisible) {
+                continue;
+            }
+
+            $activity = new stdClass();
+            $activity->id = $cm->id;
+            $activity->name = format_string($cm->name);
+            $activity->modname = $cm->modname;
+            $activity->icon = $cm->get_icon_url()->out(false);
+            $activity->url = $cm->url ? $cm->url->out(false) : '';
+
+            // Get grade info.
+            $activity->grademax = $gradeitem->grademax;
+            $activity->gradepass = $gradeitem->gradepass;
+            $activity->hasgrade = ($gradeitem->gradetype != GRADE_TYPE_NONE);
+
+            // Get user's grade.
+            $grades = grade_get_grades($course->id, 'mod', $cm->modname, $cm->instance, $USER->id);
+            $activity->usergrade = null;
+            $activity->gradeformatted = get_string('not_graded', 'format_nexusformat');
+            $activity->isgraded = 0;
+            $activity->ispassed = 0;
+            $activity->isfailed = 0;
+
+            if (!empty($grades->items[0]->grades[$USER->id])) {
+                $usergrade = $grades->items[0]->grades[$USER->id];
+                if ($usergrade->grade !== null) {
+                    $activity->usergrade = $usergrade->grade;
+                    $activity->gradeformatted = round($usergrade->grade, 2) . ' / ' . round($gradeitem->grademax, 2);
+                    $activity->isgraded = 1;
+
+                    // Check if passed.
+                    if ($gradeitem->gradepass > 0) {
+                        if ($usergrade->grade >= $gradeitem->gradepass) {
+                            $activity->ispassed = 1;
+                        } else {
+                            $activity->isfailed = 1;
+                        }
+                    }
+                }
+            }
+
+            // Get completion status.
+            $activity->iscomplete = 0;
+            $activity->isincomplete = 0;
+            $activity->hascompletion = 0;
+
+            if ($completion->is_enabled($cm) && $cm->completion != COMPLETION_TRACKING_NONE) {
+                $activity->hascompletion = 1;
+                $completiondata = $completion->get_data($cm, true, $USER->id);
+
+                if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                    $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                    $activity->iscomplete = 1;
+                } else {
+                    $activity->isincomplete = 1;
+                }
+            }
+
+            // Status label.
+            if ($activity->iscomplete || $activity->isgraded) {
+                $activity->statuslabel = get_string('status_completed', 'format_nexusformat');
+                $activity->statusclass = 'success';
+            } else {
+                $activity->statuslabel = get_string('status_pending', 'format_nexusformat');
+                $activity->statusclass = 'warning';
+            }
+
+            // Due date if available.
+            $activity->duedate = null;
+            $activity->duedateformatted = '';
+            $activity->isoverdue = 0;
+
+            // Check for due dates in common modules.
+            $instance = $this->get_module_instance($cm);
+            if ($instance) {
+                $duefield = null;
+                if (isset($instance->duedate) && $instance->duedate > 0) {
+                    $duefield = $instance->duedate;
+                } else if (isset($instance->timeclose) && $instance->timeclose > 0) {
+                    $duefield = $instance->timeclose;
+                } else if (isset($instance->cutoffdate) && $instance->cutoffdate > 0) {
+                    $duefield = $instance->cutoffdate;
+                }
+
+                if ($duefield) {
+                    $activity->duedate = $duefield;
+                    $activity->duedateformatted = userdate($duefield, get_string('strftimedatetimeshort', 'langconfig'));
+                    if ($duefield < time() && !$activity->iscomplete && !$activity->isgraded) {
+                        $activity->isoverdue = 1;
+                    }
+                }
+            }
+
+            $activities[] = $activity;
+        }
+
+        // Sort by: incomplete first, then by name.
+        usort($activities, function($a, $b) {
+            // Incomplete activities first.
+            if ($a->iscomplete != $b->iscomplete) {
+                return $a->iscomplete - $b->iscomplete;
+            }
+            // Then by name.
+            return strcmp($a->name, $b->name);
+        });
+
+        return $activities;
+    }
+
+    /**
+     * Get module instance record.
+     *
+     * @param \cm_info $cm Course module info
+     * @return object|null Module instance or null
+     */
+    protected function get_module_instance(\cm_info $cm): ?object {
+        global $DB;
+        try {
+            return $DB->get_record($cm->modname, ['id' => $cm->instance]);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

@@ -1033,3 +1033,145 @@ body.format-nexusformat.drawer-open-left #page-content {
         left: 2rem;
     }
 }
+
+/* =========================================
+   GRADABLE ACTIVITIES TAB STYLES
+   ========================================= */
+
+.nexus-activities-header {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.nexus-activities-header h6 {
+    font-weight: 600;
+    color: #212529;
+}
+
+.nexus-activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nexus-activity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.nexus-activity-item:hover {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nexus-activity-item.completed {
+    background-color: #f0fff4;
+    border-color: #c6f6d5;
+}
+
+.nexus-activity-item.overdue {
+    background-color: #fff5f5;
+    border-color: #fed7d7;
+}
+
+.nexus-activity-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nexus-activity-icon .icon {
+    width: 24px;
+    height: 24px;
+}
+
+.nexus-activity-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nexus-activity-name {
+    font-weight: 500;
+    color: #212529;
+    text-decoration: none;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nexus-activity-name:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+.nexus-activity-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.nexus-activity-due,
+.nexus-activity-grade {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.nexus-activity-due i,
+.nexus-activity-grade i {
+    font-size: 0.7rem;
+}
+
+.nexus-activity-status {
+    flex-shrink: 0;
+}
+
+.nexus-activity-status .badge {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.7rem;
+}
+
+.nexus-no-activities {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #6c757d;
+}
+
+.nexus-no-activities i {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Mobile adjustments for activities */
+@media (max-width: 576px) {
+    .nexus-activity-item {
+        padding: 0.5rem;
+    }
+
+    .nexus-activity-meta {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}

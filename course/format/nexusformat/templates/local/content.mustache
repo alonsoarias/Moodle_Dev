@@ -315,13 +315,79 @@
                     </div>
                 </div>
 
-                {{! Activities Tab - Placeholder for Phase 4 }}
+                {{! Activities Tab - Gradable Activities List }}
                 <div class="nexus-tab-pane" id="nexus-tab-activities" data-tab="activities" style="display: none;">
-                    <div class="nexus-coming-soon">
-                        <i class="fa fa-tasks fa-2x" aria-hidden="true"></i>
-                        <p>{{#str}}gradable_activities, format_nexusformat{{/str}}</p>
-                        <small>{{#str}}tab_activities, format_nexusformat{{/str}} - Phase 4</small>
+                    <div class="nexus-activities-header mb-3">
+                        <h6 class="mb-1">{{#str}}gradable_activities, format_nexusformat{{/str}}</h6>
+                        {{#hasgradableactivities}}
+                        <small class="text-muted">{{gradablecount}} {{#str}}tab_activities, format_nexusformat{{/str}}</small>
+                        {{/hasgradableactivities}}
                     </div>
+
+                    {{#hasgradableactivities}}
+                    <div class="nexus-activities-list">
+                        {{#gradableactivities}}
+                        <div class="nexus-activity-item {{#iscomplete}}completed{{/iscomplete}} {{#isoverdue}}overdue{{/isoverdue}}" data-cmid="{{id}}">
+                            <div class="nexus-activity-icon">
+                                <img src="{{icon}}" alt="" class="icon" />
+                            </div>
+                            <div class="nexus-activity-info">
+                                <a href="{{url}}" class="nexus-activity-name text-truncate" title="{{name}}">{{name}}</a>
+                                <div class="nexus-activity-meta">
+                                    {{#duedate}}
+                                    <span class="nexus-activity-due {{#isoverdue}}text-danger{{/isoverdue}}">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        {{duedateformatted}}
+                                    </span>
+                                    {{/duedate}}
+                                    <span class="nexus-activity-grade">
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        {{gradeformatted}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="nexus-activity-status">
+                                {{#iscomplete}}
+                                <span class="badge bg-success">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                </span>
+                                {{/iscomplete}}
+                                {{#isincomplete}}
+                                    {{#isoverdue}}
+                                    <span class="badge bg-danger">
+                                        <i class="fa fa-exclamation" aria-hidden="true"></i>
+                                    </span>
+                                    {{/isoverdue}}
+                                    {{^isoverdue}}
+                                    <span class="badge bg-warning">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                    </span>
+                                    {{/isoverdue}}
+                                {{/isincomplete}}
+                                {{^hascompletion}}
+                                    {{#isgraded}}
+                                    <span class="badge bg-success">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                    </span>
+                                    {{/isgraded}}
+                                    {{^isgraded}}
+                                    <span class="badge bg-secondary">
+                                        <i class="fa fa-minus" aria-hidden="true"></i>
+                                    </span>
+                                    {{/isgraded}}
+                                {{/hascompletion}}
+                            </div>
+                        </div>
+                        {{/gradableactivities}}
+                    </div>
+                    {{/hasgradableactivities}}
+
+                    {{^hasgradableactivities}}
+                    <div class="nexus-no-activities text-center py-4">
+                        <i class="fa fa-tasks fa-2x text-muted mb-2" aria-hidden="true"></i>
+                        <p class="text-muted mb-0">{{#str}}no_gradable_activities, format_nexusformat{{/str}}</p>
+                    </div>
+                    {{/hasgradableactivities}}
                 </div>
 
                 {{! Notes Tab - Placeholder for Phase 5 }}
