@@ -366,6 +366,8 @@
 require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
     var $contentArea = $('#nexus-activity-content');
     var courseid = {{courseid}};
+    var firstActivityCmid = {{#hasfirstactivity}}{{firstactivitycmid}}{{/hasfirstactivity}}{{^hasfirstactivity}}0{{/hasfirstactivity}};
+    var isEditing = {{editing}};
 
     // Tab switching
     $('.nexus-tab').on('click', function() {
@@ -466,5 +468,26 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         // Load the activity content via AJAX
         loadActivityContent(cmid);
     });
+
+    // Auto-load the first activity on page load (only in view mode)
+    if (!isEditing && firstActivityCmid > 0) {
+        // Mark the first activity as active in the sidebar
+        var $firstLesson = $('.nexus-lesson[data-cmid="' + firstActivityCmid + '"]');
+        if ($firstLesson.length) {
+            $firstLesson.addClass('active');
+            // Ensure the parent unit is expanded
+            var $parentUnit = $firstLesson.closest('.nexus-unit');
+            if (!$parentUnit.hasClass('expanded')) {
+                $parentUnit.addClass('expanded');
+                $parentUnit.find('> .nexus-unit-lessons').show();
+                var $header = $parentUnit.find('> .nexus-unit-header');
+                $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+                $header.attr('aria-expanded', 'true');
+            }
+        }
+        // Load the first activity content
+        loadActivityContent(firstActivityCmid);
+    }
 });
 {{/js}}

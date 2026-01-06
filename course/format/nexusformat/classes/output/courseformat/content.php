@@ -83,6 +83,10 @@ class content extends content_base {
         // Get first activity URL for initial load.
         $data->initialactivityurl = $this->get_first_activity_url($modinfo);
 
+        // Get first activity cmid for auto-load.
+        $data->firstactivitycmid = $this->get_first_activity_cmid($modinfo);
+        $data->hasfirstactivity = !empty($data->firstactivitycmid) ? 1 : 0;
+
         // Placeholder text.
         $data->selectactivitytext = get_string('select_activity', 'format_nexusformat');
 
@@ -377,6 +381,14 @@ class content extends content_base {
     }
 
     /**
+     * Modules to exclude from content loading.
+     * These are handled differently or don't display in the content area.
+     *
+     * @var array
+     */
+    protected const EXCLUDED_MODULES = ['subsection', 'intebchat', 'folder_custom'];
+
+    /**
      * Get the URL of the first activity in the course.
      *
      * @param \course_modinfo $modinfo The course modinfo
@@ -389,8 +401,50 @@ class content extends content_base {
             if (!empty($modinfo->sections[$section->section])) {
                 foreach ($modinfo->sections[$section->section] as $cmid) {
                     $cm = $modinfo->get_cm($cmid);
+                    // Skip excluded modules.
+                    if (in_array($cm->modname, self::EXCLUDED_MODULES)) {
+                        continue;
+                    }
                     if ($cm->uservisible && !$cm->is_stealth() && $cm->url) {
                         return $cm->url->out(false);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the cmid of the first loadable activity in the course.
+     * Excludes modules that are handled differently (subsection, intebchat, folder_custom).
+     *
+     * @param \course_modinfo $modinfo The course modinfo
+     * @return int|null cmid of first activity or null
+     */
+    protected function get_first_activity_cmid(\course_modinfo $modinfo): ?int {
+        $sections = $modinfo->get_section_info_all();
+
+        foreach ($sections as $section) {
+            // Skip delegated sections.
+            if (!empty($section->component)) {
+                continue;
+            }
+
+            if (!empty($modinfo->sections[$section->section])) {
+                foreach ($modinfo->sections[$section->section] as $cmid) {
+                    $cm = $modinfo->get_cm($cmid);
+                    // Skip excluded modules.
+                    if (in_array($cm->modname, self::EXCLUDED_MODULES)) {
+                        continue;
+                    }
+                    // Skip hidden/stealth activities.
+                    if (!$cm->uservisible || $cm->is_stealth()) {
+                        continue;
+                    }
+                    // Check if it has a URL (is viewable).
+                    if ($cm->url) {
+                        return (int)$cm->id;
                     }
                 }
             }
