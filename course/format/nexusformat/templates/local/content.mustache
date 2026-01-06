@@ -643,7 +643,25 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
     var $contentArea = $('#nexus-activity-content');
     var courseid = {{courseid}};
     var firstActivityCmid = {{#hasfirstactivity}}{{firstactivitycmid}}{{/hasfirstactivity}}{{^hasfirstactivity}}0{{/hasfirstactivity}};
+    var initialActivityCmid = {{#hasinitialactivity}}{{initialactivitycmid}}{{/hasinitialactivity}}{{^hasinitialactivity}}0{{/hasinitialactivity}};
     var isEditing = {{editing}};
+    var currentLoadedCmid = 0;
+
+    // ==========================================
+    // URL MANAGEMENT FOR ACTIVITY PERSISTENCE
+    // ==========================================
+    function updateUrlWithCmid(cmid) {
+        if (cmid && window.history && window.history.replaceState) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('cmid', cmid);
+            window.history.replaceState({cmid: cmid}, '', url.toString());
+        }
+    }
+
+    function getCmidFromUrl() {
+        var urlParams = new URLSearchParams(window.location.search);
+        return parseInt(urlParams.get('cmid')) || 0;
+    }
 
     // ==========================================
     // MOBILE SIDEBAR TOGGLE
@@ -792,7 +810,15 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
     });
 
     // Load activity content via AJAX
-    function loadActivityContent(cmid) {
+    function loadActivityContent(cmid, skipUrlUpdate) {
+        // Track the currently loaded activity
+        currentLoadedCmid = cmid;
+
+        // Update URL for activity persistence (unless skipping, e.g., on initial load)
+        if (!skipUrlUpdate) {
+            updateUrlWithCmid(cmid);
+        }
+
         // Show loading state
         $contentArea.html('<div class="nexus-loading"><i class="fa fa-spinner fa-spin fa-3x"></i><p>{{#str}}loading, format_nexusformat{{/str}}</p></div>');
 
@@ -804,6 +830,8 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
             $contentArea.html('<div class="nexus-activity-wrapper">' + response.content + '</div>');
             // Show comments section for this activity
             showCommentsForActivity(cmid);
+            // Update URL after successful load
+            updateUrlWithCmid(cmid);
         }).fail(function(error) {
             $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-3x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
             Notification.exception(error);
@@ -887,14 +915,15 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         $(this).closest('.nexus-activity-item').trigger('click');
     });
 
-    // Auto-load the first activity on page load (only in view mode)
-    if (!isEditing && firstActivityCmid > 0) {
-        // Mark the first activity as active in the sidebar
-        var $firstLesson = $('.nexus-lesson[data-cmid="' + firstActivityCmid + '"]');
-        if ($firstLesson.length) {
-            $firstLesson.addClass('active');
+    // Auto-load activity on page load (only in view mode)
+    // Uses initialActivityCmid which respects URL parameter for persistence
+    if (!isEditing && initialActivityCmid > 0) {
+        // Mark the activity as active in the sidebar
+        var $initialLesson = $('.nexus-lesson[data-cmid="' + initialActivityCmid + '"]');
+        if ($initialLesson.length) {
+            $initialLesson.addClass('active');
             // Ensure the parent unit is expanded
-            var $parentUnit = $firstLesson.closest('.nexus-unit');
+            var $parentUnit = $initialLesson.closest('.nexus-unit');
             if (!$parentUnit.hasClass('expanded')) {
                 $parentUnit.addClass('expanded');
                 $parentUnit.find('> .nexus-unit-lessons').show();
@@ -903,9 +932,17 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
                 $header.attr('aria-expanded', 'true');
             }
+            // Also expand any parent subsections
+            var $parentSubsection = $initialLesson.closest('.nexus-subsection');
+            if ($parentSubsection.length && !$parentSubsection.hasClass('expanded')) {
+                $parentSubsection.addClass('expanded');
+                $parentSubsection.find('> .nexus-subsection-content').show();
+                $parentSubsection.find('> .nexus-subsection-header .nexus-unit-toggle i')
+                    .removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            }
         }
-        // Load the first activity content
-        loadActivityContent(firstActivityCmid);
+        // Load the activity content (URL already has the cmid from server-side)
+        loadActivityContent(initialActivityCmid, true);
     }
 
     // ==========================================

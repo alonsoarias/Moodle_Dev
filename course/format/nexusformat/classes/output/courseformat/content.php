@@ -83,7 +83,28 @@ class content extends content_base {
         // Get first activity URL for initial load.
         $data->initialactivityurl = $this->get_first_activity_url($modinfo);
 
-        // Get first activity cmid for auto-load.
+        // Get activity cmid from URL parameter (for activity persistence on reload).
+        $urlcmid = optional_param('cmid', 0, PARAM_INT);
+        if ($urlcmid > 0) {
+            // Verify the cmid is valid for this course.
+            try {
+                $cm = $modinfo->get_cm($urlcmid);
+                if ($cm && $cm->uservisible) {
+                    $data->initialactivitycmid = $urlcmid;
+                }
+            } catch (\Exception $e) {
+                // Invalid cmid, ignore.
+                $urlcmid = 0;
+            }
+        }
+
+        // If no URL cmid, use first activity for auto-load.
+        if (empty($data->initialactivitycmid)) {
+            $data->initialactivitycmid = $this->get_first_activity_cmid($modinfo);
+        }
+        $data->hasinitialactivity = !empty($data->initialactivitycmid) ? 1 : 0;
+
+        // Also keep firstactivitycmid for backwards compatibility.
         $data->firstactivitycmid = $this->get_first_activity_cmid($modinfo);
         $data->hasfirstactivity = !empty($data->firstactivitycmid) ? 1 : 0;
 
@@ -415,14 +436,27 @@ class content extends content_base {
         $sections = $modinfo->get_section_info_all();
 
         foreach ($sections as $section) {
-            // Skip section 0 (general section) in the sidebar.
-            if ($section->section == 0) {
-                continue;
-            }
-
             // Skip delegated sections (they are handled as part of their parent activity).
             if (!empty($section->component)) {
                 continue;
+            }
+
+            // For section 0 (General section), only show if it has visible activities.
+            if ($section->section == 0) {
+                // Check if section 0 has any visible activities.
+                $hassection0activities = false;
+                if (!empty($modinfo->sections[0])) {
+                    foreach ($modinfo->sections[0] as $cmid) {
+                        $cm = $modinfo->get_cm($cmid);
+                        if ($cm->uservisible && !$cm->is_stealth()) {
+                            $hassection0activities = true;
+                            break;
+                        }
+                    }
+                }
+                if (!$hassection0activities) {
+                    continue;
+                }
             }
 
             // Check section visibility.
@@ -482,8 +516,9 @@ class content extends content_base {
         $unit->name = $format->get_section_name($section);
         $unit->sectionurl = course_get_url($course, $section->section, ['navigation' => true])->out(false);
 
-        // Collapsed state - first section expanded by default, rest collapsed.
-        $unit->expanded = ($section->section == 1 && !$indexcollapsed) ? 1 : 0;
+        // Collapsed state - section 0 or section 1 expanded by default, rest collapsed.
+        $isFirstSection = ($section->section == 0 || $section->section == 1);
+        $unit->expanded = ($isFirstSection && !$indexcollapsed) ? 1 : 0;
         $unit->indexcollapsed = $indexcollapsed ? 1 : 0;
 
         // Section visibility flags.
