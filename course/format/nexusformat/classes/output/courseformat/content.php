@@ -29,7 +29,6 @@ use core_courseformat\base as course_format;
 use stdClass;
 use renderer_base;
 use completion_info;
-use context_course;
 
 /**
  * Main content output class for Nexus Format.
@@ -55,7 +54,6 @@ class content extends content_base {
         $format = $this->format;
         $course = $format->get_course();
         $modinfo = $format->get_modinfo();
-        $context = context_course::instance($course->id);
 
         // Get base data from parent.
         $data = parent::export_for_template($output);
@@ -63,11 +61,7 @@ class content extends content_base {
         // Add Nexus-specific data.
         $data->nexusformat = true;
         $data->courseid = $course->id;
-
-        // Check editing mode - use integer for Mustache compatibility.
-        $isediting = $PAGE->user_is_editing();
-        $data->editing = $isediting ? 1 : 0;
-        $data->notediting = $isediting ? 0 : 1;
+        $data->editing = $PAGE->user_is_editing();
 
         // Get progress information.
         $data->progress = $this->get_progress_data($course, $modinfo);
@@ -75,36 +69,19 @@ class content extends content_base {
         // Get sections data for sidebar.
         $data->sidebarunits = $this->get_sidebar_units($modinfo, $output);
 
-        // Count total activities.
-        $data->totalactivities = $this->count_activities($modinfo);
-
-        // Get first activity URL for initial display.
-        $firstactivity = $this->get_first_activity($modinfo);
-        $data->hasfirstactivity = !empty($firstactivity);
-        if ($firstactivity) {
-            $data->firstactivity = $firstactivity;
-        }
+        // Get first activity URL for initial load.
+        $data->initialactivityurl = $this->get_first_activity_url($modinfo);
 
         // Placeholder text.
         $data->selectactivitytext = get_string('select_activity', 'format_nexusformat');
 
-        return $data;
-    }
+        // Strings for JavaScript.
+        $data->strings = [
+            'loading' => get_string('loading', 'format_nexusformat'),
+            'error_loading' => get_string('error_loading', 'format_nexusformat'),
+        ];
 
-    /**
-     * Count total visible activities in the course.
-     *
-     * @param \course_modinfo $modinfo The course modinfo
-     * @return int Total count
-     */
-    protected function count_activities(\course_modinfo $modinfo): int {
-        $count = 0;
-        foreach ($modinfo->get_cms() as $cm) {
-            if ($cm->uservisible && !$cm->is_stealth() && $cm->url) {
-                $count++;
-            }
-        }
-        return $count;
+        return $data;
     }
 
     /**
@@ -121,25 +98,10 @@ class content extends content_base {
         $progress->percentage = 0;
         $progress->completed = 0;
         $progress->total = 0;
-        $progress->enabled = false;
-        $progress->hasactivities = false;
 
         $completion = new completion_info($course);
-
-        // Check if completion is enabled for the course.
         if (!$completion->is_enabled()) {
-            // Completion not enabled - count activities for display purposes.
-            $cms = $modinfo->get_cms();
-            foreach ($cms as $cm) {
-                if ($cm->uservisible && !$cm->is_stealth() && $cm->url) {
-                    $progress->total++;
-                }
-            }
-            $progress->hasactivities = ($progress->total > 0);
-            $progress->displaytext = get_string('activities_completed', 'format_nexusformat', [
-                'completed' => 0,
-                'total' => $progress->total
-            ]);
+            $progress->enabled = false;
             return $progress;
         }
 
@@ -147,7 +109,6 @@ class content extends content_base {
         $cms = $modinfo->get_cms();
 
         foreach ($cms as $cm) {
-            // Only count activities with completion tracking.
             if ($cm->completion == COMPLETION_TRACKING_NONE) {
                 continue;
             }
@@ -163,16 +124,11 @@ class content extends content_base {
             }
         }
 
-        $progress->hasactivities = ($progress->total > 0);
-
         if ($progress->total > 0) {
             $progress->percentage = round(($progress->completed / $progress->total) * 100);
         }
 
-        $progress->displaytext = get_string('activities_completed', 'format_nexusformat', [
-            'completed' => $progress->completed,
-            'total' => $progress->total
-        ]);
+        $progress->displaytext = get_string('progress_completed', 'format_nexusformat', $progress->percentage);
 
         return $progress;
     }
@@ -190,14 +146,12 @@ class content extends content_base {
         $format = $this->format;
         $course = $format->get_course();
         $completion = new completion_info($course);
-        $completionenabled = $completion->is_enabled();
         $units = [];
 
         $sections = $modinfo->get_section_info_all();
-        $unitindex = 0;
 
         foreach ($sections as $section) {
-            // Skip section 0 (general section) in the sidebar units list.
+            // Skip section 0 (general section) in the sidebar.
             if ($section->section == 0) {
                 continue;
             }
@@ -206,12 +160,11 @@ class content extends content_base {
                 continue;
             }
 
-            $unitindex++;
             $unit = new stdClass();
             $unit->id = $section->id;
             $unit->num = $section->section;
             $unit->name = $format->get_section_name($section);
-            $unit->expanded = ($unitindex == 1); // First unit expanded by default.
+            $unit->expanded = ($section->section == 1); // First unit expanded by default.
             $unit->lessons = [];
 
             // Get activities in this section.
@@ -224,26 +177,18 @@ class content extends content_base {
                         continue;
                     }
 
-                    // Skip activities without URL (like labels).
-                    if (!$cm->url) {
-                        continue;
-                    }
-
                     $lesson = new stdClass();
                     $lesson->id = $cm->id;
                     $lesson->num = $section->section . '.' . $lessonnum;
                     $lesson->name = $cm->get_formatted_name();
-                    $lesson->url = $cm->url->out(false);
+                    $lesson->url = $cm->url ? $cm->url->out(false) : '';
                     $lesson->modname = $cm->modname;
                     $lesson->icon = $cm->get_icon_url()->out(false);
                     $lesson->active = false;
-                    $lesson->isfirst = ($unitindex == 1 && $lessonnum == 1);
 
                     // Get completion status.
                     $lesson->completed = false;
-                    $lesson->hascompletion = false;
-                    if ($completionenabled && $cm->completion != COMPLETION_TRACKING_NONE) {
-                        $lesson->hascompletion = true;
+                    if ($completion->is_enabled() && $cm->completion != COMPLETION_TRACKING_NONE) {
                         $completiondata = $completion->get_data($cm, true, $USER->id);
                         $lesson->completed = ($completiondata->completionstate == COMPLETION_COMPLETE ||
                                              $completiondata->completionstate == COMPLETION_COMPLETE_PASS);
@@ -257,40 +202,27 @@ class content extends content_base {
             $unit->haslessons = !empty($unit->lessons);
             $unit->lessoncount = count($unit->lessons);
 
-            if ($unit->haslessons) {
-                $units[] = $unit;
-            }
+            $units[] = $unit;
         }
 
         return $units;
     }
 
     /**
-     * Get the first activity in the course.
+     * Get the URL of the first activity in the course.
      *
      * @param \course_modinfo $modinfo The course modinfo
-     * @return stdClass|null First activity data or null
+     * @return string|null URL of first activity or null
      */
-    protected function get_first_activity(\course_modinfo $modinfo): ?stdClass {
-        $format = $this->format;
+    protected function get_first_activity_url(\course_modinfo $modinfo): ?string {
         $sections = $modinfo->get_section_info_all();
 
         foreach ($sections as $section) {
-            if (!$format->is_section_visible($section)) {
-                continue;
-            }
-
             if (!empty($modinfo->sections[$section->section])) {
                 foreach ($modinfo->sections[$section->section] as $cmid) {
                     $cm = $modinfo->get_cm($cmid);
                     if ($cm->uservisible && !$cm->is_stealth() && $cm->url) {
-                        $activity = new stdClass();
-                        $activity->id = $cm->id;
-                        $activity->name = $cm->get_formatted_name();
-                        $activity->url = $cm->url->out(false);
-                        $activity->modname = $cm->modname;
-                        $activity->icon = $cm->get_icon_url()->out(false);
-                        return $activity;
+                        return $cm->url->out(false);
                     }
                 }
             }
