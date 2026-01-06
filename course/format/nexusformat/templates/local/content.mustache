@@ -580,7 +580,7 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         });
     }
 
-    // Lesson click handler
+    // Lesson click handler (Content tab sidebar)
     $('.nexus-lesson').on('click keypress', function(e) {
         if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
             return;
@@ -596,6 +596,55 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
 
         // Load the activity content via AJAX
         loadActivityContent(cmid);
+    });
+
+    // Activity item click handler (Activities tab)
+    // When clicking on an activity in the Activities tab, load it in the content area
+    $('#nexus-tab-activities').on('click', '.nexus-activity-item', function(e) {
+        // Prevent if clicking directly on the link (let it handle separately)
+        if ($(e.target).closest('.nexus-activity-name').length) {
+            e.preventDefault();
+        }
+
+        var $item = $(this);
+        var cmid = $item.data('cmid');
+
+        if (!cmid) {
+            return;
+        }
+
+        // Switch to Content tab
+        $('.nexus-tab').removeClass('active');
+        $('.nexus-tab[data-tab="content"]').addClass('active');
+        $('.nexus-tab-pane').hide();
+        $('#nexus-tab-content').show();
+
+        // Update active state in sidebar
+        $('.nexus-lesson').removeClass('active');
+        var $sidebarLesson = $('.nexus-lesson[data-cmid="' + cmid + '"]');
+        if ($sidebarLesson.length) {
+            $sidebarLesson.addClass('active');
+            // Expand parent unit if collapsed
+            var $parentUnit = $sidebarLesson.closest('.nexus-unit');
+            if (!$parentUnit.hasClass('expanded')) {
+                $parentUnit.addClass('expanded');
+                $parentUnit.find('> .nexus-unit-lessons').show();
+                var $header = $parentUnit.find('> .nexus-unit-header');
+                $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+                $header.attr('aria-expanded', 'true');
+            }
+        }
+
+        // Load the activity content via AJAX
+        loadActivityContent(cmid);
+    });
+
+    // Prevent default link behavior in Activities tab
+    $('#nexus-tab-activities').on('click', '.nexus-activity-name', function(e) {
+        e.preventDefault();
+        // Trigger the parent item click
+        $(this).closest('.nexus-activity-item').trigger('click');
     });
 
     // Auto-load the first activity on page load (only in view mode)
