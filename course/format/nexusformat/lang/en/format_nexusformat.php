@@ -128,3 +128,52 @@ $string['activity_requires_interaction'] = 'This activity requires interaction. 
 $string['activity_requires_fullview'] = 'This activity requires a full view to work properly. Click the button below to open it in a new window.';
 $string['activityinfo'] = 'Activity information';
 $string['openactivity'] = 'Open activity';
+
+// Settings - Layout.
+$string['settings_layout'] = 'Layout settings';
+$string['settings_layout_desc'] = 'Configure the layout of the Nexus format.';
+$string['settings_contentwidth'] = 'Content area width';
+$string['settings_contentwidth_desc'] = 'The width of the main content area as a percentage. The sidebar will take the remaining space.';
+
+// Settings - Colors.
+$string['settings_colors'] = 'Color settings';
+$string['settings_colors_desc'] = 'Customize the colors used in the Nexus format.';
+$string['settings_accentcolor'] = 'Primary accent color';
+$string['settings_accentcolor_desc'] = 'The main accent color used for active elements, links, and highlights.';
+$string['settings_secondarycolor'] = 'Secondary accent color';
+$string['settings_secondarycolor_desc'] = 'Secondary color used for gradients (e.g., progress bar, participation banner).';
+$string['settings_progresscolor'] = 'Progress bar color';
+$string['settings_progresscolor_desc'] = 'The end color of the progress bar gradient.';
+
+// Settings - Features.
+$string['settings_features'] = 'Feature settings';
+$string['settings_features_desc'] = 'Enable or disable various features of the Nexus format.';
+$string['settings_enableactivitiestab'] = 'Enable Activities tab';
+$string['settings_enableactivitiestab_desc'] = 'Show the Activities tab in the sidebar with gradable activities list.';
+$string['settings_enablenotes'] = 'Enable Notes system';
+$string['settings_enablenotes_desc'] = 'Allow students to create personal notes for the course.';
+$string['settings_enablecomments'] = 'Enable Comments system';
+$string['settings_enablecomments_desc'] = 'Allow students and teachers to comment on activities.';
+$string['settings_enableparticipationbanner'] = 'Enable Participation banner';
+$string['settings_enableparticipationbanner_desc'] = 'Show a banner encouraging students to help their classmates when there are comments.';
+
+// Settings - Visual.
+$string['settings_visual'] = 'Visual settings';
+$string['settings_visual_desc'] = 'Customize the visual appearance of the Nexus format.';
+$string['settings_cardborderradius'] = 'Card border radius';
+$string['settings_cardborderradius_desc'] = 'The roundness of card corners.';
+$string['settings_borderradius_none'] = 'None (square)';
+$string['settings_borderradius_small'] = 'Small (4px)';
+$string['settings_borderradius_medium'] = 'Medium (8px)';
+$string['settings_borderradius_large'] = 'Large (12px)';
+$string['settings_borderradius_xlarge'] = 'Extra large (16px)';
+$string['settings_enablecardshadows'] = 'Enable card shadows';
+$string['settings_enablecardshadows_desc'] = 'Add subtle shadows to cards for a more elevated look.';
+$string['settings_sidebarposition'] = 'Sidebar position';
+$string['settings_sidebarposition_desc'] = 'Choose whether the sidebar appears on the left or right side.';
+$string['settings_sidebar_right'] = 'Right';
+$string['settings_sidebar_left'] = 'Left';
+
+// Mobile/Responsive.
+$string['toggle_sidebar'] = 'Toggle sidebar';
+$string['close_sidebar'] = 'Close sidebar';

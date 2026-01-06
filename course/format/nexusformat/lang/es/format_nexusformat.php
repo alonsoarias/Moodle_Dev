@@ -108,9 +108,72 @@ $string['time_ago'] = 'hace {$a}';
 // Errors.
 $string['error_loading'] = 'Error al cargar el contenido. Por favor, inténtalo de nuevo.';
 $string['error_saving'] = 'Error al guardar. Por favor, inténtalo de nuevo.';
+$string['emptycomment'] = 'El comentario no puede estar vacío.';
+$string['commentnotfound'] = 'Comentario no encontrado.';
+$string['comment_saved'] = 'Comentario guardado correctamente.';
+$string['comment_deleted'] = 'Comentario eliminado correctamente.';
+$string['nopermission'] = 'No tienes permiso para realizar esta acción.';
+$string['no_comments'] = '¡Sé el primero en comentar!';
+$string['edit_comment'] = 'Editar';
+$string['delete_comment'] = 'Eliminar';
+$string['confirm_delete_comment'] = '¿Estás seguro de que deseas eliminar este comentario?';
+$string['show_replies'] = 'Ver {$a} respuestas';
+$string['write_reply'] = 'Escribe una respuesta...';
+$string['cancel_reply'] = 'Cancelar';
+$string['loading_comments'] = 'Cargando comentarios...';
+$string['load_more_comments'] = 'Cargar más comentarios';
 
 // Activity display.
 $string['activity_requires_interaction'] = 'Esta actividad requiere interacción. Haz clic en el botón para abrirla.';
 $string['activity_requires_fullview'] = 'Esta actividad requiere una vista completa para funcionar correctamente. Haz clic en el botón para abrirla en una nueva ventana.';
 $string['activityinfo'] = 'Información de la actividad';
 $string['openactivity'] = 'Abrir actividad';
+
+// Settings - Layout.
+$string['settings_layout'] = 'Configuración de diseño';
+$string['settings_layout_desc'] = 'Configura el diseño del formato Nexus.';
+$string['settings_contentwidth'] = 'Ancho del área de contenido';
+$string['settings_contentwidth_desc'] = 'El ancho del área de contenido principal como porcentaje. La barra lateral ocupará el espacio restante.';
+
+// Settings - Colors.
+$string['settings_colors'] = 'Configuración de colores';
+$string['settings_colors_desc'] = 'Personaliza los colores utilizados en el formato Nexus.';
+$string['settings_accentcolor'] = 'Color de acento principal';
+$string['settings_accentcolor_desc'] = 'El color de acento principal utilizado para elementos activos, enlaces y resaltados.';
+$string['settings_secondarycolor'] = 'Color de acento secundario';
+$string['settings_secondarycolor_desc'] = 'Color secundario utilizado para degradados (ej. barra de progreso, banner de participación).';
+$string['settings_progresscolor'] = 'Color de barra de progreso';
+$string['settings_progresscolor_desc'] = 'El color final del degradado de la barra de progreso.';
+
+// Settings - Features.
+$string['settings_features'] = 'Configuración de características';
+$string['settings_features_desc'] = 'Activa o desactiva varias características del formato Nexus.';
+$string['settings_enableactivitiestab'] = 'Activar pestaña de Actividades';
+$string['settings_enableactivitiestab_desc'] = 'Muestra la pestaña de Actividades en la barra lateral con la lista de actividades calificables.';
+$string['settings_enablenotes'] = 'Activar sistema de Apuntes';
+$string['settings_enablenotes_desc'] = 'Permite a los estudiantes crear apuntes personales para el curso.';
+$string['settings_enablecomments'] = 'Activar sistema de Comentarios';
+$string['settings_enablecomments_desc'] = 'Permite a estudiantes y profesores comentar en las actividades.';
+$string['settings_enableparticipationbanner'] = 'Activar banner de Participación';
+$string['settings_enableparticipationbanner_desc'] = 'Muestra un banner animando a los estudiantes a ayudar a sus compañeros cuando hay comentarios.';
+
+// Settings - Visual.
+$string['settings_visual'] = 'Configuración visual';
+$string['settings_visual_desc'] = 'Personaliza la apariencia visual del formato Nexus.';
+$string['settings_cardborderradius'] = 'Radio de borde de tarjetas';
+$string['settings_cardborderradius_desc'] = 'La redondez de las esquinas de las tarjetas.';
+$string['settings_borderradius_none'] = 'Ninguno (cuadrado)';
+$string['settings_borderradius_small'] = 'Pequeño (4px)';
+$string['settings_borderradius_medium'] = 'Mediano (8px)';
+$string['settings_borderradius_large'] = 'Grande (12px)';
+$string['settings_borderradius_xlarge'] = 'Extra grande (16px)';
+$string['settings_enablecardshadows'] = 'Activar sombras de tarjetas';
+$string['settings_enablecardshadows_desc'] = 'Agrega sombras sutiles a las tarjetas para una apariencia más elevada.';
+$string['settings_sidebarposition'] = 'Posición de la barra lateral';
+$string['settings_sidebarposition_desc'] = 'Elige si la barra lateral aparece a la izquierda o a la derecha.';
+$string['settings_sidebar_right'] = 'Derecha';
+$string['settings_sidebar_left'] = 'Izquierda';
+
+// Mobile/Responsive.
+$string['toggle_sidebar'] = 'Mostrar/ocultar barra lateral';
+$string['close_sidebar'] = 'Cerrar barra lateral';

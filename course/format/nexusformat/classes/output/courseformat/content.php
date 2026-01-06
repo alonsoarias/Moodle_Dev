@@ -107,6 +107,67 @@ class content extends content_base {
         $data->useravatarurl = $userpicture->get_url($PAGE)->out(false);
         $data->userid = $USER->id;
 
+        // Get plugin settings.
+        $data = $this->apply_plugin_settings($data);
+
+        return $data;
+    }
+
+    /**
+     * Apply plugin settings to template data.
+     *
+     * @param stdClass $data The template data
+     * @return stdClass Modified template data with settings
+     */
+    protected function apply_plugin_settings(stdClass $data): stdClass {
+        // Get settings with defaults.
+        $accentcolor = get_config('format_nexusformat', 'accentcolor') ?: '#0d6efd';
+        $secondarycolor = get_config('format_nexusformat', 'secondarycolor') ?: '#764ba2';
+        $progresscolor = get_config('format_nexusformat', 'progresscolor') ?: '#0dcaf0';
+        $contentwidth = get_config('format_nexusformat', 'contentwidth') ?: '70';
+        $borderradius = get_config('format_nexusformat', 'cardborderradius') ?: '8';
+        $sidebarposition = get_config('format_nexusformat', 'sidebarposition') ?: 'right';
+
+        // Feature toggles.
+        $enableactivitiestab = get_config('format_nexusformat', 'enableactivitiestab');
+        $enablenotes = get_config('format_nexusformat', 'enablenotes');
+        $enablecomments = get_config('format_nexusformat', 'enablecomments');
+        $enableparticipationbanner = get_config('format_nexusformat', 'enableparticipationbanner');
+        $enablecardshadows = get_config('format_nexusformat', 'enablecardshadows');
+
+        // Default all features to enabled if not set.
+        $data->enableactivitiestab = ($enableactivitiestab === false || $enableactivitiestab === '') ? 1 : (int)$enableactivitiestab;
+        $data->enablenotes = ($enablenotes === false || $enablenotes === '') ? 1 : (int)$enablenotes;
+        $data->enablecomments = ($enablecomments === false || $enablecomments === '') ? 1 : (int)$enablecomments;
+        $data->enableparticipationbanner = ($enableparticipationbanner === false || $enableparticipationbanner === '') ? 1 : (int)$enableparticipationbanner;
+        $data->enablecardshadows = ($enablecardshadows === false || $enablecardshadows === '') ? 1 : (int)$enablecardshadows;
+
+        // Sidebar position.
+        $data->sidebarleft = ($sidebarposition === 'left') ? 1 : 0;
+
+        // Calculate sidebar width from content width.
+        $sidebarwidth = 100 - (int)$contentwidth;
+
+        // Build custom CSS styles string.
+        $customstyles = [];
+        $customstyles[] = "--nexus-accent-color: {$accentcolor}";
+        $customstyles[] = "--nexus-secondary-color: {$secondarycolor}";
+        $customstyles[] = "--nexus-progress-color: {$progresscolor}";
+        $customstyles[] = "--nexus-content-width: {$contentwidth}%";
+        $customstyles[] = "--nexus-sidebar-width: {$sidebarwidth}%";
+        $customstyles[] = "--nexus-border-radius: {$borderradius}px";
+
+        // Card shadows.
+        if ($data->enablecardshadows) {
+            $customstyles[] = "--nexus-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08)";
+            $customstyles[] = "--nexus-card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12)";
+        } else {
+            $customstyles[] = "--nexus-card-shadow: none";
+            $customstyles[] = "--nexus-card-shadow-hover: none";
+        }
+
+        $data->customstyles = implode('; ', $customstyles);
+
         return $data;
     }
 

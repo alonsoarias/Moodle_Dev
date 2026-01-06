@@ -9,6 +9,24 @@
  */
 
 /* =============================================
+   CSS Custom Properties (Variables)
+   Can be overridden by plugin settings via inline styles
+   ============================================= */
+
+:root {
+    --nexus-accent-color: #0d6efd;
+    --nexus-secondary-color: #764ba2;
+    --nexus-progress-color: #0dcaf0;
+    --nexus-content-width: 70%;
+    --nexus-sidebar-width: 30%;
+    --nexus-border-radius: 8px;
+    --nexus-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --nexus-card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --nexus-transition: 0.2s ease;
+    --nexus-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* =============================================
    Full-Width Override for Moodle Containers
    ============================================= */
 
@@ -79,8 +97,8 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 /* Left Column - Content Area (70%) */
 .nexus-content-area {
-    flex: 0 0 70%;
-    max-width: 70%;
+    flex: 0 0 var(--nexus-content-width);
+    max-width: var(--nexus-content-width);
     background-color: #f8f9fa;
     overflow-y: auto;
     overflow-x: hidden;
@@ -90,8 +108,8 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 /* Right Column - Sidebar (30%) */
 .nexus-sidebar {
-    flex: 0 0 30%;
-    max-width: 30%;
+    flex: 0 0 var(--nexus-sidebar-width);
+    max-width: var(--nexus-sidebar-width);
     min-width: 280px;
     background-color: #ffffff;
     border-left: 1px solid #dee2e6;
@@ -101,6 +119,18 @@ body.format-nexusformat.drawer-open-left #page-content {
     height: calc(100vh - 150px);
     position: sticky;
     top: 0;
+    box-shadow: var(--nexus-card-shadow);
+}
+
+/* Sidebar on left position */
+.nexus-sidebar-left .nexus-sidebar {
+    order: -1;
+    border-left: none;
+    border-right: 1px solid #dee2e6;
+}
+
+.nexus-sidebar-left .nexus-content-area {
+    order: 1;
 }
 
 /* =============================================
@@ -205,8 +235,8 @@ body.format-nexusformat.drawer-open-left #page-content {
 }
 
 .nexus-tab.active {
-    color: #0d6efd;
-    border-bottom-color: #0d6efd;
+    color: var(--nexus-accent-color);
+    border-bottom-color: var(--nexus-accent-color);
 }
 
 .nexus-tab i {
@@ -303,7 +333,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 }
 
 .nexus-progress-percentage {
-    color: #0d6efd;
+    color: var(--nexus-accent-color);
     font-weight: 600;
 }
 
@@ -316,7 +346,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 .nexus-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    background: linear-gradient(90deg, var(--nexus-accent-color), var(--nexus-progress-color));
     border-radius: 4px;
     transition: width 0.3s ease;
 }
@@ -359,7 +389,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 /* Expanded section highlight */
 .nexus-unit.expanded > .nexus-unit-header {
     background-color: #f0f4f8;
-    border-left-color: #0d6efd;
+    border-left-color: var(--nexus-accent-color);
 }
 
 .nexus-unit-toggle {
@@ -462,8 +492,8 @@ body.format-nexusformat.drawer-open-left #page-content {
 }
 
 .nexus-lesson.active {
-    background-color: #e7f1ff;
-    border-left: 3px solid #0d6efd;
+    background-color: rgba(13, 110, 253, 0.08);
+    border-left: 3px solid var(--nexus-accent-color);
     padding-left: calc(2.5rem - 3px);
 }
 
@@ -525,7 +555,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 }
 
 .nexus-lesson.active .nexus-lesson-name {
-    color: #0d6efd;
+    color: var(--nexus-accent-color);
     font-weight: 500;
 }
 
@@ -557,6 +587,82 @@ body.format-nexusformat.drawer-open-left #page-content {
    Responsive Design
    ============================================= */
 
+/* Mobile sidebar toggle button */
+.nexus-sidebar-toggle {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--nexus-accent-color), var(--nexus-secondary-color));
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    z-index: 1050;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--nexus-transition), box-shadow var(--nexus-transition);
+}
+
+.nexus-sidebar-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.nexus-sidebar-toggle:active {
+    transform: scale(0.95);
+}
+
+.nexus-sidebar-toggle i {
+    font-size: 1.5rem;
+}
+
+/* Mobile sidebar close button */
+.nexus-sidebar-close {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background-color var(--nexus-transition);
+}
+
+.nexus-sidebar-close:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+/* Mobile overlay */
+.nexus-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1039;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.nexus-sidebar-overlay.show {
+    display: block;
+    opacity: 1;
+}
+
 @media (max-width: 992px) {
     .nexus-layout {
         flex-direction: column;
@@ -565,23 +671,59 @@ body.format-nexusformat.drawer-open-left #page-content {
     .nexus-content-area {
         flex: none;
         max-width: 100%;
-        order: 2;
-    }
-
-    .nexus-sidebar {
-        flex: none;
-        max-width: 100%;
-        border-left: none;
-        border-bottom: 1px solid #dee2e6;
+        width: 100%;
         order: 1;
         height: auto;
-        max-height: 50vh;
-        position: relative;
+        min-height: calc(100vh - 150px);
+    }
+
+    /* Sidebar becomes a drawer */
+    .nexus-sidebar {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 85%;
+        max-width: 400px;
+        height: 100vh;
+        border-left: none;
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+        z-index: 1040;
+        transition: right 0.3s ease;
+    }
+
+    .nexus-sidebar.open {
+        right: 0;
+    }
+
+    /* Sidebar on left position for mobile */
+    .nexus-sidebar-left .nexus-sidebar {
+        right: auto;
+        left: -100%;
+        border-right: none;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .nexus-sidebar-left .nexus-sidebar.open {
+        left: 0;
+    }
+
+    /* Show toggle and close buttons on mobile */
+    .nexus-sidebar-toggle {
+        display: flex;
+    }
+
+    .nexus-sidebar-close {
+        display: flex;
     }
 
     .nexus-activity-iframe {
-        height: 50vh;
+        height: 60vh;
         min-height: 400px;
+    }
+
+    /* Adjust comments section padding */
+    .nexus-format-container .nexus-comments-section {
+        padding: 1rem;
     }
 }
 
@@ -591,6 +733,17 @@ body.format-nexusformat.drawer-open-left #page-content {
     }
 
     .nexus-tab i {
+        font-size: 1.25rem;
+    }
+
+    .nexus-sidebar-toggle {
+        width: 50px;
+        height: 50px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .nexus-sidebar-toggle i {
         font-size: 1.25rem;
     }
 
@@ -627,6 +780,15 @@ body.format-nexusformat.drawer-open-left #page-content {
     .nexus-lesson-icon {
         width: 24px;
         height: 24px;
+    }
+
+    /* Adjust activity wrapper padding */
+    .nexus-activity-wrapper {
+        padding: 1rem;
+    }
+
+    .nexus-activity-title {
+        font-size: 1.25rem;
     }
 }
 
