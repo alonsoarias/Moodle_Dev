@@ -1765,14 +1765,7 @@ body.format-nexusformat.drawer-open-left #page-content {
     box-shadow: var(--nexus-card-shadow);
 }
 
-/* Desktop: limit comments width to content area width */
-@media (min-width: 992px) {
-    .nexus-format-container .nexus-comments-section {
-        max-width: var(--nexus-content-width);
-        margin-left: 0;
-        margin-right: auto;
-    }
-}
+/* Comments section is now inside nexus-content-area, inherits its width */
 
 /* Participation Banner */
 .nexus-format-container .nexus-participation-banner {
