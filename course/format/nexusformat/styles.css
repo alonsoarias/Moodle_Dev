@@ -361,25 +361,21 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-unit-toggle {
     width: 20px;
     color: #6c757d;
+    flex-shrink: 0;
 }
 
 .nexus-unit-toggle i {
     transition: transform 0.2s ease;
 }
 
-/* Section folder icon */
-.nexus-unit-header::before {
-    content: '\f07b';  /* FontAwesome folder icon */
-    font-family: 'Font Awesome 5 Free', 'FontAwesome';
-    font-weight: 900;
-    color: #6c757d;
-    font-size: 0.9rem;
+.nexus-unit-icon {
+    width: 20px;
+    flex-shrink: 0;
     margin-right: 0.25rem;
 }
 
-.nexus-unit.expanded > .nexus-unit-header::before {
-    content: '\f07c';  /* FontAwesome open folder icon */
-    color: #0d6efd;
+.nexus-unit-icon i {
+    font-size: 0.95rem;
 }
 
 .nexus-unit-name {
