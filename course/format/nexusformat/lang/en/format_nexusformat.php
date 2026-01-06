@@ -108,6 +108,20 @@ $string['time_ago'] = '{$a} ago';
 // Errors.
 $string['error_loading'] = 'Error loading content. Please try again.';
 $string['error_saving'] = 'Error saving. Please try again.';
+$string['emptycomment'] = 'Comment cannot be empty.';
+$string['commentnotfound'] = 'Comment not found.';
+$string['comment_saved'] = 'Comment saved successfully.';
+$string['comment_deleted'] = 'Comment deleted successfully.';
+$string['nopermission'] = 'You do not have permission to perform this action.';
+$string['no_comments'] = 'Be the first to comment!';
+$string['edit_comment'] = 'Edit';
+$string['delete_comment'] = 'Delete';
+$string['confirm_delete_comment'] = 'Are you sure you want to delete this comment?';
+$string['show_replies'] = 'Show {$a} replies';
+$string['write_reply'] = 'Write a reply...';
+$string['cancel_reply'] = 'Cancel';
+$string['loading_comments'] = 'Loading comments...';
+$string['load_more_comments'] = 'Load more comments';
 
 // Activity display.
 $string['activity_requires_interaction'] = 'This activity requires interaction. Click the button below to open it.';

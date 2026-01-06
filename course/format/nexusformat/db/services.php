@@ -57,4 +57,45 @@ $functions = [
         'ajax'          => true,
         'loginrequired' => true,
     ],
+
+    // Comments services.
+    'format_nexusformat_get_comments' => [
+        'classname'     => 'format_nexusformat\external\get_comments',
+        'description'   => 'Get comments for an activity',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+
+    'format_nexusformat_save_comment' => [
+        'classname'     => 'format_nexusformat\external\save_comment',
+        'description'   => 'Save a comment',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+
+    'format_nexusformat_delete_comment' => [
+        'classname'     => 'format_nexusformat\external\delete_comment',
+        'description'   => 'Delete a comment',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+
+    'format_nexusformat_toggle_like' => [
+        'classname'     => 'format_nexusformat\external\toggle_like',
+        'description'   => 'Toggle like on a comment',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+
+    'format_nexusformat_get_replies' => [
+        'classname'     => 'format_nexusformat\external\get_replies',
+        'description'   => 'Get replies to a comment',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
 ];

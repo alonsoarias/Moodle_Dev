@@ -67,5 +67,61 @@ function xmldb_format_nexusformat_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026010617, 'format', 'nexusformat');
     }
 
+    if ($oldversion < 2026010621) {
+        // Define table format_nexusformat_comments to be created.
+        $table = new xmldb_table('format_nexusformat_comments');
+
+        // Adding fields to table format_nexusformat_comments.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('parentid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('content', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('contentformat', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table format_nexusformat_comments.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+        $table->add_key('parentid', XMLDB_KEY_FOREIGN, ['parentid'], 'format_nexusformat_comments', ['id']);
+
+        // Adding indexes to table format_nexusformat_comments.
+        $table->add_index('cmid', XMLDB_INDEX_NOTUNIQUE, ['cmid']);
+        $table->add_index('courseid_cmid', XMLDB_INDEX_NOTUNIQUE, ['courseid', 'cmid']);
+
+        // Conditionally launch create table for format_nexusformat_comments.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table format_nexusformat_likes to be created.
+        $table = new xmldb_table('format_nexusformat_likes');
+
+        // Adding fields to table format_nexusformat_likes.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('commentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table format_nexusformat_likes.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('commentid', XMLDB_KEY_FOREIGN, ['commentid'], 'format_nexusformat_comments', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Adding indexes to table format_nexusformat_likes.
+        $table->add_index('commentid_userid', XMLDB_INDEX_UNIQUE, ['commentid', 'userid']);
+
+        // Conditionally launch create table for format_nexusformat_likes.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Nexusformat savepoint reached.
+        upgrade_plugin_savepoint(true, 2026010621, 'format', 'nexusformat');
+    }
+
     return true;
 }

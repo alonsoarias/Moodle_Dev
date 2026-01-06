@@ -101,6 +101,12 @@ class content extends content_base {
             'error_loading' => get_string('error_loading', 'format_nexusformat'),
         ];
 
+        // Get current user avatar for comments section.
+        $userpicture = new \user_picture($USER);
+        $userpicture->size = 40;
+        $data->useravatarurl = $userpicture->get_url($PAGE)->out(false);
+        $data->userid = $USER->id;
+
         return $data;
     }
 
