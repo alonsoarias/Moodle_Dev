@@ -90,6 +90,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-sidebar {
     flex: 0 0 30%;
     max-width: 30%;
+    min-width: 280px;
     background-color: #ffffff;
     border-left: 1px solid #dee2e6;
     display: flex;
@@ -359,13 +360,14 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-lesson {
     display: flex;
     align-items: flex-start;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    padding: 0.75rem 1rem 0.75rem 1.5rem;
     cursor: pointer;
     border-bottom: 1px solid #e9ecef;
     transition: background-color 0.2s ease;
-    gap: 0.75rem;
+    gap: 0.5rem;
     text-decoration: none;
     color: inherit;
+    flex-wrap: nowrap;
 }
 
 .nexus-lesson:hover {
@@ -377,7 +379,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-lesson.active {
     background-color: #e7f1ff;
     border-left: 3px solid #0d6efd;
-    padding-left: calc(2.5rem - 3px);
+    padding-left: calc(1.5rem - 3px);
 }
 
 .nexus-lesson-status {
@@ -399,18 +401,19 @@ body.format-nexusformat.drawer-open-left #page-content {
 }
 
 .nexus-lesson-icon {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
     border-radius: 4px;
     object-fit: contain;
     background-color: #fff;
-    padding: 4px;
+    padding: 2px;
 }
 
 .nexus-lesson-info {
     flex: 1;
-    min-width: 0;
+    min-width: 80px;
+    overflow: hidden;
 }
 
 .nexus-lesson-num {
@@ -418,6 +421,7 @@ body.format-nexusformat.drawer-open-left #page-content {
     font-size: 0.7rem;
     color: #6c757d;
     margin-bottom: 0.125rem;
+    white-space: nowrap;
 }
 
 .nexus-lesson-name {
@@ -425,7 +429,9 @@ body.format-nexusformat.drawer-open-left #page-content {
     font-size: 0.85rem;
     color: #212529;
     line-height: 1.3;
-    word-wrap: break-word;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    hyphens: auto;
 }
 
 .nexus-lesson.active .nexus-lesson-name {
