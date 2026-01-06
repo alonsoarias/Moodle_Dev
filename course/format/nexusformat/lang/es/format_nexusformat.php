@@ -84,8 +84,10 @@ $string['select_activity'] = 'Selecciona una actividad de la barra lateral para 
 $string['activity_not_found'] = 'Actividad no encontrada.';
 $string['loading'] = 'Cargando...';
 
-// Comments section.
-$string['comments'] = 'Comentarios';
+// Comments section (per activity).
+$string['comments'] = 'Comentarios de la actividad';
+$string['comments_for_activity'] = 'Comentarios sobre: {$a}';
+$string['comments_description'] = 'Comparte tus dudas o aportes sobre esta actividad';
 $string['add_comment'] = 'Agregar comentario';
 $string['reply'] = 'Responder';
 $string['replies'] = '{$a} respuestas';
@@ -93,13 +95,13 @@ $string['view_replies'] = 'Ver {$a} respuestas';
 $string['hide_replies'] = 'Ocultar respuestas';
 $string['like'] = 'Me gusta';
 $string['likes'] = '{$a} me gusta';
-$string['comment_placeholder'] = 'Escribe tu comentario...';
+$string['comment_placeholder'] = 'Escribe tu comentario sobre esta actividad...';
 $string['post_comment'] = 'Publicar';
 $string['sort_by'] = 'Ordenar por';
 $string['sort_newest'] = 'Más recientes';
 $string['sort_oldest'] = 'Más antiguos';
 $string['sort_likes'] = 'Más votados';
-$string['participation_banner'] = 'Hay compañeros que necesitan ayuda en este tema, te invitamos a leer sus preguntas y brindarles una respuesta.';
+$string['participation_banner'] = 'Hay compañeros que necesitan ayuda con esta actividad, te invitamos a leer sus preguntas y brindarles una respuesta.';
 $string['close_banner'] = 'Cerrar';
 $string['student'] = 'Estudiante';
 $string['teacher'] = 'Profesor';

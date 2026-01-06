@@ -1735,10 +1735,15 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-format-container .nexus-comments-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 1.25rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid #e9ecef;
+    gap: 1rem;
+}
+
+.nexus-format-container .nexus-comments-title-wrapper {
+    flex: 1;
 }
 
 .nexus-format-container .nexus-comments-title {
@@ -1747,7 +1752,25 @@ body.format-nexusformat.drawer-open-left #page-content {
     gap: 0.5rem;
     font-weight: 600;
     font-size: 1.1rem;
-    color: #212529;
+}
+
+.nexus-format-container .nexus-comments-activity-name {
+    font-size: 0.95rem;
+    color: var(--nexus-accent-color);
+    font-weight: 500;
+    margin-top: 0.25rem;
+    padding-left: 1.75rem;
+}
+
+.nexus-format-container .nexus-comments-activity-name:empty {
+    display: none;
+}
+
+.nexus-format-container .nexus-comments-description {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.75rem;
 }
 
 .nexus-format-container .nexus-comments-title i {

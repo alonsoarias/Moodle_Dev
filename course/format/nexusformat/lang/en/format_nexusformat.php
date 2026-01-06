@@ -84,8 +84,10 @@ $string['select_activity'] = 'Select an activity from the sidebar to view its co
 $string['activity_not_found'] = 'Activity not found.';
 $string['loading'] = 'Loading...';
 
-// Comments section.
-$string['comments'] = 'Comments';
+// Comments section (per activity).
+$string['comments'] = 'Activity Comments';
+$string['comments_for_activity'] = 'Comments on: {$a}';
+$string['comments_description'] = 'Share your questions or contributions about this activity';
 $string['add_comment'] = 'Add comment';
 $string['reply'] = 'Reply';
 $string['replies'] = '{$a} replies';
@@ -93,13 +95,13 @@ $string['view_replies'] = 'View {$a} replies';
 $string['hide_replies'] = 'Hide replies';
 $string['like'] = 'Like';
 $string['likes'] = '{$a} likes';
-$string['comment_placeholder'] = 'Write your comment...';
+$string['comment_placeholder'] = 'Write your comment about this activity...';
 $string['post_comment'] = 'Post';
 $string['sort_by'] = 'Sort by';
 $string['sort_newest'] = 'Newest first';
 $string['sort_oldest'] = 'Oldest first';
 $string['sort_likes'] = 'Most liked';
-$string['participation_banner'] = 'There are classmates who need help with this topic. We invite you to read their questions and provide answers.';
+$string['participation_banner'] = 'There are classmates who need help with this activity. We invite you to read their questions and provide answers.';
 $string['close_banner'] = 'Close';
 $string['student'] = 'Student';
 $string['teacher'] = 'Teacher';

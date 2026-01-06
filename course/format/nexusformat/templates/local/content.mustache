@@ -505,10 +505,14 @@
 
         {{! Comments Header }}
         <div class="nexus-comments-header">
-            <div class="nexus-comments-title">
-                <i class="fa fa-comments" aria-hidden="true"></i>
-                <span>{{#str}}comments, format_nexusformat{{/str}}</span>
-                <span class="nexus-comments-count" id="nexus-comments-count">(0)</span>
+            <div class="nexus-comments-title-wrapper">
+                <div class="nexus-comments-title">
+                    <i class="fa fa-comments" aria-hidden="true"></i>
+                    <span>{{#str}}comments, format_nexusformat{{/str}}</span>
+                    <span class="nexus-comments-count" id="nexus-comments-count">(0)</span>
+                </div>
+                <div class="nexus-comments-activity-name" id="nexus-comments-activity-name"></div>
+                <p class="nexus-comments-description">{{#str}}comments_description, format_nexusformat{{/str}}</p>
             </div>
             <div class="nexus-comments-sort">
                 <select id="nexus-comments-sort" class="form-select form-select-sm">
@@ -1132,6 +1136,15 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         currentCmid = cmid;
         commentsPage = 0;
         $commentsSection.show();
+
+        // Update the activity name in comments header
+        var $activeLesson = $('.nexus-lesson[data-cmid="' + cmid + '"]');
+        var activityName = '';
+        if ($activeLesson.length) {
+            activityName = $activeLesson.find('.nexus-lesson-name').text().trim();
+        }
+        $('#nexus-comments-activity-name').text(activityName ? activityName : '');
+
         loadComments(true);
     };
 
