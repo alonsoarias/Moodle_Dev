@@ -282,6 +282,11 @@ class content extends content_base {
                     continue;
                 }
 
+                // Skip excluded modules completely - they don't appear in the sidebar.
+                if (in_array($cm->modname, self::EXCLUDED_MODULES)) {
+                    continue;
+                }
+
                 // Check for delegated section (subsection activity).
                 $delegatedsectioninfo = $cm->get_delegated_section_info();
 
