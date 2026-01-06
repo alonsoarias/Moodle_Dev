@@ -173,8 +173,8 @@
                             </div>
                             <div class="nexus-unit-lessons" {{^expanded}}style="display: none;"{{/expanded}}>
                                 {{#lessons}}
-                                <a href="{{url}}" class="nexus-lesson {{#active}}active{{/active}} {{#completed}}completed{{/completed}}"
-                                   data-cmid="{{id}}">
+                                <div class="nexus-lesson {{#active}}active{{/active}} {{#completed}}completed{{/completed}}"
+                                     data-cmid="{{id}}" data-url="{{url}}" role="button" tabindex="0">
                                     <span class="nexus-lesson-status">
                                         {{#completed}}
                                         <i class="fa fa-check-circle" aria-hidden="true"></i>
@@ -188,7 +188,7 @@
                                         <span class="nexus-lesson-num">{{num}}</span>
                                         <span class="nexus-lesson-name">{{name}}</span>
                                     </div>
-                                </a>
+                                </div>
                                 {{/lessons}}
                                 {{^haslessons}}
                                 <div class="nexus-no-lessons">
@@ -254,7 +254,10 @@
 </div>
 
 {{#js}}
-require(['jquery'], function($) {
+require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+    var $contentArea = $('#nexus-activity-content');
+    var courseid = {{courseid}};
+
     // Tab switching
     $('.nexus-tab').on('click', function() {
         var tab = $(this).data('tab');
@@ -288,7 +291,39 @@ require(['jquery'], function($) {
         }
     });
 
-    // Lessons are now direct links - no iframe needed
-    // Navigation happens via standard link behavior
+    // Load activity content via AJAX
+    function loadActivityContent(cmid) {
+        // Show loading state
+        $contentArea.html('<div class="nexus-loading"><i class="fa fa-spinner fa-spin fa-3x"></i><p>{{#str}}loading, format_nexusformat{{/str}}</p></div>');
+
+        // Make AJAX call
+        Ajax.call([{
+            methodname: 'format_nexusformat_get_activity_content',
+            args: { cmid: cmid }
+        }])[0].done(function(response) {
+            $contentArea.html('<div class="nexus-activity-wrapper">' + response.content + '</div>');
+        }).fail(function(error) {
+            $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-3x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
+            Notification.exception(error);
+        });
+    }
+
+    // Lesson click handler
+    $('.nexus-lesson').on('click keypress', function(e) {
+        if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
+            return;
+        }
+        e.preventDefault();
+
+        var $lesson = $(this);
+        var cmid = $lesson.data('cmid');
+
+        // Update active state
+        $('.nexus-lesson').removeClass('active');
+        $lesson.addClass('active');
+
+        // Load the activity content
+        loadActivityContent(cmid);
+    });
 });
 {{/js}}

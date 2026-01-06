@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details for Nexus Format.
+ * External functions and service definitions for Nexus Format.
  *
  * @package    format_nexusformat
  * @copyright  2024 Nexus Learning
@@ -24,8 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026010601;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022041900;        // Requires this Moodle version (4.0+).
-$plugin->component = 'format_nexusformat';
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '1.0.0';
+$functions = [
+    'format_nexusformat_get_activity_content' => [
+        'classname'     => 'format_nexusformat\external\get_activity_content',
+        'description'   => 'Get the rendered content of a course activity',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
+];

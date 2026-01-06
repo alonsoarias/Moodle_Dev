@@ -106,3 +106,7 @@ $string['time_ago'] = 'hace {$a}';
 // Errors.
 $string['error_loading'] = 'Error al cargar el contenido. Por favor, inténtalo de nuevo.';
 $string['error_saving'] = 'Error al guardar. Por favor, inténtalo de nuevo.';
+
+// Activity display.
+$string['activity_requires_interaction'] = 'Esta actividad requiere interacción. Haz clic en el botón para abrirla.';
+$string['openactivity'] = 'Abrir actividad';
