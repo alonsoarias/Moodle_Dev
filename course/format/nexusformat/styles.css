@@ -91,7 +91,6 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-layout {
     display: flex;
     flex-direction: column;
-    min-height: 400px;
     gap: 0;
 }
 
@@ -103,7 +102,6 @@ body.format-nexusformat.drawer-open-left #page-content {
     background-color: #f8f9fa;
     overflow-x: hidden;
     position: relative;
-    min-height: 400px;
 }
 
 /* Right Column - Sidebar (drawer on mobile) */
@@ -176,7 +174,6 @@ body.format-nexusformat.drawer-open-left #page-content {
     .nexus-content-area {
         flex: 0 0 var(--nexus-content-width);
         max-width: var(--nexus-content-width);
-        min-height: 500px;
     }
 
     /* Sidebar becomes static on desktop - height adapts to content */
