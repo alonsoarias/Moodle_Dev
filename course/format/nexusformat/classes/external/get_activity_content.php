@@ -389,7 +389,7 @@ class get_activity_content extends external_api {
         $attempts = quiz_get_user_attempts($instance->id, $USER->id, 'finished', true);
         if ($attempts) {
             $html .= '<div class="nexus-quiz-attempts mb-3">';
-            $html .= '<h5>' . get_string('yourattempts', 'quiz') . '</h5>';
+            $html .= '<h5>' . get_string('attempts', 'quiz') . '</h5>';
             $html .= '<table class="table table-striped">';
             $html .= '<thead><tr><th>' . get_string('attempt', 'quiz') . '</th>';
             $html .= '<th>' . get_string('state', 'quiz') . '</th>';
@@ -444,7 +444,7 @@ class get_activity_content extends external_api {
 
         // Quiz info card.
         $html .= '<div class="nexus-quiz-info card mb-3">';
-        $html .= '<div class="card-header"><strong>' . get_string('quizinformation', 'quiz') . '</strong></div>';
+        $html .= '<div class="card-header"><strong>' . get_string('modulename', 'quiz') . '</strong></div>';
         $html .= '<div class="card-body">';
 
         // Time limit.
@@ -455,8 +455,7 @@ class get_activity_content extends external_api {
 
         // Number of questions.
         $questioncount = $DB->count_records('quiz_slots', ['quizid' => $instance->id]);
-        $html .= '<p><i class="fa fa-question-circle"></i> <strong>' . get_string('numquestions', 'quiz') . ':</strong> ';
-        $html .= $questioncount . '</p>';
+        $html .= '<p><i class="fa fa-question-circle"></i> <strong>' . get_string('numquestionsx', 'quiz', $questioncount) . '</strong></p>';
 
         // Total marks.
         $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('totalmarks', 'quiz') . ':</strong> ';
@@ -472,12 +471,12 @@ class get_activity_content extends external_api {
 
         // Attempts summary.
         $html .= '<div class="nexus-quiz-summary card mb-3">';
-        $html .= '<div class="card-header"><strong>' . get_string('attemptsummary', 'quiz') . '</strong></div>';
+        $html .= '<div class="card-header"><strong>' . get_string('attempts', 'quiz') . '</strong></div>';
         $html .= '<div class="card-body">';
 
         // Count total attempts.
         $totalattempts = $DB->count_records('quiz_attempts', ['quiz' => $instance->id, 'preview' => 0]);
-        $html .= '<p><i class="fa fa-list"></i> <strong>' . get_string('totalattempts', 'quiz') . ':</strong> ' . $totalattempts . '</p>';
+        $html .= '<p><i class="fa fa-list"></i> <strong>' . get_string('attemptsnum', 'quiz', $totalattempts) . '</strong></p>';
 
         // Count unique users who attempted.
         $uniqueusers = $DB->count_records_sql(
@@ -697,7 +696,7 @@ class get_activity_content extends external_api {
         // View all submissions.
         $viewurl = new \moodle_url('/mod/assign/view.php', ['id' => $cm->id]);
         $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary btn-lg mb-2">';
-        $html .= '<i class="fa fa-list"></i> ' . get_string('viewallsubmissions', 'assign') . '</a>';
+        $html .= '<i class="fa fa-list"></i> ' . get_string('viewgrading', 'assign') . '</a>';
 
         $html .= '</div>';
 
@@ -825,7 +824,7 @@ class get_activity_content extends external_api {
         // View all button.
         $viewurl = new \moodle_url('/mod/forum/view.php', ['id' => $cm->id]);
         $html .= ' <a href="' . $viewurl->out() . '" class="btn btn-outline-primary">';
-        $html .= '<i class="fa fa-list"></i> ' . get_string('viewforum', 'forum') . '</a>';
+        $html .= '<i class="fa fa-list"></i> ' . get_string('viewalldiscussions', 'forum') . '</a>';
 
         $html .= '</div>';
 
@@ -856,7 +855,7 @@ class get_activity_content extends external_api {
         // Time restrictions.
         if ($instance->available > 0 && time() < $instance->available) {
             $available = false;
-            $availablemessage = get_string('lessonnotavailable', 'lesson', userdate($instance->available));
+            $availablemessage = get_string('lessonopen', 'lesson', userdate($instance->available));
         } else if ($instance->deadline > 0 && time() > $instance->deadline) {
             $available = false;
             $availablemessage = get_string('lessonclosed', 'lesson', userdate($instance->deadline));
@@ -868,7 +867,7 @@ class get_activity_content extends external_api {
 
         // Number of pages.
         $pagecount = $DB->count_records('lesson_pages', ['lessonid' => $instance->id]);
-        $html .= '<p><i class="fa fa-file-text-o"></i> <strong>' . get_string('numberoflessons', 'lesson') . ':</strong> ';
+        $html .= '<p><i class="fa fa-file-text-o"></i> <strong>' . get_string('pages', 'lesson') . ':</strong> ';
         $html .= $pagecount . ' ' . get_string('pages', 'lesson') . '</p>';
 
         // Time limit.
@@ -903,7 +902,7 @@ class get_activity_content extends external_api {
 
             if ($attempts) {
                 $html .= '<div class="nexus-lesson-attempts card mb-3">';
-                $html .= '<div class="card-header"><strong>' . get_string('yourattempts', 'lesson') . '</strong></div>';
+                $html .= '<div class="card-header"><strong>' . get_string('attempts', 'lesson') . '</strong></div>';
                 $html .= '<div class="card-body">';
 
                 $html .= '<table class="table table-sm">';
@@ -947,7 +946,7 @@ class get_activity_content extends external_api {
 
             if ($timer) {
                 $html .= '<div class="alert alert-info">';
-                $html .= '<i class="fa fa-info-circle"></i> ' . get_string('youhaveaninprogressattempt', 'lesson');
+                $html .= '<i class="fa fa-info-circle"></i> ' . get_string('youhaveseen', 'lesson');
                 $html .= '</div>';
             }
         }
@@ -1344,7 +1343,7 @@ class get_activity_content extends external_api {
 
                 if ($incompletetmp) {
                     $html .= '<div class="alert alert-info">';
-                    $html .= '<i class="fa fa-info-circle"></i> ' . get_string('feedbacknotstarted', 'feedback');
+                    $html .= '<i class="fa fa-info-circle"></i> ' . get_string('not_started', 'feedback');
                     $html .= '</div>';
                 }
 
@@ -1472,7 +1471,7 @@ class get_activity_content extends external_api {
                 $html .= '<div class="text-center mt-2">';
                 $viewallurl = new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id]);
                 $html .= '<a href="' . $viewallurl->out() . '" class="btn btn-sm btn-outline-secondary">';
-                $html .= get_string('viewall', 'glossary') . ' (' . $totalentries . ' ' . get_string('entries', 'glossary') . ')</a>';
+                $html .= get_string('showall', 'moodle') . ' (' . $totalentries . ' ' . get_string('entries', 'glossary') . ')</a>';
                 $html .= '</div>';
             }
         } else {
@@ -1510,7 +1509,7 @@ class get_activity_content extends external_api {
         // View full glossary.
         $viewurl = new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id]);
         $html .= '<a href="' . $viewurl->out() . '" class="btn btn-outline-primary">';
-        $html .= '<i class="fa fa-book"></i> ' . get_string('viewglossary', 'glossary') . '</a>';
+        $html .= '<i class="fa fa-book"></i> ' . get_string('modulename', 'glossary') . '</a>';
 
         $html .= '</div>';
 
@@ -1544,7 +1543,7 @@ class get_activity_content extends external_api {
                 $html .= '<div class="text-center mt-3">';
                 $url = new \moodle_url('/mod/wiki/view.php', ['id' => $cm->id]);
                 $html .= '<a href="' . $url->out() . '" class="btn btn-primary">';
-                $html .= '<i class="fa fa-book"></i> ' . get_string('viewallpages', 'wiki') . '</a>';
+                $html .= '<i class="fa fa-book"></i> ' . get_string('view', 'wiki') . ' ' . get_string('modulename', 'wiki') . '</a>';
                 $html .= '</div>';
             } else {
                 // Create first page.
@@ -1561,7 +1560,7 @@ class get_activity_content extends external_api {
             $url = new \moodle_url('/mod/wiki/view.php', ['id' => $cm->id]);
             $html .= '<div class="text-center">';
             $html .= '<a href="' . $url->out() . '" class="btn btn-primary btn-lg">';
-            $html .= '<i class="fa fa-play-circle"></i> ' . get_string('viewwiki', 'wiki') . '</a>';
+            $html .= '<i class="fa fa-play-circle"></i> ' . get_string('view', 'wiki') . ' ' . get_string('modulename', 'wiki') . '</a>';
             $html .= '</div>';
         }
 
