@@ -80,81 +80,195 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 /* =============================================
    Main Layout - Two Columns
+   Mobile-first responsive approach
    ============================================= */
 
+/* Base styles - Mobile first (< 576px) */
 .nexus-format-container {
-    width: var(--nexus-container-width);
-    max-width: var(--nexus-container-width);
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Ultra-wide screens (21:9 and wider) - limit max width when not 100% */
-@media (min-aspect-ratio: 21/9) {
+.nexus-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 150px);
+    gap: 0;
+}
+
+/* Left Column - Content Area */
+.nexus-content-area {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    background-color: #f8f9fa;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    min-height: calc(100vh - 150px);
+}
+
+/* Right Column - Sidebar (drawer on mobile) */
+.nexus-sidebar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 85%;
+    max-width: 360px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-left: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 1040;
+    transition: right 0.3s ease, left 0.3s ease;
+}
+
+.nexus-sidebar.open {
+    right: 0;
+}
+
+/* Sidebar on left position - mobile */
+.nexus-sidebar-left .nexus-sidebar {
+    right: auto;
+    left: -100%;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.nexus-sidebar-left .nexus-sidebar.open {
+    left: 0;
+}
+
+/* =============================================
+   Small tablets (576px - 767px)
+   ============================================= */
+@media (min-width: 576px) {
+    .nexus-sidebar {
+        max-width: 320px;
+    }
+}
+
+/* =============================================
+   Tablets (768px - 991px)
+   ============================================= */
+@media (min-width: 768px) {
+    .nexus-sidebar {
+        max-width: 380px;
+    }
+}
+
+/* =============================================
+   Desktop (992px and up) - Two column layout
+   ============================================= */
+@media (min-width: 992px) {
+    /* Apply container width setting on desktop */
     .nexus-format-container {
-        /* On ultra-wide screens, apply a max pixel width when container is less than 100% */
+        width: var(--nexus-container-width);
+        max-width: var(--nexus-container-width);
+    }
+
+    .nexus-layout {
+        flex-direction: row;
+    }
+
+    /* Content area uses setting width */
+    .nexus-content-area {
+        flex: 0 0 var(--nexus-content-width);
+        max-width: var(--nexus-content-width);
+        height: calc(100vh - 150px);
+        min-height: auto;
+    }
+
+    /* Sidebar becomes static on desktop */
+    .nexus-sidebar {
+        position: sticky;
+        top: 0;
+        right: auto;
+        left: auto;
+        flex: 0 0 var(--nexus-sidebar-width);
+        max-width: var(--nexus-sidebar-width);
+        min-width: 280px;
+        height: calc(100vh - 150px);
+        border-left: 1px solid #dee2e6;
+        box-shadow: var(--nexus-card-shadow);
+        z-index: auto;
+        transition: none;
+    }
+
+    /* Sidebar on left position - desktop */
+    .nexus-sidebar-left .nexus-sidebar {
+        order: -1;
+        border-left: none;
+        border-right: 1px solid #dee2e6;
+    }
+
+    .nexus-sidebar-left .nexus-content-area {
+        order: 1;
+    }
+}
+
+/* =============================================
+   Large desktop (1200px and up)
+   ============================================= */
+@media (min-width: 1200px) {
+    .nexus-sidebar {
+        min-width: 300px;
+    }
+}
+
+/* =============================================
+   Extra large desktop (1400px and up)
+   ============================================= */
+@media (min-width: 1400px) {
+    .nexus-sidebar {
+        min-width: 320px;
+    }
+}
+
+/* =============================================
+   Aspect ratio adjustments for wide screens
+   Only apply on desktop (992px+)
+   ============================================= */
+
+/* Ultra-wide screens (21:9 and wider) on desktop */
+@media (min-width: 992px) and (min-aspect-ratio: 21/9) {
+    .nexus-format-container {
         max-width: min(var(--nexus-container-width), 2400px);
     }
 }
 
-/* Wide screens (16:9 to 21:9) */
-@media (min-aspect-ratio: 16/9) and (max-aspect-ratio: 21/9) {
+/* Wide screens (16:9 to 21:9) on desktop */
+@media (min-width: 992px) and (min-aspect-ratio: 16/9) and (max-aspect-ratio: 21/9) {
     .nexus-format-container {
         max-width: min(var(--nexus-container-width), 2000px);
     }
 }
 
-/* Standard screens and narrower - use percentage directly */
-@media (max-aspect-ratio: 16/9) {
+/* Very large screens (2560px+) - ensure readability */
+@media (min-width: 2560px) {
     .nexus-format-container {
-        max-width: var(--nexus-container-width);
+        max-width: min(var(--nexus-container-width), 2200px);
+    }
+
+    .nexus-sidebar {
+        min-width: 350px;
     }
 }
 
-.nexus-layout {
-    display: flex;
-    flex-direction: row;
-    min-height: calc(100vh - 150px);
-    gap: 0;
-}
+/* 4K screens (3840px+) */
+@media (min-width: 3840px) {
+    .nexus-format-container {
+        max-width: min(var(--nexus-container-width), 2800px);
+    }
 
-/* Left Column - Content Area (70%) */
-.nexus-content-area {
-    flex: 0 0 var(--nexus-content-width);
-    max-width: var(--nexus-content-width);
-    background-color: #f8f9fa;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
-    height: calc(100vh - 150px);
-}
-
-/* Right Column - Sidebar (30%) */
-.nexus-sidebar {
-    flex: 0 0 var(--nexus-sidebar-width);
-    max-width: var(--nexus-sidebar-width);
-    min-width: 280px;
-    background-color: #ffffff;
-    border-left: 1px solid #dee2e6;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    height: calc(100vh - 150px);
-    position: sticky;
-    top: 0;
-    box-shadow: var(--nexus-card-shadow);
-}
-
-/* Sidebar on left position */
-.nexus-sidebar-left .nexus-sidebar {
-    order: -1;
-    border-left: none;
-    border-right: 1px solid #dee2e6;
-}
-
-.nexus-sidebar-left .nexus-content-area {
-    order: 1;
+    .nexus-sidebar {
+        min-width: 400px;
+    }
 }
 
 /* =============================================
@@ -611,9 +725,9 @@ body.format-nexusformat.drawer-open-left #page-content {
    Responsive Design
    ============================================= */
 
-/* Mobile sidebar toggle button */
+/* Mobile sidebar toggle button - visible by default on mobile (mobile-first) */
 .nexus-sidebar-toggle {
-    display: none;
+    display: flex;
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -644,9 +758,9 @@ body.format-nexusformat.drawer-open-left #page-content {
     font-size: 1.5rem;
 }
 
-/* Mobile sidebar close button */
+/* Mobile sidebar close button - visible by default on mobile */
 .nexus-sidebar-close {
-    display: none;
+    display: flex;
     position: absolute;
     top: 10px;
     right: 10px;
@@ -687,79 +801,8 @@ body.format-nexusformat.drawer-open-left #page-content {
     opacity: 1;
 }
 
-@media (max-width: 992px) {
-    .nexus-layout {
-        flex-direction: column;
-    }
-
-    .nexus-content-area {
-        flex: none;
-        max-width: 100%;
-        width: 100%;
-        order: 1;
-        height: auto;
-        min-height: calc(100vh - 150px);
-    }
-
-    /* Sidebar becomes a drawer */
-    .nexus-sidebar {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 85%;
-        max-width: 400px;
-        height: 100vh;
-        border-left: none;
-        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-        z-index: 1040;
-        transition: right 0.3s ease;
-    }
-
-    .nexus-sidebar.open {
-        right: 0;
-    }
-
-    /* Sidebar on left position for mobile */
-    .nexus-sidebar-left .nexus-sidebar {
-        right: auto;
-        left: -100%;
-        border-right: none;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .nexus-sidebar-left .nexus-sidebar.open {
-        left: 0;
-    }
-
-    /* Show toggle and close buttons on mobile */
-    .nexus-sidebar-toggle {
-        display: flex;
-    }
-
-    .nexus-sidebar-close {
-        display: flex;
-    }
-
-    .nexus-activity-iframe {
-        height: 60vh;
-        min-height: 400px;
-    }
-
-    /* Adjust comments section padding */
-    .nexus-format-container .nexus-comments-section {
-        padding: 1rem;
-    }
-}
-
+/* Small screens - smaller toggle button */
 @media (max-width: 576px) {
-    .nexus-tab span {
-        display: none;
-    }
-
-    .nexus-tab i {
-        font-size: 1.25rem;
-    }
-
     .nexus-sidebar-toggle {
         width: 50px;
         height: 50px;
@@ -768,6 +811,14 @@ body.format-nexusformat.drawer-open-left #page-content {
     }
 
     .nexus-sidebar-toggle i {
+        font-size: 1.25rem;
+    }
+
+    .nexus-tab span {
+        display: none;
+    }
+
+    .nexus-tab i {
         font-size: 1.25rem;
     }
 
@@ -813,6 +864,34 @@ body.format-nexusformat.drawer-open-left #page-content {
 
     .nexus-activity-title {
         font-size: 1.25rem;
+    }
+
+    /* Adjust comments section padding */
+    .nexus-format-container .nexus-comments-section {
+        padding: 1rem;
+    }
+}
+
+/* Tablets */
+@media (min-width: 577px) and (max-width: 991px) {
+    .nexus-activity-iframe {
+        height: 60vh;
+        min-height: 400px;
+    }
+}
+
+/* Desktop - hide mobile controls */
+@media (min-width: 992px) {
+    .nexus-sidebar-toggle {
+        display: none;
+    }
+
+    .nexus-sidebar-close {
+        display: none;
+    }
+
+    .nexus-sidebar-overlay {
+        display: none !important;
     }
 }
 
