@@ -750,10 +750,14 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
     // Show comments section for activity (calls global function defined later)
     var currentActivityCmid = 0;
     function showCommentsForActivity(cmid) {
+        console.log('showCommentsForActivity called with cmid:', cmid);
         currentActivityCmid = cmid;
         // Call global function defined in comments section
         if (typeof window.loadCommentsForActivity === 'function') {
+            console.log('Calling window.loadCommentsForActivity');
             window.loadCommentsForActivity(cmid);
+        } else {
+            console.log('window.loadCommentsForActivity is NOT defined yet');
         }
     }
 
@@ -1027,9 +1031,11 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
 
     // Global function to load comments for an activity (called from loadActivityContent)
     window.loadCommentsForActivity = function(cmid) {
+        console.log('loadCommentsForActivity called with cmid:', cmid);
         currentCmid = cmid;
         commentsPage = 0;
-        $commentsSection.show();
+        $commentsSection.css('display', 'block').show();
+        console.log('Comments section display:', $commentsSection.css('display'));
         loadComments(true);
     };
 
@@ -1042,12 +1048,14 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
 
     // Load comments from server
     function loadComments(reset) {
+        console.log('loadComments called, reset:', reset, 'cmid:', currentCmid);
         if (reset) {
             commentsPage = 0;
             $commentsList.html('<div class="nexus-comments-loading text-center py-3"><i class="fa fa-spinner fa-spin"></i> {{#str}}loading_comments, format_nexusformat{{/str}}</div>');
         }
 
         var sortby = $commentsSort.val();
+        console.log('Making AJAX call to get_comments with cmid:', currentCmid);
 
         Ajax.call([{
             methodname: 'format_nexusformat_get_comments',
@@ -1058,6 +1066,7 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 sortby: sortby
             }
         }])[0].done(function(response) {
+            console.log('get_comments response:', response);
             totalComments = response.totalcount;
             $commentsCount.text('(' + totalComments + ')');
 
