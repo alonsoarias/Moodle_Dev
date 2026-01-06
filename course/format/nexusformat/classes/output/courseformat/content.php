@@ -282,11 +282,6 @@ class content extends content_base {
                     continue;
                 }
 
-                // Skip excluded modules completely - they don't appear in the sidebar.
-                if (in_array($cm->modname, self::EXCLUDED_MODULES)) {
-                    continue;
-                }
-
                 // Check for delegated section (subsection activity).
                 $delegatedsectioninfo = $cm->get_delegated_section_info();
 
@@ -386,14 +381,6 @@ class content extends content_base {
     }
 
     /**
-     * Modules to exclude from content loading.
-     * These are handled differently or don't display in the content area.
-     *
-     * @var array
-     */
-    protected const EXCLUDED_MODULES = ['subsection', 'intebchat', 'folder_custom'];
-
-    /**
      * Get the URL of the first activity in the course.
      *
      * @param \course_modinfo $modinfo The course modinfo
@@ -406,10 +393,6 @@ class content extends content_base {
             if (!empty($modinfo->sections[$section->section])) {
                 foreach ($modinfo->sections[$section->section] as $cmid) {
                     $cm = $modinfo->get_cm($cmid);
-                    // Skip excluded modules.
-                    if (in_array($cm->modname, self::EXCLUDED_MODULES)) {
-                        continue;
-                    }
                     if ($cm->uservisible && !$cm->is_stealth() && $cm->url) {
                         return $cm->url->out(false);
                     }
@@ -422,7 +405,6 @@ class content extends content_base {
 
     /**
      * Get the cmid of the first loadable activity in the course.
-     * Excludes modules that are handled differently (subsection, intebchat, folder_custom).
      *
      * @param \course_modinfo $modinfo The course modinfo
      * @return int|null cmid of first activity or null
@@ -439,10 +421,6 @@ class content extends content_base {
             if (!empty($modinfo->sections[$section->section])) {
                 foreach ($modinfo->sections[$section->section] as $cmid) {
                     $cm = $modinfo->get_cm($cmid);
-                    // Skip excluded modules.
-                    if (in_array($cm->modname, self::EXCLUDED_MODULES)) {
-                        continue;
-                    }
                     // Skip hidden/stealth activities.
                     if (!$cm->uservisible || $cm->is_stealth()) {
                         continue;

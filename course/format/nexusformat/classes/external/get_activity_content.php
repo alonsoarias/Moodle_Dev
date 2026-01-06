@@ -124,14 +124,6 @@ class get_activity_content extends external_api {
 
         // Handle specific module types.
         switch ($modname) {
-            // Excluded modules - these are not displayed inline.
-            case 'subsection':
-            case 'intebchat':
-            case 'folder_custom':
-                // These modules are excluded from inline display.
-                $html .= self::get_excluded_module_content($cm, $cminfo, $context);
-                break;
-
             case 'page':
                 $html .= self::get_page_content($instance, $context);
                 break;
@@ -1872,39 +1864,6 @@ class get_activity_content extends external_api {
         }
         $html .= '</div>';
 
-        return $html;
-    }
-
-    /**
-     * Get content for excluded modules (subsection, intebchat, folder_custom).
-     * These modules are not displayed inline but we show a helpful message.
-     *
-     * @param object $cm Course module record
-     * @param \cm_info $cminfo Course module info object
-     * @param \context_module $context Module context
-     * @return string HTML content
-     */
-    protected static function get_excluded_module_content($cm, $cminfo, $context): string {
-        $modname = $cm->modname;
-        $modulename = get_string('pluginname', 'mod_' . $modname);
-
-        $html = '<div class="nexus-excluded-module text-center py-5">';
-        $html .= '<div class="nexus-excluded-icon mb-4">';
-        $html .= '<img src="' . $cminfo->get_icon_url() . '" alt="" style="width: 64px; height: 64px;" />';
-        $html .= '</div>';
-        $html .= '<h4>' . format_string($modulename) . '</h4>';
-        $html .= '<p class="text-muted">';
-        $html .= get_string('excluded_module_message', 'format_nexusformat');
-        $html .= '</p>';
-
-        // Open in full view button.
-        if ($cminfo->url) {
-            $html .= '<a href="' . $cminfo->url->out() . '" class="btn btn-primary">';
-            $html .= '<i class="fa fa-external-link"></i> ' . get_string('openactivity', 'format_nexusformat');
-            $html .= '</a>';
-        }
-
-        $html .= '</div>';
         return $html;
     }
 

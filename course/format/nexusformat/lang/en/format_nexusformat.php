@@ -112,4 +112,3 @@ $string['activity_requires_interaction'] = 'This activity requires interaction. 
 $string['activity_requires_fullview'] = 'This activity requires a full view to work properly. Click the button below to open it in a new window.';
 $string['activityinfo'] = 'Activity information';
 $string['openactivity'] = 'Open activity';
-$string['excluded_module_message'] = 'This type of content is best viewed in its own page. Click the button below to open it.';
