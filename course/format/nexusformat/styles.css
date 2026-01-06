@@ -248,7 +248,11 @@ body.format-nexusformat.drawer-open-left #page-content {
 }
 
 .nexus-tab-pane {
-    padding: 0;
+    padding: 1rem;
+}
+
+.nexus-tab-pane.active {
+    display: block;
 }
 
 /* Coming Soon placeholder for future phases */
@@ -1039,13 +1043,21 @@ body.format-nexusformat.drawer-open-left #page-content {
    ========================================= */
 
 .nexus-activities-header {
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
     border-bottom: 1px solid #e9ecef;
 }
 
 .nexus-activities-header h6 {
     font-weight: 600;
     color: #212529;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.nexus-activities-header small {
+    display: block;
+    margin-top: 0.25rem;
 }
 
 .nexus-activities-list {
@@ -1063,6 +1075,7 @@ body.format-nexusformat.drawer-open-left #page-content {
     border: 1px solid #e9ecef;
     border-radius: 0.5rem;
     transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .nexus-activity-item:hover {
@@ -1083,16 +1096,20 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 .nexus-activity-icon {
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
 }
 
+.nexus-activity-icon img,
 .nexus-activity-icon .icon {
     width: 24px;
     height: 24px;
+    object-fit: contain;
 }
 
 .nexus-activity-info {
@@ -1105,6 +1122,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 .nexus-activity-name {
     font-weight: 500;
+    font-size: 0.9rem;
     color: #212529;
     text-decoration: none;
     display: block;
@@ -1128,14 +1146,14 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 .nexus-activity-due,
 .nexus-activity-grade {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.25rem;
 }
 
 .nexus-activity-due i,
 .nexus-activity-grade i {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
 }
 
 .nexus-activity-status {
@@ -1143,25 +1161,29 @@ body.format-nexusformat.drawer-open-left #page-content {
 }
 
 .nexus-activity-status .badge {
-    width: 24px;
-    height: 24px;
-    display: flex;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    padding: 0;
 }
 
 .nexus-no-activities {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
     color: #6c757d;
 }
 
 .nexus-no-activities i {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.7;
 }
 
 /* Mobile adjustments for activities */
