@@ -125,6 +125,7 @@ class content extends content_base {
         $secondarycolor = get_config('format_nexusformat', 'secondarycolor') ?: '#764ba2';
         $progresscolor = get_config('format_nexusformat', 'progresscolor') ?: '#0dcaf0';
         $contentwidth = get_config('format_nexusformat', 'contentwidth') ?: '70';
+        $containerwidth = get_config('format_nexusformat', 'containerwidth') ?: '100';
         $borderradius = get_config('format_nexusformat', 'cardborderradius') ?: '8';
         $sidebarposition = get_config('format_nexusformat', 'sidebarposition') ?: 'right';
 
@@ -155,6 +156,7 @@ class content extends content_base {
         $customstyles[] = "--nexus-progress-color: {$progresscolor}";
         $customstyles[] = "--nexus-content-width: {$contentwidth}%";
         $customstyles[] = "--nexus-sidebar-width: {$sidebarwidth}%";
+        $customstyles[] = "--nexus-container-width: {$containerwidth}%";
         $customstyles[] = "--nexus-border-radius: {$borderradius}px";
 
         // Card shadows.

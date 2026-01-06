@@ -19,6 +19,7 @@
     --nexus-progress-color: #0dcaf0;
     --nexus-content-width: 70%;
     --nexus-sidebar-width: 30%;
+    --nexus-container-width: 100%;
     --nexus-border-radius: 8px;
     --nexus-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     --nexus-card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -82,9 +83,9 @@ body.format-nexusformat.drawer-open-left #page-content {
    ============================================= */
 
 .nexus-format-container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
+    width: var(--nexus-container-width);
+    max-width: var(--nexus-container-width);
+    margin: 0 auto;
     padding: 0;
 }
 

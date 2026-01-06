@@ -134,6 +134,8 @@ $string['settings_layout'] = 'Configuración de diseño';
 $string['settings_layout_desc'] = 'Configura el diseño del formato Nexus.';
 $string['settings_contentwidth'] = 'Ancho del área de contenido';
 $string['settings_contentwidth_desc'] = 'El ancho del área de contenido principal como porcentaje. La barra lateral ocupará el espacio restante.';
+$string['settings_containerwidth'] = 'Ancho del contenedor';
+$string['settings_containerwidth_desc'] = 'El ancho total del contenedor del formato Nexus como porcentaje de la ventana. Usa menos del 100% para centrar el contenido con márgenes a ambos lados.';
 
 // Settings - Colors.
 $string['settings_colors'] = 'Configuración de colores';

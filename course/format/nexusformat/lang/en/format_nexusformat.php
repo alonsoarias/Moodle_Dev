@@ -134,6 +134,8 @@ $string['settings_layout'] = 'Layout settings';
 $string['settings_layout_desc'] = 'Configure the layout of the Nexus format.';
 $string['settings_contentwidth'] = 'Content area width';
 $string['settings_contentwidth_desc'] = 'The width of the main content area as a percentage. The sidebar will take the remaining space.';
+$string['settings_containerwidth'] = 'Container width';
+$string['settings_containerwidth_desc'] = 'The total width of the Nexus format container as a percentage of the viewport. Use less than 100% to center the content with margins on both sides.';
 
 // Settings - Colors.
 $string['settings_colors'] = 'Color settings';

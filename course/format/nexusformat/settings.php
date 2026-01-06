@@ -55,6 +55,21 @@ if ($hassiteconfig) {
             ]
         ));
 
+        // Container width (percentage of viewport).
+        $settings->add(new admin_setting_configselect(
+            'format_nexusformat/containerwidth',
+            get_string('settings_containerwidth', 'format_nexusformat'),
+            get_string('settings_containerwidth_desc', 'format_nexusformat'),
+            '100',
+            [
+                '80' => '80%',
+                '85' => '85%',
+                '90' => '90%',
+                '95' => '95%',
+                '100' => '100%',
+            ]
+        ));
+
         // Header - Color Settings.
         $settings->add(new admin_setting_heading(
             'format_nexusformat/colorsettings',
