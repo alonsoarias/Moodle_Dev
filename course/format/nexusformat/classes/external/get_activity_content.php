@@ -200,8 +200,8 @@ class get_activity_content extends external_api {
 
         $html .= '</div>';
 
-        // Add completion button if needed.
-        $html .= self::get_completion_section($cminfo, $course);
+        // Completion status is shown in the sidebar, not in activity content.
+        // $html .= self::get_completion_section($cminfo, $course);
 
         return $html;
     }
