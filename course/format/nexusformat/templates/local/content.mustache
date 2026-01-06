@@ -173,11 +173,8 @@
                             </div>
                             <div class="nexus-unit-lessons" {{^expanded}}style="display: none;"{{/expanded}}>
                                 {{#lessons}}
-                                <div class="nexus-lesson {{#active}}active{{/active}} {{#completed}}completed{{/completed}}"
-                                     data-cmid="{{id}}"
-                                     data-url="{{url}}"
-                                     role="button"
-                                     tabindex="0">
+                                <a href="{{url}}" class="nexus-lesson {{#active}}active{{/active}} {{#completed}}completed{{/completed}}"
+                                   data-cmid="{{id}}">
                                     <span class="nexus-lesson-status">
                                         {{#completed}}
                                         <i class="fa fa-check-circle" aria-hidden="true"></i>
@@ -191,7 +188,7 @@
                                         <span class="nexus-lesson-num">{{num}}</span>
                                         <span class="nexus-lesson-name">{{name}}</span>
                                     </div>
-                                </div>
+                                </a>
                                 {{/lessons}}
                                 {{^haslessons}}
                                 <div class="nexus-no-lessons">
@@ -291,49 +288,7 @@ require(['jquery'], function($) {
         }
     });
 
-    // Lesson click - load activity in iframe
-    $('.nexus-lesson').on('click keypress', function(e) {
-        if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
-            return;
-        }
-        e.preventDefault();
-
-        var url = $(this).data('url');
-        if (!url) {
-            return;
-        }
-
-        // Update active state
-        $('.nexus-lesson').removeClass('active');
-        $(this).addClass('active');
-
-        // Load content in iframe
-        var $contentArea = $('#nexus-activity-content');
-        $contentArea.html('<div class="nexus-loading"><i class="fa fa-spinner fa-spin fa-2x"></i><p>{{#str}}loading, format_nexusformat{{/str}}</p></div>');
-
-        // Create iframe to load activity
-        var iframe = $('<iframe>', {
-            src: url,
-            class: 'nexus-activity-iframe',
-            frameborder: '0',
-            allowfullscreen: true
-        });
-
-        iframe.on('load', function() {
-            $contentArea.find('.nexus-loading').remove();
-        });
-
-        iframe.on('error', function() {
-            $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-2x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
-        });
-
-        $contentArea.html(iframe);
-    });
-
-    // Load first activity by default
-    var $firstLesson = $('.nexus-lesson').first();
-    if ($firstLesson.length && $firstLesson.data('url')) {
-        $firstLesson.trigger('click');
-    }
+    // Lessons are now direct links - no iframe needed
+    // Navigation happens via standard link behavior
 });
 {{/js}}

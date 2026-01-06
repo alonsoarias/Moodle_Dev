@@ -61,7 +61,8 @@ class content extends content_base {
         // Add Nexus-specific data.
         $data->nexusformat = true;
         $data->courseid = $course->id;
-        $data->editing = $PAGE->user_is_editing();
+        // Use integers for Mustache boolean compatibility.
+        $data->editing = $PAGE->user_is_editing() ? 1 : 0;
 
         // Get progress information.
         $data->progress = $this->get_progress_data($course, $modinfo);
