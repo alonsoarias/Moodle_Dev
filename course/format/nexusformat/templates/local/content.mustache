@@ -363,7 +363,7 @@
 </div>
 
 {{#js}}
-require(['jquery'], function($) {
+require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
     var $contentArea = $('#nexus-activity-content');
     var courseid = {{courseid}};
 
@@ -432,36 +432,20 @@ require(['jquery'], function($) {
         }
     });
 
-    // Load activity content via iframe (universal solution for all activity types)
-    function loadActivityContent(url, cmid) {
-        if (!url) {
-            $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-3x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
-            return;
-        }
-
+    // Load activity content via AJAX
+    function loadActivityContent(cmid) {
         // Show loading state
         $contentArea.html('<div class="nexus-loading"><i class="fa fa-spinner fa-spin fa-3x"></i><p>{{#str}}loading, format_nexusformat{{/str}}</p></div>');
 
-        // Create iframe to load the activity's view.php directly
-        // This works with ANY activity type, including custom/third-party plugins
-        var iframe = $('<iframe>', {
-            'class': 'nexus-activity-iframe',
-            'src': url,
-            'frameborder': '0',
-            'allowfullscreen': true,
-            'allow': 'microphone; camera; geolocation; fullscreen',
-            'data-cmid': cmid
-        });
-
-        // Replace content with iframe
-        $contentArea.html('').append(iframe);
-
-        // Handle iframe load
-        iframe.on('load', function() {
-            // Iframe loaded successfully
-            $(this).addClass('loaded');
-        }).on('error', function() {
+        // Make AJAX call to get activity content
+        Ajax.call([{
+            methodname: 'format_nexusformat_get_activity_content',
+            args: { cmid: cmid }
+        }])[0].done(function(response) {
+            $contentArea.html('<div class="nexus-activity-wrapper">' + response.content + '</div>');
+        }).fail(function(error) {
             $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-3x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
+            Notification.exception(error);
         });
     }
 
@@ -474,14 +458,13 @@ require(['jquery'], function($) {
 
         var $lesson = $(this);
         var cmid = $lesson.data('cmid');
-        var url = $lesson.data('url');
 
         // Update active state
         $('.nexus-lesson').removeClass('active');
         $lesson.addClass('active');
 
-        // Load the activity content via iframe
-        loadActivityContent(url, cmid);
+        // Load the activity content via AJAX
+        loadActivityContent(cmid);
     });
 });
 {{/js}}

@@ -109,4 +109,6 @@ $string['error_saving'] = 'Error saving. Please try again.';
 
 // Activity display.
 $string['activity_requires_interaction'] = 'This activity requires interaction. Click the button below to open it.';
+$string['activity_requires_fullview'] = 'This activity requires a full view to work properly. Click the button below to open it in a new window.';
+$string['activityinfo'] = 'Activity information';
 $string['openactivity'] = 'Open activity';

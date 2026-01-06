@@ -109,4 +109,6 @@ $string['error_saving'] = 'Error al guardar. Por favor, inténtalo de nuevo.';
 
 // Activity display.
 $string['activity_requires_interaction'] = 'Esta actividad requiere interacción. Haz clic en el botón para abrirla.';
+$string['activity_requires_fullview'] = 'Esta actividad requiere una vista completa para funcionar correctamente. Haz clic en el botón para abrirla en una nueva ventana.';
+$string['activityinfo'] = 'Información de la actividad';
 $string['openactivity'] = 'Abrir actividad';

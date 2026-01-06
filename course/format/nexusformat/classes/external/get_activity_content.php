@@ -1720,33 +1720,105 @@ class get_activity_content extends external_api {
     }
 
     /**
-     * Get generic activity content for unsupported modules.
+     * Get generic activity content for unsupported/unanalyzed modules.
+     * This provides a rich fallback experience for any activity type.
      */
     protected static function get_generic_activity_content($cm, $cminfo, $context): string {
         global $CFG, $DB;
 
+        $modname = $cm->modname;
         $html = '<div class="nexus-generic-content">';
 
-        // Try to get module view page content dynamically.
-        $modname = $cm->modname;
-        $modviewfile = $CFG->dirroot . '/mod/' . $modname . '/view.php';
+        // Get the human-readable module name.
+        $modulename = get_string('pluginname', 'mod_' . $modname);
 
-        // Show activity-specific info if available.
-        $instance = $DB->get_record($modname, ['id' => $cm->instance]);
-        if ($instance && !empty($instance->intro)) {
-            // Intro already shown in header, just show action button.
-        }
+        // Info card about this activity type.
+        $html .= '<div class="card mb-4">';
+        $html .= '<div class="card-body text-center">';
 
-        // Action button to view full activity.
-        $html .= '<div class="text-center">';
-        if ($cminfo->url) {
-            $html .= '<a href="' . $cminfo->url->out() . '" class="btn btn-primary btn-lg">';
-            $html .= '<i class="fa fa-external-link"></i> ' . get_string('openactivity', 'format_nexusformat') . '</a>';
-        }
+        // Activity type icon and name.
+        $html .= '<div class="mb-3">';
+        $html .= '<img src="' . $cminfo->get_icon_url() . '" alt="" class="mb-2" style="width: 48px; height: 48px;" />';
+        $html .= '<h5 class="card-title">' . $modulename . '</h5>';
         $html .= '</div>';
+
+        // Informative message.
+        $html .= '<p class="text-muted mb-3">';
+        $html .= '<i class="fa fa-info-circle"></i> ';
+        $html .= get_string('activity_requires_fullview', 'format_nexusformat');
+        $html .= '</p>';
+
+        // Primary action button.
+        if ($cminfo->url) {
+            $html .= '<a href="' . $cminfo->url->out() . '" class="btn btn-primary btn-lg" target="_blank">';
+            $html .= '<i class="fa fa-external-link"></i> ';
+            $html .= get_string('openactivity', 'format_nexusformat');
+            $html .= '</a>';
+        }
+
+        $html .= '</div></div>';
+
+        // Try to show additional module-specific information.
+        $instance = $DB->get_record($modname, ['id' => $cm->instance]);
+        if ($instance) {
+            $additionalinfo = self::get_generic_module_info($instance, $modname);
+            if (!empty($additionalinfo)) {
+                $html .= '<div class="card">';
+                $html .= '<div class="card-header"><strong>' . get_string('activityinfo', 'format_nexusformat') . '</strong></div>';
+                $html .= '<div class="card-body">' . $additionalinfo . '</div>';
+                $html .= '</div>';
+            }
+        }
 
         $html .= '</div>';
         return $html;
+    }
+
+    /**
+     * Get generic information from common module fields.
+     */
+    protected static function get_generic_module_info($instance, string $modname): string {
+        $info = [];
+
+        // Check for common date fields.
+        if (!empty($instance->timeopen) && $instance->timeopen > 0) {
+            $info[] = '<p><i class="fa fa-calendar"></i> <strong>' . get_string('open', 'form') . ':</strong> ' .
+                      userdate($instance->timeopen) . '</p>';
+        }
+        if (!empty($instance->timeclose) && $instance->timeclose > 0) {
+            $dueclass = ($instance->timeclose < time()) ? 'text-danger' : 'text-success';
+            $info[] = '<p><i class="fa fa-calendar-times-o"></i> <strong>' . get_string('close', 'form') . ':</strong> ' .
+                      '<span class="' . $dueclass . '">' . userdate($instance->timeclose) . '</span></p>';
+        }
+        if (!empty($instance->duedate) && $instance->duedate > 0) {
+            $dueclass = ($instance->duedate < time()) ? 'text-danger' : 'text-success';
+            $info[] = '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('duedate', 'assign') . ':</strong> ' .
+                      '<span class="' . $dueclass . '">' . userdate($instance->duedate) . '</span></p>';
+        }
+
+        // Check for attempts/tries.
+        if (isset($instance->attempts) && $instance->attempts > 0) {
+            $info[] = '<p><i class="fa fa-repeat"></i> <strong>' . get_string('attempts', 'quiz') . ':</strong> ' .
+                      $instance->attempts . '</p>';
+        }
+        if (isset($instance->maxattempts) && $instance->maxattempts > 0) {
+            $info[] = '<p><i class="fa fa-repeat"></i> <strong>' . get_string('attempts', 'quiz') . ':</strong> ' .
+                      $instance->maxattempts . '</p>';
+        }
+
+        // Check for time limit.
+        if (!empty($instance->timelimit) && $instance->timelimit > 0) {
+            $info[] = '<p><i class="fa fa-hourglass-half"></i> <strong>' . get_string('timelimit', 'quiz') . ':</strong> ' .
+                      format_time($instance->timelimit) . '</p>';
+        }
+
+        // Check for grade.
+        if (isset($instance->grade) && $instance->grade > 0) {
+            $info[] = '<p><i class="fa fa-star"></i> <strong>' . get_string('grade', 'grades') . ':</strong> ' .
+                      format_float($instance->grade, 2) . '</p>';
+        }
+
+        return implode('', $info);
     }
 
     /**
