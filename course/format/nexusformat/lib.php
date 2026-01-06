@@ -170,6 +170,15 @@ class format_nexusformat extends core_courseformat\base {
     }
 
     /**
+     * Called after the course has been loaded.
+     * This adds a body class for full-width styling.
+     */
+    public function page_set_course(\moodle_page $page): void {
+        parent::page_set_course($page);
+        $page->add_body_class('format-nexusformat');
+    }
+
+    /**
      * Definitions of the additional options that this course format uses for course.
      *
      * @param bool $foreditform

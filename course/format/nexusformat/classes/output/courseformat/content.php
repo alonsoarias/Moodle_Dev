@@ -54,6 +54,7 @@ class content extends content_base {
         $format = $this->format;
         $course = $format->get_course();
         $modinfo = $format->get_modinfo();
+        $context = \context_course::instance($course->id);
 
         // Get base data from parent.
         $data = parent::export_for_template($output);
@@ -61,14 +62,23 @@ class content extends content_base {
         // Add Nexus-specific data.
         $data->nexusformat = true;
         $data->courseid = $course->id;
+        $data->coursefullname = format_string($course->fullname);
+        $data->courseshortname = format_string($course->shortname);
+
         // Use integers for Mustache boolean compatibility.
         $data->editing = $PAGE->user_is_editing() ? 1 : 0;
+
+        // Determine user role capabilities for view mode.
+        $canviewhidden = has_capability('moodle/course:viewhiddenactivities', $context);
+        $canmanage = has_capability('moodle/course:manageactivities', $context);
+        $data->isteacher = ($canviewhidden || $canmanage) ? 1 : 0;
+        $data->isstudent = !$data->isteacher ? 1 : 0;
 
         // Get progress information.
         $data->progress = $this->get_progress_data($course, $modinfo);
 
         // Get sections data for sidebar.
-        $data->sidebarunits = $this->get_sidebar_units($modinfo, $output);
+        $data->sidebarunits = $this->get_sidebar_units($modinfo, $output, $canviewhidden);
 
         // Get first activity URL for initial load.
         $data->initialactivityurl = $this->get_first_activity_url($modinfo);
@@ -139,14 +149,16 @@ class content extends content_base {
      *
      * @param \course_modinfo $modinfo The course modinfo
      * @param renderer_base $output The renderer
+     * @param bool $canviewhidden Whether user can view hidden activities
      * @return array Array of unit data for sidebar
      */
-    protected function get_sidebar_units(\course_modinfo $modinfo, renderer_base $output): array {
+    protected function get_sidebar_units(\course_modinfo $modinfo, renderer_base $output, bool $canviewhidden = false): array {
         global $USER;
 
         $format = $this->format;
         $course = $format->get_course();
         $completion = new completion_info($course);
+        $context = \context_course::instance($course->id);
         $units = [];
 
         $sections = $modinfo->get_section_info_all();
@@ -157,7 +169,13 @@ class content extends content_base {
                 continue;
             }
 
-            if (!$format->is_section_visible($section)) {
+            // Check section visibility.
+            $sectionvisible = $section->visible;
+            $sectionuservisible = $section->uservisible;
+
+            // For teachers: show all sections with visibility indicators.
+            // For students: only show visible sections they can access.
+            if (!$canviewhidden && !$sectionuservisible) {
                 continue;
             }
 
@@ -168,14 +186,34 @@ class content extends content_base {
             $unit->expanded = ($section->section == 1); // First unit expanded by default.
             $unit->lessons = [];
 
+            // Section visibility flags for teachers.
+            $unit->ishidden = !$sectionvisible ? 1 : 0;
+            $unit->hiddentext = get_string('hiddenfromstudents');
+
+            // Get availability info for section.
+            if (!empty($section->availability)) {
+                $ci = new \core_availability\info_section($section);
+                $unit->hasrestrictions = 1;
+                $unit->availabilityinfo = $ci->get_full_information();
+            }
+
             // Get activities in this section.
             if (!empty($modinfo->sections[$section->section])) {
                 $lessonnum = 1;
                 foreach ($modinfo->sections[$section->section] as $cmid) {
                     $cm = $modinfo->get_cm($cmid);
 
-                    if (!$cm->uservisible || $cm->is_stealth()) {
-                        continue;
+                    // Determine activity visibility.
+                    $activityvisible = $cm->visible;
+                    $activityuservisible = $cm->uservisible;
+                    $isstealth = $cm->is_stealth();
+
+                    // For teachers: show all activities with visibility indicators.
+                    // For students: only show activities they can access.
+                    if (!$canviewhidden) {
+                        if (!$activityuservisible || $isstealth) {
+                            continue;
+                        }
                     }
 
                     $lesson = new stdClass();
@@ -187,12 +225,37 @@ class content extends content_base {
                     $lesson->icon = $cm->get_icon_url()->out(false);
                     $lesson->active = false;
 
+                    // Visibility flags.
+                    $lesson->ishidden = !$activityvisible ? 1 : 0;
+                    $lesson->isstealth = $isstealth ? 1 : 0;
+                    $lesson->isrestricted = (!$activityuservisible && $activityvisible) ? 1 : 0;
+
+                    // Visibility badge text.
+                    if ($lesson->ishidden) {
+                        $lesson->visibilitybadge = get_string('hiddenfromstudents');
+                        $lesson->badgeclass = 'badge-hidden';
+                    } else if ($lesson->isstealth) {
+                        $lesson->visibilitybadge = get_string('hiddenoncoursepage');
+                        $lesson->badgeclass = 'badge-stealth';
+                    } else if ($lesson->isrestricted) {
+                        $lesson->visibilitybadge = get_string('restricted');
+                        $lesson->badgeclass = 'badge-restricted';
+                    }
+
+                    // Get availability info.
+                    if ($cm->availableinfo) {
+                        $lesson->availabilityinfo = $cm->availableinfo;
+                    }
+
                     // Get completion status.
                     $lesson->completed = false;
+                    $lesson->hascompletion = 0;
                     if ($completion->is_enabled() && $cm->completion != COMPLETION_TRACKING_NONE) {
+                        $lesson->hascompletion = 1;
                         $completiondata = $completion->get_data($cm, true, $USER->id);
                         $lesson->completed = ($completiondata->completionstate == COMPLETION_COMPLETE ||
-                                             $completiondata->completionstate == COMPLETION_COMPLETE_PASS);
+                                             $completiondata->completionstate == COMPLETION_COMPLETE_PASS) ? 1 : 0;
+                        $lesson->completionfailed = ($completiondata->completionstate == COMPLETION_COMPLETE_FAIL) ? 1 : 0;
                     }
 
                     $unit->lessons[] = $lesson;

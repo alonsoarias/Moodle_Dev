@@ -74,7 +74,7 @@
     }
 }}
 
-<div id="nexus-format-container" class="nexus-format-container" data-courseid="{{courseid}}">
+<div id="nexus-format-container" class="nexus-format-container {{#isteacher}}nexus-teacher-view{{/isteacher}}{{#isstudent}}nexus-student-view{{/isstudent}}" data-courseid="{{courseid}}">
     {{#nexusformat}}
     <div class="nexus-layout">
         {{! Left Column - Main Content Area }}
@@ -158,7 +158,7 @@
                     {{! Units List }}
                     <div class="nexus-units-list">
                         {{#sidebarunits}}
-                        <div class="nexus-unit {{#expanded}}expanded{{/expanded}}" data-unitid="{{id}}">
+                        <div class="nexus-unit {{#expanded}}expanded{{/expanded}} {{#ishidden}}hidden-section{{/ishidden}}" data-unitid="{{id}}">
                             <div class="nexus-unit-header" role="button" tabindex="0" aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}">
                                 <span class="nexus-unit-toggle">
                                     {{#expanded}}
@@ -170,24 +170,45 @@
                                 </span>
                                 <span class="nexus-unit-name">{{name}}</span>
                                 <span class="nexus-unit-count">({{lessoncount}})</span>
+                                {{#ishidden}}
+                                <span class="nexus-unit-badge" title="{{hiddentext}}">
+                                    <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                                </span>
+                                {{/ishidden}}
                             </div>
                             <div class="nexus-unit-lessons" {{^expanded}}style="display: none;"{{/expanded}}>
                                 {{#lessons}}
-                                <div class="nexus-lesson {{#active}}active{{/active}} {{#completed}}completed{{/completed}}"
+                                <div class="nexus-lesson {{#active}}active{{/active}} {{#completed}}completed{{/completed}} {{#ishidden}}hidden-activity{{/ishidden}} {{#isstealth}}stealth-activity{{/isstealth}} {{#isrestricted}}restricted-activity{{/isrestricted}}"
                                      data-cmid="{{id}}" data-url="{{url}}" role="button" tabindex="0">
                                     <span class="nexus-lesson-status">
-                                        {{#completed}}
-                                        <i class="fa fa-check-circle" aria-hidden="true"></i>
-                                        {{/completed}}
-                                        {{^completed}}
-                                        <i class="fa fa-circle-o" aria-hidden="true"></i>
-                                        {{/completed}}
+                                        {{#hascompletion}}
+                                            {{#completed}}
+                                            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                                            {{/completed}}
+                                            {{#completionfailed}}
+                                            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                                            {{/completionfailed}}
+                                            {{^completed}}
+                                            {{^completionfailed}}
+                                            <i class="fa fa-circle-o" aria-hidden="true"></i>
+                                            {{/completionfailed}}
+                                            {{/completed}}
+                                        {{/hascompletion}}
+                                        {{^hascompletion}}
+                                        <i class="fa fa-minus text-muted" aria-hidden="true"></i>
+                                        {{/hascompletion}}
                                     </span>
                                     <img src="{{icon}}" alt="" class="nexus-lesson-icon" />
                                     <div class="nexus-lesson-info">
                                         <span class="nexus-lesson-num">{{num}}</span>
                                         <span class="nexus-lesson-name">{{name}}</span>
+                                        {{#availabilityinfo}}
+                                        <span class="nexus-availability-info">{{{availabilityinfo}}}</span>
+                                        {{/availabilityinfo}}
                                     </div>
+                                    {{#visibilitybadge}}
+                                    <span class="nexus-lesson-badge {{badgeclass}}">{{visibilitybadge}}</span>
+                                    {{/visibilitybadge}}
                                 </div>
                                 {{/lessons}}
                                 {{^haslessons}}

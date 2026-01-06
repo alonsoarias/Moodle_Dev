@@ -9,6 +9,48 @@
  */
 
 /* =============================================
+   Full-Width Override for Moodle Containers
+   ============================================= */
+
+/* Override Boost theme container restrictions */
+body.format-nexusformat #page-content,
+body.format-nexusformat #region-main-box,
+body.format-nexusformat #region-main,
+body.format-nexusformat [role="main"],
+body.format-nexusformat .course-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Remove default course content padding */
+body.format-nexusformat #region-main {
+    padding: 0 !important;
+}
+
+/* Hide course header breadcrumb area for cleaner look */
+body.format-nexusformat #page-header {
+    display: none;
+}
+
+/* Ensure secondary navigation stays visible */
+body.format-nexusformat .secondary-navigation {
+    max-width: 100%;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Ensure drawers don't interfere */
+body.format-nexusformat.drawer-open-left #page-content {
+    margin-left: 0;
+}
+
+/* =============================================
    Main Layout - Two Columns
    ============================================= */
 
@@ -597,4 +639,139 @@
 .nexus-lesson:focus {
     outline: 2px solid #0d6efd;
     outline-offset: -2px;
+}
+
+/* =============================================
+   Hidden/Stealth Activity Indicators
+   ============================================= */
+
+.nexus-lesson.hidden-activity {
+    opacity: 0.6;
+    background-color: #fff3cd;
+}
+
+.nexus-lesson.hidden-activity:hover {
+    background-color: #ffecb5;
+}
+
+.nexus-lesson.stealth-activity {
+    opacity: 0.6;
+    background-color: #e2e3e5;
+}
+
+.nexus-lesson.stealth-activity:hover {
+    background-color: #d3d4d6;
+}
+
+.nexus-lesson-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.nexus-lesson-badge.badge-hidden {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.nexus-lesson-badge.badge-stealth {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.nexus-lesson-badge.badge-restricted {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+/* Section hidden indicator */
+.nexus-unit.hidden-section > .nexus-unit-header {
+    background-color: #fff3cd;
+    opacity: 0.7;
+}
+
+.nexus-unit.hidden-section > .nexus-unit-header:hover {
+    background-color: #ffecb5;
+}
+
+.nexus-unit-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    background-color: #ffc107;
+    color: #212529;
+    margin-left: 0.5rem;
+}
+
+/* Teacher/Manager specific styles */
+.nexus-teacher-view .nexus-unit.hidden-section,
+.nexus-teacher-view .nexus-lesson.hidden-activity,
+.nexus-teacher-view .nexus-lesson.stealth-activity {
+    display: flex !important;
+}
+
+/* Student view - hide completely */
+.nexus-student-view .nexus-unit.hidden-section,
+.nexus-student-view .nexus-lesson.hidden-activity,
+.nexus-student-view .nexus-lesson.stealth-activity {
+    display: none !important;
+}
+
+/* Availability info */
+.nexus-availability-info {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* =============================================
+   Course Header (Optional - shown in Nexus mode)
+   ============================================= */
+
+.nexus-course-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nexus-course-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.nexus-course-meta {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* =============================================
+   Editing Mode Enhancements
+   ============================================= */
+
+.nexus-editing-mode .section {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.nexus-editing-mode .section-header {
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.nexus-editing-mode .activity-item {
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.75rem;
+}
+
+.nexus-editing-mode .activity-item:last-child {
+    border-bottom: none;
 }
