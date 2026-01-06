@@ -87,6 +87,29 @@ body.format-nexusformat.drawer-open-left #page-content {
     max-width: var(--nexus-container-width);
     margin: 0 auto;
     padding: 0;
+    box-sizing: border-box;
+}
+
+/* Ultra-wide screens (21:9 and wider) - limit max width when not 100% */
+@media (min-aspect-ratio: 21/9) {
+    .nexus-format-container {
+        /* On ultra-wide screens, apply a max pixel width when container is less than 100% */
+        max-width: min(var(--nexus-container-width), 2400px);
+    }
+}
+
+/* Wide screens (16:9 to 21:9) */
+@media (min-aspect-ratio: 16/9) and (max-aspect-ratio: 21/9) {
+    .nexus-format-container {
+        max-width: min(var(--nexus-container-width), 2000px);
+    }
+}
+
+/* Standard screens and narrower - use percentage directly */
+@media (max-aspect-ratio: 16/9) {
+    .nexus-format-container {
+        max-width: var(--nexus-container-width);
+    }
 }
 
 .nexus-layout {
