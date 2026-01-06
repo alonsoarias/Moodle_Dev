@@ -64,13 +64,9 @@ body.format-nexusformat #page-header {
     display: none;
 }
 
-/* Ensure secondary navigation stays visible */
+/* Ensure secondary navigation stays visible - but don't override theme styles */
 body.format-nexusformat .secondary-navigation {
     max-width: 100%;
-    margin: 0;
-    padding: 0.5rem 1rem;
-    background-color: #fff;
-    border-bottom: 1px solid #dee2e6;
 }
 
 /* Ensure drawers don't interfere */
@@ -95,7 +91,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 .nexus-layout {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 150px);
+    min-height: 400px;
     gap: 0;
 }
 
@@ -105,10 +101,9 @@ body.format-nexusformat.drawer-open-left #page-content {
     width: 100%;
     max-width: 100%;
     background-color: #f8f9fa;
-    overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    min-height: calc(100vh - 150px);
+    min-height: 400px;
 }
 
 /* Right Column - Sidebar (drawer on mobile) */
@@ -174,30 +169,32 @@ body.format-nexusformat.drawer-open-left #page-content {
 
     .nexus-layout {
         flex-direction: row;
+        align-items: flex-start;
     }
 
     /* Content area uses setting width */
     .nexus-content-area {
         flex: 0 0 var(--nexus-content-width);
         max-width: var(--nexus-content-width);
-        height: calc(100vh - 150px);
-        min-height: auto;
+        min-height: 500px;
     }
 
-    /* Sidebar becomes static on desktop */
+    /* Sidebar becomes static on desktop - height adapts to content */
     .nexus-sidebar {
         position: sticky;
-        top: 0;
+        top: 60px;
         right: auto;
         left: auto;
         flex: 0 0 var(--nexus-sidebar-width);
         max-width: var(--nexus-sidebar-width);
         min-width: 280px;
-        height: calc(100vh - 150px);
+        max-height: calc(100vh - 80px);
+        height: auto;
         border-left: 1px solid #dee2e6;
         box-shadow: var(--nexus-card-shadow);
         z-index: auto;
         transition: none;
+        overflow-y: auto;
     }
 
     /* Sidebar on left position - desktop */
@@ -1668,6 +1665,7 @@ body.format-nexusformat.drawer-open-left #page-content {
 
 /* =========================================
    COMMENTS SECTION STYLES (Phase 6)
+   Comments section is placed below the main layout
    ========================================= */
 
 .nexus-format-container .nexus-comments-section {
@@ -1675,6 +1673,17 @@ body.format-nexusformat.drawer-open-left #page-content {
     border-top: 1px solid #e9ecef;
     padding: 1.5rem;
     margin-top: 1rem;
+    border-radius: var(--nexus-border-radius);
+    box-shadow: var(--nexus-card-shadow);
+}
+
+/* Desktop: limit comments width to content area width */
+@media (min-width: 992px) {
+    .nexus-format-container .nexus-comments-section {
+        max-width: var(--nexus-content-width);
+        margin-left: 0;
+        margin-right: auto;
+    }
 }
 
 /* Participation Banner */

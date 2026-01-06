@@ -120,132 +120,6 @@
                     <p class="nexus-placeholder-text">{{selectactivitytext}}</p>
                 </div>
             </div>
-
-            {{#enablecomments}}
-            {{! Comments Section }}
-            <div class="nexus-comments-section" id="nexus-comments-section" style="display: none;">
-                {{#enableparticipationbanner}}
-                {{! Participation Banner }}
-                <div class="nexus-participation-banner" id="nexus-participation-banner" style="display: none;">
-                    <div class="nexus-banner-content">
-                        <i class="fa fa-users" aria-hidden="true"></i>
-                        <span>{{#str}}participation_banner, format_nexusformat{{/str}}</span>
-                    </div>
-                    <button type="button" class="nexus-banner-close" id="nexus-banner-close">
-                        <i class="fa fa-times" aria-hidden="true"></i>
-                    </button>
-                </div>
-                {{/enableparticipationbanner}}
-
-                {{! Comments Header }}
-                <div class="nexus-comments-header">
-                    <div class="nexus-comments-title">
-                        <i class="fa fa-comments" aria-hidden="true"></i>
-                        <span>{{#str}}comments, format_nexusformat{{/str}}</span>
-                        <span class="nexus-comments-count" id="nexus-comments-count">(0)</span>
-                    </div>
-                    <div class="nexus-comments-sort">
-                        <select id="nexus-comments-sort" class="form-select form-select-sm">
-                            <option value="newest">{{#str}}sort_newest, format_nexusformat{{/str}}</option>
-                            <option value="oldest">{{#str}}sort_oldest, format_nexusformat{{/str}}</option>
-                            <option value="likes">{{#str}}sort_likes, format_nexusformat{{/str}}</option>
-                        </select>
-                    </div>
-                </div>
-
-                {{! Comment Editor }}
-                <div class="nexus-comment-editor" id="nexus-comment-editor">
-                    <div class="nexus-comment-editor-avatar">
-                        <img src="{{useravatarurl}}" alt="" class="nexus-avatar" />
-                    </div>
-                    <div class="nexus-comment-editor-input">
-                        <input type="hidden" id="nexus-comment-id" value="0">
-                        <input type="hidden" id="nexus-comment-parentid" value="0">
-                        <textarea id="nexus-comment-content" class="form-control"
-                                  placeholder="{{#str}}comment_placeholder, format_nexusformat{{/str}}"
-                                  rows="2"></textarea>
-                        <div class="nexus-comment-editor-actions">
-                            <button type="button" class="btn btn-sm btn-primary" id="nexus-post-comment-btn">
-                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                                {{#str}}post_comment, format_nexusformat{{/str}}
-                            </button>
-                            <button type="button" class="btn btn-sm btn-secondary" id="nexus-cancel-comment-btn" style="display: none;">
-                                {{#str}}cancel, format_nexusformat{{/str}}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {{! Comments List }}
-                <div class="nexus-comments-list" id="nexus-comments-list">
-                    <div class="nexus-comments-loading text-center py-3">
-                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
-                        <span>{{#str}}loading_comments, format_nexusformat{{/str}}</span>
-                    </div>
-                </div>
-
-                {{! Load More Button }}
-                <div class="nexus-comments-more" id="nexus-comments-more" style="display: none;">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="nexus-load-more-comments">
-                        {{#str}}load_more_comments, format_nexusformat{{/str}}
-                    </button>
-                </div>
-            </div>
-
-            {{! Comment Template (hidden, used by JS) }}
-            <template id="nexus-comment-template">
-                <div class="nexus-comment" data-commentid="">
-                    <div class="nexus-comment-avatar">
-                        <img src="" alt="" class="nexus-avatar" />
-                    </div>
-                    <div class="nexus-comment-body">
-                        <div class="nexus-comment-header">
-                            <span class="nexus-comment-author"></span>
-                            <span class="nexus-comment-role"></span>
-                            <span class="nexus-comment-time"></span>
-                        </div>
-                        <div class="nexus-comment-content"></div>
-                        <div class="nexus-comment-actions">
-                            <button type="button" class="nexus-comment-like">
-                                <i class="fa fa-heart-o" aria-hidden="true"></i>
-                                <span class="nexus-like-count">0</span>
-                            </button>
-                            <button type="button" class="nexus-comment-reply">
-                                <i class="fa fa-reply" aria-hidden="true"></i>
-                                {{#str}}reply, format_nexusformat{{/str}}
-                            </button>
-                            <button type="button" class="nexus-comment-edit" style="display: none;">
-                                <i class="fa fa-pencil" aria-hidden="true"></i>
-                                {{#str}}edit_comment, format_nexusformat{{/str}}
-                            </button>
-                            <button type="button" class="nexus-comment-delete" style="display: none;">
-                                <i class="fa fa-trash" aria-hidden="true"></i>
-                                {{#str}}delete_comment, format_nexusformat{{/str}}
-                            </button>
-                        </div>
-                        <div class="nexus-comment-replies-toggle" style="display: none;">
-                            <button type="button" class="nexus-show-replies">
-                                <i class="fa fa-chevron-down" aria-hidden="true"></i>
-                                <span class="nexus-replies-count"></span>
-                            </button>
-                        </div>
-                        <div class="nexus-comment-replies" style="display: none;"></div>
-                        <div class="nexus-reply-editor" style="display: none;">
-                            <textarea class="form-control nexus-reply-content" rows="2"
-                                      placeholder="{{#str}}write_reply, format_nexusformat{{/str}}"></textarea>
-                            <div class="nexus-reply-actions">
-                                <button type="button" class="btn btn-sm btn-primary nexus-submit-reply">
-                                    {{#str}}reply, format_nexusformat{{/str}}
-                                </button>
-                                <button type="button" class="btn btn-sm btn-secondary nexus-cancel-reply">
-                                    {{#str}}cancel_reply, format_nexusformat{{/str}}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-            {{/enablecomments}}
             {{/editing}}
         </div>
 
@@ -611,6 +485,134 @@
             </div>
         </div>
     </div>
+
+    {{! Comments Section - Below the main layout }}
+    {{^editing}}
+    {{#enablecomments}}
+    <div class="nexus-comments-section" id="nexus-comments-section" style="display: none;">
+        {{#enableparticipationbanner}}
+        {{! Participation Banner }}
+        <div class="nexus-participation-banner" id="nexus-participation-banner" style="display: none;">
+            <div class="nexus-banner-content">
+                <i class="fa fa-users" aria-hidden="true"></i>
+                <span>{{#str}}participation_banner, format_nexusformat{{/str}}</span>
+            </div>
+            <button type="button" class="nexus-banner-close" id="nexus-banner-close">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        {{/enableparticipationbanner}}
+
+        {{! Comments Header }}
+        <div class="nexus-comments-header">
+            <div class="nexus-comments-title">
+                <i class="fa fa-comments" aria-hidden="true"></i>
+                <span>{{#str}}comments, format_nexusformat{{/str}}</span>
+                <span class="nexus-comments-count" id="nexus-comments-count">(0)</span>
+            </div>
+            <div class="nexus-comments-sort">
+                <select id="nexus-comments-sort" class="form-select form-select-sm">
+                    <option value="newest">{{#str}}sort_newest, format_nexusformat{{/str}}</option>
+                    <option value="oldest">{{#str}}sort_oldest, format_nexusformat{{/str}}</option>
+                    <option value="likes">{{#str}}sort_likes, format_nexusformat{{/str}}</option>
+                </select>
+            </div>
+        </div>
+
+        {{! Comment Editor }}
+        <div class="nexus-comment-editor" id="nexus-comment-editor">
+            <div class="nexus-comment-editor-avatar">
+                <img src="{{useravatarurl}}" alt="" class="nexus-avatar" />
+            </div>
+            <div class="nexus-comment-editor-input">
+                <input type="hidden" id="nexus-comment-id" value="0">
+                <input type="hidden" id="nexus-comment-parentid" value="0">
+                <textarea id="nexus-comment-content" class="form-control"
+                          placeholder="{{#str}}comment_placeholder, format_nexusformat{{/str}}"
+                          rows="2"></textarea>
+                <div class="nexus-comment-editor-actions">
+                    <button type="button" class="btn btn-sm btn-primary" id="nexus-post-comment-btn">
+                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                        {{#str}}post_comment, format_nexusformat{{/str}}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" id="nexus-cancel-comment-btn" style="display: none;">
+                        {{#str}}cancel, format_nexusformat{{/str}}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{! Comments List }}
+        <div class="nexus-comments-list" id="nexus-comments-list">
+            <div class="nexus-comments-loading text-center py-3">
+                <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                <span>{{#str}}loading_comments, format_nexusformat{{/str}}</span>
+            </div>
+        </div>
+
+        {{! Load More Button }}
+        <div class="nexus-comments-more" id="nexus-comments-more" style="display: none;">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="nexus-load-more-comments">
+                {{#str}}load_more_comments, format_nexusformat{{/str}}
+            </button>
+        </div>
+    </div>
+
+    {{! Comment Template (hidden, used by JS) }}
+    <template id="nexus-comment-template">
+        <div class="nexus-comment" data-commentid="">
+            <div class="nexus-comment-avatar">
+                <img src="" alt="" class="nexus-avatar" />
+            </div>
+            <div class="nexus-comment-body">
+                <div class="nexus-comment-header">
+                    <span class="nexus-comment-author"></span>
+                    <span class="nexus-comment-role"></span>
+                    <span class="nexus-comment-time"></span>
+                </div>
+                <div class="nexus-comment-content"></div>
+                <div class="nexus-comment-actions">
+                    <button type="button" class="nexus-comment-like">
+                        <i class="fa fa-heart-o" aria-hidden="true"></i>
+                        <span class="nexus-like-count">0</span>
+                    </button>
+                    <button type="button" class="nexus-comment-reply">
+                        <i class="fa fa-reply" aria-hidden="true"></i>
+                        {{#str}}reply, format_nexusformat{{/str}}
+                    </button>
+                    <button type="button" class="nexus-comment-edit" style="display: none;">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                        {{#str}}edit_comment, format_nexusformat{{/str}}
+                    </button>
+                    <button type="button" class="nexus-comment-delete" style="display: none;">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                        {{#str}}delete_comment, format_nexusformat{{/str}}
+                    </button>
+                </div>
+                <div class="nexus-comment-replies-toggle" style="display: none;">
+                    <button type="button" class="nexus-show-replies">
+                        <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                        <span class="nexus-replies-count"></span>
+                    </button>
+                </div>
+                <div class="nexus-comment-replies" style="display: none;"></div>
+                <div class="nexus-reply-editor" style="display: none;">
+                    <textarea class="form-control nexus-reply-content" rows="2"
+                              placeholder="{{#str}}write_reply, format_nexusformat{{/str}}"></textarea>
+                    <div class="nexus-reply-actions">
+                        <button type="button" class="btn btn-sm btn-primary nexus-submit-reply">
+                            {{#str}}reply, format_nexusformat{{/str}}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary nexus-cancel-reply">
+                            {{#str}}cancel_reply, format_nexusformat{{/str}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    {{/enablecomments}}
+    {{/editing}}
     {{/nexusformat}}
 
     {{^nexusformat}}
