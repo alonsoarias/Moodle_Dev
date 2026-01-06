@@ -929,6 +929,22 @@ body.format-nexusformat.drawer-open-left #page-content {
     overflow-y: auto;
 }
 
+/* Hide completion indicators in activity content (already shown in sidebar) */
+.nexus-activity-wrapper .completion-info,
+.nexus-activity-wrapper .automatic-completion-conditions,
+.nexus-activity-wrapper .activity-completion,
+.nexus-activity-wrapper .completioncheckbox,
+.nexus-activity-wrapper .activity-actions .completion-dropdown,
+.nexus-activity-wrapper [data-region="completion-info"],
+.nexus-activity-wrapper .activity-altcontent .completion_complete,
+.nexus-activity-wrapper .activity-altcontent .completion_notcomplete,
+.nexus-activity-content .completion-info,
+.nexus-activity-content .automatic-completion-conditions,
+.nexus-activity-content .activity-completion,
+.nexus-activity-content [data-region="completion-info"] {
+    display: none !important;
+}
+
 .nexus-activity-header {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
