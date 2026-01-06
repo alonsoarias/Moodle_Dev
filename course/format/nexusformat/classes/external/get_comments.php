@@ -111,11 +111,12 @@ class get_comments extends external_api {
             'currentuser' => $USER->id,
         ], $offset, $perpage);
 
-        // Get total count.
-        $totalcount = $DB->count_records('format_nexusformat_comments', [
-            'cmid' => $cmid,
-            'parentid' => null,
-        ]);
+        // Get total count (using select because parentid IS NULL doesn't work with array syntax).
+        $totalcount = $DB->count_records_select(
+            'format_nexusformat_comments',
+            'cmid = :cmid AND parentid IS NULL',
+            ['cmid' => $cmid]
+        );
 
         // Format comments.
         $result = [];
