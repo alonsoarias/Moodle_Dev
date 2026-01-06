@@ -327,6 +327,31 @@ class get_activity_content extends external_api {
 
         $html = '<div class="nexus-quiz-content">';
 
+        // Check user capabilities.
+        $canpreview = has_capability('mod/quiz:preview', $context);
+        $canmanage = has_capability('mod/quiz:manage', $context);
+        $canviewreports = has_capability('mod/quiz:viewreports', $context);
+
+        if ($canmanage || $canviewreports) {
+            // Teacher view.
+            $html .= self::get_quiz_teacher_view($cm, $instance, $context);
+        } else {
+            // Student view.
+            $html .= self::get_quiz_student_view($cm, $instance, $context, $canpreview);
+        }
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get quiz student view.
+     */
+    protected static function get_quiz_student_view($cm, $instance, $context, $canpreview = false): string {
+        global $DB, $USER;
+
+        $html = '';
+
         // Quiz info.
         $html .= '<div class="nexus-quiz-info card mb-3">';
         $html .= '<div class="card-body">';
@@ -392,24 +417,110 @@ class get_activity_content extends external_api {
         $html .= '<div class="nexus-quiz-action text-center">';
         $numattempts = count($attempts);
         $canstart = true;
-        if ($instance->attempts && $numattempts >= $instance->attempts) {
+        if ($instance->attempts && $numattempts >= $instance->attempts && !$canpreview) {
             $canstart = false;
             $html .= '<div class="alert alert-warning">' . get_string('nomoreattempts', 'quiz') . '</div>';
         }
 
         if ($canstart) {
-            $url = new \moodle_url('/mod/quiz/startattempt.php', ['cmid' => $cm->id, 'sesskey' => sesskey()]);
+            // Link to quiz view page (Moodle will handle the attempt start).
+            $viewurl = new \moodle_url('/mod/quiz/view.php', ['id' => $cm->id]);
             $buttontext = $numattempts > 0 ? get_string('reattemptquiz', 'quiz') : get_string('attemptquiznow', 'quiz');
-            $html .= '<form method="post" action="' . $url->out(false) . '" class="nexus-quiz-form">';
-            $html .= '<input type="hidden" name="cmid" value="' . $cm->id . '">';
-            $html .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
-            $html .= '<button type="submit" class="btn btn-primary btn-lg">';
-            $html .= '<i class="fa fa-play-circle"></i> ' . $buttontext . '</button>';
-            $html .= '</form>';
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+            $html .= '<i class="fa fa-play-circle"></i> ' . $buttontext . '</a>';
         }
         $html .= '</div>';
 
+        return $html;
+    }
+
+    /**
+     * Get quiz teacher view.
+     */
+    protected static function get_quiz_teacher_view($cm, $instance, $context): string {
+        global $DB;
+
+        $html = '';
+
+        // Quiz info card.
+        $html .= '<div class="nexus-quiz-info card mb-3">';
+        $html .= '<div class="card-header"><strong>' . get_string('quizinformation', 'quiz') . '</strong></div>';
+        $html .= '<div class="card-body">';
+
+        // Time limit.
+        if ($instance->timelimit) {
+            $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('timelimit', 'quiz') . ':</strong> ';
+            $html .= format_time($instance->timelimit) . '</p>';
+        }
+
+        // Number of questions.
+        $questioncount = $DB->count_records('quiz_slots', ['quizid' => $instance->id]);
+        $html .= '<p><i class="fa fa-question-circle"></i> <strong>' . get_string('numquestions', 'quiz') . ':</strong> ';
+        $html .= $questioncount . '</p>';
+
+        // Total marks.
+        $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('totalmarks', 'quiz') . ':</strong> ';
+        $html .= format_float($instance->sumgrades, 2) . '</p>';
+
+        // Grade to pass.
+        if ($instance->grade > 0) {
+            $html .= '<p><i class="fa fa-graduation-cap"></i> <strong>' . get_string('gradetopass', 'grades') . ':</strong> ';
+            $html .= format_float($instance->grade, 2) . '</p>';
+        }
+
+        $html .= '</div></div>';
+
+        // Attempts summary.
+        $html .= '<div class="nexus-quiz-summary card mb-3">';
+        $html .= '<div class="card-header"><strong>' . get_string('attemptsummary', 'quiz') . '</strong></div>';
+        $html .= '<div class="card-body">';
+
+        // Count total attempts.
+        $totalattempts = $DB->count_records('quiz_attempts', ['quiz' => $instance->id, 'preview' => 0]);
+        $html .= '<p><i class="fa fa-list"></i> <strong>' . get_string('totalattempts', 'quiz') . ':</strong> ' . $totalattempts . '</p>';
+
+        // Count unique users who attempted.
+        $uniqueusers = $DB->count_records_sql(
+            "SELECT COUNT(DISTINCT userid) FROM {quiz_attempts} WHERE quiz = ? AND preview = 0",
+            [$instance->id]
+        );
+        $html .= '<p><i class="fa fa-users"></i> <strong>' . get_string('attemptsnum', 'quiz', $uniqueusers) . '</strong></p>';
+
+        // Average grade.
+        $avggrade = $DB->get_field_sql(
+            "SELECT AVG(sumgrades) FROM {quiz_attempts} WHERE quiz = ? AND preview = 0 AND state = 'finished'",
+            [$instance->id]
+        );
+        if ($avggrade !== false && $avggrade !== null) {
+            $avggrade = quiz_rescale_grade($avggrade, $instance, false);
+            $html .= '<p><i class="fa fa-bar-chart"></i> <strong>' . get_string('averagegrade', 'quiz') . ':</strong> ';
+            $html .= format_float($avggrade, $instance->decimalpoints) . ' / ' . format_float($instance->grade, $instance->decimalpoints) . '</p>';
+        }
+
+        $html .= '</div></div>';
+
+        // Actions.
+        $html .= '<div class="nexus-quiz-actions text-center">';
+
+        // Preview quiz.
+        $previewurl = new \moodle_url('/mod/quiz/startattempt.php', ['cmid' => $cm->id, 'sesskey' => sesskey()]);
+        $html .= '<a href="' . (new \moodle_url('/mod/quiz/view.php', ['id' => $cm->id]))->out() . '" class="btn btn-info btn-lg me-2 mb-2">';
+        $html .= '<i class="fa fa-eye"></i> ' . get_string('preview', 'quiz') . '</a>';
+
+        // View results.
+        $resultsurl = new \moodle_url('/mod/quiz/report.php', ['id' => $cm->id, 'mode' => 'overview']);
+        $html .= '<a href="' . $resultsurl->out() . '" class="btn btn-primary btn-lg me-2 mb-2">';
+        $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('results', 'quiz') . '</a>';
+
+        // Edit quiz.
+        if (has_capability('mod/quiz:manage', $context)) {
+            $editurl = new \moodle_url('/mod/quiz/edit.php', ['cmid' => $cm->id]);
+            $html .= '<a href="' . $editurl->out() . '" class="btn btn-secondary btn-lg mb-2">';
+            $html .= '<i class="fa fa-pencil"></i> ' . get_string('editquiz', 'quiz') . '</a>';
+        }
+
         $html .= '</div>';
+
         return $html;
     }
 
@@ -421,6 +532,31 @@ class get_activity_content extends external_api {
         require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
         $html = '<div class="nexus-assign-content">';
+        $assign = new \assign($context, $cm, $course);
+
+        // Check user capabilities.
+        $cangrade = has_capability('mod/assign:grade', $context);
+        $cansubmit = has_capability('mod/assign:submit', $context);
+
+        if ($cangrade) {
+            // Teacher/Grader view.
+            $html .= self::get_assign_teacher_view($assign, $cm, $instance, $context);
+        } else {
+            // Student view.
+            $html .= self::get_assign_student_view($assign, $cm, $instance, $context);
+        }
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get assign student view.
+     */
+    protected static function get_assign_student_view($assign, $cm, $instance, $context): string {
+        global $USER;
+
+        $html = '';
 
         // Assignment info.
         $html .= '<div class="nexus-assign-info card mb-3">';
@@ -440,7 +576,6 @@ class get_activity_content extends external_api {
         }
 
         // Submission status.
-        $assign = new \assign($context, $cm, $course);
         $submission = $assign->get_user_submission($USER->id, false);
 
         if ($submission) {
@@ -463,24 +598,109 @@ class get_activity_content extends external_api {
         if ($grade && $grade->grade !== null && $grade->grade >= 0) {
             $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('grade', 'grades') . ':</strong> ';
             $html .= format_float($grade->grade, 2) . ' / ' . format_float($instance->grade, 2) . '</p>';
+
+            // Feedback.
+            if (!empty($grade->feedbacktext)) {
+                $html .= '<div class="alert alert-info mt-2">';
+                $html .= '<strong>' . get_string('feedback', 'assign') . ':</strong><br>';
+                $html .= format_text($grade->feedbacktext, FORMAT_HTML);
+                $html .= '</div>';
+            }
         }
 
         $html .= '</div></div>';
 
-        // Action buttons.
+        // Action button - just link to the activity page (Moodle handles the rest).
         $html .= '<div class="nexus-assign-actions text-center">';
-        $url = new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'editsubmission']);
+        $viewurl = new \moodle_url('/mod/assign/view.php', ['id' => $cm->id]);
+
         if (!$submission || $submission->status != ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
-            $html .= '<a href="' . $url->out() . '" class="btn btn-primary btn-lg">';
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
             $html .= '<i class="fa fa-upload"></i> ' . get_string('addsubmission', 'assign') . '</a>';
         } else {
-            $editurl = new \moodle_url('/mod/assign/view.php', ['id' => $cm->id]);
-            $html .= '<a href="' . $editurl->out() . '" class="btn btn-secondary btn-lg">';
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary btn-lg">';
             $html .= '<i class="fa fa-eye"></i> ' . get_string('viewsubmission', 'assign') . '</a>';
         }
         $html .= '</div>';
 
+        return $html;
+    }
+
+    /**
+     * Get assign teacher view.
+     */
+    protected static function get_assign_teacher_view($assign, $cm, $instance, $context): string {
+        global $DB;
+
+        $html = '';
+
+        // Grading summary.
+        $html .= '<div class="nexus-assign-grading card mb-3">';
+        $html .= '<div class="card-header"><strong>' . get_string('gradingsummary', 'assign') . '</strong></div>';
+        $html .= '<div class="card-body">';
+
+        // Get grading stats.
+        $course = $assign->get_course();
+        $coursecontext = \context_course::instance($course->id);
+
+        // Count participants.
+        $participants = count_enrolled_users($coursecontext, 'mod/assign:submit');
+        $html .= '<p><i class="fa fa-users"></i> <strong>' . get_string('numberofparticipants', 'assign') . ':</strong> ' . $participants . '</p>';
+
+        // Count submissions.
+        $submissioncount = $DB->count_records_sql(
+            "SELECT COUNT(DISTINCT s.userid)
+             FROM {assign_submission} s
+             WHERE s.assignment = ? AND s.status = ? AND s.latest = 1",
+            [$instance->id, ASSIGN_SUBMISSION_STATUS_SUBMITTED]
+        );
+        $html .= '<p><i class="fa fa-paper-plane"></i> <strong>' . get_string('numberofsubmittedassignments', 'assign') . ':</strong> ' . $submissioncount . '</p>';
+
+        // Count needing grading.
+        $needsgrading = $DB->count_records_sql(
+            "SELECT COUNT(DISTINCT s.userid)
+             FROM {assign_submission} s
+             LEFT JOIN {assign_grades} g ON s.assignment = g.assignment AND s.userid = g.userid AND g.attemptnumber = s.attemptnumber
+             WHERE s.assignment = ? AND s.status = ? AND s.latest = 1 AND (g.id IS NULL OR s.timemodified > g.timemodified)",
+            [$instance->id, ASSIGN_SUBMISSION_STATUS_SUBMITTED]
+        );
+        $html .= '<p><i class="fa fa-hourglass-half"></i> <strong>' . get_string('numberofsubmissionsneedgrading', 'assign') . ':</strong> ' . $needsgrading . '</p>';
+
+        // Due date.
+        if ($instance->duedate) {
+            $dueclass = ($instance->duedate < time()) ? 'text-danger' : 'text-success';
+            $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('duedate', 'assign') . ':</strong> ';
+            $html .= '<span class="' . $dueclass . '">' . userdate($instance->duedate) . '</span></p>';
+        }
+
+        // Time remaining.
+        if ($instance->duedate) {
+            $timeremaining = $instance->duedate - time();
+            if ($timeremaining > 0) {
+                $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('timeremaining', 'assign') . ':</strong> ';
+                $html .= format_time($timeremaining) . '</p>';
+            } else {
+                $html .= '<p class="text-danger"><i class="fa fa-clock-o"></i> <strong>' . get_string('assignmentisdue', 'assign') . '</strong></p>';
+            }
+        }
+
+        $html .= '</div></div>';
+
+        // Grading actions.
+        $html .= '<div class="nexus-assign-actions text-center">';
+
+        // Grade button.
+        $gradeurl = new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'grading']);
+        $html .= '<a href="' . $gradeurl->out() . '" class="btn btn-primary btn-lg me-2 mb-2">';
+        $html .= '<i class="fa fa-pencil"></i> ' . get_string('viewgrading', 'assign') . '</a>';
+
+        // View all submissions.
+        $viewurl = new \moodle_url('/mod/assign/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary btn-lg mb-2">';
+        $html .= '<i class="fa fa-list"></i> ' . get_string('viewallsubmissions', 'assign') . '</a>';
+
         $html .= '</div>';
+
         return $html;
     }
 

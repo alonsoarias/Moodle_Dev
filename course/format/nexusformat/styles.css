@@ -12,6 +12,15 @@
    Full-Width Override for Moodle Containers
    ============================================= */
 
+/* Override the 830px max-width restriction in Boost theme */
+body.format-nexusformat.pagelayout-standard #page.drawers .main-inner,
+body.format-nexusformat.limitedwidth #page.drawers .main-inner,
+body.format-nexusformat #page.drawers .main-inner,
+body.format-nexusformat .main-inner {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
 /* Override Boost theme container restrictions */
 body.format-nexusformat #page-content,
 body.format-nexusformat #region-main-box,
