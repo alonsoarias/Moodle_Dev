@@ -629,12 +629,55 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         $('#nexus-tab-' + tab).show();
     });
 
+    // Section name click handler - expand section and load first activity
+    $('.nexus-unit-name').on('click', function(e) {
+        e.preventDefault();
+        var $unit = $(this).closest('.nexus-unit');
+        var $header = $unit.find('> .nexus-unit-header');
+        var $lessons = $unit.find('> .nexus-unit-lessons');
+        var $toggleIcon = $header.find('.nexus-unit-toggle i');
+        var $folderIcon = $header.find('.nexus-unit-icon i');
+
+        // Switch to Content tab
+        $('.nexus-tab').removeClass('active');
+        $('.nexus-tab[data-tab="content"]').addClass('active');
+        $('.nexus-tab-pane').hide();
+        $('#nexus-tab-content').show();
+
+        // Expand the section if not already expanded
+        if (!$unit.hasClass('expanded')) {
+            $lessons.slideDown(200);
+            $unit.addClass('expanded');
+            $toggleIcon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            $folderIcon.removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+            $header.attr('aria-expanded', 'true');
+        }
+
+        // Scroll to the section header
+        $('html, body').animate({
+            scrollTop: $unit.offset().top - 100
+        }, 300);
+
+        // Load the first activity of this section if available
+        var $firstLesson = $unit.find('.nexus-lesson').first();
+        if ($firstLesson.length) {
+            var cmid = $firstLesson.data('cmid');
+            if (cmid) {
+                // Update active state
+                $('.nexus-lesson').removeClass('active');
+                $firstLesson.addClass('active');
+                // Load the activity content
+                loadActivityContent(cmid);
+            }
+        }
+    });
+
     // Unit expand/collapse
     $('.nexus-unit-header').on('click keypress', function(e) {
         if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
             return;
         }
-        // Don't prevent default if clicking on the section link
+        // Don't prevent default if clicking on the section link (handled separately)
         if ($(e.target).closest('.nexus-unit-name').length) {
             return;
         }
@@ -696,10 +739,22 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
             args: { cmid: cmid }
         }])[0].done(function(response) {
             $contentArea.html('<div class="nexus-activity-wrapper">' + response.content + '</div>');
+            // Show comments section for this activity
+            showCommentsForActivity(cmid);
         }).fail(function(error) {
             $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-3x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
             Notification.exception(error);
         });
+    }
+
+    // Show comments section for activity (calls global function defined later)
+    var currentActivityCmid = 0;
+    function showCommentsForActivity(cmid) {
+        currentActivityCmid = cmid;
+        // Call global function defined in comments section
+        if (typeof window.loadCommentsForActivity === 'function') {
+            window.loadCommentsForActivity(cmid);
+        }
     }
 
     // Lesson click handler (Content tab sidebar)
@@ -970,13 +1025,13 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
     var totalComments = 0;
     var bannerDismissed = false;
 
-    // Show comments section when activity is loaded
-    function showCommentsSection(cmid) {
+    // Global function to load comments for an activity (called from loadActivityContent)
+    window.loadCommentsForActivity = function(cmid) {
         currentCmid = cmid;
         commentsPage = 0;
         $commentsSection.show();
         loadComments(true);
-    }
+    };
 
     // Hide comments section
     function hideCommentsSection() {
@@ -1313,11 +1368,5 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         });
     }
 
-    // Modify loadActivityContent to also load comments
-    var originalLoadActivityContent = loadActivityContent;
-    loadActivityContent = function(cmid) {
-        originalLoadActivityContent(cmid);
-        showCommentsSection(cmid);
-    };
 });
 {{/js}}
