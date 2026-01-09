@@ -9,20 +9,29 @@ define(['jquery', 'core/str'], function($, Str) {
 
     var initialized = false;
     var userHasRole = false;
+    var config = {
+        hideParticipantCount: true,
+        hideSubmittedCount: true
+    };
 
     /**
      * Initialize the filter and UI modifications
      *
-     * @param {boolean} hasRole Whether the user has the required role
+     * @param {Object} options Configuration options
+     * @param {boolean} options.userHasRole Whether the user has the required role
+     * @param {boolean} options.hideParticipantCount Whether to hide participant count
+     * @param {boolean} options.hideSubmittedCount Whether to hide submitted count
      */
-    var init = function(hasRole) {
+    var init = function(options) {
         if (initialized) {
             return;
         }
         initialized = true;
 
-        // Store role status
-        userHasRole = hasRole || false;
+        // Store configuration
+        userHasRole = options.userHasRole || false;
+        config.hideParticipantCount = options.hideParticipantCount !== false;
+        config.hideSubmittedCount = options.hideSubmittedCount !== false;
 
         // Only proceed if user has the required role
         if (!userHasRole) {
@@ -34,11 +43,15 @@ define(['jquery', 'core/str'], function($, Str) {
             // Apply filtering for grading tables
             applyGradingTableFilter();
 
-            // Hide participant count in summary table
-            hideParticipantCount();
+            // Hide participant count in summary table (if enabled)
+            if (config.hideParticipantCount) {
+                hideParticipantCount();
+            }
 
-            // Hide submitted count in summary table
-            hideSubmittedCount();
+            // Hide submitted count in summary table (if enabled)
+            if (config.hideSubmittedCount) {
+                hideSubmittedCount();
+            }
         });
     };
 

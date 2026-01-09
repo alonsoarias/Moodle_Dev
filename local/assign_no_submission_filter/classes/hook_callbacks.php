@@ -67,7 +67,9 @@ class hook_callbacks {
         
         // Add JavaScript for client-side operations
         $PAGE->requires->js_call_amd('local_assign_no_submission_filter/filter', 'init', [
-            'userHasRole' => true
+            'userHasRole' => true,
+            'hideParticipantCount' => (bool)get_config('local_assign_no_submission_filter', 'hide_participant_count'),
+            'hideSubmittedCount' => (bool)get_config('local_assign_no_submission_filter', 'hide_submitted_count')
         ]);
     }
     
