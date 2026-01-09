@@ -15,19 +15,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Hook callbacks for local_assign_no_submission_filter
+ * Privacy provider
  *
  * @package    local_assign_no_submission_filter
  * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_assign_no_submission_filter\privacy;
+
 defined('MOODLE_INTERNAL') || die();
 
-$callbacks = [
-    [
-        'hook' => \core\hook\output\before_standard_head_html_generation::class,
-        'callback' => 'local_assign_no_submission_filter\hook_callbacks::before_standard_head_html',
-        'priority' => 1000,
-    ],
-];
+use core_privacy\local\metadata\collection;
+
+/**
+ * Privacy provider class - This plugin does not store any personal data
+ */
+class provider implements \core_privacy\local\metadata\null_provider {
+    
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return string
+     */
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}

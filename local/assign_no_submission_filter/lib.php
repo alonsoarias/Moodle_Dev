@@ -24,122 +24,140 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Get the filtered user list for an assignment
- * 
- * @param int $assignid Assignment ID
- * @return array Array of user IDs who have submissions
- */
-function local_assign_no_submission_filter_get_submitted_users($assignid) {
-    global $DB;
-    
-    $sql = "SELECT DISTINCT s.userid
-            FROM {assign_submission} s
-            WHERE s.assignment = :assignid
-              AND s.latest = 1
-              AND s.status <> :status_new
-              AND s.timemodified IS NOT NULL";
-
-    return $DB->get_fieldset_sql($sql, [
-        'assignid' => $assignid,
-        'status_new' => ASSIGN_SUBMISSION_STATUS_NEW,
-    ]);
+// Constants
+if (!defined('ASSIGN_SUBMISSION_STATUS_NEW')) {
+    define('ASSIGN_SUBMISSION_STATUS_NEW', 'new');
+}
+if (!defined('ASSIGN_SUBMISSION_STATUS_SUBMITTED')) {
+    define('ASSIGN_SUBMISSION_STATUS_SUBMITTED', 'submitted');
+}
+if (!defined('ASSIGN_SUBMISSION_STATUS_DRAFT')) {
+    define('ASSIGN_SUBMISSION_STATUS_DRAFT', 'draft');
 }
 
 /**
- * Check if current user has one of the configured roles in a context.
+ * Get all system roles for configuration
  *
- * @param \context $context Context to check roles in.
- * @return bool
+ * @return array Array of role id => role name
  */
-function local_assign_no_submission_filter_user_has_role(\context $context): bool {
-    global $USER;
+function local_assign_no_submission_filter_get_all_roles() {
+    global $DB;
+    
+    $roles = $DB->get_records('role', null, 'sortorder ASC');
+    $roles_array = array();
+    
+    foreach ($roles as $role) {
+        $roles_array[$role->id] = role_get_name($role);
+    }
+    
+    return $roles_array;
+}
 
-    $rolesconfig = get_config('local_assign_no_submission_filter', 'roles');
-    if (empty($rolesconfig)) {
+/**
+ * Check if current user has one of the selected roles
+ *
+ * @param context $context The context to check
+ * @return bool True if user has one of the selected roles
+ */
+function local_assign_no_submission_filter_user_has_selected_role($context = null) {
+    global $USER, $DB;
+    
+    // Get selected roles configuration
+    $selected_roles = get_config('local_assign_no_submission_filter', 'selected_roles');
+    if (empty($selected_roles)) {
         return false;
     }
-
-    $roleids = array_map('intval', explode(',', $rolesconfig));
-    foreach ($roleids as $roleid) {
-        if (user_has_role_assignment($USER->id, $roleid, $context->id)) {
+    
+    // If no context provided, we can't check
+    if (!$context) {
+        return false;
+    }
+    
+    // Convert string to array
+    $selected_roles_array = explode(',', $selected_roles);
+    if (empty($selected_roles_array)) {
+        return false;
+    }
+    
+    // Get user roles in this context
+    $userroles = get_user_roles($context, $USER->id, true);
+    
+    // Check if user has any of the selected roles
+    foreach ($userroles as $role) {
+        if (in_array($role->roleid, $selected_roles_array)) {
             return true;
         }
     }
-
+    
+    // Also check parent contexts
+    $parentcontexts = $context->get_parent_context_ids();
+    foreach ($parentcontexts as $parentcontextid) {
+        $parentcontext = context::instance_by_id($parentcontextid);
+        $userroles = get_user_roles($parentcontext, $USER->id, true);
+        
+        foreach ($userroles as $role) {
+            if (in_array($role->roleid, $selected_roles_array)) {
+                return true;
+            }
+        }
+    }
+    
     return false;
 }
 
 /**
- * Override the grading table class
+ * Get users who have made submissions for an assignment
+ *
+ * @param int $assignid Assignment ID
+ * @return array Array of user IDs
  */
-function local_assign_no_submission_filter_override_grading_table() {
-    global $CFG, $PAGE;
+function local_assign_no_submission_filter_get_submitted_users($assignid) {
+    global $DB;
     
-    // Check if we should override
-    if (!get_config('local_assign_no_submission_filter', 'enabled')) {
-        return;
-    }
-
-    if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
-        return;
-    }
+    // Get users with actual submissions (not 'new' status)
+    $sql = "SELECT DISTINCT s.userid
+            FROM {assign_submission} s
+            WHERE s.assignment = :assignid
+              AND s.status <> :statusnew
+              AND s.latest = 1
+              AND s.userid > 0";
     
-    // Register our custom grading table class
-    if (!class_exists('\assign_grading_table', false)) {
-        // Register autoloader for our custom table
-        spl_autoload_register(function($classname) use ($CFG) {
-            if ($classname === 'assign_grading_table') {
-                // First load the original class with a different name
-                require_once($CFG->dirroot . '/mod/assign/gradingtable.php');
-                // Then load our custom class
-                require_once($CFG->dirroot . '/local/assign_no_submission_filter/classes/custom_grading_table.php');
-                // Create alias
-                class_alias('\local_assign_no_submission_filter\custom_grading_table', 'assign_grading_table');
-                return true;
-            }
-            return false;
-        }, true, true);
-    }
+    $params = [
+        'assignid' => $assignid,
+        'statusnew' => ASSIGN_SUBMISSION_STATUS_NEW
+    ];
+    
+    return $DB->get_fieldset_sql($sql, $params);
 }
 
 /**
- * Ensure the grading table override is registered early in the request.
+ * Check if filter should be applied
  *
- * This callback runs immediately after {@link require_login()} and
- * guarantees our autoload alias for {@code assign_grading_table} is in place
- * before the assignment grading page builds the table of participants.
- *
- * @param mixed $courseorid Unused course identifier.
- * @param mixed $autologinguest Unused guest flag.
- * @param mixed $cm Course module record.
- * @param mixed $setwantsurltome Unused flag.
- * @param mixed $preventredirect Unused flag.
+ * @param context $context The context to check
+ * @return bool
  */
-function local_assign_no_submission_filter_after_require_login($courseorid = null,
-        $autologinguest = null, $cm = null, $setwantsurltome = null, $preventredirect = null) {
-    global $PAGE;
-
-    // Check plugin configuration.
+function local_assign_no_submission_filter_should_filter($context = null) {
+    // First check if plugin is enabled
     if (!get_config('local_assign_no_submission_filter', 'enabled')) {
-        return;
+        return false;
     }
+    
+    // Then check if user has selected role
+    return local_assign_no_submission_filter_user_has_selected_role($context);
+}
 
-    // Only apply within assignment modules.
-    if (empty($PAGE->cm) || $PAGE->cm->modname !== 'assign') {
-        return;
+/**
+ * Check if we should hide participant count
+ *
+ * @param context $context The context to check
+ * @return bool
+ */
+function local_assign_no_submission_filter_should_hide_count($context = null) {
+    // First check if feature is enabled
+    if (!get_config('local_assign_no_submission_filter', 'hide_participant_count')) {
+        return false;
     }
-
-    // Only affect the grading views.
-    $action = optional_param('action', '', PARAM_ALPHA);
-    if ($action !== 'grading' && $action !== 'grader') {
-        return;
-    }
-
-    if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
-        return;
-    }
-
-    // Register the custom grading table class.
-    local_assign_no_submission_filter_override_grading_table();
+    
+    // Then check if user has selected role
+    return local_assign_no_submission_filter_user_has_selected_role($context);
 }

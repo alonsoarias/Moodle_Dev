@@ -26,7 +26,7 @@ namespace local_assign_no_submission_filter;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../lib.php');
+require_once($CFG->dirroot . '/local/assign_no_submission_filter/lib.php');
 
 /**
  * Hook callbacks class
@@ -34,148 +34,107 @@ require_once(__DIR__ . '/../lib.php');
 class hook_callbacks {
     
     /**
-     * Before HTTP headers hook
-     *
-     * @param \core\hook\output\before_http_headers $hook
-     */
-    public static function before_http_headers(\core\hook\output\before_http_headers $hook): void {
-        global $PAGE, $USER;
-        
-        // Check if we're on assignment grading page
-        if (!self::is_grading_page()) {
-            return;
-        }
-        
-        if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
-            return;
-        }
-        if (get_config('local_assign_no_submission_filter', 'autoapply')) {
-            set_user_preference('assign_filter', ASSIGN_FILTER_NONE, $USER);
-        }
-    }
-    
-    /**
-     * Before standard head HTML generation (NEW HOOK)
-     *
-     * @param \core\hook\output\before_standard_head_html_generation $hook
+     * Before standard head HTML generation hook
      */
     public static function before_standard_head_html(\core\hook\output\before_standard_head_html_generation $hook): void {
-        global $PAGE, $CFG;
+        global $PAGE, $CFG, $USER;
         
-        // Check if we're on assignment grading page
-        if (!self::is_grading_page()) {
+        if (!self::should_activate()) {
             return;
         }
         
-        if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
+        // Get the context
+        try {
+            $context = $PAGE->context;
+        } catch (\Exception $e) {
             return;
         }
-
-        // Apply our grading table override
-        self::override_grading_table_class();
         
-        // Add CSS for filtering
-        $css = '
-        <style>
-        .path-mod-assign .no-submission-hidden {
-            display: none !important;
+        // Check if current user has one of the selected roles
+        if (!local_assign_no_submission_filter_user_has_selected_role($context)) {
+            return;
         }
-        #assign-filter-notification {
-            padding: 10px;
-            margin: 10px 0;
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-            color: #0c5460;
-            border-radius: 4px;
-        }
-        </style>';
         
+        // Override the grading table class for grading pages
+        $action = optional_param('action', '', PARAM_ALPHA);
+        if (in_array($action, ['grading', 'grader'])) {
+            require_once($CFG->dirroot . '/local/assign_no_submission_filter/classes/table_override.php');
+        }
+        
+        // Add CSS for filtering and hiding participant count
+        $css = self::get_filter_css();
         $hook->add_html($css);
+        
+        // Add JavaScript for client-side operations
+        $PAGE->requires->js_call_amd('local_assign_no_submission_filter/filter', 'init', [
+            'userHasRole' => true
+        ]);
     }
     
     /**
-     * Inject filter controls
-     *
-     * @param \core\hook\output\before_standard_top_of_body_html_generation $hook
+     * Check if we should activate the plugin features
      */
-    public static function inject_filter_controls(\core\hook\output\before_standard_top_of_body_html_generation $hook): void {
-        global $PAGE, $SESSION;
-        
-        if (!self::is_grading_page()) {
-            return;
-        }
-        
-        if (!get_config('local_assign_no_submission_filter', 'enabled')) {
-            return;
-        }
-
-        if (!local_assign_no_submission_filter_user_has_role($PAGE->context)) {
-            return;
-        }
-
-        // Add filter control UI
-        $html = self::get_filter_controls_html();
-        $hook->add_html($html);
-    }
-    
-    /**
-     * Check if current page is grading page
-     *
-     * @return bool
-     */
-    protected static function is_grading_page() {
+    private static function should_activate(): bool {
         global $PAGE;
         
-        if (during_initial_install()) {
-            return false;
-        }
-        
-        if ($PAGE->pagetype !== 'mod-assign-view' && $PAGE->pagetype !== 'mod-assign-grading') {
-            return false;
-        }
-        
-        $action = optional_param('action', '', PARAM_ALPHA);
-        return ($action === 'grading' || $action === 'grader');
-    }
-    
-    /**
-     * Override grading table class
-     */
-    protected static function override_grading_table_class() {
-        global $CFG;
-        
+        // Check if plugin is enabled
         if (!get_config('local_assign_no_submission_filter', 'enabled')) {
-            return;
+            return false;
         }
         
-        // Load our override function
-        require_once($CFG->dirroot . '/local/assign_no_submission_filter/lib.php');
-        local_assign_no_submission_filter_override_grading_table();
+        // Check page type
+        $validpagetypes = ['mod-assign-view', 'mod-assign-grading'];
+        if (!in_array($PAGE->pagetype, $validpagetypes)) {
+            return false;
+        }
+        
+        return true;
     }
     
     /**
-     * Get filter controls HTML
-     *
-     * @return string
+     * Get filter CSS
      */
-    protected static function get_filter_controls_html() {
-        global $USER;
+    private static function get_filter_css(): string {
+        global $PAGE;
         
-        $checked = get_user_preferences('assign_hide_no_submissions', true) ? 'checked' : '';
+        // Check context for role-based CSS
+        try {
+            $context = $PAGE->context;
+            $shouldApply = local_assign_no_submission_filter_user_has_selected_role($context);
+        } catch (\Exception $e) {
+            $shouldApply = false;
+        }
         
-        $html = '
-        <div id="assign-filter-controls" style="padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; margin: 10px 0;">
-            <form method="get" action="" style="margin: 0;">
-                <input type="hidden" name="id" value="' . optional_param('id', 0, PARAM_INT) . '">
-                <input type="hidden" name="action" value="grading">
-                <label style="font-weight: bold;">
-                    <input type="checkbox" name="hide_no_submission" value="1" ' . $checked . ' 
-                           onchange="this.form.submit()" style="margin-right: 5px;">
-                    ' . get_string('hidenosubmission', 'local_assign_no_submission_filter') . '
-                </label>
-            </form>
-        </div>';
+        if (!$shouldApply) {
+            return '';
+        }
         
-        return $html;
+        $css = '
+        <style>
+        /* Hide rows without submissions in grading table */
+        tr.no-submission-hidden {
+            display: none !important;
+        }
+        ';
+        
+        // Add CSS to hide participant count if enabled
+        if (get_config('local_assign_no_submission_filter', 'hide_participant_count')) {
+            $css .= '
+            /* Hide participant count row in assignment summary table */
+            .path-mod-assign .generaltable tr:has(th:contains("Participants")),
+            .path-mod-assign .generaltable tr:has(th:contains("Participantes")) {
+                display: none !important;
+            }
+            
+            /* Alternative selector for better compatibility */
+            .path-mod-assign .generaltable tr.participant-count-row {
+                display: none !important;
+            }
+            ';
+        }
+        
+        $css .= '</style>';
+        
+        return $css;
     }
 }

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details for local_assign_no_submission_filter
+ * Version information for local_assign_no_submission_filter
  *
  * @package    local_assign_no_submission_filter
  * @copyright  2024 Your Organization
@@ -25,7 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_assign_no_submission_filter';
-$plugin->version   = 2024110900;
-$plugin->requires  = 2023100900; // Requires Moodle 4.3+
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.0.0';
+$plugin->version = 2024111709;
+$plugin->requires = 2022112800; // Moodle 4.3+
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = 'v1.0.6';
+$plugin->dependencies = array(
+    'mod_assign' => 2022112800
+);
