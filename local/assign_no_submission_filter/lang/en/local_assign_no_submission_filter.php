@@ -34,6 +34,8 @@ $string['filter_downloads'] = 'Apply filter to downloads';
 $string['filter_downloads_desc'] = 'Also filter students without submissions when downloading grading worksheets.';
 $string['hide_participant_count'] = 'Hide participant count';
 $string['hide_participant_count_desc'] = 'Hide the participant count row in assignment summary tables.';
+$string['hide_submitted_count'] = 'Hide submitted count';
+$string['hide_submitted_count_desc'] = 'Hide the submitted count row in assignment summary tables.';
 
 // Role settings
 $string['roles_section'] = 'Role Configuration';

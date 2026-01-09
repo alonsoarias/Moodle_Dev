@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_assign_no_submission_filter';
-$plugin->version = 2024111709;
+$plugin->version = 2024111710;
 $plugin->requires = 2022112800; // Moodle 4.3+
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v1.0.6';
+$plugin->release = 'v1.0.7';
 $plugin->dependencies = array(
     'mod_assign' => 2022112800
 );

@@ -62,7 +62,15 @@ if ($hassiteconfig) {
         get_string('hide_participant_count_desc', 'local_assign_no_submission_filter'),
         1
     ));
-    
+
+    // Hide submitted count
+    $settings->add(new admin_setting_configcheckbox(
+        'local_assign_no_submission_filter/hide_submitted_count',
+        get_string('hide_submitted_count', 'local_assign_no_submission_filter'),
+        get_string('hide_submitted_count_desc', 'local_assign_no_submission_filter'),
+        1
+    ));
+
     // Role selection section
     $settings->add(new admin_setting_heading(
         'local_assign_no_submission_filter/roles_section',

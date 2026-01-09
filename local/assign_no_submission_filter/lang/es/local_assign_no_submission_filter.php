@@ -34,6 +34,8 @@ $string['filter_downloads'] = 'Aplicar filtro a descargas';
 $string['filter_downloads_desc'] = 'También filtrar estudiantes sin envíos al descargar hojas de calificación.';
 $string['hide_participant_count'] = 'Ocultar cantidad de participantes';
 $string['hide_participant_count_desc'] = 'Ocultar la fila de cantidad de participantes en las tablas de resumen de tareas.';
+$string['hide_submitted_count'] = 'Ocultar cantidad de enviados';
+$string['hide_submitted_count_desc'] = 'Ocultar la fila de cantidad de envíos en las tablas de resumen de tareas.';
 
 // Role settings
 $string['roles_section'] = 'Configuración de Roles';

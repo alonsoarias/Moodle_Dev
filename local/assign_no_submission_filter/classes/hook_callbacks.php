@@ -125,9 +125,26 @@ class hook_callbacks {
             .path-mod-assign .generaltable tr:has(th:contains("Participantes")) {
                 display: none !important;
             }
-            
+
             /* Alternative selector for better compatibility */
             .path-mod-assign .generaltable tr.participant-count-row {
+                display: none !important;
+            }
+            ';
+        }
+
+        // Add CSS to hide submitted count if enabled
+        if (get_config('local_assign_no_submission_filter', 'hide_submitted_count')) {
+            $css .= '
+            /* Hide submitted count row in assignment summary table */
+            .path-mod-assign .generaltable tr:has(th:contains("Submitted")),
+            .path-mod-assign .generaltable tr:has(th:contains("Enviados")),
+            .path-mod-assign .generaltable tr:has(th:contains("Enviado")) {
+                display: none !important;
+            }
+
+            /* Alternative selector for submitted count */
+            .path-mod-assign .generaltable tr.submitted-count-row {
                 display: none !important;
             }
             ';

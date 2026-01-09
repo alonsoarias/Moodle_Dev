@@ -157,7 +157,23 @@ function local_assign_no_submission_filter_should_hide_count($context = null) {
     if (!get_config('local_assign_no_submission_filter', 'hide_participant_count')) {
         return false;
     }
-    
+
+    // Then check if user has selected role
+    return local_assign_no_submission_filter_user_has_selected_role($context);
+}
+
+/**
+ * Check if we should hide submitted count
+ *
+ * @param context $context The context to check
+ * @return bool
+ */
+function local_assign_no_submission_filter_should_hide_submitted_count($context = null) {
+    // First check if feature is enabled
+    if (!get_config('local_assign_no_submission_filter', 'hide_submitted_count')) {
+        return false;
+    }
+
     // Then check if user has selected role
     return local_assign_no_submission_filter_user_has_selected_role($context);
 }
