@@ -100,6 +100,45 @@ class restore_form extends \moodleform {
         $mform->setDefault('sendnotification', 0);
         $mform->addHelpButton('sendnotification', 'sendnotification', 'local_user_restore');
 
+        // Restore data section (if snapshots exist).
+        if ($user && \local_user_restore\snapshot_manager::has_snapshots($user->id)) {
+            $mform->addElement('header', 'restoredata_header', get_string('restoredata', 'local_user_restore'));
+
+            // Show summary of available data.
+            $summary = \local_user_restore\snapshot_manager::get_snapshot_summary($user->id);
+            $summaryhtml = '<div class="alert alert-success">';
+            $summaryhtml .= '<strong>' . get_string('snapshotavailable', 'local_user_restore') . '</strong><br>';
+            $summaryhtml .= '<ul class="mb-0">';
+            if ($summary['enrolments'] > 0) {
+                $summaryhtml .= '<li>' . get_string('enrolments', 'local_user_restore') . ': ' . $summary['enrolments'] . '</li>';
+            }
+            if ($summary['groups'] > 0) {
+                $summaryhtml .= '<li>' . get_string('groups', 'local_user_restore') . ': ' . $summary['groups'] . '</li>';
+            }
+            if ($summary['cohorts'] > 0) {
+                $summaryhtml .= '<li>' . get_string('cohorts', 'local_user_restore') . ': ' . $summary['cohorts'] . '</li>';
+            }
+            if ($summary['roles'] > 0) {
+                $summaryhtml .= '<li>' . get_string('roles', 'local_user_restore') . ': ' . $summary['roles'] . '</li>';
+            }
+            if ($summary['grades'] > 0) {
+                $summaryhtml .= '<li>' . get_string('grades', 'local_user_restore') . ': ' . $summary['grades'] . '</li>';
+            }
+            $summaryhtml .= '</ul></div>';
+            $mform->addElement('html', $summaryhtml);
+
+            // Restore data checkbox.
+            $mform->addElement('advcheckbox', 'restoredata', get_string('restoreuserdata', 'local_user_restore'));
+            $mform->setDefault('restoredata', 1);
+            $mform->addHelpButton('restoredata', 'restoreuserdata', 'local_user_restore');
+        } else {
+            // No snapshots available - show warning.
+            $mform->addElement('html', '<div class="alert alert-warning">' .
+                get_string('nosnapshotavailable', 'local_user_restore') . '</div>');
+            $mform->addElement('hidden', 'restoredata', 0);
+            $mform->setType('restoredata', PARAM_INT);
+        }
+
         // Hidden user ID.
         $mform->addElement('hidden', 'userid');
         $mform->setType('userid', PARAM_INT);

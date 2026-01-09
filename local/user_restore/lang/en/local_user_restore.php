@@ -71,13 +71,15 @@ $string['restoreinfo'] = 'Restoring a user will reactivate their account. You mu
 
 // Settings.
 $string['settings'] = 'User Restore Settings';
+$string['enablesnapshot'] = 'Enable data snapshot';
+$string['enablesnapshot_desc'] = 'Automatically capture user data (enrollments, groups, roles, grades) before deletion for later restoration.';
 $string['enablelogging'] = 'Enable logging';
 $string['enablelogging_desc'] = 'Log all user restoration actions for auditing purposes.';
 $string['allowbulkrestore'] = 'Allow bulk restore';
 $string['allowbulkrestore_desc'] = 'Allow administrators to restore multiple users at once.';
 
 // Privacy.
-$string['privacy:metadata'] = 'The User Restore plugin does not store any personal data itself, but allows restoration of previously deleted user accounts.';
+$string['privacy:metadata'] = 'The User Restore plugin stores snapshots of user data before deletion to enable full restoration. This includes enrollment data, group memberships, cohort memberships, role assignments, and grades.';
 
 // Events.
 $string['eventuserrestored'] = 'User restored';
@@ -90,3 +92,28 @@ $string['user_restore:restoreusers'] = 'Restore deleted users';
 $string['nopermission'] = 'You do not have permission to perform this action.';
 $string['usernotfound'] = 'User not found.';
 $string['usernotdeleted'] = 'This user has not been deleted.';
+
+// Data restoration strings.
+$string['restoredata'] = 'Restore User Data';
+$string['restoreuserdata'] = 'Restore enrollments, groups, and grades';
+$string['restoreuserdata_help'] = 'If enabled, the user\'s course enrollments, group memberships, cohort memberships, role assignments, and grades will be restored from the saved snapshot.';
+$string['snapshotavailable'] = 'Saved user data available for restoration:';
+$string['nosnapshotavailable'] = 'No saved data available. The user will be restored but their enrollments, groups, and grades will need to be manually re-added.';
+$string['enrolments'] = 'Course enrollments';
+$string['groups'] = 'Group memberships';
+$string['cohorts'] = 'Cohort memberships';
+$string['roles'] = 'Role assignments';
+$string['grades'] = 'Grades';
+
+// Restoration result messages.
+$string['enrolmentsrestored'] = '{$a} enrollment(s) restored';
+$string['groupsrestored'] = '{$a} group membership(s) restored';
+$string['cohortsrestored'] = '{$a} cohort membership(s) restored';
+$string['rolesrestored'] = '{$a} role assignment(s) restored';
+$string['gradesrestored'] = '{$a} grade(s) restored';
+
+// Privacy metadata strings.
+$string['privacy:metadata:userid'] = 'The ID of the user whose data snapshot was captured.';
+$string['privacy:metadata:datatype'] = 'The type of data stored (enrolment, group, cohort, role, grade).';
+$string['privacy:metadata:datajson'] = 'JSON encoded snapshot of user data before deletion.';
+$string['privacy:metadata:timecreated'] = 'The time when the snapshot was created.';

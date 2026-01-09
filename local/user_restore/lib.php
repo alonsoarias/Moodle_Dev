@@ -25,6 +25,28 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Pre user delete callback.
+ *
+ * This function is called BEFORE a user is deleted, allowing us to capture
+ * their data for later restoration. This is the primary method for Moodle 3.9-4.x.
+ *
+ * @param stdClass $user The user object being deleted.
+ */
+function local_user_restore_pre_user_delete($user) {
+    // Check if snapshot is enabled.
+    if (!get_config('local_user_restore', 'enablesnapshot')) {
+        return;
+    }
+
+    try {
+        $snapshot = new \local_user_restore\snapshot_manager($user->id);
+        $snapshot->capture_all();
+    } catch (\Exception $e) {
+        debugging('local_user_restore: Failed to capture user data snapshot: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    }
+}
+
+/**
  * Add navigation nodes to the admin tree.
  *
  * This function is called by Moodle to extend the navigation.

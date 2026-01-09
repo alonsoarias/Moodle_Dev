@@ -39,6 +39,14 @@ if ($hassiteconfig) {
         'local/user_restore:view'
     ));
 
+    // Enable snapshot setting (capture user data before deletion).
+    $settings->add(new admin_setting_configcheckbox(
+        'local_user_restore/enablesnapshot',
+        get_string('enablesnapshot', 'local_user_restore'),
+        get_string('enablesnapshot_desc', 'local_user_restore'),
+        1
+    ));
+
     // Enable logging setting.
     $settings->add(new admin_setting_configcheckbox(
         'local_user_restore/enablelogging',

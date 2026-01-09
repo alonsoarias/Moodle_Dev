@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/user_restore/db" VERSION="20240101" COMMENT="XMLDB file for local_user_restore plugin">
+  <TABLES>
+    <TABLE NAME="local_user_restore_data" COMMENT="Stores user data snapshots before deletion for restoration purposes">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The deleted user ID"/>
+        <FIELD NAME="datatype" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Type of data: enrolment, group, cohort, role, grade"/>
+        <FIELD NAME="datakey" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Additional key identifier"/>
+        <FIELD NAME="datajson" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="JSON encoded data"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time when snapshot was created"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="userid_datatype" UNIQUE="false" FIELDS="userid, datatype"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

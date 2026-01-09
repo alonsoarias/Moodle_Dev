@@ -155,19 +155,24 @@ class restore_manager {
      * @param string $newemail The new email.
      * @param string $newpassword The new password (plain text).
      * @param bool $sendnotification Whether to send notification email.
-     * @return array Result with 'success' and 'message' keys.
+     * @param bool $restoredata Whether to restore enrollments, groups, etc. from snapshots.
+     * @return array Result with 'success', 'message', and 'details' keys.
      */
     public static function restore_user(
         int $userid,
         string $newusername,
         string $newemail,
         string $newpassword,
-        bool $sendnotification = false
+        bool $sendnotification = false,
+        bool $restoredata = true
     ): array {
         global $DB, $CFG, $USER;
 
         require_once($CFG->dirroot . '/lib/moodlelib.php');
         require_once($CFG->dirroot . '/user/lib.php');
+        require_once($CFG->dirroot . '/lib/enrollib.php');
+        require_once($CFG->dirroot . '/group/lib.php');
+        require_once($CFG->dirroot . '/cohort/lib.php');
 
         // Validate the user exists and is deleted.
         $user = self::get_deleted_user($userid);
@@ -175,6 +180,7 @@ class restore_manager {
             return [
                 'success' => false,
                 'message' => get_string('invaliduser', 'local_user_restore'),
+                'details' => [],
             ];
         }
 
@@ -183,6 +189,7 @@ class restore_manager {
             return [
                 'success' => false,
                 'message' => get_string('usernameexists', 'local_user_restore'),
+                'details' => [],
             ];
         }
 
@@ -191,8 +198,11 @@ class restore_manager {
             return [
                 'success' => false,
                 'message' => get_string('emailexists', 'local_user_restore'),
+                'details' => [],
             ];
         }
+
+        $restorationdetails = [];
 
         try {
             // Start transaction.
@@ -216,6 +226,11 @@ class restore_manager {
             $userobj->password = hash_internal_user_password($newpassword);
             $DB->set_field('user', 'password', $userobj->password, ['id' => $userid]);
 
+            // Restore data from snapshots if enabled and available.
+            if ($restoredata && snapshot_manager::has_snapshots($userid)) {
+                $restorationdetails = self::restore_user_data($userid);
+            }
+
             // Trigger event.
             $event = \local_user_restore\event\user_restored::create([
                 'objectid' => $userid,
@@ -224,6 +239,7 @@ class restore_manager {
                 'other' => [
                     'username' => $newusername,
                     'restoredby' => $USER->id,
+                    'restored_data' => $restorationdetails,
                 ],
             ]);
             $event->trigger();
@@ -241,9 +257,15 @@ class restore_manager {
                 self::log_restore($userid, $newusername, $USER->id);
             }
 
+            // Clean up snapshots after successful restoration.
+            if ($restoredata) {
+                snapshot_manager::delete_snapshots($userid);
+            }
+
             return [
                 'success' => true,
                 'message' => get_string('userrestored', 'local_user_restore', $newusername),
+                'details' => $restorationdetails,
             ];
 
         } catch (\Exception $e) {
@@ -253,8 +275,352 @@ class restore_manager {
             return [
                 'success' => false,
                 'message' => get_string('userrestoreerror', 'local_user_restore', $e->getMessage()),
+                'details' => [],
             ];
         }
+    }
+
+    /**
+     * Restore user data from snapshots (enrollments, groups, cohorts, roles, grades).
+     *
+     * @param int $userid The user ID.
+     * @return array Details of what was restored.
+     */
+    protected static function restore_user_data(int $userid): array {
+        $details = [
+            'enrolments' => self::restore_enrolments($userid),
+            'groups' => self::restore_groups($userid),
+            'cohorts' => self::restore_cohorts($userid),
+            'roles' => self::restore_roles($userid),
+            'grades' => self::restore_grades($userid),
+            'preferences' => self::restore_preferences($userid),
+        ];
+
+        return $details;
+    }
+
+    /**
+     * Restore user enrollments from snapshots.
+     *
+     * @param int $userid The user ID.
+     * @return array Restoration results.
+     */
+    protected static function restore_enrolments(int $userid): array {
+        global $DB;
+
+        $results = ['restored' => 0, 'failed' => 0, 'skipped' => 0, 'courses' => []];
+        $snapshots = snapshot_manager::get_snapshots($userid, snapshot_manager::TYPE_ENROLMENT);
+
+        foreach ($snapshots as $snapshot) {
+            $data = json_decode($snapshot->datajson, true);
+            if (!$data) {
+                $results['failed']++;
+                continue;
+            }
+
+            $courseid = $data['courseid'] ?? 0;
+            if (!$courseid || !$DB->record_exists('course', ['id' => $courseid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            // Find a valid enrol instance for this course.
+            $enrolinstance = $DB->get_record('enrol', [
+                'courseid' => $courseid,
+                'enrol' => $data['enrol'] ?? 'manual',
+                'status' => ENROL_INSTANCE_ENABLED,
+            ]);
+
+            if (!$enrolinstance) {
+                // Try to find any manual enrol instance.
+                $enrolinstance = $DB->get_record('enrol', [
+                    'courseid' => $courseid,
+                    'enrol' => 'manual',
+                ]);
+            }
+
+            if (!$enrolinstance) {
+                $results['skipped']++;
+                continue;
+            }
+
+            // Check if user is already enrolled.
+            if ($DB->record_exists('user_enrolments', ['enrolid' => $enrolinstance->id, 'userid' => $userid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            try {
+                $enrolplugin = enrol_get_plugin($enrolinstance->enrol);
+                if ($enrolplugin) {
+                    $enrolplugin->enrol_user(
+                        $enrolinstance,
+                        $userid,
+                        $data['roleid'] ?? null,
+                        $data['timestart'] ?? 0,
+                        $data['timeend'] ?? 0,
+                        $data['status'] ?? ENROL_USER_ACTIVE
+                    );
+                    $results['restored']++;
+                    $results['courses'][] = $data['courseshortname'] ?? $data['coursename'] ?? $courseid;
+                }
+            } catch (\Exception $e) {
+                $results['failed']++;
+                debugging('Failed to restore enrolment: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Restore user group memberships from snapshots.
+     *
+     * @param int $userid The user ID.
+     * @return array Restoration results.
+     */
+    protected static function restore_groups(int $userid): array {
+        global $DB;
+
+        $results = ['restored' => 0, 'failed' => 0, 'skipped' => 0, 'groups' => []];
+        $snapshots = snapshot_manager::get_snapshots($userid, snapshot_manager::TYPE_GROUP);
+
+        foreach ($snapshots as $snapshot) {
+            $data = json_decode($snapshot->datajson, true);
+            if (!$data) {
+                $results['failed']++;
+                continue;
+            }
+
+            $groupid = $data['groupid'] ?? 0;
+            if (!$groupid || !$DB->record_exists('groups', ['id' => $groupid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            // Check if user is already a member.
+            if ($DB->record_exists('groups_members', ['groupid' => $groupid, 'userid' => $userid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            try {
+                groups_add_member($groupid, $userid);
+                $results['restored']++;
+                $results['groups'][] = $data['groupname'] ?? $groupid;
+            } catch (\Exception $e) {
+                $results['failed']++;
+                debugging('Failed to restore group membership: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Restore user cohort memberships from snapshots.
+     *
+     * @param int $userid The user ID.
+     * @return array Restoration results.
+     */
+    protected static function restore_cohorts(int $userid): array {
+        global $DB;
+
+        $results = ['restored' => 0, 'failed' => 0, 'skipped' => 0, 'cohorts' => []];
+        $snapshots = snapshot_manager::get_snapshots($userid, snapshot_manager::TYPE_COHORT);
+
+        foreach ($snapshots as $snapshot) {
+            $data = json_decode($snapshot->datajson, true);
+            if (!$data) {
+                $results['failed']++;
+                continue;
+            }
+
+            $cohortid = $data['cohortid'] ?? 0;
+            if (!$cohortid || !$DB->record_exists('cohort', ['id' => $cohortid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            // Check if user is already a member.
+            if ($DB->record_exists('cohort_members', ['cohortid' => $cohortid, 'userid' => $userid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            try {
+                cohort_add_member($cohortid, $userid);
+                $results['restored']++;
+                $results['cohorts'][] = $data['cohortname'] ?? $cohortid;
+            } catch (\Exception $e) {
+                $results['failed']++;
+                debugging('Failed to restore cohort membership: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Restore user role assignments from snapshots.
+     *
+     * @param int $userid The user ID.
+     * @return array Restoration results.
+     */
+    protected static function restore_roles(int $userid): array {
+        global $DB;
+
+        $results = ['restored' => 0, 'failed' => 0, 'skipped' => 0, 'roles' => []];
+        $snapshots = snapshot_manager::get_snapshots($userid, snapshot_manager::TYPE_ROLE);
+
+        foreach ($snapshots as $snapshot) {
+            $data = json_decode($snapshot->datajson, true);
+            if (!$data) {
+                $results['failed']++;
+                continue;
+            }
+
+            $roleid = $data['roleid'] ?? 0;
+            $contextid = $data['contextid'] ?? 0;
+
+            if (!$roleid || !$contextid) {
+                $results['skipped']++;
+                continue;
+            }
+
+            // Verify role and context still exist.
+            if (!$DB->record_exists('role', ['id' => $roleid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            if (!$DB->record_exists('context', ['id' => $contextid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            // Check if role assignment already exists.
+            if ($DB->record_exists('role_assignments', [
+                'roleid' => $roleid,
+                'contextid' => $contextid,
+                'userid' => $userid,
+            ])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            try {
+                role_assign(
+                    $roleid,
+                    $userid,
+                    $contextid,
+                    $data['component'] ?? '',
+                    $data['itemid'] ?? 0
+                );
+                $results['restored']++;
+                $results['roles'][] = $data['rolename'] ?? $roleid;
+            } catch (\Exception $e) {
+                $results['failed']++;
+                debugging('Failed to restore role assignment: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Restore user grades from snapshots.
+     *
+     * @param int $userid The user ID.
+     * @return array Restoration results.
+     */
+    protected static function restore_grades(int $userid): array {
+        global $DB, $CFG;
+
+        require_once($CFG->libdir . '/gradelib.php');
+
+        $results = ['restored' => 0, 'failed' => 0, 'skipped' => 0];
+        $snapshots = snapshot_manager::get_snapshots($userid, snapshot_manager::TYPE_GRADE);
+
+        foreach ($snapshots as $snapshot) {
+            $data = json_decode($snapshot->datajson, true);
+            if (!$data) {
+                $results['failed']++;
+                continue;
+            }
+
+            $itemid = $data['itemid'] ?? 0;
+            if (!$itemid || !$DB->record_exists('grade_items', ['id' => $itemid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            // Check if grade already exists.
+            if ($DB->record_exists('grade_grades', ['itemid' => $itemid, 'userid' => $userid])) {
+                $results['skipped']++;
+                continue;
+            }
+
+            try {
+                $graderecord = new \stdClass();
+                $graderecord->itemid = $itemid;
+                $graderecord->userid = $userid;
+                $graderecord->rawgrade = $data['rawgrade'] ?? null;
+                $graderecord->rawgrademax = $data['rawgrademax'] ?? 100;
+                $graderecord->rawgrademin = $data['rawgrademin'] ?? 0;
+                $graderecord->finalgrade = $data['finalgrade'] ?? null;
+                $graderecord->feedback = $data['feedback'] ?? null;
+                $graderecord->feedbackformat = $data['feedbackformat'] ?? FORMAT_PLAIN;
+                $graderecord->timecreated = time();
+                $graderecord->timemodified = time();
+
+                $DB->insert_record('grade_grades', $graderecord);
+                $results['restored']++;
+            } catch (\Exception $e) {
+                $results['failed']++;
+                debugging('Failed to restore grade: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Restore user preferences from snapshots.
+     *
+     * @param int $userid The user ID.
+     * @return array Restoration results.
+     */
+    protected static function restore_preferences(int $userid): array {
+        global $DB;
+
+        $results = ['restored' => 0, 'failed' => 0, 'skipped' => 0];
+        $snapshots = snapshot_manager::get_snapshots($userid, snapshot_manager::TYPE_PREFERENCE);
+
+        foreach ($snapshots as $snapshot) {
+            $data = json_decode($snapshot->datajson, true);
+            if (!$data || !is_array($data)) {
+                $results['failed']++;
+                continue;
+            }
+
+            foreach ($data as $name => $value) {
+                // Check if preference already exists.
+                if ($DB->record_exists('user_preferences', ['userid' => $userid, 'name' => $name])) {
+                    $results['skipped']++;
+                    continue;
+                }
+
+                try {
+                    set_user_preference($name, $value, $userid);
+                    $results['restored']++;
+                } catch (\Exception $e) {
+                    $results['failed']++;
+                }
+            }
+        }
+
+        return $results;
     }
 
     /**

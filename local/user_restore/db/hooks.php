@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for local_user_restore plugin.
+ * Hook callbacks for local_user_restore plugin.
  *
  * @package    local_user_restore
  * @copyright  2024 Your Institution
@@ -24,8 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_user_restore';
-$plugin->version = 2024010200;
-$plugin->requires = 2020061500; // Moodle 3.9+
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.0.0';
+$callbacks = [
+    [
+        'hook' => 'core\hook\user\before_user_deleted',
+        'callback' => 'local_user_restore\hook_callbacks::before_user_deleted',
+        'priority' => 9999,
+    ],
+];

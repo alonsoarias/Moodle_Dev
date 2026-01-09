@@ -68,11 +68,38 @@ if ($form->is_cancelled()) {
         $data->newusername,
         $data->newemail,
         $data->newpassword,
-        !empty($data->sendnotification)
+        !empty($data->sendnotification),
+        !empty($data->restoredata)
     );
 
     if ($result['success']) {
-        redirect($returnurl, $result['message'], null, \core\output\notification::NOTIFY_SUCCESS);
+        // Build detailed message if data was restored.
+        $message = $result['message'];
+        if (!empty($result['details'])) {
+            $details = $result['details'];
+            $restoredinfo = [];
+
+            if (!empty($details['enrolments']['restored'])) {
+                $restoredinfo[] = get_string('enrolmentsrestored', 'local_user_restore', $details['enrolments']['restored']);
+            }
+            if (!empty($details['groups']['restored'])) {
+                $restoredinfo[] = get_string('groupsrestored', 'local_user_restore', $details['groups']['restored']);
+            }
+            if (!empty($details['cohorts']['restored'])) {
+                $restoredinfo[] = get_string('cohortsrestored', 'local_user_restore', $details['cohorts']['restored']);
+            }
+            if (!empty($details['roles']['restored'])) {
+                $restoredinfo[] = get_string('rolesrestored', 'local_user_restore', $details['roles']['restored']);
+            }
+            if (!empty($details['grades']['restored'])) {
+                $restoredinfo[] = get_string('gradesrestored', 'local_user_restore', $details['grades']['restored']);
+            }
+
+            if (!empty($restoredinfo)) {
+                $message .= ' ' . implode(', ', $restoredinfo) . '.';
+            }
+        }
+        redirect($returnurl, $message, null, \core\output\notification::NOTIFY_SUCCESS);
     } else {
         redirect(
             new moodle_url('/local/user_restore/restore.php', ['userid' => $userid]),
