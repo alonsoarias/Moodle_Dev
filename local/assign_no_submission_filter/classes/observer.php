@@ -17,6 +17,9 @@
 /**
  * Event observer for local_assign_no_submission_filter
  *
+ * Handles events related to assignment grading and submissions
+ * to manage filter state and cache.
+ *
  * @package    local_assign_no_submission_filter
  * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,101 +32,99 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
 /**
- * Event observer class
+ * Event observer class for assignment events
  */
 class observer {
-    
+
     /**
      * Handle grading table viewed event
      *
-     * @param \mod_assign\event\grading_table_viewed $event
+     * Stores session information and applies filter preferences when
+     * a user views the grading table.
+     *
+     * @param \mod_assign\event\grading_table_viewed $event The event object
      */
-    public static function grading_table_viewed(\mod_assign\event\grading_table_viewed $event) {
-        global $SESSION, $USER;
-        
-        // Store in session that we're viewing grading table
-        $SESSION->assign_grading_active = true;
-        $SESSION->assign_grading_assignid = $event->objectid;
-        
-        // Log filter usage
-        if (get_config('local_assign_no_submission_filter', 'enabled') &&
-            local_assign_no_submission_filter_user_has_role(\context::instance_by_id($event->contextid))) {
-            self::log_filter_usage($event);
+    public static function grading_table_viewed(\mod_assign\event\grading_table_viewed $event): void {
+        global $SESSION;
+
+        // Check if plugin is enabled first
+        if (!get_config('local_assign_no_submission_filter', 'enabled')) {
+            return;
         }
 
-        // Apply filter preference
-        self::apply_filter_preference($event->contextid);
+        // Store session state for grading table view
+        $SESSION->assign_grading_active = true;
+        $SESSION->assign_grading_assignid = $event->objectid;
+
+        // Get context for role checking
+        try {
+            $context = \context::instance_by_id($event->contextid);
+        } catch (\Exception $e) {
+            return;
+        }
+
+        // Check if user has selected role before proceeding
+        if (!local_assign_no_submission_filter_user_has_selected_role($context)) {
+            return;
+        }
+
+        // Apply auto-filter preference if enabled
+        if (get_config('local_assign_no_submission_filter', 'autoapply')) {
+            self::apply_auto_filter_preference();
+        }
     }
-    
+
     /**
      * Handle submission graded event
      *
-     * @param \mod_assign\event\submission_graded $event
-     */
-    public static function submission_graded(\mod_assign\event\submission_graded $event) {
-        // Clear any cached filtering data when a submission is graded
-        self::clear_filter_cache($event->objectid);
-    }
-    
-    /**
-     * Handle submission status updated
+     * Clears cached filter data when a submission is graded.
      *
-     * @param \mod_assign\event\submission_status_updated $event
+     * @param \mod_assign\event\submission_graded $event The event object
      */
-    public static function submission_status_updated(\mod_assign\event\submission_status_updated $event) {
-        // Clear cache when submission status changes
+    public static function submission_graded(\mod_assign\event\submission_graded $event): void {
         self::clear_filter_cache($event->objectid);
     }
-    
+
     /**
-     * Apply filter preference for current user
+     * Handle submission status updated event
+     *
+     * Clears cached filter data when submission status changes.
+     *
+     * @param \mod_assign\event\submission_status_updated $event The event object
      */
-    protected static function apply_filter_preference(int $contextid) {
+    public static function submission_status_updated(\mod_assign\event\submission_status_updated $event): void {
+        self::clear_filter_cache($event->objectid);
+    }
+
+    /**
+     * Apply automatic filter preference for current user
+     *
+     * Sets the user preference to show only submissions that need grading.
+     */
+    protected static function apply_auto_filter_preference(): void {
         global $USER, $SESSION;
 
-        if (!get_config('local_assign_no_submission_filter', 'autoapply')) {
-            return;
-        }
+        // Use the Moodle constant if available, otherwise use the numeric value
+        // ASSIGN_FILTER_SUBMITTED = 1 in mod/assign/locallib.php
+        $filtervalue = defined('ASSIGN_FILTER_SUBMITTED') ? ASSIGN_FILTER_SUBMITTED : 1;
 
-        $context = \context::instance_by_id($contextid);
-        if (!local_assign_no_submission_filter_user_has_role($context)) {
-            return;
-        }
-        set_user_preference('assign_filter', ASSIGN_FILTER_NONE, $USER);
+        set_user_preference('assign_filter', $filtervalue, $USER);
         $SESSION->assign_filter_applied = true;
     }
-    
+
     /**
      * Clear filter cache for an assignment
      *
-     * @param int $assignid
-     */
-    protected static function clear_filter_cache($assignid) {
-        global $SESSION;
-        
-        if (isset($SESSION->assign_filter_cache)) {
-            unset($SESSION->assign_filter_cache[$assignid]);
-        }
-    }
-    
-    /**
-     * Log filter usage for analytics
+     * Removes cached filtering data from the session when submission
+     * data changes to ensure fresh data on next view.
      *
-     * @param \core\event\base $event
+     * @param int $assignid The assignment ID
      */
-    protected static function log_filter_usage($event) {
-        global $DB, $USER;
-        
-        // Optional: Log usage statistics
-        $record = new \stdClass();
-        $record->userid = $USER->id;
-        $record->assignid = $event->objectid;
-        $record->timecreated = time();
-        $record->filterenabled = 1;
-        
-        // Only log if we have a logging table (optional)
-        if ($DB->get_manager()->table_exists('local_assign_nsf_log')) {
-            $DB->insert_record('local_assign_nsf_log', $record);
+    protected static function clear_filter_cache(int $assignid): void {
+        global $SESSION;
+
+        if (isset($SESSION->assign_filter_cache[$assignid])) {
+            unset($SESSION->assign_filter_cache[$assignid]);
         }
     }
 }

@@ -54,7 +54,15 @@ if ($hassiteconfig) {
         get_string('filter_downloads_desc', 'local_assign_no_submission_filter'),
         0
     ));
-    
+
+    // Auto-apply filter preference
+    $settings->add(new admin_setting_configcheckbox(
+        'local_assign_no_submission_filter/autoapply',
+        get_string('autoapply', 'local_assign_no_submission_filter'),
+        get_string('autoapply_desc', 'local_assign_no_submission_filter'),
+        0
+    ));
+
     // Hide participant count
     $settings->add(new admin_setting_configcheckbox(
         'local_assign_no_submission_filter/hide_participant_count',

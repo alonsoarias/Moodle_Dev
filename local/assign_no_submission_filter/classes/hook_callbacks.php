@@ -17,6 +17,8 @@
 /**
  * Hook callbacks for local_assign_no_submission_filter
  *
+ * Handles Moodle hooks for injecting CSS and JavaScript into assignment pages.
+ *
  * @package    local_assign_no_submission_filter
  * @copyright  2024 Your Organization
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,134 +28,154 @@ namespace local_assign_no_submission_filter;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
 require_once($CFG->dirroot . '/local/assign_no_submission_filter/lib.php');
 
 /**
- * Hook callbacks class
+ * Hook callbacks class for assignment filtering
  */
 class hook_callbacks {
-    
+
+    /** @var string Plugin component name */
+    const COMPONENT = 'local_assign_no_submission_filter';
+
     /**
      * Before standard head HTML generation hook
+     *
+     * Injects CSS and JavaScript for filtering assignment views.
+     *
+     * @param \core\hook\output\before_standard_head_html_generation $hook The hook instance
      */
     public static function before_standard_head_html(\core\hook\output\before_standard_head_html_generation $hook): void {
-        global $PAGE, $CFG, $USER;
-        
+        global $PAGE, $CFG;
+
+        // Early exit if plugin shouldn't activate
         if (!self::should_activate()) {
             return;
         }
-        
-        // Get the context
+
+        // Get the context safely
         try {
             $context = $PAGE->context;
         } catch (\Exception $e) {
             return;
         }
-        
+
         // Check if current user has one of the selected roles
         if (!local_assign_no_submission_filter_user_has_selected_role($context)) {
             return;
         }
-        
-        // Override the grading table class for grading pages
+
+        // Load filtered grading table class for grading pages
         $action = optional_param('action', '', PARAM_ALPHA);
         if (in_array($action, ['grading', 'grader'])) {
             require_once($CFG->dirroot . '/local/assign_no_submission_filter/classes/table_override.php');
         }
-        
-        // Add CSS for filtering and hiding participant count
-        $css = self::get_filter_css();
-        $hook->add_html($css);
-        
-        // Add JavaScript for client-side operations
-        $PAGE->requires->js_call_amd('local_assign_no_submission_filter/filter', 'init', [
-            'userHasRole' => true,
-            'hideParticipantCount' => (bool)get_config('local_assign_no_submission_filter', 'hide_participant_count'),
-            'hideSubmittedCount' => (bool)get_config('local_assign_no_submission_filter', 'hide_submitted_count')
-        ]);
+
+        // Inject CSS for hiding elements
+        $css = self::build_filter_css();
+        if (!empty($css)) {
+            $hook->add_html($css);
+        }
+
+        // Load JavaScript module with configuration
+        self::load_javascript_module();
     }
-    
+
     /**
-     * Check if we should activate the plugin features
+     * Check if the plugin should activate on the current page
+     *
+     * @return bool True if plugin should activate
      */
     private static function should_activate(): bool {
         global $PAGE;
-        
+
         // Check if plugin is enabled
-        if (!get_config('local_assign_no_submission_filter', 'enabled')) {
+        if (!get_config(self::COMPONENT, 'enabled')) {
             return false;
         }
-        
-        // Check page type
-        $validpagetypes = ['mod-assign-view', 'mod-assign-grading'];
-        if (!in_array($PAGE->pagetype, $validpagetypes)) {
-            return false;
-        }
-        
-        return true;
+
+        // Only activate on assignment pages
+        $validpagetypes = [
+            'mod-assign-view',
+            'mod-assign-grading',
+        ];
+
+        return in_array($PAGE->pagetype, $validpagetypes);
     }
-    
+
     /**
-     * Get filter CSS
+     * Build CSS for filtering and hiding elements
+     *
+     * Uses standard CSS selectors with classes added by JavaScript.
+     *
+     * @return string CSS wrapped in style tags, or empty string
      */
-    private static function get_filter_css(): string {
+    private static function build_filter_css(): string {
         global $PAGE;
-        
-        // Check context for role-based CSS
+
+        // Verify role-based access
         try {
             $context = $PAGE->context;
             $shouldApply = local_assign_no_submission_filter_user_has_selected_role($context);
         } catch (\Exception $e) {
-            $shouldApply = false;
+            return '';
         }
-        
+
         if (!$shouldApply) {
             return '';
         }
-        
-        $css = '
-        <style>
-        /* Hide rows without submissions in grading table */
-        tr.no-submission-hidden {
-            display: none !important;
-        }
-        ';
-        
-        // Add CSS to hide participant count if enabled
-        if (get_config('local_assign_no_submission_filter', 'hide_participant_count')) {
-            $css .= '
-            /* Hide participant count row in assignment summary table */
-            .path-mod-assign .generaltable tr:has(th:contains("Participants")),
-            .path-mod-assign .generaltable tr:has(th:contains("Participantes")) {
-                display: none !important;
-            }
 
-            /* Alternative selector for better compatibility */
+        $cssrules = [];
+
+        // Base rule for hiding rows without submissions (applied by JavaScript)
+        $cssrules[] = '
+            /* Hide rows marked as no-submission by JavaScript */
+            tr.no-submission-hidden {
+                display: none !important;
+            }';
+
+        // Hide participant count row if enabled
+        if (get_config(self::COMPONENT, 'hide_participant_count')) {
+            $cssrules[] = '
+            /* Hide participant count row (class added by JavaScript) */
             .path-mod-assign .generaltable tr.participant-count-row {
                 display: none !important;
-            }
-            ';
+            }';
         }
 
-        // Add CSS to hide submitted count if enabled
-        if (get_config('local_assign_no_submission_filter', 'hide_submitted_count')) {
-            $css .= '
-            /* Hide submitted count row in assignment summary table */
-            .path-mod-assign .generaltable tr:has(th:contains("Submitted")),
-            .path-mod-assign .generaltable tr:has(th:contains("Enviados")),
-            .path-mod-assign .generaltable tr:has(th:contains("Enviado")) {
-                display: none !important;
-            }
-
-            /* Alternative selector for submitted count */
+        // Hide submitted count row if enabled
+        if (get_config(self::COMPONENT, 'hide_submitted_count')) {
+            $cssrules[] = '
+            /* Hide submitted count row (class added by JavaScript) */
             .path-mod-assign .generaltable tr.submitted-count-row {
                 display: none !important;
-            }
-            ';
+            }';
         }
-        
-        $css .= '</style>';
-        
-        return $css;
+
+        if (empty($cssrules)) {
+            return '';
+        }
+
+        return '<style>' . implode("\n", $cssrules) . "\n</style>";
+    }
+
+    /**
+     * Load the JavaScript module with current configuration
+     */
+    private static function load_javascript_module(): void {
+        global $PAGE;
+
+        $config = [
+            'userHasRole' => true,
+            'hideParticipantCount' => (bool)get_config(self::COMPONENT, 'hide_participant_count'),
+            'hideSubmittedCount' => (bool)get_config(self::COMPONENT, 'hide_submitted_count'),
+        ];
+
+        $PAGE->requires->js_call_amd(
+            'local_assign_no_submission_filter/filter',
+            'init',
+            [$config]
+        );
     }
 }
