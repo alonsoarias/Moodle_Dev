@@ -15,17 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions for local_assign_no_submission_filter
+ * Capability definitions for the Assignment No Submission Filter plugin.
+ *
+ * This file defines the capabilities used to control access to plugin features.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    // Capability to bypass the filter
+    // Capability to bypass the filter and see all students.
     'local/assign_no_submission_filter:bypassfilter' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -35,8 +38,8 @@ $capabilities = [
         ],
         'clonepermissionsfrom' => 'mod/assign:grade',
     ],
-    
-    // Capability to configure filter settings
+
+    // Capability to configure filter settings.
     'local/assign_no_submission_filter:configure' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,

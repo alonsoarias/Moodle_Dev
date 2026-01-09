@@ -15,12 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Filter service for local_assign_no_submission_filter
+ * Filter service for the Assignment No Submission Filter plugin.
  *
- * Provides centralized filtering logic for assignment submissions.
+ * Provides centralized filtering logic for assignment submissions,
+ * including methods for checking submission status and filtering users.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,35 +33,40 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
 /**
- * Service class for filtering logic
+ * Service class for centralized filtering logic.
  *
- * This service provides methods to check submission status and filter
- * users based on their assignment activity.
+ * This service provides methods to check submission status, retrieve
+ * filtered user lists, and manage configuration settings.
+ *
+ * @package    local_assign_no_submission_filter
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class filter_service {
 
-    /** @var \moodle_database Database connection */
+    /** @var \moodle_database Database connection instance */
     protected $db;
 
-    /** @var string Plugin component name */
+    /** @var string Plugin component name for configuration access */
     const COMPONENT = 'local_assign_no_submission_filter';
 
     /**
-     * Constructor with dependency injection
+     * Constructor with optional dependency injection.
      *
-     * @param \moodle_database|null $db Optional database connection for testing
+     * @param \moodle_database|null $db Optional database connection for testing.
      */
-    public function __construct(\moodle_database $db = null) {
+    public function __construct(?\moodle_database $db = null) {
         global $DB;
         $this->db = $db ?? $DB;
     }
 
     /**
-     * Check if a specific user has made a submission for an assignment
+     * Check if a specific user has made a submission for an assignment.
      *
-     * @param int $userid The user ID
-     * @param int $assignmentid The assignment ID
-     * @return bool True if user has a valid submission
+     * @param int $userid The user ID to check.
+     * @param int $assignmentid The assignment ID to check.
+     * @return bool True if the user has a valid submission.
      */
     public function user_has_submission(int $userid, int $assignmentid): bool {
         $sql = "SELECT 1
@@ -78,10 +85,10 @@ class filter_service {
     }
 
     /**
-     * Get all users who have made submissions for an assignment
+     * Get all users who have made submissions for an assignment.
      *
-     * @param int $assignmentid The assignment ID
-     * @return array Array of user IDs with submissions
+     * @param int $assignmentid The assignment ID.
+     * @return array Array of user IDs with submissions.
      */
     public function get_users_with_submissions(int $assignmentid): array {
         $sql = "SELECT DISTINCT s.userid
@@ -98,10 +105,10 @@ class filter_service {
     }
 
     /**
-     * Get all users who have grades for an assignment
+     * Get all users who have grades for an assignment.
      *
-     * @param int $assignmentid The assignment ID
-     * @return array Array of user IDs with grades
+     * @param int $assignmentid The assignment ID.
+     * @return array Array of user IDs with grades.
      */
     public function get_users_with_grades(int $assignmentid): array {
         $sql = "SELECT DISTINCT g.userid
@@ -116,10 +123,10 @@ class filter_service {
     }
 
     /**
-     * Get users who are members of groups with team submissions
+     * Get users who are members of groups with team submissions.
      *
-     * @param int $assignmentid The assignment ID
-     * @return array Array of user IDs in teams with submissions
+     * @param int $assignmentid The assignment ID.
+     * @return array Array of user IDs in teams with submissions.
      */
     public function get_team_submission_users(int $assignmentid): array {
         $sql = "SELECT DISTINCT gm.userid
@@ -137,22 +144,22 @@ class filter_service {
     }
 
     /**
-     * Get all users with any activity (submission or grade) for an assignment
+     * Get all users with any activity (submission or grade) for an assignment.
      *
-     * @param int $assignmentid The assignment ID
-     * @param bool $includeteams Whether to include team submission members
-     * @return array Array of unique user IDs with activity
+     * @param int $assignmentid The assignment ID.
+     * @param bool $includeteams Whether to include team submission members.
+     * @return array Array of unique user IDs with activity.
      */
     public function get_users_with_activity(int $assignmentid, bool $includeteams = false): array {
         $users = [];
 
-        // Users with submissions
+        // Users with submissions.
         $users = array_merge($users, $this->get_users_with_submissions($assignmentid));
 
-        // Users with grades
+        // Users with grades.
         $users = array_merge($users, $this->get_users_with_grades($assignmentid));
 
-        // Team submission members
+        // Team submission members.
         if ($includeteams) {
             $users = array_merge($users, $this->get_team_submission_users($assignmentid));
         }
@@ -161,18 +168,18 @@ class filter_service {
     }
 
     /**
-     * Check if the filter should be applied based on plugin configuration
+     * Check if the filter should be applied based on plugin configuration.
      *
-     * @param \context|null $context The context to check roles against
-     * @return bool True if filter should be applied
+     * @param \context|null $context The context to check roles against.
+     * @return bool True if filter should be applied.
      */
-    public function should_apply_filter(\context $context = null): bool {
-        // Check if plugin is enabled
+    public function should_apply_filter(?\context $context = null): bool {
+        // Check if plugin is enabled.
         if (!get_config(self::COMPONENT, 'enabled')) {
             return false;
         }
 
-        // Check if user has selected role
+        // Check if user has selected role.
         if ($context !== null) {
             return local_assign_no_submission_filter_user_has_selected_role($context);
         }
@@ -181,12 +188,12 @@ class filter_service {
     }
 
     /**
-     * Check if participant count should be hidden
+     * Check if participant count should be hidden.
      *
-     * @param \context|null $context The context to check roles against
-     * @return bool True if participant count should be hidden
+     * @param \context|null $context The context to check roles against.
+     * @return bool True if participant count should be hidden.
      */
-    public function should_hide_participant_count(\context $context = null): bool {
+    public function should_hide_participant_count(?\context $context = null): bool {
         if (!get_config(self::COMPONENT, 'hide_participant_count')) {
             return false;
         }
@@ -199,12 +206,12 @@ class filter_service {
     }
 
     /**
-     * Check if submitted count should be hidden
+     * Check if submitted count should be hidden.
      *
-     * @param \context|null $context The context to check roles against
-     * @return bool True if submitted count should be hidden
+     * @param \context|null $context The context to check roles against.
+     * @return bool True if submitted count should be hidden.
      */
-    public function should_hide_submitted_count(\context $context = null): bool {
+    public function should_hide_submitted_count(?\context $context = null): bool {
         if (!get_config(self::COMPONENT, 'hide_submitted_count')) {
             return false;
         }
@@ -217,11 +224,11 @@ class filter_service {
     }
 
     /**
-     * Get filter statistics for an assignment
+     * Get filter statistics for an assignment.
      *
-     * @param int $assignmentid The assignment ID
-     * @param int $courseid The course ID
-     * @return \stdClass Object with total_users, submitted_users, no_submission_users
+     * @param int $assignmentid The assignment ID.
+     * @param int $courseid The course ID (optional, will be fetched if not provided).
+     * @return \stdClass Object with total_users, submitted_users, no_submission_users.
      */
     public function get_filter_stats(int $assignmentid, int $courseid = 0): \stdClass {
         $stats = new \stdClass();
@@ -229,7 +236,7 @@ class filter_service {
         $stats->submitted_users = 0;
         $stats->no_submission_users = 0;
 
-        // Get course ID from assignment if not provided
+        // Get course ID from assignment if not provided.
         if ($courseid === 0) {
             $assign = $this->db->get_record('assign', ['id' => $assignmentid], 'course');
             if ($assign) {
@@ -238,25 +245,25 @@ class filter_service {
         }
 
         if ($courseid > 0) {
-            // Count enrolled users with student role
+            // Count enrolled users with student role.
             $context = \context_course::instance($courseid);
             $students = get_enrolled_users($context, 'mod/assign:submit');
             $stats->total_users = count($students);
         }
 
-        // Users with submissions
+        // Users with submissions.
         $stats->submitted_users = count($this->get_users_with_submissions($assignmentid));
 
-        // Users without submissions
+        // Users without submissions.
         $stats->no_submission_users = max(0, $stats->total_users - $stats->submitted_users);
 
         return $stats;
     }
 
     /**
-     * Get all plugin configuration values
+     * Get all plugin configuration values.
      *
-     * @return \stdClass Object with all configuration values
+     * @return \stdClass Object containing all configuration values.
      */
     public function get_config(): \stdClass {
         $config = new \stdClass();

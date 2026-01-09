@@ -15,17 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Spanish language strings
+ * Spanish language strings for the Assignment No Submission Filter plugin.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+// Nombre del plugin y metadatos.
 $string['pluginname'] = 'Filtro Automático de Tareas Sin Envío';
 $string['privacy:metadata'] = 'El plugin Filtro Automático de Tareas Sin Envío no almacena datos personales.';
 
-// General settings
+// Configuración general.
 $string['general_section'] = 'Configuración General';
 $string['general_section_desc'] = 'Configure la funcionalidad básica del filtro de envíos.';
 $string['enabled'] = 'Habilitar filtrado automático';
@@ -39,7 +43,7 @@ $string['hide_participant_count_desc'] = 'Ocultar la fila de cantidad de partici
 $string['hide_submitted_count'] = 'Ocultar cantidad de enviados';
 $string['hide_submitted_count_desc'] = 'Ocultar la fila de cantidad de envíos en las tablas de resumen de tareas.';
 
-// Role settings
+// Configuración de roles.
 $string['roles_section'] = 'Configuración de Roles';
 $string['roles_section_desc'] = 'Seleccione qué roles verán la vista filtrada. Los usuarios con estos roles tendrán ocultos a los estudiantes sin envíos.';
 $string['selected_roles'] = 'Roles seleccionados';

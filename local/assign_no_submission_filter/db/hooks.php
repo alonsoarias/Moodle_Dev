@@ -15,16 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Hook callbacks for local_assign_no_submission_filter
+ * Hook callback definitions for the Assignment No Submission Filter plugin.
+ *
+ * This file defines the hook subscriptions for injecting CSS and JavaScript.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $callbacks = [
+    // Hook for injecting content before head HTML.
     [
         'hook' => \core\hook\output\before_standard_head_html_generation::class,
         'callback' => 'local_assign_no_submission_filter\hook_callbacks::before_standard_head_html',

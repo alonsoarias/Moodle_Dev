@@ -15,13 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Filtered grading table class for assignment submissions
+ * Filtered grading table class for the Assignment No Submission Filter plugin.
  *
- * This class extends the standard assign_grading_table to filter out
- * students who have not made any submissions.
+ * This class extends the standard assignment grading table to filter out
+ * students who have not made any submissions, improving the grading workflow.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,7 +35,15 @@ require_once($CFG->dirroot . '/mod/assign/gradingtable.php');
 require_once($CFG->dirroot . '/local/assign_no_submission_filter/lib.php');
 
 /**
- * Filtered grading table that only shows students with submissions
+ * Filtered grading table that only shows students with submissions.
+ *
+ * Extends the standard assign_grading_table to add filtering functionality
+ * that hides students without submissions from the grading view.
+ *
+ * @package    local_assign_no_submission_filter
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class filtered_grading_table extends \assign_grading_table {
 
@@ -42,80 +51,87 @@ class filtered_grading_table extends \assign_grading_table {
     protected $filterservice;
 
     /**
-     * Constructor - sets up the table with submission filtering
+     * Constructor - sets up the table with submission filtering.
      *
-     * @param \assign $assignment The assignment instance
-     * @param int $perpage Number of rows per page
-     * @param int $filter Current filter setting
-     * @param int $rowoffset Row offset for pagination
-     * @param bool $quickgrading Whether quick grading is enabled
-     * @param string|null $downloadfilename Filename for download, null if not downloading
+     * @param \assign $assignment The assignment instance.
+     * @param int $perpage Number of rows per page.
+     * @param int $filter Current filter setting.
+     * @param int $rowoffset Row offset for pagination.
+     * @param bool $quickgrading Whether quick grading is enabled.
+     * @param string|null $downloadfilename Filename for download, null if not downloading.
      */
     public function __construct($assignment, $perpage, $filter, $rowoffset, $quickgrading, $downloadfilename = null) {
         parent::__construct($assignment, $perpage, $filter, $rowoffset, $quickgrading, $downloadfilename);
 
         $this->filterservice = new filter_service();
 
-        // Apply filter only if conditions are met
+        // Apply filter only if conditions are met.
         if ($this->should_apply_filter()) {
             $this->apply_submission_filter();
         }
     }
 
     /**
-     * Determine if the submission filter should be applied
+     * Determine if the submission filter should be applied.
      *
-     * @return bool True if filter should be applied
+     * Checks plugin enabled status, download settings, and user roles.
+     *
+     * @return bool True if filter should be applied.
      */
     protected function should_apply_filter(): bool {
-        // Check if plugin is enabled
+        // Check if plugin is enabled.
         if (!get_config('local_assign_no_submission_filter', 'enabled')) {
             return false;
         }
 
-        // Don't filter downloads unless configured to do so
+        // Don't filter downloads unless configured to do so.
         if ($this->is_downloading()) {
             if (!get_config('local_assign_no_submission_filter', 'filter_downloads')) {
                 return false;
             }
         }
 
-        // Check if user has one of the selected roles
+        // Check if user has one of the selected roles.
         $context = $this->assignment->get_context();
         return local_assign_no_submission_filter_user_has_selected_role($context);
     }
 
     /**
-     * Apply the submission filter to the SQL query
+     * Apply the submission filter to the SQL query.
+     *
+     * Modifies the table's SQL to only include users with submissions
+     * or grades for the assignment.
+     *
+     * @return void
      */
     protected function apply_submission_filter(): void {
         global $DB;
 
         $assignid = $this->assignment->get_instance()->id;
 
-        // Get all users who have submissions or grades
+        // Get all users who have submissions or grades.
         $userswithsubmissions = $this->get_users_with_activity($assignid);
 
         if (empty($userswithsubmissions)) {
-            // No submissions - use impossible ID to show empty table
+            // No submissions - use impossible ID to show empty table.
             $userswithsubmissions = [-1];
         }
 
-        // Build SQL IN clause
+        // Build SQL IN clause.
         list($insql, $inparams) = $DB->get_in_or_equal(
             $userswithsubmissions,
             SQL_PARAMS_NAMED,
             'filteruser'
         );
 
-        // Append to existing WHERE clause
+        // Append to existing WHERE clause.
         if (!empty($this->sql->where)) {
             $this->sql->where .= " AND u.id {$insql}";
         } else {
             $this->sql->where = "u.id {$insql}";
         }
 
-        // Merge parameters
+        // Merge parameters.
         if (!isset($this->sql->params)) {
             $this->sql->params = [];
         }
@@ -123,17 +139,19 @@ class filtered_grading_table extends \assign_grading_table {
     }
 
     /**
-     * Get users who have any activity (submissions or grades) for the assignment
+     * Get users who have any activity (submissions or grades) for the assignment.
      *
-     * @param int $assignid The assignment ID
-     * @return array Array of user IDs
+     * Retrieves users with individual submissions, grades, or team submissions.
+     *
+     * @param int $assignid The assignment ID.
+     * @return array Array of user IDs with activity.
      */
     protected function get_users_with_activity(int $assignid): array {
         global $DB;
 
         $users = [];
 
-        // 1. Users with actual submissions (not 'new' status)
+        // 1. Users with actual submissions (not 'new' status).
         $sql = "SELECT DISTINCT s.userid
                 FROM {assign_submission} s
                 WHERE s.assignment = :assignid
@@ -149,7 +167,7 @@ class filtered_grading_table extends \assign_grading_table {
         $submittedusers = $DB->get_fieldset_sql($sql, $params);
         $users = array_merge($users, $submittedusers);
 
-        // 2. Users with grades (even without submission)
+        // 2. Users with grades (even without submission).
         $sql = "SELECT DISTINCT g.userid
                 FROM {assign_grades} g
                 WHERE g.assignment = :assignid
@@ -159,7 +177,7 @@ class filtered_grading_table extends \assign_grading_table {
         $gradedusers = $DB->get_fieldset_sql($sql, ['assignid' => $assignid]);
         $users = array_merge($users, $gradedusers);
 
-        // 3. Team submission members
+        // 3. Team submission members.
         if ($this->assignment->get_instance()->teamsubmission) {
             $sql = "SELECT DISTINCT gm.userid
                     FROM {assign_submission} s

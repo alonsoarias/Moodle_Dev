@@ -15,20 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for local_assign_no_submission_filter
+ * Version information for local_assign_no_submission_filter.
+ *
+ * This plugin filters assignment grading views to show only students
+ * who have made submissions, improving the grading workflow for teachers.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_assign_no_submission_filter';
-$plugin->version = 2024111712;
+$plugin->version = 2026010900;
 $plugin->requires = 2022112800; // Moodle 4.3+
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = 'v2.0.0';
-$plugin->dependencies = array(
-    'mod_assign' => 2022112800
-);
+$plugin->dependencies = [
+    'mod_assign' => 2022112800,
+];

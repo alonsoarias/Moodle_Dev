@@ -15,28 +15,34 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Event observers for local_assign_no_submission_filter
+ * Event observer definitions for the Assignment No Submission Filter plugin.
+ *
+ * This file defines the event subscriptions for managing filter state and cache.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $observers = [
+    // Observer for grading table view event.
     [
         'eventname' => '\mod_assign\event\grading_table_viewed',
         'callback' => '\local_assign_no_submission_filter\observer::grading_table_viewed',
         'priority' => 0,
         'internal' => true,
     ],
+    // Observer for submission graded event.
     [
         'eventname' => '\mod_assign\event\submission_graded',
         'callback' => '\local_assign_no_submission_filter\observer::submission_graded',
         'priority' => 0,
         'internal' => false,
     ],
+    // Observer for submission status update event.
     [
         'eventname' => '\mod_assign\event\submission_status_updated',
         'callback' => '\local_assign_no_submission_filter\observer::submission_status_updated',

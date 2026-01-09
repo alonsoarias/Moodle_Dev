@@ -15,165 +15,191 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library functions for local_assign_no_submission_filter
+ * Library functions for the Assignment No Submission Filter plugin.
+ *
+ * This file contains the core library functions used throughout the plugin
+ * to handle role checking, submission filtering, and configuration validation.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-// Constants
+/*
+ * Define submission status constants if not already defined by mod_assign.
+ * These constants match the values used in the assign_submission table.
+ */
 if (!defined('ASSIGN_SUBMISSION_STATUS_NEW')) {
+    /** @var string Status for new/empty submissions */
     define('ASSIGN_SUBMISSION_STATUS_NEW', 'new');
 }
 if (!defined('ASSIGN_SUBMISSION_STATUS_SUBMITTED')) {
+    /** @var string Status for submitted assignments */
     define('ASSIGN_SUBMISSION_STATUS_SUBMITTED', 'submitted');
 }
 if (!defined('ASSIGN_SUBMISSION_STATUS_DRAFT')) {
+    /** @var string Status for draft submissions */
     define('ASSIGN_SUBMISSION_STATUS_DRAFT', 'draft');
 }
 
 /**
- * Get all system roles for configuration
+ * Get all system roles for the plugin configuration page.
  *
- * @return array Array of role id => role name
+ * Retrieves all roles defined in the system, sorted by their display order,
+ * for use in the role selection multiselect in plugin settings.
+ *
+ * @return array Associative array of role id => localized role name.
  */
-function local_assign_no_submission_filter_get_all_roles() {
+function local_assign_no_submission_filter_get_all_roles(): array {
     global $DB;
-    
+
     $roles = $DB->get_records('role', null, 'sortorder ASC');
-    $roles_array = array();
-    
+    $rolesarray = [];
+
     foreach ($roles as $role) {
-        $roles_array[$role->id] = role_get_name($role);
+        $rolesarray[$role->id] = role_get_name($role);
     }
-    
-    return $roles_array;
+
+    return $rolesarray;
 }
 
 /**
- * Check if current user has one of the selected roles
+ * Check if the current user has one of the selected roles for filtering.
  *
- * @param context $context The context to check
- * @return bool True if user has one of the selected roles
+ * This function checks both the given context and its parent contexts
+ * to determine if the user has any of the roles configured in the plugin
+ * settings for seeing filtered assignment views.
+ *
+ * @param context|null $context The context to check roles in. If null, returns false.
+ * @return bool True if the user has one of the selected roles, false otherwise.
  */
-function local_assign_no_submission_filter_user_has_selected_role($context = null) {
-    global $USER, $DB;
-    
-    // Get selected roles configuration
-    $selected_roles = get_config('local_assign_no_submission_filter', 'selected_roles');
-    if (empty($selected_roles)) {
+function local_assign_no_submission_filter_user_has_selected_role(?context $context = null): bool {
+    global $USER;
+
+    // Get selected roles from configuration.
+    $selectedroles = get_config('local_assign_no_submission_filter', 'selected_roles');
+    if (empty($selectedroles)) {
         return false;
     }
-    
-    // If no context provided, we can't check
-    if (!$context) {
+
+    // Context is required for role checking.
+    if ($context === null) {
         return false;
     }
-    
-    // Convert string to array
-    $selected_roles_array = explode(',', $selected_roles);
-    if (empty($selected_roles_array)) {
+
+    // Convert comma-separated string to array.
+    $selectedrolesarray = explode(',', $selectedroles);
+    if (empty($selectedrolesarray)) {
         return false;
     }
-    
-    // Get user roles in this context
+
+    // Check user roles in the current context.
     $userroles = get_user_roles($context, $USER->id, true);
-    
-    // Check if user has any of the selected roles
     foreach ($userroles as $role) {
-        if (in_array($role->roleid, $selected_roles_array)) {
+        if (in_array($role->roleid, $selectedrolesarray)) {
             return true;
         }
     }
-    
-    // Also check parent contexts
+
+    // Also check parent contexts for inherited roles.
     $parentcontexts = $context->get_parent_context_ids();
     foreach ($parentcontexts as $parentcontextid) {
         $parentcontext = context::instance_by_id($parentcontextid);
         $userroles = get_user_roles($parentcontext, $USER->id, true);
-        
+
         foreach ($userroles as $role) {
-            if (in_array($role->roleid, $selected_roles_array)) {
+            if (in_array($role->roleid, $selectedrolesarray)) {
                 return true;
             }
         }
     }
-    
+
     return false;
 }
 
 /**
- * Get users who have made submissions for an assignment
+ * Get user IDs who have made submissions for a specific assignment.
  *
- * @param int $assignid Assignment ID
- * @return array Array of user IDs
+ * Retrieves a list of unique user IDs who have submitted work to the
+ * specified assignment, excluding empty/new submissions.
+ *
+ * @param int $assignid The assignment ID to check submissions for.
+ * @return array Array of user IDs with valid submissions.
  */
-function local_assign_no_submission_filter_get_submitted_users($assignid) {
+function local_assign_no_submission_filter_get_submitted_users(int $assignid): array {
     global $DB;
-    
-    // Get users with actual submissions (not 'new' status)
+
     $sql = "SELECT DISTINCT s.userid
             FROM {assign_submission} s
             WHERE s.assignment = :assignid
               AND s.status <> :statusnew
               AND s.latest = 1
               AND s.userid > 0";
-    
+
     $params = [
         'assignid' => $assignid,
-        'statusnew' => ASSIGN_SUBMISSION_STATUS_NEW
+        'statusnew' => ASSIGN_SUBMISSION_STATUS_NEW,
     ];
-    
+
     return $DB->get_fieldset_sql($sql, $params);
 }
 
 /**
- * Check if filter should be applied
+ * Determine if the submission filter should be applied.
  *
- * @param context $context The context to check
- * @return bool
+ * Checks both the plugin enabled status and whether the current user
+ * has a role that should see filtered views.
+ *
+ * @param context|null $context The context to check. Required for role verification.
+ * @return bool True if filtering should be applied, false otherwise.
  */
-function local_assign_no_submission_filter_should_filter($context = null) {
-    // First check if plugin is enabled
+function local_assign_no_submission_filter_should_filter(?context $context = null): bool {
+    // Check if plugin is enabled globally.
     if (!get_config('local_assign_no_submission_filter', 'enabled')) {
         return false;
     }
-    
-    // Then check if user has selected role
+
+    // Verify user has an appropriate role.
     return local_assign_no_submission_filter_user_has_selected_role($context);
 }
 
 /**
- * Check if we should hide participant count
+ * Determine if the participant count should be hidden.
  *
- * @param context $context The context to check
- * @return bool
+ * Checks if the hide_participant_count setting is enabled and
+ * if the current user has a role that should see hidden counts.
+ *
+ * @param context|null $context The context to check roles in.
+ * @return bool True if participant count should be hidden, false otherwise.
  */
-function local_assign_no_submission_filter_should_hide_count($context = null) {
-    // First check if feature is enabled
+function local_assign_no_submission_filter_should_hide_count(?context $context = null): bool {
+    // Check if feature is enabled.
     if (!get_config('local_assign_no_submission_filter', 'hide_participant_count')) {
         return false;
     }
 
-    // Then check if user has selected role
+    // Verify user has an appropriate role.
     return local_assign_no_submission_filter_user_has_selected_role($context);
 }
 
 /**
- * Check if we should hide submitted count
+ * Determine if the submitted count should be hidden.
  *
- * @param context $context The context to check
- * @return bool
+ * Checks if the hide_submitted_count setting is enabled and
+ * if the current user has a role that should see hidden counts.
+ *
+ * @param context|null $context The context to check roles in.
+ * @return bool True if submitted count should be hidden, false otherwise.
  */
-function local_assign_no_submission_filter_should_hide_submitted_count($context = null) {
-    // First check if feature is enabled
+function local_assign_no_submission_filter_should_hide_submitted_count(?context $context = null): bool {
+    // Check if feature is enabled.
     if (!get_config('local_assign_no_submission_filter', 'hide_submitted_count')) {
         return false;
     }
 
-    // Then check if user has selected role
+    // Verify user has an appropriate role.
     return local_assign_no_submission_filter_user_has_selected_role($context);
 }

@@ -15,17 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * English language strings
+ * English language strings for the Assignment No Submission Filter plugin.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+// Plugin name and metadata.
 $string['pluginname'] = 'Assignment No Submission Filter';
 $string['privacy:metadata'] = 'The Assignment No Submission Filter plugin does not store any personal data.';
 
-// General settings
+// General settings.
 $string['general_section'] = 'General Settings';
 $string['general_section_desc'] = 'Configure the basic functionality of the submission filter.';
 $string['enabled'] = 'Enable automatic filtering';
@@ -39,7 +43,7 @@ $string['hide_participant_count_desc'] = 'Hide the participant count row in assi
 $string['hide_submitted_count'] = 'Hide submitted count';
 $string['hide_submitted_count_desc'] = 'Hide the submitted count row in assignment summary tables.';
 
-// Role settings
+// Role settings.
 $string['roles_section'] = 'Role Configuration';
 $string['roles_section_desc'] = 'Select which roles will see the filtered view. Users with these roles will have students without submissions hidden from their view.';
 $string['selected_roles'] = 'Selected roles';

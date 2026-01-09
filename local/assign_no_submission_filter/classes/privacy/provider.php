@@ -15,10 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy provider
+ * Privacy provider for the Assignment No Submission Filter plugin.
+ *
+ * This plugin does not store any personal data. It only modifies
+ * the display of existing assignment data based on configuration.
  *
  * @package    local_assign_no_submission_filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,18 +30,23 @@ namespace local_assign_no_submission_filter\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-use core_privacy\local\metadata\collection;
-
 /**
- * Privacy provider class - This plugin does not store any personal data
+ * Privacy provider implementation.
+ *
+ * This class declares that the plugin does not store any personal
+ * user data, implementing the null_provider interface.
+ *
+ * @package    local_assign_no_submission_filter
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {
-    
+
     /**
-     * Get the language string identifier with the component's language
-     * file to explain why this plugin stores no data.
+     * Get the language string identifier explaining why this plugin stores no data.
      *
-     * @return string
+     * @return string The language string identifier.
      */
     public static function get_reason(): string {
         return 'privacy:metadata';

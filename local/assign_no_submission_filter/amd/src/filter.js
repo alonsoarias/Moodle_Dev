@@ -1,26 +1,38 @@
 /**
- * JavaScript module for assignment submission filter and UI modifications
+ * JavaScript module for the Assignment No Submission Filter plugin.
+ *
+ * This module handles client-side filtering of assignment grading tables
+ * and hiding of summary statistics based on configuration.
  *
  * @module     local_assign_no_submission_filter/filter
- * @copyright  2024 Your Organization
+ * @author     IngeWeb
+ * @copyright  2026 IngeWeb para TecnosZubia
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery', 'core/str'], function($, Str) {
 
+    /** @type {boolean} Whether the module has been initialized */
     var initialized = false;
+
+    /** @type {boolean} Whether the current user has the required role */
     var userHasRole = false;
+
+    /** @type {Object} Configuration options */
     var config = {
         hideParticipantCount: true,
         hideSubmittedCount: true
     };
 
     /**
-     * Initialize the filter and UI modifications
+     * Initialize the filter and UI modifications.
      *
-     * @param {Object} options Configuration options
-     * @param {boolean} options.userHasRole Whether the user has the required role
-     * @param {boolean} options.hideParticipantCount Whether to hide participant count
-     * @param {boolean} options.hideSubmittedCount Whether to hide submitted count
+     * Sets up the configuration and applies filtering based on user role
+     * and admin settings.
+     *
+     * @param {Object} options Configuration options from PHP.
+     * @param {boolean} options.userHasRole Whether the user has the required role.
+     * @param {boolean} options.hideParticipantCount Whether to hide participant count.
+     * @param {boolean} options.hideSubmittedCount Whether to hide submitted count.
      */
     var init = function(options) {
         if (initialized) {
@@ -28,27 +40,27 @@ define(['jquery', 'core/str'], function($, Str) {
         }
         initialized = true;
 
-        // Store configuration
+        // Store configuration.
         userHasRole = options.userHasRole || false;
         config.hideParticipantCount = options.hideParticipantCount !== false;
         config.hideSubmittedCount = options.hideSubmittedCount !== false;
 
-        // Only proceed if user has the required role
+        // Only proceed if user has the required role.
         if (!userHasRole) {
             return;
         }
 
-        // Wait for DOM ready
+        // Wait for DOM ready.
         $(document).ready(function() {
-            // Apply filtering for grading tables
+            // Apply filtering for grading tables.
             applyGradingTableFilter();
 
-            // Hide participant count in summary table (if enabled)
+            // Hide participant count in summary table (if enabled).
             if (config.hideParticipantCount) {
                 hideParticipantCount();
             }
 
-            // Hide submitted count in summary table (if enabled)
+            // Hide submitted count in summary table (if enabled).
             if (config.hideSubmittedCount) {
                 hideSubmittedCount();
             }
@@ -56,34 +68,37 @@ define(['jquery', 'core/str'], function($, Str) {
     };
 
     /**
-     * Apply filtering to grading tables (silently)
+     * Apply filtering to grading tables.
+     *
+     * Scans grading table rows and hides those that don't have
+     * submission indicators.
      */
     var applyGradingTableFilter = function() {
-        // Only apply if user has role
+        // Only apply if user has role.
         if (!userHasRole) {
             return;
         }
 
-        // Only apply to grading tables
+        // Only apply to grading tables.
         var tables = $('.gradingtable, #submissions');
         if (!tables.length) {
             return;
         }
 
-        // Mark table as filtered
+        // Mark table as filtered.
         tables.addClass('filtered');
 
-        // Find all table rows and hide those without submissions
+        // Find all table rows and hide those without submissions.
         $('.gradingtable tbody tr, #submissions tbody tr').each(function() {
             var $row = $(this);
             var hasSubmission = false;
 
-            // Check each cell for submission status
+            // Check each cell for submission status.
             $row.find('td').each(function() {
                 var text = $(this).text().trim();
                 var $cell = $(this);
 
-                // Check for various submission statuses
+                // Check for various submission statuses (English and Spanish).
                 if (text.indexOf('Submitted') !== -1 ||
                     text.indexOf('Enviado') !== -1 ||
                     text.indexOf('Draft') !== -1 ||
@@ -93,10 +108,10 @@ define(['jquery', 'core/str'], function($, Str) {
                     text.indexOf('Reenviado') !== -1 ||
                     text.indexOf('Resubmitted') !== -1) {
                     hasSubmission = true;
-                    return false; // Break the loop
+                    return false; // Break the loop.
                 }
 
-                // Check for grade inputs
+                // Check for grade inputs.
                 if ($cell.find('input[name^="quickgrade_"]').length > 0) {
                     var gradeValue = $cell.find('input[name^="quickgrade_"]').val();
                     if (gradeValue && gradeValue !== '' && gradeValue !== '-' && gradeValue !== '-1') {
@@ -105,7 +120,7 @@ define(['jquery', 'core/str'], function($, Str) {
                     }
                 }
 
-                // Check for grade selects
+                // Check for grade selects.
                 if ($cell.find('select[name^="quickgrade_"]').length > 0) {
                     var selectedGrade = $cell.find('select[name^="quickgrade_"]').val();
                     if (selectedGrade && selectedGrade !== '-1') {
@@ -115,7 +130,7 @@ define(['jquery', 'core/str'], function($, Str) {
                 }
             });
 
-            // Hide row if no submission
+            // Hide row if no submission.
             if (!hasSubmission) {
                 $row.addClass('no-submission-hidden');
             }
@@ -123,42 +138,44 @@ define(['jquery', 'core/str'], function($, Str) {
     };
 
     /**
-     * Hide participant count row in assignment summary table
+     * Hide participant count row in assignment summary table.
+     *
+     * Retrieves localized strings and hides the participant count row.
      */
     var hideParticipantCount = function() {
-        // Only apply if user has role
+        // Only apply if user has role.
         if (!userHasRole) {
             return;
         }
 
-        // Get language strings for both English and Spanish
+        // Get language strings for both English and Spanish.
         Str.get_strings([
             {key: 'numberofparticipants', component: 'assign'},
             {key: 'participants', component: 'moodle'}
         ]).done(function(strings) {
             hideParticipantRowByText(strings);
         }).fail(function() {
-            // Fallback with hardcoded strings
+            // Fallback with hardcoded strings.
             hideParticipantRowByText(['Participants', 'Participantes']);
         });
     };
 
     /**
-     * Hide participant row by text content
+     * Hide participant row by text content.
      *
-     * @param {Array} searchTexts Array of text strings to search for
+     * @param {Array} searchTexts Array of text strings to search for.
      */
     var hideParticipantRowByText = function(searchTexts) {
-        // Find all general tables (assignment summary tables)
+        // Find all general tables (assignment summary tables).
         $('.path-mod-assign .generaltable').each(function() {
             var $table = $(this);
 
-            // Skip if this is a grading table
+            // Skip if this is a grading table.
             if ($table.hasClass('gradingtable') || $table.attr('id') === 'submissions') {
                 return;
             }
 
-            // Find and hide participant row
+            // Find and hide participant row.
             $table.find('tr').each(function() {
                 var $row = $(this);
                 var $th = $row.find('th.cell.c0');
@@ -166,10 +183,10 @@ define(['jquery', 'core/str'], function($, Str) {
                 if ($th.length > 0) {
                     var thText = $th.text().trim();
 
-                    // Check against all possible participant strings
+                    // Check against all possible participant strings.
                     var shouldHide = false;
 
-                    // Check hardcoded strings
+                    // Check hardcoded strings.
                     if (thText === 'Participants' ||
                         thText === 'Participantes' ||
                         thText === 'Number of participants' ||
@@ -177,7 +194,7 @@ define(['jquery', 'core/str'], function($, Str) {
                         shouldHide = true;
                     }
 
-                    // Check against loaded strings
+                    // Check against loaded strings.
                     if (Array.isArray(searchTexts)) {
                         searchTexts.forEach(function(text) {
                             if (thText.indexOf(text) !== -1) {
@@ -196,42 +213,44 @@ define(['jquery', 'core/str'], function($, Str) {
     };
 
     /**
-     * Hide submitted count row in assignment summary table
+     * Hide submitted count row in assignment summary table.
+     *
+     * Retrieves localized strings and hides the submitted count row.
      */
     var hideSubmittedCount = function() {
-        // Only apply if user has role
+        // Only apply if user has role.
         if (!userHasRole) {
             return;
         }
 
-        // Get language strings for submitted
+        // Get language strings for submitted.
         Str.get_strings([
             {key: 'numberofsubmittedassignments', component: 'assign'},
             {key: 'submissionstatus_submitted', component: 'assign'}
         ]).done(function(strings) {
             hideSubmittedRowByText(strings);
         }).fail(function() {
-            // Fallback with hardcoded strings
+            // Fallback with hardcoded strings.
             hideSubmittedRowByText(['Submitted', 'Enviados', 'Enviado']);
         });
     };
 
     /**
-     * Hide submitted row by text content
+     * Hide submitted row by text content.
      *
-     * @param {Array} searchTexts Array of text strings to search for
+     * @param {Array} searchTexts Array of text strings to search for.
      */
     var hideSubmittedRowByText = function(searchTexts) {
-        // Find all general tables (assignment summary tables)
+        // Find all general tables (assignment summary tables).
         $('.path-mod-assign .generaltable').each(function() {
             var $table = $(this);
 
-            // Skip if this is a grading table
+            // Skip if this is a grading table.
             if ($table.hasClass('gradingtable') || $table.attr('id') === 'submissions') {
                 return;
             }
 
-            // Find and hide submitted row
+            // Find and hide submitted row.
             $table.find('tr').each(function() {
                 var $row = $(this);
                 var $th = $row.find('th.cell.c0');
@@ -239,10 +258,10 @@ define(['jquery', 'core/str'], function($, Str) {
                 if ($th.length > 0) {
                     var thText = $th.text().trim();
 
-                    // Check against all possible submitted strings
+                    // Check against all possible submitted strings.
                     var shouldHide = false;
 
-                    // Check hardcoded strings (Spanish and English)
+                    // Check hardcoded strings (Spanish and English).
                     if (thText === 'Submitted' ||
                         thText === 'Enviados' ||
                         thText === 'Enviado' ||
@@ -252,7 +271,7 @@ define(['jquery', 'core/str'], function($, Str) {
                         shouldHide = true;
                     }
 
-                    // Check against loaded strings
+                    // Check against loaded strings.
                     if (Array.isArray(searchTexts)) {
                         searchTexts.forEach(function(text) {
                             if (thText.indexOf(text) !== -1) {
