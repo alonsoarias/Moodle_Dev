@@ -54,6 +54,35 @@ if (empty($forums)) {
     die;
 }
 
+// Calculate total replies in all forums.
+$totalreplies = $DB->count_records_select(
+    'forum_posts',
+    'discussion IN (SELECT id FROM {forum_discussions} WHERE forum IN
+     (SELECT id FROM {forum} WHERE course = :courseid)) AND parent != 0',
+    ['courseid' => $courseid]
+);
+
+// Show ONE-CLICK bulk delete button if there are replies.
+if ($totalreplies > 0) {
+    $bulkurl = new moodle_url('/local/forum_delete_replies/bulk.php', ['courseid' => $courseid]);
+
+    echo $OUTPUT->box_start('generalbox text-center py-4', 'bulk-action-box');
+    echo html_writer::tag('h4', get_string('oneclickdelete', 'local_forum_delete_replies'));
+    echo html_writer::tag('p', get_string('bulkwarning', 'local_forum_delete_replies'), ['class' => 'text-muted']);
+    echo html_writer::link(
+        $bulkurl,
+        html_writer::tag('i', '', ['class' => 'fa fa-trash-o mr-2']) .
+        get_string('deleteallnow', 'local_forum_delete_replies') .
+        ' (' . $totalreplies . ' ' . strtolower(get_string('replies', 'local_forum_delete_replies')) . ')',
+        ['class' => 'btn btn-danger btn-lg', 'style' => 'font-size: 1.2em; padding: 12px 30px;']
+    );
+    echo $OUTPUT->box_end();
+
+    echo html_writer::tag('hr', '');
+    echo html_writer::tag('h5', get_string('selectforum', 'local_forum_delete_replies') . ' (' .
+        get_string('optional', 'form') . ')', ['class' => 'mt-4']);
+}
+
 // Build table with forums and their reply counts.
 $table = new html_table();
 $table->head = [
