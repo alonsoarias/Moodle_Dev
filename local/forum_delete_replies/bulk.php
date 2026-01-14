@@ -90,7 +90,7 @@ if ($confirm && confirm_sesskey()) {
 
         if (!empty($result['error_messages'])) {
             echo html_writer::start_tag('details', ['class' => 'mt-2']);
-            echo html_writer::tag('summary', 'Error details');
+            echo html_writer::tag('summary', get_string('errordetails', 'local_forum_delete_replies'));
             echo html_writer::start_tag('ul');
             foreach ($result['error_messages'] as $error) {
                 echo html_writer::tag('li', s($error));
@@ -105,7 +105,7 @@ if ($confirm && confirm_sesskey()) {
     echo html_writer::end_div();
 
     echo $OUTPUT->footer();
-    die;
+    exit;
 }
 
 // Show confirmation page.
@@ -117,7 +117,7 @@ if ($summary['total_replies'] == 0) {
     echo $OUTPUT->notification(get_string('noreplies', 'local_forum_delete_replies'), 'info');
     echo $OUTPUT->single_button($courseurl, get_string('backtocourse', 'local_forum_delete_replies'), 'get');
     echo $OUTPUT->footer();
-    die;
+    exit;
 }
 
 // Warning box.

@@ -15,7 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Forum selection page for delete replies
+ * Forum selection page for delete replies.
+ *
+ * Lists all forums in a course with their reply counts and provides
+ * options to delete replies from individual forums or all at once.
  *
  * @package    local_forum_delete_replies
  * @copyright  2025 Your Organization
@@ -51,7 +54,7 @@ if (empty($forums)) {
     echo $OUTPUT->notification(get_string('noforums', 'local_forum_delete_replies'), 'warning');
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', ['id' => $courseid]));
     echo $OUTPUT->footer();
-    die;
+    exit;
 }
 
 // Calculate total replies in all forums.
@@ -93,8 +96,6 @@ $table->head = [
 ];
 $table->attributes['class'] = 'generaltable';
 
-$hasforumswithReplies = false;
-
 foreach ($forums as $forum) {
     $cm = get_coursemodule_from_instance('forum', $forum->id, $courseid);
     $modcontext = context_module::instance($cm->id);
@@ -117,7 +118,6 @@ foreach ($forums as $forum) {
     $forumlink = html_writer::link($forumurl, format_string($forum->name));
 
     if ($replycount > 0) {
-        $hasforumswithReplies = true;
         $deleteurl = new moodle_url('/local/forum_delete_replies/cleanup.php', [
             'forumid' => $forum->id,
             'courseid' => $courseid,

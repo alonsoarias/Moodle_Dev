@@ -54,7 +54,7 @@ if ($action === 'site' && $confirm && confirm_sesskey()) {
         echo $OUTPUT->notification(get_string('noreplies', 'local_forum_delete_replies'), 'info');
         echo $OUTPUT->single_button($baseurl, get_string('back'), 'get');
         echo $OUTPUT->footer();
-        die;
+        exit;
     }
 
     $progressbar = new progress_bar('sitedeleteprogress', 500, true);
@@ -89,7 +89,7 @@ if ($action === 'site' && $confirm && confirm_sesskey()) {
 
     echo $OUTPUT->single_button($baseurl, get_string('back'), 'get');
     echo $OUTPUT->footer();
-    die;
+    exit;
 }
 
 // Handle course-specific deletion.
@@ -133,7 +133,7 @@ if ($action === 'course' && $courseid && $confirm && confirm_sesskey()) {
 
     echo $OUTPUT->single_button($baseurl, get_string('back'), 'get');
     echo $OUTPUT->footer();
-    die;
+    exit;
 }
 
 // Main page - show options.

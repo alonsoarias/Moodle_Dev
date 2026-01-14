@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Cleanup manager for deleting forum replies
+ * Cleanup manager for deleting forum replies from a single forum.
  *
  * @package    local_forum_delete_replies
  * @copyright  2025 Your Organization
@@ -29,27 +29,31 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/forum/lib.php');
 
 /**
- * Manager class for handling forum reply deletion
+ * Manager class for handling forum reply deletion for a single forum.
+ *
+ * @package    local_forum_delete_replies
+ * @copyright  2025 Your Organization
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cleanup_manager {
 
     /** @var int The forum ID */
     protected $forumid;
 
-    /** @var object The forum record */
+    /** @var \stdClass The forum record */
     protected $forum;
 
-    /** @var object The course record */
+    /** @var \stdClass The course record */
     protected $course;
 
-    /** @var object The course module record */
+    /** @var \stdClass The course module record */
     protected $cm;
 
     /** @var \context_module The module context */
     protected $context;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param int $forumid The forum ID
      * @throws \moodle_exception If forum is invalid
@@ -65,55 +69,55 @@ class cleanup_manager {
     }
 
     /**
-     * Get the forum record
+     * Get the forum record.
      *
-     * @return object
+     * @return \stdClass The forum record
      */
-    public function get_forum(): object {
+    public function get_forum(): \stdClass {
         return $this->forum;
     }
 
     /**
-     * Get the course record
+     * Get the course record.
      *
-     * @return object
+     * @return \stdClass The course record
      */
-    public function get_course(): object {
+    public function get_course(): \stdClass {
         return $this->course;
     }
 
     /**
-     * Get the course module record
+     * Get the course module record.
      *
-     * @return object
+     * @return \stdClass The course module record
      */
-    public function get_cm(): object {
+    public function get_cm(): \stdClass {
         return $this->cm;
     }
 
     /**
-     * Get the module context
+     * Get the module context.
      *
-     * @return \context_module
+     * @return \context_module The module context
      */
     public function get_context(): \context_module {
         return $this->context;
     }
 
     /**
-     * Check if user has permission to delete replies
+     * Check if user has permission to delete replies.
      *
      * @param int|null $userid User ID (null for current user)
-     * @return bool
+     * @return bool True if user can delete
      */
     public function can_delete(?int $userid = null): bool {
         return has_capability('local/forum_delete_replies:delete', $this->context, $userid);
     }
 
     /**
-     * Get count of replies (posts with parent != 0)
+     * Get count of replies (posts with parent != 0).
      *
-     * @return int
+     * @return int Number of replies
      */
     public function get_reply_count(): int {
         global $DB;
@@ -126,18 +130,7 @@ class cleanup_manager {
     }
 
     /**
-     * Get count of discussions in the forum
-     *
-     * @return int
-     */
-    public function get_discussion_count(): int {
-        global $DB;
-
-        return $DB->count_records('forum_discussions', ['forum' => $this->forumid]);
-    }
-
-    /**
-     * Get discussions with their reply counts
+     * Get discussions with their reply counts.
      *
      * @return array Array of discussion objects with reply_count property
      */
@@ -154,10 +147,10 @@ class cleanup_manager {
     }
 
     /**
-     * Get detailed information about replies to be deleted
+     * Get detailed information about replies to be deleted.
      *
      * @param int $limit Maximum number of records to return (0 for all)
-     * @return array Array of post objects
+     * @return array Array of post objects with user and discussion info
      */
     public function get_replies_preview(int $limit = 100): array {
         global $DB;
@@ -179,7 +172,7 @@ class cleanup_manager {
     }
 
     /**
-     * Get all reply post IDs for this forum
+     * Get all reply post IDs for this forum.
      *
      * @return array Array of post IDs
      */
@@ -196,11 +189,12 @@ class cleanup_manager {
     }
 
     /**
-     * Delete all replies using Moodle's API (safe method)
+     * Delete all replies using Moodle's API (safe method).
+     *
      * This method properly handles attachments, ratings, events, etc.
      *
      * @param callable|null $progresscallback Callback function for progress updates
-     * @return array Result with 'deleted', 'errors', and 'total' counts
+     * @return array Result with 'deleted', 'errors', 'total', and 'error_messages'
      */
     public function delete_replies_safe(?callable $progresscallback = null): array {
         global $DB;
@@ -265,14 +259,15 @@ class cleanup_manager {
     }
 
     /**
-     * Delete all replies using direct SQL (fast method)
-     * Use this for large forums where API method would be too slow.
-     * WARNING: This bypasses Moodle events and may leave orphan files.
+     * Delete all replies using direct SQL (fast method).
      *
-     * @return array Result with statistics
+     * Use this for large forums where API method would be too slow.
+     * WARNING: This bypasses Moodle events.
+     *
+     * @return array Result with 'deleted', 'errors', 'total', and 'error_messages'
      */
     public function delete_replies_fast(): array {
-        global $DB;
+        global $DB, $CFG;
 
         $result = [
             'deleted' => 0,
@@ -349,21 +344,19 @@ class cleanup_manager {
     }
 
     /**
-     * Get summary statistics for the forum
+     * Get summary statistics for the forum.
      *
-     * @return array Summary data
+     * @return array Summary data with forum, course, discussions, and replies info
      */
     public function get_summary(): array {
-        global $DB;
-
         $discussions = $this->get_discussions_with_reply_counts();
         $totalreplies = 0;
-        $discussionswithReplies = 0;
+        $discussionswithreplies = 0;
 
         foreach ($discussions as $discussion) {
             $totalreplies += $discussion->reply_count;
             if ($discussion->reply_count > 0) {
-                $discussionswithReplies++;
+                $discussionswithreplies++;
             }
         }
 
@@ -371,28 +364,9 @@ class cleanup_manager {
             'forum' => $this->forum,
             'course' => $this->course,
             'total_discussions' => count($discussions),
-            'discussions_with_replies' => $discussionswithReplies,
+            'discussions_with_replies' => $discussionswithreplies,
             'total_replies' => $totalreplies,
             'discussions' => $discussions,
         ];
-    }
-
-    /**
-     * Estimate deletion time based on reply count
-     *
-     * @return string Estimated time string
-     */
-    public function estimate_deletion_time(): string {
-        $count = $this->get_reply_count();
-
-        if ($count < 100) {
-            return get_string('lessthanaminute', 'core');
-        } else if ($count < 500) {
-            return '1-2 ' . get_string('minutes');
-        } else if ($count < 2000) {
-            return '2-5 ' . get_string('minutes');
-        } else {
-            return '5+ ' . get_string('minutes');
-        }
     }
 }

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Bulk cleanup manager for deleting forum replies across multiple forums
+ * Bulk cleanup manager for deleting forum replies across multiple forums.
  *
  * @package    local_forum_delete_replies
  * @copyright  2025 Your Organization
@@ -29,15 +29,19 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/forum/lib.php');
 
 /**
- * Bulk manager class for mass forum reply deletion
+ * Bulk manager class for mass forum reply deletion across courses or site-wide.
+ *
+ * @package    local_forum_delete_replies
+ * @copyright  2025 Your Organization
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bulk_manager {
 
     /**
-     * Get total reply count for a course (all forums)
+     * Get total reply count for a course (all forums).
      *
      * @param int $courseid Course ID
-     * @return int
+     * @return int Number of replies
      */
     public static function get_course_reply_count(int $courseid): int {
         global $DB;
@@ -52,9 +56,9 @@ class bulk_manager {
     }
 
     /**
-     * Get total reply count for entire site
+     * Get total reply count for entire site.
      *
-     * @return int
+     * @return int Number of replies
      */
     public static function get_site_reply_count(): int {
         global $DB;
@@ -63,10 +67,10 @@ class bulk_manager {
     }
 
     /**
-     * Get forums summary for a course
+     * Get forums summary for a course.
      *
      * @param int $courseid Course ID
-     * @return array Array with forum stats
+     * @return array Array with forum stats including forums, counts, and totals
      */
     public static function get_course_forums_summary(int $courseid): array {
         global $DB;
@@ -101,12 +105,13 @@ class bulk_manager {
     }
 
     /**
-     * Delete all replies from all forums in a course using SQL (fast method)
-     * This is the equivalent of running your SQL commands directly.
+     * Delete all replies from all forums in a course using SQL (fast method).
+     *
+     * This is the equivalent of running SQL commands directly.
      *
      * @param int $courseid Course ID
-     * @param callable|null $progresscallback Progress callback
-     * @return array Result with statistics
+     * @param callable|null $progresscallback Progress callback function
+     * @return array Result with 'deleted', 'errors', 'total', 'forums_cleaned', and 'error_messages'
      */
     public static function delete_course_replies_fast(int $courseid, ?callable $progresscallback = null): array {
         global $DB, $CFG;
@@ -138,7 +143,7 @@ class bulk_manager {
 
         try {
             if ($progresscallback) {
-                $progresscallback(1, 5, 'Eliminando registros de lectura...');
+                $progresscallback(1, 5, get_string('progress_deleting_read', 'local_forum_delete_replies'));
             }
 
             // 1. Delete from forum_read.
@@ -146,14 +151,14 @@ class bulk_manager {
             $DB->delete_records_select('forum_read', "postid $insql", $params);
 
             if ($progresscallback) {
-                $progresscallback(2, 5, 'Eliminando cola de mensajes...');
+                $progresscallback(2, 5, get_string('progress_deleting_queue', 'local_forum_delete_replies'));
             }
 
             // 2. Delete from forum_queue.
             $DB->delete_records_select('forum_queue', "postid $insql", $params);
 
             if ($progresscallback) {
-                $progresscallback(3, 5, 'Eliminando valoraciones...');
+                $progresscallback(3, 5, get_string('progress_deleting_ratings', 'local_forum_delete_replies'));
             }
 
             // 3. Delete ratings.
@@ -164,7 +169,7 @@ class bulk_manager {
             );
 
             if ($progresscallback) {
-                $progresscallback(4, 5, 'Eliminando archivos adjuntos...');
+                $progresscallback(4, 5, get_string('progress_deleting_files', 'local_forum_delete_replies'));
             }
 
             // 4. Delete files - get all forum contexts in the course.
@@ -191,7 +196,7 @@ class bulk_manager {
             }
 
             if ($progresscallback) {
-                $progresscallback(5, 5, 'Eliminando posts...');
+                $progresscallback(5, 5, get_string('progress_deleting_posts', 'local_forum_delete_replies'));
             }
 
             // 5. Delete the posts.
@@ -226,11 +231,12 @@ class bulk_manager {
     }
 
     /**
-     * Delete all replies from entire site using SQL (fast method)
+     * Delete all replies from entire site using SQL (fast method).
+     *
      * WARNING: This affects ALL forums in ALL courses!
      *
-     * @param callable|null $progresscallback Progress callback
-     * @return array Result with statistics
+     * @param callable|null $progresscallback Progress callback function
+     * @return array Result with 'deleted', 'errors', 'total', and 'error_messages'
      */
     public static function delete_site_replies_fast(?callable $progresscallback = null): array {
         global $DB, $CFG;
@@ -254,28 +260,28 @@ class bulk_manager {
 
         try {
             if ($progresscallback) {
-                $progresscallback(1, 6, 'Creando respaldo temporal...');
+                $progresscallback(1, 6, get_string('progress_preparing', 'local_forum_delete_replies'));
             }
 
             // Get IDs of posts to delete (for dependent tables).
             $postids = $DB->get_fieldset_select('forum_posts', 'id', 'parent != 0');
 
             if ($progresscallback) {
-                $progresscallback(2, 6, 'Eliminando registros de lectura...');
+                $progresscallback(2, 6, get_string('progress_deleting_read', 'local_forum_delete_replies'));
             }
 
             // 1. Delete from forum_read where post is a reply.
             $DB->execute("DELETE FROM {forum_read} WHERE postid IN (SELECT id FROM {forum_posts} WHERE parent != 0)");
 
             if ($progresscallback) {
-                $progresscallback(3, 6, 'Eliminando cola de mensajes...');
+                $progresscallback(3, 6, get_string('progress_deleting_queue', 'local_forum_delete_replies'));
             }
 
             // 2. Delete from forum_queue.
             $DB->execute("DELETE FROM {forum_queue} WHERE postid IN (SELECT id FROM {forum_posts} WHERE parent != 0)");
 
             if ($progresscallback) {
-                $progresscallback(4, 6, 'Eliminando valoraciones...');
+                $progresscallback(4, 6, get_string('progress_deleting_ratings', 'local_forum_delete_replies'));
             }
 
             // 3. Delete ratings.
@@ -287,7 +293,7 @@ class bulk_manager {
             );
 
             if ($progresscallback) {
-                $progresscallback(5, 6, 'Eliminando posts (esto puede tardar)...');
+                $progresscallback(5, 6, get_string('progress_deleting_posts_long', 'local_forum_delete_replies'));
             }
 
             // 4. Delete all reply posts.
@@ -296,7 +302,7 @@ class bulk_manager {
             $result['deleted'] = $result['total'];
 
             if ($progresscallback) {
-                $progresscallback(6, 6, 'Actualizando discusiones...');
+                $progresscallback(6, 6, get_string('progress_updating_discussions', 'local_forum_delete_replies'));
             }
 
             // 5. Update last post for all discussions.

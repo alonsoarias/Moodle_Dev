@@ -25,14 +25,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Extends course settings navigation with delete replies link
+ * Extends forum module settings navigation with delete replies link.
  *
- * @param settings_navigation $settingsnav
- * @param context $context
+ * @param settings_navigation $settingsnav The settings navigation object
+ * @param context $context The context of the page
+ * @return void
  */
-function local_forum_delete_replies_extend_settings_navigation(settings_navigation $settingsnav, context $context) {
-    global $PAGE;
-
+function local_forum_delete_replies_extend_settings_navigation(settings_navigation $settingsnav, context $context): void {
     // Only add to forum module pages.
     if ($context->contextlevel != CONTEXT_MODULE) {
         return;
@@ -71,13 +70,18 @@ function local_forum_delete_replies_extend_settings_navigation(settings_navigati
 }
 
 /**
- * Extends course navigation with delete replies link
+ * Extends course navigation with delete replies link.
  *
- * @param navigation_node $navigation
- * @param stdClass $course
- * @param context_course $context
+ * @param navigation_node $navigation The navigation node
+ * @param stdClass $course The course object
+ * @param context_course $context The course context
+ * @return void
  */
-function local_forum_delete_replies_extend_navigation_course(navigation_node $navigation, stdClass $course, context_course $context) {
+function local_forum_delete_replies_extend_navigation_course(
+    navigation_node $navigation,
+    stdClass $course,
+    context_course $context
+): void {
     // Check if user can manage activities.
     if (!has_capability('moodle/course:manageactivities', $context)) {
         return;
@@ -100,56 +104,4 @@ function local_forum_delete_replies_extend_navigation_course(navigation_node $na
         'local_forum_delete_replies',
         new pix_icon('t/delete', '')
     );
-}
-
-/**
- * Add link to the forum activity action menu
- *
- * @param cm_info $cm
- * @param array $actions
- * @return array
- */
-function local_forum_delete_replies_cm_info_dynamic(cm_info $cm) {
-    // This function is called for all course modules.
-    // We don't need to do anything here.
-}
-
-/**
- * Fragment API for AJAX operations
- *
- * @param array $args
- * @return string
- */
-function local_forum_delete_replies_output_fragment_preview($args) {
-    global $DB, $OUTPUT;
-
-    $forumid = $args['forumid'];
-    $context = context::instance_by_id($args['contextid']);
-
-    require_capability('local/forum_delete_replies:delete', $context);
-
-    require_once(__DIR__ . '/classes/cleanup_manager.php');
-    $manager = new \local_forum_delete_replies\cleanup_manager($forumid);
-
-    $summary = $manager->get_summary();
-    $preview = $manager->get_replies_preview(20);
-
-    $html = html_writer::tag('p', get_string('totalreplies', 'local_forum_delete_replies') . ': ' .
-        html_writer::tag('strong', $summary['total_replies']));
-
-    if (!empty($preview)) {
-        $table = new html_table();
-        $table->head = ['Discussion', 'Post', 'Author', 'Date'];
-        foreach ($preview as $post) {
-            $table->data[] = [
-                format_string($post->discussion_name),
-                format_string($post->subject),
-                fullname($post),
-                userdate($post->created, get_string('strftimedatetimeshort', 'langconfig')),
-            ];
-        }
-        $html .= html_writer::table($table);
-    }
-
-    return $html;
 }

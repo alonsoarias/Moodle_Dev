@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Cleanup execution page for delete replies
+ * Cleanup execution page for delete replies from a single forum.
  *
  * @package    local_forum_delete_replies
  * @copyright  2025 Your Organization
@@ -69,11 +69,7 @@ if ($confirm && confirm_sesskey()) {
     $progressbar = new progress_bar('deleteprogress', 500, true);
     $progressbar->create();
 
-    $currentprogress = 0;
-    $totaldiscussions = $summary['total_discussions'];
-
     $progresscallback = function($current, $total, $discussionname) use ($progressbar) {
-        $percent = ($total > 0) ? ($current / $total) * 100 : 100;
         $message = get_string('processing', 'local_forum_delete_replies', [
             'current' => $current,
             'total' => $total,
@@ -113,7 +109,7 @@ if ($confirm && confirm_sesskey()) {
         // Show error details.
         if (!empty($result['error_messages'])) {
             echo html_writer::start_tag('details', ['class' => 'mt-2']);
-            echo html_writer::tag('summary', 'Error details');
+            echo html_writer::tag('summary', get_string('errordetails', 'local_forum_delete_replies'));
             echo html_writer::start_tag('ul');
             foreach ($result['error_messages'] as $error) {
                 echo html_writer::tag('li', s($error));
@@ -133,7 +129,7 @@ if ($confirm && confirm_sesskey()) {
     echo html_writer::end_div();
 
     echo $OUTPUT->footer();
-    die;
+    exit;
 }
 
 // Show confirmation page.
@@ -166,7 +162,7 @@ if ($summary['total_replies'] == 0) {
     echo $OUTPUT->notification(get_string('noreplies', 'local_forum_delete_replies'), 'info');
     echo $OUTPUT->single_button($indexurl, get_string('backtocourse', 'local_forum_delete_replies'), 'get');
     echo $OUTPUT->footer();
-    die;
+    exit;
 }
 
 // Preview table.
@@ -194,8 +190,9 @@ foreach ($previewposts as $post) {
 }
 
 if (count($previewposts) < $summary['total_replies']) {
+    $remaining = $summary['total_replies'] - count($previewposts);
     $table->data[] = [
-        html_writer::tag('em', '... and ' . ($summary['total_replies'] - count($previewposts)) . ' more replies'),
+        html_writer::tag('em', get_string('andmore', 'local_forum_delete_replies', $remaining)),
         '',
         '',
         '',
@@ -240,8 +237,8 @@ echo html_writer::link(
 if ($summary['total_replies'] > 100) {
     echo html_writer::link(
         $confirmurlfAST,
-        get_string('delete', 'local_forum_delete_replies') . ' (Fast)',
-        ['class' => 'btn btn-warning mr-2', 'title' => 'Use SQL direct deletion (faster for large forums)']
+        get_string('deletefast', 'local_forum_delete_replies'),
+        ['class' => 'btn btn-warning mr-2', 'title' => get_string('deletefasttitle', 'local_forum_delete_replies')]
     );
 }
 
