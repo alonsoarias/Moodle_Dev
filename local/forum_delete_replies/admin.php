@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Site-wide delete all forum replies (Admin only)
+ * Admin page for forum reply deletion - shows all available options
  *
  * @package    local_forum_delete_replies
  * @copyright  2025 Your Organization
@@ -31,32 +31,32 @@ use local_forum_delete_replies\bulk_manager;
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 
+$action = optional_param('action', '', PARAM_ALPHA);
+$courseid = optional_param('courseid', 0, PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 
 $PAGE->set_url(new moodle_url('/local/forum_delete_replies/admin.php'));
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title(get_string('sitewidedelete', 'local_forum_delete_replies'));
-$PAGE->set_heading(get_string('sitewidedelete', 'local_forum_delete_replies'));
+$PAGE->set_title(get_string('pluginname', 'local_forum_delete_replies'));
+$PAGE->set_heading(get_string('pluginname', 'local_forum_delete_replies'));
 $PAGE->set_pagelayout('admin');
 
-$adminurl = new moodle_url('/admin/search.php');
+$baseurl = new moodle_url('/local/forum_delete_replies/admin.php');
 
-// Get site-wide count.
-$totalreplies = bulk_manager::get_site_reply_count();
+// Handle site-wide deletion.
+if ($action === 'site' && $confirm && confirm_sesskey()) {
+    $totalreplies = bulk_manager::get_site_reply_count();
 
-// Execute deletion if confirmed.
-if ($confirm && confirm_sesskey()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('deleting', 'local_forum_delete_replies'));
 
     if ($totalreplies == 0) {
         echo $OUTPUT->notification(get_string('noreplies', 'local_forum_delete_replies'), 'info');
-        echo $OUTPUT->single_button($adminurl, get_string('back'), 'get');
+        echo $OUTPUT->single_button($baseurl, get_string('back'), 'get');
         echo $OUTPUT->footer();
         die;
     }
 
-    // Progress bar.
     $progressbar = new progress_bar('sitedeleteprogress', 500, true);
     $progressbar->create();
 
@@ -64,14 +64,11 @@ if ($confirm && confirm_sesskey()) {
         $progressbar->update($current, $total, $message);
     };
 
-    // Execute site-wide deletion.
     $result = bulk_manager::delete_site_replies_fast($progresscallback);
-
     $progressbar->update_full(100, get_string('completed', 'local_forum_delete_replies'));
 
     echo html_writer::empty_tag('br');
 
-    // Show results.
     if ($result['errors'] == 0 && $result['deleted'] > 0) {
         echo $OUTPUT->notification(
             get_string('deletesuccess', 'local_forum_delete_replies', [
@@ -88,74 +85,148 @@ if ($confirm && confirm_sesskey()) {
             ]),
             'warning'
         );
-
-        if (!empty($result['error_messages'])) {
-            echo html_writer::start_tag('pre');
-            foreach ($result['error_messages'] as $error) {
-                echo s($error) . "\n";
-            }
-            echo html_writer::end_tag('pre');
-        }
     }
 
-    echo html_writer::start_div('mt-4');
-    echo $OUTPUT->single_button($adminurl, get_string('back'), 'get');
-    echo html_writer::end_div();
-
+    echo $OUTPUT->single_button($baseurl, get_string('back'), 'get');
     echo $OUTPUT->footer();
     die;
 }
 
-// Show confirmation page.
+// Handle course-specific deletion.
+if ($action === 'course' && $courseid && $confirm && confirm_sesskey()) {
+    $course = get_course($courseid);
+
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading(get_string('deleting', 'local_forum_delete_replies') . ': ' . format_string($course->fullname));
+
+    $progressbar = new progress_bar('coursedeleteprogress', 500, true);
+    $progressbar->create();
+
+    $progresscallback = function($current, $total, $message) use ($progressbar) {
+        $progressbar->update($current, $total, $message);
+    };
+
+    $result = bulk_manager::delete_course_replies_fast($courseid, $progresscallback);
+    $progressbar->update_full(100, get_string('completed', 'local_forum_delete_replies'));
+
+    echo html_writer::empty_tag('br');
+
+    if ($result['errors'] == 0 && $result['deleted'] > 0) {
+        echo $OUTPUT->notification(
+            get_string('deletesuccess', 'local_forum_delete_replies', [
+                'deleted' => $result['deleted'],
+                'discussions' => $result['forums_cleaned'],
+            ]),
+            'success'
+        );
+    } else if ($result['deleted'] == 0 && $result['errors'] == 0) {
+        echo $OUTPUT->notification(get_string('noreplies', 'local_forum_delete_replies'), 'info');
+    } else {
+        echo $OUTPUT->notification(
+            get_string('deletepartial', 'local_forum_delete_replies', [
+                'deleted' => $result['deleted'],
+                'errors' => $result['errors'],
+            ]),
+            'warning'
+        );
+    }
+
+    echo $OUTPUT->single_button($baseurl, get_string('back'), 'get');
+    echo $OUTPUT->footer();
+    die;
+}
+
+// Main page - show options.
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('sitewidedelete', 'local_forum_delete_replies'));
+echo $OUTPUT->heading(get_string('pluginname', 'local_forum_delete_replies'));
 
-if ($totalreplies == 0) {
-    echo $OUTPUT->notification(get_string('noreplies', 'local_forum_delete_replies'), 'info');
-    echo $OUTPUT->single_button($adminurl, get_string('back'), 'get');
-    echo $OUTPUT->footer();
-    die;
-}
+// Get stats.
+$totalreplies = bulk_manager::get_site_reply_count();
 
-// Big warning.
-echo $OUTPUT->box_start('generalbox alert alert-danger text-center');
-echo html_writer::tag('h2',
-    html_writer::tag('i', '', ['class' => 'fa fa-exclamation-triangle']) . ' ' .
-    get_string('warning', 'local_forum_delete_replies')
-);
-echo html_writer::tag('p', get_string('sitewidedeletewarning', 'local_forum_delete_replies'),
-    ['style' => 'font-size: 1.3em;']);
+// Info box.
+echo $OUTPUT->box_start('generalbox');
+echo html_writer::tag('p', get_string('admindescription', 'local_forum_delete_replies'));
 echo html_writer::tag('p',
     html_writer::tag('strong', get_string('totalreplies', 'local_forum_delete_replies') . ': ') .
-    html_writer::tag('span', number_format($totalreplies), ['class' => 'badge badge-danger bg-danger', 'style' => 'font-size: 1.5em;'])
+    html_writer::tag('span', number_format($totalreplies),
+        ['class' => 'badge ' . ($totalreplies > 0 ? 'badge-warning bg-warning' : 'badge-secondary bg-secondary')])
 );
 echo $OUTPUT->box_end();
 
-// Confirmation.
-echo html_writer::tag('p', get_string('sitewideconfirm', 'local_forum_delete_replies', number_format($totalreplies)),
-    ['class' => 'lead text-center']);
+// Option 1: Delete from specific course.
+echo $OUTPUT->box_start('generalbox');
+echo html_writer::tag('h4', get_string('deletefromcourse', 'local_forum_delete_replies'));
+echo html_writer::tag('p', get_string('deletefromcoursedesc', 'local_forum_delete_replies'), ['class' => 'text-muted']);
 
-// Buttons.
-$confirmurl = new moodle_url('/local/forum_delete_replies/admin.php', [
-    'confirm' => 1,
-    'sesskey' => sesskey(),
-]);
+// Course selector form.
+$courses = get_courses('all', 'c.fullname ASC', 'c.id, c.fullname, c.shortname');
+unset($courses[SITEID]); // Remove site course.
 
-echo html_writer::start_div('text-center my-4');
+if (!empty($courses)) {
+    $courseoptions = [];
+    foreach ($courses as $course) {
+        $replycount = bulk_manager::get_course_reply_count($course->id);
+        $courseoptions[$course->id] = format_string($course->fullname) . ' (' . $replycount . ' ' .
+            strtolower(get_string('replies', 'local_forum_delete_replies')) . ')';
+    }
 
-echo html_writer::link(
-    $confirmurl,
-    html_writer::tag('i', '', ['class' => 'fa fa-trash mr-2']) .
-    get_string('deleteallnow', 'local_forum_delete_replies'),
-    ['class' => 'btn btn-danger btn-lg mr-3', 'style' => 'font-size: 1.2em;']
-);
+    echo html_writer::start_tag('form', ['method' => 'post', 'action' => $baseurl->out(false), 'class' => 'form-inline']);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => 'course']);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'confirm', 'value' => '1']);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 
-echo html_writer::link(
-    $adminurl,
-    get_string('cancel'),
-    ['class' => 'btn btn-secondary btn-lg']
-);
+    echo html_writer::select($courseoptions, 'courseid', '', ['' => get_string('choosedots')],
+        ['class' => 'form-control mr-2', 'id' => 'courseselector']);
 
-echo html_writer::end_div();
+    echo html_writer::tag('button', get_string('deleteallreplies', 'local_forum_delete_replies'),
+        ['type' => 'submit', 'class' => 'btn btn-danger', 'id' => 'deletecoursebutton']);
+
+    echo html_writer::end_tag('form');
+} else {
+    echo $OUTPUT->notification(get_string('nocourses', 'local_forum_delete_replies'), 'info');
+}
+echo $OUTPUT->box_end();
+
+// Option 2: Delete from entire site.
+echo $OUTPUT->box_start('generalbox');
+echo html_writer::tag('h4', get_string('sitewidedelete', 'local_forum_delete_replies'));
+echo html_writer::tag('p', get_string('sitewidedeletedesc', 'local_forum_delete_replies'), ['class' => 'text-muted']);
+
+if ($totalreplies > 0) {
+    $siteconfirmurl = new moodle_url('/local/forum_delete_replies/admin.php', [
+        'action' => 'site',
+        'confirm' => 1,
+        'sesskey' => sesskey(),
+    ]);
+
+    echo html_writer::tag('p',
+        html_writer::tag('strong', get_string('totalreplies', 'local_forum_delete_replies') . ': ') .
+        number_format($totalreplies)
+    );
+
+    echo html_writer::link(
+        $siteconfirmurl,
+        html_writer::tag('i', '', ['class' => 'fa fa-trash mr-2']) .
+        get_string('deleteallnow', 'local_forum_delete_replies'),
+        ['class' => 'btn btn-danger', 'onclick' => "return confirm('" .
+            addslashes_js(get_string('sitewideconfirm', 'local_forum_delete_replies', number_format($totalreplies))) . "');"]
+    );
+} else {
+    echo $OUTPUT->notification(get_string('noreplies', 'local_forum_delete_replies'), 'info');
+}
+echo $OUTPUT->box_end();
+
+// JavaScript to require course selection.
+echo html_writer::script("
+    document.getElementById('deletecoursebutton').addEventListener('click', function(e) {
+        var selector = document.getElementById('courseselector');
+        if (!selector.value) {
+            e.preventDefault();
+            alert('" . addslashes_js(get_string('selectcourse', 'local_forum_delete_replies')) . "');
+            return false;
+        }
+        return confirm('" . addslashes_js(get_string('confirmdeletecoursemsg', 'local_forum_delete_replies')) . "');
+    });
+");
 
 echo $OUTPUT->footer();

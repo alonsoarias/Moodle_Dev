@@ -25,33 +25,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    // Create a settings page for the plugin.
-    $settings = new admin_settingpage(
-        'local_forum_delete_replies',
-        get_string('pluginname', 'local_forum_delete_replies')
-    );
-
-    // Add a link/description to the site-wide deletion page.
-    $settings->add(new admin_setting_heading(
-        'local_forum_delete_replies/heading',
-        get_string('sitewidedelete', 'local_forum_delete_replies'),
-        html_writer::link(
-            new moodle_url('/local/forum_delete_replies/admin.php'),
-            get_string('sitewidedelete', 'local_forum_delete_replies'),
-            ['class' => 'btn btn-danger']
-        ) . '<br><br>' .
-        get_string('sitewidedeletewarning', 'local_forum_delete_replies')
-    ));
-
-    // Add to local plugins category.
-    $ADMIN->add('localplugins', $settings);
-
-    // Also add an external page for direct access.
+    // Single entry point - external page that shows all options.
     $ADMIN->add(
         'localplugins',
         new admin_externalpage(
-            'local_forum_delete_replies_admin',
-            get_string('sitewidedelete', 'local_forum_delete_replies'),
+            'local_forum_delete_replies',
+            get_string('pluginname', 'local_forum_delete_replies'),
             new moodle_url('/local/forum_delete_replies/admin.php'),
             'moodle/site:config'
         )
