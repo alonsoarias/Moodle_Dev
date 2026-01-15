@@ -421,24 +421,34 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
         /**
          * Animated Assistant Class - Uses mascot SVG from pix/mascots
+         * Enhanced with state-based animations like educambot
          */
         var AnimatedAssistant = {
+            tooltipTimer: null,
+            currentState: 'idle',
+
             init: function () {
                 // Get mascot URL from data attribute
                 var $main = $('.intebchat-main');
                 var mascotUrl = $main.data('mascot-url') || '';
                 var mascotName = $main.data('mascot-name') || 'Assistant';
 
-                // Create assistant container with SVG mascot
-                var assistantHtml = '<div id="intebchat-assistant" class="intebchat-assistant">' +
+                // Create assistant container with SVG mascot and tooltip
+                var assistantHtml = '<div id="intebchat-assistant" class="intebchat-assistant" data-state="idle">' +
                     '<img src="' + mascotUrl + '" alt="' + mascotName + '" class="assistant-mascot-svg" />' +
                     '<div class="assistant-bubble" style="display:none;"></div>' +
+                    '<div class="intebchat-mascot-tooltip">' +
+                    '<div class="tooltip-content"></div>' +
+                    '<div class="tooltip-arrow"></div>' +
+                    '</div>' +
                     '</div>';
 
                 // Add to main chat area
                 $main.append(assistantHtml);
                 this.bindEvents();
-                this.idle();
+
+                // Start with greeting animation
+                this.greeting();
                 console.log('Assistant initialized with mascot:', mascotName);
             },
 
@@ -446,31 +456,147 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 var self = this;
                 $(document).on('click', '#intebchat-assistant', function () {
                     self.wave();
+                    self.showTooltip(strings.mascothelp || '¿En qué puedo ayudarte?', 3000);
                 });
             },
 
+            /**
+             * Set mascot state using data-state attribute
+             * @param {string} state - One of: idle, thinking, success, confused, greeting, suggesting, listening
+             */
+            setState: function (state) {
+                var $assistant = $('#intebchat-assistant');
+                if (!$assistant.length) return;
+
+                this.currentState = state;
+                $assistant.attr('data-state', state);
+                // Also keep class-based system for backwards compatibility
+                $assistant.removeClass('idle thinking talking waving');
+                if (['idle', 'thinking', 'talking', 'waving'].indexOf(state) !== -1) {
+                    $assistant.addClass(state);
+                }
+            },
+
             idle: function () {
-                $('#intebchat-assistant').removeClass('thinking talking waving').addClass('idle');
+                this.setState('idle');
+                this.hideTooltip();
             },
 
             thinking: function () {
-                $('#intebchat-assistant').removeClass('idle talking waving').addClass('thinking');
-                this.showBubble('🤔');
+                this.setState('thinking');
+                this.showTooltip('🤔 ' + (strings.thinking || 'Pensando...'), 0);
             },
 
             talking: function () {
-                $('#intebchat-assistant').removeClass('idle thinking waving').addClass('talking');
-                this.hideBubble();
+                this.setState('talking');
+                this.hideTooltip();
             },
 
             wave: function () {
                 var self = this;
-                $('#intebchat-assistant').removeClass('idle thinking talking').addClass('waving');
+                this.setState('greeting');
                 setTimeout(function () {
                     self.idle();
                 }, 1000);
             },
 
+            /**
+             * Success state - celebration after successful response
+             */
+            success: function () {
+                var self = this;
+                this.setState('success');
+                setTimeout(function () {
+                    self.idle();
+                    self.showTooltip(strings.mascotneedmore || '¿Necesitas algo más?', 3000);
+                }, 800);
+            },
+
+            /**
+             * Confused state - when something went wrong
+             */
+            confused: function () {
+                var self = this;
+                this.setState('confused');
+                this.showTooltip('😕 ' + (strings.mascotconfused || 'Hubo un problema...'), 3000);
+                setTimeout(function () {
+                    self.idle();
+                }, 1500);
+            },
+
+            /**
+             * Greeting state - entrance animation
+             */
+            greeting: function () {
+                var self = this;
+                this.setState('greeting');
+                setTimeout(function () {
+                    self.showTooltip('👋 ' + (strings.mascotgreeting || '¡Hola! Estoy aquí para ayudarte.'), 3000);
+                }, 500);
+                setTimeout(function () {
+                    self.idle();
+                }, 2500);
+            },
+
+            /**
+             * Suggesting state - when suggesting actions
+             */
+            suggesting: function () {
+                var self = this;
+                this.setState('suggesting');
+                setTimeout(function () {
+                    self.idle();
+                }, 1800);
+            },
+
+            /**
+             * Listening state - when recording audio
+             */
+            listening: function () {
+                this.setState('listening');
+                this.showTooltip('🎤 ' + (strings.mascotlistening || 'Te escucho...'), 0);
+            },
+
+            /**
+             * Show tooltip with message
+             * @param {string} message - Message to show
+             * @param {number} duration - Auto-hide duration in ms (0 for no auto-hide)
+             */
+            showTooltip: function (message, duration) {
+                var self = this;
+                var $tooltip = $('.intebchat-mascot-tooltip');
+
+                if (!$tooltip.length) return;
+
+                $tooltip.find('.tooltip-content').html(message);
+                $tooltip.addClass('visible');
+
+                if (self.tooltipTimer) {
+                    clearTimeout(self.tooltipTimer);
+                    self.tooltipTimer = null;
+                }
+
+                if (duration && duration > 0) {
+                    self.tooltipTimer = setTimeout(function () {
+                        self.hideTooltip();
+                    }, duration);
+                }
+            },
+
+            /**
+             * Hide tooltip
+             */
+            hideTooltip: function () {
+                var $tooltip = $('.intebchat-mascot-tooltip');
+                $tooltip.removeClass('visible');
+
+                if (this.tooltipTimer) {
+                    clearTimeout(this.tooltipTimer);
+                    this.tooltipTimer = null;
+                }
+            },
+
+            // Legacy method for backwards compatibility
             showBubble: function (text) {
                 $('.assistant-bubble').text(text).fadeIn(200);
             },
@@ -586,6 +712,12 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 console.log('INTEBCHAT: Audio enabled, mode=' + audioConfig.mode);
                 if (audioConfig.mode === 'audio' || audioConfig.mode === 'both') {
                     console.log('INTEBCHAT: Registering audio-ready event handler');
+
+                    // Listen for recording started event to update mascot
+                    $(document).on('intebchat-recording-started', function () {
+                        AnimatedAssistant.listening();
+                    });
+
                     // Listen for intebchat-audio-ready event on document (reliable approach)
                     $(document).on('intebchat-audio-ready', function (e, data) {
                         console.log('INTEBCHAT: Audio ready event received');
@@ -838,7 +970,13 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 { key: 'reasoningmodelwarning', component: 'mod_intebchat' },
                 { key: 'conversationtitleupdated', component: 'mod_intebchat' },
                 { key: 'tokensusedformat', component: 'mod_intebchat' },
-                { key: 'tokensresetcountdown', component: 'mod_intebchat' }
+                { key: 'tokensresetcountdown', component: 'mod_intebchat' },
+                { key: 'thinking', component: 'mod_intebchat' },
+                { key: 'mascothelp', component: 'mod_intebchat' },
+                { key: 'mascotneedmore', component: 'mod_intebchat' },
+                { key: 'mascotconfused', component: 'mod_intebchat' },
+                { key: 'mascotgreeting', component: 'mod_intebchat' },
+                { key: 'mascotlistening', component: 'mod_intebchat' }
             ];
 
             return Str.get_strings(stringkeys).then(function (results) {
@@ -869,6 +1007,12 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 strings.conversationtitleupdated = results[24];
                 strings.tokensusedformat = results[25];
                 strings.tokensresetcountdown = results[26];
+                strings.thinking = results[27];
+                strings.mascothelp = results[28];
+                strings.mascotneedmore = results[29];
+                strings.mascotconfused = results[30];
+                strings.mascotgreeting = results[31];
+                strings.mascotlistening = results[32];
 
                 questionString = strings.askaquestion;
                 errorString = strings.erroroccurred;
@@ -1604,9 +1748,11 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                                 var eventType = line.substring(7).trim();
 
                                 if (eventType === 'complete') {
-                                    AnimatedAssistant.talking();
+                                    // Use success animation on stream complete
+                                    AnimatedAssistant.success();
                                 } else if (eventType === 'error') {
-                                    AnimatedAssistant.idle();
+                                    // Use confused animation on stream error
+                                    AnimatedAssistant.confused();
                                 }
                             }
                         });
@@ -1646,7 +1792,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     (strings.erroroccurred || 'An error occurred. Please try again.')
                 );
                 $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
-                AnimatedAssistant.idle();
+                // Use confused animation for streaming errors
+                AnimatedAssistant.confused();
             });
         };
 
@@ -1732,10 +1879,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         }
 
                         addToChatLog('bot', data.message, instanceId);
-                        AnimatedAssistant.talking();
-                        setTimeout(function () {
-                            AnimatedAssistant.idle();
-                        }, 2000);
+                        // Use success animation for successful response
+                        AnimatedAssistant.success();
 
                         if (data.conversationId && !currentConversationId) {
                             currentConversationId = data.conversationId;
@@ -1767,7 +1912,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         } else {
                             addToChatLog('bot error', data.error.message, instanceId);
                         }
-                        AnimatedAssistant.idle();
+                        // Use confused animation for errors
+                        AnimatedAssistant.confused();
                     }
                     if ($('#openai_input').length) {
                         $('#openai_input').focus();
@@ -1790,7 +1936,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     }
 
                     addToChatLog('bot error', errorMsg, instanceId);
-                    AnimatedAssistant.idle();
+                    // Use confused animation for connection errors
+                    AnimatedAssistant.confused();
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').addClass('error');
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').attr('placeholder', errorString);
                 }

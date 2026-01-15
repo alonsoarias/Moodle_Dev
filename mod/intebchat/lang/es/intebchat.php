@@ -282,6 +282,14 @@ $string['mascot_owl'] = 'Búho';
 $string['mascot_clippy'] = 'Clippy';
 $string['mascot_lightbulb'] = 'Bombilla';
 
+// Cadenas de animaciones de mascota
+$string['thinking'] = 'Pensando...';
+$string['mascothelp'] = '¿En qué puedo ayudarte?';
+$string['mascotneedmore'] = '¿Necesitas algo más?';
+$string['mascotconfused'] = 'Algo salió mal...';
+$string['mascotgreeting'] = '¡Hola! Estoy aquí para ayudarte.';
+$string['mascotlistening'] = 'Te escucho...';
+
 // Cadenas de seguridad y validación
 $string['nosaltconfigured'] = 'No hay salt secreto configurado en Moodle. Por favor contacta a tu administrador.';
 $string['cryptoerror'] = 'Error de encriptación/desencriptación. Por favor contacta a tu administrador.';

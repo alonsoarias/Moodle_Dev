@@ -282,6 +282,14 @@ $string['mascot_owl'] = 'Owl';
 $string['mascot_clippy'] = 'Clippy';
 $string['mascot_lightbulb'] = 'Lightbulb';
 
+// Mascot animation strings
+$string['thinking'] = 'Thinking...';
+$string['mascothelp'] = 'How can I help you?';
+$string['mascotneedmore'] = 'Need anything else?';
+$string['mascotconfused'] = 'Something went wrong...';
+$string['mascotgreeting'] = 'Hello! I\'m here to help.';
+$string['mascotlistening'] = 'I\'m listening...';
+
 // Security and validation strings
 $string['nosaltconfigured'] = 'No secret salt configured in Moodle. Please contact your administrator.';
 $string['cryptoerror'] = 'Encryption/decryption error. Please contact your administrator.';

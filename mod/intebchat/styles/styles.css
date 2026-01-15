@@ -579,6 +579,233 @@
     animation: mascot-float 3s ease-in-out infinite;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   MASCOT STATE ANIMATIONS (data-state based system)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* State: Idle - gentle floating */
+.intebchat-assistant[data-state="idle"] .assistant-mascot-svg {
+    animation: mascot-float 3s ease-in-out infinite;
+}
+
+/* State: Thinking - head tilts with eye blinking */
+.intebchat-assistant[data-state="thinking"] .assistant-mascot-svg {
+    animation: mascot-think 1s ease-in-out infinite;
+}
+
+.intebchat-assistant[data-state="thinking"] #eyes {
+    animation: mascot-eyes-blink 0.5s ease infinite;
+}
+
+@keyframes mascot-think {
+    0%, 100% {
+        transform: rotate(0deg);
+        filter: drop-shadow(0 4px 8px rgba(39, 84, 140, 0.3));
+    }
+    25% {
+        transform: rotate(-5deg);
+        filter: drop-shadow(0 4px 15px rgba(217, 30, 65, 0.4));
+    }
+    75% {
+        transform: rotate(5deg);
+        filter: drop-shadow(0 4px 15px rgba(217, 30, 65, 0.4));
+    }
+}
+
+@keyframes mascot-eyes-blink {
+    0%, 40%, 60%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(0.1);
+    }
+}
+
+/* State: Success - celebration bounce */
+.intebchat-assistant[data-state="success"] .assistant-mascot-svg {
+    animation: mascot-celebrate 0.8s ease-out;
+}
+
+@keyframes mascot-celebrate {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    20% {
+        transform: scale(1.2) rotate(-10deg);
+    }
+    40% {
+        transform: scale(1.1) rotate(10deg);
+    }
+    60% {
+        transform: scale(1.15) rotate(-5deg);
+    }
+    80% {
+        transform: scale(1.05) rotate(5deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* State: Confused - head shake */
+.intebchat-assistant[data-state="confused"] .assistant-mascot-svg {
+    animation: mascot-confused 1.2s ease-in-out;
+}
+
+@keyframes mascot-confused {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+/* State: Greeting - entrance animation */
+.intebchat-assistant[data-state="greeting"] .assistant-mascot-svg {
+    animation: mascot-greeting 1s ease-out;
+}
+
+.intebchat-assistant[data-state="greeting"] #arms {
+    animation: mascot-arms-wave 0.5s ease-in-out 2;
+}
+
+@keyframes mascot-greeting {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes mascot-arms-wave {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-15deg);
+    }
+}
+
+/* State: Suggesting - attention bounce */
+.intebchat-assistant[data-state="suggesting"] .assistant-mascot-svg {
+    animation: mascot-bounce 0.6s ease-in-out 3;
+}
+
+@keyframes mascot-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+/* State: Listening - pulse effect */
+.intebchat-assistant[data-state="listening"] .assistant-mascot-svg {
+    animation: mascot-listen 1.5s ease-in-out infinite;
+}
+
+@keyframes mascot-listen {
+    0%, 100% {
+        filter: drop-shadow(0 4px 8px rgba(39, 84, 140, 0.3));
+        transform: scale(1);
+    }
+    50% {
+        filter: drop-shadow(0 4px 20px rgba(220, 53, 69, 0.6));
+        transform: scale(1.03);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MASCOT TOOLTIP STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.intebchat-mascot-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--intebchat-bg-main, #ffffff);
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--intebchat-border, #e5e7eb);
+    min-width: 180px;
+    max-width: 260px;
+    margin-bottom: 12px;
+    animation: mascot-tooltip-fade-in 0.3s ease;
+    z-index: 999999;
+}
+
+.intebchat-mascot-tooltip.visible {
+    display: block;
+}
+
+.intebchat-mascot-tooltip .tooltip-content {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--intebchat-text, #333);
+}
+
+.intebchat-mascot-tooltip .tooltip-content strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--intebchat-primary);
+}
+
+.intebchat-mascot-tooltip .tooltip-arrow {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 14px;
+    height: 14px;
+    background: var(--intebchat-bg-main, #ffffff);
+    border-right: 1px solid var(--intebchat-border, #e5e7eb);
+    border-bottom: 1px solid var(--intebchat-border, #e5e7eb);
+}
+
+@keyframes mascot-tooltip-fade-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY - Reduced Motion
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+    .intebchat-assistant,
+    .intebchat-assistant .assistant-mascot-svg,
+    .intebchat-assistant #eyes,
+    .intebchat-assistant #arms,
+    .intebchat-assistant #body {
+        animation: none !important;
+    }
+
+    .intebchat-mascot-tooltip {
+        animation: none !important;
+    }
+}
+
 .assistant-bubble {
     position: absolute;
     bottom: 100px;

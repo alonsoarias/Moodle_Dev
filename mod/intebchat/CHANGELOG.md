@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete Spanish translations for all new strings
 - Permanent storage for TTS audio using Moodle's File API (ttsaudio filearea)
 - New audio.php functions: `save_tts_audio()` and `speech_with_permanent_storage()`
+- **Mascot animation system** inspired by local_educambot with multiple states:
+  - `idle` - gentle floating animation
+  - `thinking` - head tilt with eye blinking
+  - `success` - celebration bounce on successful response
+  - `confused` - head shake on errors
+  - `greeting` - entrance animation with arms wave
+  - `suggesting` - attention bounce
+  - `listening` - pulse effect during audio recording
+- Mascot tooltip system for displaying messages to users
+- Accessibility support with `prefers-reduced-motion` media query
+- New language strings for mascot animations: `thinking`, `mascothelp`, `mascotneedmore`, `mascotconfused`, `mascotgreeting`, `mascotlistening`
 
 ### Changed
 - Replaced hardcoded text strings in `audio.js` with Moodle language string system
@@ -23,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - audio.js: Changed event binding to use event delegation for reliability across all themes
 - audio.php: Optimized transcription with HTTP/2 and TCP_NODELAY for faster audio processing
 - TTS audio responses now stored permanently instead of in temp directory
+- AnimatedAssistant now uses `data-state` attribute for state-based CSS animations
+- Mascot shows `success` animation on successful AI response instead of simple `talking`
+- Mascot shows `confused` animation on errors instead of going back to `idle`
 
 ### Fixed
 - ESLint errors in AMD modules: removed unused parameters and imports in `settings.js` and `report.js`

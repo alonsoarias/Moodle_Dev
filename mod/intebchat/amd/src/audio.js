@@ -236,7 +236,10 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
 
                         mediaRecorder.start();
                         recordingStartTime = Date.now();
-                        
+
+                        // Trigger event to update mascot to listening state
+                        $(document).trigger('intebchat-recording-started');
+
                         // Show WhatsApp-style overlay
                         createRecordingOverlay();
                         $('#recording-overlay').addClass('active');
