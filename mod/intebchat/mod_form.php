@@ -90,13 +90,19 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->setDefault('enableaudio', 0);
             $mform->addHelpButton('enableaudio', 'enableaudio', 'mod_intebchat');
 
-            // MODIFICACIÓN PRINCIPAL: Agregar modo conversacional
+            // Audio modes - conversacional mode only available with Chat API
+            // (Realtime API doesn't support Assistants)
             $audiomodes = [
                 'text' => get_string('audiomode_text', 'mod_intebchat'),
                 'audio' => get_string('audiomode_audio', 'mod_intebchat'),
                 'both' => get_string('audiomode_both', 'mod_intebchat'),
-                'conversacional' => get_string('audiomode_conversacional', 'mod_intebchat')
             ];
+
+            // Only add conversacional mode if using Chat API (not Assistant API)
+            // The Realtime API (used for conversacional) doesn't support OpenAI Assistants
+            if ($type !== 'assistant') {
+                $audiomodes['conversacional'] = get_string('audiomode_conversacional', 'mod_intebchat');
+            }
 
             $mform->addElement('select', 'audiomode', get_string('audiomode', 'mod_intebchat'), $audiomodes);
             $mform->setDefault('audiomode', 'text');
@@ -217,6 +223,12 @@ class mod_intebchat_mod_form extends moodleform_mod {
                     $errors['assistant'] = get_string('required', 'mod_intebchat');
                 }
             }
+        }
+
+        // Validate that conversacional mode is not used with Assistant API
+        // The Realtime API (used for conversacional) doesn't support OpenAI Assistants
+        if ($type === 'assistant' && isset($data['audiomode']) && $data['audiomode'] === 'conversacional') {
+            $errors['audiomode'] = get_string('conversacional_not_with_assistant', 'mod_intebchat');
         }
 
         return $errors;

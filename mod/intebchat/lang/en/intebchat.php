@@ -257,6 +257,7 @@ $string['confirmdelete'] = 'Are you sure you want to delete this recording?';
 // Conversational mode strings
 $string['audiomode_conversacional'] = 'Conversational (Real-time)';
 $string['audiomode_conversacional_help'] = 'Real-time conversational mode using WebRTC for natural voice interaction with bidirectional transcription';
+$string['conversacional_not_with_assistant'] = 'Conversational mode is not available when using Assistant API. The Realtime API does not support OpenAI Assistants. Please use text, audio, or both mode instead.';
 $string['realtime_connecting'] = 'Connecting to real-time service...';
 $string['realtime_connected'] = 'Connected - Speak naturally';
 $string['realtime_disconnected'] = 'Disconnected from real-time service';
