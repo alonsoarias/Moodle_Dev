@@ -528,72 +528,34 @@
     transition: filter 0.3s ease;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   MASCOT STATE ANIMATIONS (data-state based system)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Base floating animation */
 @keyframes mascot-float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
 }
 
-/* Thinking state - pulsing glow */
-.intebchat-assistant.thinking {
-    animation: mascot-float 1s ease-in-out infinite;
-}
-
-.intebchat-assistant.thinking .assistant-mascot-svg {
-    animation: mascot-thinking 1.5s ease-in-out infinite;
-}
-
-@keyframes mascot-thinking {
-    0%, 100% {
-        filter: drop-shadow(0 4px 8px rgba(39, 84, 140, 0.3));
-        transform: scale(1);
-    }
-    50% {
-        filter: drop-shadow(0 6px 20px rgba(217, 30, 65, 0.5));
-        transform: scale(1.05);
-    }
-}
-
-/* Talking state - subtle bounce */
-.intebchat-assistant.talking .assistant-mascot-svg {
-    animation: mascot-talking 0.4s ease infinite;
-}
-
-@keyframes mascot-talking {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.03); }
-}
-
-/* Waving state - side to side */
-.intebchat-assistant.waving {
-    animation: mascot-wave 0.5s ease 2;
-}
-
-@keyframes mascot-wave {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(10deg); }
-    75% { transform: rotate(-10deg); }
-}
-
-/* Idle state - gentle float */
+/* State: Idle - gentle floating */
+.intebchat-assistant[data-state="idle"],
 .intebchat-assistant.idle {
     animation: mascot-float 3s ease-in-out infinite;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   MASCOT STATE ANIMATIONS (data-state based system)
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* State: Idle - gentle floating */
 .intebchat-assistant[data-state="idle"] .assistant-mascot-svg {
-    animation: mascot-float 3s ease-in-out infinite;
+    animation: none;
 }
 
 /* State: Thinking - head tilts with eye blinking */
-.intebchat-assistant[data-state="thinking"] .assistant-mascot-svg {
+.intebchat-assistant[data-state="thinking"] .assistant-mascot-svg,
+.intebchat-assistant.thinking .assistant-mascot-svg {
     animation: mascot-think 1s ease-in-out infinite;
 }
 
-.intebchat-assistant[data-state="thinking"] #eyes {
+.intebchat-assistant[data-state="thinking"] #eyes,
+.intebchat-assistant.thinking #eyes {
     animation: mascot-eyes-blink 0.5s ease infinite;
 }
 
@@ -621,9 +583,19 @@
     }
 }
 
-/* State: Success - celebration bounce */
+/* State: Success/Talking - celebration bounce */
 .intebchat-assistant[data-state="success"] .assistant-mascot-svg {
     animation: mascot-celebrate 0.8s ease-out;
+}
+
+/* State: Talking - subtle bounce (backwards compatibility) */
+.intebchat-assistant.talking .assistant-mascot-svg {
+    animation: mascot-talking 0.4s ease infinite;
+}
+
+@keyframes mascot-talking {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
 }
 
 @keyframes mascot-celebrate {
@@ -664,12 +636,14 @@
     }
 }
 
-/* State: Greeting - entrance animation */
-.intebchat-assistant[data-state="greeting"] .assistant-mascot-svg {
+/* State: Greeting/Waving - entrance animation */
+.intebchat-assistant[data-state="greeting"] .assistant-mascot-svg,
+.intebchat-assistant.waving .assistant-mascot-svg {
     animation: mascot-greeting 1s ease-out;
 }
 
-.intebchat-assistant[data-state="greeting"] #arms {
+.intebchat-assistant[data-state="greeting"] #arms,
+.intebchat-assistant.waving #arms {
     animation: mascot-arms-wave 0.5s ease-in-out 2;
 }
 
@@ -1758,45 +1732,6 @@
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   SVG ASSISTANT STYLES
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.intebchat-assistant-svg {
-    position: absolute;
-    bottom: 80px;
-    right: 20px;
-    width: 80px;
-    height: 93px;
-    z-index: 100;
-    cursor: pointer;
-    filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
-    transition: transform 0.3s ease, filter 0.3s ease;
-}
-
-.intebchat-assistant-svg:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0 6px 12px rgba(102, 126, 234, 0.5));
-}
-
-.intebchat-assistant-svg.thinking {
-    animation: assistantThinking 2s ease-in-out infinite;
-}
-
-.intebchat-assistant-svg.talking {
-    animation: assistantTalking 0.3s ease infinite;
-}
-
-@keyframes assistantThinking {
-    0%, 100% { filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3)); }
-    50% { filter: drop-shadow(0 4px 20px rgba(102, 126, 234, 0.8)); }
-}
-
-@keyframes assistantTalking {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
-}
-
 /* Responsive adjustments for realtime indicators */
 @media (max-width: 768px) {
     .realtime-indicators {
@@ -1810,12 +1745,5 @@
 
     .speaking-indicator .speaking-label {
         display: none;
-    }
-
-    .intebchat-assistant-svg {
-        width: 60px;
-        height: 70px;
-        bottom: 70px;
-        right: 10px;
     }
 }
