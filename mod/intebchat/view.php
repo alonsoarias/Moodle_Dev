@@ -87,8 +87,13 @@ $jsdata = [
 ];
 
 $PAGE->requires->js_call_amd('mod_intebchat/lib', 'init', [$jsdata]);
-if (!empty($intebchat->enableaudio)) {
-    $PAGE->requires->js_call_amd('mod_intebchat/audio', 'init', [$intebchat->audiomode]);
+
+// Load audio.js only for non-conversacional modes (audio, both)
+// Conversacional modes use realtime.js instead which is loaded by lib.js
+$audiomode = $intebchat->audiomode ?? 'text';
+$isConversacionalMode = ($audiomode === 'conversacional' || $audiomode === 'conversacional_assistant');
+if (!empty($intebchat->enableaudio) && !$isConversacionalMode && $audiomode !== 'text') {
+    $PAGE->requires->js_call_amd('mod_intebchat/audio', 'init', [$audiomode]);
 }
 
 // Add CSS

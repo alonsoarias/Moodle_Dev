@@ -566,8 +566,20 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         audioMode: audioConfig.mode // Pass mode for assistant tool configuration
                     });
 
-                    // Override send button for realtime mode
-                    $(document).off('click', '#go').on('click', '#go', function (e) {
+                    // Keyboard handler for realtime mode (Enter to send)
+                    $(document).on('keydown', '#openai_input', function (e) {
+                        if (e.which === 13 && !e.shiftKey) {
+                            e.preventDefault();
+                            var input = $(this);
+                            if (input.val() !== "") {
+                                Realtime.sendText(input.val());
+                                input.val('');
+                            }
+                        }
+                    });
+
+                    // Click handler for send button in realtime mode
+                    $(document).on('click', '#go', function (e) {
                         e.preventDefault();
                         var input = $('#openai_input');
                         if (input.val() !== "") {
