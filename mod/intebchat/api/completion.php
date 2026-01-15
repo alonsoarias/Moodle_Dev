@@ -282,9 +282,19 @@ try {
         // IMPORTANTE: Usar la voz obtenida tras combinar configuración global e instancia
         $voice = $completion->get_voice() ?? 'alloy';
 
-        // Use the enhanced speech function with tracking
-        $audio_result = \mod_intebchat\audio::speech_with_tracking(strip_tags($response['message']), $voice);
-        
+        // Use permanent storage for TTS audio if we have a conversation
+        if ($conversation_id) {
+            $audio_result = \mod_intebchat\audio::speech_with_permanent_storage(
+                strip_tags($response['message']),
+                $voice,
+                $context->id,
+                $conversation_id
+            );
+        } else {
+            // Fallback to temporary storage if no conversation
+            $audio_result = \mod_intebchat\audio::speech_with_tracking(strip_tags($response['message']), $voice);
+        }
+
         if (!empty($audio_result['url'])) {
             $audio_output_tokens = $audio_result['tokens'];
             $response['message'] = "<audio controls autoplay src='{$audio_result['url']}'></audio><div class='transcription'>{$response['message']}</div>";

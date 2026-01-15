@@ -13,13 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New language strings for JavaScript UI: `recording`, `browsernotsupported`, `recordingerror`, `microphoneerror`, `tokensresetin`, `required`, `unknownerror`
 - New language string `chatcompletions` for API type display
 - Complete Spanish translations for all new strings
+- Permanent storage for TTS audio using Moodle's File API (ttsaudio filearea)
+- New audio.php functions: `save_tts_audio()` and `speech_with_permanent_storage()`
 
 ### Changed
 - Replaced hardcoded text strings in `audio.js` with Moodle language string system
 - Updated audio.js to load localized strings for error messages with proper fallbacks
 - Cleaned up duplicate `js_` prefixed strings from language files (using existing strings instead)
 - audio.js: Changed event binding to use event delegation for reliability across all themes
-- audio.php: Optimized transcription with HTTP/2, TCP Fast Open, and TCP_NODELAY for faster audio processing
+- audio.php: Optimized transcription with HTTP/2 and TCP_NODELAY for faster audio processing
+- TTS audio responses now stored permanently instead of in temp directory
 
 ### Fixed
 - ESLint errors in AMD modules: removed unused parameters and imports in `settings.js` and `report.js`
@@ -32,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - mod_form.php: Fixed validation showing error on non-existent apikey field
 - lib.js: Fixed undefined `userName` and `assistantName` variables in buildTranscript function
 - Audio and text messaging now works correctly in both light and dark modes
+- TTS audio 404 errors when loading old conversations (audio files were being deleted from temp)
 - AMD modules recompiled with latest changes
 
 ---

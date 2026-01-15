@@ -125,7 +125,6 @@ class audio
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 60, // Whisper can take time for longer audio
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0, // HTTP/2 for better performance
-            CURLOPT_TCP_FASTOPEN => true, // TCP Fast Open if available
             CURLOPT_TCP_NODELAY => true, // Disable Nagle's algorithm for lower latency
         ]);
 
@@ -325,6 +324,161 @@ class audio
         $pow = min($pow, count($units) - 1);
         $bytes /= pow(1024, $pow);
         return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
+    /**
+     * Save TTS audio permanently using Moodle's File API
+     *
+     * @param string $audiobinary Raw binary audio data
+     * @param string $format Audio format (opus, mp3, etc.)
+     * @param int $contextid The context ID for the file area
+     * @param int $conversationid The conversation ID (used as itemid)
+     * @return array ['url' => string, 'filename' => string] or ['error' => string]
+     */
+    public static function save_tts_audio(string $audiobinary, string $format, int $contextid, int $conversationid): array
+    {
+        global $USER;
+
+        if (empty($audiobinary) || strlen($audiobinary) < 100) {
+            return ['error' => 'Invalid audio data'];
+        }
+
+        // Generate unique filename
+        $filename = 'ttsaudio_' . $conversationid . '_' . time() . '_' . uniqid() . '.' . $format;
+
+        // Prepare file record
+        $fs = get_file_storage();
+        $fileinfo = [
+            'contextid' => $contextid,
+            'component' => 'mod_intebchat',
+            'filearea' => 'ttsaudio',
+            'itemid' => $conversationid,
+            'filepath' => '/',
+            'filename' => $filename,
+            'userid' => $USER->id,
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ];
+
+        // Create the file from string
+        $file = $fs->create_file_from_string($fileinfo, $audiobinary);
+
+        if (!$file) {
+            return ['error' => 'Failed to save TTS audio file'];
+        }
+
+        // Generate the URL using pluginfile.php
+        $url = \moodle_url::make_pluginfile_url(
+            $contextid,
+            'mod_intebchat',
+            'ttsaudio',
+            $conversationid,
+            '/',
+            $filename
+        );
+
+        return [
+            'url' => $url->out(),
+            'filename' => $filename,
+        ];
+    }
+
+    /**
+     * Convert text to speech and save permanently
+     *
+     * @param string $input Text to convert
+     * @param string $voice Voice to use
+     * @param int $contextid The context ID for the file area
+     * @param int $conversationid The conversation ID
+     * @param bool $hd Use HD model
+     * @return array URL and token info with permanent storage
+     */
+    public static function speech_with_permanent_storage(string $input, string $voice, int $contextid, int $conversationid, bool $hd = false): array
+    {
+        global $CFG;
+
+        // Limit text length to avoid timeout
+        $max_chars = 4096;
+        if (strlen($input) > $max_chars) {
+            $input = mb_substr($input, 0, $max_chars);
+        }
+
+        $char_count = strlen($input);
+
+        // Use opus for better compression
+        $response_format = 'opus';
+        $file_extension = 'opus';
+
+        if ($char_count < 100) {
+            $response_format = 'mp3';
+            $file_extension = 'mp3';
+        }
+
+        $json = json_encode((object) [
+            'model' => $hd ? 'tts-1-hd' : 'tts-1',
+            'input' => $input,
+            'voice' => $voice,
+            'response_format' => $response_format,
+            'speed' => 1.0,
+        ]);
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => 'https://api.openai.com/v1/audio/speech',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $json,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . get_config('mod_intebchat', 'apikey'),
+            ],
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
+        ]);
+
+        $audiodata = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+
+        if ($http_code !== 200 || empty($audiodata)) {
+            return [
+                'url' => '',
+                'error' => 'TTS generation failed: ' . ($curl_error ?: "HTTP $http_code"),
+                'tokens' => 0
+            ];
+        }
+
+        // Save permanently
+        $save_result = self::save_tts_audio($audiodata, $file_extension, $contextid, $conversationid);
+
+        if (!empty($save_result['error'])) {
+            // Fallback to temporary storage if permanent save fails
+            $tempdir = "{$CFG->dataroot}/temp";
+            if (!file_exists($tempdir)) {
+                mkdir($tempdir, 0777, true);
+            }
+            $filename = uniqid('tts_');
+            $filepath = "{$tempdir}/{$filename}.{$file_extension}";
+            file_put_contents($filepath, $audiodata);
+
+            return [
+                'url' => "{$CFG->wwwroot}/mod/intebchat/load-audio-temp.php?filename={$filename}&format={$file_extension}",
+                'tokens' => $char_count,
+                'file_size' => strlen($audiodata),
+                'format' => $response_format,
+                'permanent' => false
+            ];
+        }
+
+        return [
+            'url' => $save_result['url'],
+            'tokens' => $char_count,
+            'file_size' => strlen($audiodata),
+            'format' => $response_format,
+            'permanent' => true
+        ];
     }
 
     /**

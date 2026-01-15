@@ -1119,8 +1119,8 @@ function intebchat_pluginfile($course, $cm, $context, $filearea, array $args, $f
 
     require_login($course, true, $cm);
 
-    // Handle user audio files
-    if ($filearea === 'useraudio') {
+    // Handle user audio files and TTS audio files
+    if ($filearea === 'useraudio' || $filearea === 'ttsaudio') {
         $itemid = array_shift($args);
         $filename = array_pop($args);
         $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
@@ -1143,8 +1143,9 @@ function intebchat_pluginfile($course, $cm, $context, $filearea, array $args, $f
             send_file_not_found();
         }
 
-        // Send the file with appropriate caching
-        send_stored_file($file, 86400, 0, $forcedownload, $options);
+        // Send the file with appropriate caching (longer cache for TTS audio)
+        $lifetime = ($filearea === 'ttsaudio') ? 604800 : 86400; // 7 days for TTS, 1 day for user audio
+        send_stored_file($file, $lifetime, 0, $forcedownload, $options);
     }
 
     send_file_not_found();
