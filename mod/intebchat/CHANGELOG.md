@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.7.1] - 2026-01-15
+
+### Changed
+- **Instructions field now applies to all audio modes**:
+  - Chat API (text/audio/both): Instructions appended to system prompt
+  - Assistant API: Instructions passed as run instructions
+  - Realtime API (conversacional modes): Instructions sent as session instructions
+- **Mascot repositioned above input bar** - No longer floating, now centered above the text input area
+- Updated help text for instructions field to explain behavior in each mode
+
+### Fixed
+- Instructions field was ignored in Chat API mode (now properly included in system prompt)
+- Instructions field was ignored in streaming mode (completion_stream.php)
+
+---
+
 ## [3.7.0] - 2026-01-15
 
 ### Added
