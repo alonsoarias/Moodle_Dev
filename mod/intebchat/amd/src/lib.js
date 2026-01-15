@@ -1858,9 +1858,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     return;
                 }
 
-                var user = userName;
+                var user = window.intebchat.userName || 'User';
                 if ($(element).hasClass('bot')) {
-                    user = assistantName;
+                    user = window.intebchat.assistantName || 'Assistant';
                 }
 
                 // Clone and clean the message
