@@ -41,24 +41,40 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die();
 }
 
+// Disable ALL output buffering for proper SSE streaming
+@ini_set('output_buffering', 'Off');
+@ini_set('zlib.output_compression', 'Off');
+
+// Clear all existing output buffers
+while (ob_get_level() > 0) {
+    ob_end_clean();
+}
+
+// Enable implicit flush (auto-flush after every output)
+ob_implicit_flush(true);
+
 // Set SSE headers
 header('Content-Type: text/event-stream');
-header('Cache-Control: no-cache');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
 header('Connection: keep-alive');
 header('X-Accel-Buffering: no'); // Disable nginx buffering
 
-// Flush headers immediately
-if (ob_get_level()) {
-    ob_end_flush();
-}
+// Force initial flush to establish connection
+echo ":" . str_repeat(" ", 2048) . "\n"; // Padding to force buffer flush
+echo "retry: 10000\n\n"; // Set reconnect interval
 flush();
 
 /**
- * Send SSE event
+ * Send SSE event with proper flushing
  */
 function send_sse_event($event, $data) {
     echo "event: {$event}\n";
     echo "data: " . json_encode($data) . "\n\n";
+    // Ensure output is sent immediately
+    if (ob_get_level() > 0) {
+        @ob_flush();
+    }
     flush();
 }
 

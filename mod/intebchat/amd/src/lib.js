@@ -1614,7 +1614,14 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             var audio = $('#intebchat-recorded-audio').val();
 
             // Use streaming for text-only requests (not audio) when supported
-            if (useStreaming && isStreamingSupported() && !audio && message) {
+            // NOTE: Streaming is not supported with the Assistant API, only Chat Completions
+            var canUseStreaming = useStreaming &&
+                                  isStreamingSupported() &&
+                                  !audio &&
+                                  message &&
+                                  api_type !== 'assistant';
+
+            if (canUseStreaming) {
                 createStreamingCompletion(message, instanceId, responseMode);
                 return;
             }
