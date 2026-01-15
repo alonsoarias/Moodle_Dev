@@ -5,7 +5,7 @@
  * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates'], function($, Ajax, Notification, Str, Templates) {
+define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Ajax, Notification, Str) {
 
     var Report = {
         config: null,
@@ -179,8 +179,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates'
          * @param {Object} data
          */
         renderData: function(data) {
-            var self = this;
-
             // Update summary cards
             this.updateSummaryCards(data.summary);
 

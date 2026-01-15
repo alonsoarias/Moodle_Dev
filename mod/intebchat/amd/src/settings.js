@@ -53,7 +53,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
         // Load strings first, then initialize handlers.
         loadStrings().then(function() {
             initializeHandlers();
-        }).catch(function(error) {
+        }).catch(function() {
             // If strings fail to load, still initialize with fallbacks.
             strings.noassistantsfound = 'No assistants found';
             strings.failedtoloadassistants = 'Failed to fetch assistants';
