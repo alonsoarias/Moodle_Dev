@@ -283,6 +283,7 @@ $string['mascot_clippy'] = 'Clippy';
 $string['mascot_lightbulb'] = 'Bombilla';
 
 // Cadenas de animaciones de mascota
+$string['assistant'] = 'Asistente';
 $string['thinking'] = 'Pensando...';
 $string['mascothelp'] = '¿En qué puedo ayudarte?';
 $string['mascotneedmore'] = '¿Necesitas algo más?';

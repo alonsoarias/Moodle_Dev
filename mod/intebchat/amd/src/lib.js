@@ -21,8 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save_cancel', 'core/modal_delete_cancel', 'core/templates'],
-    function ($, Ajax, Str, Notification, ModalSaveCancel, ModalDeleteCancel, Templates) {
+define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save_cancel', 'core/modal_delete_cancel', 'core/templates', 'mod_intebchat/mascot'],
+    function ($, Ajax, Str, Notification, ModalSaveCancel, ModalDeleteCancel, Templates, Mascot) {
         var questionString = 'Ask a question...';
         var errorString = 'An error occurred! Please try again later.';
         var currentConversationId = null;
@@ -40,7 +40,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             enabled: false,
             mode: 'text'
         };
-        var assistant = null; // Para el asistente animado
 
         /**
          * Token Tracker for real-time updates
@@ -420,208 +419,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Animated Assistant Class - Uses mascot SVG from pix/mascots
-         * Enhanced with state-based animations like educambot
-         * SVG is inlined to allow CSS animations on internal elements
-         */
-        var AnimatedAssistant = {
-            tooltipTimer: null,
-            currentState: 'idle',
-
-            init: function () {
-                var self = this;
-                // Get mascot URL from data attribute
-                var $main = $('.intebchat-main');
-                var mascotUrl = $main.data('mascot-url') || '';
-                var mascotName = $main.data('mascot-name') || 'Assistant';
-
-                // Create assistant container with placeholder
-                var assistantHtml = '<div id="intebchat-assistant" class="intebchat-assistant" data-state="idle">' +
-                    '<div class="assistant-mascot-svg" aria-label="' + mascotName + '"></div>' +
-                    '<div class="intebchat-mascot-tooltip">' +
-                    '<div class="tooltip-content"></div>' +
-                    '<div class="tooltip-arrow"></div>' +
-                    '</div>' +
-                    '</div>';
-
-                // Add to main chat area
-                $main.append(assistantHtml);
-
-                // Fetch and inline the SVG for proper CSS animations
-                if (mascotUrl) {
-                    $.ajax({
-                        url: mascotUrl,
-                        dataType: 'text',
-                        success: function(svgContent) {
-                            // Parse the SVG and add it inline
-                            var $svg = $(svgContent).filter('svg');
-                            if ($svg.length) {
-                                // Add class for styling
-                                $svg.addClass('mascot-svg-inline');
-                                // Preserve viewBox but set size
-                                $svg.attr('width', '100%');
-                                $svg.attr('height', '100%');
-                                // Insert inline SVG
-                                $('#intebchat-assistant .assistant-mascot-svg').html($svg);
-                            }
-                            // Start with greeting animation after SVG is loaded
-                            self.greeting();
-                        },
-                        error: function() {
-                            // Fallback to img tag if fetch fails
-                            $('#intebchat-assistant .assistant-mascot-svg').html(
-                                '<img src="' + mascotUrl + '" alt="' + mascotName + '" />'
-                            );
-                            self.greeting();
-                        }
-                    });
-                }
-
-                this.bindEvents();
-                console.log('Assistant initialized with mascot:', mascotName);
-            },
-
-            bindEvents: function () {
-                var self = this;
-                $(document).on('click', '#intebchat-assistant', function () {
-                    self.wave();
-                    self.showTooltip(strings.mascothelp || '¿En qué puedo ayudarte?', 3000);
-                });
-            },
-
-            /**
-             * Set mascot state using data-state attribute
-             * @param {string} state - One of: idle, thinking, success, confused, greeting, suggesting, listening
-             */
-            setState: function (state) {
-                var $assistant = $('#intebchat-assistant');
-                if (!$assistant.length) return;
-
-                this.currentState = state;
-                $assistant.attr('data-state', state);
-            },
-
-            idle: function () {
-                this.setState('idle');
-                this.hideTooltip();
-            },
-
-            thinking: function () {
-                this.setState('thinking');
-                this.showTooltip('🤔 ' + (strings.thinking || 'Pensando...'), 0);
-            },
-
-            talking: function () {
-                this.setState('talking');
-                this.hideTooltip();
-            },
-
-            wave: function () {
-                var self = this;
-                this.setState('greeting');
-                setTimeout(function () {
-                    self.idle();
-                }, 1000);
-            },
-
-            /**
-             * Success state - celebration after successful response
-             */
-            success: function () {
-                var self = this;
-                this.setState('success');
-                setTimeout(function () {
-                    self.idle();
-                    self.showTooltip(strings.mascotneedmore || '¿Necesitas algo más?', 3000);
-                }, 800);
-            },
-
-            /**
-             * Confused state - when something went wrong
-             */
-            confused: function () {
-                var self = this;
-                this.setState('confused');
-                this.showTooltip('😕 ' + (strings.mascotconfused || 'Hubo un problema...'), 3000);
-                setTimeout(function () {
-                    self.idle();
-                }, 1500);
-            },
-
-            /**
-             * Greeting state - entrance animation
-             */
-            greeting: function () {
-                var self = this;
-                this.setState('greeting');
-                setTimeout(function () {
-                    self.showTooltip('👋 ' + (strings.mascotgreeting || '¡Hola! Estoy aquí para ayudarte.'), 3000);
-                }, 500);
-                setTimeout(function () {
-                    self.idle();
-                }, 2500);
-            },
-
-            /**
-             * Suggesting state - when suggesting actions
-             */
-            suggesting: function () {
-                var self = this;
-                this.setState('suggesting');
-                setTimeout(function () {
-                    self.idle();
-                }, 1800);
-            },
-
-            /**
-             * Listening state - when recording audio
-             */
-            listening: function () {
-                this.setState('listening');
-                this.showTooltip('🎤 ' + (strings.mascotlistening || 'Te escucho...'), 0);
-            },
-
-            /**
-             * Show tooltip with message
-             * @param {string} message - Message to show
-             * @param {number} duration - Auto-hide duration in ms (0 for no auto-hide)
-             */
-            showTooltip: function (message, duration) {
-                var self = this;
-                var $tooltip = $('.intebchat-mascot-tooltip');
-
-                if (!$tooltip.length) return;
-
-                $tooltip.find('.tooltip-content').html(message);
-                $tooltip.addClass('visible');
-
-                if (self.tooltipTimer) {
-                    clearTimeout(self.tooltipTimer);
-                    self.tooltipTimer = null;
-                }
-
-                if (duration && duration > 0) {
-                    self.tooltipTimer = setTimeout(function () {
-                        self.hideTooltip();
-                    }, duration);
-                }
-            },
-
-            /**
-             * Hide tooltip
-             */
-            hideTooltip: function () {
-                var $tooltip = $('.intebchat-mascot-tooltip');
-                $tooltip.removeClass('visible');
-
-                if (this.tooltipTimer) {
-                    clearTimeout(this.tooltipTimer);
-                    this.tooltipTimer = null;
-                }
-            }
-        };
-
-        /**
          * Initialize the module with conversation management
          * @param {Object} data Configuration data
          */
@@ -660,9 +457,14 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 // Initialize token reset countdown timer
                 initTokenResetCountdown();
 
-                // Initialize animated assistant AFTER strings are loaded
+                // Initialize mascot AFTER strings are loaded
                 setTimeout(function () {
-                    AnimatedAssistant.init();
+                    var $main = $('.intebchat-main');
+                    Mascot.init({
+                        url: $main.data('mascot-url') || '',
+                        name: $main.data('mascot-name') || strings.assistant || 'Assistant',
+                        container: '.intebchat-main'
+                    });
                 }, 500);
 
                 // Initialize message queue for offline support
@@ -730,7 +532,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                     // Listen for recording started event to update mascot
                     $(document).on('intebchat-recording-started', function () {
-                        AnimatedAssistant.listening();
+                        Mascot.listening();
                     });
 
                     // Listen for intebchat-audio-ready event on document (reliable approach)
@@ -926,7 +728,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     (strings.transcribing || 'Transcribing...') +
                     '</div>', instanceId);
 
-                AnimatedAssistant.thinking();
+                Mascot.thinking();
                 createCompletion('', instanceId, api_type, responseMode);
             };
 
@@ -987,11 +789,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 { key: 'tokensusedformat', component: 'mod_intebchat' },
                 { key: 'tokensresetcountdown', component: 'mod_intebchat' },
                 { key: 'thinking', component: 'mod_intebchat' },
-                { key: 'mascothelp', component: 'mod_intebchat' },
-                { key: 'mascotneedmore', component: 'mod_intebchat' },
-                { key: 'mascotconfused', component: 'mod_intebchat' },
-                { key: 'mascotgreeting', component: 'mod_intebchat' },
-                { key: 'mascotlistening', component: 'mod_intebchat' }
+                { key: 'assistant', component: 'mod_intebchat' }
             ];
 
             return Str.get_strings(stringkeys).then(function (results) {
@@ -1023,11 +821,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 strings.tokensusedformat = results[25];
                 strings.tokensresetcountdown = results[26];
                 strings.thinking = results[27];
-                strings.mascothelp = results[28];
-                strings.mascotneedmore = results[29];
-                strings.mascotconfused = results[30];
-                strings.mascotgreeting = results[31];
-                strings.mascotlistening = results[32];
+                strings.assistant = results[28];
 
                 questionString = strings.askaquestion;
                 errorString = strings.erroroccurred;
@@ -1153,7 +947,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         $('#openai_input').focus();
                     }
 
-                    AnimatedAssistant.wave();
+                    Mascot.wave();
                 },
                 fail: function (error) {
                     Notification.addNotification({
@@ -1215,7 +1009,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     }
 
                     $('#openai_input').focus();
-                    AnimatedAssistant.idle();
+                    Mascot.idle();
                 },
                 fail: function (error) {
                     console.error('Error loading conversation:', error);
@@ -1413,7 +1207,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         $('.intebchat-conversation-item[data-conversation-id="' + currentConversationId + '"]').addClass('active');
 
                         addToChatLog('user', message, instanceId);
-                        AnimatedAssistant.thinking();
+                        Mascot.thinking();
                         var responseMode = (audioConfig.mode === 'both') ? lastInputMode : 'text';
                         createCompletion(message, instanceId, api_type, responseMode);
                     },
@@ -1428,7 +1222,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             }
 
             addToChatLog('user', message, instanceId);
-            AnimatedAssistant.thinking();
+            Mascot.thinking();
             var responseMode = (audioConfig.mode === 'both') ? lastInputMode : 'text';
             createCompletion(message, instanceId, api_type, responseMode);
         };
@@ -1598,7 +1392,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     } else {
                         cursor.remove();
                         messageElem.removeClass('typing');
-                        AnimatedAssistant.idle();
+                        Mascot.idle();
                     }
                 };
 
@@ -1679,7 +1473,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 $messageContainer.stop(true).animate({ scrollTop: $messageContainer[0].scrollHeight }, 100);
             }
 
-            AnimatedAssistant.thinking();
+            Mascot.thinking();
 
             var requestData = {
                 message: message,
@@ -1764,10 +1558,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                                 if (eventType === 'complete') {
                                     // Use success animation on stream complete
-                                    AnimatedAssistant.success();
+                                    Mascot.success();
                                 } else if (eventType === 'error') {
                                     // Use confused animation on stream error
-                                    AnimatedAssistant.confused();
+                                    Mascot.confused();
                                 }
                             }
                         });
@@ -1792,7 +1586,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                     // Re-enable controls
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
-                    AnimatedAssistant.idle();
+                    Mascot.idle();
 
                     if ($('#openai_input').length) {
                         $('#openai_input').focus();
@@ -1808,7 +1602,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 );
                 $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
                 // Use confused animation for streaming errors
-                AnimatedAssistant.confused();
+                Mascot.confused();
             });
         };
 
@@ -1895,7 +1689,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                         addToChatLog('bot', data.message, instanceId);
                         // Use success animation for successful response
-                        AnimatedAssistant.success();
+                        Mascot.success();
 
                         if (data.conversationId && !currentConversationId) {
                             currentConversationId = data.conversationId;
@@ -1928,7 +1722,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                             addToChatLog('bot error', data.error.message, instanceId);
                         }
                         // Use confused animation for errors
-                        AnimatedAssistant.confused();
+                        Mascot.confused();
                     }
                     if ($('#openai_input').length) {
                         $('#openai_input').focus();
@@ -1952,7 +1746,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                     addToChatLog('bot error', errorMsg, instanceId);
                     // Use confused animation for connection errors
-                    AnimatedAssistant.confused();
+                    Mascot.confused();
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').addClass('error');
                     $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').attr('placeholder', errorString);
                 }

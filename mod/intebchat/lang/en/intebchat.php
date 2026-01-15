@@ -283,6 +283,7 @@ $string['mascot_clippy'] = 'Clippy';
 $string['mascot_lightbulb'] = 'Lightbulb';
 
 // Mascot animation strings
+$string['assistant'] = 'Assistant';
 $string['thinking'] = 'Thinking...';
 $string['mascothelp'] = 'How can I help you?';
 $string['mascotneedmore'] = 'Need anything else?';
