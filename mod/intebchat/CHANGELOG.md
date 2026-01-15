@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - New language strings for JavaScript UI: `recording`, `browsernotsupported`, `recordingerror`, `microphoneerror`, `tokensresetin`, `required`, `unknownerror`
+- New language string `chatcompletions` for API type display
 - Complete Spanish translations for all new strings
 
 ### Changed
@@ -23,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backup/restore functionality with proper implementation of `intebchat_get_instance_analytics()`
 - Duplicate function declaration `intebchat_get_instance_analytics()` causing fatal error
 - Duplicate activity description when using single activity course format
+- mod_form.php: Added missing 'text' option to audiomode selector
+- mod_form.php: Fixed audiomode default to valid value 'both'
+- mod_form.php: Fixed missing 'chatcompletions' language string
+- mod_form.php: Fixed validation showing error on non-existent apikey field
 - AMD modules recompiled with latest changes
 
 ---

@@ -92,13 +92,14 @@ class mod_intebchat_mod_form extends moodleform_mod {
 
             // MODIFICACIÓN PRINCIPAL: Agregar modo conversacional
             $audiomodes = [
+                'text' => get_string('audiomode_text', 'mod_intebchat'),
                 'audio' => get_string('audiomode_audio', 'mod_intebchat'),
                 'both' => get_string('audiomode_both', 'mod_intebchat'),
                 'conversacional' => get_string('audiomode_conversacional', 'mod_intebchat')
             ];
-            
+
             $mform->addElement('select', 'audiomode', get_string('audiomode', 'mod_intebchat'), $audiomodes);
-            $mform->setDefault('audiomode', 'text');
+            $mform->setDefault('audiomode', 'both');
             $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
             $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
 
@@ -124,7 +125,7 @@ class mod_intebchat_mod_form extends moodleform_mod {
         }
 
         // API Type field - read only display
-        $apiTypeDisplay = $type === 'assistant' ? get_string('assistant', 'mod_intebchat') : get_string('chatcompletion', 'mod_intebchat');
+        $apiTypeDisplay = $type === 'assistant' ? get_string('assistant', 'mod_intebchat') : get_string('chatcompletions', 'mod_intebchat');
         $mform->addElement('static', 'apitype_display', get_string('type', 'mod_intebchat'), $apiTypeDisplay);
         $mform->addElement('hidden', 'apitype', $type);
         $mform->setType('apitype', PARAM_TEXT);
@@ -190,24 +191,34 @@ class mod_intebchat_mod_form extends moodleform_mod {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        
+
         $config = get_config('mod_intebchat');
-        
+        $type = $config->type ?: 'chat';
+
         // Check if API key is configured (either globally or instance level)
         if (empty($config->apikey) && empty($data['apikey'])) {
-            $errors['apikey'] = get_string('apikeymissing', 'mod_intebchat');
-        }
-        
-        // Validate API-specific required fields
-        if ($data['apitype'] === 'assistant' && empty($data['assistant']) && $config->allowinstancesettings) {
-            // Only error if assistants are available
-            $apikey = !empty($data['apikey']) ? $data['apikey'] : $config->apikey;
-            $assistants = intebchat_fetch_assistants_array($apikey);
-            if (!empty($assistants)) {
-                $errors['assistant'] = get_string('required');
+            // Only show error on apikey field if it exists in the form
+            if ($config->allowinstancesettings && $type === 'assistant') {
+                $errors['apikey'] = get_string('apikeymissing', 'mod_intebchat');
+            } else {
+                // Show error on name field if apikey field doesn't exist
+                $errors['name'] = get_string('apikeymissing', 'mod_intebchat');
             }
         }
-        
+
+        // Validate API-specific required fields
+        if (isset($data['apitype']) && $data['apitype'] === 'assistant' &&
+            $config->allowinstancesettings && empty($data['assistant'])) {
+            // Only error if assistants are available
+            $apikey = !empty($data['apikey']) ? $data['apikey'] : $config->apikey;
+            if (!empty($apikey)) {
+                $assistants = intebchat_fetch_assistants_array($apikey);
+                if (!empty($assistants)) {
+                    $errors['assistant'] = get_string('required', 'mod_intebchat');
+                }
+            }
+        }
+
         return $errors;
     }
 

@@ -67,6 +67,7 @@ $string['type'] = 'Tipo de API';
 $string['typedesc'] = 'Qué API de OpenAI usar';
 $string['assistant'] = 'Asistente';
 $string['assistantdesc'] = 'El asistente a usar si estás usando la API de Asistentes';
+$string['chatcompletions'] = 'Chat Completions';
 $string['persistconvo'] = 'Persistir conversación';
 $string['persistconvodesc'] = 'Persistir la conversación del usuario entre sesiones';
 $string['noassistants'] = 'No hay asistentes disponibles. Por favor crea uno en tu cuenta de OpenAI.';
