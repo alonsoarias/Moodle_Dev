@@ -524,12 +524,22 @@
    MASCOT CONTAINER STYLES
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* Mascot container - positioned above input bar */
+.mascot-container {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    min-height: 0;
+}
+
+.mascot-container:empty {
+    display: none;
+}
+
 .intebchat-mascot {
-    position: absolute;
-    bottom: 80px;
-    right: 20px;
-    width: 90px;
-    height: 90px;
+    position: relative;
+    width: 80px;
+    height: 80px;
     z-index: 100;
     cursor: pointer;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);

@@ -344,7 +344,7 @@ define(['jquery', 'core/str'], function($, Str) {
         config.url = options.url || '';
         config.name = options.name || 'Assistant';
 
-        var $parent = $(options.container || '.intebchat-main');
+        var $parent = $(options.container || '#mascot-container');
         if (!$parent.length) {
             return Promise.reject(new Error('Parent container not found'));
         }
