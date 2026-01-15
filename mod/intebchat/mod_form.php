@@ -104,6 +104,42 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
             $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
 
+            // Warning for conversacional mode (doesn't use trained Assistant)
+            $conversacionalWarning = html_writer::div(
+                html_writer::tag('i', '', ['class' => 'fa fa-exclamation-triangle mr-2']) .
+                get_string('conversacional_warning', 'mod_intebchat'),
+                'alert alert-warning small mt-2',
+                ['id' => 'audiomode-warning-conversacional', 'style' => 'display:none;']
+            );
+            $mform->addElement('html', $conversacionalWarning);
+
+            // Info for conversacional_assistant mode (delegates to Assistant)
+            $conversacionalAssistantInfo = html_writer::div(
+                html_writer::tag('i', '', ['class' => 'fa fa-info-circle mr-2']) .
+                get_string('conversacional_assistant_info', 'mod_intebchat'),
+                'alert alert-info small mt-2',
+                ['id' => 'audiomode-info-conversacional-assistant', 'style' => 'display:none;']
+            );
+            $mform->addElement('html', $conversacionalAssistantInfo);
+
+            // JavaScript to show/hide warnings based on audiomode selection
+            $PAGE->requires->js_amd_inline("
+                require(['jquery'], function($) {
+                    var updateAudiomodeWarnings = function() {
+                        var mode = $('#id_audiomode').val();
+                        $('#audiomode-warning-conversacional').hide();
+                        $('#audiomode-info-conversacional-assistant').hide();
+                        if (mode === 'conversacional') {
+                            $('#audiomode-warning-conversacional').show();
+                        } else if (mode === 'conversacional_assistant') {
+                            $('#audiomode-info-conversacional-assistant').show();
+                        }
+                    };
+                    $('#id_audiomode').on('change', updateAudiomodeWarnings);
+                    $(document).ready(updateAudiomodeWarnings);
+                });
+            ");
+
             // Voice selection - Ya existe, no modificar
             $voices = [
                 'alloy' => 'Alloy (Neutral, professional)',
