@@ -308,6 +308,106 @@ function xmldb_intebchat_upgrade($oldversion) {
         
         upgrade_mod_savepoint(true, 2025030200, 'intebchat');
     }
+        if ($oldversion < 2025031500) {
+        $table = new xmldb_table('intebchat');
+
+        // Modify audiomode field to support longer values (conversacional = 13 chars)
+        $field = new xmldb_field('audiomode', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'text', 'enableaudio');
+
+        // Change field precision
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_precision($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2025031500, 'intebchat');
+    }
+
+    // December 2025 - Performance and security improvements
+    if ($oldversion < 2025122400) {
+
+        // Add indexes to intebchat_log for better query performance
+        $table = new xmldb_table('intebchat_log');
+
+        // Add index on userid for faster user-based queries
+        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Add index on instanceid for faster instance-based queries
+        $index = new xmldb_index('instanceid', XMLDB_INDEX_NOTUNIQUE, ['instanceid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Add composite index for common query pattern
+        $index = new xmldb_index('instance_user', XMLDB_INDEX_NOTUNIQUE, ['instanceid', 'userid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Add indexes to intebchat_conversations
+        $table = new xmldb_table('intebchat_conversations');
+
+        // Add composite index for common query pattern
+        $index = new xmldb_index('instance_user_time', XMLDB_INDEX_NOTUNIQUE, ['instanceid', 'userid', 'timemodified']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Add indexes to intebchat_messages if table exists
+        $table = new xmldb_table('intebchat_messages');
+        if ($dbman->table_exists($table)) {
+            $index = new xmldb_index('conversationid', XMLDB_INDEX_NOTUNIQUE, ['conversationid']);
+            if (!$dbman->index_exists($table, $index)) {
+                $dbman->add_index($table, $index);
+            }
+        }
+
+        // Add indexes to intebchat_token_usage
+        $table = new xmldb_table('intebchat_token_usage');
+        if ($dbman->table_exists($table)) {
+            $index = new xmldb_index('user_period', XMLDB_INDEX_NOTUNIQUE, ['userid', 'periodstart']);
+            if (!$dbman->index_exists($table, $index)) {
+                $dbman->add_index($table, $index);
+            }
+        }
+
+        // Update default model from deprecated gpt-5-chat-latest to gpt-4.1
+        $DB->execute("UPDATE {intebchat}
+                      SET model = 'gpt-4.1'
+                      WHERE model = 'gpt-5-chat-latest'");
+
+        $current_model = get_config('mod_intebchat', 'model');
+        if ($current_model === 'gpt-5-chat-latest') {
+            set_config('model', 'gpt-4.1', 'mod_intebchat');
+        }
+
+        upgrade_mod_savepoint(true, 2025122400, 'intebchat');
+    }
+
+    if ($oldversion < 2025122401) {
+        // Increase audiomode field length to accommodate 'conversacional' value.
+        $table = new xmldb_table('intebchat');
+        $field = new xmldb_field('audiomode', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, 'text');
+
+        // Change the field.
+        $dbman->change_field_precision($table, $field);
+
+        upgrade_mod_savepoint(true, 2025122401, 'intebchat');
+    }
+
+    if ($oldversion < 2025122403) {
+        // Add mascot field to intebchat table.
+        $table = new xmldb_table('intebchat');
+        $field = new xmldb_field('mascot', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, 'assistant', 'voice');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2025122403, 'intebchat');
+    }
 
     return true;
 }

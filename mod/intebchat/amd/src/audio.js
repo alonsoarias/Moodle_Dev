@@ -35,6 +35,7 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
             let audioBlob = null;
             let audioUrl = null;
             let wasCancelled = false;
+            let recordedMimeType = 'audio/webm'; // Store mimeType separately
 
             // Load strings
             var strings = {};
@@ -121,10 +122,11 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
                         e.preventDefault();
                         // Set the audio data and trigger the send
                         $('#intebchat-recorded-audio').val(audioDataUrl);
+                        console.log('INTEBCHAT Audio: Send clicked, audioMode=' + audioMode);
                         if (audioMode === 'audio' || audioMode === 'both') {
-                            setTimeout(function () {
-                                $('#intebchat-icon-stop').trigger('audio-ready');
-                            }, 100);
+                            // Trigger document-level event for lib.js to catch
+                            console.log('INTEBCHAT Audio: Triggering intebchat-audio-ready event');
+                            $(document).trigger('intebchat-audio-ready', { mode: audioMode });
                         }
                         modal.destroy();
                     });
@@ -153,10 +155,11 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
                     // Fallback to confirm dialog
                     if (confirm(strings.confirmaudiosend)) {
                         $('#intebchat-recorded-audio').val(audioDataUrl);
+                        console.log('INTEBCHAT Audio: Send clicked (fallback), audioMode=' + audioMode);
                         if (audioMode === 'audio' || audioMode === 'both') {
-                            setTimeout(function () {
-                                $('#intebchat-icon-stop').trigger('audio-ready');
-                            }, 100);
+                            // Trigger document-level event for lib.js to catch
+                            console.log('INTEBCHAT Audio: Triggering intebchat-audio-ready event (fallback)');
+                            $(document).trigger('intebchat-audio-ready', { mode: audioMode });
                         }
                     } else {
                         reset();
@@ -200,7 +203,27 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
                 navigator.mediaDevices.getUserMedia({ audio: true })
                     .then(function (userStream) {
                         stream = userStream;
-                        mediaRecorder = new MediaRecorder(stream);
+
+                        // Determine best audio format with Safari fallback
+                        var mimeType = 'audio/webm;codecs=opus';
+                        if (!MediaRecorder.isTypeSupported(mimeType)) {
+                            // Safari doesn't support WebM - try mp4
+                            if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                                mimeType = 'audio/mp4';
+                            } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+                                mimeType = 'audio/aac';
+                            } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+                                mimeType = 'audio/wav';
+                            } else {
+                                // Fallback to default (let browser choose)
+                                mimeType = '';
+                            }
+                        }
+
+                        var recorderOptions = mimeType ? { mimeType: mimeType } : {};
+                        mediaRecorder = new MediaRecorder(stream, recorderOptions);
+                        // Store the actual mimeType for later use (mediaRecorder might be null when onstop fires)
+                        recordedMimeType = mediaRecorder.mimeType || mimeType || 'audio/webm';
                         chunks = [];
 
                         mediaRecorder.start();
@@ -225,7 +248,8 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
 
                         mediaRecorder.onstop = function () {
                             if (chunks.length > 0 && !wasCancelled) {
-                                audioBlob = new Blob(chunks, { type: 'audio/webm' });
+                                // Use the saved mimeType (mediaRecorder may be null at this point)
+                                audioBlob = new Blob(chunks, { type: recordedMimeType });
                                 audioUrl = URL.createObjectURL(audioBlob);
                                 
                                 var reader = new FileReader();

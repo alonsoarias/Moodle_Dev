@@ -15,17 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Definition of scheduled tasks for mod_intebchat.
  *
- * @package     mod_intebchat
- * @copyright   2025 Alonso Arias <soporte@ingeweb.co>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_intebchat
+ * @copyright  2025 Alonso Arias <soporte@ingeweb.co>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_intebchat';
-$plugin->release = 'v3.6.1';
-$plugin->version = 2025122410;  // December 2025 - Language string fixes
-$plugin->requires = 2022112800; // Moodle 4.1
-$plugin->maturity = MATURITY_BETA;
+$tasks = [
+    [
+        'classname' => 'mod_intebchat\task\cleanup_conversations',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ],
+];

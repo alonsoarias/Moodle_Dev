@@ -80,6 +80,7 @@ $string['config_sourceoftruth_help'] = 'Provide specific information that the AI
 $string['prompt'] = 'Custom prompt';
 $string['config_prompt'] = 'Additional instructions to customize AI behavior';
 $string['config_prompt_help'] = 'Provide specific instructions to guide how the AI should respond. This will be added to the system prompt.';
+$string['instructions'] = 'Instructions';
 $string['config_instructions'] = 'Custom instructions for the assistant';
 $string['config_instructions_help'] = 'Provide specific instructions for the assistant. These instructions will override the assistant\'s default instructions for this instance.';
 $string['assistantname'] = 'Assistant name';
@@ -125,11 +126,13 @@ $string['maxtokensperuserdesc'] = 'Maximum number of tokens a user can use in th
 $string['tokenlimitperiod'] = 'Token limit period';
 $string['tokenlimitperioddesc'] = 'The time period for the token limit';
 $string['tokensused'] = 'Tokens used: {$a->used} / {$a->limit}';
+$string['tokensusedformat'] = 'Tokens used: {used} / {limit}';
 $string['tokenlimitexceeded'] = 'You have exceeded your token limit. Used: {$a->used}, Limit: {$a->limit}. Resets at: {$a->reset}';
 $string['totaltokensused'] = 'Total tokens used: {$a}';
 $string['tokensreset'] = 'Tokens will reset at: {$a}';
-$string['audiotokens'] = 'Audio tokens used: {$a}';
-$string['texttokens'] = 'Text tokens used: {$a}';
+$string['tokensresetcountdown'] = 'Resets in: {$a}';
+$string['audiotokens'] = 'Audio';
+$string['texttokens'] = 'Text';
 $string['totaltokensdetailed'] = 'Total tokens - Text: {$a->text}, Audio: {$a->audio}';
 $string['tokenlimitwarning'] = 'Only {$a} tokens remaining!';
 
@@ -239,16 +242,133 @@ $string['prompt'] = 'Prompt';
 $string['completion'] = 'Completion';
 $string['nopermission'] = 'You do not have permission to view this';
 
-// Agregar estas líneas a lang/en/intebchat.php y lang/es/intebchat.php
-
-// === ENGLISH (lang/en/intebchat.php) ===
 // Audio confirmation strings
 $string['audiorecorded'] = 'Audio Recorded';
 $string['confirmaudiosend'] = 'Do you want to send this audio message?';
 $string['playaudio'] = 'Play Audio';
 $string['rerecord'] = 'Re-record';
 $string['send'] = 'Send';
+$string['cancel'] = 'Cancel';
 $string['cancelrecording'] = 'Cancel Recording';
 $string['audioduration'] = 'Duration: {$a}';
 $string['confirmdelete'] = 'Are you sure you want to delete this recording?';
 
+// Conversational mode strings
+$string['audiomode_conversacional'] = 'Conversational (Real-time)';
+$string['audiomode_conversacional_help'] = 'Real-time conversational mode using WebRTC for natural voice interaction with bidirectional transcription';
+$string['realtime_connecting'] = 'Connecting to real-time service...';
+$string['realtime_connected'] = 'Connected - Speak naturally';
+$string['realtime_disconnected'] = 'Disconnected from real-time service';
+$string['realtime_error'] = 'Error connecting to real-time service';
+$string['realtime_you_speaking'] = 'You are speaking...';
+$string['realtime_ai_speaking'] = 'AI is speaking...';
+$string['realtime_listening'] = 'Listening...';
+$string['realtime_processing'] = 'Processing...';
+$string['transcribing'] = 'Transcribing...';
+
+// Security strings
+$string['invalidinput'] = 'Invalid input detected';
+$string['inputtoolong'] = 'Input exceeds maximum allowed length';
+$string['invalidrole'] = 'Invalid message role specified';
+
+// Mascot strings
+$string['mascot'] = 'Chat mascot';
+$string['mascot_help'] = 'Select the animated mascot character that will appear in the chat interface to represent the AI assistant.';
+$string['mascot_assistant'] = 'INTEB Assistant';
+$string['mascot_robot'] = 'Robot';
+$string['mascot_cat'] = 'Cat';
+$string['mascot_owl'] = 'Owl';
+$string['mascot_clippy'] = 'Clippy';
+$string['mascot_lightbulb'] = 'Lightbulb';
+
+// Security and validation strings
+$string['nosaltconfigured'] = 'No secret salt configured in Moodle. Please contact your administrator.';
+$string['cryptoerror'] = 'Encryption/decryption error. Please contact your administrator.';
+$string['audiofiletoolarge'] = 'Audio file is too large ({$a->size}). Maximum allowed size is {$a->max}.';
+$string['audiofiletoosmall'] = 'Audio file is too small or empty.';
+$string['invalidaudioformat'] = 'Invalid audio format: {$a}. Allowed formats: mp3, mp4, wav, webm, ogg.';
+$string['invalidaudiodata'] = 'Invalid or corrupted audio data.';
+$string['ratelimitexceeded'] = 'Too many requests. Please wait a moment before trying again.';
+
+// Rate limiting settings
+$string['enableratelimit'] = 'Enable rate limiting';
+$string['enableratelimitdesc'] = 'Enable rate limiting to prevent API abuse. Limits requests per minute per user.';
+$string['ratelimit_user'] = 'User rate limit';
+$string['ratelimit_userdesc'] = 'Maximum requests per minute per user (default: 60).';
+$string['ratelimit_ip'] = 'IP rate limit';
+$string['ratelimit_ipdesc'] = 'Maximum requests per minute per IP address (default: 30).';
+
+// Analytics strings
+$string['analytics'] = 'Analytics';
+$string['intebchat:viewanalytics'] = 'View analytics dashboard';
+$string['backtochat'] = 'Back to chat';
+$string['period'] = 'Period';
+$string['period_day'] = 'Today';
+$string['period_week'] = 'Last 7 days';
+$string['period_month'] = 'Last 30 days';
+$string['period_all'] = 'All time';
+$string['analytics_overview'] = 'Overview';
+$string['messages'] = 'Messages';
+$string['tokens'] = 'Tokens';
+$string['users'] = 'Users';
+$string['user'] = 'User';
+$string['email'] = 'Email';
+$string['actions'] = 'Actions';
+$string['courses'] = 'Courses';
+$string['avg_messages_per_user'] = 'Avg/user';
+$string['avg_tokens_per_message'] = 'Avg/msg';
+$string['top_users'] = 'Top Users';
+$string['usage'] = 'Usage';
+$string['daily_activity'] = 'Daily Activity';
+$string['nodata'] = 'No data available for this period';
+
+// Offline/Queue mode strings
+$string['offlinemode'] = 'Offline - messages will be queued';
+$string['messagequeued'] = 'Message queued - will send when online';
+$string['messagesendfailed'] = 'Message could not be sent after multiple attempts';
+$string['sendingqueued'] = 'Sending queued message...';
+
+// Retention settings
+$string['retentionsettings'] = 'Conversation retention';
+$string['retentionsettingsdesc'] = 'Configure automatic cleanup of old conversations to manage storage and privacy.';
+$string['enableretention'] = 'Enable automatic cleanup';
+$string['enableretentiondesc'] = 'Automatically delete conversations that have been inactive for the specified period.';
+$string['retentiondays'] = 'Retention period (days)';
+$string['retentiondaysdesc'] = 'Number of days to keep inactive conversations. Conversations without activity for this period will be deleted.';
+$string['cleanupconversations'] = 'Clean up old conversations';
+$string['conversationsdeleted'] = '{$a} conversations deleted';
+$string['noconversationstoclean'] = 'No conversations to clean up';
+
+// Site report strings
+$string['sitereport'] = 'INTEB Chat Site Report';
+$string['intebchatreport'] = 'INTEB Chat Usage Report';
+$string['intebchat:viewsitereport'] = 'View site-wide INTEB Chat reports';
+$string['overview'] = 'Overview';
+$string['usagebycourse'] = 'Usage by Course';
+$string['usagebyuser'] = 'Usage by User';
+$string['usagebyinstance'] = 'Usage by Instance';
+$string['period_year'] = 'Last 12 months';
+$string['exportcsv'] = 'Export CSV';
+$string['totalmessages'] = 'Total Messages';
+$string['totalusers'] = 'Total Users';
+$string['totalcourses'] = 'Total Courses';
+$string['totaltokens'] = 'Total Tokens';
+$string['totalconversations'] = 'Total Conversations';
+$string['tokenbreakdown'] = 'Token Breakdown';
+$string['prompttokens'] = 'Prompt Tokens';
+$string['completiontokens'] = 'Completion Tokens';
+$string['averages'] = 'Averages';
+$string['avgtokensperuser'] = 'Avg. Tokens per User';
+$string['avgtokenspermessage'] = 'Avg. Tokens per Message';
+$string['avgmessagesperuser'] = 'Avg. Messages per User';
+$string['topcourses'] = 'Top Courses';
+$string['instances'] = 'Instances';
+$string['viewusers'] = 'View Users';
+$string['viewdetails'] = 'View Details';
+$string['filteringbycourse'] = 'Filtering by course: {$a}';
+$string['clearfilter'] = 'Clear filter';
+$string['instance'] = 'Instance';
+$string['allinstances'] = 'All instances';
+$string['noinstancesincourse'] = 'There are no INTEB Chat instances in this course.';
+$string['lastactivity'] = 'Last Activity';
+$string['courses'] = 'Courses';

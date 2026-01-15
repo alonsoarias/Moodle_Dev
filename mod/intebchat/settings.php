@@ -24,6 +24,16 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// Register the site-wide report page in admin navigation
+if ($hassiteconfig) {
+    $ADMIN->add('reports', new admin_externalpage(
+        'intebchatreport',
+        get_string('sitereport', 'mod_intebchat'),
+        new moodle_url('/mod/intebchat/report_site.php'),
+        'mod/intebchat:viewsitereport'
+    ));
+}
+
 if ($ADMIN->fulltree) {
     // General settings header
     $settings->add(new admin_setting_heading(
@@ -270,4 +280,28 @@ if ($ADMIN->fulltree) {
             PARAM_FLOAT
         ));
     }
+
+    // Conversation retention settings
+    $settings->add(new admin_setting_heading(
+        'mod_intebchat/retentionheading',
+        get_string('retentionsettings', 'mod_intebchat'),
+        get_string('retentionsettingsdesc', 'mod_intebchat')
+    ));
+
+    // Enable conversation cleanup
+    $settings->add(new admin_setting_configcheckbox(
+        'mod_intebchat/enableretention',
+        get_string('enableretention', 'mod_intebchat'),
+        get_string('enableretentiondesc', 'mod_intebchat'),
+        0
+    ));
+
+    // Retention period in days
+    $settings->add(new admin_setting_configtext(
+        'mod_intebchat/retentiondays',
+        get_string('retentiondays', 'mod_intebchat'),
+        get_string('retentiondaysdesc', 'mod_intebchat'),
+        30,
+        PARAM_INT
+    ));
 }

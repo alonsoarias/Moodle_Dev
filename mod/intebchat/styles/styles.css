@@ -48,251 +48,6 @@
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Animated Assistant (Clippy-style) - FIXED VISIBILITY */
-.intebchat-assistant {
-    position: absolute;
-    bottom: 80px;
-    right: 20px;
-    width: 100px;
-    height: 100px;
-    z-index: 100;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.intebchat-assistant:hover {
-    transform: scale(1.1);
-}
-
-.assistant-body {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50% 50% 50% 0;
-    position: relative;
-    transform: rotate(-45deg);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: rotate(-45deg) translateY(0); }
-    50% { transform: rotate(-45deg) translateY(-10px); }
-}
-
-.assistant-eyes {
-    position: absolute;
-    top: 25%;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
-    display: flex;
-    gap: 15px;
-}
-
-.assistant-eyes .eye {
-    width: 12px;
-    height: 12px;
-    background: white;
-    border-radius: 50%;
-    position: relative;
-}
-
-.assistant-eyes .eye::after {
-    content: '';
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: #333;
-    border-radius: 50%;
-    top: 3px;
-    left: 3px;
-    animation: look 4s infinite;
-}
-
-@keyframes look {
-    0%, 20%, 100% { transform: translate(0, 0); }
-    25% { transform: translate(2px, 0); }
-    75% { transform: translate(-2px, 0); }
-}
-
-.assistant-eyes.blinking .eye {
-    animation: blink 0.15s ease;
-}
-
-@keyframes blink {
-    0%, 100% { height: 12px; }
-    50% { height: 2px; }
-}
-
-.assistant-mouth {
-    position: absolute;
-    bottom: 25%;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
-    width: 20px;
-    height: 10px;
-    border-bottom: 3px solid white;
-    border-radius: 0 0 20px 20px;
-}
-
-.intebchat-assistant.thinking .assistant-body {
-    animation: float 1s ease-in-out infinite, pulse-glow 2s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
-    50% { box-shadow: 0 5px 30px rgba(102, 126, 234, 0.8); }
-}
-
-.intebchat-assistant.talking .assistant-mouth {
-    animation: talk 0.3s ease infinite;
-}
-
-@keyframes talk {
-    0%, 100% { height: 10px; }
-    50% { height: 15px; }
-}
-
-.intebchat-assistant.waving .assistant-body {
-    animation: wave 0.5s ease 2;
-}
-
-@keyframes wave {
-    0%, 100% { transform: rotate(-45deg); }
-    25% { transform: rotate(-35deg); }
-    75% { transform: rotate(-55deg); }
-}
-
-.assistant-bubble {
-    position: absolute;
-    bottom: 100px;
-    right: 0;
-    background: white;
-    padding: 10px 15px;
-    border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
-    max-width: 150px;
-    color: #333;
-}
-
-.assistant-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    right: 30px;
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-top: 10px solid white;
-}
-
-/* Transcribing animation */
-.transcribing-animation {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.transcribing-animation .fa-microphone {
-    animation: pulse 1.5s infinite;
-}
-
-.transcribing-animation .dots span {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-    margin: 0 2px;
-    animation: bounce 1.4s infinite ease-in-out both;
-}
-
-.transcribing-animation .dots span:nth-child(1) {
-    animation-delay: -0.32s;
-}
-
-.transcribing-animation .dots span:nth-child(2) {
-    animation-delay: -0.16s;
-}
-
-@keyframes bounce {
-    0%, 80%, 100% {
-        transform: scale(0.8);
-        opacity: 0.5;
-    }
-    40% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Loading dots animation */
-.loading-dots {
-    display: inline-flex;
-    gap: 4px;
-}
-
-.loading-dots span {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--intebchat-primary);
-    animation: loading-bounce 1.4s infinite ease-in-out both;
-}
-
-.loading-dots span:nth-child(1) {
-    animation-delay: -0.32s;
-}
-
-.loading-dots span:nth-child(2) {
-    animation-delay: -0.16s;
-}
-
-@keyframes loading-bounce {
-    0%, 80%, 100% {
-        transform: scale(0);
-        opacity: 0.5;
-    }
-    40% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Typing animation for messages */
-.openai_message.typing .message-content {
-    position: relative;
-}
-
-.typing-cursor {
-    animation: cursor-blink 1s infinite;
-    font-weight: bold;
-    color: var(--intebchat-primary);
-}
-
-@keyframes cursor-blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-}
-
-/* Spinner for loading */
-.spinner-border {
-    display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    vertical-align: text-bottom;
-    border: 0.25em solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.75s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
 /* Chat wrapper */
 .intebchat-wrapper {
     display: flex;
@@ -433,6 +188,8 @@
     display: flex;
     flex-direction: column;
     background: var(--intebchat-bg-main);
+    position: relative;
+    overflow: hidden;
 }
 
 /* Chat header */
@@ -685,26 +442,6 @@
     box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
 }
 
-/* Recording state */
-.openai_input_mic_btn.recording {
-    background: var(--intebchat-danger);
-    color: white;
-    border-color: var(--intebchat-danger);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
-    }
-}
-
 /* Token usage info */
 .token-usage-info {
     padding: 0.75rem 1rem;
@@ -766,169 +503,108 @@
     background: var(--intebchat-danger);
 }
 
-/* Alerts */
-.token-limit-alert,
-.token-warning-alert {
-    margin: 0.75rem;
-    font-size: 0.9rem;
-    animation: shake 0.5s;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-
-/* Logging info */
-.logging-info {
-    font-size: 0.85rem;
-    color: var(--intebchat-text-secondary);
-    padding: 0.5rem;
-    background: var(--intebchat-bg-tertiary);
-    border-radius: 0.375rem;
-    margin-bottom: 0.75rem;
-}
-
-/* Mobile menu toggle */
-.intebchat-mobile-toggle {
-    display: none;
-}
-
-/* Loading conversation */
-.loading-conversation {
-    color: var(--intebchat-text-secondary);
-}
-
-/* No conversations message */
-.intebchat-no-conversations {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: var(--intebchat-text-muted);
-}
-
-/* Scrollbar styling */
-#intebchat_log::-webkit-scrollbar,
-.intebchat-conversations-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-#intebchat_log::-webkit-scrollbar-track,
-.intebchat-conversations-list::-webkit-scrollbar-track {
-    background: var(--intebchat-bg-secondary);
-}
-
-#intebchat_log::-webkit-scrollbar-thumb,
-.intebchat-conversations-list::-webkit-scrollbar-thumb {
-    background: var(--intebchat-border);
-    border-radius: 3px;
-}
-
-#intebchat_log::-webkit-scrollbar-thumb:hover,
-.intebchat-conversations-list::-webkit-scrollbar-thumb:hover {
-    background: var(--intebchat-text-muted);
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .mod_intebchat {
-        height: 500px;
-    }
-
-    .intebchat-sidebar {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        z-index: 999;
-        transform: translateX(-100%);
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .intebchat-sidebar.mobile-open {
-        transform: translateX(0);
-    }
-
-    .intebchat-mobile-toggle {
-        display: flex;
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 100;
-    }
-
-    .openai_message {
-        max-width: 85%;
-    }
-
-    #control_bar {
-        padding: 0.75rem;
-    }
-
-    #intebchat_log {
-        padding: 1rem;
-    }
-    
-    .intebchat-header-actions {
-        gap: 0.25rem;
-    }
-    
-    .intebchat-header-btn {
-        padding: 0.25rem 0.375rem;
-        font-size: 0.8rem;
-    }
-
-    /* Hide assistant on mobile */
-    .intebchat-assistant {
-        display: none;
-    }
-}
-
-/* Utility classes */
-.disabled {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-/* Screen reader only */
-.sr-only {
+/* Animated Assistant - SVG Mascot */
+.intebchat-assistant {
     position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
+    bottom: 80px;
+    right: 20px;
+    width: 90px;
+    height: 90px;
+    z-index: 100;
+    cursor: pointer;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    animation: mascot-float 3s ease-in-out infinite;
 }
 
-/* Smooth transitions */
-* {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+.intebchat-assistant:hover {
+    transform: scale(1.1);
 }
 
-/* Audio mode specific styles */
-.audio-mode-active #openai_input {
-    display: none;
+.assistant-mascot-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(39, 84, 140, 0.3));
+    transition: filter 0.3s ease;
 }
 
-.audio-mode-active .openai_input_submit_btn {
-    display: none;
+@keyframes mascot-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
 }
 
-.audio-mode-active .openai_input_bar {
-    justify-content: center;
+/* Thinking state - pulsing glow */
+.intebchat-assistant.thinking {
+    animation: mascot-float 1s ease-in-out infinite;
 }
 
-.audio-mode-active .openai_input_mic_btn,
-.audio-mode-active .openai_input_stop_btn {
-    width: 60px;
-    height: 60px;
-    font-size: 1.5rem;
+.intebchat-assistant.thinking .assistant-mascot-svg {
+    animation: mascot-thinking 1.5s ease-in-out infinite;
 }
-/* Recording overlay - WhatsApp style */
+
+@keyframes mascot-thinking {
+    0%, 100% {
+        filter: drop-shadow(0 4px 8px rgba(39, 84, 140, 0.3));
+        transform: scale(1);
+    }
+    50% {
+        filter: drop-shadow(0 6px 20px rgba(217, 30, 65, 0.5));
+        transform: scale(1.05);
+    }
+}
+
+/* Talking state - subtle bounce */
+.intebchat-assistant.talking .assistant-mascot-svg {
+    animation: mascot-talking 0.4s ease infinite;
+}
+
+@keyframes mascot-talking {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+
+/* Waving state - side to side */
+.intebchat-assistant.waving {
+    animation: mascot-wave 0.5s ease 2;
+}
+
+@keyframes mascot-wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(10deg); }
+    75% { transform: rotate(-10deg); }
+}
+
+/* Idle state - gentle float */
+.intebchat-assistant.idle {
+    animation: mascot-float 3s ease-in-out infinite;
+}
+
+.assistant-bubble {
+    position: absolute;
+    bottom: 100px;
+    right: 0;
+    background: white;
+    padding: 10px 15px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    max-width: 150px;
+    color: #333;
+}
+
+.assistant-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 30px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid white;
+}
+
+/* Recording overlay */
 .recording-overlay {
     position: fixed;
     top: 0;
@@ -1083,15 +759,27 @@
     transform: scale(1.1);
 }
 
-/* Mic button when recording */
+/* Recording state for mic button */
 .openai_input_mic_btn.recording {
     background: var(--intebchat-danger) !important;
     color: white !important;
     border-color: var(--intebchat-danger) !important;
-    an
-    /* Agregar al final de styles/styles.css */
+    animation: pulse 2s infinite;
+}
 
-/* Audio Confirmation Modal Styles */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+/* Audio confirmation modal */
 .audio-confirmation-content {
     padding: 20px 0;
 }
@@ -1107,121 +795,800 @@
     width: 100%;
     margin: 20px 0;
     border-radius: 25px;
-    background: var(--intebchat-bg-secondary);
 }
 
-.audio-duration {
-    text-align: center;
-    color: var(--intebchat-text-secondary);
+/* Realtime conversational mode styles */
+.realtime-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+#realtime-mic-toggle {
+    min-width: 100px;
+}
+
+#realtime-status {
     font-size: 0.9rem;
     font-weight: 500;
-    padding: 10px;
-    background: var(--intebchat-bg-tertiary);
-    border-radius: 8px;
-    margin-top: 15px;
 }
 
-/* Modal buttons customization for audio */
-.modal-footer .btn-primary {
-    background: var(--intebchat-success);
-    border-color: var(--intebchat-success);
-    min-width: 100px;
+/* Transcribing animation */
+.transcribing-animation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.modal-footer .btn-primary:hover {
-    background: #157347;
-    border-color: #146c43;
+.transcribing-animation .fa-microphone {
+    color: #dc3545;
+    animation: pulse-transcribe 1s infinite;
 }
 
-.modal-footer .btn-secondary {
-    min-width: 100px;
+@keyframes pulse-transcribe {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
 }
 
-/* Audio waveform visualization in modal */
-.audio-waveform {
+.transcribing-animation .dots span {
+    animation: dot-blink 1.4s infinite;
+    opacity: 0;
+}
+
+.transcribing-animation .dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.transcribing-animation .dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dot-blink {
+    0%, 60%, 100% { opacity: 0; }
+    30% { opacity: 1; }
+}
+
+/* Realtime message styles */
+.openai_message.user-transcribing,
+.openai_message.bot-loading {
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.openai_message .transcription {
+    font-style: normal;
+}
+
+/* Dark mode support for realtime */
+.dark-mode .realtime-controls {
+    background: var(--intebchat-bg-secondary);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+}
+
+.dark-mode #realtime-status {
+    color: inherit;
+}
+
+.dark-mode #realtime-status.text-success {
+    color: #28a745 !important;
+}
+
+.dark-mode #realtime-status.text-danger {
+    color: #dc3545 !important;
+}
+
+.dark-mode #realtime-status.text-warning {
+    color: #ffc107 !important;
+}
+
+/* Realtime conversation mode enhanced styles */
+.openai_message .transcription-indicator,
+.openai_message .response-indicator {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.openai_message .transcribed-text,
+.openai_message .response-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+/* Transient messages */
+.openai_message.transient {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+/* Listening indicator */
+.listening-indicator {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 60px;
-    gap: 3px;
-    margin: 20px 0;
-}
-
-.audio-waveform .wave {
-    width: 3px;
-    background: var(--intebchat-primary);
-    border-radius: 3px;
-    animation: wave-pulse 0.8s ease-in-out infinite;
-}
-
-.audio-waveform .wave:nth-child(1) { height: 20px; animation-delay: 0s; }
-.audio-waveform .wave:nth-child(2) { height: 30px; animation-delay: 0.1s; }
-.audio-waveform .wave:nth-child(3) { height: 40px; animation-delay: 0.2s; }
-.audio-waveform .wave:nth-child(4) { height: 35px; animation-delay: 0.3s; }
-.audio-waveform .wave:nth-child(5) { height: 25px; animation-delay: 0.4s; }
-.audio-waveform .wave:nth-child(6) { height: 30px; animation-delay: 0.5s; }
-.audio-waveform .wave:nth-child(7) { height: 20px; animation-delay: 0.6s; }
-
-@keyframes wave-pulse {
-    0%, 100% {
-        transform: scaleY(0.7);
-        opacity: 0.8;
-    }
-    50% {
-        transform: scaleY(1);
-        opacity: 1;
-    }
-}
-
-/* Recording state indicator */
-.recording-state-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: var(--intebchat-bg-tertiary);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: var(--intebchat-text-secondary);
-    margin-bottom: 15px;
-}
-
-.recording-state-indicator.success {
-    background: rgba(25, 135, 84, 0.1);
-    color: var(--intebchat-success);
-}
-
-.recording-state-indicator .dot {
-    width: 8px;
-    height: 8px;
+    background: #dc3545;
     border-radius: 50%;
-    background: currentColor;
-    animation: pulse-dot 1.5s ease-in-out infinite;
+    color: white;
+    font-size: 24px;
+    z-index: 1000;
+    animation: pulse-listening 2s infinite;
 }
 
-@keyframes pulse-dot {
-    0%, 100% {
+@keyframes pulse-listening {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.listening-indicator .pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid #dc3545;
+    animation: pulse-ring-animation 1.5s infinite;
+}
+
+@keyframes pulse-ring-animation {
+    0% {
         transform: scale(1);
         opacity: 1;
     }
-    50% {
-        transform: scale(1.5);
-        opacity: 0.5;
+    100% {
+        transform: scale(1.3);
+        opacity: 0;
     }
 }
 
-/* Responsive adjustments for mobile */
-@media (max-width: 576px) {
-    .audio-confirmation-content {
-        padding: 15px 0;
+/* Real-time text streaming */
+.openai_message.bot .response-text::after {
+    content: '▊';
+    animation: cursor-blink 1s infinite;
+    color: var(--intebchat-primary);
+}
+
+@keyframes cursor-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Improved realtime controls */
+.realtime-controls {
+    background: var(--intebchat-bg-secondary);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+#realtime-status {
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    background: var(--intebchat-bg-tertiary);
+}
+
+/* Transcription highlighting */
+.openai_message.user .transcribed-text {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+.openai_message.bot .response-text {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border-left: 3px solid var(--intebchat-primary);
+}
+
+/* Dark mode adjustments */
+.dark-mode .openai_message.bot .response-text {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .listening-indicator {
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.5);
+}
+
+/* Streaming text styles */
+.openai_message.streaming {
+    min-height: 30px;
+}
+
+/* Streaming cursor animation */
+.streaming-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.2em;
+    background: var(--intebchat-primary);
+    animation: streaming-blink 0.7s infinite;
+    margin-left: 2px;
+    vertical-align: middle;
+}
+
+@keyframes streaming-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.openai_message.streaming .streaming-cursor {
+    background: var(--intebchat-text-primary);
+}
+
+.dark-mode .openai_message.streaming .streaming-cursor {
+    background: var(--intebchat-primary);
+}
+
+/* Offline/Queue mode styles */
+.connection-status {
+    background: var(--intebchat-warning);
+    color: #000;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.queue-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.openai_message.queued {
+    opacity: 0.7;
+    border-left: 3px solid var(--intebchat-warning);
+}
+
+.openai_message.queued .queue-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--intebchat-warning);
+    margin-left: 8px;
+}
+
+.openai_message.sending {
+    opacity: 0.85;
+    border-left-color: var(--intebchat-primary);
+}
+
+.openai_message.sending .queue-indicator {
+    color: var(--intebchat-primary);
+}
+
+/* Send button with queue badge */
+.openai_input_submit_btn {
+    position: relative;
+}
+
+.openai_message .typing-indicator {
+    display: inline-block;
+    animation: typing 1.4s infinite;
+}
+
+.openai_message .cursor {
+    display: inline-block;
+    animation: blink-cursor 1s infinite;
+    color: var(--intebchat-primary, #007bff);
+    font-weight: bold;
+}
+
+@keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; }
+    30% { opacity: 1; }
+}
+
+@keyframes blink-cursor {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.openai_message.transcribing {
+    opacity: 0.8;
+}
+
+.openai_message.transcribing .fa-microphone {
+    color: #dc3545;
+    animation: pulse-mic 1s infinite;
+}
+
+@keyframes pulse-mic {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Loading dots animation */
+.loading-dots {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.loading-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--intebchat-primary);
+    animation: loading-bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes loading-bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Typing animation for messages */
+.openai_message.typing .message-content {
+    position: relative;
+}
+
+.typing-cursor {
+    animation: cursor-typing 1s infinite;
+    font-weight: bold;
+    color: var(--intebchat-primary);
+}
+
+@keyframes cursor-typing {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Spinner for loading */
+.spinner-border {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: text-bottom;
+    border: 0.25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Alerts */
+.token-limit-alert,
+.token-warning-alert {
+    margin: 0.75rem;
+    font-size: 0.9rem;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Logging info */
+.logging-info {
+    font-size: 0.85rem;
+    color: var(--intebchat-text-secondary);
+    padding: 0.5rem;
+    background: var(--intebchat-bg-tertiary);
+    border-radius: 0.375rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Mobile menu toggle */
+.intebchat-mobile-toggle {
+    display: none;
+}
+
+/* Loading conversation */
+.loading-conversation {
+    color: var(--intebchat-text-secondary);
+}
+
+/* No conversations message */
+.intebchat-no-conversations {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--intebchat-text-muted);
+}
+
+/* Scrollbar styling */
+#intebchat_log::-webkit-scrollbar,
+.intebchat-conversations-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#intebchat_log::-webkit-scrollbar-track,
+.intebchat-conversations-list::-webkit-scrollbar-track {
+    background: var(--intebchat-bg-secondary);
+}
+
+#intebchat_log::-webkit-scrollbar-thumb,
+.intebchat-conversations-list::-webkit-scrollbar-thumb {
+    background: var(--intebchat-border);
+    border-radius: 3px;
+}
+
+#intebchat_log::-webkit-scrollbar-thumb:hover,
+.intebchat-conversations-list::-webkit-scrollbar-thumb:hover {
+    background: var(--intebchat-text-muted);
+}
+
+/* Audio mode specific styles */
+.audio-mode-active #openai_input {
+    display: none;
+}
+
+.audio-mode-active .openai_input_submit_btn {
+    display: none;
+}
+
+.audio-mode-active .openai_input_bar {
+    justify-content: center;
+}
+
+.audio-mode-active .openai_input_mic_btn,
+.audio-mode-active .openai_input_stop_btn {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .mod_intebchat {
+        height: 500px;
+    }
+
+    .intebchat-sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 999;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .intebchat-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .intebchat-mobile-toggle {
+        display: flex;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 100;
+    }
+
+    .openai_message {
+        max-width: 85%;
+    }
+
+    #control_bar {
+        padding: 0.75rem;
+    }
+
+    #intebchat_log {
+        padding: 1rem;
     }
     
-    .modal-dialog {
-        margin: 10px;
+    .intebchat-header-actions {
+        gap: 0.25rem;
+    }
+    
+    .intebchat-header-btn {
+        padding: 0.25rem 0.375rem;
+        font-size: 0.8rem;
+    }
+
+    /* Smaller assistant on mobile */
+    .intebchat-assistant {
+        width: 60px;
+        height: 60px;
+        bottom: 70px;
+        right: 10px;
     }
     
     .audio-confirmation-content audio {
         border-radius: 15px;
     }
-}imation: none !important;
+}
+
+/* Utility classes */
+.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Screen reader only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Smooth transitions - Applied to specific elements instead of universal selector */
+.mod_intebchat,
+.intebchat-wrapper,
+.intebchat-sidebar,
+.intebchat-main,
+.intebchat-header,
+.openai_message,
+.conversation-item,
+.control_bar,
+.token-display,
+.btn {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REALTIME TRANSCRIPTION STYLES - Bidirectional conversation UI
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Speaking indicators container */
+.realtime-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 15px;
+    background: var(--intebchat-bg-tertiary);
+    border-top: 1px solid var(--intebchat-border);
+}
+
+/* Speaking indicator base */
+.speaking-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    animation: slideIn 0.3s ease;
+}
+
+.speaking-indicator.user-indicator {
+    background: linear-gradient(135deg, var(--intebchat-primary), #4dabf7);
+    color: white;
+}
+
+.speaking-indicator.bot-indicator {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.speaking-indicator i {
+    font-size: 1rem;
+}
+
+.speaking-indicator .speaking-label {
+    flex: 1;
+}
+
+/* Speaking wave animation */
+.speaking-wave {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 20px;
+}
+
+.speaking-wave span {
+    display: block;
+    width: 3px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 2px;
+    animation: soundWave 0.6s ease-in-out infinite;
+}
+
+.speaking-wave span:nth-child(1) { animation-delay: 0s; }
+.speaking-wave span:nth-child(2) { animation-delay: 0.2s; }
+.speaking-wave span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes soundWave {
+    0%, 100% { height: 10px; }
+    50% { height: 20px; }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Live transcription messages */
+.openai_message.transcribing-live,
+.openai_message.streaming-live {
+    position: relative;
+    border-left: 3px solid var(--intebchat-primary);
+}
+
+.openai_message.transcribing-live {
+    border-left-color: var(--intebchat-primary);
+    background: linear-gradient(to right, rgba(13, 110, 253, 0.05), transparent);
+}
+
+.openai_message.streaming-live {
+    border-left-color: #667eea;
+    background: linear-gradient(to right, rgba(102, 126, 234, 0.05), transparent);
+}
+
+/* Live indicator inside messages */
+.transcription-live-indicator {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 8px;
+}
+
+.transcription-live-indicator i {
+    color: var(--intebchat-primary);
+}
+
+.transcription-live-indicator i.pulse {
+    animation: pulseLive 1s ease-in-out infinite;
+}
+
+@keyframes pulseLive {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.1); }
+}
+
+/* Transcription text container */
+.transcription-text {
+    display: inline;
+}
+
+/* Transcription cursor */
+.transcription-cursor {
+    display: inline-block;
+    animation: blink 0.7s step-end infinite;
+    color: var(--intebchat-primary);
+    font-weight: bold;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Error state for messages */
+.openai_message.error {
+    border-left-color: var(--intebchat-danger) !important;
+    background: linear-gradient(to right, rgba(220, 53, 69, 0.1), transparent) !important;
+}
+
+.openai_message.bot-error {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--intebchat-danger);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+/* Message timestamp */
+.message-timestamp {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--intebchat-text-muted);
+    margin-top: 4px;
+    text-align: right;
+}
+
+.openai_message.user .message-timestamp {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SVG ASSISTANT STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.intebchat-assistant-svg {
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    width: 80px;
+    height: 93px;
+    z-index: 100;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.intebchat-assistant-svg:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(102, 126, 234, 0.5));
+}
+
+.intebchat-assistant-svg.thinking {
+    animation: assistantThinking 2s ease-in-out infinite;
+}
+
+.intebchat-assistant-svg.talking {
+    animation: assistantTalking 0.3s ease infinite;
+}
+
+@keyframes assistantThinking {
+    0%, 100% { filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3)); }
+    50% { filter: drop-shadow(0 4px 20px rgba(102, 126, 234, 0.8)); }
+}
+
+@keyframes assistantTalking {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* Responsive adjustments for realtime indicators */
+@media (max-width: 768px) {
+    .realtime-indicators {
+        padding: 8px 10px;
+    }
+
+    .speaking-indicator {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    .speaking-indicator .speaking-label {
+        display: none;
+    }
+
+    .intebchat-assistant-svg {
+        width: 60px;
+        height: 70px;
+        bottom: 70px;
+        right: 10px;
+    }
 }

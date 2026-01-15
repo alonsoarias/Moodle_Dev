@@ -56,6 +56,10 @@ $PAGE->set_url('/mod/intebchat/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($intebchat->name));
 $PAGE->set_heading(format_string($course->fullname));
 
+// Check if user can view analytics
+$context = $PAGE->context;
+$canviewanalytics = has_capability('mod/intebchat:viewanalytics', $context);
+
 // Check if API key is configured.
 $config = get_config('mod_intebchat');
 $apiconfig = intebchat_get_api_config($intebchat);
@@ -89,6 +93,14 @@ if (!empty($intebchat->enableaudio)) {
 
 // Add CSS
 $PAGE->requires->css('/mod/intebchat/styles/styles.css');
+
+// Preload mascot SVG for faster rendering
+$mascot = $intebchat->mascot ?? 'assistant';
+$mascoturl = new moodle_url('/mod/intebchat/pix/mascots/' . $mascot . '.svg');
+$PAGE->requires->string_for_js('mascot_' . $mascot, 'mod_intebchat');
+
+// Add preload link for the mascot image
+echo '<link rel="preload" href="' . $mascoturl->out() . '" as="image" type="image/svg+xml">';
 
 // Output starts here
 echo $OUTPUT->header();
@@ -172,7 +184,8 @@ $templatecontext = [
         'limit' => $token_limit_info['limit']
     ]),
     'show_reset_time' => $token_limit_info['reset_time'] > time(),
-    'tokens_reset_label' => get_string('tokensreset', 'mod_intebchat', 
+    'token_reset_timestamp' => $token_limit_info['reset_time'],
+    'tokens_reset_label' => get_string('tokensreset', 'mod_intebchat',
         userdate($token_limit_info['reset_time'], '%H:%M')),
     'logging_enabled' => $config->logging,
     'loggingenabled' => get_string('loggingenabled', 'mod_intebchat'),
@@ -180,7 +193,12 @@ $templatecontext = [
     'showAudio' => $showAudio,
     'recordaudio' => get_string('recordaudio', 'mod_intebchat'),
     'stoprecording' => get_string('stoprecording', 'mod_intebchat'),
-    'switchtheme' => get_string('switchtheme', 'mod_intebchat')
+    'switchtheme' => get_string('switchtheme', 'mod_intebchat'),
+    'mascoturl' => $mascoturl->out(),
+    'mascotname' => get_string('mascot_' . $mascot, 'mod_intebchat'),
+    'canviewanalytics' => $canviewanalytics,
+    'analyticsurl' => $canviewanalytics ? (new moodle_url('/mod/intebchat/analytics.php', ['id' => $cm->id]))->out() : '',
+    'viewanalytics' => get_string('analytics', 'mod_intebchat')
 ];
 
 // Render the chat interface using Mustache template

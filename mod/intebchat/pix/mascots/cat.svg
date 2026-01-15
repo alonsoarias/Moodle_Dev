@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" class="mascot-cat">
+  <style>
+    .mascot-cat {
+      cursor: pointer;
+    }
+    /* Smooth transitions for cat-like movements */
+    #tail {
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: 58px 60px;
+    }
+    #ear-left {
+      transition: transform 0.25s ease-out;
+      transform-origin: 25px 10px;
+    }
+    #ear-right {
+      transition: transform 0.3s ease-out;
+      transform-origin: 55px 10px;
+    }
+    #whiskers-left, #whiskers-right {
+      transition: transform 0.3s ease;
+    }
+    #head {
+      transition: transform 0.4s ease-out;
+      transform-origin: 40px 28px;
+    }
+    #body {
+      transition: transform 0.3s ease;
+    }
+    /* Hover states - curious cat */
+    .mascot-cat:hover #tail {
+      transform: rotate(15deg);
+    }
+    .mascot-cat:hover #ear-left {
+      transform: rotate(-5deg);
+    }
+    .mascot-cat:hover #ear-right {
+      transform: rotate(5deg);
+    }
+    .mascot-cat:hover #whiskers-left {
+      transform: translateX(-1px);
+    }
+    .mascot-cat:hover #whiskers-right {
+      transform: translateX(1px);
+    }
+    .mascot-cat:hover #head {
+      transform: rotate(3deg) translateY(-1px);
+    }
+    .mascot-cat:hover #body {
+      transform: translateY(-1px);
+    }
+  </style>
+  <defs>
+    <linearGradient id="cat-body" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffa94d"/>
+      <stop offset="50%" style="stop-color:#ff922b"/>
+      <stop offset="100%" style="stop-color:#fd7e14"/>
+    </linearGradient>
+    <linearGradient id="cat-light" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffe8cc"/>
+      <stop offset="100%" style="stop-color:#ffd8a8"/>
+    </linearGradient>
+    <linearGradient id="cat-stripe" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8590c"/>
+      <stop offset="100%" style="stop-color:#d9480f"/>
+    </linearGradient>
+    <filter id="cat-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Shadow -->
+  <ellipse cx="40" cy="77" rx="20" ry="3" fill="#00000015"/>
+
+  <!-- Tail -->
+  <g id="tail">
+    <path d="M 58,60 Q 75,55 72,40 Q 70,32 75,28"
+          fill="none"
+          stroke="url(#cat-body)"
+          stroke-width="6"
+          stroke-linecap="round"/>
+    <!-- Tail stripe -->
+    <path d="M 68,38 Q 66,42 70,44"
+          fill="none"
+          stroke="url(#cat-stripe)"
+          stroke-width="2"
+          stroke-linecap="round"/>
+  </g>
+
+  <!-- Body -->
+  <g id="body" filter="url(#cat-shadow)">
+    <!-- Main body -->
+    <ellipse cx="40" cy="54" rx="22" ry="22" fill="url(#cat-body)" stroke="#e8590c" stroke-width="2"/>
+
+    <!-- Belly -->
+    <ellipse cx="40" cy="56" rx="14" ry="16" fill="url(#cat-light)"/>
+
+    <!-- Body stripes -->
+    <path d="M 26,46 Q 32,48 26,52" fill="none" stroke="url(#cat-stripe)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 54,46 Q 48,48 54,52" fill="none" stroke="url(#cat-stripe)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 28,56 Q 33,58 28,62" fill="none" stroke="url(#cat-stripe)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 52,56 Q 47,58 52,62" fill="none" stroke="url(#cat-stripe)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Arms/Paws -->
+  <g id="arms">
+    <!-- Left paw -->
+    <g id="arm-left">
+      <ellipse cx="18" cy="58" rx="8" ry="12" fill="url(#cat-body)" stroke="#e8590c" stroke-width="1.5"/>
+      <!-- Paw pad -->
+      <ellipse cx="18" cy="64" rx="4" ry="3" fill="url(#cat-light)"/>
+      <!-- Toes -->
+      <circle cx="14" cy="62" r="2" fill="url(#cat-light)"/>
+      <circle cx="18" cy="60" r="2" fill="url(#cat-light)"/>
+      <circle cx="22" cy="62" r="2" fill="url(#cat-light)"/>
+    </g>
+
+    <!-- Right paw -->
+    <g id="arm-right">
+      <ellipse cx="62" cy="58" rx="8" ry="12" fill="url(#cat-body)" stroke="#e8590c" stroke-width="1.5"/>
+      <!-- Paw pad -->
+      <ellipse cx="62" cy="64" rx="4" ry="3" fill="url(#cat-light)"/>
+      <!-- Toes -->
+      <circle cx="58" cy="62" r="2" fill="url(#cat-light)"/>
+      <circle cx="62" cy="60" r="2" fill="url(#cat-light)"/>
+      <circle cx="66" cy="62" r="2" fill="url(#cat-light)"/>
+    </g>
+  </g>
+
+  <!-- Head -->
+  <g id="head" filter="url(#cat-shadow)">
+    <ellipse cx="40" cy="28" rx="20" ry="18" fill="url(#cat-body)" stroke="#e8590c" stroke-width="2"/>
+
+    <!-- Face lighter area -->
+    <ellipse cx="40" cy="32" rx="12" ry="10" fill="url(#cat-light)"/>
+  </g>
+
+  <!-- Ears -->
+  <g id="ears">
+    <!-- Left ear -->
+    <g id="ear-left">
+      <path d="M 22,18 L 18,2 L 32,14 Z" fill="url(#cat-body)" stroke="#e8590c" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M 22,16 L 20,6 L 28,14 Z" fill="#ffb8b8"/>
+    </g>
+
+    <!-- Right ear -->
+    <g id="ear-right">
+      <path d="M 58,18 L 62,2 L 48,14 Z" fill="url(#cat-body)" stroke="#e8590c" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M 58,16 L 60,6 L 52,14 Z" fill="#ffb8b8"/>
+    </g>
+  </g>
+
+  <!-- Forehead stripes -->
+  <g id="eyebrows">
+    <path d="M 36,16 L 40,20 L 44,16" fill="none" stroke="url(#cat-stripe)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 38,12 L 40,14 L 42,12" fill="none" stroke="url(#cat-stripe)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Eyes -->
+  <g id="eyes">
+    <!-- Left eye -->
+    <g id="eye-left" transform-origin="32 26">
+      <ellipse cx="32" cy="26" rx="6" ry="7" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+      <ellipse cx="32" cy="26" rx="4" ry="5" fill="#2d8a3e"/>
+      <ellipse cx="32" cy="26" rx="2" ry="4" fill="#1a1a2e"/>
+      <ellipse cx="33" cy="24" rx="1.5" ry="2" fill="#ffffff"/>
+    </g>
+
+    <!-- Right eye -->
+    <g id="eye-right" transform-origin="48 26">
+      <ellipse cx="48" cy="26" rx="6" ry="7" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+      <ellipse cx="48" cy="26" rx="4" ry="5" fill="#2d8a3e"/>
+      <ellipse cx="48" cy="26" rx="2" ry="4" fill="#1a1a2e"/>
+      <ellipse cx="49" cy="24" rx="1.5" ry="2" fill="#ffffff"/>
+    </g>
+  </g>
+
+  <!-- Nose -->
+  <path d="M 40,32 L 37,36 L 43,36 Z" fill="#ff6b9d" stroke="#e0558a" stroke-width="1"/>
+
+  <!-- Mouth -->
+  <g id="mouth">
+    <path d="M 40,36 L 40,40" stroke="#333333" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M 34,40 Q 37,44 40,40 Q 43,44 46,40" fill="none" stroke="#333333" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Whiskers -->
+  <g id="whiskers-left" stroke="#4a4a4a" stroke-width="1" stroke-linecap="round">
+    <line x1="18" y1="32" x2="28" y2="34"/>
+    <line x1="16" y1="36" x2="28" y2="36"/>
+    <line x1="18" y1="40" x2="28" y2="38"/>
+  </g>
+  <g id="whiskers-right" stroke="#4a4a4a" stroke-width="1" stroke-linecap="round">
+    <line x1="62" y1="32" x2="52" y2="34"/>
+    <line x1="64" y1="36" x2="52" y2="36"/>
+    <line x1="62" y1="40" x2="52" y2="38"/>
+  </g>
+
+  <!-- Cheek blush -->
+  <ellipse cx="26" cy="34" rx="4" ry="2.5" fill="#ffb6c1" opacity="0.6"/>
+  <ellipse cx="54" cy="34" rx="4" ry="2.5" fill="#ffb6c1" opacity="0.6"/>
+</svg>

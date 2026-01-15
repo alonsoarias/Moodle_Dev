@@ -1,0 +1,208 @@
+{{!
+    @template mod_intebchat/analytics
+
+    Analytics dashboard template for intebchat usage statistics.
+
+    Context variables required for this template:
+    * instancename - The instance name
+    * viewurl - URL back to chat view
+    * periods - Array of period options for selector
+    * formaction - Form action URL
+    * total_conversations - Total conversation count
+    * total_messages - Total message count
+    * total_tokens - Total token count
+    * unique_users - Unique user count
+    * avg_messages_per_user - Average messages per user
+    * avg_tokens_per_message - Average tokens per message
+    * hastopusers - Whether there are top users
+    * topusers - Array of top users
+    * hasdailystats - Whether there are daily stats
+    * dailystats - Array of daily statistics
+    * dailystats_json - JSON encoded daily stats for chart
+
+    Example context (json):
+    {
+        "instancename": "AI Tutor Chat",
+        "total_conversations": "150",
+        "total_messages": "1,234"
+    }
+}}
+<div class="mod_intebchat-analytics">
+    {{! Header }}
+    <div class="analytics-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>{{str_analytics}}: {{instancename}}</h2>
+        </div>
+        <div class="d-flex gap-3">
+            {{! Period selector }}
+            <form action="{{formaction}}" method="get" class="form-inline">
+                <input type="hidden" name="id" value="{{id}}">
+                <div class="input-group">
+                    <label class="input-group-text" for="period">{{str_period}}</label>
+                    <select name="period" id="period" class="form-select" onchange="this.form.submit()">
+                        {{#periods}}
+                        <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                        {{/periods}}
+                    </select>
+                </div>
+            </form>
+            <a href="{{viewurl}}" class="btn btn-secondary">
+                <i class="fa fa-arrow-left"></i> {{str_backtochat}}
+            </a>
+        </div>
+    </div>
+
+    {{! Overview Cards }}
+    <div class="analytics-overview mb-4">
+        <h4 class="mb-3">{{str_overview}}</h4>
+        <div class="row">
+            <div class="col-md-4 col-lg-2 mb-3">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1">{{total_conversations}}</h3>
+                        <p class="card-text mb-0">{{str_conversations}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-2 mb-3">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1">{{total_messages}}</h3>
+                        <p class="card-text mb-0">{{str_messages}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-2 mb-3">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1">{{total_tokens}}</h3>
+                        <p class="card-text mb-0">{{str_tokens}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-2 mb-3">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1">{{unique_users}}</h3>
+                        <p class="card-text mb-0">{{str_users}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-2 mb-3">
+                <div class="card bg-secondary text-white h-100">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1">{{avg_messages_per_user}}</h3>
+                        <p class="card-text mb-0 small">{{str_avgmessages}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-2 mb-3">
+                <div class="card bg-dark text-white h-100">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-1">{{avg_tokens_per_message}}</h3>
+                        <p class="card-text mb-0 small">{{str_avgtokens}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {{! Top Users }}
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fa fa-users"></i> {{str_topusers}}</h5>
+                </div>
+                <div class="card-body">
+                    {{#hastopusers}}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{{str_user}}</th>
+                                    <th class="text-end">{{str_messages}}</th>
+                                    <th class="text-end">{{str_tokens}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#topusers}}
+                                <tr>
+                                    <td>
+                                        <a href="{{profileurl}}">{{fullname}}</a>
+                                    </td>
+                                    <td class="text-end">{{messages}}</td>
+                                    <td class="text-end">{{tokens}}</td>
+                                </tr>
+                                {{/topusers}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{/hastopusers}}
+                    {{^hastopusers}}
+                    <p class="text-muted text-center mb-0">{{str_nodata}}</p>
+                    {{/hastopusers}}
+                </div>
+            </div>
+        </div>
+
+        {{! Daily Activity }}
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fa fa-chart-bar"></i> {{str_dailyactivity}}</h5>
+                </div>
+                <div class="card-body">
+                    {{#hasdailystats}}
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="sticky-top bg-white">
+                                <tr>
+                                    <th>{{str_date}}</th>
+                                    <th class="text-end">{{str_messages}}</th>
+                                    <th class="text-end">{{str_tokens}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#dailystats}}
+                                <tr>
+                                    <td>{{date}}</td>
+                                    <td class="text-end">{{messages}}</td>
+                                    <td class="text-end">{{tokens}}</td>
+                                </tr>
+                                {{/dailystats}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{/hasdailystats}}
+                    {{^hasdailystats}}
+                    <p class="text-muted text-center mb-0">{{str_nodata}}</p>
+                    {{/hasdailystats}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.mod_intebchat-analytics .card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s ease;
+}
+.mod_intebchat-analytics .card:hover {
+    transform: translateY(-2px);
+}
+.mod_intebchat-analytics .analytics-header h2 {
+    margin-bottom: 0;
+}
+.mod_intebchat-analytics .card-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+.mod_intebchat-analytics .sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+</style>

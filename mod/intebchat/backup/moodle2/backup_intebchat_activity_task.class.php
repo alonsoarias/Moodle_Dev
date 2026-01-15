@@ -58,11 +58,11 @@ class backup_intebchat_activity_task extends backup_activity_task {
 
         // Link to the list of intebchats
         $search = "/(".$base."\/mod\/intebchat\/index.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@OPENAICHATINDEX*$2@$', $content);
+        $content = preg_replace($search, '$@INTEBCHATINDEX*$2@$', $content);
 
         // Link to intebchat view by moduleid
         $search = "/(".$base."\/mod\/intebchat\/view.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@OPENAICHATVIEWBYID*$2@$', $content);
+        $content = preg_replace($search, '$@INTEBCHATVIEWBYID*$2@$', $content);
 
         return $content;
     }

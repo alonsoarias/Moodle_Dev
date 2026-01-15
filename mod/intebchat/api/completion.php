@@ -40,7 +40,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die();
 }
 
+// CSRF Protection - Verify session key
 $body = json_decode(file_get_contents('php://input'), true);
+
+// Check for sesskey in body or header
+$sesskey = $body['sesskey'] ?? $_SERVER['HTTP_X_SESSKEY'] ?? null;
+if (!$sesskey || !confirm_sesskey($sesskey)) {
+    header('Content-Type: application/json');
+    http_response_code(403);
+    echo json_encode([
+        'error' => [
+            'type' => 'security_error',
+            'message' => get_string('invalidsesskey', 'error')
+        ]
+    ]);
+    exit;
+}
 $message = clean_param($body['message'], PARAM_NOTAGS);
 $history = isset($body['history']) ? clean_param_array($body['history'], PARAM_NOTAGS, true) : [];
 $instance_id = clean_param($body['instanceId'], PARAM_INT);
@@ -48,6 +63,59 @@ $conversation_id = isset($body['conversationId']) ? clean_param($body['conversat
 $thread_id = isset($body['threadId']) ? clean_param($body['threadId'], PARAM_NOTAGS) : null;
 $audio = isset($body['audio']) ? $body['audio'] : null;
 $response_mode = isset($body['responseMode']) ? clean_param($body['responseMode'], PARAM_TEXT) : 'text';
+
+// Rate limiting check
+require_once($CFG->dirroot . '/mod/intebchat/classes/ratelimiter.php');
+$ratelimiter = new \mod_intebchat\ratelimiter();
+$ratelimit_result = $ratelimiter->check($USER->id);
+
+if (!$ratelimit_result['allowed']) {
+    header('Content-Type: application/json');
+    header('X-RateLimit-Remaining: 0');
+    header('X-RateLimit-Reset: ' . $ratelimit_result['reset_in']);
+    http_response_code(429);
+    echo json_encode([
+        'error' => [
+            'type' => 'rate_limit_exceeded',
+            'message' => get_string('ratelimitexceeded', 'mod_intebchat'),
+            'reset_in' => $ratelimit_result['reset_in']
+        ]
+    ]);
+    exit;
+}
+
+// Add rate limit headers to response
+header('X-RateLimit-Remaining: ' . $ratelimit_result['remaining']);
+
+// Validate and sanitize user message to prevent prompt injection.
+// Skip validation if we have audio input (audio will be transcribed)
+if (empty($audio)) {
+    $validation = intebchat_validate_input($message);
+    if (!$validation['valid']) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => [
+                'type' => 'validation_error',
+                'message' => $validation['message']
+            ]
+        ]);
+        exit;
+    }
+    $message = $validation['sanitized'];
+} else {
+    // When audio is present, message may be empty - that's ok
+    // The audio will be transcribed to get the actual message
+    $message = '';
+}
+
+// Sanitize history messages as well.
+if (!empty($history)) {
+    foreach ($history as $key => $item) {
+        if (isset($item['user'])) {
+            $history[$key]['user'] = intebchat_sanitize_input($item['user']);
+        }
+    }
+}
 
 // Get the instance record
 $instance = $DB->get_record('intebchat', ['id' => $instance_id], '*', MUST_EXIST);
@@ -69,7 +137,9 @@ if ($conversation_id && !$thread_id && $api_type === 'assistant') {
 // Handle audio transcription if provided with enhanced token tracking
 $transcription = null;
 $useraudio = null;
+$useraudio_permanent = null; // URL for permanently saved audio
 $audio_input_tokens = 0; // Track audio input tokens
+$original_audio_data = $audio; // Keep original audio for permanent storage later
 
 if ($audio && !empty($instance->enableaudio)) {
     require_once($CFG->dirroot . '/mod/intebchat/classes/audio.php');
@@ -77,7 +147,7 @@ if ($audio && !empty($instance->enableaudio)) {
     $message = $trans['text'];
     $transcription = $trans['text'];
     $useraudio = $CFG->wwwroot . '/mod/intebchat/load-audio-temp.php?filename=' . $trans['filename'];
-    
+
     // Calculate audio tokens based on duration (approximation based on OpenAI pricing)
     // Whisper typically uses ~0.006 per second of audio
     if (isset($trans['duration'])) {
@@ -110,6 +180,14 @@ if (!empty($config->enabletokenlimit)) {
 // Create conversation if not provided and logging is enabled
 if (!$conversation_id && $config->logging && isloggedin()) {
     $conversation_id = intebchat_create_conversation($instance_id, $USER->id);
+}
+
+// Save user audio permanently if we have audio and a conversation
+if ($original_audio_data && $conversation_id && !empty($instance->enableaudio)) {
+    $audio_save_result = \mod_intebchat\audio::save_user_audio($original_audio_data, $context->id, $conversation_id);
+    if (!empty($audio_save_result['url'])) {
+        $useraudio_permanent = $audio_save_result['url'];
+    }
 }
 
 // Prepare instance settings
@@ -235,9 +313,17 @@ try {
 
     // Log the message with conversation support if conversation exists
     if ($conversation_id && $config->logging) {
-        intebchat_log_message($instance_id, $conversation_id, $message, $response['message'], $context, $tokeninfo);
+        // If we have permanent audio, include it in the user message for history
+        $user_message_to_log = $message;
+        if (!empty($useraudio_permanent)) {
+            // Include audio with transcription in the message
+            $user_message_to_log = '<audio controls src="' . $useraudio_permanent . '"></audio>' .
+                '<div class="transcription">' . s($message) . '</div>';
+        }
 
-        // Update conversation title if it's the first message
+        intebchat_log_message($instance_id, $conversation_id, $user_message_to_log, $response['message'], $context, $tokeninfo);
+
+        // Update conversation title if it's the first message (use text, not HTML)
         $messagecount = $DB->count_records('intebchat_log', ['conversationid' => $conversation_id]);
         if ($messagecount <= 2) { // User message + AI response
             $title = intebchat_generate_conversation_title($message);
@@ -250,7 +336,10 @@ try {
     if ($transcription) {
         $response['transcription'] = $transcription;
     }
-    if (!empty($useraudio)) {
+    // Return the permanent audio URL if available, otherwise the temporary one
+    if (!empty($useraudio_permanent)) {
+        $response['useraudio'] = $useraudio_permanent;
+    } elseif (!empty($useraudio)) {
         $response['useraudio'] = $useraudio;
     }
     

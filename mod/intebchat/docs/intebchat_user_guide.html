@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTEB Chat - Guia de Usuario | Ingeweb</title>
+    <link rel="icon" type="image/svg+xml" href="https://ingeweb.co/images/ingeweb/logos/default.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Rubik:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --primary-blue: #2B4D99;
+            --bright-blue: #0080FE;
+            --orange: #FD5E1F;
+            --orange-dark: #de6906;
+            --navy: #013251;
+            --teal: #14BDE8;
+            --white: #FFFFFF;
+            --gray-light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-dark: #343a40;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--gray-dark);
+            background-color: var(--gray-light);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 2.2rem; }
+        h2 { font-size: 1.8rem; border-bottom: 3px solid var(--orange); padding-bottom: 0.5rem; margin-top: 2rem; }
+        h3 { font-size: 1.4rem; color: var(--primary-blue); margin-top: 1.5rem; }
+        h4 { font-size: 1.2rem; }
+
+        a {
+            color: var(--bright-blue);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: var(--orange);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--navy) 0%, var(--primary-blue) 100%);
+            color: var(--white);
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 0;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-logo {
+            max-width: 180px;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-title {
+            font-family: 'Rubik', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--teal);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: var(--white);
+            border-left-color: var(--orange);
+        }
+
+        .sidebar-nav a i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-nav .nav-section {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .sidebar-footer a {
+            color: var(--teal);
+        }
+
+        .sidebar-footer p {
+            margin: 0.25rem 0;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem 3rem;
+            max-width: 1000px;
+        }
+
+        .content-section {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* Commercial Banner */
+        .commercial-banner {
+            background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .commercial-banner h3 {
+            color: var(--white);
+            margin: 0 0 0.5rem 0;
+            font-size: 1.3rem;
+        }
+
+        .commercial-banner p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .commercial-banner a {
+            color: var(--white);
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1rem 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Code */
+        code {
+            background: #e9ecef;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--navy);
+        }
+
+        pre {
+            background: var(--gray-dark);
+            color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: var(--primary-blue);
+            color: var(--white);
+            font-family: 'Rubik', sans-serif;
+        }
+
+        tr:hover {
+            background: var(--gray-light);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e7f5ff;
+            border-color: var(--bright-blue);
+            color: var(--navy);
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: var(--orange);
+            color: #856404;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        /* Images placeholders */
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--gray);
+            margin: 1.5rem 0;
+        }
+
+        .screenshot-placeholder i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+            color: #adb5bd;
+        }
+
+        /* Steps */
+        .step {
+            display: flex;
+            margin: 1.5rem 0;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: var(--orange);
+            color: var(--white);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            margin: 0 0 0.5rem 0;
+        }
+
+        /* Feature Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-card {
+            background: var(--gray-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--bright-blue);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin: 0;
+        }
+
+        /* FAQ */
+        .faq-item {
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 0;
+        }
+
+        .faq-question {
+            font-family: 'Rubik', sans-serif;
+            font-weight: 500;
+            color: var(--navy);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: var(--orange);
+        }
+
+        .faq-answer {
+            padding-top: 1rem;
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 0.5rem;
+            }
+
+            .sidebar-nav a {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .sidebar-nav .nav-section {
+                width: 100%;
+            }
+        }
+
+        /* Version badge */
+        .version-badge {
+            display: inline-block;
+            background: var(--teal);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+
+        /* Print styles */
+        @media print {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://ingeweb.co/images/ingeweb/logos/light.svg" alt="Ingeweb" class="sidebar-logo">
+            <div class="sidebar-title">INTEB Chat - Guia de Usuario</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">Inicio</div>
+            <a href="#introduccion"><i class="bi bi-house"></i> Introduccion</a>
+            <a href="#requisitos"><i class="bi bi-check-circle"></i> Requisitos</a>
+
+            <div class="nav-section">Instalacion</div>
+            <a href="#instalacion"><i class="bi bi-download"></i> Instalacion</a>
+            <a href="#configuracion"><i class="bi bi-gear"></i> Configuracion</a>
+
+            <div class="nav-section">Uso del Plugin</div>
+            <a href="#uso-admin"><i class="bi bi-shield-lock"></i> Para Administradores</a>
+            <a href="#uso-profesor"><i class="bi bi-mortarboard"></i> Para Profesores</a>
+            <a href="#uso-estudiante"><i class="bi bi-person"></i> Para Estudiantes</a>
+
+            <div class="nav-section">Ayuda</div>
+            <a href="#faq"><i class="bi bi-question-circle"></i> Preguntas Frecuentes</a>
+            <a href="#problemas"><i class="bi bi-tools"></i> Solucion de Problemas</a>
+            <a href="#soporte"><i class="bi bi-headset"></i> Soporte</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p><i class="bi bi-telephone"></i> (+57) 300 911 4307</p>
+            <p><i class="bi bi-envelope"></i> <a href="mailto:ventas@ingeweb.co">ventas@ingeweb.co</a></p>
+            <p><i class="bi bi-globe"></i> <a href="https://ingeweb.co" target="_blank">ingeweb.co</a></p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Commercial Banner -->
+        <div class="commercial-banner">
+            <h3><i class="bi bi-cart-check"></i> Este plugin es un producto comercial</h3>
+            <p>Para cotizacion y adquisicion, contacte a: <a href="mailto:ventas@ingeweb.co">ventas@ingeweb.co</a></p>
+        </div>
+
+        <!-- Introduccion -->
+        <section id="introduccion" class="content-section">
+            <h1><i class="bi bi-chat-dots"></i> INTEB Chat <span class="version-badge">v3.6.1</span></h1>
+            <p><strong>Asistente de IA con OpenAI para Moodle</strong></p>
+
+            <p>INTEB Chat es un modulo de actividad para Moodle que integra asistentes de inteligencia artificial basados en la API de OpenAI directamente en sus cursos. Permite a estudiantes y profesores interactuar con asistentes de IA personalizados para apoyo educativo, tutoria y aprendizaje interactivo.</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="bi bi-robot"></i>
+                    <h4>IA Conversacional</h4>
+                    <p>Interacciones naturales con modelos GPT de OpenAI, incluyendo GPT-4o, GPT-4.1 y modelos de razonamiento.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-mic"></i>
+                    <h4>Soporte de Audio</h4>
+                    <p>Entrada por voz y respuestas de audio con multiples voces disponibles para una experiencia inmersiva.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-clock-history"></i>
+                    <h4>Conversaciones Persistentes</h4>
+                    <p>Historial de conversaciones guardado para que los usuarios puedan retomar donde dejaron.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-graph-up"></i>
+                    <h4>Analiticas Detalladas</h4>
+                    <p>Reportes de uso por curso, usuario e instancia con seguimiento de tokens.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-shield-check"></i>
+                    <h4>Control de Uso</h4>
+                    <p>Limites de tokens configurables por usuario con periodos personalizables.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-palette"></i>
+                    <h4>Personalizacion</h4>
+                    <p>Mascotas animadas, temas claro/oscuro y nombres personalizables para el asistente.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Requisitos -->
+        <section id="requisitos" class="content-section">
+            <h2><i class="bi bi-check-circle"></i> Requisitos Previos</h2>
+
+            <h3>Requisitos del Sistema</h3>
+            <table>
+                <tr>
+                    <th>Componente</th>
+                    <th>Requisito Minimo</th>
+                    <th>Recomendado</th>
+                </tr>
+                <tr>
+                    <td>Moodle</td>
+                    <td>Version 4.1 (2022112800)</td>
+                    <td>4.3 o superior</td>
+                </tr>
+                <tr>
+                    <td>PHP</td>
+                    <td>Version 8.0</td>
+                    <td>PHP 8.1 o superior</td>
+                </tr>
+                <tr>
+                    <td>Extension cURL</td>
+                    <td colspan="2">Requerida para comunicacion con API de OpenAI</td>
+                </tr>
+                <tr>
+                    <td>Extension OpenSSL</td>
+                    <td colspan="2">Requerida para encriptacion de claves API</td>
+                </tr>
+            </table>
+
+            <h3>Cuenta de OpenAI</h3>
+            <div class="alert alert-info">
+                <strong><i class="bi bi-key"></i> Clave API Requerida:</strong> Necesita una cuenta de OpenAI con credito disponible y una clave API valida. Obtenga la suya en <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a>
+            </div>
+
+            <h3>Permisos Necesarios</h3>
+            <ul>
+                <li>Acceso de administrador al sitio Moodle</li>
+                <li>Permisos para instalar modulos de actividad</li>
+                <li>Conexion a Internet desde el servidor hacia api.openai.com</li>
+            </ul>
+        </section>
+
+        <!-- Instalacion -->
+        <section id="instalacion" class="content-section">
+            <h2><i class="bi bi-download"></i> Instalacion Paso a Paso</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Descargar el Plugin</h4>
+                    <p>Obtenga el archivo ZIP del plugin <code>mod_intebchat</code> proporcionado por Ingeweb.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Subir al Servidor</h4>
+                    <p>Extraiga el contenido del ZIP y copie la carpeta <code>intebchat</code> al directorio:</p>
+                    <pre><code>/path/to/moodle/mod/intebchat</code></pre>
+                    <p>O use el instalador de plugins de Moodle: <strong>Administracion del sitio → Plugins → Instalar plugins</strong></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Ejecutar la Instalacion</h4>
+                    <p>Acceda a su sitio Moodle como administrador y vaya a:</p>
+                    <p><strong>Administracion del sitio → Notificaciones</strong></p>
+                    <p>Moodle detectara el nuevo plugin y le pedira que complete la instalacion.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h4>Configurar Clave API</h4>
+                    <p>Sera redirigido a la pagina de configuracion. Ingrese su clave API de OpenAI (sk-...).</p>
+                </div>
+            </div>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-image"></i>
+                <p>Captura: Pantalla de notificaciones de Moodle mostrando la instalacion del plugin</p>
+            </div>
+
+            <div class="alert alert-success">
+                <strong><i class="bi bi-check-circle"></i> Listo!</strong> Una vez completada la instalacion, podra agregar actividades INTEB Chat en cualquier curso.
+            </div>
+        </section>
+
+        <!-- Configuracion -->
+        <section id="configuracion" class="content-section">
+            <h2><i class="bi bi-gear"></i> Configuracion Global</h2>
+
+            <p>Acceda a la configuracion del plugin en:</p>
+            <p><strong>Administracion del sitio → Plugins → Modulos de actividad → INTEB Chat</strong></p>
+
+            <h3>Configuracion General</h3>
+            <table>
+                <tr>
+                    <th>Opcion</th>
+                    <th>Descripcion</th>
+                    <th>Valor por Defecto</th>
+                </tr>
+                <tr>
+                    <td>Clave API de OpenAI</td>
+                    <td>Su clave API secreta de OpenAI (sk-...)</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Tipo de API</td>
+                    <td>Chat API (conversacional) o Assistant API (asistentes personalizados)</td>
+                    <td>Chat API</td>
+                </tr>
+                <tr>
+                    <td>Restringir a usuarios autenticados</td>
+                    <td>Solo usuarios con sesion pueden usar el chat</td>
+                    <td>Si</td>
+                </tr>
+                <tr>
+                    <td>Registrar conversaciones</td>
+                    <td>Guarda todas las conversaciones en la base de datos</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>Permitir config. por instancia</td>
+                    <td>Permite a profesores sobrescribir configuraciones globales</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>Habilitar audio</td>
+                    <td>Activa entrada/salida de audio</td>
+                    <td>No</td>
+                </tr>
+            </table>
+
+            <h3>Configuracion de Modelos</h3>
+            <table>
+                <tr>
+                    <th>Opcion</th>
+                    <th>Descripcion</th>
+                </tr>
+                <tr>
+                    <td>Modelo</td>
+                    <td>Seleccione entre GPT-4.1, GPT-4o, GPT-5, o modelos de razonamiento (o1, o3, o4)</td>
+                </tr>
+                <tr>
+                    <td>Temperatura</td>
+                    <td>0-2, controla creatividad de respuestas (menor = mas preciso)</td>
+                </tr>
+                <tr>
+                    <td>Longitud maxima</td>
+                    <td>Tokens maximos por respuesta</td>
+                </tr>
+                <tr>
+                    <td>Prompt personalizado</td>
+                    <td>Instrucciones del sistema para el asistente</td>
+                </tr>
+                <tr>
+                    <td>Fuente de verdad</td>
+                    <td>Informacion factual que el asistente debe usar</td>
+                </tr>
+            </table>
+
+            <h3>Limites de Tokens</h3>
+            <p>Controle el uso de la API por usuario para gestionar costos:</p>
+            <table>
+                <tr>
+                    <th>Opcion</th>
+                    <th>Descripcion</th>
+                </tr>
+                <tr>
+                    <td>Habilitar limite de tokens</td>
+                    <td>Activa el control de uso por usuario</td>
+                </tr>
+                <tr>
+                    <td>Maximo de tokens por usuario</td>
+                    <td>Limite de tokens por periodo (ej: 10,000)</td>
+                </tr>
+                <tr>
+                    <td>Periodo del limite</td>
+                    <td>Hora, Dia, Semana o Mes</td>
+                </tr>
+            </table>
+
+            <h3>Retencion de Datos</h3>
+            <table>
+                <tr>
+                    <th>Opcion</th>
+                    <th>Descripcion</th>
+                </tr>
+                <tr>
+                    <td>Habilitar limpieza automatica</td>
+                    <td>Elimina conversaciones inactivas automaticamente</td>
+                </tr>
+                <tr>
+                    <td>Periodo de retencion</td>
+                    <td>Dias antes de eliminar conversaciones inactivas</td>
+                </tr>
+            </table>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-sliders"></i>
+                <p>Captura: Pagina de configuracion global de INTEB Chat</p>
+            </div>
+        </section>
+
+        <!-- Uso para Administradores -->
+        <section id="uso-admin" class="content-section">
+            <h2><i class="bi bi-shield-lock"></i> Guia para Administradores</h2>
+
+            <h3>Reporte a Nivel de Sitio</h3>
+            <p>Acceda a: <strong>Administracion del sitio → Informes → Reporte de INTEB Chat del Sitio</strong></p>
+
+            <p>El reporte incluye:</p>
+            <ul>
+                <li>Total de mensajes, usuarios y cursos activos</li>
+                <li>Uso de tokens (prompt y completion)</li>
+                <li>Desglose por curso</li>
+                <li>Actividad por usuario</li>
+                <li>Filtros por periodo (hoy, 7 dias, 30 dias, ano, todo)</li>
+                <li>Exportacion a CSV</li>
+            </ul>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-graph-up"></i>
+                <p>Captura: Dashboard de reportes con estadisticas de uso</p>
+            </div>
+
+            <h3>Gestion de Capacidades</h3>
+            <p>El plugin define las siguientes capacidades:</p>
+            <table>
+                <tr>
+                    <th>Capacidad</th>
+                    <th>Descripcion</th>
+                    <th>Roles por Defecto</th>
+                </tr>
+                <tr>
+                    <td><code>mod/intebchat:view</code></td>
+                    <td>Ver y usar el chat</td>
+                    <td>Todos</td>
+                </tr>
+                <tr>
+                    <td><code>mod/intebchat:addinstance</code></td>
+                    <td>Agregar actividad al curso</td>
+                    <td>Profesor, Manager</td>
+                </tr>
+                <tr>
+                    <td><code>mod/intebchat:viewstudentconversations</code></td>
+                    <td>Ver conversaciones de estudiantes</td>
+                    <td>Profesor, Manager</td>
+                </tr>
+                <tr>
+                    <td><code>mod/intebchat:viewanalytics</code></td>
+                    <td>Ver analiticas del curso</td>
+                    <td>Profesor, Manager</td>
+                </tr>
+                <tr>
+                    <td><code>mod/intebchat:viewsitereport</code></td>
+                    <td>Ver reportes a nivel de sitio</td>
+                    <td>Manager</td>
+                </tr>
+            </table>
+
+            <h3>Tarea Programada</h3>
+            <p>El plugin incluye una tarea de limpieza que se ejecuta diariamente a las 3:00 AM:</p>
+            <ul>
+                <li>Elimina conversaciones inactivas segun el periodo de retencion configurado</li>
+                <li>Limpia registros de uso de tokens antiguos</li>
+            </ul>
+
+            <h3>Backup y Restauracion</h3>
+            <p>El plugin soporta completamente el sistema de backup de Moodle 2:</p>
+            <ul>
+                <li>Configuracion de instancia</li>
+                <li>Logs de conversaciones (si se incluyen datos de usuario)</li>
+                <li>Historial de conversaciones</li>
+            </ul>
+        </section>
+
+        <!-- Uso para Profesores -->
+        <section id="uso-profesor" class="content-section">
+            <h2><i class="bi bi-mortarboard"></i> Guia para Profesores</h2>
+
+            <h3>Crear una Actividad INTEB Chat</h3>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Activar Modo de Edicion</h4>
+                    <p>En su curso, haga clic en "Activar edicion" o el icono de engranaje.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Agregar una Actividad</h4>
+                    <p>Haga clic en "Agregar una actividad o recurso" en la seccion deseada.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Seleccionar INTEB Chat</h4>
+                    <p>Busque y seleccione "INTEB Chat" de la lista de actividades.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h4>Configurar la Actividad</h4>
+                    <p>Complete el formulario con las opciones deseadas.</p>
+                </div>
+            </div>
+
+            <h3>Opciones de Configuracion de la Actividad</h3>
+            <table>
+                <tr>
+                    <th>Opcion</th>
+                    <th>Descripcion</th>
+                </tr>
+                <tr>
+                    <td><strong>Nombre</strong></td>
+                    <td>Nombre que aparece en el curso</td>
+                </tr>
+                <tr>
+                    <td><strong>Descripcion</strong></td>
+                    <td>Instrucciones para los estudiantes</td>
+                </tr>
+                <tr>
+                    <td><strong>Mascota</strong></td>
+                    <td>Icono animado del asistente (Robot, Gato, Buho, Clippy, etc.)</td>
+                </tr>
+                <tr>
+                    <td><strong>Nombre del asistente</strong></td>
+                    <td>Nombre personalizado para el bot</td>
+                </tr>
+                <tr>
+                    <td><strong>Instrucciones</strong></td>
+                    <td>Prompt personalizado para esta instancia</td>
+                </tr>
+                <tr>
+                    <td><strong>Habilitar audio</strong></td>
+                    <td>Permite entrada/salida por voz (si esta habilitado globalmente)</td>
+                </tr>
+                <tr>
+                    <td><strong>Modo de audio</strong></td>
+                    <td>Solo audio, Texto y audio, o Conversacional (tiempo real)</td>
+                </tr>
+                <tr>
+                    <td><strong>Voz</strong></td>
+                    <td>Seleccione entre 11 voces diferentes (Alloy, Echo, Nova, etc.)</td>
+                </tr>
+            </table>
+
+            <div class="alert alert-info">
+                <strong><i class="bi bi-lightbulb"></i> Consejo:</strong> Use las instrucciones personalizadas para definir el rol del asistente. Por ejemplo: "Eres un tutor de matematicas que ayuda a estudiantes de secundaria. Explica conceptos paso a paso."
+            </div>
+
+            <h3>Ver Analiticas del Curso</h3>
+            <p>Acceda a las analiticas desde el menu de reportes del curso o el enlace en la actividad:</p>
+            <ul>
+                <li>Total de mensajes y conversaciones</li>
+                <li>Usuarios activos</li>
+                <li>Uso de tokens por instancia</li>
+                <li>Actividad por usuario</li>
+            </ul>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-bar-chart"></i>
+                <p>Captura: Panel de analiticas del curso</p>
+            </div>
+        </section>
+
+        <!-- Uso para Estudiantes -->
+        <section id="uso-estudiante" class="content-section">
+            <h2><i class="bi bi-person"></i> Guia para Estudiantes</h2>
+
+            <h3>Usar el Chat</h3>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Acceder a la Actividad</h4>
+                    <p>Haga clic en la actividad INTEB Chat en su curso.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Iniciar una Conversacion</h4>
+                    <p>Escriba su pregunta en el campo de texto y presione Enter o el boton de enviar.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Esperar la Respuesta</h4>
+                    <p>El asistente procesara su mensaje y mostrara la respuesta.</p>
+                </div>
+            </div>
+
+            <div class="screenshot-placeholder">
+                <i class="bi bi-chat-square-dots"></i>
+                <p>Captura: Interfaz principal del chat para estudiantes</p>
+            </div>
+
+            <h3>Funciones del Chat</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="bi bi-plus-circle"></i>
+                    <h4>Nueva Conversacion</h4>
+                    <p>Inicia un chat nuevo con el asistente.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-search"></i>
+                    <h4>Buscar</h4>
+                    <p>Filtra conversaciones anteriores por contenido.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-pencil"></i>
+                    <h4>Editar Titulo</h4>
+                    <p>Cambie el nombre de la conversacion.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-trash"></i>
+                    <h4>Limpiar</h4>
+                    <p>Elimina la conversacion actual.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-sun"></i>
+                    <h4>Tema</h4>
+                    <p>Alterna entre modo claro y oscuro.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-mic"></i>
+                    <h4>Audio</h4>
+                    <p>Entrada por voz (si esta habilitado).</p>
+                </div>
+            </div>
+
+            <h3>Limite de Tokens</h3>
+            <p>Si hay un limite configurado, vera una barra de progreso:</p>
+            <ul>
+                <li><strong style="color: #28a745;">Verde:</strong> Uso bajo</li>
+                <li><strong style="color: #ffc107;">Amarillo:</strong> Cerca del limite (>75%)</li>
+                <li><strong style="color: #dc3545;">Rojo:</strong> Limite alcanzado</li>
+            </ul>
+            <p>El contador se reinicia segun el periodo configurado (hora, dia, semana o mes).</p>
+
+            <div class="alert alert-info">
+                <strong><i class="bi bi-info-circle"></i> Nota:</strong> Las conversaciones se guardan automaticamente. Puede cerrar el navegador y retomar donde lo dejo.
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" class="content-section">
+            <h2><i class="bi bi-question-circle"></i> Preguntas Frecuentes</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Puedo usar mi propia clave API de OpenAI?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Si, el plugin requiere su propia clave API de OpenAI. Puede obtener una en <a href="https://platform.openai.com" target="_blank">platform.openai.com</a>. Los costos de uso de la API son facturados directamente por OpenAI.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Que modelos de IA estan disponibles?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>El plugin soporta todos los modelos actuales de OpenAI incluyendo:</p>
+                    <ul>
+                        <li>GPT-5 Series (mas recientes)</li>
+                        <li>GPT-4.1 Series (recomendado para balance calidad/costo)</li>
+                        <li>GPT-4o (multimodal)</li>
+                        <li>Modelos de razonamiento (o1, o3, o4)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Las conversaciones son privadas?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Si, cada estudiante solo puede ver sus propias conversaciones. Los profesores pueden ver las conversaciones de estudiantes de su curso si tienen el permiso correspondiente. Los administradores pueden ver todas las conversaciones.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Hay limite de uso?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>El administrador puede configurar limites de tokens por usuario. Cuando se alcanza el limite, el usuario debera esperar al siguiente periodo (hora, dia, semana o mes) para continuar usando el chat.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Funciona en dispositivos moviles?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Si, la interfaz es completamente responsiva y funciona en telefonos y tablets. El panel lateral se oculta automaticamente en pantallas pequenas y puede abrirse con el boton de menu.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Puedo personalizar las respuestas del asistente?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Si, use el campo "Instrucciones" en la configuracion de la actividad para definir el comportamiento del asistente. Puede especificar su rol, tono, restricciones de tema, y mas.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>El plugin envia datos fuera del servidor?</span>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Si, los mensajes se envian a la API de OpenAI para su procesamiento. Las conversaciones pueden almacenarse localmente en su servidor Moodle si habilita el registro de conversaciones.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solucion de Problemas -->
+        <section id="problemas" class="content-section">
+            <h2><i class="bi bi-tools"></i> Solucion de Problemas Comunes</h2>
+
+            <h3>Error: "Clave API no configurada"</h3>
+            <div class="alert alert-warning">
+                <strong>Causa:</strong> No se ha configurado la clave API de OpenAI.<br>
+                <strong>Solucion:</strong> Vaya a Administracion del sitio → Plugins → INTEB Chat y configure su clave API.
+            </div>
+
+            <h3>Error: "La solicitud ha excedido el tiempo de espera"</h3>
+            <div class="alert alert-warning">
+                <strong>Causa:</strong> La API de OpenAI esta tardando demasiado en responder.<br>
+                <strong>Solucion:</strong>
+                <ul>
+                    <li>Intente nuevamente en unos minutos</li>
+                    <li>Use un modelo mas rapido como GPT-4o-mini</li>
+                    <li>Reduzca la longitud maxima de respuesta</li>
+                </ul>
+            </div>
+
+            <h3>Error: "Limite de tokens excedido"</h3>
+            <div class="alert alert-warning">
+                <strong>Causa:</strong> El usuario ha alcanzado su limite de uso.<br>
+                <strong>Solucion:</strong>
+                <ul>
+                    <li>Espere al siguiente periodo de reinicio</li>
+                    <li>Contacte al administrador para aumentar el limite</li>
+                </ul>
+            </div>
+
+            <h3>El audio no funciona</h3>
+            <div class="alert alert-warning">
+                <strong>Posibles causas:</strong>
+                <ul>
+                    <li>El audio no esta habilitado globalmente</li>
+                    <li>El navegador no tiene permisos de microfono</li>
+                    <li>El sitio no usa HTTPS (requerido para grabacion de audio)</li>
+                </ul>
+                <strong>Solucion:</strong> Verifique la configuracion global y los permisos del navegador.
+            </div>
+
+            <h3>Las conversaciones no se guardan</h3>
+            <div class="alert alert-warning">
+                <strong>Causa:</strong> La opcion "Persistir conversacion" esta desactivada.<br>
+                <strong>Solucion:</strong> Active la opcion en la configuracion de la actividad (modo Assistant) o en la configuracion global.
+            </div>
+
+            <h3>Error al instalar el plugin</h3>
+            <div class="alert alert-info">
+                <strong>Posibles causas:</strong>
+                <ul>
+                    <li>Verifique los requisitos de version de Moodle (4.1+) y PHP (8.0+)</li>
+                    <li>Asegurese de que la carpeta tenga los permisos correctos</li>
+                    <li>Compruebe que todos los archivos se copiaron correctamente</li>
+                    <li>Revise los logs del servidor por errores de base de datos</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Soporte -->
+        <section id="soporte" class="content-section">
+            <h2><i class="bi bi-headset"></i> Soporte y Contacto</h2>
+
+            <div class="commercial-banner">
+                <h3><i class="bi bi-envelope-heart"></i> Necesita ayuda?</h3>
+                <p>Nuestro equipo de soporte esta disponible para asistirle</p>
+            </div>
+
+            <h3>Informacion de Contacto</h3>
+            <table>
+                <tr>
+                    <th>Canal</th>
+                    <th>Detalles</th>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-envelope"></i> Email de Ventas</td>
+                    <td><a href="mailto:ventas@ingeweb.co">ventas@ingeweb.co</a></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-envelope"></i> Email de Soporte</td>
+                    <td><a href="mailto:soporte@ingeweb.co">soporte@ingeweb.co</a></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-whatsapp"></i> WhatsApp</td>
+                    <td><a href="https://wa.me/573183977205" target="_blank">+57 318 397 7205</a></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-telephone"></i> Telefono Colombia</td>
+                    <td>(+57) 300 911 4307</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-telephone"></i> Bogota</td>
+                    <td>(601) 770 2907</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-telephone"></i> Toll Free (USA)</td>
+                    <td>(+1) 888 407 0977</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-telephone"></i> Houston</td>
+                    <td>(+1) 713 554 8397</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-globe"></i> Sitio Web</td>
+                    <td><a href="https://ingeweb.co" target="_blank">https://ingeweb.co</a></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-headset"></i> Portal de Soporte</td>
+                    <td><a href="https://soporte.ingeweb.co" target="_blank">https://soporte.ingeweb.co</a></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-geo-alt"></i> Direccion</td>
+                    <td>Cra 31 # 35-12 Of. 503, Bucaramanga, Colombia</td>
+                </tr>
+            </table>
+
+            <h3>Antes de Contactar Soporte</h3>
+            <p>Para agilizar la atencion, por favor tenga disponible:</p>
+            <ul>
+                <li>Version de Moodle instalada</li>
+                <li>Version de INTEB Chat (3.6.1)</li>
+                <li>Descripcion detallada del problema</li>
+                <li>Capturas de pantalla (si aplica)</li>
+                <li>Mensajes de error del log de Moodle</li>
+            </ul>
+
+            <div class="alert alert-success">
+                <strong><i class="bi bi-info-circle"></i> Version del Plugin:</strong> 3.6.1<br>
+                <strong>Compatibilidad:</strong> Moodle 4.1+<br>
+                <strong>Licencia:</strong> GNU GPL v3 o posterior
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="background: var(--navy); color: var(--white); padding: 3rem 2rem; margin-top: 2rem; border-radius: 8px;">
+            <div style="max-width: 900px; margin: 0 auto;">
+                <!-- Logo Ingeweb -->
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <img src="https://ingeweb.co/images/ingeweb/logos/light.svg" alt="Ingeweb" style="max-width: 200px; height: auto;">
+                </div>
+                <h3 style="color: var(--teal); text-align: center; margin-bottom: 2rem; font-family: 'Rubik', sans-serif;">
+                    Soluciones para triunfar en Internet
+                </h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                    <!-- Telefonos -->
+                    <div>
+                        <h4 style="color: var(--orange); font-size: 1rem; margin-bottom: 1rem;"><i class="bi bi-telephone-fill"></i> Telefonos</h4>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Colombia:</strong> (+57) 300 911 4307</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Bogota:</strong> (601) 770 2907</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Toll Free:</strong> (+1) 888 407 0977</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Internacional:</strong> (+1) 713 554 8397</p>
+                    </div>
+
+                    <!-- Email y Soporte -->
+                    <div>
+                        <h4 style="color: var(--orange); font-size: 1rem; margin-bottom: 1rem;"><i class="bi bi-envelope-fill"></i> Correo y Soporte</h4>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Ventas:</strong> <a href="mailto:ventas@ingeweb.co" style="color: var(--teal);">ventas@ingeweb.co</a></p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Soporte:</strong> <a href="mailto:soporte@ingeweb.co" style="color: var(--teal);">soporte@ingeweb.co</a></p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Portal:</strong> <a href="https://soporte.ingeweb.co" target="_blank" style="color: var(--teal);">soporte.ingeweb.co</a></p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><strong>Tickets:</strong> <a href="https://soporte.ingeweb.co/portal/es/newticket" target="_blank" style="color: var(--teal);">Crear ticket</a></p>
+                    </div>
+
+                    <!-- Ubicacion -->
+                    <div>
+                        <h4 style="color: var(--orange); font-size: 1rem; margin-bottom: 1rem;"><i class="bi bi-geo-alt-fill"></i> Ubicacion</h4>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;">Cra 31 # 35-12 Of. 503</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;">Bucaramanga, Colombia</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;"><a href="https://ingeweb.co/contacto" target="_blank" style="color: var(--teal);"><i class="bi bi-chat-dots"></i> Formulario de contacto</a></p>
+                    </div>
+                </div>
+
+                <!-- Redes Sociales -->
+                <div style="text-align: center; padding: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h4 style="color: var(--orange); font-size: 1rem; margin-bottom: 1rem;">Siguenos en Redes Sociales</h4>
+                    <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+                        <a href="https://wa.me/573183977205" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                        <a href="https://facebook.com/ingewebco" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="https://instagram.com/ingewebco" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://linkedin.com/company/ingewebco" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://twitter.com/ingewebco" target="_blank" style="color: var(--white); font-size: 1.8rem;" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+
+                <!-- Certificaciones -->
+                <div style="text-align: center; padding: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap;">
+                        <img src="https://ingeweb.co/images/ingeweb/logos-patrocinadores/google-partner-white.svg" alt="Google Cloud Partner" style="height: 50px;">
+                        <img src="https://ingeweb.co/images/ingeweb/logos-patrocinadores/resenas-google.png" alt="Resenas Google" style="height: 45px;">
+                    </div>
+                </div>
+
+                <!-- Copyright -->
+                <div style="text-align: center; padding-top: 1.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.7);">
+                    <p style="margin: 0.25rem 0;">&copy; 2025 <a href="https://ingeweb.co" target="_blank" style="color: var(--teal);">Ingeweb</a>. Todos los derechos reservados.</p>
+                    <p style="margin: 0.25rem 0;">INTEB Chat es un producto desarrollado por Ingeweb para plataformas Moodle.</p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                // Update active state
+                document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Highlight current section on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.content-section');
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (window.scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // FAQ toggle
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', function() {
+                const answer = this.nextElementSibling;
+                const icon = this.querySelector('i');
+                if (answer.style.display === 'none' || !answer.style.display) {
+                    answer.style.display = 'block';
+                    icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+                } else {
+                    answer.style.display = 'none';
+                    icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+                }
+            });
+        });
+
+        // Initialize FAQ answers as hidden
+        document.querySelectorAll('.faq-answer').forEach(answer => {
+            answer.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

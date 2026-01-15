@@ -80,6 +80,7 @@ $string['config_sourceoftruth_help'] = 'Proporciona información específica que
 $string['prompt'] = 'Prompt personalizado';
 $string['config_prompt'] = 'Instrucciones adicionales para personalizar el comportamiento de la IA';
 $string['config_prompt_help'] = 'Proporciona instrucciones específicas para guiar cómo debe responder la IA. Esto se agregará al prompt del sistema.';
+$string['instructions'] = 'Instrucciones';
 $string['config_instructions'] = 'Instrucciones personalizadas para el asistente';
 $string['config_instructions_help'] = 'Proporciona instrucciones específicas para el asistente. Estas instrucciones anularán las instrucciones predeterminadas del asistente para esta instancia.';
 $string['assistantname'] = 'Nombre del asistente';
@@ -125,11 +126,13 @@ $string['maxtokensperuserdesc'] = 'Número máximo de tokens que un usuario pued
 $string['tokenlimitperiod'] = 'Período del límite de tokens';
 $string['tokenlimitperioddesc'] = 'El período de tiempo para el límite de tokens';
 $string['tokensused'] = 'Tokens usados: {$a->used} / {$a->limit}';
+$string['tokensusedformat'] = 'Tokens usados: {used} / {limit}';
 $string['tokenlimitexceeded'] = 'Has excedido tu límite de tokens. Usado: {$a->used}, Límite: {$a->limit}. Se restablece en: {$a->reset}';
 $string['totaltokensused'] = 'Total de tokens usados: {$a}';
 $string['tokensreset'] = 'Los tokens se restablecerán en: {$a}';
-$string['audiotokens'] = 'Tokens de audio usados: {$a}';
-$string['texttokens'] = 'Tokens de texto usados: {$a}';
+$string['tokensresetcountdown'] = 'Se restablece en: {$a}';
+$string['audiotokens'] = 'Audio';
+$string['texttokens'] = 'Texto';
 $string['totaltokensdetailed'] = 'Tokens totales - Texto: {$a->text}, Audio: {$a->audio}';
 $string['tokenlimitwarning'] = '¡Solo quedan {$a} tokens!';
 
@@ -239,13 +242,133 @@ $string['prompt'] = 'Prompt';
 $string['completion'] = 'Completado';
 $string['nopermission'] = 'No tienes permiso para ver esto';
 
-// === SPANISH (lang/es/intebchat.php) ===
 // Cadenas de confirmación de audio
 $string['audiorecorded'] = 'Audio Grabado';
 $string['confirmaudiosend'] = '¿Deseas enviar este mensaje de audio?';
 $string['playaudio'] = 'Reproducir Audio';
 $string['rerecord'] = 'Volver a grabar';
 $string['send'] = 'Enviar';
+$string['cancel'] = 'Cancelar';
 $string['cancelrecording'] = 'Cancelar Grabación';
 $string['audioduration'] = 'Duración: {$a}';
 $string['confirmdelete'] = '¿Estás seguro de que deseas eliminar esta grabación?';
+
+// Cadenas de modo conversacional
+$string['audiomode_conversacional'] = 'Conversacional (Tiempo real)';
+$string['audiomode_conversacional_help'] = 'Modo conversacional en tiempo real usando WebRTC para interacción natural por voz con transcripción bidireccional';
+$string['realtime_connecting'] = 'Conectando al servicio en tiempo real...';
+$string['realtime_connected'] = 'Conectado - Habla naturalmente';
+$string['realtime_disconnected'] = 'Desconectado del servicio en tiempo real';
+$string['realtime_error'] = 'Error al conectar con el servicio en tiempo real';
+$string['realtime_you_speaking'] = 'Estás hablando...';
+$string['realtime_ai_speaking'] = 'La IA está hablando...';
+$string['realtime_listening'] = 'Escuchando...';
+$string['realtime_processing'] = 'Procesando...';
+$string['transcribing'] = 'Transcribiendo...';
+
+// Cadenas de seguridad
+$string['invalidinput'] = 'Entrada inválida detectada';
+$string['inputtoolong'] = 'La entrada excede la longitud máxima permitida';
+$string['invalidrole'] = 'Rol de mensaje inválido especificado';
+
+// Cadenas de mascota
+$string['mascot'] = 'Mascota del chat';
+$string['mascot_help'] = 'Selecciona el personaje animado que aparecerá en la interfaz del chat para representar al asistente de IA.';
+$string['mascot_assistant'] = 'Asistente INTEB';
+$string['mascot_robot'] = 'Robot';
+$string['mascot_cat'] = 'Gato';
+$string['mascot_owl'] = 'Búho';
+$string['mascot_clippy'] = 'Clippy';
+$string['mascot_lightbulb'] = 'Bombilla';
+
+// Cadenas de seguridad y validación
+$string['nosaltconfigured'] = 'No hay salt secreto configurado en Moodle. Por favor contacta a tu administrador.';
+$string['cryptoerror'] = 'Error de encriptación/desencriptación. Por favor contacta a tu administrador.';
+$string['audiofiletoolarge'] = 'El archivo de audio es muy grande ({$a->size}). El tamaño máximo permitido es {$a->max}.';
+$string['audiofiletoosmall'] = 'El archivo de audio es muy pequeño o está vacío.';
+$string['invalidaudioformat'] = 'Formato de audio inválido: {$a}. Formatos permitidos: mp3, mp4, wav, webm, ogg.';
+$string['invalidaudiodata'] = 'Datos de audio inválidos o corruptos.';
+$string['ratelimitexceeded'] = 'Demasiadas solicitudes. Por favor espera un momento antes de intentar de nuevo.';
+
+// Configuración de limitación de solicitudes
+$string['enableratelimit'] = 'Habilitar limitación de solicitudes';
+$string['enableratelimitdesc'] = 'Habilita la limitación de solicitudes para prevenir abuso de la API. Limita las solicitudes por minuto por usuario.';
+$string['ratelimit_user'] = 'Límite por usuario';
+$string['ratelimit_userdesc'] = 'Máximo de solicitudes por minuto por usuario (predeterminado: 60).';
+$string['ratelimit_ip'] = 'Límite por IP';
+$string['ratelimit_ipdesc'] = 'Máximo de solicitudes por minuto por dirección IP (predeterminado: 30).';
+
+// Cadenas de analíticas
+$string['analytics'] = 'Analíticas';
+$string['intebchat:viewanalytics'] = 'Ver panel de analíticas';
+$string['backtochat'] = 'Volver al chat';
+$string['period'] = 'Período';
+$string['period_day'] = 'Hoy';
+$string['period_week'] = 'Últimos 7 días';
+$string['period_month'] = 'Últimos 30 días';
+$string['period_all'] = 'Todo el tiempo';
+$string['analytics_overview'] = 'Resumen';
+$string['messages'] = 'Mensajes';
+$string['tokens'] = 'Tokens';
+$string['users'] = 'Usuarios';
+$string['user'] = 'Usuario';
+$string['email'] = 'Correo electrónico';
+$string['actions'] = 'Acciones';
+$string['courses'] = 'Cursos';
+$string['avg_messages_per_user'] = 'Prom/usuario';
+$string['avg_tokens_per_message'] = 'Prom/msg';
+$string['top_users'] = 'Usuarios Destacados';
+$string['usage'] = 'Uso';
+$string['daily_activity'] = 'Actividad Diaria';
+$string['nodata'] = 'No hay datos disponibles para este período';
+
+// Cadenas de modo offline/cola
+$string['offlinemode'] = 'Sin conexión - los mensajes serán encolados';
+$string['messagequeued'] = 'Mensaje en cola - se enviará cuando haya conexión';
+$string['messagesendfailed'] = 'El mensaje no pudo ser enviado después de varios intentos';
+$string['sendingqueued'] = 'Enviando mensaje en cola...';
+
+// Configuración de retención
+$string['retentionsettings'] = 'Retención de conversaciones';
+$string['retentionsettingsdesc'] = 'Configura la limpieza automática de conversaciones antiguas para gestionar el almacenamiento y la privacidad.';
+$string['enableretention'] = 'Habilitar limpieza automática';
+$string['enableretentiondesc'] = 'Eliminar automáticamente las conversaciones que han estado inactivas durante el período especificado.';
+$string['retentiondays'] = 'Período de retención (días)';
+$string['retentiondaysdesc'] = 'Número de días para mantener las conversaciones inactivas. Las conversaciones sin actividad durante este período serán eliminadas.';
+$string['cleanupconversations'] = 'Limpiar conversaciones antiguas';
+$string['conversationsdeleted'] = '{$a} conversaciones eliminadas';
+$string['noconversationstoclean'] = 'No hay conversaciones para limpiar';
+
+// Cadenas de reporte del sitio
+$string['sitereport'] = 'Reporte de INTEB Chat del Sitio';
+$string['intebchatreport'] = 'Reporte de Uso de INTEB Chat';
+$string['intebchat:viewsitereport'] = 'Ver reportes de INTEB Chat a nivel de sitio';
+$string['overview'] = 'Resumen';
+$string['usagebycourse'] = 'Uso por Curso';
+$string['usagebyuser'] = 'Uso por Usuario';
+$string['usagebyinstance'] = 'Uso por Instancia';
+$string['period_year'] = 'Últimos 12 meses';
+$string['exportcsv'] = 'Exportar CSV';
+$string['totalmessages'] = 'Mensajes Totales';
+$string['totalusers'] = 'Usuarios Totales';
+$string['totalcourses'] = 'Cursos Totales';
+$string['totaltokens'] = 'Tokens Totales';
+$string['totalconversations'] = 'Conversaciones Totales';
+$string['tokenbreakdown'] = 'Desglose de Tokens';
+$string['prompttokens'] = 'Tokens de Prompt';
+$string['completiontokens'] = 'Tokens de Completado';
+$string['averages'] = 'Promedios';
+$string['avgtokensperuser'] = 'Tokens Promedio por Usuario';
+$string['avgtokenspermessage'] = 'Tokens Promedio por Mensaje';
+$string['avgmessagesperuser'] = 'Mensajes Promedio por Usuario';
+$string['topcourses'] = 'Cursos Destacados';
+$string['instances'] = 'Instancias';
+$string['viewusers'] = 'Ver Usuarios';
+$string['viewdetails'] = 'Ver Detalles';
+$string['filteringbycourse'] = 'Filtrando por curso: {$a}';
+$string['clearfilter'] = 'Limpiar filtro';
+$string['instance'] = 'Instancia';
+$string['allinstances'] = 'Todas las instancias';
+$string['noinstancesincourse'] = 'No hay instancias de INTEB Chat en este curso.';
+$string['lastactivity'] = 'Última Actividad';
+$string['courses'] = 'Cursos';

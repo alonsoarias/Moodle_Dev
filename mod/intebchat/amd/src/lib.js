@@ -78,15 +78,35 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             updateDisplay: function () {
                 var percentage = this.limit > 0 ? (this.used / this.limit * 100) : 0;
 
+                // Update percentage display
                 $('.token-count').text(percentage.toFixed(1) + '%');
+
+                // Update token label with current values
+                var usedFormatted = this.used.toLocaleString();
+                var limitFormatted = this.limit.toLocaleString();
+                var labelText = 'Tokens: ' + usedFormatted + ' / ' + limitFormatted;
+
+                // Try to get localized format if available
+                if (strings.tokensusedformat) {
+                    labelText = strings.tokensusedformat
+                        .replace('{used}', usedFormatted)
+                        .replace('{limit}', limitFormatted);
+                }
+                $('.token-label').text(labelText);
+
+                // Update progress bar
                 $('.progress-bar').css('width', Math.min(percentage, 100) + '%');
 
+                // Update aria attributes for accessibility
+                $('.progress').attr('aria-valuenow', this.used);
+
+                // Show breakdown if we have audio/text distinction
                 if (this.audioUsed > 0 || this.textUsed > 0) {
                     if (!$('#token-breakdown').length) {
                         $('.token-display').after(
                             '<div id="token-breakdown" class="token-breakdown">' +
-                            '<small>' + strings.texttokens + ': <span id="text-tokens">0</span> | ' +
-                            strings.audiotokens + ': <span id="audio-tokens">0</span></small>' +
+                            '<small>' + (strings.texttokens || 'Text') + ': <span id="text-tokens">0</span> | ' +
+                            (strings.audiotokens || 'Audio') + ': <span id="audio-tokens">0</span></small>' +
                             '</div>'
                         );
                     }
@@ -94,6 +114,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     $('#audio-tokens').text(this.audioUsed.toLocaleString());
                 }
 
+                // Update progress bar color based on usage
                 $('.progress-bar').removeClass('warning danger');
                 if (percentage >= 90) {
                     $('.progress-bar').addClass('danger');
@@ -133,27 +154,292 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Animated Assistant Class (Clippy-style) - FIXED VISIBILITY
+         * Message Queue for offline support
+         * Queues messages when offline and sends them when connection is restored
+         */
+        var MessageQueue = {
+            STORAGE_KEY: 'intebchat_message_queue',
+            isOnline: true,
+            processing: false,
+
+            /**
+             * Initialize the message queue
+             */
+            init: function () {
+                var self = this;
+                this.isOnline = navigator.onLine;
+
+                // Listen for online/offline events
+                window.addEventListener('online', function () {
+                    self.isOnline = true;
+                    self.updateStatusIndicator();
+                    self.processQueue();
+                });
+
+                window.addEventListener('offline', function () {
+                    self.isOnline = false;
+                    self.updateStatusIndicator();
+                });
+
+                // Add status indicator to UI
+                this.createStatusIndicator();
+
+                // Process any existing queue on init
+                if (this.isOnline && this.getQueueLength() > 0) {
+                    this.processQueue();
+                }
+            },
+
+            /**
+             * Create the online/offline status indicator
+             */
+            createStatusIndicator: function () {
+                var indicator = '<div id="connection-status" class="connection-status" style="display:none;">' +
+                    '<i class="fa fa-wifi-slash"></i> <span>' + (strings.offlinemode || 'Offline - messages will be queued') + '</span>' +
+                    '</div>';
+                $('#control_bar').prepend(indicator);
+                this.updateStatusIndicator();
+            },
+
+            /**
+             * Update the status indicator based on connection state
+             */
+            updateStatusIndicator: function () {
+                var $indicator = $('#connection-status');
+                if (this.isOnline) {
+                    $indicator.fadeOut(200);
+                } else {
+                    $indicator.fadeIn(200);
+                }
+            },
+
+            /**
+             * Add a message to the queue
+             * @param {object} messageData The message data to queue
+             * @return {string} Queue ID
+             */
+            add: function (messageData) {
+                var queue = this.getQueue();
+                var queueId = 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+                queue.push({
+                    id: queueId,
+                    data: messageData,
+                    timestamp: Date.now(),
+                    retries: 0
+                });
+
+                this.saveQueue(queue);
+                this.showQueueBadge();
+
+                return queueId;
+            },
+
+            /**
+             * Get the message queue from localStorage
+             * @return {array} Queue array
+             */
+            getQueue: function () {
+                try {
+                    var stored = localStorage.getItem(this.STORAGE_KEY);
+                    return stored ? JSON.parse(stored) : [];
+                } catch (e) {
+                    return [];
+                }
+            },
+
+            /**
+             * Save the queue to localStorage
+             * @param {array} queue The queue to save
+             */
+            saveQueue: function (queue) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(queue));
+                } catch (e) {
+                    console.error('Failed to save message queue:', e);
+                }
+            },
+
+            /**
+             * Get queue length
+             * @return {number} Number of queued messages
+             */
+            getQueueLength: function () {
+                return this.getQueue().length;
+            },
+
+            /**
+             * Remove a message from the queue
+             * @param {string} queueId The ID of the queued message
+             */
+            remove: function (queueId) {
+                var queue = this.getQueue().filter(function (item) {
+                    return item.id !== queueId;
+                });
+                this.saveQueue(queue);
+                this.showQueueBadge();
+            },
+
+            /**
+             * Process queued messages
+             */
+            processQueue: function () {
+                var self = this;
+                if (this.processing || !this.isOnline) {
+                    return;
+                }
+
+                var queue = this.getQueue();
+                if (queue.length === 0) {
+                    return;
+                }
+
+                this.processing = true;
+
+                // Process first message in queue
+                var item = queue[0];
+
+                // Update queued message UI to show it's being sent
+                var $queuedMsg = $('#' + item.id);
+                if ($queuedMsg.length) {
+                    $queuedMsg.removeClass('queued').addClass('sending');
+                    $queuedMsg.find('.queue-indicator').html('<i class="fa fa-spinner fa-spin"></i>');
+                }
+
+                // Send the message
+                this.sendQueuedMessage(item).then(function () {
+                    // Success - remove from queue
+                    self.remove(item.id);
+                    self.processing = false;
+
+                    // Process next message
+                    if (self.getQueueLength() > 0) {
+                        setTimeout(function () {
+                            self.processQueue();
+                        }, 500);
+                    }
+                }).catch(function (error) {
+                    console.error('Failed to send queued message:', error);
+                    self.processing = false;
+
+                    // Increment retry count
+                    item.retries++;
+                    if (item.retries >= 3) {
+                        // Remove after 3 retries
+                        self.remove(item.id);
+                        self.showError(item.id, strings.messagesendfailed || 'Message could not be sent');
+                    } else {
+                        // Update queue and retry later
+                        var queue = self.getQueue();
+                        queue[0] = item;
+                        self.saveQueue(queue);
+
+                        setTimeout(function () {
+                            self.processQueue();
+                        }, 2000);
+                    }
+                });
+            },
+
+            /**
+             * Send a queued message
+             * @param {object} item Queue item
+             * @return {Promise}
+             */
+            sendQueuedMessage: function (item) {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        url: M.cfg.wwwroot + '/mod/intebchat/api/completion.php',
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify(item.data),
+                        success: function (response) {
+                            if (response.error) {
+                                reject(response.error);
+                            } else {
+                                // Update UI with response
+                                var $queuedMsg = $('#' + item.id);
+                                if ($queuedMsg.length) {
+                                    $queuedMsg.removeClass('queued sending').find('.queue-indicator').remove();
+                                }
+
+                                // Add bot response
+                                if (response.message) {
+                                    addToChatLog('bot', response.message, item.data.instanceId);
+                                }
+
+                                resolve(response);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            reject(error);
+                        }
+                    });
+                });
+            },
+
+            /**
+             * Show queue badge on send button
+             */
+            showQueueBadge: function () {
+                var count = this.getQueueLength();
+                var $badge = $('#queue-badge');
+
+                if (count > 0) {
+                    if (!$badge.length) {
+                        $('#go').after('<span id="queue-badge" class="badge bg-warning queue-badge">' + count + '</span>');
+                    } else {
+                        $badge.text(count).show();
+                    }
+                } else {
+                    $badge.hide();
+                }
+            },
+
+            /**
+             * Show error for a queued message
+             * @param {string} queueId Queue ID
+             * @param {string} message Error message
+             */
+            showError: function (queueId, message) {
+                var $msg = $('#' + queueId);
+                if ($msg.length) {
+                    $msg.removeClass('queued sending').addClass('error');
+                    $msg.find('.queue-indicator').html('<i class="fa fa-exclamation-circle text-danger"></i> ' + message);
+                }
+            },
+
+            /**
+             * Check if we're online
+             * @return {boolean}
+             */
+            checkOnline: function () {
+                return this.isOnline;
+            }
+        };
+
+        /**
+         * Animated Assistant Class - Uses mascot SVG from pix/mascots
          */
         var AnimatedAssistant = {
             init: function () {
-                // Crear el contenedor del asistente DENTRO del chat container para asegurar visibilidad
+                // Get mascot URL from data attribute
+                var $main = $('.intebchat-main');
+                var mascotUrl = $main.data('mascot-url') || '';
+                var mascotName = $main.data('mascot-name') || 'Assistant';
+
+                // Create assistant container with SVG mascot
                 var assistantHtml = '<div id="intebchat-assistant" class="intebchat-assistant">' +
-                    '<div class="assistant-body">' +
-                    '<div class="assistant-eyes">' +
-                    '<div class="eye left"></div>' +
-                    '<div class="eye right"></div>' +
-                    '</div>' +
-                    '<div class="assistant-mouth"></div>' +
-                    '</div>' +
+                    '<img src="' + mascotUrl + '" alt="' + mascotName + '" class="assistant-mascot-svg" />' +
                     '<div class="assistant-bubble" style="display:none;"></div>' +
                     '</div>';
 
-                // Añadir al área principal del chat, no al contenedor general
-                $('.intebchat-main').append(assistantHtml);
+                // Add to main chat area
+                $main.append(assistantHtml);
                 this.bindEvents();
                 this.idle();
-                console.log('Assistant initialized');
+                console.log('Assistant initialized with mascot:', mascotName);
             },
 
             bindEvents: function () {
@@ -165,12 +451,11 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
             idle: function () {
                 $('#intebchat-assistant').removeClass('thinking talking waving').addClass('idle');
-                this.blink();
             },
 
             thinking: function () {
                 $('#intebchat-assistant').removeClass('idle talking waving').addClass('thinking');
-                this.showBubble('🤔 Thinking...');
+                this.showBubble('🤔');
             },
 
             talking: function () {
@@ -192,19 +477,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
             hideBubble: function () {
                 $('.assistant-bubble').fadeOut(200);
-            },
-
-            blink: function () {
-                var self = this;
-                if (self.blinkInterval) {
-                    clearInterval(self.blinkInterval);
-                }
-                self.blinkInterval = setInterval(function () {
-                    $('.assistant-eyes').addClass('blinking');
-                    setTimeout(function () {
-                        $('.assistant-eyes').removeClass('blinking');
-                    }, 150);
-                }, 3000 + Math.random() * 2000);
             }
         };
 
@@ -227,6 +499,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
             audioConfig.enabled = data.audioEnabled || false;
             audioConfig.mode = data.audioMode || 'text';
+            audioConfig.voice = data.audioVoice || undefined;
 
             if (audioConfig.mode === 'both') {
                 currentInputMode = sessionStorage.getItem('intebchat_input_mode_' + instanceId) || 'text';
@@ -243,67 +516,131 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     $('#openai_input').attr('placeholder', strings.askaquestion);
                 }
 
+                // Initialize token reset countdown timer
+                initTokenResetCountdown();
+
                 // Initialize animated assistant AFTER strings are loaded
                 setTimeout(function () {
                     AnimatedAssistant.init();
                 }, 500);
+
+                // Initialize message queue for offline support
+                MessageQueue.init();
             });
 
-            if (tokenInfo.enabled) {
+            // Always initialize TokenTracker if token display is shown
+            if (tokenInfo.enabled || tokenInfo.limit > 0) {
                 TokenTracker.init(tokenInfo.used, tokenInfo.limit);
-
-                $(document).ajaxComplete(function (event, xhr, settings) {
-                    if (settings.url && settings.url.includes('/mod/intebchat/api/completion.php')) {
-                        try {
-                            var response = JSON.parse(xhr.responseText);
-                            if (response.tokenInfo) {
-                                TokenTracker.addTokens(response.tokenInfo);
-                            }
-                        } catch (e) {
-                            console.error('Error processing token info:', e);
-                        }
-                    }
-                });
             }
 
-            // Event listeners for chat input
+            // Expose TokenTracker globally for use by other modules (e.g., realtime.js)
+            window.intebchat = window.intebchat || {};
+            window.intebchat.TokenTracker = TokenTracker;
+            window.intebchat.tokenInfo = tokenInfo;
+
+            // Event listeners for chat input with debounce to prevent multiple submissions
+            var isSending = false; // Flag to prevent double-send
+
             if (audioConfig.mode === 'text' || audioConfig.mode === 'both') {
-                $(document).on('keyup', '.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input', function (e) {
+                // Use keydown instead of keyup for better UX responsiveness
+                $(document).on('keydown', '.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input', function (e) {
                     if (e.which === 13 && !e.shiftKey) {
                         e.preventDefault();
+                        if (isSending) {
+                            return; // Prevent multiple submissions
+                        }
                         if (e.target.value !== "" && !tokenInfo.exceeded) {
+                            isSending = true;
                             lastInputMode = 'text';
                             sendMessage(e.target.value, instanceId, api_type);
                             e.target.value = '';
+                            // Reset flag after a short delay
+                            setTimeout(function() {
+                                isSending = false;
+                            }, 500);
                         }
                     }
                 });
 
                 $(document).on('click', '.mod_intebchat[data-instance-id="' + instanceId + '"] #go', function (e) {
+                    if (isSending) {
+                        return; // Prevent multiple submissions
+                    }
                     var input = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input');
 
                     if (!tokenInfo.exceeded && input.val() !== "") {
+                        isSending = true;
                         lastInputMode = 'text';
                         sendMessage(input.val(), instanceId, api_type);
                         input.val('');
+                        // Reset flag after a short delay
+                        setTimeout(function() {
+                            isSending = false;
+                        }, 500);
                     }
                 });
             }
 
-            // Audio mode handlers
+            // Audio mode handlers - using document-level custom event for reliability
             if (audioConfig.enabled) {
+                console.log('INTEBCHAT: Audio enabled, mode=' + audioConfig.mode);
                 if (audioConfig.mode === 'audio' || audioConfig.mode === 'both') {
-                    $(document).on('audio-ready', '#intebchat-icon-stop', function () {
+                    console.log('INTEBCHAT: Registering audio-ready event handler');
+                    // Listen for intebchat-audio-ready event on document (reliable approach)
+                    $(document).on('intebchat-audio-ready', function (e, data) {
+                        console.log('INTEBCHAT: Audio ready event received');
                         var audioData = $('#intebchat-recorded-audio').val();
+                        console.log('INTEBCHAT: Audio data present:', !!audioData, 'tokenExceeded:', tokenInfo.exceeded);
                         if (audioData && !tokenInfo.exceeded) {
                             lastInputMode = 'audio';
-                            setTimeout(function () {
-                                sendAudioMessage(instanceId, api_type);
-                            }, 100);
+                            console.log('INTEBCHAT: Calling sendAudioMessage');
+                            sendAudioMessage(instanceId, api_type);
                         }
                     });
                 }
             }
+
+            // ============================================================
+            // NUEVO: Modo conversacional Realtime (insertado según solicitud)
+            // Agregar este código en la función init después de la línea que dice
+            // "if (!empty($intebchat->enableaudio)) {"
+            // En este archivo JS lo ubicamos después del manejo de audio.
+            // ============================================================
+            if (audioConfig.enabled && audioConfig.mode === 'conversacional') {
+                // Initialize Realtime mode instead of regular audio
+                require(['mod_intebchat/realtime'], function (Realtime) {
+                    Realtime.init({
+                        instanceId: instanceId,
+                        conversationId: currentConversationId,
+                        voice: audioConfig.voice || 'alloy'
+                    });
+
+                    // Override send button for realtime mode
+                    $(document).off('click', '#go').on('click', '#go', function (e) {
+                        e.preventDefault();
+                        var input = $('#openai_input');
+                        if (input.val() !== "") {
+                            Realtime.sendText(input.val());
+                            input.val('');
+                        }
+                    });
+
+                    // Add realtime-specific controls
+                    var realtimeControls = '<div class="realtime-controls mt-2">' +
+                        '<button id="realtime-mic-toggle" class="btn btn-danger btn-sm">' +
+                        '<i class="fa fa-microphone"></i> Mic: ON</button> ' +
+                        '<span id="realtime-status" class="text-warning ml-2">Conectando...</span>' +
+                        '</div>';
+                    $('#control_bar').append(realtimeControls);
+
+                    // Mic toggle handler
+                    $('#realtime-mic-toggle').on('click', function () {
+                        var isOn = $(this).hasClass('btn-danger');
+                        Realtime.toggleMic(!isOn);
+                    });
+                });
+            }
+            // ============================================================
 
             // New conversation button
             $(document).on('click', '#new-conversation-btn', function (e) {
@@ -421,10 +758,13 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
          * Send audio message
          */
         var sendAudioMessage = function (instanceId, api_type) {
+            console.log('INTEBCHAT: sendAudioMessage called');
             var audioData = $('#intebchat-recorded-audio').val();
             if (!audioData) {
+                console.log('INTEBCHAT: No audio data, returning');
                 return;
             }
+            console.log('INTEBCHAT: Audio data length:', audioData.length);
 
             var doSend = function () {
                 var responseMode = (audioConfig.mode === 'both') ? lastInputMode : audioConfig.mode;
@@ -496,7 +836,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 { key: 'audiotokens', component: 'mod_intebchat' },
                 { key: 'tokenlimitwarning', component: 'mod_intebchat' },
                 { key: 'reasoningmodelwarning', component: 'mod_intebchat' },
-                { key: 'conversationtitleupdated', component: 'mod_intebchat' }
+                { key: 'conversationtitleupdated', component: 'mod_intebchat' },
+                { key: 'tokensusedformat', component: 'mod_intebchat' },
+                { key: 'tokensresetcountdown', component: 'mod_intebchat' }
             ];
 
             return Str.get_strings(stringkeys).then(function (results) {
@@ -525,6 +867,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 strings.tokenlimitwarning = results[22];
                 strings.reasoningmodelwarning = results[23];
                 strings.conversationtitleupdated = results[24];
+                strings.tokensusedformat = results[25];
+                strings.tokensresetcountdown = results[26];
 
                 questionString = strings.askaquestion;
                 errorString = strings.erroroccurred;
@@ -701,10 +1045,15 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                     $('#conversations-sidebar').removeClass('mobile-open');
 
+                    // Safe scroll with existence check
                     var messageContainer = $('#intebchat_log');
-                    messageContainer.animate({
-                        scrollTop: messageContainer[0].scrollHeight
-                    }, 300);
+                    if (messageContainer.length && messageContainer[0]) {
+                        setTimeout(function() {
+                            messageContainer.stop(true).animate({
+                                scrollTop: messageContainer[0].scrollHeight
+                            }, 300);
+                        }, 50);
+                    }
 
                     $('#openai_input').focus();
                     AnimatedAssistant.idle();
@@ -970,6 +1319,65 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
+         * Initialize and update the token reset countdown timer
+         */
+        var countdownInterval = null;
+        var initTokenResetCountdown = function () {
+            var $countdownElement = $('#token-reset-countdown');
+            if (!$countdownElement.length) {
+                return;
+            }
+
+            var resetTimestamp = parseInt($countdownElement.data('reset-timestamp'), 10);
+            if (!resetTimestamp || isNaN(resetTimestamp)) {
+                return;
+            }
+
+            var updateCountdown = function () {
+                var now = Math.floor(Date.now() / 1000);
+                var remaining = resetTimestamp - now;
+
+                if (remaining <= 0) {
+                    $countdownElement.text(strings.tokensresetcountdown ?
+                        strings.tokensresetcountdown.replace('{$a}', '00:00:00') :
+                        'Resets in: 00:00:00');
+                    if (countdownInterval) {
+                        clearInterval(countdownInterval);
+                        countdownInterval = null;
+                    }
+                    // Reload page after countdown ends
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 2000);
+                    return;
+                }
+
+                var hours = Math.floor(remaining / 3600);
+                var minutes = Math.floor((remaining % 3600) / 60);
+                var seconds = remaining % 60;
+
+                var timeStr = String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+
+                var displayText = strings.tokensresetcountdown ?
+                    strings.tokensresetcountdown.replace('{$a}', timeStr) :
+                    'Resets in: ' + timeStr;
+
+                $countdownElement.text(displayText);
+            };
+
+            // Update immediately
+            updateCountdown();
+
+            // Update every second
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            countdownInterval = setInterval(updateCountdown, 1000);
+        };
+
+        /**
          * Remove autoplay attribute from audio tags to avoid unwanted playback
          * @param {string} html
          * @return {string}
@@ -1057,16 +1465,205 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             var timestampElem = $('<span></span>').addClass('message-timestamp').text(timestamp);
             messageElem.append(timestampElem);
 
-            // Smooth scroll to bottom
-            messageContainer.animate({
-                scrollTop: messageContainer[0].scrollHeight
-            }, 300);
+            // Smooth scroll to bottom with safety check
+            if (messageContainer.length && messageContainer[0]) {
+                // Use setTimeout to ensure DOM has updated
+                setTimeout(function() {
+                    messageContainer.stop(true).animate({
+                        scrollTop: messageContainer[0].scrollHeight
+                    }, 300);
+                }, 50);
+            }
+        };
+
+        /**
+         * Whether to use streaming for completions
+         * Can be disabled for compatibility or debugging
+         */
+        var useStreaming = true;
+
+        /**
+         * Check if streaming is supported by the browser
+         * @return {boolean} True if streaming is supported
+         */
+        var isStreamingSupported = function () {
+            return typeof fetch !== 'undefined' &&
+                   typeof ReadableStream !== 'undefined' &&
+                   typeof TextDecoder !== 'undefined';
+        };
+
+        /**
+         * Create a streaming completion using Server-Sent Events
+         * Falls back to regular AJAX if streaming fails
+         */
+        var createStreamingCompletion = function (message, instanceId, responseMode) {
+            var history = buildTranscript(instanceId);
+
+            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').addClass('disabled');
+            $('.mod_intebchat[data-instance-id="' + instanceId + '"] #openai_input').blur();
+
+            // Add bot message placeholder for streaming
+            var streamMsgId = 'stream-msg-' + Date.now();
+            var $messageContainer = $('.mod_intebchat[data-instance-id="' + instanceId + '"] #intebchat_log');
+
+            // Remove any existing loading message
+            $messageContainer.find('.openai_message.bot-loading').remove();
+
+            // Add streaming message container
+            var $streamMsg = $('<div>')
+                .attr('id', streamMsgId)
+                .addClass('openai_message bot streaming')
+                .html('<span class="streaming-cursor"></span>');
+            $messageContainer.append($streamMsg);
+            // Safe scroll with existence check
+            if ($messageContainer.length && $messageContainer[0]) {
+                $messageContainer.stop(true).animate({ scrollTop: $messageContainer[0].scrollHeight }, 100);
+            }
+
+            AnimatedAssistant.thinking();
+
+            var requestData = {
+                message: message,
+                history: history,
+                instanceId: instanceId,
+                conversationId: currentConversationId || null,
+                responseMode: responseMode || 'text',
+                sesskey: M.cfg.sesskey
+            };
+
+            var fullContent = '';
+            var streamConversationId = null;
+
+            // Create EventSource-like connection using fetch
+            fetch(M.cfg.wwwroot + '/mod/intebchat/api/completion_stream.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Sesskey': M.cfg.sesskey
+                },
+                body: JSON.stringify(requestData)
+            }).then(function (response) {
+                if (!response.ok) {
+                    throw new Error('HTTP error ' + response.status);
+                }
+
+                var reader = response.body.getReader();
+                var decoder = new TextDecoder();
+                var buffer = '';
+
+                function processStream() {
+                    return reader.read().then(function (result) {
+                        if (result.done) {
+                            // Stream complete - finalize message
+                            finishStreaming();
+                            return;
+                        }
+
+                        buffer += decoder.decode(result.value, { stream: true });
+
+                        // Parse SSE events
+                        var lines = buffer.split('\n');
+                        buffer = lines.pop(); // Keep incomplete line in buffer
+
+                        lines.forEach(function (line) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    var data = JSON.parse(line.substring(6));
+
+                                    if (data.content) {
+                                        // Streaming chunk
+                                        fullContent += data.content;
+                                        var $msg = $('#' + streamMsgId);
+                                        $msg.html(fullContent + '<span class="streaming-cursor"></span>');
+                                        // Safe scroll with existence check
+                                        if ($messageContainer.length && $messageContainer[0]) {
+                                            $messageContainer.stop(true).animate({ scrollTop: $messageContainer[0].scrollHeight }, 50);
+                                        }
+                                    }
+
+                                    if (data.id) {
+                                        // New conversation created
+                                        streamConversationId = data.id;
+                                        if (!currentConversationId) {
+                                            currentConversationId = streamConversationId;
+                                        }
+                                    }
+
+                                    if (data.conversationId) {
+                                        streamConversationId = data.conversationId;
+                                    }
+
+                                    if (data.tokenInfo) {
+                                        // Update token tracker
+                                        TokenTracker.addTokens(data.tokenInfo);
+                                    }
+                                } catch (e) {
+                                    // Ignore parse errors for non-JSON lines
+                                }
+                            } else if (line.startsWith('event: ')) {
+                                var eventType = line.substring(7).trim();
+
+                                if (eventType === 'complete') {
+                                    AnimatedAssistant.talking();
+                                } else if (eventType === 'error') {
+                                    AnimatedAssistant.idle();
+                                }
+                            }
+                        });
+
+                        return processStream();
+                    });
+                }
+
+                function finishStreaming() {
+                    // Remove streaming state
+                    $('#' + streamMsgId).removeClass('streaming');
+                    $('#' + streamMsgId + ' .streaming-cursor').remove();
+
+                    // Add timestamp
+                    var timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    $('#' + streamMsgId).append('<span class="message-timestamp">' + timestamp + '</span>');
+
+                    // Update conversation preview
+                    if (currentConversationId) {
+                        updateConversationPreview(currentConversationId, message);
+                    }
+
+                    // Re-enable controls
+                    $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
+                    AnimatedAssistant.idle();
+
+                    if ($('#openai_input').length) {
+                        $('#openai_input').focus();
+                    }
+                }
+
+                return processStream();
+            }).catch(function (error) {
+                console.error('Streaming error:', error);
+                $('#' + streamMsgId).addClass('error bot-error').html(
+                    '<i class="fa fa-exclamation-circle"></i> ' +
+                    (strings.erroroccurred || 'An error occurred. Please try again.')
+                );
+                $('.mod_intebchat[data-instance-id="' + instanceId + '"] #control_bar').removeClass('disabled');
+                AnimatedAssistant.idle();
+            });
         };
 
         /**
          * Makes an API request to get a completion from GPT
+         * Uses streaming by default for better UX, with fallback to regular AJAX
          */
         var createCompletion = function (message, instanceId, api_type, responseMode) {
+            var audio = $('#intebchat-recorded-audio').val();
+
+            // Use streaming for text-only requests (not audio) when supported
+            if (useStreaming && isStreamingSupported() && !audio && message) {
+                createStreamingCompletion(message, instanceId, responseMode);
+                return;
+            }
+
+            // Regular AJAX path for audio or when streaming is not supported
             var threadId = null;
 
             if (currentConversationId) {
@@ -1090,8 +1687,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     '</div>', instanceId);
             }
 
-            var audio = $('#intebchat-recorded-audio').val();
-
             var requestData = {
                 message: message,
                 history: history,
@@ -1099,7 +1694,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 conversationId: currentConversationId || null,
                 threadId: threadId,
                 audio: audio || null,
-                responseMode: responseMode || 'text'
+                responseMode: responseMode || 'text',
+                sesskey: M.cfg.sesskey // CSRF protection
             };
 
             console.log('Sending completion request:', requestData);
@@ -1110,6 +1706,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify(requestData),
+                headers: {
+                    'X-Sesskey': M.cfg.sesskey // Alternative CSRF header
+                },
                 success: function (data) {
                     console.log('Completion response:', data);
 
@@ -1151,8 +1750,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                             updateConversationPreview(currentConversationId, data.transcription || message);
                         }
 
-                        if (data.tokenInfo && tokenInfo.enabled) {
+                        // Always update token display if tokenInfo is present
+                        if (data.tokenInfo) {
                             TokenTracker.addTokens(data.tokenInfo);
+                            console.log('Token usage updated:', data.tokenInfo);
                         }
                     } else if (data.error) {
                         console.error('Server error:', data.error);
@@ -1219,13 +1820,41 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         };
 
         /**
-         * Build transcript from chat history
+         * Maximum number of messages to include in history.
+         * This limits context size to improve performance and reduce token usage.
+         * Each exchange = 2 messages (user + assistant), so 10 = last 5 exchanges.
          */
-        var buildTranscript = function (instanceId) {
+        var MAX_HISTORY_MESSAGES = 20;
+
+        /**
+         * Build transcript from chat history with compression.
+         *
+         * Only includes the most recent messages up to MAX_HISTORY_MESSAGES
+         * to prevent sending entire conversation history on every request.
+         *
+         * @param {string} instanceId The instance ID
+         * @param {number} maxMessages Optional override for max messages (default: MAX_HISTORY_MESSAGES)
+         * @return {Array} Array of message objects [{user, message}, ...]
+         */
+        var buildTranscript = function (instanceId, maxMessages) {
+            maxMessages = maxMessages || MAX_HISTORY_MESSAGES;
             var transcript = [];
-            $('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message').each(function (index, element) {
-                var messages = $('.mod_intebchat[data-instance-id="' + instanceId + '"] .openai_message');
-                if (index === messages.length - 1) {
+            var $container = $('.mod_intebchat[data-instance-id="' + instanceId + '"]');
+            var $messages = $container.find('.openai_message');
+            var totalMessages = $messages.length;
+
+            // Calculate starting index to only include last N messages
+            // Subtract 1 because we skip the last message (it's the one being sent)
+            var startIndex = Math.max(0, totalMessages - maxMessages - 1);
+
+            $messages.each(function (index, element) {
+                // Skip messages before our window
+                if (index < startIndex) {
+                    return;
+                }
+
+                // Skip the last message (current user message being sent)
+                if (index === totalMessages - 1) {
                     return;
                 }
 
@@ -1234,12 +1863,18 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     user = assistantName;
                 }
 
-                var messageText = $(element).clone();
-                messageText.find('.message-timestamp').remove();
-                messageText.find('audio').remove();
-                messageText.find('.transcription').remove();
+                // Clone and clean the message
+                var $messageText = $(element).clone();
+                $messageText.find('.message-timestamp').remove();
+                $messageText.find('audio').remove();
+                $messageText.find('.transcription').remove();
 
-                transcript.push({ "user": user, "message": messageText.text().trim() });
+                var text = $messageText.text().trim();
+
+                // Skip empty messages
+                if (text) {
+                    transcript.push({ "user": user, "message": text });
+                }
             });
 
             return transcript;

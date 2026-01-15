@@ -71,15 +71,30 @@ class mod_intebchat_mod_form extends moodleform_mod {
         $mform->addElement('advcheckbox', 'showlabels', get_string('showlabels', 'mod_intebchat'));
         $mform->setDefault('showlabels', 1);
 
+        // Mascot selection
+        $mascots = [
+            'assistant' => get_string('mascot_assistant', 'mod_intebchat'),
+            'robot' => get_string('mascot_robot', 'mod_intebchat'),
+            'cat' => get_string('mascot_cat', 'mod_intebchat'),
+            'owl' => get_string('mascot_owl', 'mod_intebchat'),
+            'clippy' => get_string('mascot_clippy', 'mod_intebchat'),
+            'lightbulb' => get_string('mascot_lightbulb', 'mod_intebchat'),
+        ];
+        $mform->addElement('select', 'mascot', get_string('mascot', 'mod_intebchat'), $mascots);
+        $mform->setDefault('mascot', 'assistant');
+        $mform->addHelpButton('mascot', 'mascot', 'mod_intebchat');
+
         // Audio settings - Only if audio is enabled globally
         if (!empty($config->enableaudio)) {
             $mform->addElement('advcheckbox', 'enableaudio', get_string('enableaudio', 'mod_intebchat'));
             $mform->setDefault('enableaudio', 0);
             $mform->addHelpButton('enableaudio', 'enableaudio', 'mod_intebchat');
 
+            // MODIFICACIÓN PRINCIPAL: Agregar modo conversacional
             $audiomodes = [
                 'audio' => get_string('audiomode_audio', 'mod_intebchat'),
-                'both' => get_string('audiomode_both', 'mod_intebchat')
+                'both' => get_string('audiomode_both', 'mod_intebchat'),
+                'conversacional' => get_string('audiomode_conversacional', 'mod_intebchat')
             ];
             
             $mform->addElement('select', 'audiomode', get_string('audiomode', 'mod_intebchat'), $audiomodes);
@@ -87,7 +102,7 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
             $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
 
-            // Voice selection
+            // Voice selection - Ya existe, no modificar
             $voices = [
                 'alloy' => 'Alloy (Neutral, professional)',
                 'ash' => 'Ash (Calm, modern)',
@@ -104,45 +119,39 @@ class mod_intebchat_mod_form extends moodleform_mod {
             
             $mform->addElement('select', 'voice', get_string('voice', 'mod_intebchat'), $voices);
             $mform->setDefault('voice', get_config('mod_intebchat', 'voice') ?: 'alloy');
-            $mform->setType('voice', PARAM_TEXT);
             $mform->addHelpButton('voice', 'voice', 'mod_intebchat');
             $mform->disabledIf('voice', 'enableaudio', 'eq', 0);
         }
 
-        // Hidden field for API type (always use global setting)
+        // API Type field - read only display
+        $apiTypeDisplay = $type === 'assistant' ? get_string('assistant', 'mod_intebchat') : get_string('chatcompletion', 'mod_intebchat');
+        $mform->addElement('static', 'apitype_display', get_string('type', 'mod_intebchat'), $apiTypeDisplay);
         $mform->addElement('hidden', 'apitype', $type);
         $mform->setType('apitype', PARAM_TEXT);
 
-        // MODIFICACIÓN PRINCIPAL: Campos que se muestran SIEMPRE
-        // Assistant name (SIEMPRE visible para TODOS los tipos)
-        $mform->addElement('text', 'assistantname', get_string('assistantname', 'mod_intebchat'));
-        $mform->setDefault('assistantname', '');
-        $mform->setType('assistantname', PARAM_TEXT);
-        $mform->addHelpButton('assistantname', 'config_assistantname', 'mod_intebchat');
-
-        // Instructions field (SIEMPRE visible para TODOS los tipos)
-        $mform->addElement('textarea', 'instructions', get_string('config_instructions', 'mod_intebchat'), 
-            'rows="6" cols="80"');
+        // Add instructions field for both types
+        $mform->addElement('textarea', 'instructions', get_string('instructions', 'mod_intebchat'), 
+            array('rows' => 6, 'cols' => 80));
         $mform->setType('instructions', PARAM_TEXT);
         $mform->addHelpButton('instructions', 'config_instructions', 'mod_intebchat');
 
-        // Campos específicos según el tipo de API
+        // Assistant name field (for UI labels)
+        $mform->addElement('text', 'assistantname', get_string('assistantname', 'mod_intebchat'), array('size' => '60'));
+        $mform->setType('assistantname', PARAM_TEXT);
+        $mform->setDefault('assistantname', $config->assistantname ?: get_string('defaultassistantname', 'mod_intebchat'));
+        $mform->addHelpButton('assistantname', 'config_assistantname', 'mod_intebchat');
+
+        // API specific settings
         if ($type === 'assistant') {
-            // Solo para Assistant API: mostrar campos adicionales específicos
+            // Assistant selection - only for assistant type
             if ($config->allowinstancesettings) {
-                // Get assistants using the appropriate API key
-                $apikey = $config->apikey;
-                if ($this->current && !empty($this->current->apikey)) {
-                    $apikey = $this->current->apikey;
-                }
+                $apikey = !empty($config->apikey) ? $config->apikey : '';
                 $assistants = intebchat_fetch_assistants_array($apikey);
                 
-                if (empty($assistants)) {
-                    $mform->addElement('static', 'noassistants', get_string('assistant', 'mod_intebchat'), 
-                        get_string('noassistants', 'mod_intebchat'));
-                } else {
+                if (!empty($assistants)) {
                     $mform->addElement('select', 'assistant', get_string('assistant', 'mod_intebchat'), $assistants);
-                    $mform->setDefault('assistant', $config->assistant ?: reset($assistants));
+                    // Pre-select the first assistant if available
+                    $mform->setDefault('assistant', key($assistants) ?: reset($assistants));
                     $mform->addHelpButton('assistant', 'config_assistant', 'mod_intebchat');
                 }
                 $mform->setType('assistant', PARAM_TEXT);
@@ -213,33 +222,5 @@ class mod_intebchat_mod_form extends moodleform_mod {
         // Always use global API type
         $config = get_config('mod_intebchat');
         $default_values['apitype'] = $config->type ?: 'chat';
-        
-        // Set voice default if not set
-        if (empty($default_values['voice'])) {
-            $default_values['voice'] = get_config('mod_intebchat', 'voice') ?: 'alloy';
-        }
-    }
-
-    /**
-     * Process form data after submission
-     *
-     * @param stdClass $data
-     */
-    public function data_postprocessing($data) {
-        parent::data_postprocessing($data);
-        
-        // Ensure apitype is always set from global config
-        $config = get_config('mod_intebchat');
-        $data->apitype = $config->type ?: 'chat';
-        
-        // Set defaults for unchecked checkboxes
-        if (!isset($data->enableaudio)) {
-            $data->enableaudio = 0;
-        }
-        
-        // Ensure voice is always set when audio is enabled
-        if (!empty($data->enableaudio) && empty($data->voice)) {
-            $data->voice = get_config('mod_intebchat', 'voice') ?: 'alloy';
-        }
     }
 }

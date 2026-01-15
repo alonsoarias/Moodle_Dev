@@ -24,6 +24,359 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// ============================================================================
+// PLUGIN CONSTANTS
+// ============================================================================
+
+/**
+ * Maximum length for user input messages.
+ */
+define('INTEBCHAT_MAX_INPUT_LENGTH', 10000);
+
+/**
+ * Maximum length for conversation titles.
+ */
+define('INTEBCHAT_MAX_TITLE_LENGTH', 255);
+
+/**
+ * Maximum length for conversation previews.
+ */
+define('INTEBCHAT_MAX_PREVIEW_LENGTH', 255);
+
+/**
+ * Default token limit per user per period.
+ */
+define('INTEBCHAT_DEFAULT_TOKEN_LIMIT', 10000);
+
+/**
+ * Probability of running cleanup tasks (1 in N requests).
+ */
+define('INTEBCHAT_CLEANUP_PROBABILITY', 100);
+
+/**
+ * Default model for API calls.
+ */
+define('INTEBCHAT_DEFAULT_MODEL', 'gpt-4.1');
+
+/**
+ * Default temperature for API calls.
+ */
+define('INTEBCHAT_DEFAULT_TEMPERATURE', 0.7);
+
+/**
+ * Default max tokens for API responses.
+ */
+define('INTEBCHAT_DEFAULT_MAX_TOKENS', 1024);
+
+/**
+ * API timeout in seconds.
+ */
+define('INTEBCHAT_API_TIMEOUT', 120);
+
+/**
+ * API connection timeout in seconds.
+ */
+define('INTEBCHAT_API_CONNECT_TIMEOUT', 10);
+
+/**
+ * Period durations in seconds.
+ */
+define('INTEBCHAT_PERIOD_HOUR', 3600);
+define('INTEBCHAT_PERIOD_DAY', 86400);
+define('INTEBCHAT_PERIOD_WEEK', 604800);
+define('INTEBCHAT_PERIOD_MONTH', 2592000);
+
+// ============================================================================
+// CORE FUNCTIONS
+// ============================================================================
+
+/**
+ * Get cached plugin configuration.
+ *
+ * This function caches the configuration to reduce database queries.
+ * The cache is stored statically and optionally in Moodle's cache API.
+ *
+ * @param bool $forcereload Force reload from database
+ * @return stdClass The plugin configuration object
+ */
+function intebchat_get_config($forcereload = false) {
+    static $config = null;
+
+    if ($config !== null && !$forcereload) {
+        return $config;
+    }
+
+    // Try to get from cache first
+    try {
+        $cache = \cache::make('mod_intebchat', 'config');
+        if (!$forcereload) {
+            $cached = $cache->get('plugin_config');
+            if ($cached !== false) {
+                $config = $cached;
+                return $config;
+            }
+        }
+    } catch (\Exception $e) {
+        // Cache not available, continue without it
+        debugging('intebchat config cache not available: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    }
+
+    // Load from database
+    $config = get_config('mod_intebchat');
+
+    // Store in cache
+    if (isset($cache)) {
+        try {
+            $cache->set('plugin_config', $config);
+        } catch (\Exception $e) {
+            // Ignore cache write failures
+        }
+    }
+
+    return $config;
+}
+
+/**
+ * Clear the plugin configuration cache.
+ *
+ * Call this when configuration changes are saved.
+ */
+function intebchat_clear_config_cache() {
+    try {
+        $cache = \cache::make('mod_intebchat', 'config');
+        $cache->delete('plugin_config');
+    } catch (\Exception $e) {
+        // Ignore if cache not available
+    }
+}
+
+/**
+ * Encrypt an API key for secure storage.
+ *
+ * Uses Moodle's core encryption if available (4.0+), otherwise falls back to OpenSSL.
+ *
+ * @param string $apikey The plain text API key
+ * @return string The encrypted API key (base64 encoded)
+ */
+function intebchat_encrypt_apikey($apikey) {
+    if (empty($apikey)) {
+        return '';
+    }
+
+    // Use Moodle's core encryption class if available (Moodle 4.0+).
+    if (class_exists('\core\encryption')) {
+        try {
+            return \core\encryption::encrypt($apikey);
+        } catch (\Exception $e) {
+            debugging('Encryption failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
+    }
+
+    // Fallback to OpenSSL encryption using Moodle's secret.
+    global $CFG;
+    $salt = $CFG->secretsaltmain ?? $CFG->passwordsaltmain ?? null;
+    if (empty($salt)) {
+        debugging('No secret salt configured in Moodle. API key encryption requires $CFG->secretsaltmain or $CFG->passwordsaltmain.', DEBUG_DEVELOPER);
+        throw new \moodle_exception('nosaltconfigured', 'mod_intebchat');
+    }
+    $key = hash('sha256', $salt, true);
+    $iv = openssl_random_pseudo_bytes(16);
+    if ($iv === false) {
+        throw new \moodle_exception('cryptoerror', 'mod_intebchat');
+    }
+    $encrypted = openssl_encrypt($apikey, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+    if ($encrypted === false) {
+        debugging('OpenSSL encryption failed: ' . openssl_error_string(), DEBUG_DEVELOPER);
+        throw new \moodle_exception('cryptoerror', 'mod_intebchat');
+    }
+
+    // Prefix with 'enc:' to identify encrypted values.
+    return 'enc:' . base64_encode($iv . $encrypted);
+}
+
+/**
+ * Decrypt an API key from storage.
+ *
+ * @param string $encrypted The encrypted API key
+ * @return string The decrypted API key
+ */
+function intebchat_decrypt_apikey($encrypted) {
+    if (empty($encrypted)) {
+        return '';
+    }
+
+    // If not encrypted (legacy or plain text), return as-is.
+    if (strpos($encrypted, 'enc:') !== 0 && !preg_match('/^[A-Za-z0-9+\/=]+$/', $encrypted)) {
+        // Looks like a plain API key (starts with sk-), return as-is.
+        return $encrypted;
+    }
+
+    // Try Moodle's core encryption first.
+    if (class_exists('\core\encryption') && strpos($encrypted, 'enc:') !== 0) {
+        try {
+            return \core\encryption::decrypt($encrypted);
+        } catch (\Exception $e) {
+            // May not be encrypted with core encryption, try fallback.
+            debugging('Core decryption failed, trying fallback: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
+    }
+
+    // Fallback OpenSSL decryption.
+    if (strpos($encrypted, 'enc:') === 0) {
+        global $CFG;
+        $salt = $CFG->secretsaltmain ?? $CFG->passwordsaltmain ?? null;
+        if (empty($salt)) {
+            debugging('No secret salt configured. Cannot decrypt API key.', DEBUG_DEVELOPER);
+            return $encrypted;
+        }
+        $key = hash('sha256', $salt, true);
+        $data = base64_decode(substr($encrypted, 4));
+
+        if ($data === false || strlen($data) < 17) {
+            debugging('Invalid encrypted data format', DEBUG_DEVELOPER);
+            return $encrypted;
+        }
+
+        $iv = substr($data, 0, 16);
+        $ciphertext = substr($data, 16);
+        $decrypted = openssl_decrypt($ciphertext, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+        if ($decrypted !== false) {
+            return $decrypted;
+        }
+
+        debugging('OpenSSL decryption failed: ' . openssl_error_string(), DEBUG_DEVELOPER);
+    }
+
+    // Return original if all decryption attempts fail.
+    return $encrypted;
+}
+
+/**
+ * Check if a string appears to be an encrypted API key.
+ *
+ * @param string $value The value to check
+ * @return bool True if the value appears to be encrypted
+ */
+function intebchat_is_encrypted($value) {
+    if (empty($value)) {
+        return false;
+    }
+
+    // Check for our custom encryption prefix.
+    if (strpos($value, 'enc:') === 0) {
+        return true;
+    }
+
+    // Check for Moodle core encryption (typically base64 with specific format).
+    if (class_exists('\core\encryption') && preg_match('/^[A-Za-z0-9+\/=]{50,}$/', $value)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Sanitize user input to prevent prompt injection attacks.
+ *
+ * This function helps protect against common prompt injection patterns
+ * while preserving legitimate user input.
+ *
+ * @param string $input The user input to sanitize
+ * @param int $maxlength Maximum allowed length (default 10000)
+ * @return string The sanitized input
+ */
+function intebchat_sanitize_input($input, $maxlength = INTEBCHAT_MAX_INPUT_LENGTH) {
+    if (empty($input)) {
+        return '';
+    }
+
+    // Enforce maximum length.
+    if (strlen($input) > $maxlength) {
+        $input = substr($input, 0, $maxlength);
+    }
+
+    // Remove null bytes and other control characters (except newlines and tabs).
+    $input = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $input);
+
+    // Patterns that attempt to override system instructions.
+    $injection_patterns = [
+        // Direct instruction overrides.
+        '/\bignore\s+(all\s+)?(previous|above|prior)\s+instructions?\b/i',
+        '/\bdisregard\s+(all\s+)?(previous|above|prior)\s+instructions?\b/i',
+        '/\bforget\s+(all\s+)?(previous|above|prior)\s+instructions?\b/i',
+        // System prompt extraction attempts.
+        '/\b(show|reveal|display|output|print|tell\s+me)\s+(your|the)\s+(system\s+)?(prompt|instructions?)\b/i',
+        '/\bwhat\s+(are|is)\s+your\s+(system\s+)?(prompt|instructions?)\b/i',
+        // Role playing to bypass restrictions.
+        '/\b(you\s+are\s+now|pretend\s+(to\s+be|you\'?re)|act\s+as\s+if\s+you\'?re)\s+(a\s+)?(?!helpful|assistant)(jailbroken|unrestricted|evil|harmful)\b/i',
+        // Developer mode / DAN attempts.
+        '/\b(developer|dev)\s*mode\b/i',
+        '/\bDAN\s*(mode)?\b/i',
+        '/\bjailbreak\b/i',
+        // Markdown/code injection for prompt leakage.
+        '/```system\b/i',
+        '/```prompt\b/i',
+    ];
+
+    foreach ($injection_patterns as $pattern) {
+        if (preg_match($pattern, $input)) {
+            // Log the attempt for monitoring.
+            debugging('Potential prompt injection attempt detected', DEBUG_DEVELOPER);
+            // Replace the matched pattern with a safe placeholder.
+            $input = preg_replace($pattern, '[input sanitized]', $input);
+        }
+    }
+
+    // Normalize excessive whitespace.
+    $input = preg_replace('/\s{10,}/', '    ', $input);
+
+    // Trim the result.
+    return trim($input);
+}
+
+/**
+ * Validate that input meets security requirements.
+ *
+ * @param string $input The input to validate
+ * @param int $maxlength Maximum allowed length
+ * @return array ['valid' => bool, 'message' => string, 'sanitized' => string]
+ */
+function intebchat_validate_input($input, $maxlength = INTEBCHAT_MAX_INPUT_LENGTH) {
+    $result = [
+        'valid' => true,
+        'message' => '',
+        'sanitized' => ''
+    ];
+
+    // Check for empty input.
+    if (empty($input)) {
+        $result['valid'] = false;
+        $result['message'] = get_string('invalidinput', 'mod_intebchat');
+        return $result;
+    }
+
+    // Check length before sanitization.
+    if (strlen($input) > $maxlength) {
+        $result['valid'] = false;
+        $result['message'] = get_string('inputtoolong', 'mod_intebchat');
+        return $result;
+    }
+
+    // Sanitize the input.
+    $result['sanitized'] = intebchat_sanitize_input($input, $maxlength);
+
+    // Validate the sanitized input is not empty.
+    if (empty($result['sanitized'])) {
+        $result['valid'] = false;
+        $result['message'] = get_string('invalidinput', 'mod_intebchat');
+        return $result;
+    }
+
+    return $result;
+}
+
 /**
  * Returns the information on whether the module supports a feature
  *
@@ -337,45 +690,29 @@ function intebchat_check_token_limit($userid)
         return ['allowed' => true, 'used' => 0, 'limit' => 0, 'reset_time' => 0];
     }
 
-    $limit = (int)$config->maxtokensperuser;
+    $limit = (int)($config->maxtokensperuser ?? INTEBCHAT_DEFAULT_TOKEN_LIMIT);
     $period = $config->tokenlimitperiod ?: 'day';
 
     // Calculate period start time
     $now = time();
     $periodstart = intebchat_get_period_start($period, $now);
 
-    // Get or create token usage record
+    // Get token usage record for current period
     $usage = $DB->get_record('intebchat_token_usage', [
         'userid' => $userid,
         'periodtype' => $period,
         'periodstart' => $periodstart
     ]);
 
-    if (!$usage) {
-        // Create new usage record
-        $usage = new stdClass();
-        $usage->userid = $userid;
-        $usage->tokensused = 0;
-        $usage->periodstart = $periodstart;
-        $usage->periodtype = $period;
-        $usage->timecreated = $now;
-        $usage->timemodified = $now;
-        $usage->id = $DB->insert_record('intebchat_token_usage', $usage);
-    }
-
-    // Clean up old records
-    $DB->delete_records_select(
-        'intebchat_token_usage',
-        'periodstart < :periodstart AND periodtype = :periodtype',
-        ['periodstart' => $periodstart, 'periodtype' => $period]
-    );
+    // If no record exists, user has 0 tokens used for this period
+    $tokensused = $usage ? (int)$usage->tokensused : 0;
 
     // Calculate when the limit resets
     $reset_time = $periodstart + intebchat_get_period_duration($period);
 
     return [
-        'allowed' => $usage->tokensused < $limit,
-        'used' => $usage->tokensused,
+        'allowed' => $tokensused < $limit,
+        'used' => $tokensused,
         'limit' => $limit,
         'reset_time' => $reset_time
     ];
@@ -391,14 +728,14 @@ function intebchat_get_period_duration($period)
 {
     switch ($period) {
         case 'hour':
-            return 3600;
+            return INTEBCHAT_PERIOD_HOUR;
         case 'week':
-            return 7 * 24 * 3600;
+            return INTEBCHAT_PERIOD_WEEK;
         case 'month':
-            return 30 * 24 * 3600;
+            return INTEBCHAT_PERIOD_MONTH;
         case 'day':
         default:
-            return 24 * 3600;
+            return INTEBCHAT_PERIOD_DAY;
     }
 }
 
@@ -413,6 +750,11 @@ function intebchat_update_token_usage($userid, $tokens)
 {
     global $DB;
 
+    // Validate input
+    if (empty($userid) || $tokens <= 0) {
+        return true;
+    }
+
     $config = get_config('mod_intebchat');
 
     // If token limit is not enabled, don't track
@@ -426,7 +768,22 @@ function intebchat_update_token_usage($userid, $tokens)
     // Calculate current period start
     $periodstart = intebchat_get_period_start($period, $now);
 
-    // Get or create usage record
+    // Try to update existing record first (more common case)
+    $sql = "UPDATE {intebchat_token_usage}
+            SET tokensused = tokensused + :tokens, timemodified = :now
+            WHERE userid = :userid AND periodtype = :periodtype AND periodstart = :periodstart";
+
+    $params = [
+        'tokens' => (int)$tokens,
+        'now' => $now,
+        'userid' => $userid,
+        'periodtype' => $period,
+        'periodstart' => $periodstart
+    ];
+
+    $updated = $DB->execute($sql, $params);
+
+    // Check if any row was updated
     $usage = $DB->get_record('intebchat_token_usage', [
         'userid' => $userid,
         'periodtype' => $period,
@@ -434,23 +791,52 @@ function intebchat_update_token_usage($userid, $tokens)
     ]);
 
     if (!$usage) {
-        // Create new record for current period
-        $usage = new stdClass();
-        $usage->userid = $userid;
-        $usage->tokensused = $tokens;
-        $usage->periodstart = $periodstart;
-        $usage->periodtype = $period;
-        $usage->timecreated = $now;
-        $usage->timemodified = $now;
-        $DB->insert_record('intebchat_token_usage', $usage);
-    } else {
-        // Update existing record
-        $usage->tokensused += $tokens;
-        $usage->timemodified = $now;
-        $DB->update_record('intebchat_token_usage', $usage);
+        // No record exists, create new one
+        try {
+            $usage = new stdClass();
+            $usage->userid = $userid;
+            $usage->tokensused = (int)$tokens;
+            $usage->periodstart = $periodstart;
+            $usage->periodtype = $period;
+            $usage->timecreated = $now;
+            $usage->timemodified = $now;
+            $DB->insert_record('intebchat_token_usage', $usage);
+        } catch (\dml_exception $e) {
+            // Race condition - record was created by another request
+            // Try to update again
+            $DB->execute($sql, $params);
+        }
+    }
+
+    // Periodically clean up old records (1 in N chance per request)
+    if (rand(1, INTEBCHAT_CLEANUP_PROBABILITY) === 1) {
+        intebchat_cleanup_old_token_records($period, $periodstart);
     }
 
     return true;
+}
+
+/**
+ * Clean up old token usage records
+ *
+ * @param string $period Period type
+ * @param int $currentperiodstart Start of current period
+ */
+function intebchat_cleanup_old_token_records($period, $currentperiodstart)
+{
+    global $DB;
+
+    try {
+        // Delete records from previous periods
+        $DB->delete_records_select(
+            'intebchat_token_usage',
+            'periodstart < :periodstart AND periodtype = :periodtype',
+            ['periodstart' => $currentperiodstart, 'periodtype' => $period]
+        );
+    } catch (\Exception $e) {
+        // Log error but don't fail the request
+        debugging('Failed to clean up old token records: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    }
 }
 
 /**
@@ -515,11 +901,7 @@ function intebchat_log_message($instanceid, $conversationid, $usermessage, $aire
         $record->prompttokens = $tokeninfo['prompt'] ?? 0;
         $record->completiontokens = $tokeninfo['completion'] ?? 0;
         $record->totaltokens = $tokeninfo['total'] ?? 0;
-
-        // Update user's token usage
-        if ($record->totaltokens > 0) {
-            intebchat_update_token_usage($USER->id, $record->totaltokens);
-        }
+        // Note: Token usage is updated in completion.php, not here, to avoid double counting
     } else {
         // Log with zero tokens if no token info provided
         $record->prompttokens = 0;
@@ -717,14 +1099,53 @@ function intebchat_get_file_info($browser, $areas, $course, $cm, $context, $file
 
 /**
  * Serves the files from the intebchat file areas
+ *
+ * @param stdClass $course the course object
+ * @param stdClass $cm the course module object
+ * @param context $context the context
+ * @param string $filearea the name of the file area
+ * @param array $args extra arguments (itemid, path)
+ * @param bool $forcedownload whether or not force download
+ * @param array $options additional options affecting the file serving
+ * @return bool false if file not found, does not return if found - just send the file
  */
 function intebchat_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = array())
 {
+    global $USER, $DB;
+
     if ($context->contextlevel != CONTEXT_MODULE) {
         send_file_not_found();
     }
 
     require_login($course, true, $cm);
+
+    // Handle user audio files
+    if ($filearea === 'useraudio') {
+        $itemid = array_shift($args);
+        $filename = array_pop($args);
+        $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
+
+        // Verify user has access to this conversation
+        $conversation = $DB->get_record('intebchat_conversations', ['id' => $itemid]);
+        if (!$conversation) {
+            send_file_not_found();
+        }
+
+        // User can access their own audio or if they have view capability
+        if ($conversation->userid !== $USER->id && !has_capability('mod/intebchat:view', $context)) {
+            send_file_not_found();
+        }
+
+        $fs = get_file_storage();
+        $file = $fs->get_file($context->id, 'mod_intebchat', $filearea, $itemid, $filepath, $filename);
+
+        if (!$file || $file->is_directory()) {
+            send_file_not_found();
+        }
+
+        // Send the file with appropriate caching
+        send_stored_file($file, 86400, 0, $forcedownload, $options);
+    }
 
     send_file_not_found();
 }
@@ -740,6 +1161,52 @@ function intebchat_extend_navigation(navigation_node $navref, stdClass $course, 
  * Extends the settings navigation with the intebchat settings
  */
 function intebchat_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $intebchatnode = null) {}
+
+/**
+ * Adds INTEB Chat report link to course reports navigation.
+ *
+ * @param navigation_node $navigation The navigation node to extend
+ * @param stdClass $course The course object
+ * @param context $context The course context
+ */
+function intebchat_extend_navigation_course(navigation_node $navigation, stdClass $course, context $context) {
+    global $DB;
+
+    // Check if there are any intebchat instances in this course
+    $instances = $DB->get_records('intebchat', ['course' => $course->id], '', 'id');
+    if (empty($instances)) {
+        return;
+    }
+
+    // Check capability to view analytics
+    if (!has_capability('mod/intebchat:viewanalytics', $context)) {
+        return;
+    }
+
+    $url = new moodle_url('/mod/intebchat/report_course.php', ['courseid' => $course->id]);
+
+    // Try different node keys that Moodle versions use for course reports
+    $reportsnode = $navigation->find('coursereports', navigation_node::TYPE_CONTAINER);
+    if (!$reportsnode) {
+        // Try TYPE_CUSTOM for Moodle 4.x
+        $reportsnode = $navigation->find('coursereports', navigation_node::TYPE_CUSTOM);
+    }
+    if (!$reportsnode) {
+        // Try finding by key without type
+        $reportsnode = $navigation->find('coursereports', null);
+    }
+
+    if ($reportsnode) {
+        $reportsnode->add(
+            get_string('intebchatreport', 'mod_intebchat'),
+            $url,
+            navigation_node::TYPE_SETTING,
+            null,
+            'intebchatreport',
+            new pix_icon('icon', '', 'mod_intebchat')
+        );
+    }
+}
 
 /**
  * Helper functions from original block plugin
@@ -796,45 +1263,69 @@ function intebchat_fetch_assistants_array($apikey = null)
 }
 
 /**
- * Return a list of available models - ACTUALIZADO CON GPT-5
- * @return Array: The list of model info
+ * Return a list of available OpenAI models - Actualizado Diciembre 2025
+ *
+ * @return array Array con 'default' y 'models'
+ * @see https://platform.openai.com/docs/models
  */
 function intebchat_get_models()
 {
     return [
-        // <-- ESTE ES EL DEFAULT PARA TU APP SEGÚN OPENAI -->
-        "default" => "gpt-5-chat-latest",
+        // Default recomendado para balance calidad/costo
+        "default" => "gpt-4.1",
         "models" => [
-            // === GPT-5 (familia actual) ===
-            'gpt-5-chat-latest'   => 'gpt-5-chat-latest', // alias de Chat (apunta al snapshot vigente)
-            'gpt-5'               => 'gpt-5',             // razonamiento (mejor para tareas complejas)
-            'gpt-5-mini'          => 'gpt-5-mini',
-            'gpt-5-nano'          => 'gpt-5-nano',
-            // === GPT-4.1 (aún en API) ===
-            'gpt-4.1'             => 'gpt-4.1',
-            'gpt-4.1-mini'        => 'gpt-4.1-mini',
-            'gpt-4.1-nano'        => 'gpt-4.1-nano',
-            // === GPT-4o (omni) y snapshots ===
-            'chatgpt-4o-latest'   => 'chatgpt-4o-latest',
-            'gpt-4o'              => 'gpt-4o',
-            'gpt-4o-2024-11-20'   => 'gpt-4o-2024-11-20',
-            'gpt-4o-2024-08-06'   => 'gpt-4o-2024-08-06',
-            'gpt-4o-2024-05-13'   => 'gpt-4o-2024-05-13',
-            // === GPT-4o mini ===
-            'gpt-4o-mini'         => 'gpt-4o-mini',
-            'gpt-4o-mini-2024-07-18' => 'gpt-4o-mini-2024-07-18',
-            // === (LEGADO, si aún los mantienes) ===
-            // 'gpt-4.5-turbo' => 'gpt-4.5-turbo',
-            // 'gpt-4-turbo-preview' => 'gpt-4-turbo-preview',
-            // 'gpt-4-turbo-2024-04-09' => 'gpt-4-turbo-2024-04-09',
-            // 'gpt-4-turbo' => 'gpt-4-turbo',
-            // 'gpt-4-32k-0314' => 'gpt-4-32k-0314',
-            // 'gpt-4-1106-preview' => 'gpt-4-1106-preview',
-            // 'gpt-4-0613' => 'gpt-4-0613',
-            // 'gpt-4-0314' => 'gpt-4-0314',
-            // 'gpt-4-0125-preview' => 'gpt-4-0125-preview',
-            // 'gpt-4' => 'gpt-4',
-            // 'gpt-3.5-turbo-*' -> deprecados/no recomendados
+            // ═══════════════════════════════════════════════════════════════
+            // GPT-5 SERIES (Noviembre-Diciembre 2025 - Más recientes)
+            // ═══════════════════════════════════════════════════════════════
+            'gpt-5.2'             => 'GPT-5.2 (Flagship - Dic 2025)',
+            'gpt-5.1'             => 'GPT-5.1 (Nov 2025)',
+            'gpt-5'               => 'GPT-5 (Razonamiento avanzado)',
+            'gpt-5-mini'          => 'GPT-5 Mini (Rápido y económico)',
+
+            // ═══════════════════════════════════════════════════════════════
+            // O-SERIES (Modelos de razonamiento - Abril 2025+)
+            // ═══════════════════════════════════════════════════════════════
+            'o4-mini'             => 'o4-mini (Razonamiento rápido - SOTA)',
+            'o4-mini-2025-04-16'  => 'o4-mini (2025-04-16)',
+            'o3'                  => 'o3 (Razonamiento avanzado)',
+            'o3-pro'              => 'o3-pro (Máximo razonamiento)',
+            'o3-mini'             => 'o3-mini (Económico)',
+            'o1'                  => 'o1 (Razonamiento)',
+            'o1-pro'              => 'o1-pro (Razonamiento extendido)',
+            'o1-mini'             => 'o1-mini (Razonamiento económico)',
+
+            // ═══════════════════════════════════════════════════════════════
+            // GPT-4.1 SERIES (Abril 2025 - Contexto 1M tokens)
+            // ═══════════════════════════════════════════════════════════════
+            'gpt-4.1'             => 'GPT-4.1 (Recomendado - 1M contexto)',
+            'gpt-4.1-2025-04-14'  => 'GPT-4.1 (2025-04-14)',
+            'gpt-4.1-mini'        => 'GPT-4.1 Mini (Económico)',
+            'gpt-4.1-mini-2025-04-14' => 'GPT-4.1 Mini (2025-04-14)',
+            'gpt-4.1-nano'        => 'GPT-4.1 Nano (Ultra rápido)',
+            'gpt-4.1-nano-2025-04-14' => 'GPT-4.1 Nano (2025-04-14)',
+
+            // ═══════════════════════════════════════════════════════════════
+            // GPT-4o SERIES (Omni - Audio/Visión nativa)
+            // ═══════════════════════════════════════════════════════════════
+            'chatgpt-4o-latest'   => 'ChatGPT-4o Latest',
+            'gpt-4o'              => 'GPT-4o (Multimodal)',
+            'gpt-4o-2024-11-20'   => 'GPT-4o (2024-11-20)',
+            'gpt-4o-audio-preview' => 'GPT-4o Audio (Para audio nativo)',
+            'gpt-4o-mini'         => 'GPT-4o Mini (Económico)',
+            'gpt-4o-mini-2024-07-18' => 'GPT-4o Mini (2024-07-18)',
+
+            // ═══════════════════════════════════════════════════════════════
+            // MODELOS ESPECIALIZADOS (Realtime, Código)
+            // ═══════════════════════════════════════════════════════════════
+            'gpt-4o-realtime-preview' => 'GPT-4o Realtime (WebRTC voz)',
+            'gpt-4o-realtime-preview-2024-12-17' => 'GPT-4o Realtime (2024-12-17)',
+            'codex-mini'          => 'Codex Mini (Especializado código)',
+
+            // ═══════════════════════════════════════════════════════════════
+            // LEGADO (Aún disponibles pero no recomendados)
+            // ═══════════════════════════════════════════════════════════════
+            'gpt-4-turbo'         => 'GPT-4 Turbo (Legado)',
+            'gpt-4'               => 'GPT-4 (Legado)',
         ]
     ];
 }
@@ -891,4 +1382,114 @@ function intebchat_get_period_start($period, $timestamp = null)
         default:
             return strtotime(date('Y-m-d 00:00:00', $timestamp));
     }
+}
+
+// ============================================================================
+// ANALYTICS FUNCTIONS
+// ============================================================================
+
+/**
+ * Get analytics data for an intebchat instance.
+ *
+ * Collects various statistics about usage including conversations,
+ * messages, tokens, and user activity.
+ *
+ * @param int $instanceid The intebchat instance ID
+ * @param int $periodstart Start timestamp for the period
+ * @param int $periodend End timestamp for the period
+ * @return array Analytics data array
+ */
+function intebchat_get_instance_analytics($instanceid, $periodstart, $periodend)
+{
+    global $DB;
+
+    $stats = [
+        'total_conversations' => 0,
+        'total_messages' => 0,
+        'total_tokens' => 0,
+        'unique_users' => 0,
+        'avg_messages_per_user' => 0,
+        'avg_tokens_per_message' => 0,
+        'top_users' => [],
+        'daily_stats' => []
+    ];
+
+    // Build time condition
+    $timecondition = '';
+    $params = ['instanceid' => $instanceid];
+
+    if ($periodstart > 0) {
+        $timecondition = ' AND l.timecreated >= :periodstart AND l.timecreated <= :periodend';
+        $params['periodstart'] = $periodstart;
+        $params['periodend'] = $periodend;
+    }
+
+    // Total conversations in period
+    $sql = "SELECT COUNT(DISTINCT c.id)
+            FROM {intebchat_conversations} c
+            LEFT JOIN {intebchat_log} l ON l.conversationid = c.id
+            WHERE c.instanceid = :instanceid" . str_replace('l.timecreated', 'c.timecreated', $timecondition);
+    $stats['total_conversations'] = (int)$DB->count_records_sql($sql, $params);
+
+    // Total messages and tokens
+    $sql = "SELECT COUNT(*) as messages, COALESCE(SUM(l.totaltokens), 0) as tokens
+            FROM {intebchat_log} l
+            WHERE l.instanceid = :instanceid" . $timecondition;
+    $result = $DB->get_record_sql($sql, $params);
+    $stats['total_messages'] = (int)($result->messages ?? 0);
+    $stats['total_tokens'] = (int)($result->tokens ?? 0);
+
+    // Unique users
+    $sql = "SELECT COUNT(DISTINCT l.userid)
+            FROM {intebchat_log} l
+            WHERE l.instanceid = :instanceid" . $timecondition;
+    $stats['unique_users'] = (int)$DB->count_records_sql($sql, $params);
+
+    // Calculate averages
+    if ($stats['unique_users'] > 0) {
+        $stats['avg_messages_per_user'] = $stats['total_messages'] / $stats['unique_users'];
+    }
+    if ($stats['total_messages'] > 0) {
+        $stats['avg_tokens_per_message'] = $stats['total_tokens'] / $stats['total_messages'];
+    }
+
+    // Top users by activity
+    $sql = "SELECT l.userid, COUNT(*) as messages, COALESCE(SUM(l.totaltokens), 0) as tokens
+            FROM {intebchat_log} l
+            WHERE l.instanceid = :instanceid" . $timecondition . "
+            GROUP BY l.userid
+            ORDER BY messages DESC
+            LIMIT 10";
+    $stats['top_users'] = array_values($DB->get_records_sql($sql, $params));
+
+    // Daily stats for chart (last 30 days max)
+    $chartstart = max($periodstart, strtotime('-30 days'));
+    $sql = "SELECT DATE(FROM_UNIXTIME(l.timecreated)) as date,
+                   COUNT(*) as messages,
+                   COALESCE(SUM(l.totaltokens), 0) as tokens
+            FROM {intebchat_log} l
+            WHERE l.instanceid = :instanceid
+              AND l.timecreated >= :chartstart
+              AND l.timecreated <= :periodend
+            GROUP BY DATE(FROM_UNIXTIME(l.timecreated))
+            ORDER BY date ASC";
+
+    $chartparams = [
+        'instanceid' => $instanceid,
+        'chartstart' => $chartstart,
+        'periodend' => $periodend
+    ];
+
+    $dailyresults = $DB->get_records_sql($sql, $chartparams);
+
+    // Convert dates to timestamps for template
+    foreach ($dailyresults as $day) {
+        $stats['daily_stats'][] = (object)[
+            'date' => strtotime($day->date),
+            'messages' => (int)$day->messages,
+            'tokens' => (int)$day->tokens
+        ];
+    }
+
+    return $stats;
 }

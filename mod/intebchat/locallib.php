@@ -25,25 +25,73 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Get conversations for a user in an instance
- * 
+ * Get conversations for a user in an instance with pagination support.
+ *
  * @param int $instanceid Instance ID
  * @param int $userid User ID
- * @param int $limit Number of conversations to return
+ * @param int $limit Number of conversations to return (default 20, 0 = all)
+ * @param int $offset Starting offset for pagination
  * @return array Array of conversation objects
  */
-function intebchat_get_user_conversations($instanceid, $userid, $limit = 50)
+function intebchat_get_user_conversations($instanceid, $userid, $limit = 20, $offset = 0)
 {
     global $DB;
 
-    $sql = "SELECT c.*, 
+    $sql = "SELECT c.*,
                    COALESCE((SELECT MAX(timecreated) FROM {intebchat_log} WHERE conversationid = c.id), c.timecreated) as lastmessage
             FROM {intebchat_conversations} c
-            WHERE c.instanceid = :instanceid 
+            WHERE c.instanceid = :instanceid
               AND c.userid = :userid
             ORDER BY lastmessage DESC";
 
-    return $DB->get_records_sql($sql, ['instanceid' => $instanceid, 'userid' => $userid], 0, $limit);
+    $limitfrom = ($limit > 0) ? $offset : 0;
+    $limitnum = ($limit > 0) ? $limit : 0;
+
+    return $DB->get_records_sql($sql, ['instanceid' => $instanceid, 'userid' => $userid], $limitfrom, $limitnum);
+}
+
+/**
+ * Get total count of conversations for pagination.
+ *
+ * @param int $instanceid Instance ID
+ * @param int $userid User ID
+ * @return int Total number of conversations
+ */
+function intebchat_count_user_conversations($instanceid, $userid)
+{
+    global $DB;
+    return $DB->count_records('intebchat_conversations', [
+        'instanceid' => $instanceid,
+        'userid' => $userid
+    ]);
+}
+
+/**
+ * Get conversations with pagination info.
+ *
+ * Returns conversations along with pagination metadata for lazy loading.
+ *
+ * @param int $instanceid Instance ID
+ * @param int $userid User ID
+ * @param int $page Page number (0-based)
+ * @param int $perpage Items per page
+ * @return array ['conversations' => array, 'total' => int, 'page' => int, 'pages' => int, 'hasmore' => bool]
+ */
+function intebchat_get_paginated_conversations($instanceid, $userid, $page = 0, $perpage = 20)
+{
+    $total = intebchat_count_user_conversations($instanceid, $userid);
+    $pages = ($perpage > 0) ? ceil($total / $perpage) : 1;
+    $offset = $page * $perpage;
+
+    $conversations = intebchat_get_user_conversations($instanceid, $userid, $perpage, $offset);
+
+    return [
+        'conversations' => array_values($conversations),
+        'total' => $total,
+        'page' => $page,
+        'pages' => $pages,
+        'hasmore' => ($page + 1) < $pages
+    ];
 }
 
 /**

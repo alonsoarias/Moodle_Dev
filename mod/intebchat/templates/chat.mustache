@@ -48,11 +48,18 @@
     * recordaudio - Record audio text
     * stoprecording - Stop recording text
     * switchtheme - Switch theme text
+    * mascoturl - URL to the mascot SVG
+    * mascotname - Name of the mascot for alt text
 }}
 <div class="mod_intebchat" data-instance-id="{{instanceid}}">
     <script>
-        var assistantName = "{{assistantname}}";
-        var userName = "{{username}}";
+        // Namespaced global variables to avoid collisions
+        window.intebchat = window.intebchat || {};
+        window.intebchat.assistantName = "{{assistantname}}";
+        window.intebchat.userName = "{{username}}";
+        // Legacy support (deprecated - use window.intebchat.* instead)
+        var assistantName = window.intebchat.assistantName;
+        var userName = window.intebchat.userName;
     </script>
 
     {{^showlabels}}
@@ -126,7 +133,7 @@
             </div>
 
             <!-- Main Chat Area -->
-            <div class="intebchat-main">
+            <div class="intebchat-main" data-mascot-url="{{mascoturl}}" data-mascot-name="{{mascotname}}">
                 <!-- Chat Header -->
                 <div class="intebchat-header">
                     <h4 class="intebchat-header-title" id="conversation-title">
@@ -134,18 +141,18 @@
                     </h4>
                     <div class="intebchat-header-actions">
                         <!-- Theme Toggle Button positioned here -->
-                        <button class="btn btn-sm btn-outline-secondary intebchat-header-btn theme-toggle-btn" 
-                                id="theme-toggle-btn" 
+                        <button class="btn btn-sm btn-outline-secondary intebchat-header-btn theme-toggle-btn"
+                                id="theme-toggle-btn"
                                 title="{{switchtheme}}">
                             <i class="fa fa-sun"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-secondary intebchat-header-btn" 
-                                id="edit-title-btn" 
+                        <button class="btn btn-sm btn-outline-secondary intebchat-header-btn"
+                                id="edit-title-btn"
                                 title="{{edittitle}}">
                             <i class="fa fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger intebchat-header-btn" 
-                                id="clear-conversation-btn" 
+                        <button class="btn btn-sm btn-outline-danger intebchat-header-btn"
+                                id="clear-conversation-btn"
                                 title="{{clearconversation}}">
                             <i class="fa fa-trash"></i>
                         </button>
@@ -167,7 +174,7 @@
                                 <span class="token-count">{{tokens_percentage}}%</span>
                             </div>
                             {{#show_reset_time}}
-                                <div class="token-reset">
+                                <div class="token-reset" id="token-reset-countdown" data-reset-timestamp="{{token_reset_timestamp}}">
                                     {{tokens_reset_label}}
                                 </div>
                             {{/show_reset_time}}

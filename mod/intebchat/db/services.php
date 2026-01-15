@@ -74,6 +74,36 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'mod/intebchat:addinstance',
     ],
+
+    'mod_intebchat_save_realtime_message' => [
+        'classname'   => 'mod_intebchat\external',
+        'methodname'  => 'save_realtime_message',
+        'classpath'   => 'mod/intebchat/classes/external.php',
+        'description' => 'Save a realtime message (user or assistant)',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'mod/intebchat:view',
+    ],
+
+    'mod_intebchat_get_site_report' => [
+        'classname'   => 'mod_intebchat\external',
+        'methodname'  => 'get_site_report',
+        'classpath'   => 'mod/intebchat/classes/external.php',
+        'description' => 'Get site-wide usage report data',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'mod/intebchat:viewsitereport',
+    ],
+
+    'mod_intebchat_get_course_report' => [
+        'classname'   => 'mod_intebchat\external',
+        'methodname'  => 'get_course_report',
+        'classpath'   => 'mod/intebchat/classes/external.php',
+        'description' => 'Get course-level usage report data',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'mod/intebchat:viewanalytics',
+    ],
 ];
 
 $services = [
@@ -84,6 +114,9 @@ $services = [
             'mod_intebchat_clear_conversation',
             'mod_intebchat_update_conversation_title',
             'mod_intebchat_get_assistants',
+            'mod_intebchat_save_realtime_message',
+            'mod_intebchat_get_site_report',
+            'mod_intebchat_get_course_report',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
