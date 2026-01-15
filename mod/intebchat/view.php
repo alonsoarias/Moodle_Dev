@@ -105,11 +105,18 @@ echo '<link rel="preload" href="' . $mascoturl->out() . '" as="image" type="imag
 // Output starts here
 echo $OUTPUT->header();
 
-// Show activity name and description
-echo $OUTPUT->heading($intebchat->name);
+// Only show activity name and description if NOT in single activity format
+// (single activity format already shows them via course format)
+$courseformat = course_get_format($course);
+$formatname = $courseformat->get_format();
 
-if ($intebchat->intro) {
-    echo $OUTPUT->box(format_module_intro('intebchat', $intebchat, $cm->id), 'generalbox mod_introbox', 'intebchatintro');
+if ($formatname !== 'singleactivity') {
+    // Show activity name and description
+    echo $OUTPUT->heading($intebchat->name);
+
+    if ($intebchat->intro) {
+        echo $OUTPUT->box(format_module_intro('intebchat', $intebchat, $cm->id), 'generalbox mod_introbox', 'intebchatintro');
+    }
 }
 
 // Get assistant and user names

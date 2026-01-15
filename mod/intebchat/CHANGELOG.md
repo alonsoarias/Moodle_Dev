@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - ESLint errors in AMD modules: removed unused parameters and imports in `settings.js` and `report.js`
 - Backup/restore functionality with proper implementation of `intebchat_get_instance_analytics()`
+- Duplicate function declaration `intebchat_get_instance_analytics()` causing fatal error
+- Duplicate activity description when using single activity course format
 - AMD modules recompiled with latest changes
 
 ---
