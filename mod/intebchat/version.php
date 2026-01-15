@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_intebchat';
-$plugin->release = 'v3.7.4';
-$plugin->version = 2026011504;  // January 2026 - Fix conversation sync, natural assistant response
+$plugin->release = 'v3.7.5';
+$plugin->version = 2026011505;  // January 2026 - Fix duplicate bot messages in assistant mode
 $plugin->requires = 2022112800; // Moodle 4.1
 $plugin->maturity = MATURITY_BETA;

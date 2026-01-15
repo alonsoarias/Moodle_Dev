@@ -396,13 +396,14 @@ function($, Ajax, Str, Notification) {
         // BOT RESPONSE EVENTS - Real-time transcription of AI response
         // ═══════════════════════════════════════════════════════════════
 
-        // Response started
+        // Response started - don't create message yet, wait for actual content
         if (evt.type === 'response.created' || evt.type === 'response.started') {
             console.log('🤖 AI response started');
             currentResponseId = evt.response?.id;
             botTranscriptBuffer = '';
             isBotSpeaking = true;
-            createBotMessage();
+            // Don't create bot message here - wait for actual content
+            // This prevents empty messages from function-call-only responses
             updateSpeakingIndicator('bot', true);
         }
 
@@ -410,6 +411,10 @@ function($, Ajax, Str, Notification) {
         if (evt.type === 'response.audio_transcript.delta') {
             const delta = evt.delta || '';
             if (delta) {
+                // Create bot message on first content (lazy creation)
+                if (!currentBotMsgElement) {
+                    createBotMessage();
+                }
                 botTranscriptBuffer += delta;
                 updateBotTranscription(botTranscriptBuffer);
             }
@@ -421,6 +426,10 @@ function($, Ajax, Str, Notification) {
             evt.type === 'response.content_part.delta') {
             const delta = evt.delta || evt.text || '';
             if (delta) {
+                // Create bot message on first content (lazy creation)
+                if (!currentBotMsgElement) {
+                    createBotMessage();
+                }
                 botTranscriptBuffer += delta;
                 updateBotTranscription(botTranscriptBuffer);
             }
@@ -440,6 +449,10 @@ function($, Ajax, Str, Notification) {
             if (evt.item?.content) {
                 evt.item.content.forEach(part => {
                     if ((part.type === 'text' || part.type === 'audio') && part.transcript) {
+                        // Create bot message on first content (lazy creation)
+                        if (!currentBotMsgElement) {
+                            createBotMessage();
+                        }
                         botTranscriptBuffer = part.transcript;
                         updateBotTranscription(botTranscriptBuffer);
                     }
@@ -453,7 +466,8 @@ function($, Ajax, Str, Notification) {
             isBotSpeaking = false;
             updateSpeakingIndicator('bot', false);
 
-            if (botTranscriptBuffer) {
+            // Only finalize and save if we have content AND a message element
+            if (botTranscriptBuffer && currentBotMsgElement) {
                 finalizeBotMessage(botTranscriptBuffer);
                 saveMessageToConversation('assistant', botTranscriptBuffer);
             }
