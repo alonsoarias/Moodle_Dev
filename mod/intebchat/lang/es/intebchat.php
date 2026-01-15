@@ -380,3 +380,12 @@ $string['failedtoloadassistants'] = 'Error al obtener asistentes';
 
 // Notificación de modelo de razonamiento
 $string['reasoningmodelinfo'] = 'Has seleccionado el modelo "{$a}". Este es un modelo de razonamiento avanzado diseñado para resolver problemas complejos mediante un análisis paso a paso. Ten en cuenta que puede tener un mayor costo y tiempo de respuesta.';
+
+// Additional UI strings
+$string['recording'] = 'Grabando...';
+$string['browsernotsupported'] = 'Tu navegador no soporta grabación de audio';
+$string['recordingerror'] = 'Error durante la grabación: {$a}';
+$string['microphoneerror'] = 'Error al acceder al micrófono: {$a}';
+$string['tokensresetin'] = 'Se reinicia en: {$a}';
+$string['required'] = 'Requerido';
+$string['unknownerror'] = 'Error desconocido';

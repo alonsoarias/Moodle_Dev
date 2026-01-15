@@ -380,3 +380,12 @@ $string['failedtoloadassistants'] = 'Failed to fetch assistants';
 
 // Reasoning model notification
 $string['reasoningmodelinfo'] = 'You have selected the model "{$a}". This is an advanced reasoning model designed to solve complex problems through step-by-step analysis. Please note it may have higher cost and response time.';
+
+// Additional UI strings
+$string['recording'] = 'Recording...';
+$string['browsernotsupported'] = 'Your browser does not support audio recording';
+$string['recordingerror'] = 'Error during recording: {$a}';
+$string['microphoneerror'] = 'Error accessing microphone: {$a}';
+$string['tokensresetin'] = 'Resets in: {$a}';
+$string['required'] = 'Required';
+$string['unknownerror'] = 'Unknown error';

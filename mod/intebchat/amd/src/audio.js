@@ -47,7 +47,11 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
                 {key: 'audiorecorded', component: 'mod_intebchat'},
                 {key: 'confirmaudiosend', component: 'mod_intebchat'},
                 {key: 'playaudio', component: 'mod_intebchat'},
-                {key: 'rerecord', component: 'mod_intebchat'}
+                {key: 'rerecord', component: 'mod_intebchat'},
+                {key: 'recording', component: 'mod_intebchat'},
+                {key: 'browsernotsupported', component: 'mod_intebchat'},
+                {key: 'recordingerror', component: 'mod_intebchat'},
+                {key: 'microphoneerror', component: 'mod_intebchat'}
             ]).then(function(results) {
                 strings.recordaudio = results[0];
                 strings.stoprecording = results[1];
@@ -57,6 +61,10 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
                 strings.confirmaudiosend = results[5] || 'Do you want to send this audio?';
                 strings.playaudio = results[6] || 'Play Audio';
                 strings.rerecord = results[7] || 'Re-record';
+                strings.recording = results[8] || 'Recording...';
+                strings.browsernotsupported = results[9] || 'Your browser does not support audio recording';
+                strings.recordingerror = results[10] || 'Error during recording';
+                strings.microphoneerror = results[11] || 'Error accessing microphone';
             });
 
             /**
@@ -196,7 +204,7 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
                 wasCancelled = false; // Ensure flag is reset
                 
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert('Your browser does not support recording!');
+                    alert(strings.browsernotsupported || 'Your browser does not support audio recording');
                     return;
                 }
 
@@ -273,12 +281,16 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
                         };
 
                         mediaRecorder.onerror = function (e) {
-                            alert('Error during recording: ' + e.error);
+                            var errorMsg = strings.recordingerror || 'Error during recording';
+                            errorMsg = errorMsg.replace('{$a}', e.error || '');
+                            alert(errorMsg);
                             reset();
                         };
                     })
                     .catch(function (err) {
-                        alert('Error accessing microphone: ' + err.message);
+                        var errorMsg = strings.microphoneerror || 'Error accessing microphone';
+                        errorMsg = errorMsg.replace('{$a}', err.message || '');
+                        alert(errorMsg);
                         reset();
                     });
             }
