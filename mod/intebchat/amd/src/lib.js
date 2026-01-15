@@ -40,6 +40,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             enabled: false,
             mode: 'text'
         };
+        var RealtimeModule = null; // Reference to Realtime module for conversation sync
 
         /**
          * Token Tracker for real-time updates
@@ -559,6 +560,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             if (isConversacionalMode) {
                 // Initialize Realtime mode - voice only (no text input)
                 require(['mod_intebchat/realtime'], function (Realtime) {
+                    RealtimeModule = Realtime; // Store for conversation ID sync
                     Realtime.init({
                         instanceId: instanceId,
                         conversationId: currentConversationId,
@@ -732,6 +734,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     args: { instanceid: instanceId },
                     done: function (response) {
                         currentConversationId = response.conversationid;
+                        // Sync with Realtime module
+                        if (RealtimeModule && RealtimeModule.setConversationId) {
+                            RealtimeModule.setConversationId(response.conversationid);
+                        }
                         $('#conversation-title').text(response.title);
                         var conversationHtml = createConversationListItem(response);
                         if ($('.intebchat-no-conversations').length > 0) {
@@ -925,6 +931,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 args: { instanceid: instanceId },
                 done: function (response) {
                     currentConversationId = response.conversationid;
+                    // Sync with Realtime module
+                    if (RealtimeModule && RealtimeModule.setConversationId) {
+                        RealtimeModule.setConversationId(response.conversationid);
+                    }
 
                     $('#intebchat_log').empty();
                     $('#conversation-title').text(response.title);
@@ -974,6 +984,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     console.log('Conversation loaded:', response);
 
                     currentConversationId = conversationId;
+                    // Sync conversation ID with Realtime module if active
+                    if (RealtimeModule && RealtimeModule.setConversationId) {
+                        RealtimeModule.setConversationId(conversationId);
+                    }
                     $('#conversation-title').text(response.title);
                     $('#intebchat_log').empty();
 
@@ -1190,6 +1204,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     args: { instanceid: instanceId },
                     done: function (response) {
                         currentConversationId = response.conversationid;
+                        // Sync with Realtime module
+                        if (RealtimeModule && RealtimeModule.setConversationId) {
+                            RealtimeModule.setConversationId(response.conversationid);
+                        }
                         $('#conversation-title').text(response.title);
 
                         var conversationHtml = createConversationListItem(response);
@@ -1535,6 +1553,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                                         streamConversationId = data.id;
                                         if (!currentConversationId) {
                                             currentConversationId = streamConversationId;
+                                            // Sync with Realtime module
+                                            if (RealtimeModule && RealtimeModule.setConversationId) {
+                                                RealtimeModule.setConversationId(streamConversationId);
+                                            }
                                         }
                                     }
 
@@ -1696,6 +1718,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                         if (data.conversationId && !currentConversationId) {
                             currentConversationId = data.conversationId;
+                            // Sync with Realtime module
+                            if (RealtimeModule && RealtimeModule.setConversationId) {
+                                RealtimeModule.setConversationId(data.conversationId);
+                            }
                         }
 
                         if (data.threadId && currentConversationId) {

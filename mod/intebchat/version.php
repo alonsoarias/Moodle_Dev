@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_intebchat';
-$plugin->release = 'v3.7.3';
-$plugin->version = 2026011503;  // January 2026 - Force verbatim reading in function result
+$plugin->release = 'v3.7.4';
+$plugin->version = 2026011504;  // January 2026 - Fix conversation sync, natural assistant response
 $plugin->requires = 2022112800; // Moodle 4.1
 $plugin->maturity = MATURITY_BETA;

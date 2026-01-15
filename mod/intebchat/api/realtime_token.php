@@ -120,8 +120,8 @@ try {
     // Add assistant delegation instructions if using that mode
     if ($use_assistant_tool) {
         $assistant_instructions = $language === 'es'
-            ? ' INSTRUCCIÓN CRÍTICA: Para TODAS las preguntas del usuario, SIEMPRE debes usar la función ask_assistant. Cuando recibas la respuesta del asistente, DEBES leerla EXACTAMENTE como está escrita, palabra por palabra, sin modificar, resumir, parafrasear ni añadir nada. Tu ÚNICO trabajo es ser la voz del asistente - lee su respuesta textualmente.'
-            : ' CRITICAL INSTRUCTION: For ALL user questions, you MUST ALWAYS use the ask_assistant function. When you receive the assistant\'s response, you MUST read it EXACTLY as written, word for word, without modifying, summarizing, paraphrasing or adding anything. Your ONLY job is to be the voice of the assistant - read their response verbatim.';
+            ? ' IMPORTANTE: Para TODAS las preguntas del usuario, SIEMPRE debes usar la función ask_assistant para consultar al experto. Cuando recibas su respuesta, comunícala de forma natural y conversacional, manteniendo el contenido y significado pero adaptándola a una conversación fluida de voz. No añadas información que no esté en la respuesta original.'
+            : ' IMPORTANT: For ALL user questions, you MUST ALWAYS use the ask_assistant function to consult the expert. When you receive their response, communicate it naturally and conversationally, keeping the content and meaning but adapting it to a fluid voice conversation. Do not add information not present in the original response.';
         $base_instructions .= $assistant_instructions;
     }
 
@@ -152,8 +152,8 @@ try {
                 'type' => 'function',
                 'name' => 'ask_assistant',
                 'description' => $language === 'es'
-                    ? 'OBLIGATORIO para TODAS las preguntas. Consulta al asistente especializado. La respuesta que recibes DEBE ser leída TEXTUALMENTE al usuario, sin modificar ni una palabra.'
-                    : 'REQUIRED for ALL questions. Consult the specialized assistant. The response you receive MUST be read VERBATIM to the user, without modifying a single word.',
+                    ? 'OBLIGATORIO para TODAS las preguntas. Consulta al asistente especializado y comunica su respuesta de forma natural y conversacional.'
+                    : 'REQUIRED for ALL questions. Consult the specialized assistant and communicate their response naturally and conversationally.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [

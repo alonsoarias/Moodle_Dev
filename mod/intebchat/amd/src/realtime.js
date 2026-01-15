@@ -985,17 +985,18 @@ function($, Ajax, Str, Notification) {
             console.log('🤖 Assistant response:', response);
 
             if (response.success && response.message) {
-                // Update conversation ID if new
-                if (response.conversationId && !currentConversationId) {
+                // Update conversation ID from assistant response
+                if (response.conversationId) {
                     currentConversationId = response.conversationId;
+                    console.log('📝 Using assistant conversation ID:', currentConversationId);
                 }
 
-                // Send the result back to the Realtime API with explicit verbatim instruction
-                // Wrap the response with clear instructions to read it exactly as written
-                var verbatimResponse = 'LEE EXACTAMENTE ESTE TEXTO AL USUARIO SIN MODIFICAR NI UNA PALABRA:\n\n' +
-                    response.message +
-                    '\n\nFIN DEL TEXTO A LEER. NO AÑADAS NADA MÁS.';
-                sendFunctionResult(callId, verbatimResponse);
+                // Send the result back to the Realtime API
+                // Ask Realtime to communicate naturally but faithfully
+                var naturalResponse = 'Respuesta del asistente especializado (comunícala de forma natural y conversacional, ' +
+                    'manteniendo el contenido y significado pero usando tu propia voz):\n\n' +
+                    response.message;
+                sendFunctionResult(callId, naturalResponse);
             } else {
                 sendFunctionResult(callId, response.error || 'Failed to get response from assistant');
             }
@@ -1095,11 +1096,30 @@ function($, Ajax, Str, Notification) {
         updateStatus('disconnected');
     };
 
+    /**
+     * Set conversation ID (for synchronization with lib.js)
+     */
+    var setConversationId = function(id) {
+        if (id && id !== currentConversationId) {
+            currentConversationId = id;
+            console.log('📝 Realtime conversation ID updated:', id);
+        }
+    };
+
+    /**
+     * Get current conversation ID
+     */
+    var getConversationId = function() {
+        return currentConversationId;
+    };
+
     return {
         init: init,
         sendText: sendTextMessage,
         toggleMic: toggleMicrophone,
         cleanup: cleanup,
-        isConnected: function() { return connected; }
+        isConnected: function() { return connected; },
+        setConversationId: setConversationId,
+        getConversationId: getConversationId
     };
 });
