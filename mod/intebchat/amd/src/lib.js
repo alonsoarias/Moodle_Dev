@@ -463,7 +463,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     Mascot.init({
                         url: $main.data('mascot-url') || '',
                         name: $main.data('mascot-name') || strings.assistant || 'Assistant',
-                        container: '.intebchat-main'
+                        container: '#mascot-container'
                     });
                 }, 500);
 
