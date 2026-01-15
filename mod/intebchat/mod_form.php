@@ -99,7 +99,7 @@ class mod_intebchat_mod_form extends moodleform_mod {
             ];
 
             $mform->addElement('select', 'audiomode', get_string('audiomode', 'mod_intebchat'), $audiomodes);
-            $mform->setDefault('audiomode', 'both');
+            $mform->setDefault('audiomode', 'text');
             $mform->addHelpButton('audiomode', 'audiomode', 'mod_intebchat');
             $mform->disabledIf('audiomode', 'enableaudio', 'eq', 0);
 
