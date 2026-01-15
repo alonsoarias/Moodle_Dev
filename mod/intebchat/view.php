@@ -162,8 +162,8 @@ if ($percentage >= 100) {
 // Audio mode settings
 $isConversacional = ($intebchat->audiomode === 'conversacional' || $intebchat->audiomode === 'conversacional_assistant');
 
-// For conversacional modes, show textarea for optional text input but hide regular audio controls
-$showTextarea = ($intebchat->audiomode === 'text' || $intebchat->audiomode === 'both' || $isConversacional);
+// Conversacional modes are voice-only (no text input)
+$showTextarea = ($intebchat->audiomode === 'text' || $intebchat->audiomode === 'both');
 $showAudio = !empty($intebchat->enableaudio) && ($intebchat->audiomode === 'audio' || $intebchat->audiomode === 'both');
 // Hide regular audio button in conversacional modes - realtime.js adds its own controls
 $showAudio = $showAudio && !$isConversacional;

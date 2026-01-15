@@ -457,13 +457,13 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 // Initialize token reset countdown timer
                 initTokenResetCountdown();
 
-                // Initialize mascot AFTER strings are loaded
+                // Initialize mascot AFTER strings are loaded (floating in bottom right)
                 setTimeout(function () {
                     var $main = $('.intebchat-main');
                     Mascot.init({
                         url: $main.data('mascot-url') || '',
                         name: $main.data('mascot-name') || strings.assistant || 'Assistant',
-                        container: '#mascot-container'
+                        container: '.intebchat-main'
                     });
                 }, 500);
 
@@ -557,7 +557,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 (audioConfig.mode === 'conversacional' || audioConfig.mode === 'conversacional_assistant');
 
             if (isConversacionalMode) {
-                // Initialize Realtime mode instead of regular audio
+                // Initialize Realtime mode - voice only (no text input)
                 require(['mod_intebchat/realtime'], function (Realtime) {
                     Realtime.init({
                         instanceId: instanceId,
@@ -566,38 +566,16 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         audioMode: audioConfig.mode // Pass mode for assistant tool configuration
                     });
 
-                    // Keyboard handler for realtime mode (Enter to send)
-                    $(document).on('keydown', '#openai_input', function (e) {
-                        if (e.which === 13 && !e.shiftKey) {
-                            e.preventDefault();
-                            var input = $(this);
-                            if (input.val() !== "") {
-                                Realtime.sendText(input.val());
-                                input.val('');
-                            }
-                        }
-                    });
-
-                    // Click handler for send button in realtime mode
-                    $(document).on('click', '#go', function (e) {
-                        e.preventDefault();
-                        var input = $('#openai_input');
-                        if (input.val() !== "") {
-                            Realtime.sendText(input.val());
-                            input.val('');
-                        }
-                    });
-
                     // Add realtime-specific controls - mic starts DISABLED
-                    var realtimeControls = '<div class="realtime-controls mt-2">' +
-                        '<button id="realtime-mic-toggle" class="btn btn-outline-secondary btn-sm" title="' +
+                    var realtimeControls = '<div class="realtime-controls">' +
+                        '<button id="realtime-mic-toggle" class="btn btn-outline-secondary" title="' +
                         (strings.realtime_mic_start || 'Click to start speaking') + '">' +
                         '<i class="fa fa-microphone-slash"></i> ' +
                         (strings.realtime_mic_start || 'Click to speak') + '</button> ' +
                         '<span id="realtime-status" class="text-muted ml-2">' +
                         (strings.realtime_mic_start || 'Click microphone to start') + '</span>' +
                         '</div>';
-                    $('#control_bar').append(realtimeControls);
+                    $('#control_bar .input-container').html(realtimeControls);
 
                     // Mic toggle handler - toggles between on/off
                     $('#realtime-mic-toggle').on('click', function () {
