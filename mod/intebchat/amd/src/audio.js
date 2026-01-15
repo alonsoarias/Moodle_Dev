@@ -392,12 +392,12 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events'],
                 wasCancelled = false; // Reset the flag
             }
 
-            // Event handlers
-            $('#intebchat-icon-mic').on('click', function () {
+            // Event handlers - Use event delegation for reliability
+            $(document).on('click', '#intebchat-icon-mic', function () {
                 startRecording();
             });
 
-            $('#intebchat-icon-stop').on('click', function () {
+            $(document).on('click', '#intebchat-icon-stop', function () {
                 stopRecording();
             });
 
