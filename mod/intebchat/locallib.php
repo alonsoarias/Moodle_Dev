@@ -365,3 +365,111 @@ function intebchat_search_conversations($instanceid, $userid, $search)
         'searchresponse' => $search
     ]);
 }
+
+/**
+ * Get analytics data for a specific intebchat instance.
+ *
+ * @param int $instanceid The intebchat instance ID
+ * @param int $starttime Start timestamp for the period
+ * @param int $endtime End timestamp for the period
+ * @return array Analytics data including totals, top users, and daily stats
+ */
+function intebchat_get_instance_analytics($instanceid, $starttime, $endtime) {
+    global $DB;
+
+    $params = ['instanceid' => $instanceid];
+    $timewhere = '';
+
+    if ($starttime > 0) {
+        $timewhere = ' AND l.timecreated >= :starttime';
+        $params['starttime'] = $starttime;
+    }
+    if ($endtime > 0) {
+        $timewhere .= ' AND l.timecreated <= :endtime';
+        $params['endtime'] = $endtime;
+    }
+
+    // Get summary statistics.
+    $sql = "SELECT
+                COUNT(DISTINCT c.id) as total_conversations,
+                COUNT(DISTINCT l.id) as total_messages,
+                COALESCE(SUM(l.totaltokens), 0) as total_tokens,
+                COUNT(DISTINCT l.userid) as unique_users
+            FROM {intebchat_conversations} c
+            LEFT JOIN {intebchat_log} l ON l.conversationid = c.id
+            WHERE c.instanceid = :instanceid
+                  $timewhere";
+
+    $summary = $DB->get_record_sql($sql, $params);
+
+    // Calculate averages.
+    $total_messages = (int)$summary->total_messages;
+    $total_tokens = (int)$summary->total_tokens;
+    $unique_users = (int)$summary->unique_users;
+
+    $analytics = [
+        'total_conversations' => (int)$summary->total_conversations,
+        'total_messages' => $total_messages,
+        'total_tokens' => $total_tokens,
+        'unique_users' => $unique_users,
+        'avg_messages_per_user' => $unique_users > 0 ? round($total_messages / $unique_users, 1) : 0,
+        'avg_tokens_per_message' => $total_messages > 0 ? round($total_tokens / $total_messages) : 0,
+    ];
+
+    // Get top users.
+    $sql = "SELECT
+                l.userid,
+                COUNT(l.id) as messages,
+                COALESCE(SUM(l.totaltokens), 0) as tokens
+            FROM {intebchat_log} l
+            JOIN {intebchat_conversations} c ON l.conversationid = c.id
+            WHERE c.instanceid = :instanceid
+                  $timewhere
+            GROUP BY l.userid
+            ORDER BY tokens DESC";
+
+    $params_top = $params;
+    $analytics['top_users'] = array_values($DB->get_records_sql($sql, $params_top, 0, 10));
+
+    // Get daily statistics.
+    $dailyparams = ['instanceid' => $instanceid];
+    $dailytimewhere = '';
+
+    if ($starttime > 0) {
+        $dailytimewhere = ' AND l.timecreated >= :starttime';
+        $dailyparams['starttime'] = $starttime;
+    }
+    if ($endtime > 0) {
+        $dailytimewhere .= ' AND l.timecreated <= :endtime';
+        $dailyparams['endtime'] = $endtime;
+    }
+
+    // Use database-agnostic date truncation.
+    $sql = "SELECT
+                DATE(FROM_UNIXTIME(l.timecreated)) as date,
+                COUNT(l.id) as messages,
+                COALESCE(SUM(l.totaltokens), 0) as tokens
+            FROM {intebchat_log} l
+            JOIN {intebchat_conversations} c ON l.conversationid = c.id
+            WHERE c.instanceid = :instanceid
+                  $dailytimewhere
+            GROUP BY DATE(FROM_UNIXTIME(l.timecreated))
+            ORDER BY date DESC";
+
+    $dailyrecords = $DB->get_records_sql($sql, $dailyparams, 0, 30);
+
+    // Convert daily records to proper format with unix timestamps.
+    $analytics['daily_stats'] = [];
+    foreach ($dailyrecords as $record) {
+        $analytics['daily_stats'][] = (object)[
+            'date' => strtotime($record->date),
+            'messages' => (int)$record->messages,
+            'tokens' => (int)$record->tokens,
+        ];
+    }
+
+    // Reverse to show oldest first for charts.
+    $analytics['daily_stats'] = array_reverse($analytics['daily_stats']);
+
+    return $analytics;
+}

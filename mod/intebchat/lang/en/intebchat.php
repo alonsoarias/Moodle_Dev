@@ -372,3 +372,11 @@ $string['allinstances'] = 'All instances';
 $string['noinstancesincourse'] = 'There are no INTEB Chat instances in this course.';
 $string['lastactivity'] = 'Last Activity';
 $string['courses'] = 'Courses';
+
+// Dynamic assistant loading
+$string['noassistantsfound'] = 'No assistants found';
+$string['loadingassistants'] = 'Loading assistants...';
+$string['failedtoloadassistants'] = 'Failed to fetch assistants';
+
+// Reasoning model notification
+$string['reasoningmodelinfo'] = 'You have selected the model "{$a}". This is an advanced reasoning model designed to solve complex problems through step-by-step analysis. Please note it may have higher cost and response time.';

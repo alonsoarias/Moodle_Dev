@@ -46,7 +46,10 @@ class restore_intebchat_activity_structure_step extends restore_activity_structu
 
         // Child elements (only if user info is included).
         if ($userinfo) {
-            $paths[] = new restore_path_element('intebchat_log', '/activity/intebchat/logs/log');
+            $paths[] = new restore_path_element('intebchat_conversation',
+                '/activity/intebchat/conversations/conversation');
+            $paths[] = new restore_path_element('intebchat_log',
+                '/activity/intebchat/logs/log');
         }
 
         return $this->prepare_activity_structure($paths);
@@ -78,6 +81,31 @@ class restore_intebchat_activity_structure_step extends restore_activity_structu
     }
 
     /**
+     * Process each conversation row.
+     *
+     * @param array $data
+     */
+    protected function process_intebchat_conversation($data) {
+        global $DB;
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->instanceid = $this->get_new_parentid('intebchat');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        // Ensure timestamps exist.
+        if (empty($data->timecreated)) {
+            $data->timecreated = time();
+        }
+        if (empty($data->timemodified)) {
+            $data->timemodified = time();
+        }
+
+        $newitemid = $DB->insert_record('intebchat_conversations', $data);
+        $this->set_mapping('intebchat_conversations', $oldid, $newitemid);
+    }
+
+    /**
      * Process each log row.
      *
      * @param array $data
@@ -87,9 +115,13 @@ class restore_intebchat_activity_structure_step extends restore_activity_structu
         $data = (object)$data;
 
         $data->instanceid = $this->get_new_parentid('intebchat');
-        $data->userid     = $this->get_mappingid('user', $data->userid);
+        $data->userid = $this->get_mappingid('user', $data->userid);
 
-        // Ajusta el nombre de la tabla si en tu install.xml usaste otro.
+        // Map the conversation ID if it exists.
+        if (!empty($data->conversationid)) {
+            $data->conversationid = $this->get_mappingid('intebchat_conversations', $data->conversationid);
+        }
+
         $DB->insert_record('intebchat_log', $data);
     }
 

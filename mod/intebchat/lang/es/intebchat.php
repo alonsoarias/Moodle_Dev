@@ -372,3 +372,11 @@ $string['allinstances'] = 'Todas las instancias';
 $string['noinstancesincourse'] = 'No hay instancias de INTEB Chat en este curso.';
 $string['lastactivity'] = 'Última Actividad';
 $string['courses'] = 'Cursos';
+
+// Carga dinámica de asistentes
+$string['noassistantsfound'] = 'No se encontraron asistentes';
+$string['loadingassistants'] = 'Cargando asistentes...';
+$string['failedtoloadassistants'] = 'Error al obtener asistentes';
+
+// Notificación de modelo de razonamiento
+$string['reasoningmodelinfo'] = 'Has seleccionado el modelo "{$a}". Este es un modelo de razonamiento avanzado diseñado para resolver problemas complejos mediante un análisis paso a paso. Ten en cuenta que puede tener un mayor costo y tiempo de respuesta.';

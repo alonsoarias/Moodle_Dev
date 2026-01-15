@@ -168,7 +168,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates'
                 self.renderData(data);
             }).catch(function(error) {
                 Notification.exception(error);
-            }).always(function() {
+            }).finally(function() {
                 $('#report-content').removeClass('loading');
                 $('#report-loading').hide();
             });

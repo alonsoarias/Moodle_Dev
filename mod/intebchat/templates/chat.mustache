@@ -53,13 +53,10 @@
 }}
 <div class="mod_intebchat" data-instance-id="{{instanceid}}">
     <script>
-        // Namespaced global variables to avoid collisions
+        // Namespaced global variables to avoid collisions.
         window.intebchat = window.intebchat || {};
         window.intebchat.assistantName = "{{assistantname}}";
         window.intebchat.userName = "{{username}}";
-        // Legacy support (deprecated - use window.intebchat.* instead)
-        var assistantName = window.intebchat.assistantName;
-        var userName = window.intebchat.userName;
     </script>
 
     {{^showlabels}}

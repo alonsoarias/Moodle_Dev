@@ -42,21 +42,31 @@ class backup_intebchat_activity_structure_step extends backup_activity_structure
 
         // Define the root element describing the intebchat instance.
         $intebchat = new backup_nested_element('intebchat', array('id'), array(
-            'name', 'intro', 'introformat', 'showlabels',
-            'sourceoftruth', 'prompt', 'instructions', 'username',
+            'name', 'intro', 'introformat', 'showlabels', 'apitype',
+            'sourceoftruth', 'prompt', 'instructions',
             'assistantname', 'apikey', 'model', 'temperature',
             'maxlength', 'topp', 'frequency', 'presence',
             'assistant', 'persistconvo', 'enableaudio', 'audiomode', 'voice',
+            'mascot', 'timecreated', 'timemodified'
+        ));
+
+        // Define conversations.
+        $conversations = new backup_nested_element('conversations');
+        $conversation = new backup_nested_element('conversation', array('id'), array(
+            'userid', 'title', 'preview', 'threadid', 'messagecount',
             'timecreated', 'timemodified'
         ));
 
         // Define chat logs.
         $logs = new backup_nested_element('logs');
         $log = new backup_nested_element('log', array('id'), array(
-            'userid', 'usermessage', 'airesponse', 'timecreated'
+            'userid', 'conversationid', 'usermessage', 'airesponse',
+            'prompttokens', 'completiontokens', 'totaltokens', 'contextid', 'timecreated'
         ));
 
         // Build the tree.
+        $intebchat->add_child($conversations);
+        $conversations->add_child($conversation);
         $intebchat->add_child($logs);
         $logs->add_child($log);
 
@@ -65,11 +75,16 @@ class backup_intebchat_activity_structure_step extends backup_activity_structure
 
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
-            $log->set_source_table('intebchat_log', array('instanceid' => backup::VAR_PARENTID), 'id ASC');
+            $conversation->set_source_table('intebchat_conversations',
+                array('instanceid' => backup::VAR_PARENTID), 'id ASC');
+            $log->set_source_table('intebchat_log',
+                array('instanceid' => backup::VAR_PARENTID), 'id ASC');
         }
 
         // Define id annotations.
+        $conversation->annotate_ids('user', 'userid');
         $log->annotate_ids('user', 'userid');
+        $log->annotate_ids('intebchat_conversations', 'conversationid');
 
         // Define file annotations.
         $intebchat->annotate_files('mod_intebchat', 'intro', null);
