@@ -107,23 +107,40 @@ class audio
         file_put_contents($filepath, $audiodata);
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://api.openai.com/v1/audio/transcriptions');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, [
-            'file' => curl_file_create($filepath, 'audio/' . $mimetype, 'audio.' . $mimetype),
-            'model' => 'whisper-1',
-            'response_format' => 'verbose_json', // Get detailed response with duration
-            'language' => $lang,
-        ]);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: multipart/form-data',
-            'Authorization: Bearer ' . get_config('mod_intebchat', 'apikey'),
+        curl_setopt_array($ch, [
+            CURLOPT_URL => 'https://api.openai.com/v1/audio/transcriptions',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => [
+                'file' => curl_file_create($filepath, 'audio/' . $mimetype, 'audio.' . $mimetype),
+                'model' => 'whisper-1',
+                'response_format' => 'verbose_json',
+                'language' => $lang,
+            ],
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: multipart/form-data',
+                'Authorization: Bearer ' . get_config('mod_intebchat', 'apikey'),
+            ],
+            // Performance optimizations
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_TIMEOUT => 60, // Whisper can take time for longer audio
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0, // HTTP/2 for better performance
+            CURLOPT_TCP_FASTOPEN => true, // TCP Fast Open if available
+            CURLOPT_TCP_NODELAY => true, // Disable Nagle's algorithm for lower latency
         ]);
 
         $result = curl_exec($ch);
-        curl_close($ch);  // Keep file for playback
-        
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+
+        // Handle errors
+        if ($http_code !== 200 || empty($result)) {
+            // Clean up temp file on error
+            @unlink($filepath);
+            throw new \moodle_exception('transcriptionfailed', 'mod_intebchat', '', $curl_error ?: "HTTP $http_code");
+        }
+
         $result = json_decode($result);
         
         // Calculate duration from response or estimate from file size

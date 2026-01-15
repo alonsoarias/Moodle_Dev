@@ -390,3 +390,4 @@ $string['microphoneerror'] = 'Error accessing microphone: {$a}';
 $string['tokensresetin'] = 'Resets in: {$a}';
 $string['required'] = 'Required';
 $string['unknownerror'] = 'Unknown error';
+$string['transcriptionfailed'] = 'Audio transcription failed: {$a}';
