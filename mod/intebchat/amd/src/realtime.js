@@ -990,8 +990,12 @@ function($, Ajax, Str, Notification) {
                     currentConversationId = response.conversationId;
                 }
 
-                // Send the result back to the Realtime API
-                sendFunctionResult(callId, response.message);
+                // Send the result back to the Realtime API with explicit verbatim instruction
+                // Wrap the response with clear instructions to read it exactly as written
+                var verbatimResponse = 'LEE EXACTAMENTE ESTE TEXTO AL USUARIO SIN MODIFICAR NI UNA PALABRA:\n\n' +
+                    response.message +
+                    '\n\nFIN DEL TEXTO A LEER. NO AÑADAS NADA MÁS.';
+                sendFunctionResult(callId, verbatimResponse);
             } else {
                 sendFunctionResult(callId, response.error || 'Failed to get response from assistant');
             }
