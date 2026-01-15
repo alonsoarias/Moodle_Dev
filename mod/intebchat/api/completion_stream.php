@@ -157,8 +157,14 @@ if (empty($apiconfig['apikey'])) {
 // Build messages array
 $messages = [];
 
-// Add system prompt
+// Add system prompt with instance instructions if available
 $prompt = $instance->prompt ?: ($config->prompt ?: get_string('defaultprompt', 'mod_intebchat'));
+
+// Append instance instructions to the prompt if available
+if (!empty($instance->instructions)) {
+    $prompt .= "\n\n" . $instance->instructions;
+}
+
 $messages[] = ['role' => 'system', 'content' => $prompt];
 
 // Add source of truth if present

@@ -65,6 +65,12 @@ class chat extends \mod_intebchat\completion {
             $this->sourceoftruth = format_string($this->sourceoftruth, true, ['context' => $context]);
             $this->prompt .= get_string('sourceoftruthreinforcement', 'mod_intebchat');
         }
+
+        // Append instance instructions to the prompt if available
+        if (!empty($this->instructions)) {
+            $this->prompt .= "\n\n" . $this->instructions;
+        }
+
         $this->prompt .= "\n\n";
 
         $history_json = $this->format_history();

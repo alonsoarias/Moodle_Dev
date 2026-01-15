@@ -82,8 +82,12 @@ $string['prompt'] = 'Prompt personalizado';
 $string['config_prompt'] = 'Instrucciones adicionales para personalizar el comportamiento de la IA';
 $string['config_prompt_help'] = 'Proporciona instrucciones específicas para guiar cómo debe responder la IA. Esto se agregará al prompt del sistema.';
 $string['instructions'] = 'Instrucciones';
-$string['config_instructions'] = 'Instrucciones personalizadas para el asistente';
-$string['config_instructions_help'] = 'Proporciona instrucciones específicas para el asistente. Estas instrucciones anularán las instrucciones predeterminadas del asistente para esta instancia.';
+$string['config_instructions'] = 'Instrucciones personalizadas para el asistente de IA';
+$string['config_instructions_help'] = 'Proporciona instrucciones específicas para esta instancia. Estas instrucciones se aplican según el modo actual:
+
+- **Chat API (modos texto/audio/ambos)**: Las instrucciones se agregan al prompt del sistema para personalizar el comportamiento de la IA.
+- **Assistant API**: Las instrucciones se pasan como instrucciones de ejecución para anular las predeterminadas del asistente para esta instancia.
+- **Modos conversacionales**: Las instrucciones se envían a la API Realtime como instrucciones de sesión para guiar las interacciones de voz.';
 $string['assistantname'] = 'Nombre del asistente';
 $string['config_assistantname'] = 'Cómo se mostrará el nombre del asistente en el chat';
 $string['config_assistantname_help'] = 'Ingresa un nombre personalizado para el asistente. Este nombre se mostrará en la interfaz del chat en lugar del nombre predeterminado.';

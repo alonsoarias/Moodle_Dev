@@ -82,8 +82,12 @@ $string['prompt'] = 'Custom prompt';
 $string['config_prompt'] = 'Additional instructions to customize AI behavior';
 $string['config_prompt_help'] = 'Provide specific instructions to guide how the AI should respond. This will be added to the system prompt.';
 $string['instructions'] = 'Instructions';
-$string['config_instructions'] = 'Custom instructions for the assistant';
-$string['config_instructions_help'] = 'Provide specific instructions for the assistant. These instructions will override the assistant\'s default instructions for this instance.';
+$string['config_instructions'] = 'Custom instructions for the AI assistant';
+$string['config_instructions_help'] = 'Provide specific instructions for this instance. These instructions are applied based on the current mode:
+
+- **Chat API (text/audio/both modes)**: Instructions are appended to the system prompt to customize AI behavior.
+- **Assistant API**: Instructions are passed as run instructions to override the assistant\'s defaults for this instance.
+- **Conversacional modes**: Instructions are sent to the Realtime API as session instructions to guide voice interactions.';
 $string['assistantname'] = 'Assistant name';
 $string['config_assistantname'] = 'How the assistant name will be displayed in the chat';
 $string['config_assistantname_help'] = 'Enter a custom name for the assistant. This name will be displayed in the chat interface instead of the default name.';
