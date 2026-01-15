@@ -90,17 +90,19 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->setDefault('enableaudio', 0);
             $mform->addHelpButton('enableaudio', 'enableaudio', 'mod_intebchat');
 
-            // Audio modes - conversacional mode only available with Chat API
-            // (Realtime API doesn't support Assistants)
+            // Audio modes - different conversacional options based on API type
             $audiomodes = [
                 'text' => get_string('audiomode_text', 'mod_intebchat'),
                 'audio' => get_string('audiomode_audio', 'mod_intebchat'),
                 'both' => get_string('audiomode_both', 'mod_intebchat'),
             ];
 
-            // Only add conversacional mode if using Chat API (not Assistant API)
-            // The Realtime API (used for conversacional) doesn't support OpenAI Assistants
-            if ($type !== 'assistant') {
+            // Add conversacional mode based on API type
+            if ($type === 'assistant') {
+                // For Assistant API: use Realtime with Assistant as function tool
+                $audiomodes['conversacional_assistant'] = get_string('audiomode_conversacional_assistant', 'mod_intebchat');
+            } else {
+                // For Chat API: standard Realtime mode
                 $audiomodes['conversacional'] = get_string('audiomode_conversacional', 'mod_intebchat');
             }
 
@@ -225,10 +227,16 @@ class mod_intebchat_mod_form extends moodleform_mod {
             }
         }
 
-        // Validate that conversacional mode is not used with Assistant API
-        // The Realtime API (used for conversacional) doesn't support OpenAI Assistants
-        if ($type === 'assistant' && isset($data['audiomode']) && $data['audiomode'] === 'conversacional') {
-            $errors['audiomode'] = get_string('conversacional_not_with_assistant', 'mod_intebchat');
+        // Validate conversacional modes are used with correct API type
+        if (isset($data['audiomode'])) {
+            // 'conversacional' only for Chat API
+            if ($type === 'assistant' && $data['audiomode'] === 'conversacional') {
+                $errors['audiomode'] = get_string('conversacional_not_with_assistant', 'mod_intebchat');
+            }
+            // 'conversacional_assistant' only for Assistant API
+            if ($type !== 'assistant' && $data['audiomode'] === 'conversacional_assistant') {
+                $errors['audiomode'] = get_string('conversacional_assistant_only', 'mod_intebchat');
+            }
         }
 
         return $errors;

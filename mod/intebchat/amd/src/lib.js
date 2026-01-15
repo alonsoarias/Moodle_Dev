@@ -550,18 +550,20 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
             }
 
             // ============================================================
-            // NUEVO: Modo conversacional Realtime (insertado según solicitud)
-            // Agregar este código en la función init después de la línea que dice
-            // "if (!empty($intebchat->enableaudio)) {"
-            // En este archivo JS lo ubicamos después del manejo de audio.
+            // Modo conversacional Realtime
+            // Handles both 'conversacional' (Chat API) and 'conversacional_assistant' (Assistant API)
             // ============================================================
-            if (audioConfig.enabled && audioConfig.mode === 'conversacional') {
+            var isConversacionalMode = audioConfig.enabled &&
+                (audioConfig.mode === 'conversacional' || audioConfig.mode === 'conversacional_assistant');
+
+            if (isConversacionalMode) {
                 // Initialize Realtime mode instead of regular audio
                 require(['mod_intebchat/realtime'], function (Realtime) {
                     Realtime.init({
                         instanceId: instanceId,
                         conversationId: currentConversationId,
-                        voice: audioConfig.voice || 'alloy'
+                        voice: audioConfig.voice || 'alloy',
+                        audioMode: audioConfig.mode // Pass mode for assistant tool configuration
                     });
 
                     // Override send button for realtime mode
@@ -574,18 +576,20 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                         }
                     });
 
-                    // Add realtime-specific controls
+                    // Add realtime-specific controls - mic starts DISABLED
                     var realtimeControls = '<div class="realtime-controls mt-2">' +
-                        '<button id="realtime-mic-toggle" class="btn btn-danger btn-sm">' +
-                        '<i class="fa fa-microphone"></i> Mic: ON</button> ' +
-                        '<span id="realtime-status" class="text-warning ml-2">Conectando...</span>' +
+                        '<button id="realtime-mic-toggle" class="btn btn-outline-secondary btn-sm" title="' +
+                        (strings.realtime_mic_start || 'Click to start speaking') + '">' +
+                        '<i class="fa fa-microphone-slash"></i> ' +
+                        (strings.realtime_mic_start || 'Click to speak') + '</button> ' +
+                        '<span id="realtime-status" class="text-muted ml-2">' +
+                        (strings.realtime_mic_start || 'Click microphone to start') + '</span>' +
                         '</div>';
                     $('#control_bar').append(realtimeControls);
 
-                    // Mic toggle handler
+                    // Mic toggle handler - toggles between on/off
                     $('#realtime-mic-toggle').on('click', function () {
-                        var isOn = $(this).hasClass('btn-danger');
-                        Realtime.toggleMic(!isOn);
+                        Realtime.toggleMic(); // Toggle without parameter
                     });
                 });
             }
@@ -789,7 +793,8 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 { key: 'tokensusedformat', component: 'mod_intebchat' },
                 { key: 'tokensresetcountdown', component: 'mod_intebchat' },
                 { key: 'thinking', component: 'mod_intebchat' },
-                { key: 'assistant', component: 'mod_intebchat' }
+                { key: 'assistant', component: 'mod_intebchat' },
+                { key: 'realtime_mic_start', component: 'mod_intebchat' }
             ];
 
             return Str.get_strings(stringkeys).then(function (results) {
@@ -822,6 +827,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                 strings.tokensresetcountdown = results[26];
                 strings.thinking = results[27];
                 strings.assistant = results[28];
+                strings.realtime_mic_start = results[29];
 
                 questionString = strings.askaquestion;
                 errorString = strings.erroroccurred;

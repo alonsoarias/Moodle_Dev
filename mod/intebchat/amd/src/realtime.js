@@ -43,6 +43,16 @@ function($, Ajax, Str, Notification) {
     var currentConversationId = null;
     var strings = {};
 
+    // Assistant mode configuration
+    var useAssistant = false;
+    var sessionSesskey = null;
+    var audioMode = null;
+    var currentFunctionCall = null;
+    var functionCallBuffer = '';
+
+    // Microphone control
+    var micEnabled = false;
+
     // Current message tracking for bidirectional transcription
     var currentUserMsgElement = null;
     var currentBotMsgElement = null;
@@ -70,7 +80,10 @@ function($, Ajax, Str, Notification) {
             {key: 'realtime_you_speaking', component: 'mod_intebchat'},
             {key: 'realtime_ai_speaking', component: 'mod_intebchat'},
             {key: 'realtime_listening', component: 'mod_intebchat'},
-            {key: 'realtime_processing', component: 'mod_intebchat'}
+            {key: 'realtime_processing', component: 'mod_intebchat'},
+            {key: 'realtime_mic_start', component: 'mod_intebchat'},
+            {key: 'realtime_mic_enabled', component: 'mod_intebchat'},
+            {key: 'realtime_assistant_thinking', component: 'mod_intebchat'}
         ]).then(function(results) {
             strings.connecting = results[0] || 'Connecting...';
             strings.connected = results[1] || 'Connected - Speak naturally';
@@ -81,6 +94,9 @@ function($, Ajax, Str, Notification) {
             strings.aiSpeaking = results[6] || 'AI is speaking...';
             strings.listening = results[7] || 'Listening...';
             strings.processing = results[8] || 'Processing...';
+            strings.micStart = results[9] || 'Click to start speaking';
+            strings.micEnabled = results[10] || 'Microphone active - speak now';
+            strings.assistantThinking = results[11] || 'Consulting assistant...';
         });
     };
 
@@ -90,18 +106,21 @@ function($, Ajax, Str, Notification) {
     var init = async function(config) {
         instanceId = config.instanceId;
         currentConversationId = config.conversationId;
+        audioMode = config.audioMode || 'conversacional';
 
         console.log('🚀 Initializing Realtime mode with bidirectional transcription');
+        console.log('📌 Audio mode:', audioMode);
 
         await loadStrings();
 
         try {
             updateStatus('connecting');
 
-            // Get ephemeral token
+            // Get ephemeral token with audiomode
             const tokenUrl = M.cfg.wwwroot + '/mod/intebchat/api/realtime_token.php?' +
                 'instanceid=' + instanceId +
                 '&voice=' + encodeURIComponent(config.voice || 'alloy') +
+                '&audiomode=' + encodeURIComponent(audioMode) +
                 '&sesskey=' + M.cfg.sesskey;
 
             const tokenResponse = await fetch(tokenUrl);
@@ -116,13 +135,22 @@ function($, Ajax, Str, Notification) {
                 throw new Error('No ephemeral token in response');
             }
 
+            // Store assistant mode configuration
+            useAssistant = tokenData.useAssistant || false;
+            sessionSesskey = tokenData.sesskey || M.cfg.sesskey;
+
+            if (useAssistant) {
+                console.log('🤖 Assistant mode enabled - complex queries will be delegated');
+            }
+
             // Initialize WebRTC with transcription enabled
             await initializeWebRTC(tokenData);
 
             // Setup visual indicators
             createRealtimeIndicators();
 
-            updateStatus('connected');
+            // In conversacional modes, microphone starts disabled
+            updateStatus('mic_disabled');
 
         } catch (error) {
             console.error('❌ Realtime initialization error:', error);
@@ -170,6 +198,12 @@ function($, Ajax, Str, Notification) {
         });
 
         micTrack = localStream.getAudioTracks()[0];
+
+        // Start with microphone muted - user must click to enable
+        micTrack.enabled = false;
+        micEnabled = false;
+        console.log('🔇 Microphone starts muted - click to enable');
+
         pc.addTrack(micTrack, localStream);
 
         // Create data channel for events
@@ -478,6 +512,35 @@ function($, Ajax, Str, Notification) {
             console.log('📊 Rate limits updated:', evt.rate_limits);
             // This event shows rate limits but not exact token counts
             // However, we can estimate usage from rate limit changes
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // FUNCTION CALL EVENTS - Handle assistant tool calls
+        // ═══════════════════════════════════════════════════════════════
+
+        // Function call started
+        if (evt.type === 'response.function_call_arguments.delta') {
+            const delta = evt.delta || '';
+            if (delta) {
+                functionCallBuffer += delta;
+            }
+        }
+
+        // Function call completed
+        if (evt.type === 'response.function_call_arguments.done') {
+            if (evt.name === 'ask_assistant' && useAssistant) {
+                console.log('🤖 Assistant function call:', evt);
+                handleAssistantFunctionCall(evt.call_id, functionCallBuffer);
+            }
+            functionCallBuffer = '';
+        }
+
+        // Also handle output item done for function calls
+        if (evt.type === 'response.output_item.done' && evt.item?.type === 'function_call') {
+            if (evt.item.name === 'ask_assistant' && useAssistant) {
+                console.log('🤖 Assistant function call from output_item:', evt.item);
+                handleAssistantFunctionCall(evt.item.call_id, evt.item.arguments);
+            }
         }
 
         // Response output item done
@@ -834,9 +897,16 @@ function($, Ajax, Str, Notification) {
      * Toggle microphone
      */
     var toggleMicrophone = function(enabled) {
+        if (typeof enabled === 'undefined') {
+            // Toggle current state
+            enabled = !micEnabled;
+        }
+
         if (micTrack) {
             micTrack.enabled = enabled;
+            micEnabled = enabled;
             updateMicrophoneUI(enabled);
+            updateStatus(enabled ? 'connected' : 'mic_disabled');
             console.log('🎤 Microphone:', enabled ? 'ON' : 'OFF');
         }
     };
@@ -847,12 +917,110 @@ function($, Ajax, Str, Notification) {
     var updateMicrophoneUI = function(enabled) {
         const micButton = $('#realtime-mic-toggle');
         if (enabled) {
-            micButton.removeClass('btn-secondary').addClass('btn-danger');
-            micButton.html('<i class="fa fa-microphone"></i> Mic: ON');
+            micButton.removeClass('btn-secondary btn-outline-secondary').addClass('btn-danger');
+            micButton.html('<i class="fa fa-microphone"></i> ' + (strings.micEnabled || 'Mic: ON'));
+            micButton.attr('title', strings.micEnabled || 'Microphone active');
         } else {
-            micButton.removeClass('btn-danger').addClass('btn-secondary');
-            micButton.html('<i class="fa fa-microphone-slash"></i> Mic: OFF');
+            micButton.removeClass('btn-danger').addClass('btn-outline-secondary');
+            micButton.html('<i class="fa fa-microphone-slash"></i> ' + (strings.micStart || 'Click to speak'));
+            micButton.attr('title', strings.micStart || 'Click to start speaking');
         }
+    };
+
+    /**
+     * Handle assistant function call from Realtime API
+     */
+    var handleAssistantFunctionCall = async function(callId, argumentsJson) {
+        if (!useAssistant) {
+            console.warn('Assistant function called but useAssistant is false');
+            return;
+        }
+
+        console.log('🤖 Handling assistant function call:', callId);
+
+        try {
+            // Parse the arguments
+            let args = {};
+            try {
+                args = JSON.parse(argumentsJson);
+            } catch (e) {
+                console.error('Failed to parse function arguments:', e);
+                args = { question: argumentsJson };
+            }
+
+            const question = args.question || '';
+            if (!question) {
+                console.warn('No question provided to assistant function');
+                sendFunctionResult(callId, 'No question provided');
+                return;
+            }
+
+            // Show thinking indicator
+            updateStatus('assistant_thinking');
+
+            // Call the assistant endpoint
+            const response = await $.ajax({
+                url: M.cfg.wwwroot + '/mod/intebchat/api/realtime_assistant.php',
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    instanceId: instanceId,
+                    question: question,
+                    conversationId: currentConversationId,
+                    sesskey: sessionSesskey
+                }),
+                headers: {
+                    'X-Sesskey': sessionSesskey
+                }
+            });
+
+            console.log('🤖 Assistant response:', response);
+
+            if (response.success && response.message) {
+                // Update conversation ID if new
+                if (response.conversationId && !currentConversationId) {
+                    currentConversationId = response.conversationId;
+                }
+
+                // Send the result back to the Realtime API
+                sendFunctionResult(callId, response.message);
+            } else {
+                sendFunctionResult(callId, response.error || 'Failed to get response from assistant');
+            }
+
+        } catch (error) {
+            console.error('Error calling assistant:', error);
+            sendFunctionResult(callId, 'Error consulting assistant: ' + (error.message || 'Unknown error'));
+        }
+
+        updateStatus(micEnabled ? 'connected' : 'mic_disabled');
+    };
+
+    /**
+     * Send function result back to Realtime API
+     */
+    var sendFunctionResult = function(callId, result) {
+        if (!dc || dc.readyState !== 'open') {
+            console.warn('Data channel not open, cannot send function result');
+            return;
+        }
+
+        console.log('📤 Sending function result for call:', callId);
+
+        dc.send(JSON.stringify({
+            type: 'conversation.item.create',
+            item: {
+                type: 'function_call_output',
+                call_id: callId,
+                output: result
+            }
+        }));
+
+        // Trigger response generation
+        dc.send(JSON.stringify({
+            type: 'response.create'
+        }));
     };
 
     /**
@@ -861,19 +1029,25 @@ function($, Ajax, Str, Notification) {
     var updateStatus = function(status) {
         const statusElement = $('#realtime-status');
         const statusTexts = {
-            'connecting': strings.connecting || '🔄 Conectando...',
-            'connected': strings.connected || '✅ Conectado - Habla naturalmente',
-            'disconnected': strings.disconnected || '❌ Desconectado',
-            'error': strings.error || '⚠️ Error'
+            'connecting': strings.connecting || '🔄 Connecting...',
+            'connected': strings.connected || '✅ Connected - Speak naturally',
+            'disconnected': strings.disconnected || '❌ Disconnected',
+            'error': strings.error || '⚠️ Error',
+            'mic_disabled': strings.micStart || '🎤 Click to start speaking',
+            'assistant_thinking': strings.assistantThinking || '🤖 Consulting assistant...'
         };
 
         statusElement.text(statusTexts[status] || status);
-        statusElement.removeClass('text-warning text-success text-danger');
+        statusElement.removeClass('text-warning text-success text-danger text-info text-muted');
 
         if (status === 'connected') {
             statusElement.addClass('text-success');
         } else if (status === 'error' || status === 'disconnected') {
             statusElement.addClass('text-danger');
+        } else if (status === 'mic_disabled') {
+            statusElement.addClass('text-muted');
+        } else if (status === 'assistant_thinking') {
+            statusElement.addClass('text-info');
         } else {
             statusElement.addClass('text-warning');
         }

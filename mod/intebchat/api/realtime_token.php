@@ -40,6 +40,7 @@ try {
     // Get parameters
     $instanceid = required_param('instanceid', PARAM_INT);
     $voice = optional_param('voice', 'alloy', PARAM_TEXT);
+    $audiomode = optional_param('audiomode', 'conversacional', PARAM_TEXT);
     
     // Verify instance exists
     $instance = $DB->get_record('intebchat', ['id' => $instanceid]);
@@ -101,12 +102,35 @@ try {
         $voice = $instance->voice;
     }
     
+    // Check if using conversacional_assistant mode
+    $use_assistant_tool = ($audiomode === 'conversacional_assistant');
+
+    // Get assistant info if using assistant mode
+    $assistant_id = null;
+    if ($use_assistant_tool) {
+        $assistant_id = !empty($instance->assistant) ? $instance->assistant : ($config->assistant ?? null);
+        if (empty($assistant_id)) {
+            throw new Exception('No assistant configured for conversacional_assistant mode');
+        }
+    }
+
+    // Build base instructions
+    $base_instructions = $instructions . ' Tu nombre es ' . $assistantname . '. Responde en ' . ($language === 'es' ? 'español' : 'inglés') . ' de manera clara y útil.';
+
+    // Add assistant delegation instructions if using that mode
+    if ($use_assistant_tool) {
+        $assistant_instructions = $language === 'es'
+            ? ' Para consultas complejas, técnicas o que requieran información especializada, usa la función ask_assistant para obtener respuestas precisas del asistente configurado.'
+            : ' For complex, technical queries or those requiring specialized information, use the ask_assistant function to get accurate answers from the configured assistant.';
+        $base_instructions .= $assistant_instructions;
+    }
+
     // Build session configuration
     $session_config = [
         'model' => $model,
         'voice' => $voice,
         'modalities' => ['audio', 'text'],
-        'instructions' => $instructions . ' Tu nombre es ' . $assistantname . '. Responde en ' . ($language === 'es' ? 'español' : 'inglés') . ' de manera clara y útil.',
+        'instructions' => $base_instructions,
         'input_audio_transcription' => [
             'model' => 'gpt-4o-mini-transcribe',
             'language' => $language
@@ -120,6 +144,31 @@ try {
             'threshold' => 0.5
         ]
     ];
+
+    // Add assistant tool if using conversacional_assistant mode
+    if ($use_assistant_tool) {
+        $session_config['tools'] = [
+            [
+                'type' => 'function',
+                'name' => 'ask_assistant',
+                'description' => $language === 'es'
+                    ? 'Consulta al asistente especializado para responder preguntas complejas, técnicas o que requieran conocimiento específico. Usa esta función cuando el usuario haga preguntas que necesiten respuestas precisas o detalladas.'
+                    : 'Consult the specialized assistant for complex, technical questions or those requiring specific knowledge. Use this function when the user asks questions that need accurate or detailed answers.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'question' => [
+                            'type' => 'string',
+                            'description' => $language === 'es'
+                                ? 'La pregunta o consulta del usuario que requiere una respuesta especializada'
+                                : 'The user question or query that requires a specialized answer'
+                        ]
+                    ],
+                    'required' => ['question']
+                ]
+            ]
+        ];
+    }
     
     // Make request to OpenAI
     $ch = curl_init('https://api.openai.com/v1/realtime/sessions');
@@ -162,7 +211,10 @@ try {
         'model' => $data['model'] ?? $model,
         'ephemeral' => $data['client_secret']['value'],
         'instanceId' => $instanceid,
-        'voice' => $voice
+        'voice' => $voice,
+        'audiomode' => $audiomode,
+        'useAssistant' => $use_assistant_tool,
+        'sesskey' => sesskey()
     ], JSON_UNESCAPED_UNICODE);
     
 } catch (Exception $e) {

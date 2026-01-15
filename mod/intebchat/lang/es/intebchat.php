@@ -257,7 +257,13 @@ $string['confirmdelete'] = '¿Estás seguro de que deseas eliminar esta grabaci�
 // Cadenas de modo conversacional
 $string['audiomode_conversacional'] = 'Conversacional (Tiempo real)';
 $string['audiomode_conversacional_help'] = 'Modo conversacional en tiempo real usando WebRTC para interacción natural por voz con transcripción bidireccional';
-$string['conversacional_not_with_assistant'] = 'El modo conversacional no está disponible cuando se usa la API de Assistant. La API de Realtime no soporta OpenAI Assistants. Por favor, usa el modo texto, audio o ambos.';
+$string['audiomode_conversacional_assistant'] = 'Conversacional con Asistente (Tiempo real)';
+$string['audiomode_conversacional_assistant_help'] = 'Conversación por voz en tiempo real que delega consultas complejas a tu Asistente de OpenAI configurado. Combina la experiencia de voz natural de la API de Realtime con las capacidades de tu Asistente.';
+$string['conversacional_not_with_assistant'] = 'El modo conversacional no está disponible cuando se usa la API de Assistant. Por favor, usa el modo "Conversacional con Asistente".';
+$string['conversacional_assistant_only'] = 'El modo Conversacional con Asistente solo está disponible cuando se usa la API de Assistant. Por favor, usa el modo "Conversacional" estándar.';
+$string['realtime_mic_start'] = 'Haz clic para comenzar a hablar';
+$string['realtime_mic_enabled'] = 'Micrófono activo - habla ahora';
+$string['realtime_assistant_thinking'] = 'Consultando al asistente...';
 $string['realtime_connecting'] = 'Conectando al servicio en tiempo real...';
 $string['realtime_connected'] = 'Conectado - Habla naturalmente';
 $string['realtime_disconnected'] = 'Desconectado del servicio en tiempo real';
