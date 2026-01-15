@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New language strings for JavaScript UI: `recording`, `browsernotsupported`, `recordingerror`, `microphoneerror`, `tokensresetin`, `required`, `unknownerror`
+- Complete Spanish translations for all new strings
+
+### Changed
+- Replaced hardcoded text strings in `audio.js` with Moodle language string system
+- Updated audio.js to load localized strings for error messages with proper fallbacks
+- Cleaned up duplicate `js_` prefixed strings from language files (using existing strings instead)
+
+### Fixed
+- ESLint errors in AMD modules: removed unused parameters and imports in `settings.js` and `report.js`
+- Backup/restore functionality with proper implementation of `intebchat_get_instance_analytics()`
+- AMD modules recompiled with latest changes
+
 ---
 
 ## [3.6.1] - 2025-12-24
