@@ -240,7 +240,10 @@ function intebchat_clear_conversation_messages($conversationid)
 
 /**
  * Delete a conversation completely
- * 
+ *
+ * Note: Log records are NOT deleted to preserve token usage history for reporting.
+ * Instead, their conversationid is set to NULL to unlink them from the deleted conversation.
+ *
  * @param int $conversationid Conversation ID
  * @return bool Success
  */
@@ -259,10 +262,11 @@ function intebchat_delete_conversation_completely($conversationid)
         // Start transaction
         $transaction = $DB->start_delegated_transaction();
 
-        // Delete all messages first (pueden no existir)
-        $DB->delete_records('intebchat_log', ['conversationid' => $conversationid]);
+        // Unlink log records from conversation (preserve for token reporting)
+        // Set conversationid to NULL instead of deleting to maintain token usage history
+        $DB->set_field('intebchat_log', 'conversationid', null, ['conversationid' => $conversationid]);
 
-        // Delete the conversation
+        // Delete the conversation record
         $deleted = $DB->delete_records('intebchat_conversations', ['id' => $conversationid]);
 
         // Commit transaction
