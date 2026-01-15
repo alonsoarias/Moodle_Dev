@@ -422,21 +422,22 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
         /**
          * Animated Assistant Class - Uses mascot SVG from pix/mascots
          * Enhanced with state-based animations like educambot
+         * SVG is inlined to allow CSS animations on internal elements
          */
         var AnimatedAssistant = {
             tooltipTimer: null,
             currentState: 'idle',
 
             init: function () {
+                var self = this;
                 // Get mascot URL from data attribute
                 var $main = $('.intebchat-main');
                 var mascotUrl = $main.data('mascot-url') || '';
                 var mascotName = $main.data('mascot-name') || 'Assistant';
 
-                // Create assistant container with SVG mascot and tooltip
+                // Create assistant container with placeholder
                 var assistantHtml = '<div id="intebchat-assistant" class="intebchat-assistant" data-state="idle">' +
-                    '<img src="' + mascotUrl + '" alt="' + mascotName + '" class="assistant-mascot-svg" />' +
-                    '<div class="assistant-bubble" style="display:none;"></div>' +
+                    '<div class="assistant-mascot-svg" aria-label="' + mascotName + '"></div>' +
                     '<div class="intebchat-mascot-tooltip">' +
                     '<div class="tooltip-content"></div>' +
                     '<div class="tooltip-arrow"></div>' +
@@ -445,10 +446,38 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                 // Add to main chat area
                 $main.append(assistantHtml);
-                this.bindEvents();
 
-                // Start with greeting animation
-                this.greeting();
+                // Fetch and inline the SVG for proper CSS animations
+                if (mascotUrl) {
+                    $.ajax({
+                        url: mascotUrl,
+                        dataType: 'text',
+                        success: function(svgContent) {
+                            // Parse the SVG and add it inline
+                            var $svg = $(svgContent).filter('svg');
+                            if ($svg.length) {
+                                // Add class for styling
+                                $svg.addClass('mascot-svg-inline');
+                                // Preserve viewBox but set size
+                                $svg.attr('width', '100%');
+                                $svg.attr('height', '100%');
+                                // Insert inline SVG
+                                $('#intebchat-assistant .assistant-mascot-svg').html($svg);
+                            }
+                            // Start with greeting animation after SVG is loaded
+                            self.greeting();
+                        },
+                        error: function() {
+                            // Fallback to img tag if fetch fails
+                            $('#intebchat-assistant .assistant-mascot-svg').html(
+                                '<img src="' + mascotUrl + '" alt="' + mascotName + '" />'
+                            );
+                            self.greeting();
+                        }
+                    });
+                }
+
+                this.bindEvents();
                 console.log('Assistant initialized with mascot:', mascotName);
             },
 
@@ -470,11 +499,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
 
                 this.currentState = state;
                 $assistant.attr('data-state', state);
-                // Also keep class-based system for backwards compatibility
-                $assistant.removeClass('idle thinking talking waving');
-                if (['idle', 'thinking', 'talking', 'waving'].indexOf(state) !== -1) {
-                    $assistant.addClass(state);
-                }
             },
 
             idle: function () {
@@ -594,15 +618,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification', 'core/modal_save
                     clearTimeout(this.tooltipTimer);
                     this.tooltipTimer = null;
                 }
-            },
-
-            // Legacy method for backwards compatibility
-            showBubble: function (text) {
-                $('.assistant-bubble').text(text).fadeIn(200);
-            },
-
-            hideBubble: function () {
-                $('.assistant-bubble').fadeOut(200);
             }
         };
 

@@ -37,6 +37,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AnimatedAssistant now uses `data-state` attribute for state-based CSS animations
 - Mascot shows `success` animation on successful AI response instead of simple `talking`
 - Mascot shows `confused` animation on errors instead of going back to `idle`
+- **Mascot SVG now inlined via AJAX** for full CSS animation support on internal elements
+- Enhanced mascot animations with internal SVG element targeting (#head, #eyes, #arms, #tail, #body, #ear-left, #ear-right)
+
+### Removed
+- Legacy class-based mascot animation system (`.idle`, `.thinking`, `.talking`, `.waving` classes)
+- Legacy `showBubble()` and `hideBubble()` methods from AnimatedAssistant
+- Legacy `.assistant-bubble` CSS styles
+- Legacy `.audio-mode-active` CSS (template now handles modes directly with mustache conditionals)
 
 ### Fixed
 - ESLint errors in AMD modules: removed unused parameters and imports in `settings.js` and `report.js`
