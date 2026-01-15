@@ -47,7 +47,7 @@ function($, Ajax, Str, Notification) {
     var useAssistant = false;
     var sessionSesskey = null;
     var audioMode = null;
-    var currentFunctionCall = null;
+    var processedCallIds = new Set(); // Track processed function call IDs to prevent duplicates
     var functionCallBuffer = '';
 
     // Microphone control
@@ -935,6 +935,13 @@ function($, Ajax, Str, Notification) {
             console.warn('Assistant function called but useAssistant is false');
             return;
         }
+
+        // Prevent duplicate processing of the same call
+        if (processedCallIds.has(callId)) {
+            console.log('🔄 Skipping duplicate function call:', callId);
+            return;
+        }
+        processedCallIds.add(callId);
 
         console.log('🤖 Handling assistant function call:', callId);
 

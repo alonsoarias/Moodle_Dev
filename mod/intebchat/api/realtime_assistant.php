@@ -28,6 +28,7 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
+require_once($CFG->libdir . '/filelib.php'); // Required for curl class
 require_once($CFG->dirroot . '/mod/intebchat/lib.php');
 require_once($CFG->dirroot . '/mod/intebchat/locallib.php');
 
