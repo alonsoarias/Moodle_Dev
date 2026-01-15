@@ -723,7 +723,7 @@
 .mascot-tooltip .tooltip-content {
     font-size: 13px;
     line-height: 1.4;
-    color: var(--intebchat-text, #1f2937);
+    color: var(--intebchat-text-primary, #1f2937);
     text-align: center;
 }
 
@@ -750,6 +750,28 @@
     border-right: 9px solid transparent;
     border-top: 9px solid var(--intebchat-border, #e5e7eb);
     z-index: -1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MASCOT TOOLTIP - Dark Mode Support
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.dark-mode .mascot-tooltip {
+    background: var(--intebchat-bg-secondary);
+    border-color: var(--intebchat-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .mascot-tooltip .tooltip-content {
+    color: var(--intebchat-text-primary);
+}
+
+.dark-mode .mascot-tooltip .tooltip-arrow {
+    border-top-color: var(--intebchat-bg-secondary);
+}
+
+.dark-mode .mascot-tooltip .tooltip-arrow::before {
+    border-top-color: var(--intebchat-border);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
