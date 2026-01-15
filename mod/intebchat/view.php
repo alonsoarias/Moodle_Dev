@@ -168,6 +168,9 @@ $showAudio = !empty($intebchat->enableaudio) && ($intebchat->audiomode === 'audi
 // Hide regular audio button in conversacional modes - realtime.js adds its own controls
 $showAudio = $showAudio && !$isConversacional;
 
+// Show warning for conversacional mode when assistant API is configured but won't be used
+$showConversacionalWarning = ($intebchat->audiomode === 'conversacional' && $api_type === 'assistant');
+
 // Prepare template context
 $templatecontext = [
     'instanceid' => $intebchat->id,
@@ -208,6 +211,8 @@ $templatecontext = [
     'loggingenabled' => get_string('loggingenabled', 'mod_intebchat'),
     'showTextarea' => $showTextarea,
     'showAudio' => $showAudio,
+    'showConversacionalWarning' => $showConversacionalWarning,
+    'conversacionalWarningMessage' => get_string('conversacional_runtime_warning', 'mod_intebchat'),
     'recordaudio' => get_string('recordaudio', 'mod_intebchat'),
     'stoprecording' => get_string('stoprecording', 'mod_intebchat'),
     'switchtheme' => get_string('switchtheme', 'mod_intebchat'),

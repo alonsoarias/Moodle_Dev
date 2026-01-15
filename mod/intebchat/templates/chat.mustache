@@ -186,6 +186,13 @@
                     </div>
                 {{/token_limit_enabled}}
 
+                {{#showConversacionalWarning}}
+                    <div class="alert alert-warning small m-2">
+                        <i class="fa fa-exclamation-triangle mr-2"></i>
+                        {{conversacionalWarningMessage}}
+                    </div>
+                {{/showConversacionalWarning}}
+
                 <div id="intebchat_log" role="log" aria-live="polite">
                     <!-- Messages will be loaded here -->
                 </div>

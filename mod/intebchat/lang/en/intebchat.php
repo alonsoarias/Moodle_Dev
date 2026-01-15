@@ -267,6 +267,7 @@ $string['conversacional_not_with_assistant'] = 'Conversational mode is not avail
 $string['conversacional_assistant_only'] = 'Conversational with Assistant mode is only available when using Assistant API. Please use standard "Conversational" mode instead.';
 $string['conversacional_warning'] = 'This mode uses the OpenAI Realtime API for real-time voice conversation. It does NOT use your configured OpenAI Assistant. The AI will respond using generic instructions, not your trained assistant\'s knowledge base.';
 $string['conversacional_assistant_info'] = 'This mode uses the OpenAI Realtime API for voice interaction, but delegates complex queries to your configured OpenAI Assistant. The AI will consult your trained assistant when specialized knowledge is needed.';
+$string['conversacional_runtime_warning'] = 'Note: This conversational mode does not use your configured OpenAI Assistant. Responses will be generated using generic AI capabilities.';
 $string['realtime_mic_start'] = 'Click to start speaking';
 $string['realtime_mic_enabled'] = 'Microphone active - speak now';
 $string['realtime_assistant_thinking'] = 'Consulting assistant...';
