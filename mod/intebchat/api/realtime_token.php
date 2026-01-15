@@ -120,8 +120,8 @@ try {
     // Add assistant delegation instructions if using that mode
     if ($use_assistant_tool) {
         $assistant_instructions = $language === 'es'
-            ? ' Para consultas complejas, técnicas o que requieran información especializada, usa la función ask_assistant para obtener respuestas precisas del asistente configurado.'
-            : ' For complex, technical queries or those requiring specialized information, use the ask_assistant function to get accurate answers from the configured assistant.';
+            ? ' IMPORTANTE: Para TODAS las preguntas del usuario, SIEMPRE debes usar la función ask_assistant para obtener la respuesta. No respondas directamente, siempre consulta al asistente primero y luego comunica su respuesta al usuario.'
+            : ' IMPORTANT: For ALL user questions, you MUST ALWAYS use the ask_assistant function to get the answer. Do not respond directly, always consult the assistant first and then communicate their response to the user.';
         $base_instructions .= $assistant_instructions;
     }
 
@@ -152,16 +152,16 @@ try {
                 'type' => 'function',
                 'name' => 'ask_assistant',
                 'description' => $language === 'es'
-                    ? 'Consulta al asistente especializado para responder preguntas complejas, técnicas o que requieran conocimiento específico. Usa esta función cuando el usuario haga preguntas que necesiten respuestas precisas o detalladas.'
-                    : 'Consult the specialized assistant for complex, technical questions or those requiring specific knowledge. Use this function when the user asks questions that need accurate or detailed answers.',
+                    ? 'OBLIGATORIO: Usa esta función para TODAS las preguntas del usuario. Consulta al asistente especializado y devuelve su respuesta. Nunca respondas sin consultar primero al asistente.'
+                    : 'REQUIRED: Use this function for ALL user questions. Consult the specialized assistant and return their response. Never answer without consulting the assistant first.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
                         'question' => [
                             'type' => 'string',
                             'description' => $language === 'es'
-                                ? 'La pregunta o consulta del usuario que requiere una respuesta especializada'
-                                : 'The user question or query that requires a specialized answer'
+                                ? 'La pregunta o consulta del usuario'
+                                : 'The user question or query'
                         ]
                     ],
                     'required' => ['question']
