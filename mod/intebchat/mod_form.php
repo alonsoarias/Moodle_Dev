@@ -90,21 +90,14 @@ class mod_intebchat_mod_form extends moodleform_mod {
             $mform->setDefault('enableaudio', 0);
             $mform->addHelpButton('enableaudio', 'enableaudio', 'mod_intebchat');
 
-            // Audio modes - different conversacional options based on API type
+            // Audio modes - show all modes, validation will check compatibility
             $audiomodes = [
                 'text' => get_string('audiomode_text', 'mod_intebchat'),
                 'audio' => get_string('audiomode_audio', 'mod_intebchat'),
                 'both' => get_string('audiomode_both', 'mod_intebchat'),
+                'conversacional' => get_string('audiomode_conversacional', 'mod_intebchat'),
+                'conversacional_assistant' => get_string('audiomode_conversacional_assistant', 'mod_intebchat'),
             ];
-
-            // Add conversacional mode based on API type
-            if ($type === 'assistant') {
-                // For Assistant API: use Realtime with Assistant as function tool
-                $audiomodes['conversacional_assistant'] = get_string('audiomode_conversacional_assistant', 'mod_intebchat');
-            } else {
-                // For Chat API: standard Realtime mode
-                $audiomodes['conversacional'] = get_string('audiomode_conversacional', 'mod_intebchat');
-            }
 
             $mform->addElement('select', 'audiomode', get_string('audiomode', 'mod_intebchat'), $audiomodes);
             $mform->setDefault('audiomode', 'text');

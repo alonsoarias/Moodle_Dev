@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_intebchat';
-$plugin->release = 'v3.6.1';
-$plugin->version = 2025122410;  // December 2025 - Language string fixes
+$plugin->release = 'v3.7.0';
+$plugin->version = 2026011500;  // January 2026 - Conversacional Assistant mode
 $plugin->requires = 2022112800; // Moodle 4.1
 $plugin->maturity = MATURITY_BETA;

@@ -9,56 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [3.7.0] - 2026-01-15
+
 ### Added
-- New language strings for JavaScript UI: `recording`, `browsernotsupported`, `recordingerror`, `microphoneerror`, `tokensresetin`, `required`, `unknownerror`
-- New language string `chatcompletions` for API type display
-- Complete Spanish translations for all new strings
-- Permanent storage for TTS audio using Moodle's File API (ttsaudio filearea)
-- New audio.php functions: `save_tts_audio()` and `speech_with_permanent_storage()`
-- **Mascot animation system** inspired by local_educambot with multiple states:
-  - `idle` - gentle floating animation
-  - `thinking` - head tilt with eye blinking
-  - `success` - celebration bounce on successful response
-  - `confused` - head shake on errors
-  - `greeting` - entrance animation with arms wave
-  - `suggesting` - attention bounce
-  - `listening` - pulse effect during audio recording
-- Mascot tooltip system for displaying messages to users
-- Accessibility support with `prefers-reduced-motion` media query
-- New language strings for mascot animations: `thinking`, `mascothelp`, `mascotneedmore`, `mascotconfused`, `mascotgreeting`, `mascotlistening`
+- **New `conversacional_assistant` audio mode** - Real-time voice conversation that delegates complex queries to your configured OpenAI Assistant
+- New `realtime_assistant.php` endpoint - Handles Assistant function calls from Realtime API
+- Assistant tool integration in Realtime sessions - Realtime API can call configured Assistant for specialized knowledge
+- Language strings for new mode: `audiomode_conversacional_assistant`, `audiomode_conversacional_assistant_help`
+- Language strings for mic states: `realtime_mic_start`, `realtime_mic_enabled`, `realtime_assistant_thinking`
+- Validation error messages: `conversacional_not_with_assistant`, `conversacional_assistant_only`
+- Dark mode support for mascot tooltip (proper background, text, and arrow colors)
 
 ### Changed
-- Replaced hardcoded text strings in `audio.js` with Moodle language string system
-- Updated audio.js to load localized strings for error messages with proper fallbacks
-- Cleaned up duplicate `js_` prefixed strings from language files (using existing strings instead)
-- audio.js: Changed event binding to use event delegation for reliability across all themes
-- audio.php: Optimized transcription with HTTP/2 and TCP_NODELAY for faster audio processing
-- TTS audio responses now stored permanently instead of in temp directory
-- AnimatedAssistant now uses `data-state` attribute for state-based CSS animations
-- Mascot shows `success` animation on successful AI response instead of simple `talking`
-- Mascot shows `confused` animation on errors instead of going back to `idle`
-- **Mascot SVG now inlined via AJAX** for full CSS animation support on internal elements
-- Enhanced mascot animations with internal SVG element targeting (#head, #eyes, #arms, #tail, #body, #ear-left, #ear-right)
-
-### Removed
-- Legacy class-based mascot animation system (`.idle`, `.thinking`, `.talking`, `.waving` classes)
-- Legacy `showBubble()` and `hideBubble()` methods from AnimatedAssistant
-- Legacy `.assistant-bubble` CSS styles
-- Legacy `.audio-mode-active` CSS (template now handles modes directly with mustache conditionals)
+- **Microphone starts disabled** in both conversacional modes - user must click to enable
+- Streaming disabled for Assistant API - uses regular AJAX which correctly routes to Assistant engine
+- Token usage data now preserved when conversations are deleted (conversationid set to NULL instead of deleting log records)
+- Improved SSE output buffering in `completion_stream.php` for reliable streaming
+- `mod_form.php` now shows all audio modes, validation handles API type compatibility
+- `realtime.js` handles function call events and sends results back to continue conversation
+- `realtime_token.php` includes `ask_assistant` function tool when using `conversacional_assistant` mode
 
 ### Fixed
-- ESLint errors in AMD modules: removed unused parameters and imports in `settings.js` and `report.js`
-- Backup/restore functionality with proper implementation of `intebchat_get_instance_analytics()`
-- Duplicate function declaration `intebchat_get_instance_analytics()` causing fatal error
-- Duplicate activity description when using single activity course format
-- mod_form.php: Added missing 'text' option to audiomode selector
-- mod_form.php: Fixed audiomode selector to include 'text' option
-- mod_form.php: Fixed missing 'chatcompletions' language string
-- mod_form.php: Fixed validation showing error on non-existent apikey field
-- lib.js: Fixed undefined `userName` and `assistantName` variables in buildTranscript function
-- Audio and text messaging now works correctly in both light and dark modes
-- TTS audio 404 errors when loading old conversations (audio files were being deleted from temp)
-- AMD modules recompiled with latest changes
+- Chat responses not displaying when using Assistant API (streaming endpoint was hardcoded to Chat API)
+- Mascot tooltip text not readable in dark mode (incorrect CSS variable name)
+- Token usage history lost when deleting conversations (now preserved for reports)
 
 ---
 
