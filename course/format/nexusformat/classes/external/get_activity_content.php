@@ -735,25 +735,40 @@ class get_activity_content extends external_api {
 
     /**
      * Get quiz module content.
+     * Replicates view.php logic: uses quiz_settings, access_manager for access rules,
+     * handles unfinished attempts, and shows proper info messages.
      */
     protected static function get_quiz_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG;
         require_once($CFG->dirroot . '/mod/quiz/lib.php');
         require_once($CFG->dirroot . '/mod/quiz/locallib.php');
+        require_once($CFG->libdir . '/gradelib.php');
 
         $html = '<div class="nexus-quiz-content">';
 
-        // Check user capabilities.
+        // Check user capabilities like view.php lines 57-59.
         $canpreview = has_capability('mod/quiz:preview', $context);
+        $canattempt = has_capability('mod/quiz:attempt', $context);
         $canmanage = has_capability('mod/quiz:manage', $context);
         $canviewreports = has_capability('mod/quiz:viewreports', $context);
+
+        // Try to use access_manager for proper access rules like view.php lines 61-64.
+        $timenow = time();
+        $accessmanager = null;
+        try {
+            $quizobj = \mod_quiz\quiz_settings::create_for_cmid($cm->id, $USER->id);
+            $accessmanager = new \mod_quiz\access_manager($quizobj, $timenow,
+                has_capability('mod/quiz:ignoretimelimits', $context, null, false));
+        } catch (\Exception $e) {
+            // If access_manager fails, continue without it.
+        }
 
         if ($canmanage || $canviewreports) {
             // Teacher view.
             $html .= self::get_quiz_teacher_view($cm, $instance, $context);
         } else {
             // Student view.
-            $html .= self::get_quiz_student_view($cm, $instance, $context, $canpreview);
+            $html .= self::get_quiz_student_view($cm, $instance, $course, $context, $canpreview, $canattempt, $accessmanager);
         }
 
         $html .= '</div>';
@@ -762,13 +777,32 @@ class get_activity_content extends external_api {
 
     /**
      * Get quiz student view.
+     * Replicates view.php logic with access_manager for proper rules display.
      */
-    protected static function get_quiz_student_view($cm, $instance, $context, $canpreview = false): string {
+    protected static function get_quiz_student_view($cm, $instance, $course, $context, $canpreview = false,
+            $canattempt = true, $accessmanager = null): string {
         global $DB, $USER;
 
         $html = '';
 
-        // Quiz info.
+        // Show access rules/info messages like view.php line 207.
+        if ($accessmanager) {
+            try {
+                $infomessages = $accessmanager->describe_rules();
+                if (!empty($infomessages)) {
+                    $html .= '<div class="nexus-quiz-rules alert alert-info mb-3">';
+                    $html .= '<ul class="mb-0">';
+                    foreach ($infomessages as $message) {
+                        $html .= '<li>' . $message . '</li>';
+                    }
+                    $html .= '</ul></div>';
+                }
+            } catch (\Exception $e) {
+                // Ignore errors from access_manager.
+            }
+        }
+
+        // Quiz info card.
         $html .= '<div class="nexus-quiz-info card mb-3">';
         $html .= '<div class="card-body">';
 
@@ -787,47 +821,64 @@ class get_activity_content extends external_api {
             $html .= get_string('unlimited') . '</p>';
         }
 
-        // Grading method.
-        $gradingmethods = [
-            QUIZ_GRADEHIGHEST => get_string('gradehighest', 'quiz'),
-            QUIZ_GRADEAVERAGE => get_string('gradeaverage', 'quiz'),
-            QUIZ_ATTEMPTFIRST => get_string('attemptfirst', 'quiz'),
-            QUIZ_ATTEMPTLAST => get_string('attemptlast', 'quiz'),
-        ];
-        if (isset($gradingmethods[$instance->grademethod])) {
-            $html .= '<p><i class="fa fa-calculator"></i> <strong>' . get_string('grademethod', 'quiz') . ':</strong> ';
-            $html .= $gradingmethods[$instance->grademethod] . '</p>';
+        // Grading method - show only if multiple attempts like view.php line 208-211.
+        if ($instance->attempts != 1) {
+            $html .= '<p><i class="fa fa-calculator"></i> <strong>' . get_string('gradingmethod', 'quiz',
+                quiz_get_grading_option_name($instance->grademethod)) . '</strong></p>';
         }
 
-        // Grade to pass - same logic as view.php.
-        $gradeitem = $DB->get_record('grade_items', [
+        // Grade to pass like view.php lines 214-219.
+        $gradeitem = \grade_item::fetch([
             'itemtype' => 'mod',
             'itemmodule' => 'quiz',
-            'iteminstance' => $instance->id
+            'iteminstance' => $instance->id,
+            'itemnumber' => 0,
+            'courseid' => $course->id,
         ]);
-        if ($gradeitem && !empty($gradeitem->gradepass) && $gradeitem->gradepass > 0) {
-            $html .= '<p><i class="fa fa-graduation-cap"></i> <strong>' . get_string('gradetopass', 'grades') . ':</strong> ';
-            $html .= format_float($gradeitem->gradepass, $instance->decimalpoints) . ' / ' .
-                     format_float($instance->grade, $instance->decimalpoints) . '</p>';
+        if ($gradeitem && grade_floats_different($gradeitem->gradepass, 0)) {
+            $a = new \stdClass();
+            $a->grade = quiz_format_grade($instance, $gradeitem->gradepass);
+            $a->maxgrade = quiz_format_grade($instance, $instance->grade);
+            $html .= '<p><i class="fa fa-graduation-cap"></i> <strong>' .
+                     get_string('gradetopassoutof', 'quiz', $a) . '</strong></p>';
         }
 
         $html .= '</div></div>';
 
-        // User attempts.
+        // Get user attempts including unfinished like view.php lines 79-98.
         $attempts = quiz_get_user_attempts($instance->id, $USER->id, 'finished', true);
+        $lastfinishedattempt = end($attempts);
+        $unfinished = false;
+        $unfinishedattempt = quiz_get_user_attempt_unfinished($instance->id, $USER->id);
+        if ($unfinishedattempt) {
+            $attempts[] = $unfinishedattempt;
+            $unfinished = ($unfinishedattempt->state == \mod_quiz\quiz_attempt::IN_PROGRESS ||
+                          $unfinishedattempt->state == \mod_quiz\quiz_attempt::OVERDUE);
+        }
+        $numattempts = count($attempts);
 
-        // Show overall grade if user has attempts.
-        if ($attempts && !$canpreview) {
+        // Show overall grade if user has finished attempts like view.php lines 118-127.
+        if (!$canpreview && $lastfinishedattempt) {
             $mygrade = quiz_get_best_grade($instance, $USER->id);
+
+            // Check gradebook for overridden grade like view.php lines 144-159.
+            if ($gradeitem) {
+                $grade = $gradeitem->get_grade($USER->id, false);
+                if ($grade && $grade->finalgrade !== null) {
+                    $mygrade = $grade->finalgrade;
+                }
+            }
+
             if ($mygrade !== null) {
                 $html .= '<div class="nexus-quiz-grade alert alert-info mb-3">';
                 $html .= '<strong>' . get_string('yourfinalgradeis', 'quiz',
-                    format_float($mygrade, $instance->decimalpoints) . ' / ' .
-                    format_float($instance->grade, $instance->decimalpoints)) . '</strong>';
+                    quiz_format_grade($instance, $mygrade) . ' / ' .
+                    quiz_format_grade($instance, $instance->grade)) . '</strong>';
                 $html .= '</div>';
             }
         }
 
+        // Show attempts table.
         if ($attempts) {
             $html .= '<div class="nexus-quiz-attempts mb-3">';
             $html .= '<h5>' . get_string('yourattempts', 'quiz') . '</h5>';
@@ -845,12 +896,12 @@ class get_activity_content extends external_api {
                 $html .= '<td>' . quiz_attempt_state_name($attempt->state) . '</td>';
                 // Raw marks from attempt.
                 if ($attempt->sumgrades !== null) {
-                    $html .= '<td>' . format_float($attempt->sumgrades, $instance->decimalpoints) . ' / ' .
-                             format_float($instance->sumgrades, $instance->decimalpoints) . '</td>';
+                    $html .= '<td>' . quiz_format_grade($instance, $attempt->sumgrades) . ' / ' .
+                             quiz_format_grade($instance, $instance->sumgrades) . '</td>';
                     // Scaled grade.
                     $grade = quiz_rescale_grade($attempt->sumgrades, $instance, false);
-                    $html .= '<td>' . format_float($grade, $instance->decimalpoints) . ' / ' .
-                             format_float($instance->grade, $instance->decimalpoints) . '</td>';
+                    $html .= '<td>' . quiz_format_grade($instance, $grade) . ' / ' .
+                             quiz_format_grade($instance, $instance->grade) . '</td>';
                 } else {
                     $html .= '<td>-</td><td>-</td>';
                 }
@@ -859,21 +910,66 @@ class get_activity_content extends external_api {
             $html .= '</tbody></table></div>';
         }
 
-        // Start quiz button.
+        // Determine button text and availability like view.php lines 221-264.
         $html .= '<div class="nexus-quiz-action text-center">';
-        $numattempts = count($attempts);
-        $canstart = true;
-        if ($instance->attempts && $numattempts >= $instance->attempts && !$canpreview) {
-            $canstart = false;
-            $html .= '<div class="alert alert-warning">' . get_string('nomoreattempts', 'quiz') . '</div>';
-        }
 
-        if ($canstart) {
-            // Link to quiz view page (Moodle will handle the attempt start).
-            $viewurl = new \moodle_url('/mod/quiz/view.php', ['id' => $cm->id]);
-            $buttontext = $numattempts > 0 ? get_string('reattemptquiz', 'quiz') : get_string('attemptquiznow', 'quiz');
-            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
-            $html .= '<i class="fa fa-play-circle"></i> ' . $buttontext . '</a>';
+        // Check if quiz has questions.
+        $questioncount = $DB->count_records('quiz_slots', ['quizid' => $instance->id]);
+        if (!$questioncount) {
+            $html .= '<div class="alert alert-warning">' . get_string('noquestions', 'quiz') . '</div>';
+        } else {
+            $buttontext = '';
+            $preventmessages = [];
+
+            if ($unfinished) {
+                // Has unfinished attempt - show continue button.
+                if ($canpreview) {
+                    $buttontext = get_string('continuepreview', 'quiz');
+                } else if ($canattempt) {
+                    $buttontext = get_string('continueattemptquiz', 'quiz');
+                }
+            } else {
+                // No unfinished attempt.
+                if ($canpreview) {
+                    $buttontext = get_string('previewquizstart', 'quiz');
+                } else if ($canattempt) {
+                    // Check attempt limits.
+                    if ($instance->attempts && $numattempts >= $instance->attempts) {
+                        $preventmessages[] = get_string('nomoreattempts', 'quiz');
+                    } else if ($numattempts == 0) {
+                        $buttontext = get_string('attemptquiz', 'quiz');
+                    } else {
+                        $buttontext = get_string('reattemptquiz', 'quiz');
+                    }
+                }
+            }
+
+            // Check access manager for additional prevent messages.
+            if ($accessmanager && $buttontext && !$canpreview) {
+                try {
+                    $accessprevent = $accessmanager->prevent_access();
+                    if ($accessprevent) {
+                        $preventmessages = array_merge($preventmessages, $accessprevent);
+                        $buttontext = '';
+                    }
+                } catch (\Exception $e) {
+                    // Ignore errors.
+                }
+            }
+
+            // Show prevent messages.
+            if ($preventmessages) {
+                foreach ($preventmessages as $msg) {
+                    $html .= '<div class="alert alert-warning">' . $msg . '</div>';
+                }
+            }
+
+            // Show button if allowed.
+            if ($buttontext) {
+                $viewurl = new \moodle_url('/mod/quiz/view.php', ['id' => $cm->id]);
+                $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+                $html .= '<i class="fa fa-play-circle"></i> ' . $buttontext . '</a>';
+            }
         }
         $html .= '</div>';
 
