@@ -89,6 +89,114 @@ class get_activity_content extends external_api {
     }
 
     /**
+     * Try to use the native module renderer to generate content.
+     * This provides the most accurate representation of what view.php shows.
+     *
+     * @param string $modname Module name
+     * @param object $cm Course module record
+     * @param object $instance Module instance record
+     * @param object $course Course record
+     * @param \context_module $context Module context
+     * @return string|null HTML content or null if native renderer cannot be used
+     */
+    protected static function try_native_renderer(string $modname, $cm, $instance, $course, $context): ?string {
+        global $PAGE, $OUTPUT, $CFG, $DB, $USER;
+
+        // Modules that can use native renderers safely in AJAX context.
+        $supported = ['folder', 'book'];
+
+        if (!in_array($modname, $supported)) {
+            return null;
+        }
+
+        try {
+            // Set up a minimal page context for the renderer.
+            $PAGE->set_context($context);
+            $PAGE->set_course($course);
+
+            switch ($modname) {
+                case 'folder':
+                    // Folder renderer is simple and returns HTML directly.
+                    require_once($CFG->dirroot . '/mod/folder/lib.php');
+                    $renderer = $PAGE->get_renderer('mod_folder');
+                    // The display_folder method returns HTML.
+                    return $renderer->display_folder($instance);
+
+                case 'book':
+                    // Book can render chapter content.
+                    require_once($CFG->dirroot . '/mod/book/locallib.php');
+                    $chapters = book_preload_chapters($instance);
+                    if (empty($chapters)) {
+                        return null; // No chapters, use custom handler.
+                    }
+
+                    // Get first visible chapter for preview.
+                    $firstchapter = null;
+                    foreach ($chapters as $ch) {
+                        if (!$ch->hidden) {
+                            $firstchapter = $ch;
+                            break;
+                        }
+                    }
+
+                    if ($firstchapter) {
+                        $chapterobj = $DB->get_record('book_chapters', ['id' => $firstchapter->id]);
+                        if ($chapterobj) {
+                            $chaptercontent = file_rewrite_pluginfile_urls(
+                                $chapterobj->content,
+                                'pluginfile.php',
+                                $context->id,
+                                'mod_book',
+                                'chapter',
+                                $chapterobj->id
+                            );
+                            $html = '<div class="book-chapter-content">';
+                            $html .= '<h4>' . format_string($chapterobj->title) . '</h4>';
+                            $html .= format_text($chaptercontent, $chapterobj->contentformat, ['context' => $context]);
+                            $html .= '</div>';
+
+                            // Add TOC info.
+                            $html .= '<div class="card mt-3"><div class="card-header">';
+                            $html .= '<strong>' . get_string('toc', 'book') . '</strong>';
+                            $html .= '</div><ul class="list-group list-group-flush">';
+                            foreach ($chapters as $ch) {
+                                if (!$ch->hidden) {
+                                    $activeclass = ($ch->id == $firstchapter->id) ? 'active' : '';
+                                    $html .= '<li class="list-group-item ' . $activeclass . '">';
+                                    if ($ch->subchapter) {
+                                        $html .= '<span class="ps-3">';
+                                    }
+                                    $html .= format_string($ch->title);
+                                    if ($ch->subchapter) {
+                                        $html .= '</span>';
+                                    }
+                                    $html .= '</li>';
+                                }
+                            }
+                            $html .= '</ul></div>';
+
+                            // Link to full book.
+                            $html .= '<div class="text-center mt-3">';
+                            $viewurl = new \moodle_url('/mod/book/view.php', ['id' => $cm->id]);
+                            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary">';
+                            $html .= '<i class="fa fa-book"></i> ' . get_string('modulename', 'book') . '</a>';
+                            $html .= '</div>';
+
+                            return $html;
+                        }
+                    }
+                    return null;
+            }
+        } catch (\Exception $e) {
+            // If native renderer fails, return null to use custom handler.
+            debugging('Native renderer failed for ' . $modname . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return null;
+        }
+
+        return null;
+    }
+
+    /**
      * Get the HTML content for an activity.
      *
      * @param object $cm Course module record
@@ -125,7 +233,15 @@ class get_activity_content extends external_api {
         // Main content area.
         $html .= '<div class="nexus-activity-main">';
 
-        // Handle specific module types.
+        // Try native renderer first for supported modules.
+        $nativeContent = self::try_native_renderer($modname, $cm, $instance, $course, $context);
+        if ($nativeContent !== null) {
+            $html .= $nativeContent;
+            $html .= '</div>'; // Close nexus-activity-main.
+            return $html;
+        }
+
+        // Handle specific module types with custom handlers.
         switch ($modname) {
             case 'page':
                 $html .= self::get_page_content($instance, $context);
