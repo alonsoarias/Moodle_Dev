@@ -256,7 +256,7 @@ class get_activity_content extends external_api {
                 break;
 
             case 'url':
-                $html .= self::get_url_content($instance);
+                $html .= self::get_url_content($cm, $instance, $course);
                 break;
 
             case 'book':
@@ -384,8 +384,10 @@ class get_activity_content extends external_api {
 
     /**
      * Get page module content.
+     * Replicates view.php lines 88-99: uses same format options and shows last modified.
      */
     protected static function get_page_content($instance, $context): string {
+        // Exact same logic as view.php line 88-93.
         $content = file_rewrite_pluginfile_urls(
             $instance->content,
             'pluginfile.php',
@@ -394,17 +396,40 @@ class get_activity_content extends external_api {
             'content',
             $instance->revision
         );
-        return '<div class="nexus-page-content">' . format_text($content, $instance->contentformat) . '</div>';
+
+        // Same format options as view.php line 89-92.
+        $formatoptions = new \stdClass;
+        $formatoptions->noclean = true;
+        $formatoptions->overflowdiv = true;
+        $formatoptions->context = $context;
+
+        $content = format_text($content, $instance->contentformat, $formatoptions);
+
+        $html = '<div class="nexus-page-content generalbox center clearfix">' . $content . '</div>';
+
+        // Show last modified same as view.php line 96-99.
+        $options = empty($instance->displayoptions) ? [] : (array) unserialize_array($instance->displayoptions);
+        if (!isset($options['printlastmodified']) || !empty($options['printlastmodified'])) {
+            $strlastmodified = get_string('lastmodified');
+            $html .= '<div class="modified text-muted small mt-2">' . $strlastmodified . ': ' . userdate($instance->timemodified) . '</div>';
+        }
+
+        return $html;
     }
 
     /**
      * Get resource (file) content.
+     * Replicates view.php logic: uses resource_get_final_display_type() and handles
+     * EMBED, FRAME, and other display types like the native module.
      */
     protected static function get_resource_content($cm, $instance, $context): string {
         global $CFG;
         require_once($CFG->dirroot . '/mod/resource/lib.php');
+        require_once($CFG->dirroot . '/mod/resource/locallib.php');
+        require_once($CFG->libdir . '/resourcelib.php');
 
         $fs = get_file_storage();
+        // Same query as view.php line 68.
         $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
 
         if (count($files) < 1) {
@@ -412,83 +437,298 @@ class get_activity_content extends external_api {
         }
 
         $file = reset($files);
-        $fileurl = \moodle_url::make_pluginfile_url(
-            $context->id,
-            'mod_resource',
-            'content',
-            0,
-            $file->get_filepath(),
-            $file->get_filename()
-        )->out();
+
+        // Set mainfile like view.php line 77 does for display type detection.
+        $instance->mainfile = $file->get_filename();
+
+        // Use same display type logic as view.php line 78.
+        $displaytype = resource_get_final_display_type($instance);
 
         $mimetype = $file->get_mimetype();
         $filename = $file->get_filename();
 
-        // Handle different file types.
-        if (strpos($mimetype, 'image/') === 0) {
-            return '<div class="nexus-resource-image"><img src="' . $fileurl . '" alt="' . s($filename) . '" class="img-fluid" /></div>';
-        } else if ($mimetype === 'application/pdf') {
-            return '<div class="nexus-resource-pdf"><embed src="' . $fileurl . '" type="application/pdf" width="100%" height="600px" /></div>';
-        } else if (strpos($mimetype, 'video/') === 0) {
-            return '<div class="nexus-resource-video"><video controls class="w-100"><source src="' . $fileurl . '" type="' . $mimetype . '"></video></div>';
-        } else if (strpos($mimetype, 'audio/') === 0) {
-            return '<div class="nexus-resource-audio"><audio controls class="w-100"><source src="' . $fileurl . '" type="' . $mimetype . '"></audio></div>';
-        } else {
-            // For other files, show download link.
-            return '<div class="nexus-resource-download"><a href="' . $fileurl . '" class="btn btn-primary" download><i class="fa fa-download"></i> ' . get_string('download') . ' ' . s($filename) . '</a></div>';
+        // Build proper file URL with revision like view.php line 93.
+        $path = '/' . $context->id . '/mod_resource/content/' . $instance->revision .
+                $file->get_filepath() . $file->get_filename();
+        $fullurl = \moodle_url::make_file_url('/pluginfile.php', $path, false);
+        $downloadurl = \moodle_url::make_file_url('/pluginfile.php', $path, true);
+
+        $html = '<div class="nexus-resource-content">';
+
+        // Handle display options like printintro (view.php embed display).
+        $options = empty($instance->displayoptions) ? [] : (array) unserialize_array($instance->displayoptions);
+        if (!empty($options['printintro']) && trim(strip_tags($instance->intro))) {
+            $html .= '<div class="nexus-resource-intro">' .
+                     format_module_intro('resource', $instance, $cm->id, false) . '</div>';
         }
+
+        // Replicate view.php switch statement (lines 98-107).
+        switch ($displaytype) {
+            case RESOURCELIB_DISPLAY_EMBED:
+                // Embed logic similar to resource_display_embed() in locallib.php.
+                $title = format_string($instance->name);
+                $clicktoopen = get_string('clicktoopen2', 'resource', "<a href=\"$fullurl\">$title</a>");
+
+                // Use core_media_manager for video/audio like resourcelib does.
+                $mediamanager = \core_media_manager::instance();
+                $embedoptions = [
+                    \core_media_manager::OPTION_TRUSTED => true,
+                    \core_media_manager::OPTION_BLOCK => true,
+                ];
+
+                if (file_mimetype_in_typegroup($mimetype, 'web_image')) {
+                    $html .= '<div class="resourcecontent resourceimg">';
+                    $html .= '<img class="resourceimage img-fluid" alt="' . s($filename) . '" src="' . $fullurl . '" />';
+                    $html .= '</div>';
+                } else if (file_mimetype_in_typegroup($mimetype, 'web_video')) {
+                    $html .= '<div class="resourcecontent resourcevideo">';
+                    $html .= $mediamanager->embed_url(new \moodle_url($fullurl), $title, 0, 0, $embedoptions);
+                    $html .= '</div>';
+                } else if (file_mimetype_in_typegroup($mimetype, 'web_audio')) {
+                    $html .= '<div class="resourcecontent resourceaudio">';
+                    $html .= $mediamanager->embed_url(new \moodle_url($fullurl), $title, 0, 0, $embedoptions);
+                    $html .= '</div>';
+                } else if ($mimetype === 'application/pdf') {
+                    $html .= '<div class="resourcecontent resourcepdf">';
+                    $html .= '<embed src="' . $fullurl . '" type="application/pdf" width="100%" height="600px" />';
+                    $html .= '</div>';
+                } else if (file_mimetype_in_typegroup($mimetype, '.htm')) {
+                    $html .= '<div class="resourcecontent resourcehtml">';
+                    $html .= '<iframe src="' . $fullurl . '" class="w-100" style="height:600px;border:none;"></iframe>';
+                    $html .= '</div>';
+                } else {
+                    $html .= '<div class="resourcecontent">' . $clicktoopen . '</div>';
+                }
+                break;
+
+            case RESOURCELIB_DISPLAY_FRAME:
+                // Frame display - show in iframe like resource_display_frame().
+                $html .= '<div class="resourcecontent resourceframe">';
+                $html .= '<iframe src="' . $fullurl . '" class="w-100" style="height:600px;border:none;"></iframe>';
+                $html .= '</div>';
+                break;
+
+            default:
+                // For OPEN, NEW, POPUP, DOWNLOAD - show click to open/download links.
+                if ($displaytype == RESOURCELIB_DISPLAY_DOWNLOAD) {
+                    $html .= '<div class="resourceworkaround">';
+                    $html .= '<a href="' . $downloadurl . '" class="btn btn-primary">';
+                    $html .= '<i class="fa fa-download"></i> ' . get_string('download') . ' ' . s($filename);
+                    $html .= '</a></div>';
+                } else {
+                    // OPEN, NEW, POPUP modes - provide link to open.
+                    $html .= '<div class="resourceworkaround">';
+                    $html .= '<a href="' . $fullurl . '" class="btn btn-primary" target="_blank">';
+                    $html .= '<i class="fa fa-external-link"></i> ' . get_string('clicktoopen', 'resource');
+                    $html .= '</a></div>';
+                }
+                break;
+        }
+
+        // Show file details like size and type.
+        $html .= '<div class="nexus-resource-details text-muted small mt-2">';
+        $html .= '<span class="nexus-resource-filename"><i class="fa fa-file"></i> ' . s($filename) . '</span>';
+        $html .= ' <span class="nexus-resource-size">(' . display_size($file->get_filesize()) . ')</span>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
     }
 
     /**
      * Get URL module content.
+     * Replicates view.php logic: uses url_get_full_url() and url_get_final_display_type()
+     * to handle EMBED, FRAME, and other display types like the native module.
      */
-    protected static function get_url_content($instance): string {
-        $displayoptions = empty($instance->displayoptions) ? [] : (array)unserialize_array($instance->displayoptions);
+    protected static function get_url_content($cm, $instance, $course): string {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/url/lib.php');
+        require_once($CFG->dirroot . '/mod/url/locallib.php');
+        require_once($CFG->libdir . '/resourcelib.php');
 
-        return '<div class="nexus-url-content">' .
-            '<a href="' . s($instance->externalurl) . '" target="_blank" rel="noopener" class="btn btn-primary">' .
-            '<i class="fa fa-external-link"></i> ' . get_string('clicktoopen', 'url') .
-            '</a></div>';
+        // Check URL validity like view.php lines 58-64.
+        $exturl = trim($instance->externalurl);
+        if (empty($exturl) || $exturl === 'http://') {
+            return '<div class="alert alert-warning">' . get_string('invalidstoredurl', 'url') . '</div>';
+        }
+
+        // Get full URL with parameters substituted like view.php line 75.
+        $fullurl = str_replace('&amp;', '&', url_get_full_url($instance, $cm, $course));
+
+        // Determine display type like view.php line 67.
+        $displaytype = url_get_final_display_type($instance);
+
+        $html = '<div class="nexus-url-content">';
+
+        // Handle display options.
+        $options = empty($instance->displayoptions) ? [] : (array) unserialize_array($instance->displayoptions);
+
+        // Replicate view.php switch statement (lines 96-106).
+        switch ($displaytype) {
+            case RESOURCELIB_DISPLAY_EMBED:
+                // Embed logic similar to url_display_embed() in locallib.php.
+                // Detect media type and embed accordingly.
+                $mimetype = resourcelib_guess_url_mimetype($fullurl);
+                $mediamanager = \core_media_manager::instance();
+                $embedoptions = [
+                    \core_media_manager::OPTION_TRUSTED => true,
+                    \core_media_manager::OPTION_BLOCK => true,
+                ];
+
+                if (in_array($mimetype, ['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml'])) {
+                    // Image - embed directly.
+                    $html .= '<div class="urlcontent resourceimg">';
+                    $html .= '<img class="img-fluid" alt="' . s($instance->name) . '" src="' . s($fullurl) . '" />';
+                    $html .= '</div>';
+                } else if (in_array($mimetype, ['video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-flv', 'video/x-ms-wm'])) {
+                    // Video - use media manager.
+                    $html .= '<div class="urlcontent resourcevideo">';
+                    $html .= $mediamanager->embed_url(new \moodle_url($fullurl), $instance->name, 0, 0, $embedoptions);
+                    $html .= '</div>';
+                } else if (in_array($mimetype, ['audio/mp3', 'audio/x-realaudio-plugin', 'x-realaudio-plugin'])) {
+                    // Audio - use media manager.
+                    $html .= '<div class="urlcontent resourceaudio">';
+                    $html .= $mediamanager->embed_url(new \moodle_url($fullurl), $instance->name, 0, 0, $embedoptions);
+                    $html .= '</div>';
+                } else {
+                    // Other embeddable content - try iframe.
+                    $html .= '<div class="urlcontent resourcegeneral">';
+                    $html .= '<iframe src="' . s($fullurl) . '" class="w-100" style="height:600px;border:none;"></iframe>';
+                    $html .= '</div>';
+                }
+                break;
+
+            case RESOURCELIB_DISPLAY_FRAME:
+                // Frame display - show in iframe like url_display_frame().
+                $html .= '<div class="urlcontent urlframe">';
+                $html .= '<iframe src="' . s($fullurl) . '" class="w-100" style="height:600px;border:none;"></iframe>';
+                $html .= '</div>';
+                break;
+
+            default:
+                // For OPEN, NEW, POPUP, DOWNLOAD modes - show button to open.
+                $html .= '<div class="urlworkaround">';
+                $html .= '<a href="' . s($fullurl) . '" target="_blank" rel="noopener" class="btn btn-primary">';
+                $html .= '<i class="fa fa-external-link"></i> ' . get_string('clicktoopen', 'url');
+                $html .= '</a></div>';
+                break;
+        }
+
+        $html .= '</div>';
+        return $html;
     }
 
     /**
-     * Get book module content (first chapter).
+     * Get book module content (first visible chapter with TOC).
+     * Replicates view.php logic: uses book_preload_chapters() to get proper chapter
+     * structure with navigation, hidden status handling, and format_text options.
      */
     protected static function get_book_content($cm, $instance, $context): string {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/mod/book/lib.php');
+        require_once($CFG->dirroot . '/mod/book/locallib.php');
 
-        // Get first chapter.
-        $chapters = $DB->get_records('book_chapters', ['bookid' => $instance->id], 'pagenum', '*', 0, 1);
+        // Use book_preload_chapters() like view.php line 72.
+        $chapters = book_preload_chapters($instance);
+
         if (empty($chapters)) {
             return '<p>' . get_string('nocontent', 'mod_book') . '</p>';
         }
 
-        $chapter = reset($chapters);
-        $content = file_rewrite_pluginfile_urls(
-            $chapter->content,
+        // Check if user can view hidden chapters.
+        $viewhidden = has_capability('mod/book:viewhiddenchapters', $context);
+
+        // Find first visible chapter like view.php lines 82-91.
+        $firstchapter = null;
+        foreach ($chapters as $ch) {
+            if ($viewhidden || !$ch->hidden) {
+                $firstchapter = $ch;
+                break;
+            }
+        }
+
+        if (!$firstchapter) {
+            return '<p>' . get_string('nocontent', 'mod_book') . '</p>';
+        }
+
+        $html = '<div class="nexus-book-content">';
+
+        // Build TOC sidebar like view.php does with book_add_fake_block().
+        $html .= '<div class="nexus-book-layout d-flex">';
+
+        // TOC on the left.
+        $html .= '<div class="nexus-book-toc me-3" style="min-width:200px;">';
+        $html .= '<h5>' . get_string('toc', 'mod_book') . '</h5>';
+        $html .= '<ul class="list-unstyled">';
+
+        $chnum = 0;
+        foreach ($chapters as $ch) {
+            if ($ch->hidden && !$viewhidden) {
+                continue;
+            }
+            $chnum++;
+
+            $isactive = ($ch->id == $firstchapter->id);
+            $hidden = $ch->hidden ? ' class="dimmed_text"' : '';
+            $activeclass = $isactive ? ' class="font-weight-bold"' : '';
+
+            $chapterurl = new \moodle_url('/mod/book/view.php', ['id' => $cm->id, 'chapterid' => $ch->id]);
+
+            if ($ch->subchapter) {
+                $html .= '<li class="ms-3"' . $hidden . '>';
+                $html .= '<a href="' . $chapterurl->out() . '"' . $activeclass . '>';
+                $html .= format_string($ch->title) . '</a></li>';
+            } else {
+                $html .= '<li' . $hidden . '>';
+                if ($instance->numbering == BOOK_NUM_NUMBERS && isset($ch->number)) {
+                    $html .= '<strong>' . $ch->number . '.</strong> ';
+                }
+                $html .= '<a href="' . $chapterurl->out() . '"' . $activeclass . '>';
+                $html .= format_string($ch->title) . '</a></li>';
+            }
+        }
+        $html .= '</ul>';
+        $html .= '</div>';
+
+        // Chapter content on the right.
+        $html .= '<div class="nexus-book-chapter flex-grow-1">';
+
+        // Show chapter title like view.php lines 132-141.
+        $hiddenclass = $firstchapter->hidden ? ' dimmed_text' : '';
+        if (!$instance->customtitles) {
+            $html .= '<h4 class="' . $hiddenclass . '">' . format_string($firstchapter->title) . '</h4>';
+        }
+
+        // Format chapter content like view.php lines 143-146.
+        $chaptertext = file_rewrite_pluginfile_urls(
+            $firstchapter->content,
             'pluginfile.php',
             $context->id,
             'mod_book',
             'chapter',
-            $chapter->id
+            $firstchapter->id
         );
-
-        $html = '<div class="nexus-book-content">';
-        $html .= '<h4>' . format_string($chapter->title) . '</h4>';
-        $html .= format_text($content, $chapter->contentformat);
+        $html .= '<div class="book_content' . $hiddenclass . '">';
+        $html .= format_text($chaptertext, $firstchapter->contentformat, ['noclean' => true, 'overflowdiv' => true, 'context' => $context]);
         $html .= '</div>';
 
-        // Note about more chapters.
-        $totalchapters = $DB->count_records('book_chapters', ['bookid' => $instance->id]);
-        if ($totalchapters > 1) {
-            $html .= '<div class="nexus-book-more alert alert-info">';
-            $html .= '<i class="fa fa-info-circle"></i> ';
-            $html .= $totalchapters . ' ' . get_string('chapters', 'mod_book');
-            $html .= ' - <a href="' . (new \moodle_url('/mod/book/view.php', ['id' => $cm->id]))->out() . '">';
-            $html .= get_string('modulename', 'mod_book') . '</a>';
+        // Navigation hints.
+        $visiblecount = 0;
+        foreach ($chapters as $ch) {
+            if ($viewhidden || !$ch->hidden) {
+                $visiblecount++;
+            }
+        }
+        if ($visiblecount > 1) {
+            $html .= '<div class="nexus-book-nav mt-3 text-muted small">';
+            $html .= '<i class="fa fa-book"></i> ' . $visiblecount . ' ' . get_string('chapters', 'mod_book');
+            $html .= ' - ' . get_string('toc', 'mod_book');
             $html .= '</div>';
         }
+
+        $html .= '</div>'; // End chapter content.
+        $html .= '</div>'; // End layout.
+        $html .= '</div>'; // End nexus-book-content.
 
         return $html;
     }
