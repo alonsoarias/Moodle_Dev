@@ -114,7 +114,10 @@ class get_activity_content extends external_api {
         $instance = $DB->get_record($modname, ['id' => $cm->instance], '*', MUST_EXIST);
         if (!empty($instance->intro)) {
             $html .= '<div class="nexus-activity-intro">';
-            $html .= format_module_intro($modname, $instance, $cm->id);
+            $introhtml = format_module_intro($modname, $instance, $cm->id);
+            // Process any completion placeholders that might not be processed in AJAX context.
+            $introhtml = self::process_completion_placeholders($introhtml, $cminfo, $course);
+            $html .= $introhtml;
             $html .= '</div>';
         }
         $html .= '</div>';
@@ -1864,6 +1867,68 @@ class get_activity_content extends external_api {
         $html .= '</div>';
 
         return $html;
+    }
+
+    /**
+     * Process completion placeholders in content.
+     * Moodle uses [[placeholder]] syntax for completion conditions.
+     *
+     * @param string $content The content to process
+     * @param \cm_info $cminfo Course module info
+     * @param object $course Course object
+     * @return string Processed content
+     */
+    protected static function process_completion_placeholders(string $content, $cminfo, $course): string {
+        global $DB, $CFG;
+
+        // If no placeholders, return as-is.
+        if (strpos($content, '[[') === false) {
+            return $content;
+        }
+
+        // Get grade item for this activity.
+        $gradeitem = $DB->get_record('grade_items', [
+            'itemtype' => 'mod',
+            'itemmodule' => $cminfo->modname,
+            'iteminstance' => $cminfo->instance,
+            'courseid' => $course->id
+        ]);
+
+        $replacements = [];
+
+        if ($gradeitem) {
+            // Grade to pass.
+            if (!empty($gradeitem->gradepass)) {
+                $replacements['[[gradetopass]]'] = format_float($gradeitem->gradepass, 2);
+            } else {
+                $replacements['[[gradetopass]]'] = '-';
+            }
+
+            // Grade max.
+            if (!empty($gradeitem->grademax)) {
+                $replacements['[[grademax]]'] = format_float($gradeitem->grademax, 2);
+            }
+
+            // Grade min.
+            if (isset($gradeitem->grademin)) {
+                $replacements['[[grademin]]'] = format_float($gradeitem->grademin, 2);
+            }
+        } else {
+            // Default replacements if no grade item.
+            $replacements['[[gradetopass]]'] = '-';
+            $replacements['[[grademax]]'] = '-';
+            $replacements['[[grademin]]'] = '0';
+        }
+
+        // Apply replacements.
+        foreach ($replacements as $placeholder => $value) {
+            $content = str_replace($placeholder, $value, $content);
+        }
+
+        // Remove any remaining unprocessed placeholders to avoid showing raw [[...]] text.
+        $content = preg_replace('/\[\[[^\]]+\]\]/', '', $content);
+
+        return $content;
     }
 
     /**
