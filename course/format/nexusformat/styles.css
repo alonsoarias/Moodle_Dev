@@ -29,23 +29,24 @@
 
 /* =============================================
    Full-Width Override for Moodle Containers
+   ONLY applies on course view page (path-course-view)
    ============================================= */
 
 /* Override the 830px max-width restriction in Boost theme */
-body.format-nexusformat.pagelayout-standard #page.drawers .main-inner,
-body.format-nexusformat.limitedwidth #page.drawers .main-inner,
-body.format-nexusformat #page.drawers .main-inner,
-body.format-nexusformat .main-inner {
+body.format-nexusformat.path-course-view.pagelayout-standard #page.drawers .main-inner,
+body.format-nexusformat.path-course-view.limitedwidth #page.drawers .main-inner,
+body.format-nexusformat.path-course-view #page.drawers .main-inner,
+body.format-nexusformat.path-course-view .main-inner {
     max-width: 100% !important;
     width: 100% !important;
 }
 
 /* Override Boost theme container restrictions */
-body.format-nexusformat #page-content,
-body.format-nexusformat #region-main-box,
-body.format-nexusformat #region-main,
-body.format-nexusformat [role="main"],
-body.format-nexusformat .course-content {
+body.format-nexusformat.path-course-view #page-content,
+body.format-nexusformat.path-course-view #region-main-box,
+body.format-nexusformat.path-course-view #region-main,
+body.format-nexusformat.path-course-view [role="main"],
+body.format-nexusformat.path-course-view .course-content {
     max-width: 100% !important;
     width: 100% !important;
     padding-left: 0 !important;
@@ -55,22 +56,22 @@ body.format-nexusformat .course-content {
 }
 
 /* Remove default course content padding */
-body.format-nexusformat #region-main {
+body.format-nexusformat.path-course-view #region-main {
     padding: 0 !important;
 }
 
-/* Hide course header breadcrumb area for cleaner look */
-body.format-nexusformat #page-header {
+/* Hide course header breadcrumb area for cleaner look - ONLY on course view */
+body.format-nexusformat.path-course-view #page-header {
     display: none;
 }
 
-/* Ensure secondary navigation stays visible - but don't override theme styles */
-body.format-nexusformat .secondary-navigation {
+/* Ensure secondary navigation stays visible */
+body.format-nexusformat.path-course-view .secondary-navigation {
     max-width: 100%;
 }
 
 /* Ensure drawers don't interfere */
-body.format-nexusformat.drawer-open-left #page-content {
+body.format-nexusformat.path-course-view.drawer-open-left #page-content {
     margin-left: 0;
 }
 
