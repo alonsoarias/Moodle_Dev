@@ -386,16 +386,42 @@ class get_activity_content extends external_api {
             $html .= $gradingmethods[$instance->grademethod] . '</p>';
         }
 
+        // Grade to pass - same logic as view.php.
+        $gradeitem = $DB->get_record('grade_items', [
+            'itemtype' => 'mod',
+            'itemmodule' => 'quiz',
+            'iteminstance' => $instance->id
+        ]);
+        if ($gradeitem && !empty($gradeitem->gradepass) && $gradeitem->gradepass > 0) {
+            $html .= '<p><i class="fa fa-graduation-cap"></i> <strong>' . get_string('gradetopass', 'grades') . ':</strong> ';
+            $html .= format_float($gradeitem->gradepass, $instance->decimalpoints) . ' / ' .
+                     format_float($instance->grade, $instance->decimalpoints) . '</p>';
+        }
+
         $html .= '</div></div>';
 
         // User attempts.
         $attempts = quiz_get_user_attempts($instance->id, $USER->id, 'finished', true);
+
+        // Show overall grade if user has attempts.
+        if ($attempts && !$canpreview) {
+            $mygrade = quiz_get_best_grade($instance, $USER->id);
+            if ($mygrade !== null) {
+                $html .= '<div class="nexus-quiz-grade alert alert-info mb-3">';
+                $html .= '<strong>' . get_string('yourfinalgradeis', 'quiz',
+                    format_float($mygrade, $instance->decimalpoints) . ' / ' .
+                    format_float($instance->grade, $instance->decimalpoints)) . '</strong>';
+                $html .= '</div>';
+            }
+        }
+
         if ($attempts) {
             $html .= '<div class="nexus-quiz-attempts mb-3">';
-            $html .= '<h5>' . get_string('attempts', 'quiz') . '</h5>';
+            $html .= '<h5>' . get_string('yourattempts', 'quiz') . '</h5>';
             $html .= '<table class="table table-striped">';
             $html .= '<thead><tr><th>' . get_string('attempt', 'quiz') . '</th>';
             $html .= '<th>' . get_string('state', 'quiz') . '</th>';
+            $html .= '<th>' . get_string('marks', 'quiz') . '</th>';
             $html .= '<th>' . get_string('grade', 'grades') . '</th></tr></thead>';
             $html .= '<tbody>';
 
@@ -404,12 +430,16 @@ class get_activity_content extends external_api {
                 $html .= '<tr>';
                 $html .= '<td>' . $attemptnum++ . '</td>';
                 $html .= '<td>' . quiz_attempt_state_name($attempt->state) . '</td>';
+                // Raw marks from attempt.
                 if ($attempt->sumgrades !== null) {
+                    $html .= '<td>' . format_float($attempt->sumgrades, $instance->decimalpoints) . ' / ' .
+                             format_float($instance->sumgrades, $instance->decimalpoints) . '</td>';
+                    // Scaled grade.
                     $grade = quiz_rescale_grade($attempt->sumgrades, $instance, false);
                     $html .= '<td>' . format_float($grade, $instance->decimalpoints) . ' / ' .
                              format_float($instance->grade, $instance->decimalpoints) . '</td>';
                 } else {
-                    $html .= '<td>-</td>';
+                    $html .= '<td>-</td><td>-</td>';
                 }
                 $html .= '</tr>';
             }
