@@ -311,9 +311,9 @@ class get_activity_content extends external_api {
         if ($totalchapters > 1) {
             $html .= '<div class="nexus-book-more alert alert-info">';
             $html .= '<i class="fa fa-info-circle"></i> ';
-            $html .= get_string('numchapters', 'mod_book', $totalchapters);
+            $html .= $totalchapters . ' ' . get_string('chapters', 'mod_book');
             $html .= ' - <a href="' . (new \moodle_url('/mod/book/view.php', ['id' => $cm->id]))->out() . '">';
-            $html .= get_string('viewbook', 'mod_book') . '</a>';
+            $html .= get_string('modulename', 'mod_book') . '</a>';
             $html .= '</div>';
         }
 
@@ -460,14 +460,25 @@ class get_activity_content extends external_api {
         $questioncount = $DB->count_records('quiz_slots', ['quizid' => $instance->id]);
         $html .= '<p><i class="fa fa-question-circle"></i> <strong>' . get_string('numquestionsx', 'quiz', $questioncount) . '</strong></p>';
 
-        // Total marks.
+        // Total marks (sumgrades = sum of question marks, grade = maximum grade the quiz is scaled to).
         $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('totalmarks', 'quiz') . ':</strong> ';
         $html .= format_float($instance->sumgrades, 2) . '</p>';
 
-        // Grade to pass.
+        // Maximum grade.
         if ($instance->grade > 0) {
-            $html .= '<p><i class="fa fa-graduation-cap"></i> <strong>' . get_string('gradetopass', 'grades') . ':</strong> ';
+            $html .= '<p><i class="fa fa-star-o"></i> <strong>' . get_string('grade', 'grades') . ':</strong> ';
             $html .= format_float($instance->grade, 2) . '</p>';
+
+            // Get grade to pass from grade_items table.
+            $gradeitem = $DB->get_record('grade_items', [
+                'itemtype' => 'mod',
+                'itemmodule' => 'quiz',
+                'iteminstance' => $instance->id
+            ]);
+            if ($gradeitem && !empty($gradeitem->gradepass) && $gradeitem->gradepass > 0) {
+                $html .= '<p><i class="fa fa-graduation-cap"></i> <strong>' . get_string('gradetopass', 'grades') . ':</strong> ';
+                $html .= format_float($gradeitem->gradepass, 2) . '</p>';
+            }
         }
 
         $html .= '</div></div>';
@@ -724,21 +735,38 @@ class get_activity_content extends external_api {
         $html .= '</div>';
 
         // Get discussions with full details like view.php.
+        // Note: d.usermodified stores the USER ID who last modified, not a post ID.
+        // We use a subquery to get the actual last post's user.
         $discussions = $DB->get_records_sql(
-            "SELECT d.*, d.pinned,
-                    u.id as userid, u.firstname, u.lastname, u.picture, u.imagealt, u.email,
+            "SELECT d.id, d.name, d.timemodified, d.pinned, d.forum, d.firstpost,
+                    d.userid, u.firstname, u.lastname, u.picture, u.imagealt, u.email,
                     (SELECT COUNT(*) FROM {forum_posts} p WHERE p.discussion = d.id) as replycount,
                     (SELECT MAX(p.modified) FROM {forum_posts} p WHERE p.discussion = d.id) as lastposttime,
-                    lastpost.userid as lastuserid,
-                    lastuser.firstname as lastfirstname, lastuser.lastname as lastlastname
+                    d.usermodified as lastuserid
              FROM {forum_discussions} d
              JOIN {user} u ON u.id = d.userid
-             LEFT JOIN {forum_posts} lastpost ON lastpost.id = d.usermodified
-             LEFT JOIN {user} lastuser ON lastuser.id = lastpost.userid
              WHERE d.forum = ?
              ORDER BY d.pinned DESC, d.timemodified DESC",
             [$instance->id]
         );
+
+        // Get last poster names separately to avoid complex subqueries.
+        if ($discussions) {
+            $userids = array_unique(array_filter(array_column($discussions, 'lastuserid')));
+            if ($userids) {
+                list($insql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+                $lastusers = $DB->get_records_select('user', "id $insql", $params, '', 'id, firstname, lastname');
+                foreach ($discussions as $discussion) {
+                    if (!empty($discussion->lastuserid) && isset($lastusers[$discussion->lastuserid])) {
+                        $discussion->lastfirstname = $lastusers[$discussion->lastuserid]->firstname;
+                        $discussion->lastlastname = $lastusers[$discussion->lastuserid]->lastname;
+                    } else {
+                        $discussion->lastfirstname = '';
+                        $discussion->lastlastname = '';
+                    }
+                }
+            }
+        }
 
         // Count total for display.
         $totaldiscussions = count($discussions);
@@ -1549,9 +1577,9 @@ class get_activity_content extends external_api {
                 $html .= '<i class="fa fa-book"></i> ' . get_string('view', 'wiki') . ' ' . get_string('modulename', 'wiki') . '</a>';
                 $html .= '</div>';
             } else {
-                // Create first page.
+                // Create first page - wiki has no first page yet.
                 $html .= '<div class="alert alert-info">';
-                $html .= get_string('nopages', 'wiki');
+                $html .= get_string('wikiempty', 'format_nexusformat');
                 $html .= '</div>';
                 $url = new \moodle_url('/mod/wiki/create.php', ['id' => $cm->id]);
                 $html .= '<div class="text-center">';
@@ -1610,35 +1638,49 @@ class get_activity_content extends external_api {
 
     /**
      * Get H5P activity content.
+     * H5P requires full page context for proper rendering, so we provide a link.
      */
     protected static function get_h5p_content($cm, $instance, $context): string {
-        global $CFG, $OUTPUT;
+        global $CFG, $DB, $USER;
         require_once($CFG->dirroot . '/mod/h5pactivity/lib.php');
 
         $html = '<div class="nexus-h5p-content">';
 
-        // Get H5P file.
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($context->id, 'mod_h5pactivity', 'package', 0, 'id', false);
+        // H5P info card.
+        $html .= '<div class="card mb-3"><div class="card-body">';
 
-        if ($files) {
-            $file = reset($files);
-            $h5purl = \moodle_url::make_pluginfile_url(
-                $context->id,
-                'mod_h5pactivity',
-                'package',
-                0,
-                $file->get_filepath(),
-                $file->get_filename()
+        // Check for user attempts.
+        $attempts = $DB->count_records('h5pactivity_attempts', [
+            'h5pactivityid' => $instance->id,
+            'userid' => $USER->id
+        ]);
+
+        if ($attempts > 0) {
+            // Get best score.
+            $bestscore = $DB->get_field_sql(
+                "SELECT MAX(scaled) FROM {h5pactivity_attempts} WHERE h5pactivityid = ? AND userid = ?",
+                [$instance->id, $USER->id]
             );
-
-            // Render H5P player.
-            $html .= '<div class="h5p-placeholder" data-h5p-url="' . $h5purl->out() . '">';
-            $html .= \core_h5p\player::display($h5purl->out(false), new \stdClass(), true, '', true);
-            $html .= '</div>';
-        } else {
-            $html .= '<div class="alert alert-warning">' . get_string('contenttypenotinstalled', 'h5p') . '</div>';
+            if ($bestscore !== false && $bestscore !== null) {
+                $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('grade', 'grades') . ':</strong> ';
+                $html .= format_float($bestscore * 100, 1) . '%</p>';
+            }
+            $html .= '<p><i class="fa fa-repeat"></i> <strong>' . get_string('attempts', 'quiz') . ':</strong> ' . $attempts . '</p>';
         }
+
+        // Max attempts info.
+        if (!empty($instance->maxattempts) && $instance->maxattempts > 0) {
+            $html .= '<p><i class="fa fa-info-circle"></i> <strong>' . get_string('maxattempts', 'h5pactivity') . ':</strong> ' . $instance->maxattempts . '</p>';
+        }
+
+        $html .= '</div></div>';
+
+        // Launch button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/h5pactivity/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-play-circle"></i> ' . get_string('startactivity', 'format_nexusformat') . '</a>';
+        $html .= '</div>';
 
         $html .= '</div>';
         return $html;

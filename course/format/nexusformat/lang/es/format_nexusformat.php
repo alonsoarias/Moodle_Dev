@@ -186,3 +186,7 @@ $string['close_sidebar'] = 'Cerrar barra lateral';
 $string['nav_previous'] = 'Anterior';
 $string['nav_next'] = 'Siguiente';
 $string['nav_activity_position'] = 'Actividad {$a->current} de {$a->total}';
+
+// Interactive activities.
+$string['startactivity'] = 'Iniciar Actividad';
+$string['wikiempty'] = 'Este wiki aún no tiene páginas. Haz clic en el botón de abajo para crear la primera página.';
