@@ -517,9 +517,11 @@ class get_activity_content extends external_api {
 
         $html = '';
 
-        // Render header with attachments.
+        // Render header with attachments - check files directly instead of protected method.
         $postfix = '';
-        if ($assign->has_visible_attachments() && (!$effectiveinstance->submissionattachments)) {
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA, 0, 'filename', false);
+        if (!empty($files) && empty($effectiveinstance->submissionattachments)) {
             $postfix = $assign->render_area_files('mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA, 0);
         }
 
@@ -625,7 +627,7 @@ class get_activity_content extends external_api {
         $discussionlistvault = $vaultfactory->get_discussions_in_forum_vault();
 
         // Get forum entity.
-        $forum = $forumvault->get_from_course_module_id($cm->id);
+        $forum = $forumvault->get_from_course_module_id($cminfo->id);
         $capabilitymanager = $managerfactory->get_capability_manager($forum);
 
         // Get display mode.
@@ -636,8 +638,8 @@ class get_activity_content extends external_api {
             }
         }
 
-        // Get current group.
-        $groupid = groups_get_activity_group($cm, true) ?: null;
+        // Get current group - use cminfo (cm_info object).
+        $groupid = groups_get_activity_group($cminfo, true) ?: null;
 
         // Get sort order.
         $sortorder = get_user_preferences('forum_discussionlistsortorder', $discussionlistvault::SORTORDER_LASTPOST_DESC);
@@ -648,6 +650,7 @@ class get_activity_content extends external_api {
         $html .= forum_activity_actionbar($forum, $groupid, $course, '');
 
         // Render discussions using native renderer like view.php lines 243-259.
+        // Pass $cminfo (cm_info) instead of $cm (stdClass).
         switch ($forum->get_type()) {
             case 'single':
                 $discussionvault = $vaultfactory->get_discussion_vault();
@@ -670,15 +673,14 @@ class get_activity_content extends external_api {
 
             case 'blog':
                 $discussionsrenderer = $rendererfactory->get_blog_discussion_list_renderer($forum);
-                $html .= $discussionsrenderer->render($USER, $cm, $groupid, $discussionlistvault::SORTORDER_CREATED_DESC,
+                $html .= $discussionsrenderer->render($USER, $cminfo, $groupid, $discussionlistvault::SORTORDER_CREATED_DESC,
                     0, 10, null, false);
                 break;
 
             default:
                 $discussionsrenderer = $rendererfactory->get_discussion_list_renderer($forum);
-                $html .= $discussionsrenderer->render($USER, $cm, $groupid, $sortorder, 0, 10, $displaymode, false);
+                $html .= $discussionsrenderer->render($USER, $cminfo, $groupid, $sortorder, 0, 10, $displaymode, false);
         }
-        $html .= '</div>';
 
         return $html;
     }
