@@ -497,117 +497,140 @@ class get_activity_content extends external_api {
     }
 
     // =========================================================================
-    // ASSIGN MODULE - Using native assign renderables like view.php
-    // Includes submission form directly to avoid extra navigation
+    // ASSIGN MODULE - Simplified rendering for AJAX context
+    // Shows submission status and buttons without full page structure
     // =========================================================================
     protected static function render_mod_assign($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $USER, $PAGE, $DB, $OUTPUT;
+        global $CFG, $USER, $DB, $OUTPUT;
         require_once($CFG->dirroot . '/mod/assign/locallib.php');
-        require_once($CFG->dirroot . '/mod/assign/renderable.php');
-        require_once($CFG->dirroot . '/mod/assign/submission_form.php');
 
-        // Create assign object exactly like view.php line 38.
+        // Create assign object.
         $assign = new \assign($context, $cm, $course);
-
-        // Apply overrides like view.php line 51.
         $assign->update_effective_access($USER->id);
-
-        // Get native assign renderer.
-        $renderer = $assign->get_renderer();
         $effectiveinstance = $assign->get_instance($USER->id);
 
         $html = '';
 
-        // Render header with attachments - check files directly instead of protected method.
-        $postfix = '';
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($context->id, 'mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA, 0, 'filename', false);
-        if (!empty($files) && empty($effectiveinstance->submissionattachments)) {
-            $postfix = $assign->render_area_files('mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA, 0);
+        // Dates info panel.
+        $html .= '<div class="card mb-3"><div class="card-body">';
+        if ($effectiveinstance->allowsubmissionsfromdate) {
+            $class = $effectiveinstance->allowsubmissionsfromdate > time() ? 'text-warning' : 'text-success';
+            $html .= '<p class="' . $class . '"><i class="fa fa-calendar"></i> ' . get_string('allowsubmissionsfromdate', 'assign') . ': ' . userdate($effectiveinstance->allowsubmissionsfromdate) . '</p>';
         }
-
-        $header = new \mod_assign\output\assign_header(
-            $effectiveinstance,
-            $context,
-            $assign->show_intro(),
-            $cm->id,
-            '', '', $postfix
-        );
-        $html .= $renderer->render($header);
-
-        // Display plugin specific headers.
-        $plugins = array_merge($assign->get_submission_plugins(), $assign->get_feedback_plugins());
-        foreach ($plugins as $plugin) {
-            if ($plugin->is_enabled() && $plugin->is_visible()) {
-                $html .= $renderer->render(new \assign_plugin_header($plugin));
-            }
+        if ($effectiveinstance->duedate) {
+            $class = $effectiveinstance->duedate < time() ? 'text-danger' : 'text-success';
+            $html .= '<p class="' . $class . '"><i class="fa fa-calendar-times-o"></i> ' . get_string('duedate', 'assign') . ': ' . userdate($effectiveinstance->duedate) . '</p>';
         }
+        if ($effectiveinstance->cutoffdate) {
+            $class = $effectiveinstance->cutoffdate < time() ? 'text-danger' : 'text-muted';
+            $html .= '<p class="' . $class . '"><i class="fa fa-ban"></i> ' . get_string('cutoffdate', 'assign') . ': ' . userdate($effectiveinstance->cutoffdate) . '</p>';
+        }
+        $html .= '</div></div>';
 
         // Teacher view: grading summary.
         if ($assign->can_view_grades()) {
-            $actionbuttons = new \mod_assign\output\actionmenu($cm->id);
-            $html .= $renderer->submission_actionmenu($actionbuttons);
             $summary = $assign->get_assign_grading_summary_renderable();
-            $html .= $renderer->render($summary);
+
+            $html .= '<div class="card mb-3"><div class="card-header">' . get_string('gradingsummary', 'assign') . '</div>';
+            $html .= '<div class="card-body">';
+            $html .= '<p><i class="fa fa-users"></i> ' . get_string('numberofparticipants', 'assign') . ': ' . $summary->participantcount . '</p>';
+            if (isset($summary->submissionssubmittedcount)) {
+                $html .= '<p><i class="fa fa-upload"></i> ' . get_string('numberofsubmittedassignments', 'assign') . ': ' . $summary->submissionssubmittedcount . '</p>';
+            }
+            if (isset($summary->submissionsneedgradingcount)) {
+                $html .= '<p><i class="fa fa-exclamation-circle text-warning"></i> ' . get_string('numberofsubmissionsneedgrading', 'assign') . ': ' . $summary->submissionsneedgradingcount . '</p>';
+            }
+            $html .= '</div></div>';
+
+            $html .= '<div class="text-center mb-3">';
+            $html .= '<a href="' . (new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'grading'])) . '" class="btn btn-primary">';
+            $html .= '<i class="fa fa-list-alt"></i> ' . get_string('viewgrading', 'assign') . '</a>';
+            $html .= '</div>';
         }
 
         // Student view.
         if ($assign->can_view_submission($USER->id)) {
             $submission = $assign->get_user_submission($USER->id, false);
-            $teamsubmission = null;
-            if ($effectiveinstance->teamsubmission) {
-                $teamsubmission = $assign->get_group_submission($USER->id, 0, false);
+            $grade = $assign->get_user_grade($USER->id, false);
+
+            // Submission status.
+            $status = $submission ? $submission->status : ASSIGN_SUBMISSION_STATUS_NEW;
+            $statusclass = 'secondary';
+            if ($status == ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+                $statusclass = 'success';
+            } else if ($status == ASSIGN_SUBMISSION_STATUS_DRAFT) {
+                $statusclass = 'warning';
             }
 
-            // Check if user can edit submission - show form directly instead of redirect.
+            $html .= '<div class="card mb-3"><div class="card-header">' . get_string('submissionstatus', 'assign') . '</div>';
+            $html .= '<div class="card-body">';
+            $html .= '<p><span class="badge bg-' . $statusclass . '">' . get_string('submissionstatus_' . $status, 'assign') . '</span></p>';
+
+            if ($submission && $submission->timemodified) {
+                $html .= '<p><i class="fa fa-clock-o"></i> ' . get_string('timemodified', 'assign') . ': ' . userdate($submission->timemodified) . '</p>';
+            }
+
+            // Grading status.
+            if ($grade && $grade->grade !== null && $grade->grade >= 0) {
+                $html .= '<p><i class="fa fa-check-circle text-success"></i> ' . get_string('graded', 'assign') . '</p>';
+                $gradestr = $assign->display_grade($grade->grade, false);
+                $html .= '<p><i class="fa fa-star"></i> ' . get_string('grade', 'grades') . ': ' . $gradestr . '</p>';
+            } else {
+                $html .= '<p><i class="fa fa-hourglass-half text-muted"></i> ' . get_string('notgraded', 'assign') . '</p>';
+            }
+
+            // Feedback comments.
+            if ($grade) {
+                $feedbackplugins = $assign->get_feedback_plugins();
+                foreach ($feedbackplugins as $plugin) {
+                    if ($plugin->is_enabled() && $plugin->is_visible() && $plugin->has_user_summary()) {
+                        $feedbackhtml = $plugin->view_summary($grade, $showviewlink);
+                        if (!empty($feedbackhtml)) {
+                            $html .= '<div class="mt-2"><strong>' . $plugin->get_name() . ':</strong>';
+                            $html .= '<div class="border rounded p-2 mt-1">' . $feedbackhtml . '</div></div>';
+                        }
+                    }
+                }
+            }
+            $html .= '</div></div>';
+
+            // Submission files (if any).
+            if ($submission) {
+                $fs = get_file_storage();
+                $files = $fs->get_area_files($context->id, 'assignsubmission_file', ASSIGNSUBMISSION_FILE_FILEAREA, $submission->id, 'filename', false);
+                if ($files) {
+                    $html .= '<div class="card mb-3"><div class="card-header">' . get_string('submissionfiles', 'assignsubmission_file') . '</div>';
+                    $html .= '<ul class="list-group list-group-flush">';
+                    foreach ($files as $file) {
+                        $url = \moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename(), true);
+                        $html .= '<li class="list-group-item"><a href="' . $url . '"><i class="fa fa-file-o"></i> ' . $file->get_filename() . '</a></li>';
+                    }
+                    $html .= '</ul></div>';
+                }
+            }
+
+            // Action buttons.
             $canedit = $assign->is_any_submission_plugin_enabled() && $assign->can_edit_submission($USER->id);
             $submissionsopen = $assign->submissions_open($USER->id);
-            $needssubmission = !$submission || $submission->status == ASSIGN_SUBMISSION_STATUS_NEW ||
-                               $submission->status == ASSIGN_SUBMISSION_STATUS_REOPENED;
 
-            if ($canedit && $submissionsopen && $needssubmission) {
-                // Show submission form directly like view_edit_submission_page().
-                $user = $DB->get_record('user', ['id' => $USER->id], '*', MUST_EXIST);
-
-                // Check for time limit.
-                $timelimitenabled = get_config('assign', 'enabletimelimit');
-                $timelimit = $effectiveinstance->timelimit;
-                $submission = $assign->get_user_submission($USER->id, true);
-
-                if ($timelimitenabled && $timelimit && empty($submission->timestarted)) {
-                    // Show begin assignment button with confirmation.
-                    $html .= '<div class="alert alert-warning">';
-                    $html .= '<p><i class="fa fa-clock-o"></i> ' . get_string('timelimit', 'assign') . ': ' . format_time($timelimit) . '</p>';
-                    $html .= '<p>' . get_string('confirmstart', 'assign') . '</p>';
-                    $html .= '</div>';
-                    $urlparams = ['id' => $cm->id, 'action' => 'editsubmission', 'begin' => 1];
-                    $beginurl = new \moodle_url('/mod/assign/view.php', $urlparams);
-                    $html .= '<div class="text-center">';
-                    $html .= '<a href="' . $beginurl . '" class="btn btn-primary btn-lg">';
-                    $html .= '<i class="fa fa-play-circle"></i> ' . get_string('beginassignment', 'assign') . '</a>';
-                    $html .= '</div>';
-                } else {
-                    // Render submission form directly.
-                    $data = new \stdClass();
-                    $data->userid = $USER->id;
-                    $mform = new \mod_assign_submission_form(
-                        new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'savesubmission']),
-                        [$assign, $data]
-                    );
-
-                    // Show time limit panel if applicable.
-                    if ($timelimitenabled && $timelimit && !empty($submission->timestarted)) {
-                        $html .= $assign->get_timelimit_panel($submission);
-                    }
-
-                    // Render the form.
-                    $html .= $renderer->render(new \assign_form('editsubmissionform', $mform));
+            $html .= '<div class="text-center">';
+            if ($canedit && $submissionsopen) {
+                if (!$submission || $status == ASSIGN_SUBMISSION_STATUS_NEW || $status == ASSIGN_SUBMISSION_STATUS_REOPENED) {
+                    $html .= '<a href="' . (new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'editsubmission'])) . '" class="btn btn-primary btn-lg">';
+                    $html .= '<i class="fa fa-upload"></i> ' . get_string('addsubmission', 'assign') . '</a>';
+                } else if ($status == ASSIGN_SUBMISSION_STATUS_DRAFT) {
+                    $html .= '<a href="' . (new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'editsubmission'])) . '" class="btn btn-warning btn-lg me-2">';
+                    $html .= '<i class="fa fa-pencil"></i> ' . get_string('editsubmission', 'assign') . '</a>';
+                    $html .= '<a href="' . (new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'submit'])) . '" class="btn btn-success btn-lg">';
+                    $html .= '<i class="fa fa-check"></i> ' . get_string('submitassignment', 'assign') . '</a>';
+                } else if ($status == ASSIGN_SUBMISSION_STATUS_SUBMITTED && $effectiveinstance->submissiondrafts) {
+                    $html .= '<a href="' . (new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'editsubmission'])) . '" class="btn btn-outline-primary">';
+                    $html .= '<i class="fa fa-pencil"></i> ' . get_string('editsubmission', 'assign') . '</a>';
                 }
-            } else {
-                // Show submission status and feedback (normal view).
-                $html .= $assign->view_submission_action_bar($effectiveinstance, $USER);
-                $html .= $assign->view_student_summary($USER, true);
+            } else if (!$submissionsopen) {
+                $html .= '<div class="alert alert-warning">' . get_string('submissionsclosed', 'assign') . '</div>';
             }
+            $html .= '</div>';
         }
 
         return $html;
