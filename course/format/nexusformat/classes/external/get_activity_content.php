@@ -225,7 +225,7 @@ class get_activity_content extends external_api {
                 break;
 
             case 'customcert':
-                $html .= self::get_customcert_content($cm, $instance, $context);
+                $html .= self::get_customcert_content($cm, $instance, $course, $context);
                 break;
 
             case 'scheduler':
@@ -1921,22 +1921,50 @@ class get_activity_content extends external_api {
 
     /**
      * Get chat module content.
+     * Matches view.php: shows next chat time, current users, past sessions link for teachers.
      */
     protected static function get_chat_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG;
         require_once($CFG->dirroot . '/mod/chat/lib.php');
 
         $html = '<div class="nexus-chat-content">';
+        $timenow = time();
 
-        // Chat info.
+        // Check capabilities.
+        $canviewreport = has_capability('mod/chat:readlog', $context);
+
+        // Chat info card.
         $html .= '<div class="card mb-3"><div class="card-body">';
 
-        // Chat time.
-        if (!empty($instance->chattime) && $instance->chattime > 0) {
-            $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('nextchattime', 'chat') . ':</strong> ' . userdate($instance->chattime) . '</p>';
+        // Next chat time with countdown - same as view.php.
+        if (!empty($instance->chattime) && $instance->chattime > 0 && $instance->schedule > 0) {
+            $nextchattime = $instance->chattime;
+
+            // Calculate next chat time based on schedule - same logic as view.php.
+            if ($instance->schedule == 2) { // Daily.
+                while ($nextchattime < $timenow) {
+                    $nextchattime += 86400; // Add 24 hours.
+                }
+            } else if ($instance->schedule == 3) { // Weekly.
+                while ($nextchattime < $timenow) {
+                    $nextchattime += 604800; // Add 7 days.
+                }
+            }
+
+            $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('nextchattime', 'chat') . ':</strong> ' . userdate($nextchattime) . '</p>';
+
+            // Countdown if chat is in the future.
+            if ($nextchattime > $timenow) {
+                $countdown = $nextchattime - $timenow;
+                if ($countdown < 86400) { // Less than 24 hours.
+                    $html .= '<p class="text-info"><i class="fa fa-hourglass-half"></i> ';
+                    $html .= get_string('sessionstart', 'chat') . ': ' . format_time($countdown);
+                    $html .= '</p>';
+                }
+            }
         }
 
-        // Schedule.
+        // Schedule type.
         if (!empty($instance->schedule)) {
             $schedules = [
                 0 => get_string('donotusechattime', 'chat'),
@@ -1950,6 +1978,35 @@ class get_activity_content extends external_api {
         }
 
         $html .= '</div></div>';
+
+        // Current users in chat - same as view.php.
+        $currentusers = $DB->get_records_sql(
+            "SELECT cu.*, u.firstname, u.lastname, u.picture, u.imagealt, u.email
+             FROM {chat_users} cu
+             JOIN {user} u ON u.id = cu.userid
+             WHERE cu.chatid = ?
+             ORDER BY cu.lastping DESC",
+            [$instance->id]
+        );
+
+        if ($currentusers) {
+            $html .= '<div class="card mb-3">';
+            $html .= '<div class="card-header bg-success text-white">';
+            $html .= '<i class="fa fa-users"></i> <strong>' . get_string('currentusers', 'chat') . '</strong>';
+            $html .= '</div>';
+            $html .= '<div class="card-body">';
+            $html .= '<ul class="list-unstyled mb-0">';
+            foreach ($currentusers as $chatuser) {
+                $idle = $timenow - $chatuser->lastping;
+                $idlestr = $idle < 60 ? get_string('idle', 'chat', get_string('now')) : get_string('idle', 'chat', format_time($idle));
+                $html .= '<li class="d-flex align-items-center mb-2">';
+                $html .= '<i class="fa fa-circle text-success me-2" style="font-size: 8px;"></i>';
+                $html .= '<span>' . fullname($chatuser) . '</span>';
+                $html .= '<small class="text-muted ms-2">(' . $idlestr . ')</small>';
+                $html .= '</li>';
+            }
+            $html .= '</ul></div></div>';
+        }
 
         // Recent messages preview.
         $messages = $DB->get_records_sql(
@@ -1968,18 +2025,28 @@ class get_activity_content extends external_api {
             $html .= '<div class="card-body">';
             foreach (array_reverse($messages) as $msg) {
                 $html .= '<div class="chat-message mb-2">';
-                $html .= '<small class="text-muted">' . fullname($msg) . ':</small> ';
+                $html .= '<small class="text-muted">' . userdate($msg->timestamp, get_string('strftimetime')) . ' - ' . fullname($msg) . ':</small> ';
                 $html .= format_string($msg->message);
                 $html .= '</div>';
             }
             $html .= '</div></div>';
         }
 
-        // Enter chat button.
+        // Action buttons.
         $html .= '<div class="text-center">';
+
+        // Enter chat button.
         $viewurl = new \moodle_url('/mod/chat/view.php', ['id' => $cm->id]);
-        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg me-2">';
         $html .= '<i class="fa fa-comments"></i> ' . get_string('enterchat', 'chat') . '</a>';
+
+        // View past sessions - for users with readlog capability (same as view.php).
+        if ($canviewreport) {
+            $reporturl = new \moodle_url('/mod/chat/report.php', ['id' => $cm->id]);
+            $html .= '<a href="' . $reporturl->out() . '" class="btn btn-outline-secondary">';
+            $html .= '<i class="fa fa-history"></i> ' . get_string('viewreport', 'chat') . '</a>';
+        }
+
         $html .= '</div>';
 
         $html .= '</div>';
@@ -1989,16 +2056,23 @@ class get_activity_content extends external_api {
     /**
      * Get survey module content.
      */
+    /**
+     * Get survey module content.
+     * Matches view.php: shows survey type, completion status, response count for teachers.
+     */
     protected static function get_survey_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG;
         require_once($CFG->dirroot . '/mod/survey/lib.php');
 
         $html = '<div class="nexus-survey-content">';
 
+        // Check capabilities.
+        $canviewreports = has_capability('mod/survey:readresponses', $context);
+
         // Check if user has already answered.
         $surveydone = survey_already_done($instance->id, $USER->id);
 
-        // Survey info.
+        // Survey info card.
         $html .= '<div class="card mb-3"><div class="card-body">';
 
         // Survey type.
@@ -2017,25 +2091,45 @@ class get_activity_content extends external_api {
         $questioncount = $DB->count_records('survey_questions', ['template' => $instance->template, 'deleted' => 0]);
         $html .= '<p><i class="fa fa-question-circle"></i> <strong>' . get_string('questions', 'survey') . ':</strong> ' . $questioncount . '</p>';
 
+        // Number of responses - for teachers (same info as report page).
+        if ($canviewreports) {
+            $responsecount = $DB->count_records_sql(
+                "SELECT COUNT(DISTINCT userid) FROM {survey_answers} WHERE survey = ?",
+                [$instance->id]
+            );
+            $html .= '<p><i class="fa fa-users"></i> <strong>' . get_string('responses', 'survey') . ':</strong> ' . $responsecount . '</p>';
+        }
+
         $html .= '</div></div>';
 
-        // Status.
+        // Completion status.
         if ($surveydone) {
             $html .= '<div class="alert alert-success">';
             $html .= '<i class="fa fa-check-circle"></i> ' . get_string('surveycompleted', 'survey');
             $html .= '</div>';
         }
 
-        // Action button.
+        // Action buttons.
         $html .= '<div class="text-center">';
         $viewurl = new \moodle_url('/mod/survey/view.php', ['id' => $cm->id]);
+
         if ($surveydone) {
-            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary btn-lg">';
+            // User completed - show view results.
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary btn-lg me-2">';
             $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('results', 'survey') . '</a>';
-        } else {
-            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        } else if (!$canviewreports) {
+            // User hasn't completed - show take survey.
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg me-2">';
             $html .= '<i class="fa fa-pencil-square-o"></i> ' . get_string('modulename', 'survey') . '</a>';
         }
+
+        // Report link for teachers.
+        if ($canviewreports) {
+            $reporturl = new \moodle_url('/mod/survey/report.php', ['id' => $cm->id]);
+            $html .= '<a href="' . $reporturl->out() . '" class="btn btn-outline-primary">';
+            $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('report', 'survey') . '</a>';
+        }
+
         $html .= '</div>';
 
         $html .= '</div>';
@@ -2111,6 +2205,7 @@ class get_activity_content extends external_api {
 
     /**
      * Get folder module content.
+     * Matches view.php: shows folder tree structure, download all button, edit button for managers.
      */
     protected static function get_folder_content($cm, $instance, $context): string {
         global $CFG;
@@ -2118,66 +2213,122 @@ class get_activity_content extends external_api {
 
         $html = '<div class="nexus-folder-content">';
 
-        // Get folder files.
+        // Check capabilities.
+        $canmanagefiles = has_capability('mod/folder:managefiles', $context);
+
+        // Get folder tree structure - same as view.php renderer.
         $fs = get_file_storage();
-        $files = $fs->get_area_files($context->id, 'mod_folder', 'content', 0, 'sortorder, itemid, filepath, filename', false);
+        $tree = $fs->get_area_tree($context->id, 'mod_folder', 'content', 0);
 
-        if ($files) {
-            $html .= '<div class="nexus-folder-files">';
-            $html .= '<ul class="list-group">';
+        // Recursive function to render folder tree.
+        $renderTree = function($dir, $level = 0) use (&$renderTree, $context, $instance) {
+            $html = '';
+            $indent = $level > 0 ? 'ps-' . min($level * 3, 5) : '';
 
-            foreach ($files as $file) {
-                $filename = $file->get_filename();
-                $filepath = $file->get_filepath();
-                $fileurl = \moodle_url::make_pluginfile_url(
-                    $context->id,
-                    'mod_folder',
-                    'content',
-                    0,
-                    $filepath,
-                    $filename,
-                    true
-                );
-
-                // Get file icon.
-                $mimetype = $file->get_mimetype();
-                $icon = 'fa-file-o';
-                if (strpos($mimetype, 'image') !== false) {
-                    $icon = 'fa-file-image-o';
-                } else if (strpos($mimetype, 'pdf') !== false) {
-                    $icon = 'fa-file-pdf-o';
-                } else if (strpos($mimetype, 'word') !== false || strpos($mimetype, 'document') !== false) {
-                    $icon = 'fa-file-word-o';
-                } else if (strpos($mimetype, 'excel') !== false || strpos($mimetype, 'spreadsheet') !== false) {
-                    $icon = 'fa-file-excel-o';
-                } else if (strpos($mimetype, 'powerpoint') !== false || strpos($mimetype, 'presentation') !== false) {
-                    $icon = 'fa-file-powerpoint-o';
-                } else if (strpos($mimetype, 'zip') !== false || strpos($mimetype, 'archive') !== false) {
-                    $icon = 'fa-file-archive-o';
-                } else if (strpos($mimetype, 'video') !== false) {
-                    $icon = 'fa-file-video-o';
-                } else if (strpos($mimetype, 'audio') !== false) {
-                    $icon = 'fa-file-audio-o';
+            // Render subdirectories first.
+            if (!empty($dir['subdirs'])) {
+                foreach ($dir['subdirs'] as $subdir) {
+                    $html .= '<div class="nexus-folder-item folder-subdir ' . $indent . ' mb-2">';
+                    $html .= '<div class="d-flex align-items-center py-1">';
+                    $html .= '<i class="fa fa-folder text-warning me-2"></i>';
+                    $html .= '<strong>' . s($subdir['dirname']) . '</strong>';
+                    $html .= '</div>';
+                    $html .= '<div class="nexus-folder-children ms-3">';
+                    $html .= $renderTree($subdir, $level + 1);
+                    $html .= '</div></div>';
                 }
-
-                $html .= '<li class="list-group-item d-flex justify-content-between align-items-center">';
-                $html .= '<span><i class="fa ' . $icon . ' me-2"></i>' . $filename . '</span>';
-                $html .= '<a href="' . $fileurl->out() . '" class="btn btn-sm btn-outline-primary" download>';
-                $html .= '<i class="fa fa-download"></i></a>';
-                $html .= '</li>';
             }
-            $html .= '</ul></div>';
+
+            // Render files.
+            if (!empty($dir['files'])) {
+                foreach ($dir['files'] as $file) {
+                    $filename = $file->get_filename();
+                    $filepath = $file->get_filepath();
+                    $fileurl = \moodle_url::make_pluginfile_url(
+                        $context->id,
+                        'mod_folder',
+                        'content',
+                        0,
+                        $filepath,
+                        $filename,
+                        !empty($instance->forcedownload)
+                    );
+
+                    // Get file icon based on mimetype.
+                    $mimetype = $file->get_mimetype();
+                    $icon = 'fa-file-o';
+                    if (strpos($mimetype, 'image') !== false) {
+                        $icon = 'fa-file-image-o text-info';
+                    } else if (strpos($mimetype, 'pdf') !== false) {
+                        $icon = 'fa-file-pdf-o text-danger';
+                    } else if (strpos($mimetype, 'word') !== false || strpos($mimetype, 'document') !== false) {
+                        $icon = 'fa-file-word-o text-primary';
+                    } else if (strpos($mimetype, 'excel') !== false || strpos($mimetype, 'spreadsheet') !== false) {
+                        $icon = 'fa-file-excel-o text-success';
+                    } else if (strpos($mimetype, 'powerpoint') !== false || strpos($mimetype, 'presentation') !== false) {
+                        $icon = 'fa-file-powerpoint-o text-warning';
+                    } else if (strpos($mimetype, 'zip') !== false || strpos($mimetype, 'archive') !== false) {
+                        $icon = 'fa-file-archive-o text-secondary';
+                    } else if (strpos($mimetype, 'video') !== false) {
+                        $icon = 'fa-file-video-o text-purple';
+                    } else if (strpos($mimetype, 'audio') !== false) {
+                        $icon = 'fa-file-audio-o text-pink';
+                    }
+
+                    // File size.
+                    $filesize = display_size($file->get_filesize());
+
+                    $html .= '<div class="nexus-folder-item folder-file ' . $indent . ' d-flex justify-content-between align-items-center py-2 border-bottom">';
+                    $html .= '<a href="' . $fileurl->out() . '" class="text-decoration-none flex-grow-1">';
+                    $html .= '<i class="fa ' . $icon . ' me-2"></i>' . s($filename);
+                    $html .= '<small class="text-muted ms-2">(' . $filesize . ')</small>';
+                    $html .= '</a>';
+                    $html .= '<a href="' . $fileurl->out() . '" class="btn btn-sm btn-outline-primary ms-2" download title="' . get_string('download') . '">';
+                    $html .= '<i class="fa fa-download"></i></a>';
+                    $html .= '</div>';
+                }
+            }
+
+            return $html;
+        };
+
+        // Check if folder has content.
+        $hasContent = !empty($tree['subdirs']) || !empty($tree['files']);
+
+        if ($hasContent) {
+            $html .= '<div class="nexus-folder-tree card mb-3"><div class="card-body">';
+            $html .= $renderTree($tree);
+            $html .= '</div></div>';
+
+            // Download all button - same as view.php (if folder_archive_available).
+            if (function_exists('folder_archive_available') && folder_archive_available($instance, $cm)) {
+                $downloadurl = new \moodle_url('/mod/folder/download_folder.php', ['id' => $cm->id]);
+                $html .= '<div class="text-center mb-3">';
+                $html .= '<a href="' . $downloadurl->out() . '" class="btn btn-outline-secondary">';
+                $html .= '<i class="fa fa-download me-1"></i> ' . get_string('downloadfolder', 'folder') . '</a>';
+                $html .= '</div>';
+            }
         } else {
             $html .= '<div class="alert alert-info">';
             $html .= '<i class="fa fa-info-circle"></i> ' . get_string('nofiles', 'folder');
             $html .= '</div>';
         }
 
-        // View all button.
+        // Action buttons.
         $html .= '<div class="text-center mt-3">';
+
+        // Edit button for managers - same as view.php.
+        if ($canmanagefiles) {
+            $editurl = new \moodle_url('/mod/folder/edit.php', ['id' => $cm->id]);
+            $html .= '<a href="' . $editurl->out() . '" class="btn btn-primary me-2">';
+            $html .= '<i class="fa fa-edit"></i> ' . get_string('edit') . '</a>';
+        }
+
+        // View in full page.
         $viewurl = new \moodle_url('/mod/folder/view.php', ['id' => $cm->id]);
         $html .= '<a href="' . $viewurl->out() . '" class="btn btn-outline-primary">';
         $html .= '<i class="fa fa-folder-open"></i> ' . get_string('modulename', 'folder') . '</a>';
+
         $html .= '</div>';
 
         $html .= '</div>';
@@ -2278,11 +2429,45 @@ class get_activity_content extends external_api {
 
     /**
      * Get custom certificate content.
+     * Matches view.php: shows required time notice, issue status, manager reports.
      */
-    protected static function get_customcert_content($cm, $instance, $context): string {
+    protected static function get_customcert_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG;
 
         $html = '<div class="nexus-customcert-content">';
+
+        // Check capabilities.
+        $canreceive = has_capability('mod/customcert:receiveissue', $context);
+        $canmanage = has_capability('mod/customcert:manage', $context);
+        $canviewreport = has_capability('mod/customcert:viewreport', $context);
+
+        // Check required time - same as view.php.
+        if (!empty($instance->requiredtime) && $instance->requiredtime > 0 && !$canmanage) {
+            // Get time spent in course.
+            $coursetime = 0;
+            if (class_exists('\mod_customcert\certificate')) {
+                $coursetime = \mod_customcert\certificate::get_course_time($course->id);
+            }
+
+            $requiredtimeseconds = $instance->requiredtime * 60;
+            if ($coursetime < $requiredtimeseconds) {
+                $a = new \stdClass();
+                $a->requiredtime = $instance->requiredtime;
+                $html .= '<div class="alert alert-warning">';
+                $html .= '<i class="fa fa-clock-o"></i> ' . get_string('requiredtimenotmet', 'customcert', $a);
+                $html .= '</div>';
+
+                // Show progress toward required time.
+                $progress = min(100, round(($coursetime / $requiredtimeseconds) * 100));
+                $html .= '<div class="mb-3">';
+                $html .= '<div class="d-flex justify-content-between mb-1">';
+                $html .= '<span>' . get_string('coursetimereq', 'customcert') . '</span>';
+                $html .= '<span>' . format_time($coursetime) . ' / ' . format_time($requiredtimeseconds) . '</span>';
+                $html .= '</div>';
+                $html .= '<div class="progress"><div class="progress-bar" style="width: ' . $progress . '%"></div></div>';
+                $html .= '</div>';
+            }
+        }
 
         // Check if user has already received certificate.
         $issue = $DB->get_record('customcert_issues', ['customcertid' => $instance->id, 'userid' => $USER->id]);
@@ -2299,16 +2484,33 @@ class get_activity_content extends external_api {
 
         $html .= '</div></div>';
 
-        // Download/View button.
+        // Show number of issues for managers/reporters - same as view.php.
+        if ($canviewreport) {
+            $numissues = $DB->count_records('customcert_issues', ['customcertid' => $instance->id]);
+            $html .= '<div class="alert alert-info">';
+            $html .= '<i class="fa fa-info-circle"></i> ' . get_string('listofissues', 'customcert', $numissues);
+            $html .= '</div>';
+        }
+
+        // Action buttons.
         $html .= '<div class="text-center">';
         $viewurl = new \moodle_url('/mod/customcert/view.php', ['id' => $cm->id]);
-        if ($issue) {
-            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-success btn-lg">';
-            $html .= '<i class="fa fa-download"></i> ' . get_string('getcertificate', 'customcert') . '</a>';
-        } else {
-            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
-            $html .= '<i class="fa fa-certificate"></i> ' . get_string('modulename', 'customcert') . '</a>';
+
+        if ($issue && $canreceive) {
+            // User has certificate - show download button.
+            $downloadurl = new \moodle_url('/mod/customcert/view.php', ['id' => $cm->id, 'downloadown' => true]);
+            $html .= '<a href="' . $downloadurl->out() . '" class="btn btn-success btn-lg me-2">';
+            $html .= '<i class="fa fa-download"></i> ' . get_string('getcustomcert', 'customcert') . '</a>';
+        } else if ($canreceive) {
+            // User can receive but hasn't yet.
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg me-2">';
+            $html .= '<i class="fa fa-certificate"></i> ' . get_string('getcustomcert', 'customcert') . '</a>';
         }
+
+        // View full page (for report access).
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-outline-primary">';
+        $html .= '<i class="fa fa-external-link"></i> ' . get_string('modulename', 'customcert') . '</a>';
+
         $html .= '</div>';
 
         $html .= '</div>';
@@ -2381,11 +2583,14 @@ class get_activity_content extends external_api {
 
     /**
      * Get game module content.
+     * Matches view.php display: intro, grading method, time availability, attempts table, best grade, high scores.
      */
     protected static function get_game_content($cm, $instance, $context): string {
         global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/game/locallib.php');
 
         $html = '<div class="nexus-game-content">';
+        $timenow = time();
 
         // Game type.
         $gametypes = [
@@ -2399,36 +2604,208 @@ class get_activity_content extends external_api {
             'hiddenpicture' => get_string('hiddenpicture', 'game'),
         ];
 
-        $html .= '<div class="card mb-3"><div class="card-body text-center">';
-        $html .= '<p><i class="fa fa-gamepad fa-3x mb-3"></i></p>';
+        // Game info card.
+        $html .= '<div class="card mb-3"><div class="card-body">';
 
         if (isset($gametypes[$instance->gamekind])) {
-            $html .= '<p><strong>' . get_string('gametype', 'game') . ':</strong> ' . $gametypes[$instance->gamekind] . '</p>';
+            $html .= '<p><i class="fa fa-gamepad"></i> <strong>' . get_string('gametype', 'game') . ':</strong> ' . $gametypes[$instance->gamekind] . '</p>';
         }
 
-        // User attempts.
-        $attempts = $DB->count_records('game_attempts', ['gameid' => $instance->id, 'userid' => $USER->id]);
-        if ($attempts > 0) {
-            $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('attempts', 'game') . ': ' . $attempts . '</p>';
-
-            // Best score.
-            $bestscore = $DB->get_field_sql(
-                "SELECT MAX(score) FROM {game_attempts} WHERE gameid = ? AND userid = ?",
-                [$instance->id, $USER->id]
-            );
-            if ($bestscore !== false && $bestscore !== null) {
-                $html .= '<p><i class="fa fa-star"></i> ' . get_string('bestscore', 'game') . ': ' . format_float($bestscore, 2) . '</p>';
+        // Grading method - same as view.php.
+        if ($instance->attempts != 1) {
+            $gradingmethods = [
+                1 => get_string('gradehighest', 'quiz'),
+                2 => get_string('gradeaverage', 'quiz'),
+                3 => get_string('attemptfirst', 'quiz'),
+                4 => get_string('attemptlast', 'quiz'),
+            ];
+            if (isset($gradingmethods[$instance->grademethod])) {
+                $html .= '<p><i class="fa fa-calculator"></i> <strong>' . get_string('gradingmethod', 'quiz') . ':</strong> ' . $gradingmethods[$instance->grademethod] . '</p>';
             }
+        }
+
+        // Max attempts.
+        if (!empty($instance->maxattempts) && $instance->maxattempts > 0) {
+            $html .= '<p><i class="fa fa-repeat"></i> <strong>' . get_string('attemptsallowed', 'quiz') . ':</strong> ' . $instance->maxattempts . '</p>';
         }
 
         $html .= '</div></div>';
 
+        // Time availability - same as view.php.
+        $canattempt = true;
+        $strtimeopenclose = '';
+        if ($timenow < $instance->timeopen && $instance->timeopen > 0) {
+            $canattempt = false;
+            $strtimeopenclose = get_string('gamenotavailable', 'game', userdate($instance->timeopen));
+        } else if ($instance->timeclose && $timenow > $instance->timeclose) {
+            $strtimeopenclose = get_string('gameclosed', 'game', userdate($instance->timeclose));
+            $canattempt = false;
+        } else {
+            if ($instance->timeopen) {
+                $strtimeopenclose = get_string('gameopenedon', 'game', userdate($instance->timeopen));
+            }
+            if ($instance->timeclose) {
+                $strtimeopenclose = get_string('gamecloseson', 'game', userdate($instance->timeclose));
+            }
+        }
+
+        // Teachers can always attempt.
+        if (has_capability('mod/game:manage', $context)) {
+            $canattempt = true;
+        }
+
+        if (!empty($strtimeopenclose)) {
+            $alertclass = $canattempt ? 'alert-info' : 'alert-warning';
+            $html .= '<div class="alert ' . $alertclass . '">' . $strtimeopenclose . '</div>';
+        }
+
+        // Get user attempts - same as view.php.
+        $attempts = $DB->get_records('game_attempts', ['gameid' => $instance->id, 'userid' => $USER->id], 'attempt ASC');
+
+        // Best grade calculation.
+        $mygrade = null;
+        if ($attempts && function_exists('game_get_best_grade')) {
+            $mygrade = game_get_best_grade($instance, $USER->id);
+        } else if ($attempts) {
+            // Fallback calculation.
+            $mygrade = $DB->get_field_sql(
+                "SELECT MAX(score) FROM {game_attempts} WHERE gameid = ? AND userid = ? AND timefinish > 0",
+                [$instance->id, $USER->id]
+            );
+            if ($mygrade !== false && $mygrade !== null && $instance->grade > 0) {
+                $mygrade = $mygrade * $instance->grade;
+            }
+        }
+
+        // Attempts table - same as view.php.
+        if ($attempts) {
+            $html .= '<h5>' . get_string('summaryofattempts', 'quiz') . '</h5>';
+            $html .= '<div class="table-responsive"><table class="table table-striped table-sm">';
+            $html .= '<thead><tr>';
+            if ($instance->attempts != 1) {
+                $html .= '<th>' . get_string('attempt', 'game') . '</th>';
+            }
+            $html .= '<th>' . get_string('timecompleted', 'game') . '</th>';
+            if ($instance->grade > 0) {
+                $html .= '<th>' . get_string('grade', 'game') . ' / ' . format_float($instance->grade, $instance->decimalpoints ?? 2) . '</th>';
+            }
+            $html .= '<th>' . get_string('timetaken', 'game') . '</th>';
+            $html .= '</tr></thead><tbody>';
+
+            foreach ($attempts as $attempt) {
+                $rowclass = '';
+                // Highlight best attempt.
+                if ($mygrade !== null && $instance->grademethod == 1) { // QUIZ_GRADEHIGHEST
+                    $attemptgrade = isset($attempt->score) ? ($attempt->score * $instance->grade) : 0;
+                    if (abs($attemptgrade - $mygrade) < 0.0001) {
+                        $rowclass = 'table-success';
+                    }
+                }
+
+                $html .= '<tr class="' . $rowclass . '">';
+                if ($instance->attempts != 1) {
+                    $html .= '<td>' . ($attempt->preview ? get_string('preview', 'game') : $attempt->attempt) . '</td>';
+                }
+
+                // Date completed.
+                $datecompleted = ($attempt->timefinish > 0) ? userdate($attempt->timefinish) : '-';
+                $html .= '<td>' . $datecompleted . '</td>';
+
+                // Grade.
+                if ($instance->grade > 0) {
+                    $attemptgrade = isset($attempt->score) ? format_float($attempt->score * $instance->grade, $instance->decimalpoints ?? 2) : '-';
+                    $html .= '<td>' . $attemptgrade . '</td>';
+                }
+
+                // Time taken.
+                if ($attempt->timefinish > 0) {
+                    $timetaken = format_time($attempt->timefinish - $attempt->timestart);
+                } else {
+                    $timetaken = format_time($timenow - $attempt->timestart);
+                }
+                $html .= '<td>' . $timetaken . '</td>';
+                $html .= '</tr>';
+            }
+            $html .= '</tbody></table></div>';
+
+            // Final grade display - same as view.php.
+            if ($mygrade !== null && $instance->grade > 0) {
+                $a = new \stdClass();
+                $a->grade = format_float($mygrade, $instance->decimalpoints ?? 2);
+                $a->maxgrade = format_float($instance->grade, $instance->decimalpoints ?? 2);
+                $html .= '<div class="alert alert-success">';
+                $html .= '<strong>' . get_string('yourfinalgradeis', 'game', get_string('outofshort', 'quiz', $a)) . '</strong>';
+                $html .= '</div>';
+            }
+        }
+
+        // Check if can start new attempt.
+        $unfinishedattempt = $DB->get_record_sql(
+            "SELECT * FROM {game_attempts} WHERE gameid = ? AND userid = ? AND timefinish = 0 ORDER BY attempt DESC LIMIT 1",
+            [$instance->id, $USER->id]
+        );
+
+        // Determine button text.
+        $buttontext = '';
+        if ($unfinishedattempt) {
+            if ($canattempt) {
+                $buttontext = get_string('continueattemptgame', 'game');
+            }
+        } else {
+            // Check max attempts.
+            if ($instance->maxattempts > 0 && count($attempts) >= $instance->maxattempts) {
+                $canattempt = false;
+            }
+            if ($canattempt) {
+                $buttontext = count($attempts) == 0 ? get_string('attemptgamenow', 'game') : get_string('reattemptgame', 'game');
+            }
+        }
+
         // Play button.
-        $html .= '<div class="text-center">';
-        $viewurl = new \moodle_url('/mod/game/view.php', ['id' => $cm->id]);
-        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
-        $html .= '<i class="fa fa-play"></i> ' . get_string('modulename', 'game') . '</a>';
+        $html .= '<div class="text-center mt-3">';
+        if ($buttontext) {
+            $viewurl = new \moodle_url('/mod/game/view.php', ['id' => $cm->id]);
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+            $html .= '<i class="fa fa-play"></i> ' . $buttontext . '</a>';
+        } else {
+            // Max attempts reached or not available.
+            $viewurl = new \moodle_url('/mod/game/view.php', ['id' => $cm->id]);
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary btn-lg">';
+            $html .= '<i class="fa fa-eye"></i> ' . get_string('modulename', 'game') . '</a>';
+        }
         $html .= '</div>';
+
+        // High scores - same as view.php.
+        if (!empty($instance->highscore) && $instance->highscore > 0) {
+            $highscores = $DB->get_records_sql(
+                "SELECT u.id, u.firstname, u.lastname, MAX(ga.score) as maxscore
+                 FROM {user} u
+                 JOIN {game_attempts} ga ON ga.userid = u.id
+                 WHERE ga.gameid = ? AND ga.score > 0
+                 GROUP BY u.id, u.firstname, u.lastname
+                 HAVING MAX(ga.score) > 0
+                 ORDER BY MAX(ga.score) DESC",
+                [$instance->id],
+                0,
+                $instance->highscore
+            );
+
+            if ($highscores && count($highscores) > 0) {
+                $html .= '<div class="card mt-3"><div class="card-header">';
+                $html .= '<strong>' . get_string('col_highscores', 'game') . '</strong>';
+                $html .= '</div><div class="card-body p-0">';
+                $html .= '<table class="table table-striped table-sm mb-0">';
+                $html .= '<thead><tr><th>' . get_string('students') . '</th><th>' . get_string('percent', 'grades') . '</th></tr></thead>';
+                $html .= '<tbody>';
+                foreach ($highscores as $hs) {
+                    $html .= '<tr>';
+                    $html .= '<td>' . fullname($hs) . '</td>';
+                    $html .= '<td>' . round($hs->maxscore * 100) . ' %</td>';
+                    $html .= '</tr>';
+                }
+                $html .= '</tbody></table></div></div>';
+            }
+        }
 
         $html .= '</div>';
         return $html;
