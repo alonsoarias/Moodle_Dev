@@ -195,6 +195,63 @@ class get_activity_content extends external_api {
                 $html .= self::get_lti_content($cm, $instance, $context);
                 break;
 
+            case 'bigbluebuttonbn':
+                $html .= self::get_bigbluebuttonbn_content($cm, $instance, $course, $context);
+                break;
+
+            case 'chat':
+                $html .= self::get_chat_content($cm, $instance, $course, $context);
+                break;
+
+            case 'survey':
+                $html .= self::get_survey_content($cm, $instance, $course, $context);
+                break;
+
+            case 'workshop':
+                $html .= self::get_workshop_content($cm, $instance, $course, $context);
+                break;
+
+            case 'folder':
+            case 'folder_custom':
+                $html .= self::get_folder_content($cm, $instance, $context);
+                break;
+
+            case 'imscp':
+                $html .= self::get_imscp_content($cm, $instance, $context);
+                break;
+
+            case 'checklist':
+                $html .= self::get_checklist_content($cm, $instance, $course, $context);
+                break;
+
+            case 'customcert':
+                $html .= self::get_customcert_content($cm, $instance, $context);
+                break;
+
+            case 'scheduler':
+                $html .= self::get_scheduler_content($cm, $instance, $course, $context);
+                break;
+
+            case 'game':
+                $html .= self::get_game_content($cm, $instance, $context);
+                break;
+
+            case 'hotpot':
+                $html .= self::get_hotpot_content($cm, $instance, $course, $context);
+                break;
+
+            case 'hvp':
+                $html .= self::get_hvp_content($cm, $instance, $context);
+                break;
+
+            case 'readaloud':
+                $html .= self::get_readaloud_content($cm, $instance, $context);
+                break;
+
+            case 'pdfprotect':
+                $html .= self::get_pdfprotect_content($cm, $instance, $context);
+                break;
+
             default:
                 // For other activities, try to get content dynamically.
                 $html .= self::get_generic_activity_content($cm, $cminfo, $context);
@@ -1787,6 +1844,750 @@ class get_activity_content extends external_api {
         $url = new \moodle_url('/mod/lti/view.php', ['id' => $cm->id]);
         $html .= '<a href="' . $url->out() . '" class="btn btn-primary btn-lg">';
         $html .= '<i class="fa fa-external-link"></i> ' . get_string('launch', 'lti') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get BigBlueButton content.
+     */
+    protected static function get_bigbluebuttonbn_content($cm, $instance, $course, $context): string {
+        global $DB, $USER, $CFG;
+
+        $html = '<div class="nexus-bbb-content">';
+
+        // Check capabilities.
+        $canmoderate = has_capability('mod/bigbluebuttonbn:moderate', $context);
+        $canjoin = has_capability('mod/bigbluebuttonbn:join', $context);
+
+        // Meeting info.
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        // Meeting type.
+        if (!empty($instance->type)) {
+            $types = [
+                0 => get_string('room_mode_all', 'bigbluebuttonbn'),
+                1 => get_string('room_mode_presentation', 'bigbluebuttonbn'),
+                2 => get_string('room_mode_recording', 'bigbluebuttonbn'),
+            ];
+            if (isset($types[$instance->type])) {
+                $html .= '<p><i class="fa fa-video-camera"></i> <strong>' . get_string('mod_form_field_room_type', 'bigbluebuttonbn') . ':</strong> ' . $types[$instance->type] . '</p>';
+            }
+        }
+
+        // Opening time.
+        if (!empty($instance->openingtime) && $instance->openingtime > 0) {
+            $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('mod_form_field_openingtime', 'bigbluebuttonbn') . ':</strong> ' . userdate($instance->openingtime) . '</p>';
+        }
+
+        // Closing time.
+        if (!empty($instance->closingtime) && $instance->closingtime > 0) {
+            $html .= '<p><i class="fa fa-calendar-times-o"></i> <strong>' . get_string('mod_form_field_closingtime', 'bigbluebuttonbn') . ':</strong> ' . userdate($instance->closingtime) . '</p>';
+        }
+
+        $html .= '</div></div>';
+
+        // Show recordings if available.
+        if (file_exists($CFG->dirroot . '/mod/bigbluebuttonbn/classes/recording.php')) {
+            $recordings = $DB->get_records('bigbluebuttonbn_recordings', ['bigbluebuttonbnid' => $instance->id], 'timecreated DESC', '*', 0, 5);
+            if ($recordings) {
+                $html .= '<div class="card mb-3">';
+                $html .= '<div class="card-header"><strong>' . get_string('view_recording_list_actionbar', 'bigbluebuttonbn') . '</strong></div>';
+                $html .= '<div class="card-body">';
+                $html .= '<ul class="list-group list-group-flush">';
+                foreach ($recordings as $recording) {
+                    $html .= '<li class="list-group-item">';
+                    $html .= '<i class="fa fa-play-circle"></i> ' . userdate($recording->timecreated);
+                    $html .= '</li>';
+                }
+                $html .= '</ul></div></div>';
+            }
+        }
+
+        // Join button.
+        $html .= '<div class="text-center">';
+        if ($canjoin) {
+            $viewurl = new \moodle_url('/mod/bigbluebuttonbn/view.php', ['id' => $cm->id]);
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+            $html .= '<i class="fa fa-video-camera"></i> ' . get_string('view_room', 'bigbluebuttonbn') . '</a>';
+        }
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get chat module content.
+     */
+    protected static function get_chat_content($cm, $instance, $course, $context): string {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/chat/lib.php');
+
+        $html = '<div class="nexus-chat-content">';
+
+        // Chat info.
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        // Chat time.
+        if (!empty($instance->chattime) && $instance->chattime > 0) {
+            $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('nextchattime', 'chat') . ':</strong> ' . userdate($instance->chattime) . '</p>';
+        }
+
+        // Schedule.
+        if (!empty($instance->schedule)) {
+            $schedules = [
+                0 => get_string('donotusechattime', 'chat'),
+                1 => get_string('repeatnone', 'chat'),
+                2 => get_string('repeatdaily', 'chat'),
+                3 => get_string('repeatweekly', 'chat'),
+            ];
+            if (isset($schedules[$instance->schedule])) {
+                $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('schedule', 'chat') . ':</strong> ' . $schedules[$instance->schedule] . '</p>';
+            }
+        }
+
+        $html .= '</div></div>';
+
+        // Recent messages preview.
+        $messages = $DB->get_records_sql(
+            "SELECT cm.*, u.firstname, u.lastname
+             FROM {chat_messages} cm
+             JOIN {user} u ON u.id = cm.userid
+             WHERE cm.chatid = ? AND cm.issystem = 0
+             ORDER BY cm.timestamp DESC",
+            [$instance->id],
+            0, 5
+        );
+
+        if ($messages) {
+            $html .= '<div class="card mb-3">';
+            $html .= '<div class="card-header"><strong>' . get_string('pastchats', 'chat') . '</strong></div>';
+            $html .= '<div class="card-body">';
+            foreach (array_reverse($messages) as $msg) {
+                $html .= '<div class="chat-message mb-2">';
+                $html .= '<small class="text-muted">' . fullname($msg) . ':</small> ';
+                $html .= format_string($msg->message);
+                $html .= '</div>';
+            }
+            $html .= '</div></div>';
+        }
+
+        // Enter chat button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/chat/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-comments"></i> ' . get_string('enterchat', 'chat') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get survey module content.
+     */
+    protected static function get_survey_content($cm, $instance, $course, $context): string {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/survey/lib.php');
+
+        $html = '<div class="nexus-survey-content">';
+
+        // Check if user has already answered.
+        $surveydone = survey_already_done($instance->id, $USER->id);
+
+        // Survey info.
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        // Survey type.
+        $surveynames = [
+            1 => 'COLLES (Actual)',
+            2 => 'COLLES (Preferred)',
+            3 => 'COLLES (Preferred and Actual)',
+            4 => 'ATTLS',
+            5 => 'Critical Incidents',
+        ];
+        if (isset($surveynames[$instance->template])) {
+            $html .= '<p><i class="fa fa-list-alt"></i> <strong>' . get_string('surveytype', 'survey') . ':</strong> ' . $surveynames[$instance->template] . '</p>';
+        }
+
+        // Question count.
+        $questioncount = $DB->count_records('survey_questions', ['template' => $instance->template, 'deleted' => 0]);
+        $html .= '<p><i class="fa fa-question-circle"></i> <strong>' . get_string('questions', 'survey') . ':</strong> ' . $questioncount . '</p>';
+
+        $html .= '</div></div>';
+
+        // Status.
+        if ($surveydone) {
+            $html .= '<div class="alert alert-success">';
+            $html .= '<i class="fa fa-check-circle"></i> ' . get_string('surveycompleted', 'survey');
+            $html .= '</div>';
+        }
+
+        // Action button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/survey/view.php', ['id' => $cm->id]);
+        if ($surveydone) {
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary btn-lg">';
+            $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('results', 'survey') . '</a>';
+        } else {
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+            $html .= '<i class="fa fa-pencil-square-o"></i> ' . get_string('modulename', 'survey') . '</a>';
+        }
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get workshop module content.
+     */
+    protected static function get_workshop_content($cm, $instance, $course, $context): string {
+        global $DB, $USER, $CFG;
+        require_once($CFG->dirroot . '/mod/workshop/locallib.php');
+
+        $html = '<div class="nexus-workshop-content">';
+
+        // Get workshop object.
+        $workshop = new \workshop($instance, $cm, $course);
+
+        // Workshop info.
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        // Current phase.
+        $phases = [
+            \workshop::PHASE_SETUP => get_string('phasesetup', 'workshop'),
+            \workshop::PHASE_SUBMISSION => get_string('phasesubmission', 'workshop'),
+            \workshop::PHASE_ASSESSMENT => get_string('phaseassessment', 'workshop'),
+            \workshop::PHASE_EVALUATION => get_string('phaseevaluation', 'workshop'),
+            \workshop::PHASE_CLOSED => get_string('phaseclosed', 'workshop'),
+        ];
+        if (isset($phases[$instance->phase])) {
+            $html .= '<p><i class="fa fa-flag"></i> <strong>' . get_string('currentphase', 'workshop') . ':</strong> ';
+            $html .= '<span class="badge bg-primary">' . $phases[$instance->phase] . '</span></p>';
+        }
+
+        // Submission deadline.
+        if (!empty($instance->submissionend) && $instance->submissionend > 0) {
+            $dueclass = ($instance->submissionend < time()) ? 'text-danger' : 'text-success';
+            $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('submissionend', 'workshop') . ':</strong> ';
+            $html .= '<span class="' . $dueclass . '">' . userdate($instance->submissionend) . '</span></p>';
+        }
+
+        // Assessment deadline.
+        if (!empty($instance->assessmentend) && $instance->assessmentend > 0) {
+            $dueclass = ($instance->assessmentend < time()) ? 'text-danger' : 'text-success';
+            $html .= '<p><i class="fa fa-calendar-check-o"></i> <strong>' . get_string('assessmentend', 'workshop') . ':</strong> ';
+            $html .= '<span class="' . $dueclass . '">' . userdate($instance->assessmentend) . '</span></p>';
+        }
+
+        $html .= '</div></div>';
+
+        // User submission status.
+        $cansubmit = has_capability('mod/workshop:submit', $context);
+        if ($cansubmit) {
+            $submission = $DB->get_record('workshop_submissions', ['workshopid' => $instance->id, 'authorid' => $USER->id]);
+            if ($submission) {
+                $html .= '<div class="alert alert-info">';
+                $html .= '<i class="fa fa-check"></i> ' . get_string('yoursubmission', 'workshop') . ': ';
+                $html .= '<strong>' . format_string($submission->title) . '</strong>';
+                $html .= '</div>';
+            }
+        }
+
+        // View button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/workshop/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-users"></i> ' . get_string('modulename', 'workshop') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get folder module content.
+     */
+    protected static function get_folder_content($cm, $instance, $context): string {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/folder/lib.php');
+
+        $html = '<div class="nexus-folder-content">';
+
+        // Get folder files.
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'mod_folder', 'content', 0, 'sortorder, itemid, filepath, filename', false);
+
+        if ($files) {
+            $html .= '<div class="nexus-folder-files">';
+            $html .= '<ul class="list-group">';
+
+            foreach ($files as $file) {
+                $filename = $file->get_filename();
+                $filepath = $file->get_filepath();
+                $fileurl = \moodle_url::make_pluginfile_url(
+                    $context->id,
+                    'mod_folder',
+                    'content',
+                    0,
+                    $filepath,
+                    $filename,
+                    true
+                );
+
+                // Get file icon.
+                $mimetype = $file->get_mimetype();
+                $icon = 'fa-file-o';
+                if (strpos($mimetype, 'image') !== false) {
+                    $icon = 'fa-file-image-o';
+                } else if (strpos($mimetype, 'pdf') !== false) {
+                    $icon = 'fa-file-pdf-o';
+                } else if (strpos($mimetype, 'word') !== false || strpos($mimetype, 'document') !== false) {
+                    $icon = 'fa-file-word-o';
+                } else if (strpos($mimetype, 'excel') !== false || strpos($mimetype, 'spreadsheet') !== false) {
+                    $icon = 'fa-file-excel-o';
+                } else if (strpos($mimetype, 'powerpoint') !== false || strpos($mimetype, 'presentation') !== false) {
+                    $icon = 'fa-file-powerpoint-o';
+                } else if (strpos($mimetype, 'zip') !== false || strpos($mimetype, 'archive') !== false) {
+                    $icon = 'fa-file-archive-o';
+                } else if (strpos($mimetype, 'video') !== false) {
+                    $icon = 'fa-file-video-o';
+                } else if (strpos($mimetype, 'audio') !== false) {
+                    $icon = 'fa-file-audio-o';
+                }
+
+                $html .= '<li class="list-group-item d-flex justify-content-between align-items-center">';
+                $html .= '<span><i class="fa ' . $icon . ' me-2"></i>' . $filename . '</span>';
+                $html .= '<a href="' . $fileurl->out() . '" class="btn btn-sm btn-outline-primary" download>';
+                $html .= '<i class="fa fa-download"></i></a>';
+                $html .= '</li>';
+            }
+            $html .= '</ul></div>';
+        } else {
+            $html .= '<div class="alert alert-info">';
+            $html .= '<i class="fa fa-info-circle"></i> ' . get_string('nofiles', 'folder');
+            $html .= '</div>';
+        }
+
+        // View all button.
+        $html .= '<div class="text-center mt-3">';
+        $viewurl = new \moodle_url('/mod/folder/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-outline-primary">';
+        $html .= '<i class="fa fa-folder-open"></i> ' . get_string('modulename', 'folder') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get IMS content package content.
+     */
+    protected static function get_imscp_content($cm, $instance, $context): string {
+        global $CFG;
+
+        $html = '<div class="nexus-imscp-content">';
+
+        $html .= '<div class="card mb-3"><div class="card-body text-center">';
+        $html .= '<p><i class="fa fa-cube fa-3x mb-3"></i></p>';
+        $html .= '<p>' . get_string('modulename_help', 'imscp') . '</p>';
+        $html .= '</div></div>';
+
+        // Launch button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/imscp/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-play-circle"></i> ' . get_string('modulename', 'imscp') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get checklist module content.
+     */
+    protected static function get_checklist_content($cm, $instance, $course, $context): string {
+        global $DB, $USER, $CFG;
+
+        $html = '<div class="nexus-checklist-content">';
+
+        // Get checklist items.
+        $items = $DB->get_records('checklist_item', ['checklist' => $instance->id, 'hidden' => 0], 'position ASC');
+        $checks = [];
+        if ($items) {
+            $itemids = array_keys($items);
+            list($insql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
+            $params['userid'] = $USER->id;
+            $userchecks = $DB->get_records_select('checklist_check',
+                "item $insql AND userid = :userid", $params, '', 'item, usertimestamp');
+            foreach ($userchecks as $check) {
+                $checks[$check->item] = $check;
+            }
+        }
+
+        if ($items) {
+            $totalitems = count($items);
+            $checkeditems = count($checks);
+            $progress = $totalitems > 0 ? round(($checkeditems / $totalitems) * 100) : 0;
+
+            // Progress bar.
+            $html .= '<div class="nexus-checklist-progress mb-3">';
+            $html .= '<div class="d-flex justify-content-between mb-1">';
+            $html .= '<span>' . get_string('progress', 'checklist') . '</span>';
+            $html .= '<span>' . $checkeditems . ' / ' . $totalitems . ' (' . $progress . '%)</span>';
+            $html .= '</div>';
+            $html .= '<div class="progress">';
+            $html .= '<div class="progress-bar bg-success" style="width: ' . $progress . '%"></div>';
+            $html .= '</div></div>';
+
+            // Items list.
+            $html .= '<div class="nexus-checklist-items">';
+            $html .= '<ul class="list-group">';
+            foreach ($items as $item) {
+                $checked = isset($checks[$item->id]);
+                $checkclass = $checked ? 'list-group-item-success' : '';
+                $checkicon = $checked ? 'fa-check-square-o text-success' : 'fa-square-o';
+
+                $html .= '<li class="list-group-item ' . $checkclass . '">';
+                $html .= '<i class="fa ' . $checkicon . ' me-2"></i>';
+                $html .= format_string($item->displaytext);
+                $html .= '</li>';
+            }
+            $html .= '</ul></div>';
+        } else {
+            $html .= '<div class="alert alert-info">';
+            $html .= '<i class="fa fa-info-circle"></i> ' . get_string('noitems', 'checklist');
+            $html .= '</div>';
+        }
+
+        // View full checklist.
+        $html .= '<div class="text-center mt-3">';
+        $viewurl = new \moodle_url('/mod/checklist/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary">';
+        $html .= '<i class="fa fa-check-square-o"></i> ' . get_string('modulename', 'checklist') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get custom certificate content.
+     */
+    protected static function get_customcert_content($cm, $instance, $context): string {
+        global $DB, $USER, $CFG;
+
+        $html = '<div class="nexus-customcert-content">';
+
+        // Check if user has already received certificate.
+        $issue = $DB->get_record('customcert_issues', ['customcertid' => $instance->id, 'userid' => $USER->id]);
+
+        $html .= '<div class="card mb-3"><div class="card-body text-center">';
+
+        if ($issue) {
+            $html .= '<p><i class="fa fa-certificate fa-3x text-success mb-3"></i></p>';
+            $html .= '<p class="text-success"><strong>' . get_string('receiveddate', 'customcert') . ':</strong> ' . userdate($issue->timecreated) . '</p>';
+        } else {
+            $html .= '<p><i class="fa fa-certificate fa-3x text-muted mb-3"></i></p>';
+            $html .= '<p class="text-muted">' . get_string('notissued', 'customcert') . '</p>';
+        }
+
+        $html .= '</div></div>';
+
+        // Download/View button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/customcert/view.php', ['id' => $cm->id]);
+        if ($issue) {
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-success btn-lg">';
+            $html .= '<i class="fa fa-download"></i> ' . get_string('getcertificate', 'customcert') . '</a>';
+        } else {
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+            $html .= '<i class="fa fa-certificate"></i> ' . get_string('modulename', 'customcert') . '</a>';
+        }
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get scheduler module content.
+     */
+    protected static function get_scheduler_content($cm, $instance, $course, $context): string {
+        global $DB, $USER, $CFG;
+
+        $html = '<div class="nexus-scheduler-content">';
+
+        // Check capabilities.
+        $canbook = has_capability('mod/scheduler:appoint', $context);
+        $canmanage = has_capability('mod/scheduler:manage', $context);
+
+        // Get user's appointments.
+        $appointments = $DB->get_records_sql(
+            "SELECT a.*, s.starttime, s.duration, s.teacherid,
+                    t.firstname as teacherfirstname, t.lastname as teacherlastname
+             FROM {scheduler_appointment} a
+             JOIN {scheduler_slots} s ON s.id = a.slotid
+             JOIN {user} t ON t.id = s.teacherid
+             WHERE s.schedulerid = ? AND a.studentid = ?
+             ORDER BY s.starttime DESC",
+            [$instance->id, $USER->id],
+            0, 5
+        );
+
+        if ($appointments) {
+            $html .= '<div class="card mb-3">';
+            $html .= '<div class="card-header"><strong>' . get_string('myappointments', 'scheduler') . '</strong></div>';
+            $html .= '<div class="card-body">';
+            $html .= '<ul class="list-group list-group-flush">';
+            foreach ($appointments as $appt) {
+                $statusclass = ($appt->starttime > time()) ? 'list-group-item-info' : 'list-group-item-secondary';
+                $html .= '<li class="list-group-item ' . $statusclass . '">';
+                $html .= '<strong>' . userdate($appt->starttime) . '</strong><br>';
+                $html .= '<small>' . get_string('teacher', 'scheduler') . ': ' . fullname($appt) . '</small>';
+                $html .= '</li>';
+            }
+            $html .= '</ul></div></div>';
+        }
+
+        // Available slots count.
+        $availableslots = $DB->count_records_sql(
+            "SELECT COUNT(*)
+             FROM {scheduler_slots} s
+             LEFT JOIN {scheduler_appointment} a ON a.slotid = s.id
+             WHERE s.schedulerid = ? AND s.starttime > ? AND a.id IS NULL",
+            [$instance->id, time()]
+        );
+
+        $html .= '<div class="card mb-3"><div class="card-body">';
+        $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('availableslots', 'scheduler') . ':</strong> ' . $availableslots . '</p>';
+        $html .= '</div></div>';
+
+        // Book appointment button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/scheduler/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-calendar-plus-o"></i> ' . get_string('modulename', 'scheduler') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get game module content.
+     */
+    protected static function get_game_content($cm, $instance, $context): string {
+        global $DB, $USER, $CFG;
+
+        $html = '<div class="nexus-game-content">';
+
+        // Game type.
+        $gametypes = [
+            'hangman' => get_string('hangman', 'game'),
+            'crossword' => get_string('cross', 'game'),
+            'cryptex' => get_string('cryptex', 'game'),
+            'millionaire' => get_string('millionaire', 'game'),
+            'sudoku' => get_string('sudoku', 'game'),
+            'bookquiz' => get_string('bookquiz', 'game'),
+            'snakes' => get_string('snakes', 'game'),
+            'hiddenpicture' => get_string('hiddenpicture', 'game'),
+        ];
+
+        $html .= '<div class="card mb-3"><div class="card-body text-center">';
+        $html .= '<p><i class="fa fa-gamepad fa-3x mb-3"></i></p>';
+
+        if (isset($gametypes[$instance->gamekind])) {
+            $html .= '<p><strong>' . get_string('gametype', 'game') . ':</strong> ' . $gametypes[$instance->gamekind] . '</p>';
+        }
+
+        // User attempts.
+        $attempts = $DB->count_records('game_attempts', ['gameid' => $instance->id, 'userid' => $USER->id]);
+        if ($attempts > 0) {
+            $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('attempts', 'game') . ': ' . $attempts . '</p>';
+
+            // Best score.
+            $bestscore = $DB->get_field_sql(
+                "SELECT MAX(score) FROM {game_attempts} WHERE gameid = ? AND userid = ?",
+                [$instance->id, $USER->id]
+            );
+            if ($bestscore !== false && $bestscore !== null) {
+                $html .= '<p><i class="fa fa-star"></i> ' . get_string('bestscore', 'game') . ': ' . format_float($bestscore, 2) . '</p>';
+            }
+        }
+
+        $html .= '</div></div>';
+
+        // Play button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/game/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-play"></i> ' . get_string('modulename', 'game') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get HotPot module content.
+     */
+    protected static function get_hotpot_content($cm, $instance, $course, $context): string {
+        global $DB, $USER, $CFG;
+
+        $html = '<div class="nexus-hotpot-content">';
+
+        // Attempts info.
+        $attempts = $DB->get_records('hotpot_attempts', ['hotpotid' => $instance->id, 'userid' => $USER->id], 'timestart DESC');
+        $numattempts = count($attempts);
+
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        // Max attempts.
+        if ($instance->attemptlimit > 0) {
+            $html .= '<p><i class="fa fa-repeat"></i> <strong>' . get_string('attemptsallowed', 'hotpot') . ':</strong> ' . $instance->attemptlimit . '</p>';
+        }
+
+        // Time limit.
+        if ($instance->timelimit > 0) {
+            $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('timelimit', 'hotpot') . ':</strong> ' . format_time($instance->timelimit) . '</p>';
+        }
+
+        // User attempts.
+        $html .= '<p><i class="fa fa-list"></i> <strong>' . get_string('attempts', 'hotpot') . ':</strong> ' . $numattempts . '</p>';
+
+        if ($numattempts > 0) {
+            $bestattempt = reset($attempts);
+            if ($bestattempt->score !== null) {
+                $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('score', 'hotpot') . ':</strong> ' . format_float($bestattempt->score, 2) . '%</p>';
+            }
+        }
+
+        $html .= '</div></div>';
+
+        // Start button.
+        $html .= '<div class="text-center">';
+        $canstart = ($instance->attemptlimit == 0 || $numattempts < $instance->attemptlimit);
+        if ($canstart) {
+            $viewurl = new \moodle_url('/mod/hotpot/view.php', ['id' => $cm->id]);
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+            $html .= '<i class="fa fa-play-circle"></i> ' . get_string('modulename', 'hotpot') . '</a>';
+        } else {
+            $html .= '<div class="alert alert-warning">' . get_string('attemptsexceeded', 'hotpot') . '</div>';
+        }
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get HVP (H5P) module content.
+     */
+    protected static function get_hvp_content($cm, $instance, $context): string {
+        global $DB, $USER, $CFG;
+
+        $html = '<div class="nexus-hvp-content">';
+
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        // Get user attempts/results.
+        $results = $DB->get_records('hvp_xapi_results', ['content_id' => $instance->id, 'user_id' => $USER->id], 'id DESC', '*', 0, 1);
+        if ($results) {
+            $result = reset($results);
+            if (!empty($result->max_score) && $result->max_score > 0) {
+                $percentage = round(($result->raw_score / $result->max_score) * 100);
+                $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('score', 'hvp') . ':</strong> ';
+                $html .= $result->raw_score . ' / ' . $result->max_score . ' (' . $percentage . '%)</p>';
+            }
+        }
+
+        $html .= '</div></div>';
+
+        // Launch button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/hvp/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-play-circle"></i> ' . get_string('modulename', 'hvp') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get ReadAloud module content.
+     */
+    protected static function get_readaloud_content($cm, $instance, $context): string {
+        global $DB, $USER, $CFG;
+
+        $html = '<div class="nexus-readaloud-content">';
+
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        // Show passage preview.
+        if (!empty($instance->passage)) {
+            $html .= '<div class="nexus-passage-preview p-3 bg-light rounded mb-3">';
+            $passage = strip_tags($instance->passage);
+            $preview = \core_text::substr($passage, 0, 200);
+            if (\core_text::strlen($passage) > 200) {
+                $preview .= '...';
+            }
+            $html .= '<p class="mb-0">' . $preview . '</p>';
+            $html .= '</div>';
+        }
+
+        // User attempts.
+        $attempts = $DB->count_records('readaloud_attempt', ['readaloudid' => $instance->id, 'userid' => $USER->id]);
+        $html .= '<p><i class="fa fa-microphone"></i> <strong>' . get_string('attempts', 'readaloud') . ':</strong> ' . $attempts . '</p>';
+
+        if ($attempts > 0) {
+            // Get best score.
+            $bestscore = $DB->get_field_sql(
+                "SELECT MAX(sessionscore) FROM {readaloud_attempt} WHERE readaloudid = ? AND userid = ?",
+                [$instance->id, $USER->id]
+            );
+            if ($bestscore !== false && $bestscore !== null) {
+                $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('bestscore', 'readaloud') . ':</strong> ' . format_float($bestscore, 0) . '</p>';
+            }
+        }
+
+        $html .= '</div></div>';
+
+        // Start button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/readaloud/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-microphone"></i> ' . get_string('modulename', 'readaloud') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Get PDF Protect module content.
+     */
+    protected static function get_pdfprotect_content($cm, $instance, $context): string {
+        global $CFG;
+
+        $html = '<div class="nexus-pdfprotect-content">';
+
+        $html .= '<div class="card mb-3"><div class="card-body text-center">';
+        $html .= '<p><i class="fa fa-file-pdf-o fa-3x mb-3"></i></p>';
+        $html .= '<p>' . get_string('clicktoview', 'pdfprotect') . '</p>';
+        $html .= '</div></div>';
+
+        // View button.
+        $html .= '<div class="text-center">';
+        $viewurl = new \moodle_url('/mod/pdfprotect/view.php', ['id' => $cm->id]);
+        $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
+        $html .= '<i class="fa fa-eye"></i> ' . get_string('modulename', 'pdfprotect') . '</a>';
         $html .= '</div>';
 
         $html .= '</div>';
