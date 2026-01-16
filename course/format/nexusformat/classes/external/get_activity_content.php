@@ -503,6 +503,7 @@ class get_activity_content extends external_api {
     protected static function render_mod_assign($cm, $cminfo, $instance, $course, $context): string {
         global $CFG, $USER, $PAGE, $DB, $OUTPUT;
         require_once($CFG->dirroot . '/mod/assign/locallib.php');
+        require_once($CFG->dirroot . '/mod/assign/renderable.php');
         require_once($CFG->dirroot . '/mod/assign/submission_form.php');
 
         // Create assign object exactly like view.php line 38.
