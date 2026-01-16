@@ -1078,6 +1078,7 @@ class get_activity_content extends external_api {
 
     /**
      * Get assign module content.
+     * Replicates view.php logic: creates assign object, applies user overrides.
      */
     protected static function get_assign_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG, $OUTPUT;
@@ -1085,6 +1086,9 @@ class get_activity_content extends external_api {
 
         $html = '<div class="nexus-assign-content">';
         $assign = new \assign($context, $cm, $course);
+
+        // Apply overrides like view.php line 51.
+        $assign->update_effective_access($USER->id);
 
         // Check user capabilities.
         $cangrade = has_capability('mod/assign:grade', $context);
@@ -1104,27 +1108,39 @@ class get_activity_content extends external_api {
 
     /**
      * Get assign student view.
+     * Uses $assign->get_instance() to get data with user overrides applied.
      */
     protected static function get_assign_student_view($assign, $cm, $instance, $context): string {
         global $USER;
 
         $html = '';
 
+        // Get instance with overrides applied (from update_effective_access).
+        $effectiveinstance = $assign->get_instance();
+
         // Assignment info.
         $html .= '<div class="nexus-assign-info card mb-3">';
         $html .= '<div class="card-body">';
 
-        // Due date.
-        if ($instance->duedate) {
-            $dueclass = ($instance->duedate < time()) ? 'text-danger' : 'text-success';
+        // Due date (using effective instance with overrides).
+        if ($effectiveinstance->duedate) {
+            $dueclass = ($effectiveinstance->duedate < time()) ? 'text-danger' : 'text-success';
             $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('duedate', 'assign') . ':</strong> ';
-            $html .= '<span class="' . $dueclass . '">' . userdate($instance->duedate) . '</span></p>';
+            $html .= '<span class="' . $dueclass . '">' . userdate($effectiveinstance->duedate) . '</span></p>';
         }
 
         // Cut-off date.
-        if ($instance->cutoffdate) {
+        if ($effectiveinstance->cutoffdate) {
+            $cutoffclass = ($effectiveinstance->cutoffdate < time()) ? 'text-danger' : '';
             $html .= '<p><i class="fa fa-ban"></i> <strong>' . get_string('cutoffdate', 'assign') . ':</strong> ';
-            $html .= userdate($instance->cutoffdate) . '</p>';
+            $html .= '<span class="' . $cutoffclass . '">' . userdate($effectiveinstance->cutoffdate) . '</span></p>';
+        }
+
+        // Time remaining.
+        if ($effectiveinstance->duedate && $effectiveinstance->duedate > time()) {
+            $timeremaining = $effectiveinstance->duedate - time();
+            $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('timeremaining', 'assign') . ':</strong> ';
+            $html .= format_time($timeremaining) . '</p>';
         }
 
         // Submission status.
@@ -1137,8 +1153,13 @@ class get_activity_content extends external_api {
 
             // Last modified.
             if ($submission->timemodified) {
-                $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('timemodified', 'assign') . ':</strong> ';
+                $html .= '<p><i class="fa fa-edit"></i> <strong>' . get_string('timemodified', 'assign') . ':</strong> ';
                 $html .= userdate($submission->timemodified) . '</p>';
+            }
+
+            // Check if late.
+            if ($effectiveinstance->duedate && $submission->timemodified > $effectiveinstance->duedate) {
+                $html .= '<p class="text-danger"><i class="fa fa-warning"></i> ' . get_string('submittedlate', 'assign') . '</p>';
             }
         } else {
             $html .= '<p><i class="fa fa-exclamation-circle"></i> <strong>' . get_string('submissionstatus', 'assign') . ':</strong> ';
@@ -1149,28 +1170,42 @@ class get_activity_content extends external_api {
         $grade = $assign->get_user_grade($USER->id, false);
         if ($grade && $grade->grade !== null && $grade->grade >= 0) {
             $html .= '<p><i class="fa fa-star"></i> <strong>' . get_string('grade', 'grades') . ':</strong> ';
-            $html .= format_float($grade->grade, 2) . ' / ' . format_float($instance->grade, 2) . '</p>';
+            $html .= format_float($grade->grade, 2) . ' / ' . format_float($effectiveinstance->grade, 2) . '</p>';
 
-            // Feedback.
-            if (!empty($grade->feedbacktext)) {
-                $html .= '<div class="alert alert-info mt-2">';
-                $html .= '<strong>' . get_string('feedback', 'assign') . ':</strong><br>';
-                $html .= format_text($grade->feedbacktext, FORMAT_HTML);
-                $html .= '</div>';
+            // Feedback comments plugin.
+            $feedbackplugins = $assign->get_feedback_plugins();
+            foreach ($feedbackplugins as $plugin) {
+                if ($plugin->is_enabled() && $plugin->is_visible() && $plugin->get_type() == 'comments') {
+                    $feedbackcomments = $plugin->get_feedback_comments($grade->id);
+                    if ($feedbackcomments && !empty($feedbackcomments->commenttext)) {
+                        $html .= '<div class="alert alert-info mt-2">';
+                        $html .= '<strong>' . get_string('feedback', 'assign') . ':</strong><br>';
+                        $html .= format_text($feedbackcomments->commenttext, $feedbackcomments->commentformat, ['context' => $context]);
+                        $html .= '</div>';
+                    }
+                    break;
+                }
             }
         }
 
         $html .= '</div></div>';
 
-        // Action button - just link to the activity page (Moodle handles the rest).
+        // Check if submissions are open.
+        $submissionsopen = $assign->submissions_open($USER->id);
+
+        // Action button.
         $html .= '<div class="nexus-assign-actions text-center">';
         $viewurl = new \moodle_url('/mod/assign/view.php', ['id' => $cm->id]);
 
-        if (!$submission || $submission->status != ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+        if ($submissionsopen && (!$submission || $submission->status != ASSIGN_SUBMISSION_STATUS_SUBMITTED)) {
             $html .= '<a href="' . $viewurl->out() . '" class="btn btn-primary btn-lg">';
             $html .= '<i class="fa fa-upload"></i> ' . get_string('addsubmission', 'assign') . '</a>';
-        } else {
+        } else if ($submission && $submission->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
             $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary btn-lg">';
+            $html .= '<i class="fa fa-eye"></i> ' . get_string('viewsubmission', 'assign') . '</a>';
+        } else if (!$submissionsopen) {
+            $html .= '<div class="alert alert-warning">' . get_string('submissionsclosed', 'assign') . '</div>';
+            $html .= '<a href="' . $viewurl->out() . '" class="btn btn-secondary">';
             $html .= '<i class="fa fa-eye"></i> ' . get_string('viewsubmission', 'assign') . '</a>';
         }
         $html .= '</div>';
@@ -1404,6 +1439,7 @@ class get_activity_content extends external_api {
 
     /**
      * Get lesson module content - replicates view.php display.
+     * Uses lesson object methods for proper restriction checks.
      */
     protected static function get_lesson_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG, $PAGE;
@@ -1415,20 +1451,41 @@ class get_activity_content extends external_api {
         // Create lesson object.
         $lesson = new \lesson($instance, $cm, $course);
 
-        // Get user's lesson timer/attempt info.
-        $canmanage = has_capability('mod/lesson:manage', $context);
+        // Apply overrides like view.php line 49.
+        $lesson->update_effective_access($USER->id);
 
-        // Check if lesson is available.
+        // Get user's lesson timer/attempt info.
+        $canmanage = $lesson->can_manage();
+
+        // Check restrictions using lesson object methods like view.php lines 73-92.
         $available = true;
         $availablemessage = '';
+        $haspassword = false;
+        $hasdependencies = false;
 
-        // Time restrictions.
-        if ($instance->available > 0 && time() < $instance->available) {
+        // Time restrictions using lesson method.
+        if (!$canmanage && $lesson->get_time_restriction_status()) {
             $available = false;
-            $availablemessage = get_string('lessonopen', 'lesson', userdate($instance->available));
-        } else if ($instance->deadline > 0 && time() > $instance->deadline) {
-            $available = false;
-            $availablemessage = get_string('lessonclosed', 'lesson', userdate($instance->deadline));
+            // Check which restriction.
+            if ($lesson->available > 0 && time() < $lesson->available) {
+                $availablemessage = get_string('lessonopen', 'lesson', userdate($lesson->available));
+            } else if ($lesson->deadline > 0 && time() > $lesson->deadline) {
+                $availablemessage = get_string('lessonclosed', 'lesson', userdate($lesson->deadline));
+            }
+        }
+
+        // Password restriction.
+        if (!$canmanage && $lesson->usepassword) {
+            $haspassword = true;
+        }
+
+        // Dependencies restriction.
+        if (!$canmanage) {
+            $dependenciesrestriction = $lesson->get_dependencies_restriction_status();
+            if ($dependenciesrestriction) {
+                $hasdependencies = true;
+                $available = false;
+            }
         }
 
         // Lesson info card.
@@ -1436,43 +1493,64 @@ class get_activity_content extends external_api {
         $html .= '<div class="card-body">';
 
         // Number of pages.
-        $pagecount = $DB->count_records('lesson_pages', ['lessonid' => $instance->id]);
+        $pagecount = $DB->count_records('lesson_pages', ['lessonid' => $lesson->id]);
         $html .= '<p><i class="fa fa-file-text-o"></i> <strong>' . get_string('pages', 'lesson') . ':</strong> ';
-        $html .= $pagecount . ' ' . get_string('pages', 'lesson') . '</p>';
+        $html .= $pagecount . '</p>';
 
-        // Time limit.
-        if ($instance->timelimit) {
+        // Time limit (using lesson object with overrides).
+        if ($lesson->timelimit) {
             $html .= '<p><i class="fa fa-clock-o"></i> <strong>' . get_string('timelimit', 'lesson') . ':</strong> ';
-            $html .= format_time($instance->timelimit) . '</p>';
+            $html .= format_time($lesson->timelimit) . '</p>';
         }
 
-        // Availability dates.
-        if ($instance->available > 0) {
+        // Availability dates (using lesson object with overrides).
+        if ($lesson->available > 0) {
+            $openclass = ($lesson->available > time()) ? 'text-warning' : 'text-success';
             $html .= '<p><i class="fa fa-calendar"></i> <strong>' . get_string('available', 'lesson') . ':</strong> ';
-            $html .= userdate($instance->available) . '</p>';
+            $html .= '<span class="' . $openclass . '">' . userdate($lesson->available) . '</span></p>';
         }
-        if ($instance->deadline > 0) {
-            $dueclass = ($instance->deadline < time()) ? 'text-danger' : 'text-success';
+        if ($lesson->deadline > 0) {
+            $dueclass = ($lesson->deadline < time()) ? 'text-danger' : 'text-success';
             $html .= '<p><i class="fa fa-calendar-times-o"></i> <strong>' . get_string('deadline', 'lesson') . ':</strong> ';
-            $html .= '<span class="' . $dueclass . '">' . userdate($instance->deadline) . '</span></p>';
+            $html .= '<span class="' . $dueclass . '">' . userdate($lesson->deadline) . '</span></p>';
+
+            // Time remaining.
+            if ($lesson->deadline > time()) {
+                $timeremaining = $lesson->deadline - time();
+                $html .= '<p><i class="fa fa-hourglass-half"></i> <strong>' . get_string('timeremaining', 'lesson') . ':</strong> ';
+                $html .= format_time($timeremaining) . '</p>';
+            }
         }
 
         // Max attempts.
-        if ($instance->maxattempts > 0) {
+        if ($lesson->maxattempts > 0) {
             $html .= '<p><i class="fa fa-repeat"></i> <strong>' . get_string('maximumnumberofattempts', 'lesson') . ':</strong> ';
-            $html .= $instance->maxattempts . '</p>';
+            $html .= $lesson->maxattempts . '</p>';
+        }
+
+        // Password protected notice.
+        if ($haspassword) {
+            $html .= '<p><i class="fa fa-lock"></i> <strong>' . get_string('passwordprotectedlesson', 'lesson', '') . '</strong></p>';
+        }
+
+        // Retakes allowed.
+        if ($lesson->retake) {
+            $html .= '<p><i class="fa fa-refresh"></i> ' . get_string('retakesallowed', 'lesson', get_string('yes')) . '</p>';
         }
 
         $html .= '</div></div>';
 
         // User progress - only for non-managers.
         if (!$canmanage) {
+            // Get retries count using lesson method.
+            $retries = $lesson->count_user_retries($USER->id);
+
             // Get user attempts.
-            $attempts = $DB->get_records('lesson_grades', ['lessonid' => $instance->id, 'userid' => $USER->id], 'completed DESC');
+            $attempts = $DB->get_records('lesson_grades', ['lessonid' => $lesson->id, 'userid' => $USER->id], 'completed DESC');
 
             if ($attempts) {
                 $html .= '<div class="nexus-lesson-attempts card mb-3">';
-                $html .= '<div class="card-header"><strong>' . get_string('attempts', 'lesson') . '</strong></div>';
+                $html .= '<div class="card-header"><strong>' . get_string('attempts', 'lesson') . ' (' . count($attempts) . ')</strong></div>';
                 $html .= '<div class="card-body">';
 
                 $html .= '<table class="table table-sm">';
@@ -1500,29 +1578,36 @@ class get_activity_content extends external_api {
                 $html .= format_float($bestgrade, 1) . '%</p>';
                 $html .= '</div></div>';
 
-                // Check if can retake.
-                if ($instance->maxattempts > 0 && count($attempts) >= $instance->maxattempts) {
+                // Check if can retake using lesson method.
+                if (!$lesson->retake || ($lesson->maxattempts > 0 && $retries >= $lesson->maxattempts)) {
                     $available = false;
-                    $availablemessage = get_string('maximumnumberofattemptsreached', 'lesson');
+                    if (!$lesson->retake) {
+                        $availablemessage = get_string('noretake', 'lesson');
+                    } else {
+                        $availablemessage = get_string('maximumnumberofattemptsreached', 'lesson');
+                    }
                 }
             }
 
-            // Check for incomplete attempt (in progress).
-            $timer = $DB->get_record('lesson_timer', [
-                'lessonid' => $instance->id,
-                'userid' => $USER->id,
-                'completed' => 0
-            ]);
+            // Check for incomplete attempt using lesson method.
+            $lastpageseen = $lesson->get_last_page_seen($retries);
 
-            if ($timer) {
+            if ($lastpageseen !== false && $lastpageseen != LESSON_EOL) {
                 $html .= '<div class="alert alert-info">';
                 $html .= '<i class="fa fa-info-circle"></i> ' . get_string('youhaveseen', 'lesson');
                 $html .= '</div>';
             }
         }
 
+        // Dependencies message.
+        if ($hasdependencies && !$canmanage) {
+            $html .= '<div class="alert alert-warning">';
+            $html .= '<i class="fa fa-link"></i> ' . get_string('completethefollowingconditions', 'lesson', format_string($lesson->name));
+            $html .= '</div>';
+        }
+
         // Availability message.
-        if (!$available && !$canmanage) {
+        if (!$available && !$canmanage && $availablemessage) {
             $html .= '<div class="alert alert-warning">';
             $html .= '<i class="fa fa-exclamation-triangle"></i> ' . $availablemessage;
             $html .= '</div>';
@@ -1534,14 +1619,17 @@ class get_activity_content extends external_api {
         if ($available || $canmanage) {
             $url = new \moodle_url('/mod/lesson/view.php', ['id' => $cm->id]);
 
-            // Determine button text.
+            // Determine button text based on user state.
             $buttontext = get_string('startlesson', 'lesson');
             $buttonicon = 'fa-play-circle';
 
-            if (isset($timer) && $timer) {
+            // Check if user has an incomplete attempt (using lastpageseen from lesson method).
+            $hasincomplete = isset($lastpageseen) && $lastpageseen !== false && $lastpageseen != LESSON_EOL;
+
+            if ($hasincomplete) {
                 $buttontext = get_string('continuelesson', 'lesson');
                 $buttonicon = 'fa-forward';
-            } else if (isset($attempts) && $attempts) {
+            } else if (isset($attempts) && $attempts && $lesson->retake) {
                 $buttontext = get_string('retakelesson', 'lesson');
                 $buttonicon = 'fa-refresh';
             }
@@ -1769,6 +1857,7 @@ class get_activity_content extends external_api {
 
     /**
      * Get feedback module content - replicates view.php display.
+     * Uses mod_feedback_completion class for proper availability checks.
      */
     protected static function get_feedback_content($cm, $instance, $course, $context): string {
         global $DB, $USER, $CFG;
@@ -1776,36 +1865,37 @@ class get_activity_content extends external_api {
 
         $html = '<div class="nexus-feedback-content">';
 
+        // Use mod_feedback_completion like view.php line 34.
+        $feedbackcompletion = new \mod_feedback_completion($instance, $cm, $course->id);
+
         // Check capabilities.
         $canedititems = has_capability('mod/feedback:edititems', $context);
         $canviewreports = has_capability('mod/feedback:viewreports', $context);
-        $cancomplete = has_capability('mod/feedback:complete', $context);
 
-        // Check availability.
-        $timenow = time();
-        $isopen = true;
+        // Use feedbackcompletion methods like view.php lines 61, 134-146.
+        $isopen = $feedbackcompletion->is_open();
+        $cancomplete = $feedbackcompletion->can_complete();
+        $cansubmit = $feedbackcompletion->can_submit();
 
-        if ($instance->timeopen > 0 && $timenow < $instance->timeopen) {
-            $isopen = false;
-            if (!$canedititems) {
-                $html .= '<div class="alert alert-warning">';
-                $html .= '<i class="fa fa-clock-o"></i> ' . get_string('feedback_is_not_open', 'feedback');
-                $html .= ' (' . userdate($instance->timeopen) . ')';
-                $html .= '</div>';
+        // Show availability messages.
+        if (!$isopen && !$canedititems) {
+            $html .= '<div class="alert alert-warning">';
+            $html .= '<i class="fa fa-clock-o"></i> ' . get_string('feedback_is_not_open', 'feedback');
+            if ($instance->timeopen > 0 && time() < $instance->timeopen) {
+                $html .= ' (' . get_string('feedbackopen', 'feedback') . ': ' . userdate($instance->timeopen) . ')';
             }
+            $html .= '</div>';
         }
 
-        if ($instance->timeclose > 0 && $timenow > $instance->timeclose) {
-            $isopen = false;
-            if (!$canedititems) {
-                $html .= '<div class="alert alert-warning">';
-                $html .= '<i class="fa fa-lock"></i> ' . get_string('feedback_is_not_open', 'feedback');
-                $html .= '</div>';
-            }
+        // Already submitted message.
+        if ($isopen && $cancomplete && !$cansubmit && !$canedititems) {
+            $html .= '<div class="alert alert-success">';
+            $html .= '<i class="fa fa-check-circle"></i> ' . get_string('this_feedback_is_already_submitted', 'feedback');
+            $html .= '</div>';
         }
 
-        // Check if user has completed.
-        $completed = $DB->get_record('feedback_completed', ['feedback' => $instance->id, 'userid' => $USER->id]);
+        // Check if user has completed using completion object.
+        $completed = !$cansubmit && $cancomplete;
 
         // Show teacher/instructor summary.
         if ($canedititems || $canviewreports) {
