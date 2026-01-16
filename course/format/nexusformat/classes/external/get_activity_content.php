@@ -989,6 +989,439 @@ class get_activity_content extends external_api {
     }
 
     // =========================================================================
+    // H5PACTIVITY MODULE - Using manager class like view.php
+    // =========================================================================
+    protected static function render_mod_h5pactivity($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . '/mod/h5pactivity/lib.php');
+
+        $html = '';
+
+        try {
+            $manager = \mod_h5pactivity\local\manager::create_from_coursemodule($cm);
+            $moduleinstance = $manager->get_instance();
+
+            // Check if user can submit.
+            $cansubmit = $manager->can_submit();
+            $trackingEnabled = $manager->is_tracking_enabled();
+
+            $html .= '<div class="card mb-3"><div class="card-body">';
+
+            if (!$cansubmit && !isguestuser()) {
+                $html .= '<div class="alert alert-info">' . get_string('previewmode', 'mod_h5pactivity') . '</div>';
+            }
+
+            if (!$trackingEnabled) {
+                $html .= '<div class="alert alert-warning">' . get_string('trackingdisabled', 'mod_h5pactivity') . '</div>';
+            }
+
+            // Attempts info.
+            if ($cansubmit && $trackingEnabled) {
+                $attemptcount = $manager->count_attempts($USER->id);
+                $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('myattempts', 'mod_h5pactivity') . ': ' . $attemptcount . '</p>';
+
+                if ($moduleinstance->maxattempts > 0) {
+                    $html .= '<p><i class="fa fa-info-circle"></i> ' . get_string('maxattempts', 'mod_h5pactivity') . ': ' . $moduleinstance->maxattempts . '</p>';
+                }
+            }
+
+            $html .= '</div></div>';
+
+            // Button to launch H5P.
+            $html .= '<div class="text-center">';
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . get_string('startactivity', 'mod_h5pactivity') . '</a>';
+
+            // View attempts link for teachers.
+            if ($manager->can_view_all_attempts() && $trackingEnabled) {
+                $attemptcount = $manager->count_attempts();
+                $html .= ' <a href="' . (new \moodle_url('/mod/h5pactivity/report.php', ['id' => $cm->id])) . '" class="btn btn-outline-secondary">';
+                $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('viewattempts', 'mod_h5pactivity', $attemptcount) . '</a>';
+            }
+            $html .= '</div>';
+
+        } catch (\Exception $e) {
+            $html = '<div class="text-center py-4"><p><i class="fa fa-play-circle fa-4x text-primary"></i></p>';
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . get_string('view') . '</a></div>';
+        }
+
+        return $html;
+    }
+
+    // =========================================================================
+    // SUBSECTION MODULE - Redirects to section like view.php
+    // =========================================================================
+    protected static function render_mod_subsection($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB;
+
+        try {
+            $manager = \mod_subsection\manager::create_from_coursemodule($cm);
+            $delegatesection = $manager->get_delegated_section_info();
+
+            if ($delegatesection) {
+                $sectionurl = new \moodle_url('/course/section.php', ['id' => $delegatesection->id]);
+
+                $html = '<div class="card mb-3"><div class="card-body">';
+                $html .= '<p><i class="fa fa-folder-open"></i> ' . get_string('sectionname', 'format_topics') . ': ' . format_string($delegatesection->name ?: $instance->name) . '</p>';
+                $html .= '</div></div>';
+
+                $html .= '<div class="text-center">';
+                $html .= '<a href="' . $sectionurl . '" class="btn btn-primary btn-lg"><i class="fa fa-arrow-right"></i> ' . get_string('gotosection', 'mod_subsection') . '</a>';
+                $html .= '</div>';
+
+                return $html;
+            }
+        } catch (\Exception $e) {
+            // Fall through to default.
+        }
+
+        return '<div class="text-center py-4"><a href="' . $cminfo->url . '" class="btn btn-primary btn-lg">' . get_string('view') . '</a></div>';
+    }
+
+    // =========================================================================
+    // HVP MODULE - H5P content (third-party plugin)
+    // =========================================================================
+    protected static function render_mod_hvp($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB;
+
+        $html = '<div class="card mb-3"><div class="card-body">';
+        $html .= '<p><i class="fa fa-puzzle-piece"></i> H5P Interactive Content</p>';
+
+        // Get content info if available.
+        if (!empty($instance->name)) {
+            $html .= '<p><strong>' . format_string($instance->name) . '</strong></p>';
+        }
+
+        $html .= '</div></div>';
+
+        $html .= '<div class="text-center">';
+        $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . get_string('view') . '</a>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    // =========================================================================
+    // CUSTOMCERT MODULE - Certificate (third-party plugin)
+    // =========================================================================
+    protected static function render_mod_customcert($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB, $USER, $OUTPUT;
+
+        $html = '';
+        $canreceive = has_capability('mod/customcert:receiveissue', $context);
+        $canmanage = has_capability('mod/customcert:manage', $context);
+        $canviewreport = has_capability('mod/customcert:viewreport', $context);
+
+        // Check if user has a certificate.
+        $issue = $DB->get_record('customcert_issues', ['userid' => $USER->id, 'customcertid' => $instance->id]);
+
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        if ($issue && !$canmanage) {
+            $html .= '<div class="alert alert-success"><i class="fa fa-certificate"></i> ' . get_string('receiveddate', 'customcert') . ': ' . userdate($issue->timecreated) . '</div>';
+        }
+
+        // Check required time.
+        if (!empty($instance->requiredtime) && !$canmanage) {
+            $coursetime = \mod_customcert\certificate::get_course_time($course->id);
+            $requiredtime = $instance->requiredtime * 60;
+            if ($coursetime < $requiredtime) {
+                $html .= '<div class="alert alert-warning">' . get_string('requiredtimenotmet', 'customcert', $instance->requiredtime) . '</div>';
+            }
+        }
+
+        $html .= '</div></div>';
+
+        $html .= '<div class="text-center">';
+
+        if ($canreceive) {
+            $html .= '<a href="' . (new \moodle_url('/mod/customcert/view.php', ['id' => $cm->id, 'downloadown' => true])) . '" class="btn btn-primary btn-lg me-2">';
+            $html .= '<i class="fa fa-download"></i> ' . get_string('getcustomcert', 'customcert') . '</a>';
+        }
+
+        if ($canviewreport) {
+            $numissues = \mod_customcert\certificate::get_number_of_issues($instance->id, $cm, groups_get_activity_groupmode($cm));
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-outline-secondary">';
+            $html .= '<i class="fa fa-list"></i> ' . get_string('listofissues', 'customcert', $numissues) . '</a>';
+        }
+
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    // =========================================================================
+    // HOTPOT MODULE - HotPot quiz (third-party plugin)
+    // =========================================================================
+    protected static function render_mod_hotpot($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $USER, $PAGE;
+        require_once($CFG->dirroot . '/mod/hotpot/locallib.php');
+
+        $html = '';
+
+        try {
+            $hotpot = \hotpot::create($instance, $cm, $course, $context);
+
+            $html .= '<div class="card mb-3"><div class="card-body">';
+
+            // Time info.
+            $timenow = time();
+            if ($timenow < $instance->timeopen) {
+                $html .= '<div class="alert alert-info">' . get_string('gamenotavailable', 'hotpot', userdate($instance->timeopen)) . '</div>';
+            } else if ($instance->timeclose && $timenow > $instance->timeclose) {
+                $html .= '<div class="alert alert-warning">' . get_string('gameclosed', 'hotpot', userdate($instance->timeclose)) . '</div>';
+            }
+
+            // Attempts.
+            if ($hotpot->can_attempt() || $hotpot->can_preview()) {
+                $html .= '<p><i class="fa fa-info-circle"></i> ' . format_string($instance->name) . '</p>';
+            }
+
+            $html .= '</div></div>';
+
+            $html .= '<div class="text-center">';
+            if ($hotpot->can_attempt() || $hotpot->can_preview()) {
+                $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . get_string('start', 'hotpot') . '</a>';
+            } else {
+                $html .= '<a href="' . $cminfo->url . '" class="btn btn-secondary btn-lg">' . get_string('view') . '</a>';
+            }
+            $html .= '</div>';
+
+        } catch (\Exception $e) {
+            $html = '<div class="text-center py-4"><a href="' . $cminfo->url . '" class="btn btn-primary btn-lg">' . get_string('view') . '</a></div>';
+        }
+
+        return $html;
+    }
+
+    // =========================================================================
+    // CHECKLIST MODULE - (third-party plugin)
+    // =========================================================================
+    protected static function render_mod_checklist($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB, $USER;
+        require_once($CFG->dirroot . '/mod/checklist/locallib.php');
+
+        $html = '';
+
+        // Count items.
+        $totalitems = $DB->count_records_select('checklist_item', 'checklist = ? AND userid = 0', [$instance->id]);
+        $checkeditems = $DB->count_records_sql(
+            "SELECT COUNT(DISTINCT ci.id)
+             FROM {checklist_item} ci
+             JOIN {checklist_check} cc ON cc.item = ci.id
+             WHERE ci.checklist = ? AND ci.userid = 0 AND cc.userid = ? AND cc.usertimestamp > 0",
+            [$instance->id, $USER->id]
+        );
+
+        $html .= '<div class="card mb-3"><div class="card-body">';
+        $html .= '<p><i class="fa fa-check-square-o"></i> ' . get_string('progress', 'checklist') . ': ' . $checkeditems . ' / ' . $totalitems . '</p>';
+
+        // Progress bar.
+        $pct = $totalitems > 0 ? round($checkeditems / $totalitems * 100) : 0;
+        $html .= '<div class="progress" style="height:25px;">';
+        $html .= '<div class="progress-bar bg-success" style="width:' . $pct . '%">' . $pct . '%</div>';
+        $html .= '</div>';
+
+        $html .= '</div></div>';
+
+        $html .= '<div class="text-center">';
+        $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-list"></i> ' . get_string('viewchecklistteacher', 'checklist') . '</a>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    // =========================================================================
+    // GAME MODULE - (third-party plugin)
+    // =========================================================================
+    protected static function render_mod_game($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB, $USER;
+        require_once($CFG->dirroot . '/mod/game/locallib.php');
+
+        $html = '';
+
+        // Time restrictions.
+        $timenow = time();
+        $canattempt = true;
+
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        if ($timenow < $instance->timeopen) {
+            $canattempt = false;
+            $html .= '<div class="alert alert-info">' . get_string('gamenotavailable', 'game', userdate($instance->timeopen)) . '</div>';
+        } else if ($instance->timeclose && $timenow > $instance->timeclose) {
+            $canattempt = false;
+            $html .= '<div class="alert alert-warning">' . get_string('gameclosed', 'game', userdate($instance->timeclose)) . '</div>';
+        }
+
+        // Attempts.
+        $attempts = game_get_user_attempts($instance->id, $USER->id);
+        $numattempts = count($attempts);
+
+        if ($numattempts > 0) {
+            $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('attempts', 'game') . ': ' . $numattempts . '</p>';
+
+            // Best grade.
+            $mygrade = game_get_best_grade($instance, $USER->id);
+            if ($mygrade !== null) {
+                $html .= '<p><i class="fa fa-star"></i> ' . get_string('bestgrade', 'game') . ': ' . game_format_grade($instance, $mygrade) . '</p>';
+            }
+        }
+
+        if ($instance->maxattempts > 0) {
+            $html .= '<p><i class="fa fa-info-circle"></i> ' . get_string('maximumattempts', 'game') . ': ' . $instance->maxattempts . '</p>';
+        }
+
+        $html .= '</div></div>';
+
+        // Check if can start new attempt.
+        if ($instance->maxattempts > 0 && $numattempts >= $instance->maxattempts) {
+            $canattempt = false;
+        }
+
+        $html .= '<div class="text-center">';
+        if ($canattempt || has_capability('mod/game:manage', $context)) {
+            $buttontext = $numattempts == 0 ? get_string('attemptgamenow', 'game') : get_string('reattemptgame', 'game');
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . $buttontext . '</a>';
+        } else {
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-secondary btn-lg">' . get_string('view') . '</a>';
+        }
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    // =========================================================================
+    // READALOUD MODULE - (third-party plugin)
+    // =========================================================================
+    protected static function render_mod_readaloud($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB, $USER;
+
+        $html = '';
+
+        // Get attempts.
+        $attempts = $DB->get_records('readaloud_attempt', ['readaloudid' => $instance->id, 'userid' => $USER->id], 'timecreated DESC');
+        $numattempts = count($attempts);
+
+        $html .= '<div class="card mb-3"><div class="card-body">';
+
+        // Open/close dates.
+        $timenow = time();
+        $closed = false;
+
+        if (!empty($instance->viewstart) && $timenow < $instance->viewstart) {
+            $html .= '<div class="alert alert-info">' . get_string('activityisnotopenyet', 'readaloud') . '</div>';
+            $closed = true;
+        } else if (!empty($instance->viewend) && $timenow > $instance->viewend) {
+            $html .= '<div class="alert alert-warning">' . get_string('activityisclosed', 'readaloud') . '</div>';
+            $closed = true;
+        }
+
+        if ($numattempts > 0) {
+            $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('attempts', 'readaloud') . ': ' . $numattempts . '</p>';
+
+            // Latest attempt info.
+            $latest = reset($attempts);
+            if (!empty($latest->sessionscore)) {
+                $html .= '<p><i class="fa fa-star"></i> ' . get_string('grade', 'grades') . ': ' . format_float($latest->sessionscore, 0) . '%</p>';
+            }
+        }
+
+        if ($instance->maxattempts > 0) {
+            $html .= '<p><i class="fa fa-info-circle"></i> ' . get_string('maxattempts', 'readaloud') . ': ' . $instance->maxattempts . '</p>';
+        }
+
+        $html .= '</div></div>';
+
+        $html .= '<div class="text-center">';
+        if (!$closed) {
+            $canattempt = $instance->maxattempts == 0 || $numattempts < $instance->maxattempts;
+            if ($canattempt || has_capability('mod/readaloud:preview', $context)) {
+                $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-microphone"></i> ' . get_string('startactivity', 'readaloud') . '</a>';
+            }
+        }
+        if ($numattempts > 0) {
+            $html .= ' <a href="' . (new \moodle_url('/mod/readaloud/view.php', ['id' => $cm->id, 'reviewattempts' => 1])) . '" class="btn btn-outline-secondary">';
+            $html .= '<i class="fa fa-history"></i> ' . get_string('reviewattempts', 'readaloud') . '</a>';
+        }
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    // =========================================================================
+    // SCHEDULER MODULE - (third-party plugin)
+    // =========================================================================
+    protected static function render_mod_scheduler($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB, $USER;
+        require_once($CFG->dirroot . '/mod/scheduler/locallib.php');
+
+        $html = '';
+
+        try {
+            $scheduler = \mod_scheduler\model\scheduler::load_by_coursemodule_id($cm->id);
+            $permissions = new \mod_scheduler\permission\scheduler_permissions($context, $USER->id);
+
+            $isteacher = has_any_capability(['mod/scheduler:manage', 'mod/scheduler:manageallappointments'], $context);
+            $isstudent = has_capability('mod/scheduler:viewslots', $context);
+
+            $html .= '<div class="card mb-3"><div class="card-body">';
+
+            if ($isteacher) {
+                // Count slots and appointments.
+                $slots = $DB->count_records('scheduler_slots', ['schedulerid' => $instance->id]);
+                $appointments = $DB->count_records_sql(
+                    "SELECT COUNT(*) FROM {scheduler_appointment} a
+                     JOIN {scheduler_slots} s ON s.id = a.slotid
+                     WHERE s.schedulerid = ?",
+                    [$instance->id]
+                );
+
+                $html .= '<p><i class="fa fa-calendar"></i> ' . get_string('slots', 'scheduler') . ': ' . $slots . '</p>';
+                $html .= '<p><i class="fa fa-users"></i> ' . get_string('appointments', 'scheduler') . ': ' . $appointments . '</p>';
+            } else if ($isstudent) {
+                // Student's appointments.
+                $myappointments = $DB->count_records_sql(
+                    "SELECT COUNT(*) FROM {scheduler_appointment} a
+                     JOIN {scheduler_slots} s ON s.id = a.slotid
+                     WHERE s.schedulerid = ? AND a.studentid = ?",
+                    [$instance->id, $USER->id]
+                );
+
+                $html .= '<p><i class="fa fa-calendar-check-o"></i> ' . get_string('myappointments', 'scheduler') . ': ' . $myappointments . '</p>';
+            }
+
+            $html .= '</div></div>';
+
+            $html .= '<div class="text-center">';
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-calendar"></i> ' . get_string('viewscheduler', 'scheduler') . '</a>';
+            $html .= '</div>';
+
+        } catch (\Exception $e) {
+            $html = '<div class="text-center py-4"><a href="' . $cminfo->url . '" class="btn btn-primary btn-lg">' . get_string('view') . '</a></div>';
+        }
+
+        return $html;
+    }
+
+    // =========================================================================
+    // PDFPROTECT MODULE - Protected PDF (third-party plugin)
+    // =========================================================================
+    protected static function render_mod_pdfprotect($cm, $cminfo, $instance, $course, $context): string {
+        global $OUTPUT;
+
+        $html = '<div class="card mb-3"><div class="card-body">';
+        $html .= '<p><i class="fa fa-file-pdf-o"></i> ' . get_string('pluginname', 'pdfprotect') . '</p>';
+        $html .= '<p>' . format_string($instance->name) . '</p>';
+        $html .= '</div></div>';
+
+        $html .= '<div class="text-center">';
+        $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-eye"></i> ' . get_string('view') . '</a>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    // =========================================================================
     // DEFAULT FALLBACK
     // =========================================================================
     protected static function render_mod_default($cm, $cminfo, $modname): string {
