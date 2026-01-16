@@ -312,7 +312,7 @@ class get_activity_content extends external_api {
     }
 
     // =========================================================================
-    // QUIZ MODULE - Using mod/quiz classes and renderer
+    // QUIZ MODULE - Using native mod_quiz renderer like view.php
     // =========================================================================
     protected static function render_mod_quiz($cm, $cminfo, $instance, $course, $context): string {
         global $CFG, $DB, $USER, $PAGE;
@@ -320,99 +320,190 @@ class get_activity_content extends external_api {
         require_once($CFG->dirroot . '/mod/quiz/locallib.php');
         require_once($CFG->libdir . '/gradelib.php');
 
-        $html = '';
+        // Get native quiz renderer.
+        $output = $PAGE->get_renderer('mod_quiz');
+
+        // Cache capabilities like view.php.
+        $canattempt = has_capability('mod/quiz:attempt', $context);
+        $canreviewmine = has_capability('mod/quiz:reviewmyattempts', $context);
         $canpreview = has_capability('mod/quiz:preview', $context);
-        $canmanage = has_capability('mod/quiz:manage', $context);
 
-        // Use quiz_settings and access_manager like view.php.
-        try {
-            $quizobj = \mod_quiz\quiz_settings::create_for_cmid($cm->id, $USER->id);
-            $accessmanager = new \mod_quiz\access_manager($quizobj, time(),
-                has_capability('mod/quiz:ignoretimelimits', $context, null, false));
-            $infomessages = $accessmanager->describe_rules();
+        // Create quiz_settings and access_manager like view.php lines 43-64.
+        $quizobj = \mod_quiz\quiz_settings::create_for_cmid($cm->id, $USER->id);
+        $quiz = $quizobj->get_quiz();
+        $timenow = time();
+        $accessmanager = new \mod_quiz\access_manager($quizobj, $timenow,
+            has_capability('mod/quiz:ignoretimelimits', $context, null, false));
 
-            if (!empty($infomessages)) {
-                $html .= '<div class="alert alert-info"><ul class="mb-0">';
-                foreach ($infomessages as $msg) {
-                    $html .= '<li>' . $msg . '</li>';
-                }
-                $html .= '</ul></div>';
+        // Create view object like view.php line 75.
+        $viewobj = new \mod_quiz\output\view_page();
+        $viewobj->accessmanager = $accessmanager;
+        $viewobj->canreviewmine = $canreviewmine || $canpreview;
+
+        // Get user's attempts like view.php lines 80-99.
+        $attempts = quiz_get_user_attempts($quiz->id, $USER->id, 'finished', true);
+        $lastfinishedattempt = end($attempts);
+        $unfinished = false;
+        $unfinishedattemptid = null;
+
+        if ($unfinishedattempt = quiz_get_user_attempt_unfinished($quiz->id, $USER->id)) {
+            $attempts[] = $unfinishedattempt;
+            $quizobj->create_attempt_object($unfinishedattempt)->handle_if_time_expired($timenow, false);
+            $unfinished = $unfinishedattempt->state == \mod_quiz\quiz_attempt::IN_PROGRESS ||
+                $unfinishedattempt->state == \mod_quiz\quiz_attempt::OVERDUE;
+            if (!$unfinished) {
+                $lastfinishedattempt = $unfinishedattempt;
             }
-        } catch (\Exception $e) {
-            // Continue without access manager.
+            $unfinishedattemptid = $unfinishedattempt->id;
+            $unfinishedattempt = null;
+        }
+        $numattempts = count($attempts);
+
+        // Compute grade item totals like view.php lines 101-103.
+        $gradeitemmarks = $quizobj->get_grade_calculator()->compute_grade_item_totals_for_attempts(
+            array_column($attempts, 'uniqueid'));
+
+        // Build view object properties like view.php lines 104-115.
+        $viewobj->attempts = $attempts;
+        $viewobj->attemptobjs = [];
+        foreach ($attempts as $attempt) {
+            $attemptobj = new \mod_quiz\quiz_attempt($attempt, $quiz, $cm, $course, false);
+            $attemptobj->set_grade_item_totals($gradeitemmarks[$attempt->uniqueid]);
+            $viewobj->attemptobjs[] = $attemptobj;
+        }
+        $viewobj->attemptslist = new \mod_quiz\output\list_of_attempts($timenow);
+        foreach (array_reverse($viewobj->attemptobjs) as $attemptobj) {
+            $viewobj->attemptslist->add_attempt($attemptobj);
         }
 
-        // Quiz info.
-        $html .= '<div class="card mb-3"><div class="card-body">';
-        if ($instance->timelimit) {
-            $html .= '<p><i class="fa fa-clock-o"></i> ' . get_string('timelimit', 'quiz') . ': ' . format_time($instance->timelimit) . '</p>';
-        }
-        $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('attemptsallowed', 'quiz') . ': ';
-        $html .= $instance->attempts ? $instance->attempts : get_string('unlimited') . '</p>';
-
-        if ($instance->attempts != 1) {
-            $html .= '<p><i class="fa fa-calculator"></i> ' . get_string('gradingmethod', 'quiz', quiz_get_grading_option_name($instance->grademethod)) . '</p>';
-        }
-        $html .= '</div></div>';
-
-        // User attempts.
-        if (!$canmanage) {
-            $attempts = quiz_get_user_attempts($instance->id, $USER->id, 'finished', true);
-            $unfinished = quiz_get_user_attempt_unfinished($instance->id, $USER->id);
-            $numattempts = count($attempts);
-
-            if ($attempts) {
-                $mygrade = quiz_get_best_grade($instance, $USER->id);
-                if ($mygrade !== null) {
-                    $html .= '<div class="alert alert-success">' . get_string('yourfinalgradeis', 'quiz',
-                        quiz_format_grade($instance, $mygrade) . '/' . quiz_format_grade($instance, $instance->grade)) . '</div>';
-                }
-
-                $html .= '<table class="table table-striped"><thead><tr>';
-                $html .= '<th>' . get_string('attempt', 'quiz') . '</th>';
-                $html .= '<th>' . get_string('state', 'quiz') . '</th>';
-                $html .= '<th>' . get_string('grade', 'grades') . '</th></tr></thead><tbody>';
-                $num = 1;
-                foreach ($attempts as $att) {
-                    $grade = $att->sumgrades !== null ? quiz_format_grade($instance, quiz_rescale_grade($att->sumgrades, $instance, false)) : '-';
-                    $html .= '<tr><td>' . $num++ . '</td><td>' . quiz_attempt_state_name($att->state) . '</td><td>' . $grade . '</td></tr>';
-                }
-                $html .= '</tbody></table>';
-            }
-
-            // Button.
-            $html .= '<div class="text-center">';
-            $nomoreattempts = $instance->attempts && $numattempts >= $instance->attempts;
-
-            if ($unfinished) {
-                $buttontext = $canpreview ? get_string('continuepreview', 'quiz') : get_string('continueattemptquiz', 'quiz');
-            } else if ($nomoreattempts && !$canpreview) {
-                $html .= '<div class="alert alert-warning">' . get_string('nomoreattempts', 'quiz') . '</div>';
-                $buttontext = '';
-            } else {
-                $buttontext = $numattempts == 0 ? get_string('attemptquiz', 'quiz') : get_string('reattemptquiz', 'quiz');
-            }
-
-            if (!empty($buttontext)) {
-                $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . $buttontext . '</a>';
-            }
-            $html .= '</div>';
+        // Get grade information like view.php lines 117-159.
+        if (!$canpreview) {
+            $mygrade = quiz_get_best_grade($quiz, $USER->id);
+        } else if ($lastfinishedattempt) {
+            $mygrade = quiz_rescale_grade($lastfinishedattempt->sumgrades, $quiz, false);
         } else {
-            $html .= '<div class="text-center">';
-            $html .= '<a href="' . (new \moodle_url('/mod/quiz/report.php', ['id' => $cm->id, 'mode' => 'overview'])) . '" class="btn btn-primary me-2"><i class="fa fa-bar-chart"></i> ' . get_string('viewreports', 'quiz') . '</a>';
-            $html .= '<a href="' . (new \moodle_url('/mod/quiz/edit.php', ['cmid' => $cm->id])) . '" class="btn btn-secondary"><i class="fa fa-pencil"></i> ' . get_string('editquiz', 'quiz') . '</a>';
-            $html .= '</div>';
+            $mygrade = null;
         }
+
+        $mygradeoverridden = false;
+        $gradebookfeedback = '';
+        $gradeitem = \grade_item::fetch([
+            'itemtype' => 'mod',
+            'itemmodule' => 'quiz',
+            'iteminstance' => $quiz->id,
+            'itemnumber' => 0,
+            'courseid' => $course->id,
+        ]);
+
+        if (!$canpreview && $gradeitem) {
+            $grade = $gradeitem->get_grade($USER->id, false);
+            $mygrade = $grade->finalgrade;
+            if ($grade->overridden) {
+                $mygradeoverridden = true;
+            }
+            if (!empty($grade->feedback)) {
+                $gradebookfeedback = $grade->feedback;
+            }
+        }
+
+        // Set remaining view object properties like view.php lines 172-219.
+        if ($attempts) {
+            list($someoptions, $alloptions) = quiz_get_combined_reviewoptions($quiz, $attempts);
+            $viewobj->attemptcolumn = $quiz->attempts != 1;
+            $viewobj->gradecolumn = $someoptions->marks >= \question_display_options::MARK_AND_MAX && quiz_has_grades($quiz);
+            $viewobj->markcolumn = $viewobj->gradecolumn && ($quiz->grade != $quiz->sumgrades);
+            $viewobj->overallstats = $lastfinishedattempt && $alloptions->marks >= \question_display_options::MARK_AND_MAX;
+            $viewobj->feedbackcolumn = quiz_has_feedback($quiz) && $alloptions->overallfeedback;
+        }
+
+        $viewobj->timenow = $timenow;
+        $viewobj->numattempts = $numattempts;
+        $viewobj->mygrade = $mygrade;
+        $viewobj->moreattempts = $unfinished || !$accessmanager->is_finished($numattempts, $lastfinishedattempt);
+        $viewobj->mygradeoverridden = $mygradeoverridden;
+        $viewobj->gradebookfeedback = $gradebookfeedback;
+        $viewobj->lastfinishedattempt = $lastfinishedattempt;
+        $viewobj->canedit = has_capability('mod/quiz:manage', $context);
+        $viewobj->editurl = new \moodle_url('/mod/quiz/edit.php', ['cmid' => $cm->id]);
+        $viewobj->backtocourseurl = new \moodle_url('/course/view.php', ['id' => $course->id]);
+        $viewobj->startattempturl = $quizobj->start_attempt_url();
+
+        if ($accessmanager->is_preflight_check_required($unfinishedattemptid)) {
+            $viewobj->preflightcheckform = $accessmanager->get_preflight_check_form(
+                $viewobj->startattempturl, $unfinishedattemptid);
+        }
+        $viewobj->popuprequired = $accessmanager->attempt_must_be_in_popup();
+        $viewobj->popupoptions = $accessmanager->get_popup_options();
+
+        // Info messages like view.php lines 207-219.
+        $viewobj->infomessages = $viewobj->accessmanager->describe_rules();
+        if ($quiz->attempts != 1) {
+            $viewobj->infomessages[] = get_string('gradingmethod', 'quiz', quiz_get_grading_option_name($quiz->grademethod));
+        }
+        if ($gradeitem && grade_floats_different($gradeitem->gradepass, 0)) {
+            $a = new \stdClass();
+            $a->grade = quiz_format_grade($quiz, $gradeitem->gradepass);
+            $a->maxgrade = quiz_format_grade($quiz, $quiz->grade);
+            $viewobj->infomessages[] = get_string('gradetopassoutof', 'quiz', $a);
+        }
+
+        // Determine button text like view.php lines 222-264.
+        $viewobj->quizhasquestions = $quizobj->has_questions();
+        $viewobj->preventmessages = [];
+        if (!$viewobj->quizhasquestions) {
+            $viewobj->buttontext = '';
+        } else {
+            if ($unfinished) {
+                $viewobj->buttontext = $canpreview ? get_string('continuepreview', 'quiz') : ($canattempt ? get_string('continueattemptquiz', 'quiz') : '');
+            } else {
+                if ($canpreview) {
+                    $viewobj->buttontext = get_string('previewquizstart', 'quiz');
+                } else if ($canattempt) {
+                    $viewobj->preventmessages = $viewobj->accessmanager->prevent_new_attempt($viewobj->numattempts, $viewobj->lastfinishedattempt);
+                    if ($viewobj->preventmessages) {
+                        $viewobj->buttontext = '';
+                    } else if ($viewobj->numattempts == 0) {
+                        $viewobj->buttontext = get_string('attemptquiz', 'quiz');
+                    } else {
+                        $viewobj->buttontext = get_string('reattemptquiz', 'quiz');
+                    }
+                }
+            }
+
+            if ($canpreview) {
+                $viewobj->preventmessages = $viewobj->accessmanager->prevent_access();
+            } else if (!empty($viewobj->buttontext)) {
+                if (!$viewobj->moreattempts) {
+                    $viewobj->buttontext = '';
+                } else if ($canattempt) {
+                    $viewobj->preventmessages = $viewobj->accessmanager->prevent_access();
+                    if ($viewobj->preventmessages) {
+                        $viewobj->buttontext = '';
+                    }
+                }
+            }
+        }
+        $viewobj->showbacktocourse = ($viewobj->buttontext === '' && course_get_format($course)->has_view_page());
+
+        // Use native renderer methods to generate HTML (without header/footer).
+        $html = '';
+        $html .= $output->view_page_tertiary_nav($viewobj);
+        $html .= $output->view_information($quiz, $cm, $context, $viewobj->infomessages);
+        $html .= $output->view_result_info($quiz, $context, $cm, $viewobj);
+        $html .= $output->render($viewobj->attemptslist);
+        $html .= $output->box($output->view_page_buttons($viewobj), 'quizattempt');
 
         return $html;
     }
 
     // =========================================================================
-    // ASSIGN MODULE - Using assign class like view.php
+    // ASSIGN MODULE - Using native assign renderables like view.php
+    // Includes submission form directly to avoid extra navigation
     // =========================================================================
     protected static function render_mod_assign($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $USER, $OUTPUT;
+        global $CFG, $USER, $PAGE, $DB, $OUTPUT;
         require_once($CFG->dirroot . '/mod/assign/locallib.php');
+        require_once($CFG->dirroot . '/mod/assign/submission_form.php');
 
         // Create assign object exactly like view.php line 38.
         $assign = new \assign($context, $cm, $course);
@@ -420,124 +511,173 @@ class get_activity_content extends external_api {
         // Apply overrides like view.php line 51.
         $assign->update_effective_access($USER->id);
 
-        $effectiveinstance = $assign->get_instance();
-        $cangrade = has_capability('mod/assign:grade', $context);
+        // Get native assign renderer.
+        $renderer = $assign->get_renderer();
+        $effectiveinstance = $assign->get_instance($USER->id);
 
-        $html = '<div class="card mb-3"><div class="card-body">';
+        $html = '';
 
-        // Due date.
-        if ($effectiveinstance->duedate) {
-            $class = $effectiveinstance->duedate < time() ? 'text-danger' : 'text-success';
-            $html .= '<p><i class="fa fa-calendar"></i> ' . get_string('duedate', 'assign') . ': ';
-            $html .= '<span class="' . $class . '">' . userdate($effectiveinstance->duedate) . '</span></p>';
+        // Render header with attachments.
+        $postfix = '';
+        if ($assign->has_visible_attachments() && (!$effectiveinstance->submissionattachments)) {
+            $postfix = $assign->render_area_files('mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA, 0);
+        }
 
-            if ($effectiveinstance->duedate > time()) {
-                $html .= '<p><i class="fa fa-clock-o"></i> ' . get_string('timeremaining', 'assign') . ': ' . format_time($effectiveinstance->duedate - time()) . '</p>';
+        $header = new \assign_header(
+            $effectiveinstance,
+            $context,
+            $assign->show_intro(),
+            $cm->id,
+            '', '', $postfix
+        );
+        $html .= $renderer->render($header);
+
+        // Display plugin specific headers.
+        $plugins = array_merge($assign->get_submission_plugins(), $assign->get_feedback_plugins());
+        foreach ($plugins as $plugin) {
+            if ($plugin->is_enabled() && $plugin->is_visible()) {
+                $html .= $renderer->render(new \assign_plugin_header($plugin));
             }
         }
 
-        if ($effectiveinstance->cutoffdate) {
-            $html .= '<p><i class="fa fa-ban"></i> ' . get_string('cutoffdate', 'assign') . ': ' . userdate($effectiveinstance->cutoffdate) . '</p>';
-        }
-        $html .= '</div></div>';
-
-        if ($cangrade) {
-            // Teacher view - use assign's grading summary renderable.
+        // Teacher view: grading summary.
+        if ($assign->can_view_grades()) {
+            $actionbuttons = new \mod_assign\output\actionmenu($cm->id);
+            $html .= $renderer->submission_actionmenu($actionbuttons);
             $summary = $assign->get_assign_grading_summary_renderable();
-            if ($summary) {
-                $html .= '<div class="card mb-3"><div class="card-header">' . get_string('gradingsummary', 'assign') . '</div>';
-                $html .= '<div class="card-body">';
-                $html .= '<p>' . get_string('numberofparticipants', 'assign') . ': ' . $summary->participantcount . '</p>';
-                $html .= '<p>' . get_string('numberofsubmittedassignments', 'assign') . ': ' . $summary->submissionssubmittedcount . '</p>';
-                $html .= '<p>' . get_string('numberofsubmissionsneedgrading', 'assign') . ': ' . $summary->submissionsneedgradingcount . '</p>';
-                $html .= '</div></div>';
-            }
-            $html .= '<div class="text-center"><a href="' . (new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'grading'])) . '" class="btn btn-primary btn-lg"><i class="fa fa-check-square"></i> ' . get_string('viewgrading', 'assign') . '</a></div>';
-        } else {
-            // Student view - use assign methods.
+            $html .= $renderer->render($summary);
+        }
+
+        // Student view.
+        if ($assign->can_view_submission($USER->id)) {
             $submission = $assign->get_user_submission($USER->id, false);
-            $grade = $assign->get_user_grade($USER->id, false);
+            $teamsubmission = null;
+            if ($effectiveinstance->teamsubmission) {
+                $teamsubmission = $assign->get_group_submission($USER->id, 0, false);
+            }
 
-            $html .= '<div class="card mb-3"><div class="card-body">';
-            if ($submission) {
-                $statusclass = $submission->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED ? 'bg-success' : 'bg-warning';
-                $html .= '<p><i class="fa fa-check-square-o"></i> ' . get_string('submissionstatus', 'assign') . ': ';
-                $html .= '<span class="badge ' . $statusclass . '">' . get_string('submissionstatus_' . $submission->status, 'assign') . '</span></p>';
+            // Check if user can edit submission - show form directly instead of redirect.
+            $canedit = $assign->is_any_submission_plugin_enabled() && $assign->can_edit_submission($USER->id);
+            $submissionsopen = $assign->submissions_open($USER->id);
+            $needssubmission = !$submission || $submission->status == ASSIGN_SUBMISSION_STATUS_NEW ||
+                               $submission->status == ASSIGN_SUBMISSION_STATUS_REOPENED;
 
-                if ($submission->timemodified) {
-                    $html .= '<p><i class="fa fa-edit"></i> ' . get_string('timemodified', 'assign') . ': ' . userdate($submission->timemodified) . '</p>';
+            if ($canedit && $submissionsopen && $needssubmission) {
+                // Show submission form directly like view_edit_submission_page().
+                $user = $DB->get_record('user', ['id' => $USER->id], '*', MUST_EXIST);
+
+                // Check for time limit.
+                $timelimitenabled = get_config('assign', 'enabletimelimit');
+                $timelimit = $effectiveinstance->timelimit;
+                $submission = $assign->get_user_submission($USER->id, true);
+
+                if ($timelimitenabled && $timelimit && empty($submission->timestarted)) {
+                    // Show begin assignment button with confirmation.
+                    $html .= '<div class="alert alert-warning">';
+                    $html .= '<p><i class="fa fa-clock-o"></i> ' . get_string('timelimit', 'assign') . ': ' . format_time($timelimit) . '</p>';
+                    $html .= '<p>' . get_string('confirmstart', 'assign') . '</p>';
+                    $html .= '</div>';
+                    $urlparams = ['id' => $cm->id, 'action' => 'editsubmission', 'begin' => 1];
+                    $beginurl = new \moodle_url('/mod/assign/view.php', $urlparams);
+                    $html .= '<div class="text-center">';
+                    $html .= '<a href="' . $beginurl . '" class="btn btn-primary btn-lg">';
+                    $html .= '<i class="fa fa-play-circle"></i> ' . get_string('beginassignment', 'assign') . '</a>';
+                    $html .= '</div>';
+                } else {
+                    // Render submission form directly.
+                    $data = new \stdClass();
+                    $data->userid = $USER->id;
+                    $mform = new \mod_assign_submission_form(
+                        new \moodle_url('/mod/assign/view.php', ['id' => $cm->id, 'action' => 'savesubmission']),
+                        [$assign, $data]
+                    );
+
+                    // Show time limit panel if applicable.
+                    if ($timelimitenabled && $timelimit && !empty($submission->timestarted)) {
+                        $html .= $assign->get_timelimit_panel($submission);
+                    }
+
+                    // Render the form.
+                    $html .= $renderer->render(new \assign_form('editsubmissionform', $mform));
                 }
             } else {
-                $html .= '<p><i class="fa fa-exclamation-circle"></i> ' . get_string('submissionstatus', 'assign') . ': ';
-                $html .= '<span class="badge bg-secondary">' . get_string('nosubmission', 'assign') . '</span></p>';
+                // Show submission status and feedback (normal view).
+                $html .= $assign->view_submission_action_bar($effectiveinstance, $USER);
+                $html .= $assign->view_student_summary($USER, true);
             }
-
-            if ($grade && $grade->grade !== null && $grade->grade >= 0) {
-                $html .= '<p><i class="fa fa-star"></i> ' . get_string('grade', 'grades') . ': ' . format_float($grade->grade, 2) . '/' . format_float($effectiveinstance->grade, 2) . '</p>';
-            }
-            $html .= '</div></div>';
-
-            // Button.
-            $html .= '<div class="text-center">';
-            $submissionsopen = $assign->submissions_open($USER->id);
-            if ($submissionsopen && (!$submission || $submission->status != ASSIGN_SUBMISSION_STATUS_SUBMITTED)) {
-                $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-upload"></i> ' . get_string('addsubmission', 'assign') . '</a>';
-            } else {
-                $html .= '<a href="' . $cminfo->url . '" class="btn btn-secondary btn-lg"><i class="fa fa-eye"></i> ' . get_string('viewsubmission', 'assign') . '</a>';
-            }
-            $html .= '</div>';
         }
 
         return $html;
     }
 
     // =========================================================================
-    // FORUM MODULE - Using forum lib functions
+    // FORUM MODULE - Using native forum vaults and renderers like view.php
     // =========================================================================
     protected static function render_mod_forum($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $DB;
+        global $CFG, $DB, $USER, $PAGE;
         require_once($CFG->dirroot . '/mod/forum/lib.php');
+
+        // Use native forum factories like view.php lines 29-35.
+        $managerfactory = \mod_forum\local\container::get_manager_factory();
+        $vaultfactory = \mod_forum\local\container::get_vault_factory();
+        $rendererfactory = \mod_forum\local\container::get_renderer_factory();
+        $forumvault = $vaultfactory->get_forum_vault();
+        $discussionlistvault = $vaultfactory->get_discussions_in_forum_vault();
+
+        // Get forum entity.
+        $forum = $forumvault->get_from_course_module_id($cm->id);
+        $capabilitymanager = $managerfactory->get_capability_manager($forum);
+
+        // Get display mode.
+        $displaymode = get_user_preferences('forum_displaymode', $CFG->forum_displaymode);
+        if (get_user_preferences('forum_useexperimentalui', false)) {
+            if ($displaymode == FORUM_MODE_NESTED) {
+                $displaymode = FORUM_MODE_NESTED_V2;
+            }
+        }
+
+        // Get current group.
+        $groupid = groups_get_activity_group($cm, true) ?: null;
+
+        // Get sort order.
+        $sortorder = get_user_preferences('forum_discussionlistsortorder', $discussionlistvault::SORTORDER_LASTPOST_DESC);
 
         $html = '';
 
-        // Forum type.
-        $types = forum_get_forum_types();
-        if (isset($types[$instance->type])) {
-            $html .= '<span class="badge bg-secondary mb-2">' . $types[$instance->type] . '</span>';
+        // Render action bar like view.php line 174.
+        $html .= forum_activity_actionbar($forum, $groupid, $course, '');
+
+        // Render discussions using native renderer like view.php lines 243-259.
+        switch ($forum->get_type()) {
+            case 'single':
+                $discussionvault = $vaultfactory->get_discussion_vault();
+                $postvault = $vaultfactory->get_post_vault();
+                $discussion = $discussionvault->get_last_discussion_in_forum($forum);
+                $discussioncount = $discussionvault->get_count_discussions_in_forum($forum);
+                $hasmultiplediscussions = $discussioncount > 1;
+                $discussionsrenderer = $rendererfactory->get_single_discussion_list_renderer($forum, $discussion,
+                    $hasmultiplediscussions, $displaymode);
+                $post = $postvault->get_from_id($discussion->get_first_post_id());
+                $orderpostsby = $displaymode == FORUM_MODE_FLATNEWEST ? 'created DESC' : 'created ASC';
+                $replies = $postvault->get_replies_to_post(
+                    $USER,
+                    $post,
+                    $capabilitymanager->can_view_any_private_reply($USER),
+                    $orderpostsby
+                );
+                $html .= $discussionsrenderer->render($USER, $post, $replies);
+                break;
+
+            case 'blog':
+                $discussionsrenderer = $rendererfactory->get_blog_discussion_list_renderer($forum);
+                $html .= $discussionsrenderer->render($USER, $cm, $groupid, $discussionlistvault::SORTORDER_CREATED_DESC,
+                    0, 10, null, false);
+                break;
+
+            default:
+                $discussionsrenderer = $rendererfactory->get_discussion_list_renderer($forum);
+                $html .= $discussionsrenderer->render($USER, $cm, $groupid, $sortorder, 0, 10, $displaymode, false);
         }
-
-        // Discussions.
-        $discussions = $DB->get_records_sql(
-            "SELECT d.*, u.firstname, u.lastname, (SELECT COUNT(*) FROM {forum_posts} p WHERE p.discussion = d.id) - 1 as replies
-             FROM {forum_discussions} d JOIN {user} u ON u.id = d.userid
-             WHERE d.forum = ? ORDER BY d.pinned DESC, d.timemodified DESC LIMIT 10",
-            [$instance->id]
-        );
-        $total = $DB->count_records('forum_discussions', ['forum' => $instance->id]);
-
-        $html .= '<p class="text-muted"><i class="fa fa-comments"></i> ' . $total . ' ' . get_string('discussions', 'forum') . '</p>';
-
-        if ($discussions) {
-            $html .= '<div class="list-group mb-3">';
-            foreach ($discussions as $d) {
-                $url = new \moodle_url('/mod/forum/discuss.php', ['d' => $d->id]);
-                $html .= '<a href="' . $url . '" class="list-group-item list-group-item-action">';
-                if ($d->pinned) $html .= '<span class="badge bg-warning float-end"><i class="fa fa-thumb-tack"></i></span>';
-                $html .= '<strong>' . format_string($d->name) . '</strong><br>';
-                $html .= '<small class="text-muted">' . fullname($d) . ' &middot; ' . $d->replies . ' ' . get_string('replies', 'forum') . '</small>';
-                $html .= '</a>';
-            }
-            $html .= '</div>';
-        } else {
-            $html .= '<div class="alert alert-info">' . get_string('nodiscussions', 'forum') . '</div>';
-        }
-
-        // Buttons.
-        $html .= '<div class="text-center">';
-        if (forum_user_can_post_discussion($instance, null, -1, $cm, $context)) {
-            $html .= '<a href="' . (new \moodle_url('/mod/forum/post.php', ['forum' => $instance->id])) . '" class="btn btn-primary me-2"><i class="fa fa-plus"></i> ' . get_string('addanewdiscussion', 'forum') . '</a>';
-        }
-        $html .= '<a href="' . $cminfo->url . '" class="btn btn-outline-primary">' . get_string('viewalldiscussions', 'forum') . '</a>';
         $html .= '</div>';
 
         return $html;
