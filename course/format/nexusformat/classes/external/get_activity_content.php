@@ -684,10 +684,11 @@ class get_activity_content extends external_api {
     }
 
     // =========================================================================
-    // LESSON MODULE - Using lesson class
+    // LESSON MODULE - Using native lesson renderer like view.php
+    // Shows lesson page content directly with question forms
     // =========================================================================
     protected static function render_mod_lesson($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $DB, $USER;
+        global $CFG, $DB, $USER, $PAGE;
         require_once($CFG->dirroot . '/mod/lesson/lib.php');
         require_once($CFG->dirroot . '/mod/lesson/locallib.php');
 
@@ -695,7 +696,62 @@ class get_activity_content extends external_api {
         $lesson->update_effective_access($USER->id);
         $canmanage = $lesson->can_manage();
 
-        $html = '<div class="card mb-3"><div class="card-body">';
+        // Get native lesson renderer like view.php line 62.
+        $lessonoutput = $PAGE->get_renderer('mod_lesson');
+
+        $html = '';
+
+        // Check time restrictions like view.php line 73.
+        $timerestriction = $lesson->get_time_restriction_status();
+        if ($timerestriction && !$canmanage) {
+            $html .= '<div class="alert alert-warning">' . get_string('lessonnotready2', 'lesson') . '</div>';
+            return $html;
+        }
+
+        // Check password like view.php line 80.
+        $passwordrestriction = $lesson->get_password_restriction_status('');
+        if ($passwordrestriction && !$canmanage) {
+            $html .= '<div class="card mb-3"><div class="card-body">';
+            $html .= '<p class="text-warning"><i class="fa fa-lock"></i> ' . get_string('passwordprotectedlesson', 'lesson', format_string($lesson->name)) . '</p>';
+            $html .= '<form method="post" action="' . $cminfo->url . '">';
+            $html .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+            $html .= '<div class="form-group"><input type="password" name="userpassword" class="form-control" placeholder="' . get_string('password') . '"></div>';
+            $html .= '<button type="submit" class="btn btn-primary">' . get_string('continue', 'lesson') . '</button>';
+            $html .= '</form></div></div>';
+            return $html;
+        }
+
+        // Check dependencies like view.php line 86.
+        $dependenciesrestriction = $lesson->get_dependencies_restriction_status();
+        if ($dependenciesrestriction && !$canmanage) {
+            $html .= '<div class="alert alert-warning">';
+            $html .= get_string('completethefollowingconditions', 'lesson', format_string($lesson->name));
+            $html .= '</div>';
+            return $html;
+        }
+
+        // Get lesson info.
+        $lessonfirstpage = $lesson->firstpage;
+        $lessonfirstpageid = $lessonfirstpage ? $lessonfirstpage->id : false;
+
+        if (!$lessonfirstpageid) {
+            if ($canmanage) {
+                $html .= '<div class="alert alert-info">' . get_string('lessonpagelinkingbroken', 'lesson') . '</div>';
+                $html .= '<div class="text-center"><a href="' . (new \moodle_url('/mod/lesson/edit.php', ['id' => $cm->id])) . '" class="btn btn-primary">';
+                $html .= '<i class="fa fa-pencil"></i> ' . get_string('edit') . '</a></div>';
+            } else {
+                $html .= '<div class="alert alert-warning">' . get_string('lessonnotready2', 'lesson') . '</div>';
+            }
+            return $html;
+        }
+
+        // Get user progress.
+        $retries = $lesson->count_user_retries($USER->id);
+        $attempts = $DB->get_records('lesson_grades', ['lessonid' => $lesson->id, 'userid' => $USER->id], 'completed DESC');
+        $lastpageseen = $lesson->get_last_page_seen($retries);
+
+        // Show lesson info panel.
+        $html .= '<div class="card mb-3"><div class="card-body">';
         $pagecount = $DB->count_records('lesson_pages', ['lessonid' => $lesson->id]);
         $html .= '<p><i class="fa fa-file-text-o"></i> ' . get_string('pages', 'lesson') . ': ' . $pagecount . '</p>';
 
@@ -713,55 +769,71 @@ class get_activity_content extends external_api {
         }
         $html .= '</div></div>';
 
-        // Restrictions.
-        $isopen = !$lesson->get_time_restriction_status();
-        $hasdep = $lesson->get_dependencies_restriction_status();
-
-        if (!$isopen && !$canmanage) {
-            $html .= '<div class="alert alert-warning">' . get_string('lessonnotready2', 'lesson') . '</div>';
-        }
-        if ($hasdep && !$canmanage) {
-            $html .= '<div class="alert alert-warning">' . get_string('completethefollowingconditions', 'lesson', '') . '</div>';
-        }
-
-        // User progress.
-        if (!$canmanage) {
-            $retries = $lesson->count_user_retries($USER->id);
-            $attempts = $DB->get_records('lesson_grades', ['lessonid' => $lesson->id, 'userid' => $USER->id], 'completed DESC');
-
-            if ($attempts) {
-                $best = 0;
-                $html .= '<div class="card mb-3"><div class="card-header">' . get_string('attempts', 'lesson') . '</div>';
-                $html .= '<table class="table mb-0"><thead><tr><th>#</th><th>' . get_string('grade', 'grades') . '</th></tr></thead><tbody>';
-                $n = count($attempts);
-                foreach ($attempts as $a) {
-                    $best = max($best, $a->grade);
-                    $html .= '<tr><td>' . $n-- . '</td><td>' . format_float($a->grade, 1) . '%</td></tr>';
-                }
-                $html .= '</tbody></table>';
-                $html .= '<div class="card-footer">' . get_string('bestgrade', 'lesson') . ': ' . format_float($best, 1) . '%</div></div>';
+        // Show previous attempts if any.
+        if (!$canmanage && $attempts) {
+            $best = 0;
+            $html .= '<div class="card mb-3"><div class="card-header">' . get_string('attempts', 'lesson') . '</div>';
+            $html .= '<table class="table mb-0"><thead><tr><th>#</th><th>' . get_string('grade', 'grades') . '</th><th>' . get_string('completed', 'lesson') . '</th></tr></thead><tbody>';
+            $n = count($attempts);
+            foreach ($attempts as $a) {
+                $best = max($best, $a->grade);
+                $html .= '<tr><td>' . $n-- . '</td><td>' . format_float($a->grade, 1) . '%</td><td>' . userdate($a->completed) . '</td></tr>';
             }
-
-            $lastpage = $lesson->get_last_page_seen($retries);
-            $hasincomplete = $lastpage !== false && $lastpage != LESSON_EOL;
+            $html .= '</tbody></table>';
+            $html .= '<div class="card-footer">' . get_string('bestgrade', 'lesson') . ': ' . format_float($best, 1) . '%</div></div>';
         }
 
-        // Button.
-        $html .= '<div class="text-center">';
-        $canstart = ($isopen && !$hasdep) || $canmanage;
+        // Check if user can start/continue.
+        $hasincomplete = $lastpageseen !== false && $lastpageseen != LESSON_EOL;
+        $canstart = true;
 
-        if (!$canmanage && isset($retries) && !$lesson->retake && $retries > 0) {
+        if (!$canmanage && !$lesson->retake && $retries > 0 && !$hasincomplete) {
             $canstart = false;
             $html .= '<div class="alert alert-info">' . get_string('noretake', 'lesson') . '</div>';
         }
 
-        if ($canstart) {
-            $btntext = $canmanage ? get_string('preview', 'lesson') :
-                (isset($hasincomplete) && $hasincomplete ? get_string('continuelesson', 'lesson') :
-                    (isset($attempts) && $attempts ? get_string('retakelesson', 'lesson') : get_string('startlesson', 'lesson')));
-            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . $btntext . '</a>';
+        // Try to show the first page content directly.
+        if ($canstart && $canmanage) {
+            // For teachers, show preview button and edit link.
+            $html .= '<div class="text-center">';
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg me-2"><i class="fa fa-play-circle"></i> ' . get_string('preview', 'lesson') . '</a>';
+            $html .= '<a href="' . (new \moodle_url('/mod/lesson/edit.php', ['id' => $cm->id])) . '" class="btn btn-outline-secondary">';
+            $html .= '<i class="fa fa-pencil"></i> ' . get_string('edit') . '</a>';
+            $html .= '</div>';
+        } else if ($canstart) {
+            // For students, try to render the current lesson page content.
+            $pageid = $hasincomplete ? $lastpageseen : $lessonfirstpageid;
+
+            try {
+                // Prepare page and contents like view.php line 227.
+                $reviewmode = $lesson->is_in_review_mode();
+                list($newpageid, $page, $lessoncontent) = $lesson->prepare_page_and_contents($pageid, $lessonoutput, $reviewmode);
+
+                // Show the lesson content directly.
+                $html .= '<div class="lesson-content-wrapper">';
+
+                // Show ongoing score if enabled.
+                if ($lesson->ongoing && !$reviewmode) {
+                    $html .= $lessonoutput->ongoing_score($lesson);
+                }
+
+                // Show the actual lesson page content with questions.
+                $html .= $lessoncontent;
+
+                // Show progress bar.
+                $html .= $lessonoutput->progress_bar($lesson);
+
+                $html .= '</div>';
+
+            } catch (\Exception $e) {
+                // Fallback to button if rendering fails.
+                $btntext = $hasincomplete ? get_string('continuelesson', 'lesson') :
+                    ($attempts ? get_string('retakelesson', 'lesson') : get_string('startlesson', 'lesson'));
+                $html .= '<div class="text-center">';
+                $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . $btntext . '</a>';
+                $html .= '</div>';
+            }
         }
-        $html .= '</div>';
 
         return $html;
     }
@@ -839,10 +911,11 @@ class get_activity_content extends external_api {
     }
 
     // =========================================================================
-    // FEEDBACK MODULE - Using mod_feedback_completion class
+    // FEEDBACK MODULE - Using mod_feedback_completion class like complete.php
+    // Shows the feedback form with questions directly
     // =========================================================================
     protected static function render_mod_feedback($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $DB;
+        global $CFG, $DB, $PAGE, $OUTPUT;
         require_once($CFG->dirroot . '/mod/feedback/lib.php');
 
         $completion = new \mod_feedback_completion($instance, $cm, $course->id);
@@ -852,13 +925,31 @@ class get_activity_content extends external_api {
         $isopen = $completion->is_open();
         $cancomplete = $completion->can_complete();
         $cansubmit = $completion->can_submit();
+        $isempty = $completion->is_empty();
 
         $html = '';
 
+        // Get renderer for summary template.
+        $renderer = $PAGE->get_renderer('mod_feedback');
+
+        // Teacher/Manager view.
         if ($canedititems || $canviewreports) {
             $items = $DB->count_records('feedback_item', ['feedback' => $instance->id, 'hasvalue' => 1]);
             $completed = $DB->count_records('feedback_completed', ['feedback' => $instance->id]);
 
+            // Use native summary template like view.php line 107.
+            $mygroupid = groups_get_activity_group($cm);
+            $summary = new \mod_feedback\output\summary($completion, $mygroupid);
+            $html .= $OUTPUT->render_from_template('mod_feedback/summary', $summary->export_for_template($OUTPUT));
+
+            // Action bar.
+            $viewcompletion = $isopen && $cancomplete && $cansubmit;
+            $actionbar = new \mod_feedback\output\standard_action_bar(
+                $cm->id, $viewcompletion, $completion->get_resume_page(), $course->id
+            );
+            $html .= $renderer->main_action_bar($actionbar);
+
+            // Additional info.
             $html .= '<div class="card mb-3"><div class="card-header">' . get_string('overview', 'feedback') . '</div>';
             $html .= '<div class="card-body">';
             $html .= '<p><i class="fa fa-list"></i> ' . get_string('questions', 'feedback') . ': ' . $items . '</p>';
@@ -876,15 +967,37 @@ class get_activity_content extends external_api {
                 $html .= '<a href="' . (new \moodle_url('/mod/feedback/edit.php', ['id' => $cm->id])) . '" class="btn btn-secondary"><i class="fa fa-pencil"></i> ' . get_string('edit_items', 'feedback') . '</a>';
             }
             $html .= '</div>';
+
         } else {
+            // Student view.
             if (!$isopen) {
                 $html .= '<div class="alert alert-warning">' . get_string('feedback_is_not_open', 'feedback') . '</div>';
+            } else if ($isempty) {
+                $html .= '<div class="alert alert-info">' . get_string('no_items_available_yet', 'feedback') . '</div>';
             } else if (!$cansubmit && $cancomplete) {
-                $html .= '<div class="alert alert-success">' . get_string('this_feedback_is_already_submitted', 'feedback') . '</div>';
-            }
+                // Already submitted.
+                $html .= '<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' . get_string('this_feedback_is_already_submitted', 'feedback') . '</div>';
 
-            if ($isopen && $cancomplete && $cansubmit) {
-                $html .= '<div class="text-center"><a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-pencil-square-o"></i> ' . get_string('complete_the_form', 'feedback') . '</a></div>';
+                // Show analysis link if allowed.
+                if ($completion->can_view_analysis()) {
+                    $html .= '<div class="text-center">';
+                    $html .= '<a href="' . (new \moodle_url('/mod/feedback/analysis.php', ['id' => $cm->id, 'courseid' => $course->id])) . '" class="btn btn-outline-primary">';
+                    $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('completed_feedbacks', 'feedback') . '</a>';
+                    $html .= '</div>';
+                }
+            } else if ($isopen && $cancomplete && $cansubmit) {
+                // Show the feedback form with questions directly like complete.php line 131.
+                try {
+                    $html .= '<div class="feedback-form-wrapper">';
+                    $html .= $completion->render_items();
+                    $html .= '</div>';
+                } catch (\Exception $e) {
+                    // Fallback to button if rendering fails.
+                    $html .= '<div class="text-center">';
+                    $html .= '<a href="' . (new \moodle_url('/mod/feedback/complete.php', ['id' => $cm->id])) . '" class="btn btn-primary btn-lg">';
+                    $html .= '<i class="fa fa-pencil-square-o"></i> ' . get_string('complete_the_form', 'feedback') . '</a>';
+                    $html .= '</div>';
+                }
             }
         }
 
@@ -892,99 +1005,458 @@ class get_activity_content extends external_api {
     }
 
     // =========================================================================
-    // GLOSSARY MODULE
+    // GLOSSARY MODULE - Using native glossary functions like view.php
+    // Shows complete glossary entries with search and add capability
     // =========================================================================
     protected static function render_mod_glossary($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $DB;
+        global $CFG, $DB, $USER, $PAGE, $OUTPUT;
         require_once($CFG->dirroot . '/mod/glossary/lib.php');
+        require_once($CFG->dirroot . '/mod/glossary/locallib.php');
 
-        $total = $DB->count_records('glossary_entries', ['glossaryid' => $instance->id, 'approved' => 1]);
-        $html = '<p class="text-muted"><i class="fa fa-book"></i> ' . $total . ' ' . get_string('entries', 'glossary') . '</p>';
-
-        // Recent entries.
-        $entries = $DB->get_records_sql("SELECT * FROM {glossary_entries} WHERE glossaryid = ? AND approved = 1 ORDER BY timecreated DESC LIMIT 5", [$instance->id]);
-
-        if ($entries) {
-            $html .= '<div class="accordion" id="glossaryAcc">';
-            foreach ($entries as $e) {
-                $eid = 'ge' . $e->id;
-                $html .= '<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed py-2" data-bs-toggle="collapse" data-bs-target="#' . $eid . '">' . format_string($e->concept) . '</button></h2>';
-                $html .= '<div id="' . $eid . '" class="accordion-collapse collapse"><div class="accordion-body">' . format_text($e->definition, $e->definitionformat, ['context' => $context]) . '</div></div></div>';
-            }
-            $html .= '</div>';
-        }
-
-        $html .= '<div class="text-center mt-3"><a href="' . $cminfo->url . '" class="btn btn-primary"><i class="fa fa-book"></i> ' . get_string('viewglossary', 'glossary') . '</a></div>';
-
-        return $html;
-    }
-
-    // =========================================================================
-    // WIKI MODULE
-    // =========================================================================
-    protected static function render_mod_wiki($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $DB;
-        require_once($CFG->dirroot . '/mod/wiki/lib.php');
-
-        $subwiki = $DB->get_record('wiki_subwikis', ['wikiid' => $instance->id], '*', IGNORE_MULTIPLE);
         $html = '';
+        $canaddentry = has_capability('mod/glossary:write', $context);
+        $canmanage = has_capability('mod/glossary:manageentries', $context);
 
-        if ($subwiki) {
-            $page = $DB->get_record('wiki_pages', ['subwikiid' => $subwiki->id, 'title' => $instance->firstpagetitle]);
-            if ($page) {
-                $html .= '<h5>' . format_string($page->title) . '</h5>';
-                $html .= '<div class="border rounded p-3 mb-3">' . format_text($page->cachedcontent, FORMAT_HTML, ['context' => $context]) . '</div>';
-            }
+        // Get renderer and action bar.
+        $renderer = $PAGE->get_renderer('mod_glossary');
+
+        // Get display format settings.
+        $dp = $DB->get_record('glossary_formats', ['name' => $instance->displayformat]);
+        $displayformat = $instance->displayformat;
+
+        // Get entries count.
+        $total = $DB->count_records('glossary_entries', ['glossaryid' => $instance->id, 'approved' => 1]);
+        $pending = $DB->count_records('glossary_entries', ['glossaryid' => $instance->id, 'approved' => 0]);
+
+        // Action bar with search and add entry.
+        $html .= '<div class="glossary-actions d-flex justify-content-between align-items-center mb-3">';
+
+        // Search form.
+        $html .= '<form class="form-inline" method="get" action="' . $cminfo->url . '">';
+        $html .= '<input type="hidden" name="id" value="' . $cm->id . '">';
+        $html .= '<input type="hidden" name="mode" value="search">';
+        $html .= '<div class="input-group">';
+        $html .= '<input type="text" name="hook" class="form-control" placeholder="' . get_string('search') . '">';
+        $html .= '<button type="submit" class="btn btn-outline-secondary"><i class="fa fa-search"></i></button>';
+        $html .= '</div></form>';
+
+        // Add entry button.
+        if ($canaddentry) {
+            $html .= '<a href="' . (new \moodle_url('/mod/glossary/edit.php', ['cmid' => $cm->id])) . '" class="btn btn-primary">';
+            $html .= '<i class="fa fa-plus"></i> ' . get_string('addentry', 'glossary') . '</a>';
         }
+        $html .= '</div>';
 
-        $html .= '<div class="text-center"><a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-book"></i> ' . get_string('modulename', 'wiki') . '</a></div>';
-
-        return $html;
-    }
-
-    // =========================================================================
-    // DATA MODULE
-    // =========================================================================
-    protected static function render_mod_data($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $DB;
-        require_once($CFG->dirroot . '/mod/data/lib.php');
-
-        $records = $DB->count_records('data_records', ['dataid' => $instance->id]);
-        $fields = $DB->count_records('data_fields', ['dataid' => $instance->id]);
-
-        $html = '<div class="card mb-3"><div class="card-body">';
-        $html .= '<p><i class="fa fa-database"></i> ' . get_string('numrecords', 'data', $records) . '</p>';
-        $html .= '<p><i class="fa fa-columns"></i> ' . get_string('fields', 'data') . ': ' . $fields . '</p>';
-        if ($instance->requiredentries > 0) {
-            $html .= '<p><i class="fa fa-exclamation-circle"></i> ' . get_string('requiredentries', 'data') . ': ' . $instance->requiredentries . '</p>';
+        // Stats panel.
+        $html .= '<div class="card mb-3"><div class="card-body d-flex justify-content-around">';
+        $html .= '<div class="text-center"><div class="h4 mb-0">' . $total . '</div><small class="text-muted">' . get_string('entries', 'glossary') . '</small></div>';
+        if ($canmanage && $pending > 0) {
+            $html .= '<div class="text-center"><div class="h4 mb-0 text-warning">' . $pending . '</div><small class="text-muted">';
+            $html .= '<a href="' . (new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id, 'mode' => 'approval'])) . '">' . get_string('pendingapproval', 'glossary') . '</a></small></div>';
         }
         $html .= '</div></div>';
 
-        $html .= '<div class="text-center">';
-        if (has_capability('mod/data:writeentry', $context)) {
-            $html .= '<a href="' . (new \moodle_url('/mod/data/edit.php', ['d' => $instance->id])) . '" class="btn btn-primary me-2"><i class="fa fa-plus"></i> ' . get_string('add', 'data') . '</a>';
+        // Alphabet filter.
+        $html .= '<div class="glossary-alphabet text-center mb-3">';
+        $alphabet = explode(',', get_string('alphabet', 'langconfig'));
+        $html .= '<a href="' . (new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id, 'mode' => 'letter', 'hook' => 'ALL'])) . '" class="btn btn-sm btn-outline-secondary me-1">' . get_string('allentries', 'glossary') . '</a>';
+        $html .= '<a href="' . (new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id, 'mode' => 'letter', 'hook' => 'SPECIAL'])) . '" class="btn btn-sm btn-outline-secondary me-1">#</a>';
+        foreach ($alphabet as $letter) {
+            $letter = trim($letter);
+            $html .= '<a href="' . (new \moodle_url('/mod/glossary/view.php', ['id' => $cm->id, 'mode' => 'letter', 'hook' => $letter])) . '" class="btn btn-sm btn-outline-secondary me-1">' . $letter . '</a>';
         }
-        $html .= '<a href="' . $cminfo->url . '" class="btn btn-outline-primary"><i class="fa fa-list"></i> ' . get_string('view') . '</a>';
         $html .= '</div>';
+
+        // Get entries - show recent entries.
+        $entriesbypage = $instance->entbypage ?: $CFG->glossary_entbypage;
+        $entries = $DB->get_records_sql(
+            "SELECT * FROM {glossary_entries} WHERE glossaryid = ? AND approved = 1 ORDER BY timecreated DESC",
+            [$instance->id], 0, $entriesbypage
+        );
+
+        if ($entries) {
+            // Use glossary_print_entry for proper rendering.
+            $html .= '<div class="glossary-entries">';
+
+            foreach ($entries as $entry) {
+                // Render entry using native function by capturing output.
+                ob_start();
+                glossary_print_entry($course, $cm, $instance, $entry, 'letter', 'ALL', 1, $displayformat);
+                $entrycontent = ob_get_clean();
+
+                if (!empty($entrycontent)) {
+                    $html .= $entrycontent;
+                } else {
+                    // Fallback rendering.
+                    $html .= '<div class="glossary-entry card mb-2">';
+                    $html .= '<div class="card-header"><strong>' . format_string($entry->concept) . '</strong>';
+                    $html .= '<small class="text-muted float-end">' . userdate($entry->timecreated) . '</small></div>';
+                    $html .= '<div class="card-body">';
+
+                    // Definition with attached files.
+                    $definition = file_rewrite_pluginfile_urls($entry->definition, 'pluginfile.php', $context->id, 'mod_glossary', 'entry', $entry->id);
+                    $html .= format_text($definition, $entry->definitionformat, ['context' => $context]);
+
+                    // Attachments.
+                    $fs = get_file_storage();
+                    $files = $fs->get_area_files($context->id, 'mod_glossary', 'attachment', $entry->id, 'filename', false);
+                    if ($files) {
+                        $html .= '<div class="attachments mt-2"><strong>' . get_string('attachments', 'glossary') . ':</strong><ul>';
+                        foreach ($files as $file) {
+                            $url = \moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+                            $html .= '<li><a href="' . $url . '">' . $file->get_filename() . '</a></li>';
+                        }
+                        $html .= '</ul></div>';
+                    }
+                    $html .= '</div></div>';
+                }
+            }
+            $html .= '</div>';
+
+            // Show more link.
+            if ($total > $entriesbypage) {
+                $html .= '<div class="text-center mt-3">';
+                $html .= '<a href="' . $cminfo->url . '" class="btn btn-outline-primary">';
+                $html .= get_string('showall', 'moodle', $total) . '</a>';
+                $html .= '</div>';
+            }
+        } else {
+            $html .= '<div class="alert alert-info">' . get_string('noentries', 'glossary') . '</div>';
+        }
 
         return $html;
     }
 
     // =========================================================================
-    // SCORM MODULE
+    // WIKI MODULE - Using native wiki functions like view.php
+    // Shows full wiki page content with navigation and edit capabilities
+    // =========================================================================
+    protected static function render_mod_wiki($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB, $USER, $PAGE, $OUTPUT;
+        require_once($CFG->dirroot . '/mod/wiki/lib.php');
+        require_once($CFG->dirroot . '/mod/wiki/locallib.php');
+        require_once($CFG->dirroot . '/mod/wiki/pagelib.php');
+
+        $html = '';
+        $canedit = has_capability('mod/wiki:editpage', $context);
+        $canmanage = has_capability('mod/wiki:managewiki', $context);
+        $cancreate = has_capability('mod/wiki:createpage', $context);
+
+        // Get current group.
+        $currentgroup = groups_get_activity_group($cm);
+
+        // Determine user id based on wiki mode.
+        $userid = ($instance->wikimode == 'individual') ? $USER->id : 0;
+
+        // Get subwiki.
+        $subwiki = wiki_get_subwiki_by_group($instance->id, $currentgroup, $userid);
+
+        if (!$subwiki) {
+            // No subwiki exists - show create button if allowed.
+            if ($cancreate) {
+                $html .= '<div class="alert alert-info">' . get_string('nopages', 'wiki') . '</div>';
+                $html .= '<div class="text-center">';
+                $createurl = new \moodle_url('/mod/wiki/create.php', [
+                    'wid' => $instance->id,
+                    'group' => $currentgroup,
+                    'uid' => $userid,
+                    'title' => $instance->firstpagetitle
+                ]);
+                $html .= '<a href="' . $createurl . '" class="btn btn-primary btn-lg"><i class="fa fa-plus"></i> ' . get_string('createpage', 'wiki') . '</a>';
+                $html .= '</div>';
+            } else {
+                $html .= '<div class="alert alert-warning">' . get_string('cannotviewpage', 'wiki') . '</div>';
+            }
+            return $html;
+        }
+
+        // Get first/current page.
+        $page = wiki_get_first_page($subwiki->id, $instance);
+
+        if (!$page) {
+            // No first page - show create button.
+            if ($cancreate) {
+                $html .= '<div class="alert alert-info">' . get_string('nopages', 'wiki') . '</div>';
+                $html .= '<div class="text-center">';
+                $createurl = new \moodle_url('/mod/wiki/create.php', [
+                    'swid' => $subwiki->id,
+                    'title' => $instance->firstpagetitle
+                ]);
+                $html .= '<a href="' . $createurl . '" class="btn btn-primary btn-lg"><i class="fa fa-plus"></i> ' . get_string('createpage', 'wiki') . '</a>';
+                $html .= '</div>';
+            } else {
+                $html .= '<div class="alert alert-warning">' . get_string('nopages', 'wiki') . '</div>';
+            }
+            return $html;
+        }
+
+        // Check view permission.
+        if (!wiki_user_can_view($subwiki, $instance)) {
+            $html .= '<div class="alert alert-warning">' . get_string('cannotviewpage', 'wiki') . '</div>';
+            return $html;
+        }
+
+        // Get all pages for navigation.
+        $allpages = wiki_get_page_list($subwiki->id);
+
+        // Navigation sidebar and page content.
+        $html .= '<div class="row">';
+
+        // Page list sidebar.
+        if (count($allpages) > 1) {
+            $html .= '<div class="col-md-3">';
+            $html .= '<div class="card mb-3">';
+            $html .= '<div class="card-header"><i class="fa fa-list"></i> ' . get_string('pagelist', 'wiki') . '</div>';
+            $html .= '<div class="list-group list-group-flush">';
+            foreach ($allpages as $p) {
+                $active = ($p->id == $page->id) ? 'active' : '';
+                $pageurl = new \moodle_url('/mod/wiki/view.php', ['pageid' => $p->id]);
+                $html .= '<a href="' . $pageurl . '" class="list-group-item list-group-item-action ' . $active . '">';
+                $html .= format_string($p->title) . '</a>';
+            }
+            $html .= '</div></div></div>';
+            $html .= '<div class="col-md-9">';
+        } else {
+            $html .= '<div class="col-12">';
+        }
+
+        // Page header with edit button.
+        $html .= '<div class="d-flex justify-content-between align-items-center mb-3">';
+        $html .= '<h5 class="mb-0">' . format_string($page->title) . '</h5>';
+        $html .= '<div>';
+        if ($canedit) {
+            $editurl = new \moodle_url('/mod/wiki/edit.php', ['pageid' => $page->id]);
+            $html .= '<a href="' . $editurl . '" class="btn btn-sm btn-outline-primary me-1"><i class="fa fa-pencil"></i> ' . get_string('edit') . '</a>';
+        }
+        if ($cancreate) {
+            $newurl = new \moodle_url('/mod/wiki/create.php', ['swid' => $subwiki->id]);
+            $html .= '<a href="' . $newurl . '" class="btn btn-sm btn-outline-secondary"><i class="fa fa-plus"></i> ' . get_string('newpage', 'wiki') . '</a>';
+        }
+        $html .= '</div></div>';
+
+        // Page content with file rewrites.
+        $content = file_rewrite_pluginfile_urls($page->cachedcontent, 'pluginfile.php', $context->id, 'mod_wiki', 'attachments', $subwiki->id);
+        $html .= '<div class="wiki-content border rounded p-3 mb-3">';
+        $html .= format_text($content, FORMAT_HTML, ['context' => $context, 'noclean' => true, 'overflowdiv' => true]);
+        $html .= '</div>';
+
+        // Page info.
+        $html .= '<div class="text-muted small">';
+        $html .= '<i class="fa fa-clock-o"></i> ' . get_string('lastmodified') . ': ' . userdate($page->timemodified);
+        if ($page->userid) {
+            $user = $DB->get_record('user', ['id' => $page->userid]);
+            if ($user) {
+                $html .= ' ' . get_string('by') . ' ' . fullname($user);
+            }
+        }
+        $html .= ' | <a href="' . (new \moodle_url('/mod/wiki/history.php', ['pageid' => $page->id])) . '">' . get_string('history', 'wiki') . '</a>';
+        $html .= '</div>';
+
+        $html .= '</div></div>';
+
+        return $html;
+    }
+
+    // =========================================================================
+    // DATA MODULE - Using native manager and template parser like view.php
+    // Shows database records with proper templates
+    // =========================================================================
+    protected static function render_mod_data($cm, $cminfo, $instance, $course, $context): string {
+        global $CFG, $DB, $USER, $PAGE, $OUTPUT;
+        require_once($CFG->dirroot . '/mod/data/lib.php');
+        require_once($CFG->dirroot . '/mod/data/locallib.php');
+
+        $html = '';
+        $canmanageentries = has_capability('mod/data:manageentries', $context);
+        $canaddentry = has_capability('mod/data:writeentry', $context);
+        $canapprove = has_capability('mod/data:approve', $context);
+
+        // Create manager like view.php.
+        $manager = \mod_data\manager::create_from_coursemodule($cm);
+
+        // Check if database has fields.
+        if (!$manager->has_fields()) {
+            if ($canmanageentries) {
+                $renderer = $manager->get_renderer();
+                $html .= $renderer->render_database_zero_state($manager);
+            } else {
+                $html .= '<div class="alert alert-info">' . get_string('nofieldindatabase', 'data') . '</div>';
+            }
+            return $html;
+        }
+
+        // Get group.
+        $currentgroup = groups_get_activity_group($cm);
+
+        // Check time availability.
+        list($showactivity, $warnings) = data_get_time_availability_status($instance, $canmanageentries);
+
+        // Stats and action bar.
+        $totalrecords = $DB->count_records('data_records', ['dataid' => $instance->id]);
+        $pendingrecords = $DB->count_records('data_records', ['dataid' => $instance->id, 'approved' => 0]);
+        $numentries = data_numentries($instance);
+
+        // Action bar.
+        $html .= '<div class="data-actions d-flex justify-content-between align-items-center mb-3">';
+
+        // Search form.
+        $html .= '<form class="form-inline" method="get" action="' . $cminfo->url . '">';
+        $html .= '<input type="hidden" name="d" value="' . $instance->id . '">';
+        $html .= '<input type="hidden" name="filter" value="1">';
+        $html .= '<div class="input-group">';
+        $html .= '<input type="text" name="search" class="form-control" placeholder="' . get_string('search') . '">';
+        $html .= '<button type="submit" class="btn btn-outline-secondary"><i class="fa fa-search"></i></button>';
+        $html .= '</div></form>';
+
+        // Add entry button.
+        if ($canaddentry && $showactivity) {
+            $html .= '<a href="' . (new \moodle_url('/mod/data/edit.php', ['d' => $instance->id])) . '" class="btn btn-primary">';
+            $html .= '<i class="fa fa-plus"></i> ' . get_string('add', 'data') . '</a>';
+        }
+        $html .= '</div>';
+
+        // Stats panel.
+        $html .= '<div class="card mb-3"><div class="card-body d-flex justify-content-around">';
+        $html .= '<div class="text-center"><div class="h4 mb-0">' . $totalrecords . '</div><small class="text-muted">' . get_string('entries', 'data') . '</small></div>';
+        $html .= '<div class="text-center"><div class="h4 mb-0">' . $DB->count_records('data_fields', ['dataid' => $instance->id]) . '</div><small class="text-muted">' . get_string('fields', 'data') . '</small></div>';
+        if ($canapprove && $pendingrecords > 0) {
+            $html .= '<div class="text-center"><div class="h4 mb-0 text-warning">' . $pendingrecords . '</div><small class="text-muted">' . get_string('pendingapproval', 'data') . '</small></div>';
+        }
+        $html .= '</div></div>';
+
+        // Required entries message.
+        if ($instance->requiredentries > 0) {
+            $entriesleft = data_get_entries_left_to_add($instance, $numentries, $canmanageentries);
+            if ($entriesleft > 0) {
+                $instance->entriesleft = $entriesleft;
+                $html .= '<div class="alert alert-info">' . get_string('entrieslefttoadd', 'data', $instance) . '</div>';
+            }
+        }
+
+        if (!$showactivity) {
+            foreach ($warnings as $warning) {
+                $html .= '<div class="alert alert-warning">' . $warning . '</div>';
+            }
+            return $html;
+        }
+
+        // Search for entries.
+        $search = '';
+        $sort = $instance->defaultsort;
+        $order = ($instance->defaultsortdir == 0) ? 'ASC' : 'DESC';
+
+        list($records, $maxcount, $totalcount, $page, $nowperpage, $sort, $mode) =
+            data_search_entries($instance, $cm, $context, '', $currentgroup, $search, $sort, $order, 0, 10, 0, []);
+
+        if (empty($records)) {
+            if ($totalrecords == 0) {
+                $renderer = $manager->get_renderer();
+                $html .= $renderer->render_empty_database($manager);
+            } else {
+                $html .= '<div class="alert alert-info">' . get_string('norecords', 'data') . '</div>';
+            }
+        } else {
+            // Render records using list template.
+            $html .= '<div class="data-records">';
+
+            // Use list template parser like view.php line 518.
+            $baseurl = new \moodle_url('/mod/data/view.php', ['d' => $instance->id]);
+            $options = [
+                'search' => $search,
+                'page' => 0,
+                'baseurl' => $baseurl,
+            ];
+
+            try {
+                // Render using native template.
+                $parser = $manager->get_template('listtemplate', $options);
+                $html .= $OUTPUT->box_start('', 'data-listview-content');
+                $html .= $instance->listtemplateheader;
+                $html .= $parser->parse_entries($records);
+                $html .= $instance->listtemplatefooter;
+                $html .= $OUTPUT->box_end();
+            } catch (\Exception $e) {
+                // Fallback to simple rendering.
+                foreach ($records as $record) {
+                    $html .= '<div class="card mb-2"><div class="card-body">';
+                    $html .= '<div class="d-flex justify-content-between">';
+                    $html .= '<small class="text-muted">' . userdate($record->timecreated) . '</small>';
+
+                    // Actions.
+                    $html .= '<div>';
+                    $viewurl = new \moodle_url('/mod/data/view.php', ['d' => $instance->id, 'rid' => $record->id, 'mode' => 'single']);
+                    $html .= '<a href="' . $viewurl . '" class="btn btn-sm btn-outline-primary"><i class="fa fa-eye"></i></a>';
+                    $html .= '</div></div>';
+
+                    // Get record content.
+                    $contents = $DB->get_records('data_content', ['recordid' => $record->id]);
+                    foreach ($contents as $content) {
+                        $field = $DB->get_record('data_fields', ['id' => $content->fieldid]);
+                        if ($field) {
+                            $html .= '<p><strong>' . format_string($field->name) . ':</strong> ';
+                            $html .= format_text($content->content, FORMAT_PLAIN) . '</p>';
+                        }
+                    }
+                    $html .= '</div></div>';
+                }
+            }
+
+            $html .= '</div>';
+
+            // Pagination link.
+            if ($totalcount > 10) {
+                $html .= '<div class="text-center mt-3">';
+                $html .= '<a href="' . $cminfo->url . '" class="btn btn-outline-primary">';
+                $html .= get_string('showall', 'moodle', $totalcount) . '</a>';
+                $html .= '</div>';
+            }
+        }
+
+        return $html;
+    }
+
+    // =========================================================================
+    // SCORM MODULE - Using native scorm functions like view.php
+    // Shows complete SCORM launch interface with TOC and attempt status
     // =========================================================================
     protected static function render_mod_scorm($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $USER;
+        global $CFG, $USER, $OUTPUT, $PAGE;
         require_once($CFG->dirroot . '/mod/scorm/lib.php');
         require_once($CFG->dirroot . '/mod/scorm/locallib.php');
 
+        $html = '';
+        $contextmodule = \context_module::instance($cm->id);
+
+        // Check availability like view.php line 170.
+        list($available, $warnings) = scorm_get_availability_status($instance);
+
+        if (!$available) {
+            foreach ($warnings as $warning) {
+                $html .= '<div class="alert alert-warning">' . $warning . '</div>';
+            }
+        }
+
+        // Get attempt count and grade.
         $attempts = scorm_get_attempt_count($USER->id, $instance);
 
-        $html = '<div class="card mb-3"><div class="card-body">';
-        $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('attempts', 'scorm') . ': ' . $attempts . '</p>';
-        if ($instance->maxattempt > 0) {
-            $html .= '<p><i class="fa fa-info-circle"></i> ' . get_string('maximumattempts', 'scorm') . ': ' . $instance->maxattempt . '</p>';
+        // Attempt status like view.php lines 163-166.
+        if ($instance->displayattemptstatus == SCORM_DISPLAY_ATTEMPTSTATUS_ALL ||
+            $instance->displayattemptstatus == SCORM_DISPLAY_ATTEMPTSTATUS_ENTRY) {
+            $attemptstatus = scorm_get_attempt_status($USER, $instance, $cm);
+            if (!empty($attemptstatus)) {
+                $html .= '<div class="scorm-attempt-status mb-3">' . $OUTPUT->box($attemptstatus) . '</div>';
+            }
         }
+
+        // Info panel.
+        $html .= '<div class="card mb-3"><div class="card-body">';
+        $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('attempts', 'scorm') . ': ' . $attempts;
+        if ($instance->maxattempt > 0) {
+            $html .= ' / ' . $instance->maxattempt;
+        }
+        $html .= '</p>';
+
+        // Current grade.
         if ($attempts > 0) {
             $score = scorm_grade_user($instance, $USER->id);
             if ($score !== false) {
@@ -993,13 +1465,37 @@ class get_activity_content extends external_api {
         }
         $html .= '</div></div>';
 
-        $html .= '<div class="text-center">';
-        if ($instance->maxattempt > 0 && $attempts >= $instance->maxattempt) {
+        // Check if max attempts reached.
+        $attemptsexceeded = ($instance->maxattempt > 0 && $attempts >= $instance->maxattempt);
+
+        if ($available && !$attemptsexceeded) {
+            // Use scorm_print_launch to get the full launch interface like view.php line 173.
+            ob_start();
+            scorm_print_launch($USER, $instance, 'view.php?id=' . $cm->id, $cm);
+            $launchcontent = ob_get_clean();
+
+            if (!empty($launchcontent)) {
+                $html .= '<div class="scorm-launch-wrapper">';
+                $html .= $launchcontent;
+                $html .= '</div>';
+            } else {
+                // Fallback to simple button.
+                $html .= '<div class="text-center">';
+                $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg">';
+                $html .= '<i class="fa fa-play-circle"></i> ' . get_string('enter', 'scorm') . '</a>';
+                $html .= '</div>';
+            }
+        } else if ($attemptsexceeded) {
             $html .= '<div class="alert alert-warning">' . get_string('exceeded', 'scorm') . '</div>';
-        } else {
-            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . get_string('enter', 'scorm') . '</a>';
         }
-        $html .= '</div>';
+
+        // Teacher: view reports link.
+        if (has_capability('mod/scorm:viewreport', $contextmodule)) {
+            $html .= '<div class="text-center mt-3">';
+            $html .= '<a href="' . (new \moodle_url('/mod/scorm/report.php', ['id' => $cm->id])) . '" class="btn btn-outline-secondary">';
+            $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('viewallreports', 'scorm') . '</a>';
+            $html .= '</div>';
+        }
 
         return $html;
     }
@@ -1029,68 +1525,254 @@ class get_activity_content extends external_api {
     }
 
     // =========================================================================
-    // CHAT MODULE
+    // CHAT MODULE - Using native chat functions like view.php
+    // Shows chat interface with current users and enter buttons
     // =========================================================================
     protected static function render_mod_chat($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $DB;
+        global $CFG, $DB, $USER, $OUTPUT;
         require_once($CFG->dirroot . '/mod/chat/lib.php');
 
-        $html = '<div class="card mb-3"><div class="card-body">';
-        if (!empty($instance->chattime) && $instance->schedule > 0) {
-            $next = $instance->chattime;
-            $now = time();
-            while ($next < $now) {
-                $next += ($instance->schedule == 2) ? 86400 : 604800;
+        $html = '';
+
+        // Update chat times like view.php line 36.
+        chat_update_chat_times($cm->instance);
+        $instance = $DB->get_record('chat', ['id' => $cm->instance]);
+
+        // Get group settings.
+        $currentgroup = groups_get_activity_group($cm, true);
+        $params = [];
+        $groupparam = '';
+        if ($currentgroup) {
+            $params['groupid'] = $currentgroup;
+            $groupparam = "_group{$currentgroup}";
+        }
+
+        // Chat time info.
+        $html .= '<div class="card mb-3"><div class="card-body">';
+        $now = time();
+        $chattime = $instance->chattime ?? 0;
+
+        if (!empty($instance->schedule) && $instance->schedule > 0) {
+            // Calculate next chat time.
+            $next = $chattime;
+            while ($next < $now && $instance->schedule > 0) {
+                if ($instance->schedule == 1) { // At same time
+                    $next += 86400; // Daily
+                } else if ($instance->schedule == 2) { // Weekly
+                    $next += 604800;
+                } else {
+                    break;
+                }
             }
             $html .= '<p><i class="fa fa-clock-o"></i> ' . get_string('nextchattime', 'chat') . ': ' . userdate($next) . '</p>';
+
+            // Session countdown if within range.
+            $span = $next - $now;
+            if ($span > 0 && $span < 86400) {
+                $html .= '<p class="text-info">' . get_string('sessionstartsin', 'chat', format_time($span)) . '</p>';
+            }
         }
         $html .= '</div></div>';
 
-        $users = $DB->count_records('chat_users', ['chatid' => $instance->id]);
-        if ($users > 0) {
-            $html .= '<div class="alert alert-success"><i class="fa fa-users"></i> ' . $users . ' ' . get_string('currentusers', 'chat') . '</div>';
+        // Current users in chat like view.php lines 160-177.
+        chat_delete_old_users();
+        $chatusers = chat_get_users($instance->id, $currentgroup, $cm->groupingid);
+
+        if ($chatusers) {
+            $html .= '<div class="card mb-3"><div class="card-header"><i class="fa fa-users"></i> ' . get_string('currentusers', 'chat') . '</div>';
+            $html .= '<div class="list-group list-group-flush">';
+            $timenow = time();
+            foreach ($chatusers as $chatuser) {
+                $lastping = $timenow - $chatuser->lastmessageping;
+                $html .= '<div class="list-group-item d-flex align-items-center">';
+                $html .= $OUTPUT->user_picture($chatuser, ['size' => 35, 'class' => 'me-2']);
+                $html .= '<div><strong>' . fullname($chatuser) . '</strong>';
+                $html .= '<br><small class="text-muted">' . get_string('idle', 'chat') . ': ' . format_time($lastping) . '</small></div>';
+                $html .= '</div>';
+            }
+            $html .= '</div></div>';
+        } else {
+            $html .= '<div class="alert alert-info"><i class="fa fa-info-circle"></i> ' . get_string('nousers', 'chat') . '</div>';
         }
 
-        $html .= '<div class="text-center"><a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-comments"></i> ' . get_string('enterchat', 'chat') . '</a></div>';
+        // Enter chat buttons like view.php lines 114-134.
+        if (has_capability('mod/chat:chat', $context)) {
+            $html .= '<div class="chat-enter-buttons text-center">';
+
+            // Main chat link (popup).
+            $params['id'] = $instance->id;
+            $chattarget = new \moodle_url("/mod/chat/gui_{$CFG->chat_method}/index.php", $params);
+            $popupparams = "chat{$course->id}_{$instance->id}{$groupparam}";
+
+            $html .= '<a href="' . $chattarget . '" target="' . $popupparams . '" class="btn btn-primary btn-lg me-2" ';
+            $html .= 'onclick="window.open(this.href, \'' . $popupparams . '\', \'height=500,width=700\'); return false;">';
+            $html .= '<i class="fa fa-comments"></i> ' . get_string('enterchat', 'chat') . '</a>';
+
+            // Basic (no frames) link.
+            $basiclink = new \moodle_url('/mod/chat/gui_basic/index.php', $params);
+            $html .= '<a href="' . $basiclink . '" target="' . $popupparams . '" class="btn btn-outline-secondary" ';
+            $html .= 'onclick="window.open(this.href, \'' . $popupparams . '\', \'height=500,width=700\'); return false;">';
+            $html .= get_string('noframesjs', 'message') . '</a>';
+
+            $html .= '</div>';
+
+            // View report link.
+            if ($instance->studentlogs || has_capability('mod/chat:readlog', $context)) {
+                $msgs = chat_get_session_messages($instance->id, $currentgroup);
+                if ($msgs) {
+                    $html .= '<div class="text-center mt-3">';
+                    $html .= '<a href="' . (new \moodle_url('/mod/chat/report.php', ['id' => $cm->id])) . '" class="btn btn-outline-primary">';
+                    $html .= '<i class="fa fa-history"></i> ' . get_string('viewreport', 'chat') . '</a>';
+                    $html .= '</div>';
+                }
+            }
+        } else {
+            $html .= '<div class="alert alert-warning">' . get_string('notallowenter', 'chat') . '</div>';
+        }
 
         return $html;
     }
 
     // =========================================================================
-    // SURVEY MODULE
+    // SURVEY MODULE - Using native survey functions like view.php
+    // Shows complete survey form with questions
     // =========================================================================
     protected static function render_mod_survey($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $DB, $USER;
+        global $CFG, $DB, $USER, $OUTPUT;
         require_once($CFG->dirroot . '/mod/survey/lib.php');
 
-        $completed = $DB->record_exists('survey_answers', ['survey' => $instance->id, 'userid' => $USER->id]);
+        $html = '';
 
-        $html = '<div class="card mb-3"><div class="card-body">';
-        if ($completed) {
-            $html .= '<p class="text-success"><i class="fa fa-check-circle"></i> ' . get_string('surveycompleted', 'survey') . '</p>';
+        // Get template like view.php line 50.
+        $template = $DB->get_record('survey', ['id' => $instance->template]);
+        $showscales = $template && ($template->name != 'ciqname');
+
+        // Check if already completed like view.php line 57.
+        $surveyalreadydone = survey_already_done($instance->id, $USER->id);
+
+        // Get group settings.
+        $groupmode = groups_get_activity_groupmode($cm);
+        $currentgroup = groups_get_activity_group($cm);
+        if (!$currentgroup) {
+            $currentgroup = 0;
         }
-        $html .= '</div></div>';
 
-        $html .= '<div class="text-center">';
-        if (!$completed) {
-            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-pencil-square-o"></i> ' . get_string('clicktocontinuecheck', 'survey') . '</a>';
+        if ($surveyalreadydone) {
+            // Survey already completed - show results like view.php lines 103-138.
+            $numusers = survey_count_responses($instance->id, $currentgroup, $cm->groupingid);
+
+            $html .= '<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' . get_string('surveycompleted', 'survey') . '</div>';
+            $html .= '<p class="text-muted">' . get_string('peoplecompleted', 'survey', $numusers) . '</p>';
+
+            if ($showscales) {
+                // Show graph if allowed.
+                if (has_capability('mod/survey:readresponses', $context) || !$groupmode || groups_is_member($currentgroup)) {
+                    // Embed graph image.
+                    $graphurl = new \moodle_url('/mod/survey/graph.php', [
+                        'id' => $cm->id,
+                        'sid' => $USER->id,
+                        'group' => $currentgroup,
+                        'type' => 'student.png'
+                    ]);
+                    $html .= '<div class="survey-graph text-center my-3">';
+                    $html .= '<img src="' . $graphurl . '" alt="' . get_string('surveygraph', 'survey') . '" class="img-fluid">';
+                    $html .= '</div>';
+                }
+            } else {
+                // Show text answers like view.php lines 123-137.
+                $questions = survey_get_questions($instance);
+                foreach ($questions as $question) {
+                    if ($question->type == 0 || $question->type == 1) {
+                        $answer = survey_get_user_answer($instance->id, $question->id, $USER->id);
+                        if ($answer) {
+                            $html .= '<div class="card mb-2">';
+                            $html .= '<div class="card-header">' . get_string($question->text, 'survey') . '</div>';
+                            $html .= '<div class="card-body">' . s($answer->answer1) . '</div>';
+                            $html .= '</div>';
+                        }
+                    }
+                }
+            }
+
         } else {
-            $html .= '<a href="' . $cminfo->url . '" class="btn btn-secondary btn-lg"><i class="fa fa-eye"></i> ' . get_string('view') . '</a>';
+            // Survey not completed - show form like view.php lines 144-182.
+            $html .= '<div class="alert alert-info"><i class="fa fa-info-circle"></i> ' . get_string('allquestionrequireanswer', 'survey') . '</div>';
+
+            $html .= '<form method="post" action="' . (new \moodle_url('/mod/survey/save.php')) . '" id="surveyform">';
+            $html .= '<input type="hidden" name="id" value="' . $cm->id . '">';
+            $html .= '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
+
+            // Get and print all questions like view.php lines 152-168.
+            $questions = survey_get_questions($instance);
+
+            global $qnum;
+            $qnum = 0;
+
+            foreach ($questions as $question) {
+                if ($question->type >= 0) {
+                    $question = survey_translate_question($question);
+
+                    // Capture the output of survey_print_multi/single.
+                    ob_start();
+                    if ($question->multi) {
+                        survey_print_multi($question);
+                    } else {
+                        survey_print_single($question);
+                    }
+                    $questionhtml = ob_get_clean();
+                    $html .= $questionhtml;
+                }
+            }
+
+            // Submit button.
+            $html .= '<div class="text-center mt-4">';
+            $html .= '<button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-check"></i> ' . get_string('submit') . '</button>';
+            $html .= '</div>';
+
+            $html .= '</form>';
         }
-        $html .= '</div>';
 
         return $html;
     }
 
     // =========================================================================
-    // WORKSHOP MODULE
+    // WORKSHOP MODULE - Using native renderer like view.php
+    // Shows complete user plan with phases and submission/assessment forms
     // =========================================================================
     protected static function render_mod_workshop($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG;
+        global $CFG, $USER, $PAGE, $OUTPUT, $DB;
         require_once($CFG->dirroot . '/mod/workshop/locallib.php');
 
         $workshop = new \workshop($instance, $cm, $course);
 
+        // Get native renderer like view.php line 107.
+        $output = $PAGE->get_renderer('mod_workshop');
+
+        // Auto-switch phase if needed like view.php lines 63-70.
+        if ($workshop->phase == \workshop::PHASE_SUBMISSION && $workshop->phaseswitchassessment
+                && $workshop->submissionend > 0 && $workshop->submissionend < time()) {
+            $workshop->switch_phase(\workshop::PHASE_ASSESSMENT);
+            $DB->set_field('workshop', 'phaseswitchassessment', 0, ['id' => $workshop->id]);
+            $workshop->phaseswitchassessment = 0;
+        }
+
+        // Initialize initial bar like view.php line 75.
+        $workshop->init_initial_bar();
+
+        // Get user plan like view.php line 76.
+        $userplan = new \workshop_user_plan($workshop, $USER->id);
+
+        // Get current phase title.
+        $currentphasetitle = '';
+        foreach ($userplan->phases as $phase) {
+            if ($phase->active) {
+                $currentphasetitle = $phase->title;
+            }
+        }
+
+        $html = '';
+
+        // Phase info panel.
         $phases = [
             \workshop::PHASE_SETUP => get_string('phasesetup', 'workshop'),
             \workshop::PHASE_SUBMISSION => get_string('phasesubmission', 'workshop'),
@@ -1099,17 +1781,84 @@ class get_activity_content extends external_api {
             \workshop::PHASE_CLOSED => get_string('phaseclosed', 'workshop'),
         ];
 
-        $html = '<div class="card mb-3"><div class="card-body">';
-        $html .= '<p><i class="fa fa-tasks"></i> ' . get_string('currentphase', 'workshop') . ': ' . ($phases[$workshop->phase] ?? '') . '</p>';
-        if ($workshop->submissionstart) {
-            $html .= '<p><i class="fa fa-calendar"></i> ' . get_string('submissionstart', 'workshop') . ': ' . userdate($workshop->submissionstart) . '</p>';
-        }
-        if ($workshop->submissionend) {
-            $html .= '<p><i class="fa fa-calendar-times-o"></i> ' . get_string('submissionend', 'workshop') . ': ' . userdate($workshop->submissionend) . '</p>';
+        $html .= '<div class="card mb-3"><div class="card-body">';
+        $html .= '<h5><i class="fa fa-tasks"></i> ' . get_string('currentphase', 'workshop') . ': ' . $currentphasetitle . '</h5>';
+
+        // Deadline info.
+        if ($workshop->phase == \workshop::PHASE_SUBMISSION) {
+            if ($workshop->submissionstart && $workshop->submissionstart > time()) {
+                $html .= '<p class="text-info"><i class="fa fa-clock-o"></i> ' . get_string('submissionstart', 'workshop') . ': ' . userdate($workshop->submissionstart) . '</p>';
+            }
+            if ($workshop->submissionend) {
+                $class = ($workshop->submissionend < time()) ? 'text-danger' : 'text-success';
+                $html .= '<p class="' . $class . '"><i class="fa fa-calendar-times-o"></i> ' . get_string('submissionend', 'workshop') . ': ' . userdate($workshop->submissionend) . '</p>';
+            }
+        } else if ($workshop->phase == \workshop::PHASE_ASSESSMENT) {
+            if ($workshop->assessmentstart && $workshop->assessmentstart > time()) {
+                $html .= '<p class="text-info"><i class="fa fa-clock-o"></i> ' . get_string('assessmentstart', 'workshop') . ': ' . userdate($workshop->assessmentstart) . '</p>';
+            }
+            if ($workshop->assessmentend) {
+                $class = ($workshop->assessmentend < time()) ? 'text-danger' : 'text-success';
+                $html .= '<p class="' . $class . '"><i class="fa fa-calendar-times-o"></i> ' . get_string('assessmentend', 'workshop') . ': ' . userdate($workshop->assessmentend) . '</p>';
+            }
         }
         $html .= '</div></div>';
 
-        $html .= '<div class="text-center"><a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-users"></i> ' . get_string('viewworkshop', 'workshop') . '</a></div>';
+        // Render the complete view page using native renderer like view.php line 113.
+        try {
+            // This renders the full workshop page content including user plan.
+            $sortby = 'lastname';
+            $sorthow = 'ASC';
+            $page = 0;
+            $html .= $output->view_page($workshop, $userplan, $currentphasetitle, $page, $sortby, $sorthow);
+        } catch (\Exception $e) {
+            // Fallback if native rendering fails.
+            // Show phase steps.
+            $html .= '<div class="workshop-phases">';
+            foreach ($userplan->phases as $phasecode => $phase) {
+                $class = $phase->active ? 'bg-primary text-white' : 'bg-light';
+                $html .= '<div class="card mb-2 ' . ($phase->active ? 'border-primary' : '') . '">';
+                $html .= '<div class="card-header ' . $class . '">';
+                $html .= '<strong>' . $phase->title . '</strong>';
+                $html .= '</div>';
+
+                if (!empty($phase->tasks) || !empty($phase->actions)) {
+                    $html .= '<div class="card-body">';
+
+                    // Tasks.
+                    if (!empty($phase->tasks)) {
+                        $html .= '<ul class="list-unstyled mb-0">';
+                        foreach ($phase->tasks as $task) {
+                            $icon = isset($task->completed) && $task->completed ? 'fa-check-circle text-success' : 'fa-circle-o';
+                            $html .= '<li><i class="fa ' . $icon . '"></i> ' . $task->title;
+                            if (!empty($task->details)) {
+                                $html .= ' <small class="text-muted">(' . $task->details . ')</small>';
+                            }
+                            $html .= '</li>';
+                        }
+                        $html .= '</ul>';
+                    }
+
+                    // Actions.
+                    if (!empty($phase->actions)) {
+                        $html .= '<div class="mt-2">';
+                        foreach ($phase->actions as $action) {
+                            $html .= '<a href="' . $action->url . '" class="btn btn-sm btn-outline-primary me-1">' . $action->label . '</a>';
+                        }
+                        $html .= '</div>';
+                    }
+
+                    $html .= '</div>';
+                }
+                $html .= '</div>';
+            }
+            $html .= '</div>';
+
+            // Action button.
+            $html .= '<div class="text-center mt-3">';
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-arrow-right"></i> ' . get_string('viewworkshop', 'workshop') . '</a>';
+            $html .= '</div>';
+        }
 
         return $html;
     }
@@ -1129,10 +1878,11 @@ class get_activity_content extends external_api {
     }
 
     // =========================================================================
-    // H5PACTIVITY MODULE - Using manager class like view.php
+    // H5PACTIVITY MODULE - Embedding the H5P player directly like view.php
+    // Shows the complete H5P interactive content
     // =========================================================================
     protected static function render_mod_h5pactivity($cm, $cminfo, $instance, $course, $context): string {
-        global $CFG, $USER;
+        global $CFG, $USER, $OUTPUT, $PAGE;
         require_once($CFG->dirroot . '/mod/h5pactivity/lib.php');
 
         $html = '';
@@ -1141,47 +1891,91 @@ class get_activity_content extends external_api {
             $manager = \mod_h5pactivity\local\manager::create_from_coursemodule($cm);
             $moduleinstance = $manager->get_instance();
 
-            // Check if user can submit.
+            // Check capabilities.
             $cansubmit = $manager->can_submit();
             $trackingEnabled = $manager->is_tracking_enabled();
+            $canviewattempts = $manager->can_view_all_attempts();
 
-            $html .= '<div class="card mb-3"><div class="card-body">';
-
+            // Warnings for teachers/managers.
             if (!$cansubmit && !isguestuser()) {
                 $html .= '<div class="alert alert-info">' . get_string('previewmode', 'mod_h5pactivity') . '</div>';
-            }
 
-            if (!$trackingEnabled) {
-                $html .= '<div class="alert alert-warning">' . get_string('trackingdisabled', 'mod_h5pactivity') . '</div>';
-            }
-
-            // Attempts info.
-            if ($cansubmit && $trackingEnabled) {
-                $attemptcount = $manager->count_attempts($USER->id);
-                $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('myattempts', 'mod_h5pactivity') . ': ' . $attemptcount . '</p>';
-
-                if ($moduleinstance->maxattempts > 0) {
-                    $html .= '<p><i class="fa fa-info-circle"></i> ' . get_string('maxattempts', 'mod_h5pactivity') . ': ' . $moduleinstance->maxattempts . '</p>';
+                if (!$trackingEnabled) {
+                    if (has_capability('moodle/course:manageactivities', $context)) {
+                        $url = new \moodle_url('/course/modedit.php', ['update' => $cm->id]);
+                        $message = get_string('trackingdisabled_enable', 'mod_h5pactivity', $url->out());
+                    } else {
+                        $message = get_string('trackingdisabled', 'mod_h5pactivity');
+                    }
+                    $html .= '<div class="alert alert-warning">' . $message . '</div>';
                 }
             }
 
-            $html .= '</div></div>';
+            // Get H5P file URL like view.php lines 54-59.
+            $fs = get_file_storage();
+            $files = $fs->get_area_files($context->id, 'mod_h5pactivity', 'package', 0, 'id', false);
+            $file = reset($files);
 
-            // Button to launch H5P.
-            $html .= '<div class="text-center">';
-            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . get_string('startactivity', 'mod_h5pactivity') . '</a>';
+            if ($file) {
+                $fileurl = \moodle_url::make_pluginfile_url(
+                    $file->get_contextid(),
+                    $file->get_component(),
+                    $file->get_filearea(),
+                    $file->get_itemid(),
+                    $file->get_filepath(),
+                    $file->get_filename(),
+                    false
+                );
 
-            // View attempts link for teachers.
-            if ($manager->can_view_all_attempts() && $trackingEnabled) {
-                $attemptcount = $manager->count_attempts();
-                $html .= ' <a href="' . (new \moodle_url('/mod/h5pactivity/report.php', ['id' => $cm->id])) . '" class="btn btn-outline-secondary">';
-                $html .= '<i class="fa fa-bar-chart"></i> ' . get_string('viewattempts', 'mod_h5pactivity', $attemptcount) . '</a>';
+                // Get display options like view.php lines 49-51.
+                $factory = new \core_h5p\factory();
+                $core = $factory->get_core();
+                $config = \core_h5p\helper::decode_display_options($core, $moduleinstance->displayoptions);
+
+                // Extra actions.
+                $extraactions = [];
+                if ($canviewattempts && $trackingEnabled) {
+                    $extraactions[] = new \action_link(
+                        new \moodle_url('/mod/h5pactivity/report.php', ['id' => $cm->id]),
+                        get_string('viewattempts', 'mod_h5pactivity', $manager->count_attempts()),
+                        null,
+                        null,
+                        new \pix_icon('i/chartbar', '', 'core')
+                    );
+                }
+
+                // Render the H5P player directly like view.php line 104.
+                $html .= '<div class="h5p-player-wrapper">';
+                $html .= \core_h5p\player::display($fileurl, $config, true, 'mod_h5pactivity', true, $extraactions);
+                $html .= '</div>';
+
+            } else {
+                $html .= '<div class="alert alert-warning">' . get_string('noh5ps', 'core_h5p') . '</div>';
             }
-            $html .= '</div>';
+
+            // User attempts summary.
+            if ($cansubmit && $trackingEnabled) {
+                $attemptcount = $manager->count_attempts($USER->id);
+                if ($attemptcount > 0) {
+                    $html .= '<div class="card mt-3"><div class="card-body">';
+                    $html .= '<p><i class="fa fa-repeat"></i> ' . get_string('myattempts', 'mod_h5pactivity') . ': ' . $attemptcount . '</p>';
+
+                    if ($moduleinstance->maxattempts > 0) {
+                        $remaining = max(0, $moduleinstance->maxattempts - $attemptcount);
+                        $html .= '<p><i class="fa fa-info-circle"></i> ' . get_string('remainingattempts', 'mod_h5pactivity', $remaining) . '</p>';
+                    }
+                    $html .= '</div></div>';
+                }
+            }
 
         } catch (\Exception $e) {
-            $html = '<div class="text-center py-4"><p><i class="fa fa-play-circle fa-4x text-primary"></i></p>';
-            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg"><i class="fa fa-play-circle"></i> ' . get_string('view') . '</a></div>';
+            // Fallback if player rendering fails.
+            $html = '<div class="text-center py-4">';
+            $html .= '<p><i class="fa fa-play-circle fa-4x text-primary"></i></p>';
+            $html .= '<p>' . get_string('modulename', 'h5pactivity') . '</p>';
+            $html .= '<a href="' . $cminfo->url . '" class="btn btn-primary btn-lg">';
+            $html .= '<i class="fa fa-play-circle"></i> ' . get_string('view') . '</a>';
+            $html .= '</div>';
         }
 
         return $html;
