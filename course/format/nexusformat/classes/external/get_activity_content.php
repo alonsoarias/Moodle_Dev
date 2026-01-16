@@ -526,7 +526,7 @@ class get_activity_content extends external_api {
             $postfix = $assign->render_area_files('mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA, 0);
         }
 
-        $header = new \assign_header(
+        $header = new \mod_assign\output\assign_header(
             $effectiveinstance,
             $context,
             $assign->show_intro(),
