@@ -172,10 +172,19 @@ class format_nexusformat extends core_courseformat\base {
     /**
      * Called after the course has been loaded.
      * This adds a body class for full-width styling.
+     * Only add the class on course view pages to avoid affecting activity pages.
      */
     public function page_set_course(\moodle_page $page): void {
         parent::page_set_course($page);
-        $page->add_body_class('format-nexusformat');
+
+        // Only add format body class on course view pages.
+        // This ensures breadcrumbs and other elements are not hidden on activity pages
+        // like /mod/page/view.php, /mod/quiz/view.php, etc.
+        // The page type for course view is 'course-view-{formatname}'.
+        $pagetype = $page->pagetype ?? '';
+        if (strpos($pagetype, 'course-view') === 0) {
+            $page->add_body_class('format-nexusformat');
+        }
     }
 
     /**
