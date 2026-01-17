@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="6" moduleid="6" modulename="glossary" contextid="105">
+  <glossary id="6">
+    <name>Glosario de Terminos - Capitulo 1</name>
+    <intro>&lt;p&gt;Glosario con terminos clave como amigdala, areas de Brodmann, corteza cerebral, mielinizacion, neuronas espejo, poda sinaptica y sistema limbico.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768672893</timecreated>
+    <timemodified>1768672893</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="1">
+        <userid>2</userid>
+        <concept>Amigdala</concept>
+        <definition>&lt;p&gt;Estructura cerebral del sistema limbico involucrada en el procesamiento emocional, especialmente el miedo y la ansiedad.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="2">
+        <userid>2</userid>
+        <concept>Area de Broca</concept>
+        <definition>&lt;p&gt;Region del lobulo frontal izquierdo responsable de la produccion del lenguaje hablado.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="3">
+        <userid>2</userid>
+        <concept>Area de Wernicke</concept>
+        <definition>&lt;p&gt;Region del lobulo temporal responsable de la comprension del lenguaje, corresponde al Area 22 de Brodmann.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="4">
+        <userid>2</userid>
+        <concept>Areas de Brodmann</concept>
+        <definition>&lt;p&gt;Sistema de clasificacion que divide la corteza cerebral en 52 areas distintas basandose en la organizacion celular.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="5">
+        <userid>2</userid>
+        <concept>Cerebelo</concept>
+        <definition>&lt;p&gt;Estructura ubicada en la parte posterior del cerebro que coordina el movimiento, el equilibrio y el aprendizaje motor.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="6">
+        <userid>2</userid>
+        <concept>Conectoma</concept>
+        <definition>&lt;p&gt;Mapa completo de las conexiones neuronales del cerebro que determina como fluye la informacion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="7">
+        <userid>2</userid>
+        <concept>Corteza Prefrontal</concept>
+        <definition>&lt;p&gt;Area frontal del cerebro responsable de funciones ejecutivas como planificacion, toma de decisiones y control de impulsos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="8">
+        <userid>2</userid>
+        <concept>Cuerpo Calloso</concept>
+        <definition>&lt;p&gt;Estructura de fibras nerviosas que conecta los dos hemisferios cerebrales permitiendo la comunicacion entre ellos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="9">
+        <userid>2</userid>
+        <concept>Densidad Sinaptica</concept>
+        <definition>&lt;p&gt;Cantidad de conexiones sinapticas por unidad de volumen cerebral. A los 2 anos es 50% superior a la de adultos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="10">
+        <userid>2</userid>
+        <concept>Disartria</concept>
+        <definition>&lt;p&gt;Trastorno del habla causado por debilidad o falta de coordinacion de los musculos del habla.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="11">
+        <userid>2</userid>
+        <concept>Eje HHS</concept>
+        <definition>&lt;p&gt;Eje Hipotalamo-Hipofisis-Suprarrenal, sistema neuroendocrino que regula la respuesta al estres.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="12">
+        <userid>2</userid>
+        <concept>Ganglios de la Base</concept>
+        <definition>&lt;p&gt;Conjunto de nucleos subcorticales involucrados en el control del movimiento y el aprendizaje de habitos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="13">
+        <userid>2</userid>
+        <concept>Hipocampo</concept>
+        <definition>&lt;p&gt;Estructura del sistema limbico esencial para la formacion de memorias y el aprendizaje espacial.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="14">
+        <userid>2</userid>
+        <concept>Liquido Cefalorraquideo</concept>
+        <definition>&lt;p&gt;Fluido que rodea y protege el cerebro y la medula espinal, tambien transporta nutrientes.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="15">
+        <userid>2</userid>
+        <concept>Lobulo Frontal</concept>
+        <definition>&lt;p&gt;Parte anterior del cerebro responsable de funciones ejecutivas, personalidad y control motor voluntario.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="16">
+        <userid>2</userid>
+        <concept>Mielinizacion</concept>
+        <definition>&lt;p&gt;Proceso de recubrimiento de los axones con mielina que aumenta la velocidad de transmision nerviosa. La via piramidal se mieliniza alrededor de los 2 anos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="17">
+        <userid>2</userid>
+        <concept>Poda Sinaptica</concept>
+        <definition>&lt;p&gt;Proceso de eliminacion de conexiones sinapticas no utilizadas que optimiza la eficiencia cerebral. Su beneficio principal es la precision.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="18">
+        <userid>2</userid>
+        <concept>RMF</concept>
+        <definition>&lt;p&gt;Resonancia Magnetica Funcional, tecnica de neuroimagen que mide la actividad cerebral detectando cambios en el flujo sanguineo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="19">
+        <userid>2</userid>
+        <concept>Sinaptogenesis</concept>
+        <definition>&lt;p&gt;Proceso de formacion de nuevas sinapsis entre neuronas durante el desarrollo cerebral.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="20">
+        <userid>2</userid>
+        <concept>Sustancia Blanca</concept>
+        <definition>&lt;p&gt;Tejido cerebral compuesto principalmente por axones mielinizados que conectan diferentes regiones cerebrales.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="21">
+        <userid>2</userid>
+        <concept>Sustancia Gris</concept>
+        <definition>&lt;p&gt;Tejido cerebral que contiene los cuerpos celulares de las neuronas, donde se procesa la informacion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>      <entry id="22">
+        <userid>2</userid>
+        <concept>Via Piramidal</concept>
+        <definition>&lt;p&gt;Tracto nervioso que controla los movimientos voluntarios, conectando la corteza motora con la medula espinal.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

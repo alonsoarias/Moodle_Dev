@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files>
+  <file id="1">
+    <contenthash>8f3748997fd96e4421aaf599ba026a4d877d94a4</contenthash>
+    <contextid>101</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>Titulo presentacion y programa.docx</filename>
+    <userid>2</userid>
+    <filesize>12281</filesize>
+    <mimetype>application/vnd.openxmlformats-officedocument.wordprocessingml.document</mimetype>
+    <status>0</status>
+    <timecreated>1768672893</timecreated>
+    <timemodified>1768672893</timemodified>
+    <source>Titulo presentacion y programa.docx</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="2">
+    <contenthash>ae8c2a2259c19174882d85a97f93bad5f5ad32bb</contenthash>
+    <contextid>103</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>2-Esculpiendo el Cerebro Primera Infancia (Cap 1).pdf</filename>
+    <userid>2</userid>
+    <filesize>19499923</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768672893</timecreated>
+    <timemodified>1768672893</timemodified>
+    <source>2-Esculpiendo el Cerebro Primera Infancia (Cap 1).pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="3">
+    <contenthash>97a119e84c309a3df3358f1b40d7458cd5b3b63d</contenthash>
+    <contextid>104</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>3-DOCUMENTO DE ESTUDIO COMPLEMENTARIO (Cap 1).pdf</filename>
+    <userid>2</userid>
+    <filesize>195021</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768672893</timecreated>
+    <timemodified>1768672893</timemodified>
+    <source>3-DOCUMENTO DE ESTUDIO COMPLEMENTARIO (Cap 1).pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="4">
+    <contenthash>7018f9e5cd6275cbff862a0ead55bdc5a95232f1</contenthash>
+    <contextid>106</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>5- Bibliografia de referencia y recomendada (Cap 1).pdf</filename>
+    <userid>2</userid>
+    <filesize>118985</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768672893</timecreated>
+    <timemodified>1768672893</timemodified>
+    <source>5- Bibliografia de referencia y recomendada (Cap 1).pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file></files>

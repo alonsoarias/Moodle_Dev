@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="2">
+  <number>1</number>
+  <name>Capitulo 1: Desarrollo Neurologico Infantil</name>
+  <summary>&lt;p&gt;En este capitulo exploraremos las bases del neurodesarrollo infantil, incluyendo conceptos fundamentales como la amigdala, las areas de Broca y Wernicke, las areas de Brodmann, y los procesos de mielinizacion y poda sinaptica. Comprenderemos como se estructura el cerebro desde la corteza cerebral hasta el sistema limbico, y el rol crucial de las neuronas espejo en el desarrollo temprano.&lt;/p&gt;</summary>
+  <summaryformat>1</summaryformat>
+  <sequence>3,4,5,6,7,8</sequence>
+  <visible>1</visible>
+  <availabilityjson>$@NULL@$</availabilityjson>
+  <timemodified>1768672893</timemodified>
+</section>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="1" moduleid="1" modulename="label" contextid="100">
+  <label id="1">
+    <name>Presentacion del Curso</name>
+    <intro>&lt;div style=&quot;text-align: center; padding: 30px; background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 15px; color: white; margin: 20px 0;&quot;&gt;
+    &lt;h1 style=&quot;font-family: &apos;Rubik&apos;, sans-serif; font-size: 2.5em; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);&quot;&gt;
+        Huellas Invisibles
+    &lt;/h1&gt;
+    &lt;h2 style=&quot;font-family: &apos;Rubik&apos;, sans-serif; font-size: 1.5em; font-weight: 300; margin-bottom: 25px;&quot;&gt;
+        Neurociencia del Desarrollo Infantil
+    &lt;/h2&gt;
+    &lt;p style=&quot;font-size: 1.1em; line-height: 1.8; max-width: 800px; margin: 0 auto 20px auto;&quot;&gt;
+        Bienvenido a este viaje por el fascinante mundo del neurodesarrollo en la primera infancia.
+        A traves de 10 capitulos exploraremos como se construye el cerebro infantil,
+        la plasticidad neuronal, las emociones, el apego y el papel fundamental del medio acuatico
+        en la estimulacion temprana.
+    &lt;/p&gt;
+    &lt;div style=&quot;display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 25px;&quot;&gt;
+        &lt;div style=&quot;background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;&quot;&gt;
+            &lt;strong style=&quot;font-size: 2em; display: block;&quot;&gt;10&lt;/strong&gt;
+            &lt;span style=&quot;font-size: 0.9em;&quot;&gt;Capitulos&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div style=&quot;background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;&quot;&gt;
+            &lt;strong style=&quot;font-size: 2em; display: block;&quot;&gt;100+&lt;/strong&gt;
+            &lt;span style=&quot;font-size: 0.9em;&quot;&gt;Preguntas&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div style=&quot;background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;&quot;&gt;
+            &lt;strong style=&quot;font-size: 2em; display: block;&quot;&gt;190+&lt;/strong&gt;
+            &lt;span style=&quot;font-size: 0.9em;&quot;&gt;Terminos&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</intro>
+    <introformat>1</introformat>
+    <timemodified>1768672893</timemodified>
+  </label>
+</activity>

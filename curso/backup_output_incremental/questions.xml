@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<question_categories>
+  <question_category id="1001">
+    <name>Preguntas Capitulo 1</name>
+    <contextid>107</contextid>
+    <contextlevel>70</contextlevel>
+    <contextinstanceid>1001</contextinstanceid>
+    <info>Preguntas del capitulo</info>
+    <infoformat>0</infoformat>
+    <stamp>localhost+1768672893+cat1001</stamp>
+    <parent>0</parent>
+    <sortorder>999</sortorder>
+    <questions>
+      <question id="1">
+        <parent>0</parent>
+        <name>Cual es el beneficio principal de la poda sinaptic...</name>
+        <questiontext>&lt;p&gt;Cual es el beneficio principal de la poda sinaptica?&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+ccd091827ed0e843</stamp>
+        <version>localhost+1768672893+b61573ebdb4f6d3b</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="1">
+              <answertext>&lt;p&gt;Precision en las conexiones neuronales&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="2">
+              <answertext>&lt;p&gt;Mayor cantidad de sinapsis&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="3">
+              <answertext>&lt;p&gt;Aumento del tamano cerebral&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="4">
+              <answertext>&lt;p&gt;Reduccion del consumo de energia&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="1">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="2">
+        <parent>0</parent>
+        <name>Cual es la caracteristica del desarrollo del hemis...</name>
+        <questiontext>&lt;p&gt;Cual es la caracteristica del desarrollo del hemisferio izquierdo?&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+6f510342eabe14af</stamp>
+        <version>localhost+1768672893+a8aeb12f51158b64</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="5">
+              <answertext>&lt;p&gt;Desarrollo global simultaneo&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="6">
+              <answertext>&lt;p&gt;Alargamiento secuencial&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="7">
+              <answertext>&lt;p&gt;Maduracion emocional temprana&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="8">
+              <answertext>&lt;p&gt;Predominio en funciones espaciales&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="2">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="3">
+        <parent>0</parent>
+        <name>Que estructuras cerebrales se ven afectadas por el...</name>
+        <questiontext>&lt;p&gt;Que estructuras cerebrales se ven afectadas por el estres temprano?&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+40aa265335b088b3</stamp>
+        <version>localhost+1768672893+64caa7eb5ab31f45</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="9">
+              <answertext>&lt;p&gt;Solo el cerebelo&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="10">
+              <answertext>&lt;p&gt;Neocortex, hipocampo y amigdala&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="11">
+              <answertext>&lt;p&gt;Unicamente el tronco encefalico&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="12">
+              <answertext>&lt;p&gt;Solo la medula espinal&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="3">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="4">
+        <parent>0</parent>
+        <name>Cual es la funcion principal del Area de Broca?...</name>
+        <questiontext>&lt;p&gt;Cual es la funcion principal del Area de Broca?&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+abcb3d641db016cc</stamp>
+        <version>localhost+1768672893+4fe7f18b9c187186</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="13">
+              <answertext>&lt;p&gt;Comprension del lenguaje&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="14">
+              <answertext>&lt;p&gt;Procesamiento visual&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="15">
+              <answertext>&lt;p&gt;Control motor de extremidades&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="16">
+              <answertext>&lt;p&gt;Produccion del lenguaje&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="4">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="5">
+        <parent>0</parent>
+        <name>A los 2 anos, la densidad sinaptica es:...</name>
+        <questiontext>&lt;p&gt;A los 2 anos, la densidad sinaptica es:&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+c69c11721abdb9d8</stamp>
+        <version>localhost+1768672893+d5642cba310d677a</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="17">
+              <answertext>&lt;p&gt;Igual que en adultos&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="18">
+              <answertext>&lt;p&gt;25% inferior a adultos&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="19">
+              <answertext>&lt;p&gt;50% superior a adultos&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="20">
+              <answertext>&lt;p&gt;El doble que en adultos&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="5">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="6">
+        <parent>0</parent>
+        <name>Existen diferencias de genero en el desarrollo del...</name>
+        <questiontext>&lt;p&gt;Existen diferencias de genero en el desarrollo del hipocampo y la amigdala:&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+ac6cbdb9a81172c7</stamp>
+        <version>localhost+1768672893+d3930ff924f8968b</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="21">
+              <answertext>&lt;p&gt;No existen diferencias significativas&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="22">
+              <answertext>&lt;p&gt;Solo en el hipocampo&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="23">
+              <answertext>&lt;p&gt;Si, existen diferencias documentadas&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="24">
+              <answertext>&lt;p&gt;Solo en la amigdala&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="6">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="7">
+        <parent>0</parent>
+        <name>El Area de Wernicke corresponde a que area de Brod...</name>
+        <questiontext>&lt;p&gt;El Area de Wernicke corresponde a que area de Brodmann?&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+27ac9a5dd124e6c2</stamp>
+        <version>localhost+1768672893+4777fd5b563bbb37</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="25">
+              <answertext>&lt;p&gt;Area 4&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="26">
+              <answertext>&lt;p&gt;Area 17&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="27">
+              <answertext>&lt;p&gt;Area 22&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="28">
+              <answertext>&lt;p&gt;Area 44&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="7">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="8">
+        <parent>0</parent>
+        <name>A los 2 anos el movimiento voluntario se desarroll...</name>
+        <questiontext>&lt;p&gt;A los 2 anos el movimiento voluntario se desarrolla gracias a:&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+ef7ed20acc8bff44</stamp>
+        <version>localhost+1768672893+dfc4d3fab85ea935</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="29">
+              <answertext>&lt;p&gt;Maduracion del cerebelo&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="30">
+              <answertext>&lt;p&gt;Desarrollo del sistema limbico&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="31">
+              <answertext>&lt;p&gt;Mielinizacion de la via piramidal&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="32">
+              <answertext>&lt;p&gt;Crecimiento del hipocampo&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="8">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="9">
+        <parent>0</parent>
+        <name>Los picos de aceleracion del desarrollo cerebral f...</name>
+        <questiontext>&lt;p&gt;Los picos de aceleracion del desarrollo cerebral finalizan aproximadamente a los:&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+72e0570816433b00</stamp>
+        <version>localhost+1768672893+711dcda681cc67c1</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="33">
+              <answertext>&lt;p&gt;14 anos&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="34">
+              <answertext>&lt;p&gt;6 anos&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="35">
+              <answertext>&lt;p&gt;21 anos&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="36">
+              <answertext>&lt;p&gt;3 anos&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="9">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+      <question id="10">
+        <parent>0</parent>
+        <name>El giro angular tiene como funcion principal:...</name>
+        <questiontext>&lt;p&gt;El giro angular tiene como funcion principal:&lt;/p&gt;</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768672893+78f98f9f8e7c06e0</stamp>
+        <version>localhost+1768672893+140026c59443a9da</version>
+        <hidden>0</hidden>
+        <timecreated>1768672893</timecreated>
+        <timemodified>1768672893</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="37">
+              <answertext>&lt;p&gt;Produccion del habla&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="38">
+              <answertext>&lt;p&gt;Control motor fino&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="39">
+              <answertext>&lt;p&gt;Asociar informacion visual y auditiva&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Respuesta correcta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>            <answer id="40">
+              <answertext>&lt;p&gt;Regulacion emocional&lt;/p&gt;</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Respuesta incorrecta</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+          </answers>
+          <multichoice id="10">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+    </questions>
+  </question_category>
+</question_categories>
