@@ -1,7 +1,8 @@
 <?php
 /**
  * Generador de actividades mod_quiz
- * Incluye quiz, question bank y preguntas multichoice
+ * Estructura XML compatible con Moodle 4.4
+ * Usa question_bank_entries con versionado
  */
 
 /**
@@ -18,12 +19,14 @@ function generateQuizActivity($activity, $activityDir, $time, $quizData, &$nextQ
 
     // Obtener datos del quiz para este capitulo
     $chapterQuiz = isset($quizData[$chapter]) ? $quizData[$chapter] : null;
-    $intro = $chapterQuiz ? escapeXml($chapterQuiz['intro']) : '';
+    $introText = $chapterQuiz ? $chapterQuiz['intro'] : "Test de autoevaluacion del Capitulo {$chapter}";
+    $intro = escapeXml('<p>' . $introText . '</p>');
     $questions = $chapterQuiz ? $chapterQuiz['questions'] : [];
 
     // Crear categoria de preguntas para este quiz
     $categoryId = 1000 + $chapter;
     $categoryName = "Preguntas Capitulo {$chapter}";
+    $categoryContextId = $contextId;
 
     // module.xml
     $moduleXml = <<<XML
@@ -57,48 +60,54 @@ XML;
 
     // Generar preguntas y slots
     $questionSlots = '';
-    $questionRefs = '';
     $slot = 1;
-    $questionsGenerated = [];
+    $questionsForCategory = [];
 
     foreach ($questions as $qIndex => $question) {
         $questionId = $nextQuestionId++;
-        $questionStamp = generateUniqueId();
+        $questionBankEntryId = $questionId;
+        $questionVersionId = $questionId;
+        $stamp = 'localhost+' . $time . '+' . bin2hex(random_bytes(8));
+        $versionStamp = 'localhost+' . $time . '+' . bin2hex(random_bytes(8));
 
-        // Generar pregunta multichoice
-        $questionData = generateMultichoiceQuestion($question, $questionId, $categoryId, $time, $nextAnswerId);
-        $questionsGenerated[] = $questionData;
+        // Generar XML de pregunta para el banco
+        $questionXml = generateMultichoiceQuestionXml($question, $questionId, $questionBankEntryId,
+            $questionVersionId, $categoryId, $time, $nextAnswerId, $stamp, $versionStamp);
 
-        // Agregar al banco de preguntas global
-        $allQuestions[] = [
-            'id' => $questionId,
-            'category' => $categoryId,
-            'categoryname' => $categoryName,
-            'xml' => $questionData['xml']
-        ];
+        $questionsForCategory[] = $questionXml;
 
-        // Slot del quiz
+        // Slot del quiz - referencia a question_bank_entry
         $questionSlots .= <<<SLOT
-    <question_instance id="{$slot}">
-      <slot>{$slot}</slot>
-      <page>1</page>
-      <displaynumber></displaynumber>
-      <requireprevious>0</requireprevious>
-      <maxmark>1.0000000</maxmark>
-      <question_reference>
-        <questionbankentryid>{$questionId}</questionbankentryid>
-        <version>\$@NULL@\$</version>
-        <usingcontextid>{$contextId}</usingcontextid>
-      </question_reference>
-    </question_instance>
-
+      <question_instance id="{$slot}">
+        <slot>{$slot}</slot>
+        <page>1</page>
+        <displaynumber>\$@NULL@\$</displaynumber>
+        <requireprevious>0</requireprevious>
+        <maxmark>1.0000000</maxmark>
+        <question_reference>
+          <usingcontextid>{$contextId}</usingcontextid>
+          <component>mod_quiz</component>
+          <questionarea>slot</questionarea>
+          <questionbankentryid>{$questionBankEntryId}</questionbankentryid>
+          <version>\$@NULL@\$</version>
+        </question_reference>
+      </question_instance>
 SLOT;
         $slot++;
     }
 
+    // Agregar categoria y preguntas al banco global
+    $allQuestions[] = [
+        'categoryid' => $categoryId,
+        'categoryname' => $categoryName,
+        'contextid' => $categoryContextId,
+        'questions' => $questionsForCategory
+    ];
+
     // quiz.xml
-    $sumgrades = count($questions) . '.00000';
-    $grade = count($questions) . '.00000';
+    $numQuestions = count($questions);
+    $sumgrades = $numQuestions . '.00000';
+    $grade = $numQuestions . '.00000';
 
     $quizXml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -148,7 +157,8 @@ SLOT;
     <hasfeedback>0</hasfeedback>
     <hasquestions>1</hasquestions>
     <question_instances>
-{$questionSlots}    </question_instances>
+{$questionSlots}
+    </question_instances>
     <sections>
       <section id="1">
         <firstslot>1</firstslot>
@@ -233,12 +243,10 @@ XML;
 }
 
 /**
- * Genera XML para una pregunta multichoice
+ * Genera XML para una pregunta multichoice (formato Moodle 4.x con question_bank_entry)
  */
-function generateMultichoiceQuestion($question, $questionId, $categoryId, $time, &$nextAnswerId) {
+function generateMultichoiceQuestionXml($question, $questionId, $bankEntryId, $versionId, $categoryId, $time, &$nextAnswerId, $stamp, $versionStamp) {
     $questionText = escapeXml('<p>' . $question['text'] . '</p>');
-    $stamp = generateUniqueId();
-    $version = generateUniqueId();
 
     // Generar respuestas
     $answersXml = '';
@@ -249,118 +257,117 @@ function generateMultichoiceQuestion($question, $questionId, $categoryId, $time,
         $answerId = $nextAnswerId++;
         $answerText = escapeXml('<p>' . $answer['text'] . '</p>');
         $fraction = $answer['correct'] ? $correctFraction : $incorrectFraction;
-        $feedback = $answer['correct'] ? 'Correcto!' : 'Incorrecto.';
+        $feedback = $answer['correct'] ? 'Correcto' : 'Incorrecto';
 
         $answersXml .= <<<ANSWER
-        <answer id="{$answerId}">
-          <answertext>{$answerText}</answertext>
-          <answerformat>1</answerformat>
-          <fraction>{$fraction}</fraction>
-          <feedback><text>{$feedback}</text></feedback>
-          <feedbackformat>1</feedbackformat>
-        </answer>
-
+            <answer id="{$answerId}">
+              <answertext>{$answerText}</answertext>
+              <answerformat>1</answerformat>
+              <fraction>{$fraction}</fraction>
+              <feedback>{$feedback}</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
 ANSWER;
     }
 
     $xml = <<<XML
-    <question id="{$questionId}">
-      <parent>0</parent>
-      <name><text>Pregunta {$questionId}</text></name>
-      <questiontext format="1">
-        <text>{$questionText}</text>
-      </questiontext>
-      <questiontextformat>1</questiontextformat>
-      <generalfeedback format="1">
-        <text></text>
-      </generalfeedback>
-      <generalfeedbackformat>1</generalfeedbackformat>
-      <defaultmark>1.0000000</defaultmark>
-      <penalty>0.3333333</penalty>
-      <qtype>multichoice</qtype>
-      <length>1</length>
-      <stamp>{$stamp}</stamp>
-      <version>{$version}</version>
-      <hidden>0</hidden>
-      <timecreated>{$time}</timecreated>
-      <timemodified>{$time}</timemodified>
-      <createdby>2</createdby>
-      <modifiedby>2</modifiedby>
-      <idnumber></idnumber>
-      <plugin_qtype_multichoice_question>
-        <answers>
-{$answersXml}        </answers>
-        <multichoice id="{$questionId}">
-          <layout>0</layout>
-          <single>1</single>
-          <shuffleanswers>1</shuffleanswers>
-          <correctfeedback><text>Respuesta correcta</text></correctfeedback>
-          <correctfeedbackformat>1</correctfeedbackformat>
-          <partiallycorrectfeedback><text>Respuesta parcialmente correcta</text></partiallycorrectfeedback>
-          <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
-          <incorrectfeedback><text>Respuesta incorrecta</text></incorrectfeedback>
-          <incorrectfeedbackformat>1</incorrectfeedbackformat>
-          <answernumbering>abc</answernumbering>
-          <shownumcorrect>1</shownumcorrect>
-          <showstandardinstruction>0</showstandardinstruction>
-        </multichoice>
-      </plugin_qtype_multichoice_question>
-      <question_hints></question_hints>
-      <tags></tags>
-    </question>
-
+        <question_bank_entry id="{$bankEntryId}">
+          <questioncategoryid>{$categoryId}</questioncategoryid>
+          <idnumber>\$@NULL@\$</idnumber>
+          <ownerid>2</ownerid>
+          <question_version>
+            <question_versions id="{$versionId}">
+              <version>1</version>
+              <status>ready</status>
+              <questions id="{$questionId}">
+                <parent>0</parent>
+                <name>Pregunta {$questionId}</name>
+                <questiontext>{$questionText}</questiontext>
+                <questiontextformat>1</questiontextformat>
+                <generalfeedback></generalfeedback>
+                <generalfeedbackformat>1</generalfeedbackformat>
+                <defaultmark>1.0000000</defaultmark>
+                <penalty>0.3333333</penalty>
+                <qtype>multichoice</qtype>
+                <length>1</length>
+                <stamp>{$stamp}</stamp>
+                <timecreated>{$time}</timecreated>
+                <timemodified>{$time}</timemodified>
+                <createdby>2</createdby>
+                <modifiedby>2</modifiedby>
+                <plugin_qtype_multichoice_question>
+                  <answers>
+{$answersXml}
+                  </answers>
+                  <multichoice id="{$questionId}">
+                    <layout>0</layout>
+                    <single>1</single>
+                    <shuffleanswers>1</shuffleanswers>
+                    <correctfeedback>Respuesta correcta</correctfeedback>
+                    <correctfeedbackformat>1</correctfeedbackformat>
+                    <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+                    <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+                    <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+                    <incorrectfeedbackformat>1</incorrectfeedbackformat>
+                    <answernumbering>abc</answernumbering>
+                    <shownumcorrect>1</shownumcorrect>
+                    <showstandardinstruction>0</showstandardinstruction>
+                  </multichoice>
+                </plugin_qtype_multichoice_question>
+                <question_hints></question_hints>
+                <tags></tags>
+              </questions>
+            </question_versions>
+          </question_version>
+        </question_bank_entry>
 XML;
 
-    return ['id' => $questionId, 'xml' => $xml];
+    return $xml;
 }
 
 /**
- * Genera el archivo questions.xml global con todas las preguntas
+ * Genera el archivo questions.xml global con todas las preguntas (formato Moodle 4.x)
  */
 function generateQuestionsXML($outputDir, $allQuestions, $time) {
-    // Agrupar por categoria
-    $categories = [];
-    foreach ($allQuestions as $q) {
-        $catId = $q['category'];
-        if (!isset($categories[$catId])) {
-            $categories[$catId] = [
-                'id' => $catId,
-                'name' => $q['categoryname'],
-                'questions' => []
-            ];
-        }
-        $categories[$catId]['questions'][] = $q['xml'];
+    if (empty($allQuestions)) {
+        file_put_contents($outputDir . '/questions.xml',
+            '<?xml version="1.0" encoding="UTF-8"?><question_categories></question_categories>');
+        return;
     }
 
-    // Generar XML
     $categoriesXml = '';
-    foreach ($categories as $cat) {
-        $catName = escapeXml($cat['name']);
-        $questionsXml = implode('', $cat['questions']);
+
+    foreach ($allQuestions as $catData) {
+        $catId = $catData['categoryid'];
+        $catName = escapeXml($catData['categoryname']);
+        $catContextId = $catData['contextid'];
+        $questionsXml = implode("\n", $catData['questions']);
+        $stamp = 'localhost+' . $time . '+cat' . $catId;
 
         $categoriesXml .= <<<CAT
-  <question_category id="{$cat['id']}">
+  <question_category id="{$catId}">
     <name>{$catName}</name>
-    <contextid>50</contextid>
-    <contextlevel>50</contextlevel>
-    <contextinstanceid>1</contextinstanceid>
+    <contextid>{$catContextId}</contextid>
+    <contextlevel>70</contextlevel>
+    <contextinstanceid>{$catId}</contextinstanceid>
     <info></info>
     <infoformat>1</infoformat>
-    <stamp>localhost+{$time}+{$cat['id']}</stamp>
+    <stamp>{$stamp}</stamp>
     <parent>0</parent>
     <sortorder>999</sortorder>
     <idnumber>\$@NULL@\$</idnumber>
-    <questions>
-{$questionsXml}    </questions>
+    <question_bank_entries>
+{$questionsXml}
+    </question_bank_entries>
   </question_category>
-
 CAT;
     }
 
     $xml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <question_categories>
-{$categoriesXml}</question_categories>
+{$categoriesXml}
+</question_categories>
 XML;
 
     file_put_contents($outputDir . '/questions.xml', $xml);

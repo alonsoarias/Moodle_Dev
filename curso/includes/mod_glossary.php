@@ -1,7 +1,7 @@
 <?php
 /**
  * Generador de actividades mod_glossary
- * Incluye estructura XML y entradas del glosario
+ * Estructura XML compatible con Moodle 4.4
  */
 
 /**
@@ -18,7 +18,8 @@ function generateGlossaryActivity($activity, $activityDir, $time, $glossaryData,
 
     // Obtener datos del glosario para este capitulo
     $chapterGlossary = isset($glossaryData[$chapter]) ? $glossaryData[$chapter] : null;
-    $intro = $chapterGlossary ? escapeXml($chapterGlossary['intro']) : '';
+    $introText = $chapterGlossary ? $chapterGlossary['intro'] : "Glosario de terminos del Capitulo {$chapter}";
+    $intro = escapeXml('<p>' . $introText . '</p>');
     $terms = $chapterGlossary ? $chapterGlossary['terms'] : [];
 
     // module.xml
@@ -59,30 +60,29 @@ XML;
         $defEsc = escapeXml('<p>' . $term['definition'] . '</p>');
 
         $entriesXml .= <<<ENTRY
-    <entry id="{$entryId}">
-      <userid>2</userid>
-      <concept>{$termEsc}</concept>
-      <definition>{$defEsc}</definition>
-      <definitionformat>1</definitionformat>
-      <definitiontrust>0</definitiontrust>
-      <attachment></attachment>
-      <timecreated>{$time}</timecreated>
-      <timemodified>{$time}</timemodified>
-      <teacherentry>1</teacherentry>
-      <sourceglossaryid>0</sourceglossaryid>
-      <usedynalink>1</usedynalink>
-      <casesensitive>0</casesensitive>
-      <fullmatch>0</fullmatch>
-      <approved>1</approved>
-      <aliases></aliases>
-      <ratings></ratings>
-      <tags></tags>
-    </entry>
-
+      <entry id="{$entryId}">
+        <userid>2</userid>
+        <concept>{$termEsc}</concept>
+        <definition>{$defEsc}</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>{$time}</timecreated>
+        <timemodified>{$time}</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
 ENTRY;
     }
 
-    // glossary.xml
+    // glossary.xml - Estructura completa con todos los campos requeridos
     $glossaryXml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <activity id="{$instanceId}" moduleid="{$moduleId}" modulename="glossary" contextid="{$contextId}">
@@ -114,7 +114,8 @@ ENTRY;
     <timemodified>{$time}</timemodified>
     <completionentries>0</completionentries>
     <entries>
-{$entriesXml}    </entries>
+{$entriesXml}
+    </entries>
     <oneperpage>0</oneperpage>
     <categories></categories>
   </glossary>
