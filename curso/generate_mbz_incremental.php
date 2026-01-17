@@ -946,6 +946,7 @@ XML;
         <ratings>
         </ratings>
       </entry>
+
 ENTRY;
     }
 
