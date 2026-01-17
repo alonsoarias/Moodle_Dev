@@ -916,10 +916,17 @@ function processSections($maxFase) {
                     $activityDir = OUTPUT_DIR . "/activities/quiz_{$moduleId}";
                     mkdir($activityDir, 0755, true);
 
-                    // Agregar descripcion
+                    // Generar quiz VACIO (sin preguntas) para evitar errores de restauracion
                     $quizDesc = $chapterDesc ? $chapterDesc['quiz_desc'] : null;
-                    $qCount = generateQuizActivityWithDesc($activity, $activityDir, $generationTime, $QUIZ_DATA, $nextQuestionId, $nextAnswerId, $allQuestions, $quizDesc);
-                    logMessage("  + Quiz: {$actData['name']} ({$qCount} preguntas)", '❓');
+                    generateEmptyQuizActivity($activity, $activityDir, $generationTime, $QUIZ_DATA, $actData['chapter'], $quizDesc);
+
+                    // Generar archivo GIFT con las preguntas para importar manualmente
+                    $giftFile = generateGIFTFile($actData['chapter'], $QUIZ_DATA, OUTPUT_DIR);
+                    if ($giftFile) {
+                        logMessage("  + Quiz VACIO: {$actData['name']} (preguntas en {$giftFile})", '❓');
+                    } else {
+                        logMessage("  + Quiz VACIO: {$actData['name']}", '❓');
+                    }
                     break;
 
                 case 'feedback':
@@ -1463,6 +1470,218 @@ XML;
     file_put_contents($activityDir . '/inforef.xml', $inforefXml);
 
     return count($questions);
+}
+
+/**
+ * Genera un quiz VACIO (sin preguntas) - para evitar problemas de restauracion
+ * Las preguntas se importan despues usando archivos GIFT
+ */
+function generateEmptyQuizActivity($activity, $activityDir, $time, $quizData, $chapter, $description = null) {
+    $moduleId = $activity['moduleid'];
+    $instanceId = $activity['instanceid'];
+    $contextId = $activity['contextid'];
+    $sectionId = $activity['sectionid'];
+    $sectionNum = $activity['sectionnumber'];
+    $name = escapeXml($activity['name']);
+
+    $chapterQuiz = isset($quizData[$chapter]) ? $quizData[$chapter] : null;
+    $introText = $description ? $description : ($chapterQuiz ? $chapterQuiz['intro'] : "Test de autoevaluacion del Capitulo {$chapter}");
+    $intro = escapeXml('<p>' . $introText . '</p>');
+
+    $moduleXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<module id="{$moduleId}" version="2024042200">
+  <modulename>quiz</modulename>
+  <sectionid>{$sectionId}</sectionid>
+  <sectionnumber>{$sectionNum}</sectionnumber>
+  <idnumber></idnumber>
+  <added>{$time}</added>
+  <score>0</score>
+  <indent>0</indent>
+  <visible>1</visible>
+  <visibleoncoursepage>1</visibleoncoursepage>
+  <visibleold>1</visibleold>
+  <groupmode>0</groupmode>
+  <groupingid>0</groupingid>
+  <completion>0</completion>
+  <completiongradeitemnumber>\$@NULL@\$</completiongradeitemnumber>
+  <completionview>0</completionview>
+  <completionexpected>0</completionexpected>
+  <completionpassgrade>0</completionpassgrade>
+  <availability>\$@NULL@\$</availability>
+  <showdescription>1</showdescription>
+  <downloadcontent>1</downloadcontent>
+  <lang></lang>
+  <tags></tags>
+</module>
+XML;
+    file_put_contents($activityDir . '/module.xml', $moduleXml);
+
+    // Quiz vacio sin preguntas
+    $quizXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="{$instanceId}" moduleid="{$moduleId}" modulename="quiz" contextid="{$contextId}">
+  <quiz id="{$instanceId}">
+    <name>{$name}</name>
+    <intro>{$intro}</intro>
+    <introformat>1</introformat>
+    <timeopen>0</timeopen>
+    <timeclose>0</timeclose>
+    <timelimit>0</timelimit>
+    <overduehandling>autosubmit</overduehandling>
+    <graceperiod>0</graceperiod>
+    <preferredbehaviour>deferredfeedback</preferredbehaviour>
+    <canredoquestions>0</canredoquestions>
+    <attempts_number>0</attempts_number>
+    <attemptonlast>0</attemptonlast>
+    <grademethod>1</grademethod>
+    <decimalpoints>2</decimalpoints>
+    <questiondecimalpoints>-1</questiondecimalpoints>
+    <reviewattempt>69888</reviewattempt>
+    <reviewcorrectness>4352</reviewcorrectness>
+    <reviewmaxmarks>69888</reviewmaxmarks>
+    <reviewmarks>4352</reviewmarks>
+    <reviewspecificfeedback>4352</reviewspecificfeedback>
+    <reviewgeneralfeedback>4352</reviewgeneralfeedback>
+    <reviewrightanswer>4352</reviewrightanswer>
+    <reviewoverallfeedback>4352</reviewoverallfeedback>
+    <questionsperpage>1</questionsperpage>
+    <navmethod>free</navmethod>
+    <shuffleanswers>1</shuffleanswers>
+    <sumgrades>0.00000</sumgrades>
+    <grade>10.00000</grade>
+    <timecreated>{$time}</timecreated>
+    <timemodified>{$time}</timemodified>
+    <password></password>
+    <subnet></subnet>
+    <browsersecurity>-</browsersecurity>
+    <delay1>0</delay1>
+    <delay2>0</delay2>
+    <showuserpicture>0</showuserpicture>
+    <showblocks>0</showblocks>
+    <completionattemptsexhausted>0</completionattemptsexhausted>
+    <completionminattempts>0</completionminattempts>
+    <allowofflineattempts>0</allowofflineattempts>
+    <subtype></subtype>
+    <hasfeedback>0</hasfeedback>
+    <hasquestions>0</hasquestions>
+    <question_instances>
+    </question_instances>
+    <sections>
+      <section id="1">
+        <firstslot>1</firstslot>
+        <heading></heading>
+        <shufflequestions>0</shufflequestions>
+      </section>
+    </sections>
+    <feedbacks></feedbacks>
+    <overrides></overrides>
+    <grades></grades>
+    <attempts></attempts>
+  </quiz>
+</activity>
+XML;
+    file_put_contents($activityDir . '/quiz.xml', $quizXml);
+
+    // grades.xml para quiz vacio
+    $gradesXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<activity_gradebook>
+  <grade_items>
+    <grade_item id="{$instanceId}">
+      <categoryid>\$@NULL@\$</categoryid>
+      <itemname>{$name}</itemname>
+      <itemtype>mod</itemtype>
+      <itemmodule>quiz</itemmodule>
+      <iteminstance>{$instanceId}</iteminstance>
+      <itemnumber>0</itemnumber>
+      <iteminfo>\$@NULL@\$</iteminfo>
+      <idnumber></idnumber>
+      <calculation>\$@NULL@\$</calculation>
+      <gradetype>1</gradetype>
+      <grademax>10.00000</grademax>
+      <grademin>0.00000</grademin>
+      <scaleid>\$@NULL@\$</scaleid>
+      <outcomeid>\$@NULL@\$</outcomeid>
+      <gradepass>6.00000</gradepass>
+      <multfactor>1.00000</multfactor>
+      <plusfactor>0.00000</plusfactor>
+      <aggregationcoef>0.00000</aggregationcoef>
+      <aggregationcoef2>0.00000</aggregationcoef2>
+      <weightoverride>0</weightoverride>
+      <sortorder>1</sortorder>
+      <display>0</display>
+      <decimals>\$@NULL@\$</decimals>
+      <hidden>0</hidden>
+      <locked>0</locked>
+      <locktime>0</locktime>
+      <needsupdate>0</needsupdate>
+      <timecreated>{$time}</timecreated>
+      <timemodified>{$time}</timemodified>
+      <grade_grades></grade_grades>
+    </grade_item>
+  </grade_items>
+  <grade_letters></grade_letters>
+</activity_gradebook>
+XML;
+    file_put_contents($activityDir . '/grades.xml', $gradesXml);
+
+    // XMLs comunes
+    file_put_contents($activityDir . '/roles.xml', '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<roles><role_overrides></role_overrides><role_assignments></role_assignments></roles>');
+    file_put_contents($activityDir . '/filters.xml', '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<filters><filter_actives></filter_actives><filter_configs></filter_configs></filters>');
+    file_put_contents($activityDir . '/comments.xml', '<?xml version="1.0" encoding="UTF-8"?><comments></comments>');
+    file_put_contents($activityDir . '/calendar.xml', '<?xml version="1.0" encoding="UTF-8"?><events></events>');
+    file_put_contents($activityDir . '/competencies.xml', '<?xml version="1.0" encoding="UTF-8"?><course_module_competencies></course_module_competencies>');
+
+    // inforef.xml sin referencias a preguntas
+    $inforefXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<inforef>
+  <fileref></fileref>
+  <question_categoryref>
+  </question_categoryref>
+</inforef>
+XML;
+    file_put_contents($activityDir . '/inforef.xml', $inforefXml);
+
+    return 0; // Sin preguntas
+}
+
+/**
+ * Genera archivo GIFT con las preguntas de un capitulo
+ */
+function generateGIFTFile($chapter, $quizData, $outputDir) {
+    $chapterQuiz = isset($quizData[$chapter]) ? $quizData[$chapter] : null;
+    if (!$chapterQuiz || empty($chapterQuiz['questions'])) {
+        return null;
+    }
+
+    $giftContent = "// Preguntas del Capitulo {$chapter} - Huellas Invisibles\n";
+    $giftContent .= "// Formato GIFT para importar en Moodle\n";
+    $giftContent .= "// Banco de preguntas > Importar > Formato GIFT\n\n";
+
+    $questionNum = 1;
+    foreach ($chapterQuiz['questions'] as $question) {
+        $questionText = str_replace([':', '~', '=', '#', '{', '}'], ['\\:', '\\~', '\\=', '\\#', '\\{', '\\}'], $question['text']);
+        $questionTitle = "Cap{$chapter}_P{$questionNum}";
+
+        $giftContent .= "::{$questionTitle}::{$questionText} {\n";
+
+        foreach ($question['answers'] as $answer) {
+            $answerText = str_replace([':', '~', '=', '#', '{', '}'], ['\\:', '\\~', '\\=', '\\#', '\\{', '\\}'], $answer['text']);
+            $prefix = $answer['correct'] ? '=' : '~';
+            $giftContent .= "  {$prefix}{$answerText}\n";
+        }
+
+        $giftContent .= "}\n\n";
+        $questionNum++;
+    }
+
+    $filename = "preguntas_capitulo_{$chapter}.gift.txt";
+    $filepath = $outputDir . '/' . $filename;
+    file_put_contents($filepath, $giftContent);
+
+    return $filename;
 }
 
 // ============================================================================

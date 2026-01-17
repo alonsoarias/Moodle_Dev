@@ -4,7 +4,7 @@
   <sectionid>3</sectionid>
   <sectionnumber>2</sectionnumber>
   <idnumber></idnumber>
-  <added>1768681233</added>
+  <added>1768681839</added>
   <score>0</score>
   <indent>0</indent>
   <visible>1</visible>
@@ -12,11 +12,11 @@
   <visibleold>1</visibleold>
   <groupmode>0</groupmode>
   <groupingid>0</groupingid>
-  <completion>2</completion>
-  <completiongradeitemnumber>0</completiongradeitemnumber>
+  <completion>0</completion>
+  <completiongradeitemnumber>$@NULL@$</completiongradeitemnumber>
   <completionview>0</completionview>
   <completionexpected>0</completionexpected>
-  <completionpassgrade>1</completionpassgrade>
+  <completionpassgrade>0</completionpassgrade>
   <availability>$@NULL@$</availability>
   <showdescription>1</showdescription>
   <downloadcontent>1</downloadcontent>
