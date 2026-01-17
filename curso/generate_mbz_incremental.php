@@ -38,13 +38,8 @@ require_once __DIR__ . '/data/chapter_descriptions.php';
 $GLOSSARY_DATA = $GLOSSARY_DATA + $GLOSSARY_DATA_6_10;
 $QUIZ_DATA = $QUIZ_DATA + $QUIZ_DATA_6_10;
 
-// Cargar generadores de modulos
-require_once __DIR__ . '/includes/mod_resource.php';
-require_once __DIR__ . '/includes/mod_glossary.php';
-require_once __DIR__ . '/includes/mod_quiz.php';
-require_once __DIR__ . '/includes/mod_feedback.php';
-require_once __DIR__ . '/includes/mod_customcert.php';
-require_once __DIR__ . '/includes/mod_label.php';
+// Funciones de generacion estan definidas inline mas abajo
+// para evitar conflictos y tener control completo
 
 // Variables globales
 $allFiles = [];
@@ -89,6 +84,387 @@ function escapeXml($str) {
 
 function logMessage($msg, $icon = '  ') {
     echo "[" . date('H:i:s') . "] {$icon} {$msg}\n";
+}
+
+// ============================================================================
+// FUNCIONES DE GENERACION DE ACTIVIDADES
+// ============================================================================
+
+/**
+ * Genera XMLs comunes para cualquier actividad
+ */
+function generateActivityCommonXMLs($activityDir) {
+    file_put_contents($activityDir . '/grades.xml',
+        '<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
+        '<activity_gradebook><grade_items></grade_items><grade_letters></grade_letters></activity_gradebook>');
+
+    file_put_contents($activityDir . '/roles.xml',
+        '<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
+        '<roles><role_overrides></role_overrides><role_assignments></role_assignments></roles>');
+
+    file_put_contents($activityDir . '/filters.xml',
+        '<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
+        '<filters><filter_actives></filter_actives><filter_configs></filter_configs></filters>');
+
+    file_put_contents($activityDir . '/comments.xml',
+        '<?xml version="1.0" encoding="UTF-8"?><comments></comments>');
+
+    file_put_contents($activityDir . '/calendar.xml',
+        '<?xml version="1.0" encoding="UTF-8"?><events></events>');
+
+    file_put_contents($activityDir . '/competencies.xml',
+        '<?xml version="1.0" encoding="UTF-8"?><course_module_competencies></course_module_competencies>');
+
+    file_put_contents($activityDir . '/inforef.xml',
+        '<?xml version="1.0" encoding="UTF-8"?><inforef><fileref></fileref></inforef>');
+}
+
+/**
+ * Actualiza inforef.xml con referencias a archivos
+ */
+function updateInforefWithFile($activityDir, $fileId) {
+    $inforef = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<inforef>
+  <fileref>
+    <file><id>{$fileId}</id></file>
+  </fileref>
+</inforef>
+XML;
+    file_put_contents($activityDir . '/inforef.xml', $inforef);
+}
+
+/**
+ * Genera los XMLs para un label de presentacion del curso (sin imagen)
+ */
+function generateIntroLabelActivity($activity, $activityDir, $time) {
+    $moduleId = $activity['moduleid'];
+    $instanceId = $activity['instanceid'];
+    $contextId = $activity['contextid'];
+    $sectionId = $activity['sectionid'];
+    $sectionNum = $activity['sectionnumber'];
+    $name = escapeXml($activity['name']);
+
+    $content = <<<HTML
+<div style="text-align: center; padding: 30px; background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 15px; color: white; margin: 20px 0;">
+    <h1 style="font-family: 'Rubik', sans-serif; font-size: 2.5em; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+        Huellas Invisibles
+    </h1>
+    <h2 style="font-family: 'Rubik', sans-serif; font-size: 1.5em; font-weight: 300; margin-bottom: 25px;">
+        Neurociencia del Desarrollo Infantil
+    </h2>
+    <p style="font-size: 1.1em; line-height: 1.8; max-width: 800px; margin: 0 auto 20px auto;">
+        Bienvenido a este viaje por el fascinante mundo del neurodesarrollo en la primera infancia.
+        A traves de 10 capitulos exploraremos como se construye el cerebro infantil,
+        la plasticidad neuronal, las emociones, el apego y el papel fundamental del medio acuatico
+        en la estimulacion temprana.
+    </p>
+    <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 25px;">
+        <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;">
+            <strong style="font-size: 2em; display: block;">10</strong>
+            <span style="font-size: 0.9em;">Capitulos</span>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;">
+            <strong style="font-size: 2em; display: block;">100+</strong>
+            <span style="font-size: 0.9em;">Preguntas</span>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;">
+            <strong style="font-size: 2em; display: block;">190+</strong>
+            <span style="font-size: 0.9em;">Terminos</span>
+        </div>
+    </div>
+</div>
+HTML;
+    $contentEsc = escapeXml($content);
+
+    $moduleXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<module id="{$moduleId}" version="2024042200">
+  <modulename>label</modulename>
+  <sectionid>{$sectionId}</sectionid>
+  <sectionnumber>{$sectionNum}</sectionnumber>
+  <idnumber></idnumber>
+  <added>{$time}</added>
+  <score>0</score>
+  <indent>0</indent>
+  <visible>1</visible>
+  <visibleoncoursepage>1</visibleoncoursepage>
+  <visibleold>1</visibleold>
+  <groupmode>0</groupmode>
+  <groupingid>0</groupingid>
+  <completion>0</completion>
+  <completiongradeitemnumber>\$@NULL@\$</completiongradeitemnumber>
+  <completionview>0</completionview>
+  <completionexpected>0</completionexpected>
+  <completionpassgrade>0</completionpassgrade>
+  <availability>\$@NULL@\$</availability>
+  <showdescription>0</showdescription>
+  <downloadcontent>1</downloadcontent>
+  <lang></lang>
+  <tags></tags>
+</module>
+XML;
+    file_put_contents($activityDir . '/module.xml', $moduleXml);
+
+    $labelXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="{$instanceId}" moduleid="{$moduleId}" modulename="label" contextid="{$contextId}">
+  <label id="{$instanceId}">
+    <name>{$name}</name>
+    <intro>{$contentEsc}</intro>
+    <introformat>1</introformat>
+    <timemodified>{$time}</timemodified>
+  </label>
+</activity>
+XML;
+    file_put_contents($activityDir . '/label.xml', $labelXml);
+
+    generateActivityCommonXMLs($activityDir);
+}
+
+/**
+ * Genera los XMLs para una actividad mod_feedback (encuesta)
+ */
+function generateFeedbackActivity($activity, $activityDir, $time) {
+    $moduleId = $activity['moduleid'];
+    $instanceId = $activity['instanceid'];
+    $contextId = $activity['contextid'];
+    $sectionId = $activity['sectionid'];
+    $sectionNum = $activity['sectionnumber'];
+    $name = escapeXml($activity['name']);
+
+    $moduleXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<module id="{$moduleId}" version="2024042200">
+  <modulename>feedback</modulename>
+  <sectionid>{$sectionId}</sectionid>
+  <sectionnumber>{$sectionNum}</sectionnumber>
+  <idnumber></idnumber>
+  <added>{$time}</added>
+  <score>0</score>
+  <indent>0</indent>
+  <visible>1</visible>
+  <visibleoncoursepage>1</visibleoncoursepage>
+  <visibleold>1</visibleold>
+  <groupmode>0</groupmode>
+  <groupingid>0</groupingid>
+  <completion>2</completion>
+  <completiongradeitemnumber>\$@NULL@\$</completiongradeitemnumber>
+  <completionview>0</completionview>
+  <completionexpected>0</completionexpected>
+  <completionpassgrade>0</completionpassgrade>
+  <availability>\$@NULL@\$</availability>
+  <showdescription>1</showdescription>
+  <downloadcontent>1</downloadcontent>
+  <lang></lang>
+  <tags></tags>
+</module>
+XML;
+    file_put_contents($activityDir . '/module.xml', $moduleXml);
+
+    $feedbackItems = getFeedbackItems($time);
+    $itemsXml = '';
+    foreach ($feedbackItems as $item) {
+        $itemsXml .= $item['xml'];
+    }
+
+    $intro = escapeXml('<p>Por favor, complete esta breve encuesta para ayudarnos a mejorar el curso. Sus respuestas son anonimas.</p>');
+
+    $feedbackXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="{$instanceId}" moduleid="{$moduleId}" modulename="feedback" contextid="{$contextId}">
+  <feedback id="{$instanceId}">
+    <name>{$name}</name>
+    <intro>{$intro}</intro>
+    <introformat>1</introformat>
+    <anonymous>1</anonymous>
+    <email_notification>0</email_notification>
+    <multiple_submit>0</multiple_submit>
+    <autonumbering>1</autonumbering>
+    <site_after_submit></site_after_submit>
+    <page_after_submit></page_after_submit>
+    <page_after_submitformat>1</page_after_submitformat>
+    <publish_stats>0</publish_stats>
+    <timeopen>0</timeopen>
+    <timeclose>0</timeclose>
+    <timemodified>{$time}</timemodified>
+    <completionsubmit>1</completionsubmit>
+    <items>
+{$itemsXml}    </items>
+    <completeds></completeds>
+  </feedback>
+</activity>
+XML;
+    file_put_contents($activityDir . '/feedback.xml', $feedbackXml);
+
+    generateActivityCommonXMLs($activityDir);
+}
+
+/**
+ * Genera los items de la encuesta de satisfaccion
+ */
+function getFeedbackItems($time) {
+    $items = [];
+    $itemId = 1;
+
+    $items[] = [
+        'id' => $itemId,
+        'xml' => <<<ITEM
+      <item id="{$itemId}">
+        <template>0</template>
+        <name>satisfaccion_general</name>
+        <label>En general, que tan satisfecho/a esta con el curso?</label>
+        <presentation>r>>>>>1|Muy insatisfecho/a####2|Insatisfecho/a####3|Neutral####4|Satisfecho/a####5|Muy satisfecho/a</presentation>
+        <typ>multichoicerated</typ>
+        <hasvalue>1</hasvalue>
+        <position>{$itemId}</position>
+        <required>1</required>
+        <dependitem>0</dependitem>
+        <dependvalue></dependvalue>
+        <options></options>
+      </item>
+
+ITEM
+    ];
+    $itemId++;
+
+    $items[] = [
+        'id' => $itemId,
+        'xml' => <<<ITEM
+      <item id="{$itemId}">
+        <template>0</template>
+        <name>calidad_contenido</name>
+        <label>La calidad del contenido del curso fue:</label>
+        <presentation>r>>>>>1|Muy baja####2|Baja####3|Aceptable####4|Alta####5|Muy alta</presentation>
+        <typ>multichoicerated</typ>
+        <hasvalue>1</hasvalue>
+        <position>{$itemId}</position>
+        <required>1</required>
+        <dependitem>0</dependitem>
+        <dependvalue></dependvalue>
+        <options></options>
+      </item>
+
+ITEM
+    ];
+    $itemId++;
+
+    $items[] = [
+        'id' => $itemId,
+        'xml' => <<<ITEM
+      <item id="{$itemId}">
+        <template>0</template>
+        <name>recomendacion</name>
+        <label>Recomendaria este curso a otros profesionales:</label>
+        <presentation>r>>>>>1|Definitivamente no####2|Probablemente no####3|No estoy seguro/a####4|Probablemente si####5|Definitivamente si</presentation>
+        <typ>multichoicerated</typ>
+        <hasvalue>1</hasvalue>
+        <position>{$itemId}</position>
+        <required>1</required>
+        <dependitem>0</dependitem>
+        <dependvalue></dependvalue>
+        <options></options>
+      </item>
+
+ITEM
+    ];
+    $itemId++;
+
+    $items[] = [
+        'id' => $itemId,
+        'xml' => <<<ITEM
+      <item id="{$itemId}">
+        <template>0</template>
+        <name>comentarios</name>
+        <label>Comentarios o sugerencias para mejorar el curso:</label>
+        <presentation>60|5</presentation>
+        <typ>textarea</typ>
+        <hasvalue>1</hasvalue>
+        <position>{$itemId}</position>
+        <required>0</required>
+        <dependitem>0</dependitem>
+        <dependvalue></dependvalue>
+        <options></options>
+      </item>
+
+ITEM
+    ];
+
+    return $items;
+}
+
+/**
+ * Genera los XMLs para una actividad mod_customcert (certificado)
+ */
+function generateCustomcertActivity($activity, $activityDir, $time) {
+    $moduleId = $activity['moduleid'];
+    $instanceId = $activity['instanceid'];
+    $contextId = $activity['contextid'];
+    $sectionId = $activity['sectionid'];
+    $sectionNum = $activity['sectionnumber'];
+    $name = escapeXml($activity['name']);
+
+    $moduleXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<module id="{$moduleId}" version="2024042200">
+  <modulename>customcert</modulename>
+  <sectionid>{$sectionId}</sectionid>
+  <sectionnumber>{$sectionNum}</sectionnumber>
+  <idnumber></idnumber>
+  <added>{$time}</added>
+  <score>0</score>
+  <indent>0</indent>
+  <visible>1</visible>
+  <visibleoncoursepage>1</visibleoncoursepage>
+  <visibleold>1</visibleold>
+  <groupmode>0</groupmode>
+  <groupingid>0</groupingid>
+  <completion>2</completion>
+  <completiongradeitemnumber>\$@NULL@\$</completiongradeitemnumber>
+  <completionview>1</completionview>
+  <completionexpected>0</completionexpected>
+  <completionpassgrade>0</completionpassgrade>
+  <availability>\$@NULL@\$</availability>
+  <showdescription>1</showdescription>
+  <downloadcontent>1</downloadcontent>
+  <lang></lang>
+  <tags></tags>
+</module>
+XML;
+    file_put_contents($activityDir . '/module.xml', $moduleXml);
+
+    $intro = escapeXml('<p>Felicitaciones por completar el curso "Huellas Invisibles: Neurodesarrollo en la Primera Infancia". Descargue su certificado de participacion.</p>');
+
+    $customcertXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="{$instanceId}" moduleid="{$moduleId}" modulename="customcert" contextid="{$contextId}">
+  <customcert id="{$instanceId}">
+    <name>{$name}</name>
+    <intro>{$intro}</intro>
+    <introformat>1</introformat>
+    <requiredtime>0</requiredtime>
+    <verifyany>0</verifyany>
+    <deliveryoption>0</deliveryoption>
+    <emailstudents>0</emailstudents>
+    <emailteachers>0</emailteachers>
+    <emailothers></emailothers>
+    <protection></protection>
+    <language></language>
+    <timecreated>{$time}</timecreated>
+    <timemodified>{$time}</timemodified>
+    <templateid>0</templateid>
+    <template>
+      <pages>
+      </pages>
+    </template>
+    <issues>
+    </issues>
+  </customcert>
+</activity>
+XML;
+    file_put_contents($activityDir . '/customcert.xml', $customcertXml);
+
+    generateActivityCommonXMLs($activityDir);
 }
 
 // ============================================================================
