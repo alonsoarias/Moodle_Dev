@@ -2,7 +2,7 @@
 /**
  * Generador de actividades mod_quiz
  * Estructura XML compatible con Moodle 4.4
- * Usa question_bank_entries con versionado
+ * Usa formato de preguntas compatible con versiones antiguas y nuevas
  */
 
 /**
@@ -58,25 +58,21 @@ function generateQuizActivity($activity, $activityDir, $time, $quizData, &$nextQ
 XML;
     file_put_contents($activityDir . '/module.xml', $moduleXml);
 
-    // Generar preguntas y slots
+    // Generar preguntas para el banco de preguntas global
+    $questionsForCategory = [];
     $questionSlots = '';
     $slot = 1;
-    $questionsForCategory = [];
 
     foreach ($questions as $qIndex => $question) {
         $questionId = $nextQuestionId++;
-        $questionBankEntryId = $questionId;
-        $questionVersionId = $questionId;
         $stamp = 'localhost+' . $time . '+' . bin2hex(random_bytes(8));
         $versionStamp = 'localhost+' . $time . '+' . bin2hex(random_bytes(8));
 
-        // Generar XML de pregunta para el banco
-        $questionXml = generateMultichoiceQuestionXml($question, $questionId, $questionBankEntryId,
-            $questionVersionId, $categoryId, $time, $nextAnswerId, $stamp, $versionStamp);
-
+        // Generar XML de pregunta
+        $questionXml = generateSimpleMultichoiceXml($question, $questionId, $categoryId, $time, $nextAnswerId, $stamp, $versionStamp);
         $questionsForCategory[] = $questionXml;
 
-        // Slot del quiz - referencia a question_bank_entry
+        // Slot para referenciar la pregunta
         $questionSlots .= <<<SLOT
       <question_instance id="{$slot}">
         <slot>{$slot}</slot>
@@ -88,7 +84,7 @@ XML;
           <usingcontextid>{$contextId}</usingcontextid>
           <component>mod_quiz</component>
           <questionarea>slot</questionarea>
-          <questionbankentryid>{$questionBankEntryId}</questionbankentryid>
+          <questionbankentryid>{$questionId}</questionbankentryid>
           <version>\$@NULL@\$</version>
         </question_reference>
       </question_instance>
@@ -243,10 +239,11 @@ XML;
 }
 
 /**
- * Genera XML para una pregunta multichoice (formato Moodle 4.x con question_bank_entry)
+ * Genera XML para una pregunta multichoice (formato simple y compatible)
  */
-function generateMultichoiceQuestionXml($question, $questionId, $bankEntryId, $versionId, $categoryId, $time, &$nextAnswerId, $stamp, $versionStamp) {
+function generateSimpleMultichoiceXml($question, $questionId, $categoryId, $time, &$nextAnswerId, $stamp, $versionStamp) {
     $questionText = escapeXml('<p>' . $question['text'] . '</p>');
+    $questionName = escapeXml(substr($question['text'], 0, 50) . '...');
 
     // Generar respuestas
     $answersXml = '';
@@ -257,7 +254,7 @@ function generateMultichoiceQuestionXml($question, $questionId, $bankEntryId, $v
         $answerId = $nextAnswerId++;
         $answerText = escapeXml('<p>' . $answer['text'] . '</p>');
         $fraction = $answer['correct'] ? $correctFraction : $incorrectFraction;
-        $feedback = $answer['correct'] ? 'Correcto' : 'Incorrecto';
+        $feedback = $answer['correct'] ? 'Respuesta correcta' : 'Respuesta incorrecta';
 
         $answersXml .= <<<ANSWER
             <answer id="{$answerId}">
@@ -270,63 +267,57 @@ function generateMultichoiceQuestionXml($question, $questionId, $bankEntryId, $v
 ANSWER;
     }
 
+    // Formato pregunta simple Moodle (sin question_bank_entry wrapper complejo)
     $xml = <<<XML
-        <question_bank_entry id="{$bankEntryId}">
-          <questioncategoryid>{$categoryId}</questioncategoryid>
-          <idnumber>\$@NULL@\$</idnumber>
-          <ownerid>2</ownerid>
-          <question_version>
-            <question_versions id="{$versionId}">
-              <version>1</version>
-              <status>ready</status>
-              <questions id="{$questionId}">
-                <parent>0</parent>
-                <name>Pregunta {$questionId}</name>
-                <questiontext>{$questionText}</questiontext>
-                <questiontextformat>1</questiontextformat>
-                <generalfeedback></generalfeedback>
-                <generalfeedbackformat>1</generalfeedbackformat>
-                <defaultmark>1.0000000</defaultmark>
-                <penalty>0.3333333</penalty>
-                <qtype>multichoice</qtype>
-                <length>1</length>
-                <stamp>{$stamp}</stamp>
-                <timecreated>{$time}</timecreated>
-                <timemodified>{$time}</timemodified>
-                <createdby>2</createdby>
-                <modifiedby>2</modifiedby>
-                <plugin_qtype_multichoice_question>
-                  <answers>
+      <question id="{$questionId}">
+        <parent>0</parent>
+        <name>{$questionName}</name>
+        <questiontext>{$questionText}</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>{$stamp}</stamp>
+        <version>{$versionStamp}</version>
+        <hidden>0</hidden>
+        <timecreated>{$time}</timecreated>
+        <timemodified>{$time}</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
 {$answersXml}
-                  </answers>
-                  <multichoice id="{$questionId}">
-                    <layout>0</layout>
-                    <single>1</single>
-                    <shuffleanswers>1</shuffleanswers>
-                    <correctfeedback>Respuesta correcta</correctfeedback>
-                    <correctfeedbackformat>1</correctfeedbackformat>
-                    <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
-                    <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
-                    <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
-                    <incorrectfeedbackformat>1</incorrectfeedbackformat>
-                    <answernumbering>abc</answernumbering>
-                    <shownumcorrect>1</shownumcorrect>
-                    <showstandardinstruction>0</showstandardinstruction>
-                  </multichoice>
-                </plugin_qtype_multichoice_question>
-                <question_hints></question_hints>
-                <tags></tags>
-              </questions>
-            </question_versions>
-          </question_version>
-        </question_bank_entry>
+          </answers>
+          <multichoice id="{$questionId}">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
 XML;
 
     return $xml;
 }
 
 /**
- * Genera el archivo questions.xml global con todas las preguntas (formato Moodle 4.x)
+ * Genera el archivo questions.xml global (formato simple compatible)
  */
 function generateQuestionsXML($outputDir, $allQuestions, $time) {
     if (empty($allQuestions)) {
@@ -350,15 +341,14 @@ function generateQuestionsXML($outputDir, $allQuestions, $time) {
     <contextid>{$catContextId}</contextid>
     <contextlevel>70</contextlevel>
     <contextinstanceid>{$catId}</contextinstanceid>
-    <info></info>
-    <infoformat>1</infoformat>
+    <info>Preguntas del capitulo</info>
+    <infoformat>0</infoformat>
     <stamp>{$stamp}</stamp>
     <parent>0</parent>
     <sortorder>999</sortorder>
-    <idnumber>\$@NULL@\$</idnumber>
-    <question_bank_entries>
+    <questions>
 {$questionsXml}
-    </question_bank_entries>
+    </questions>
   </question_category>
 CAT;
     }

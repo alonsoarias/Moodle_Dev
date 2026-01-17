@@ -11,7 +11,7 @@ $COURSE_STRUCTURE = [
         'summary' => 'Bienvenido al curso Huellas Invisibles - Neurodesarrollo y neuroaprendizaje acuatico en la primera infancia',
         'dir' => null,
         'activities' => [
-            ['file' => 'huellas invisibles.png', 'type' => 'label', 'name' => 'Imagen del Curso'],
+            ['type' => 'intro_label', 'name' => 'Presentacion del Curso'],
             ['file' => 'Titulo presentacion y programa.docx', 'type' => 'resource', 'name' => 'Programa del Curso'],
         ]
     ],

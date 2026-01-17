@@ -661,6 +661,16 @@ function processAllSections() {
                     logMessage("  + Video placeholder: {$actData['name']}", '🎬');
                     break;
 
+                case 'intro_label':
+                    $moduleName = 'label';
+                    $activity['modulename'] = 'label';
+                    $activityDir = OUTPUT_DIR . "/activities/label_{$moduleId}";
+                    mkdir($activityDir, 0755, true);
+
+                    generateIntroLabelActivity($activity, $activityDir, $generationTime);
+                    logMessage("  + Presentacion: {$actData['name']}", '📋');
+                    break;
+
                 case 'label':
                     $moduleName = 'label';
                     $activity['modulename'] = 'label';

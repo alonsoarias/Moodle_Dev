@@ -2,6 +2,8 @@
 /**
  * Generador de actividades mod_glossary
  * Estructura XML compatible con Moodle 4.4
+ * IMPORTANTE: Las entradas (entries) solo se restauran si se incluye userinfo=1
+ * Si no hay userinfo, el glosario se crea vacío y las entradas se añaden manualmente
  */
 
 /**
@@ -19,8 +21,7 @@ function generateGlossaryActivity($activity, $activityDir, $time, $glossaryData,
     // Obtener datos del glosario para este capitulo
     $chapterGlossary = isset($glossaryData[$chapter]) ? $glossaryData[$chapter] : null;
     $introText = $chapterGlossary ? $chapterGlossary['intro'] : "Glosario de terminos del Capitulo {$chapter}";
-    // Usar texto plano escapado para evitar problemas de parsing
-    $intro = escapeXml($introText);
+    $intro = escapeXml('<p>' . $introText . '</p>');
     $terms = $chapterGlossary ? $chapterGlossary['terms'] : [];
 
     // module.xml
@@ -53,22 +54,21 @@ function generateGlossaryActivity($activity, $activityDir, $time, $glossaryData,
 XML;
     file_put_contents($activityDir . '/module.xml', $moduleXml);
 
-    // Generar entries XML
+    // Generar entries XML - siguiendo el formato exacto de Moodle
     $entriesXml = '';
     foreach ($terms as $term) {
         $entryId = $nextEntryId++;
         $termEsc = escapeXml($term['term']);
-        // Usar texto plano para evitar problemas de parsing XML
-        $defEsc = escapeXml($term['definition']);
+        $defEsc = escapeXml('<p>' . $term['definition'] . '</p>');
 
         $entriesXml .= <<<ENTRY
       <entry id="{$entryId}">
         <userid>2</userid>
         <concept>{$termEsc}</concept>
         <definition>{$defEsc}</definition>
-        <definitionformat>0</definitionformat>
+        <definitionformat>1</definitionformat>
         <definitiontrust>0</definitiontrust>
-        <attachment></attachment>
+        <attachment>0</attachment>
         <timecreated>{$time}</timecreated>
         <timemodified>{$time}</timemodified>
         <teacherentry>1</teacherentry>
@@ -81,20 +81,18 @@ XML;
         </aliases>
         <ratings>
         </ratings>
-        <tags>
-        </tags>
       </entry>
 ENTRY;
     }
 
-    // glossary.xml - Estructura exacta Moodle 4.4 (campos en orden correcto, sin extras)
+    // glossary.xml - Formato exacto Moodle 4.4
     $glossaryXml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <activity id="{$instanceId}" moduleid="{$moduleId}" modulename="glossary" contextid="{$contextId}">
   <glossary id="{$instanceId}">
     <name>{$name}</name>
     <intro>{$intro}</intro>
-    <introformat>0</introformat>
+    <introformat>1</introformat>
     <allowduplicatedentries>0</allowduplicatedentries>
     <displayformat>dictionary</displayformat>
     <mainglossary>0</mainglossary>
