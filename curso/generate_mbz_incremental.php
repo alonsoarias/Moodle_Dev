@@ -135,11 +135,9 @@ XML;
 }
 
 /**
- * Genera los XMLs para un label de presentacion del curso CON imagen
+ * Genera los XMLs para un label de presentacion del curso (diseño CSS puro, sin imagenes)
  */
 function generateIntroLabelActivity($activity, $activityDir, $time) {
-    global $allFiles, $nextFileId, $generationTime;
-
     $moduleId = $activity['moduleid'];
     $instanceId = $activity['instanceid'];
     $contextId = $activity['contextid'];
@@ -147,68 +145,29 @@ function generateIntroLabelActivity($activity, $activityDir, $time) {
     $sectionNum = $activity['sectionnumber'];
     $name = escapeXml($activity['name']);
 
-    // Copiar imagen del curso
-    $imagePath = CONTENT_DIR . '/huellas invisibles.png';
-    $imageUrl = '';
-    $fileId = null;
+    // SVG del cerebro infantil para la presentacion
+    $brainSvg = '<svg viewBox="0 0 100 100" width="80" height="80" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" /><stop offset="100%" style="stop-color:#e0e0e0;stop-opacity:1" /></linearGradient></defs><ellipse cx="50" cy="45" rx="35" ry="30" fill="url(#brainGrad)" opacity="0.9"/><path d="M30 35 Q25 25 35 20 Q45 15 50 25 Q55 15 65 20 Q75 25 70 35" fill="none" stroke="white" stroke-width="2" opacity="0.8"/><path d="M25 45 Q20 50 25 55 Q20 60 30 65" fill="none" stroke="white" stroke-width="2" opacity="0.6"/><path d="M75 45 Q80 50 75 55 Q80 60 70 65" fill="none" stroke="white" stroke-width="2" opacity="0.6"/><path d="M40 30 Q50 35 60 30" fill="none" stroke="#0170B9" stroke-width="2"/><path d="M35 45 Q50 50 65 45" fill="none" stroke="#0170B9" stroke-width="2"/><circle cx="35" cy="75" r="8" fill="white" opacity="0.7"/><circle cx="50" cy="80" r="6" fill="white" opacity="0.5"/><circle cx="65" cy="75" r="8" fill="white" opacity="0.7"/></svg>';
 
-    if (file_exists($imagePath)) {
-        $content = file_get_contents($imagePath);
-        $hash = sha1($content);
-        $filename = 'huellas_invisibles.png';
-        $filesize = filesize($imagePath);
-
-        $hashDir = OUTPUT_DIR . '/files/' . substr($hash, 0, 2);
-        if (!is_dir($hashDir)) {
-            mkdir($hashDir, 0755, true);
-        }
-        $destPath = $hashDir . '/' . $hash;
-        if (!file_exists($destPath)) {
-            copy($imagePath, $destPath);
-        }
-
-        $fileId = $nextFileId++;
-        $allFiles[] = [
-            'id' => $fileId,
-            'contenthash' => $hash,
-            'contextid' => $contextId,
-            'component' => 'mod_label',
-            'filearea' => 'intro',
-            'itemid' => 0,
-            'filepath' => '/',
-            'filename' => $filename,
-            'userid' => 2,
-            'filesize' => $filesize,
-            'mimetype' => 'image/png',
-            'status' => 0,
-            'timecreated' => $generationTime,
-            'timemodified' => $generationTime,
-            'source' => $filename,
-            'author' => 'Huellas Invisibles',
-            'license' => 'allrightsreserved',
-            'sortorder' => 0
-        ];
-
-        $imageUrl = '@@PLUGINFILE@@/' . $filename;
-    }
-
+    // Diseño usando CSS y SVG inline
     $content = <<<HTML
-<div style="max-width: 900px; margin: 0 auto; font-family: 'Segoe UI', Roboto, sans-serif;">
-    <!-- Banner con imagen -->
-    <div style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 30px;">
-        <img src="{$imageUrl}" alt="Huellas Invisibles" style="width: 100%; height: auto; display: block;" />
+<div style="max-width: 900px; margin: 0 auto; font-family: 'Segoe UI', Robik, sans-serif;">
+    <!-- Banner decorativo con CSS y SVG -->
+    <div style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 30px; background: linear-gradient(135deg, #0170B9 0%, #023e6b 50%, #3a3a3a 100%); padding: 50px 40px; text-align: center;">
+        <!-- Icono SVG cerebro -->
+        <div style="width: 120px; height: 120px; margin: 0 auto 20px auto; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid rgba(255,255,255,0.2);">
+            {$brainSvg}
+        </div>
+        <h1 style="color: white; font-size: 2.5em; margin: 0 0 10px 0; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+            Huellas Invisibles
+        </h1>
+        <p style="color: rgba(255,255,255,0.9); font-size: 1.2em; margin: 0; font-weight: 300;">
+            Neurociencia del Desarrollo en la Primera Infancia
+        </p>
     </div>
 
     <!-- Contenido principal -->
-    <div style="background: linear-gradient(135deg, #0170B9 0%, #1a5a8a 100%); border-radius: 20px; padding: 40px; color: white; box-shadow: 0 8px 32px rgba(1,112,185,0.3);">
-        <h1 style="font-size: 2.2em; margin: 0 0 10px 0; font-weight: 700; letter-spacing: -0.5px;">
-            Huellas Invisibles
-        </h1>
-        <h2 style="font-size: 1.3em; font-weight: 300; margin: 0 0 25px 0; opacity: 0.9;">
-            Neurociencia del Desarrollo en la Primera Infancia
-        </h2>
-
-        <p style="font-size: 1.05em; line-height: 1.8; margin: 0 0 30px 0; opacity: 0.95;">
+    <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e0e0e0;">
+        <p style="font-size: 1.1em; line-height: 1.9; margin: 0 0 30px 0; color: #444; text-align: justify;">
             Bienvenido a este viaje por el fascinante mundo del neurodesarrollo infantil.
             Exploraremos como se construye el cerebro en los primeros anos de vida,
             la plasticidad neuronal, las emociones, el apego y el papel del medio acuatico
@@ -217,17 +176,17 @@ function generateIntroLabelActivity($activity, $activityDir, $time) {
 
         <!-- Stats cards -->
         <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px 30px; border-radius: 15px; text-align: center; min-width: 100px;">
-                <div style="font-size: 2.5em; font-weight: 700; line-height: 1;">10</div>
-                <div style="font-size: 0.85em; opacity: 0.8; margin-top: 5px;">Capitulos</div>
+            <div style="background: linear-gradient(135deg, #0170B9, #0288d1); padding: 25px 35px; border-radius: 15px; text-align: center; min-width: 120px; box-shadow: 0 4px 15px rgba(1,112,185,0.3);">
+                <div style="font-size: 2.5em; font-weight: 700; line-height: 1; color: white;">10</div>
+                <div style="font-size: 0.9em; color: rgba(255,255,255,0.9); margin-top: 8px;">Capitulos</div>
             </div>
-            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px 30px; border-radius: 15px; text-align: center; min-width: 100px;">
-                <div style="font-size: 2.5em; font-weight: 700; line-height: 1;">100+</div>
-                <div style="font-size: 0.85em; opacity: 0.8; margin-top: 5px;">Preguntas</div>
+            <div style="background: linear-gradient(135deg, #0170B9, #0288d1); padding: 25px 35px; border-radius: 15px; text-align: center; min-width: 120px; box-shadow: 0 4px 15px rgba(1,112,185,0.3);">
+                <div style="font-size: 2.5em; font-weight: 700; line-height: 1; color: white;">100+</div>
+                <div style="font-size: 0.9em; color: rgba(255,255,255,0.9); margin-top: 8px;">Preguntas</div>
             </div>
-            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px 30px; border-radius: 15px; text-align: center; min-width: 100px;">
-                <div style="font-size: 2.5em; font-weight: 700; line-height: 1;">190+</div>
-                <div style="font-size: 0.85em; opacity: 0.8; margin-top: 5px;">Terminos</div>
+            <div style="background: linear-gradient(135deg, #0170B9, #0288d1); padding: 25px 35px; border-radius: 15px; text-align: center; min-width: 120px; box-shadow: 0 4px 15px rgba(1,112,185,0.3);">
+                <div style="font-size: 2.5em; font-weight: 700; line-height: 1; color: white;">190+</div>
+                <div style="font-size: 0.9em; color: rgba(255,255,255,0.9); margin-top: 8px;">Terminos</div>
             </div>
         </div>
     </div>
@@ -277,28 +236,13 @@ XML;
 XML;
     file_put_contents($activityDir . '/label.xml', $labelXml);
 
-    // Actualizar inforef con archivo de imagen
-    if ($fileId) {
-        $inforef = <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<inforef>
-  <fileref>
-    <file><id>{$fileId}</id></file>
-  </fileref>
-</inforef>
-XML;
-        file_put_contents($activityDir . '/inforef.xml', $inforef);
-    }
-
     generateActivityCommonXMLs($activityDir);
 }
 
 /**
- * Genera un label de introduccion para un capitulo
+ * Genera un label de introduccion para un capitulo (diseño CSS puro, sin imagenes)
  */
 function generateChapterIntroLabel($activity, $activityDir, $time, $chapterNum, $chapterTitle, $chapterIntro) {
-    global $allFiles, $nextFileId, $generationTime;
-
     $moduleId = $activity['moduleid'];
     $instanceId = $activity['instanceid'];
     $contextId = $activity['contextid'];
@@ -306,78 +250,56 @@ function generateChapterIntroLabel($activity, $activityDir, $time, $chapterNum, 
     $sectionNum = $activity['sectionnumber'];
     $name = escapeXml($activity['name']);
 
-    // Copiar imagen del curso para el capitulo
-    $imagePath = CONTENT_DIR . '/huellas invisibles.png';
-    $imageUrl = '';
-    $fileId = null;
-
-    if (file_exists($imagePath)) {
-        $content = file_get_contents($imagePath);
-        $hash = sha1($content);
-        $filename = 'huellas_cap' . $chapterNum . '.png';
-        $filesize = filesize($imagePath);
-
-        $hashDir = OUTPUT_DIR . '/files/' . substr($hash, 0, 2);
-        if (!is_dir($hashDir)) {
-            mkdir($hashDir, 0755, true);
-        }
-        $destPath = $hashDir . '/' . $hash;
-        if (!file_exists($destPath)) {
-            copy($imagePath, $destPath);
-        }
-
-        $fileId = $nextFileId++;
-        $allFiles[] = [
-            'id' => $fileId,
-            'contenthash' => $hash,
-            'contextid' => $contextId,
-            'component' => 'mod_label',
-            'filearea' => 'intro',
-            'itemid' => 0,
-            'filepath' => '/',
-            'filename' => $filename,
-            'userid' => 2,
-            'filesize' => $filesize,
-            'mimetype' => 'image/png',
-            'status' => 0,
-            'timecreated' => $generationTime,
-            'timemodified' => $generationTime,
-            'source' => $filename,
-            'author' => 'Huellas Invisibles',
-            'license' => 'allrightsreserved',
-            'sortorder' => 0
-        ];
-
-        $imageUrl = '@@PLUGINFILE@@/' . $filename;
-    }
-
     $chapterTitleEsc = escapeXml($chapterTitle);
     $chapterIntroEsc = escapeXml($chapterIntro);
+
+    // Iconos SVG por capitulo (representan cada tema)
+    $chapterSvgIcons = [
+        // 1: Desarrollo Neurologico - cerebro con conexiones
+        1 => '<svg viewBox="0 0 50 50" width="40" height="40"><circle cx="25" cy="20" r="12" fill="none" stroke="white" stroke-width="2"/><path d="M18 18 Q25 12 32 18" fill="none" stroke="white" stroke-width="1.5"/><path d="M18 22 Q25 28 32 22" fill="none" stroke="white" stroke-width="1.5"/><circle cx="20" cy="38" r="4" fill="white" opacity="0.7"/><circle cx="30" cy="38" r="4" fill="white" opacity="0.7"/><line x1="25" y1="32" x2="20" y2="34" stroke="white" stroke-width="1.5"/><line x1="25" y1="32" x2="30" y2="34" stroke="white" stroke-width="1.5"/></svg>',
+        // 2: Plasticidad - cerebro con flechas
+        2 => '<svg viewBox="0 0 50 50" width="40" height="40"><ellipse cx="25" cy="22" rx="14" ry="11" fill="none" stroke="white" stroke-width="2"/><path d="M15 20 Q25 15 35 20" fill="none" stroke="white" stroke-width="1.5"/><path d="M18 25 Q25 30 32 25" fill="none" stroke="white" stroke-width="1.5"/><path d="M10 35 L15 30 L20 35" fill="none" stroke="white" stroke-width="1.5"/><path d="M30 35 L35 30 L40 35" fill="none" stroke="white" stroke-width="1.5"/></svg>',
+        // 3: Emociones - corazon
+        3 => '<svg viewBox="0 0 50 50" width="40" height="40"><path d="M25 40 L12 27 Q5 20 12 13 Q19 6 25 15 Q31 6 38 13 Q45 20 38 27 Z" fill="none" stroke="white" stroke-width="2"/><path d="M20 22 Q25 18 30 22" fill="none" stroke="white" stroke-width="1.5" opacity="0.7"/></svg>',
+        // 4: Apego - dos figuras unidas
+        4 => '<svg viewBox="0 0 50 50" width="40" height="40"><circle cx="18" cy="15" r="6" fill="none" stroke="white" stroke-width="2"/><path d="M18 21 L18 35 M12 27 L24 27 M18 35 L12 45 M18 35 L24 45" stroke="white" stroke-width="2" fill="none"/><circle cx="35" cy="20" r="4" fill="none" stroke="white" stroke-width="1.5"/><path d="M35 24 L35 34 M31 28 L39 28 M35 34 L31 42 M35 34 L39 42" stroke="white" stroke-width="1.5" fill="none"/><path d="M24 25 Q28 22 31 25" fill="none" stroke="white" stroke-width="1.5" opacity="0.6"/></svg>',
+        // 5: Desarrollo Motor - figura en movimiento
+        5 => '<svg viewBox="0 0 50 50" width="40" height="40"><circle cx="25" cy="12" r="6" fill="none" stroke="white" stroke-width="2"/><path d="M25 18 L25 30 M18 24 L32 24" stroke="white" stroke-width="2"/><path d="M25 30 L18 42 M25 30 L35 38" stroke="white" stroke-width="2"/><path d="M35 38 L40 35" stroke="white" stroke-width="2"/><path d="M12 20 Q8 22 10 26" fill="none" stroke="white" stroke-width="1.5" opacity="0.5"/></svg>',
+        // 6: Lenguaje - burbuja de dialogo
+        6 => '<svg viewBox="0 0 50 50" width="40" height="40"><rect x="8" y="10" width="34" height="24" rx="5" fill="none" stroke="white" stroke-width="2"/><path d="M15 34 L20 42 L25 34" fill="none" stroke="white" stroke-width="2"/><line x1="14" y1="18" x2="36" y2="18" stroke="white" stroke-width="1.5" opacity="0.7"/><line x1="14" y1="24" x2="30" y2="24" stroke="white" stroke-width="1.5" opacity="0.7"/></svg>',
+        // 7: Percepcion - ojo
+        7 => '<svg viewBox="0 0 50 50" width="40" height="40"><ellipse cx="25" cy="25" rx="18" ry="12" fill="none" stroke="white" stroke-width="2"/><circle cx="25" cy="25" r="7" fill="none" stroke="white" stroke-width="2"/><circle cx="25" cy="25" r="3" fill="white"/><path d="M5 25 Q15 15 25 13" fill="none" stroke="white" stroke-width="1" opacity="0.5"/><path d="M45 25 Q35 35 25 37" fill="none" stroke="white" stroke-width="1" opacity="0.5"/></svg>',
+        // 8: Cognicion - bombilla/idea
+        8 => '<svg viewBox="0 0 50 50" width="40" height="40"><path d="M25 8 Q38 8 38 22 Q38 30 30 34 L30 40 L20 40 L20 34 Q12 30 12 22 Q12 8 25 8" fill="none" stroke="white" stroke-width="2"/><line x1="20" y1="44" x2="30" y2="44" stroke="white" stroke-width="2"/><line x1="22" y1="24" x2="28" y2="24" stroke="white" stroke-width="1.5" opacity="0.7"/><line x1="25" y1="21" x2="25" y2="27" stroke="white" stroke-width="1.5" opacity="0.7"/></svg>',
+        // 9: Medio Acuatico - olas
+        9 => '<svg viewBox="0 0 50 50" width="40" height="40"><path d="M5 20 Q12 15 20 20 Q28 25 35 20 Q42 15 50 20" fill="none" stroke="white" stroke-width="2"/><path d="M5 30 Q12 25 20 30 Q28 35 35 30 Q42 25 50 30" fill="none" stroke="white" stroke-width="2"/><path d="M5 40 Q12 35 20 40 Q28 45 35 40 Q42 35 50 40" fill="none" stroke="white" stroke-width="2" opacity="0.6"/><circle cx="25" cy="12" r="4" fill="none" stroke="white" stroke-width="1.5"/></svg>',
+        // 10: Estimulacion Temprana - estrella/objetivo
+        10 => '<svg viewBox="0 0 50 50" width="40" height="40"><circle cx="25" cy="25" r="18" fill="none" stroke="white" stroke-width="2"/><circle cx="25" cy="25" r="10" fill="none" stroke="white" stroke-width="1.5"/><circle cx="25" cy="25" r="4" fill="white"/><line x1="25" y1="3" x2="25" y2="10" stroke="white" stroke-width="1.5"/><line x1="25" y1="40" x2="25" y2="47" stroke="white" stroke-width="1.5"/><line x1="3" y1="25" x2="10" y2="25" stroke="white" stroke-width="1.5"/><line x1="40" y1="25" x2="47" y2="25" stroke="white" stroke-width="1.5"/></svg>'
+    ];
+    $iconSvg = isset($chapterSvgIcons[$chapterNum]) ? $chapterSvgIcons[$chapterNum] : '<svg viewBox="0 0 50 50" width="40" height="40"><rect x="10" y="8" width="30" height="38" rx="3" fill="none" stroke="white" stroke-width="2"/><line x1="15" y1="16" x2="35" y2="16" stroke="white" stroke-width="1.5"/><line x1="15" y1="24" x2="35" y2="24" stroke="white" stroke-width="1.5"/><line x1="15" y1="32" x2="28" y2="32" stroke="white" stroke-width="1.5"/></svg>';
 
     $content = <<<HTML
 <div style="max-width: 900px; margin: 0 auto 30px auto; font-family: 'Segoe UI', Roboto, sans-serif;">
     <div style="background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
         <!-- Header con numero de capitulo -->
         <div style="display: flex; align-items: center; gap: 20px; padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-            <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <span style="color: white; font-size: 1.8em; font-weight: 700;">{$chapterNum}</span>
+            <div style="background: rgba(255,255,255,0.15); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2);">
+                {$iconSvg}
             </div>
             <div style="flex: 1;">
                 <div style="color: rgba(255,255,255,0.7); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;">Capitulo {$chapterNum}</div>
                 <h2 style="color: white; margin: 5px 0 0 0; font-size: 1.5em; font-weight: 600;">{$chapterTitleEsc}</h2>
             </div>
+            <div style="background: rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2);">
+                <span style="color: white; font-size: 1.5em; font-weight: 700;">{$chapterNum}</span>
+            </div>
         </div>
 
-        <!-- Contenido con imagen -->
-        <div style="display: flex; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 300px; padding: 30px;">
-                <p style="color: rgba(255,255,255,0.9); font-size: 1.05em; line-height: 1.8; margin: 0;">
-                    {$chapterIntroEsc}
-                </p>
-            </div>
-            <div style="flex: 0 0 250px; padding: 20px;">
-                <img src="{$imageUrl}" alt="Capitulo {$chapterNum}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
-            </div>
+        <!-- Contenido -->
+        <div style="padding: 30px;">
+            <p style="color: rgba(255,255,255,0.95); font-size: 1.05em; line-height: 1.8; margin: 0;">
+                {$chapterIntroEsc}
+            </p>
         </div>
     </div>
 </div>
@@ -425,19 +347,6 @@ XML;
 </activity>
 XML;
     file_put_contents($activityDir . '/label.xml', $labelXml);
-
-    // Actualizar inforef con archivo de imagen
-    if ($fileId) {
-        $inforef = <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<inforef>
-  <fileref>
-    <file><id>{$fileId}</id></file>
-  </fileref>
-</inforef>
-XML;
-        file_put_contents($activityDir . '/inforef.xml', $inforef);
-    }
 
     generateActivityCommonXMLs($activityDir);
 }
