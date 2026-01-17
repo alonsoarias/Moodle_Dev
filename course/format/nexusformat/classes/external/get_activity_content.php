@@ -584,6 +584,7 @@ class get_activity_content extends external_api {
                 $feedbackplugins = $assign->get_feedback_plugins();
                 foreach ($feedbackplugins as $plugin) {
                     if ($plugin->is_enabled() && $plugin->is_visible() && $plugin->has_user_summary()) {
+                        $showviewlink = false;
                         $feedbackhtml = $plugin->view_summary($grade, $showviewlink);
                         if (!empty($feedbackhtml)) {
                             $html .= '<div class="mt-2"><strong>' . $plugin->get_name() . ':</strong>';
