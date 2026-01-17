@@ -6,7 +6,7 @@
     <moodle_release>4.4</moodle_release>
     <backup_version>2024042200</backup_version>
     <backup_release>4.4</backup_release>
-    <backup_date>1768677387</backup_date>
+    <backup_date>1768677774</backup_date>
     <mnet_remoteusers>0</mnet_remoteusers>
     <include_files>1</include_files>
     <include_file_references_to_external_content>0</include_file_references_to_external_content>
@@ -16,7 +16,7 @@
     <original_course_format>topics</original_course_format>
     <original_course_fullname>Huellas Invisibles: Neurociencia del Desarrollo Infantil</original_course_fullname>
     <original_course_shortname>huellas-invisibles</original_course_shortname>
-    <original_course_startdate>1768677387</original_course_startdate>
+    <original_course_startdate>1768677774</original_course_startdate>
     <original_course_enddate>0</original_course_enddate>
     <original_course_contextid>50</original_course_contextid>
     <original_system_contextid>1</original_system_contextid>
@@ -95,6 +95,55 @@
         <title>Autoevaluacion - Capitulo 1</title>
         <directory>activities/quiz_9</directory>
       </activity>
+      <activity>
+        <moduleid>10</moduleid>
+        <sectionid>3</sectionid>
+        <modulename>label</modulename>
+        <title>Introduccion - Capitulo 2</title>
+        <directory>activities/label_10</directory>
+      </activity>
+      <activity>
+        <moduleid>11</moduleid>
+        <sectionid>3</sectionid>
+        <modulename>resource</modulename>
+        <title>Video: Funciones Emocionales</title>
+        <directory>activities/resource_11</directory>
+      </activity>
+      <activity>
+        <moduleid>12</moduleid>
+        <sectionid>3</sectionid>
+        <modulename>resource</modulename>
+        <title>Libro: Cerebro en Construccion</title>
+        <directory>activities/resource_12</directory>
+      </activity>
+      <activity>
+        <moduleid>13</moduleid>
+        <sectionid>3</sectionid>
+        <modulename>resource</modulename>
+        <title>Documento Complementario</title>
+        <directory>activities/resource_13</directory>
+      </activity>
+      <activity>
+        <moduleid>14</moduleid>
+        <sectionid>3</sectionid>
+        <modulename>glossary</modulename>
+        <title>Glosario de Terminos - Capitulo 2</title>
+        <directory>activities/glossary_14</directory>
+      </activity>
+      <activity>
+        <moduleid>15</moduleid>
+        <sectionid>3</sectionid>
+        <modulename>resource</modulename>
+        <title>Bibliografia</title>
+        <directory>activities/resource_15</directory>
+      </activity>
+      <activity>
+        <moduleid>16</moduleid>
+        <sectionid>3</sectionid>
+        <modulename>quiz</modulename>
+        <title>Autoevaluacion - Capitulo 2</title>
+        <directory>activities/quiz_16</directory>
+      </activity>
       </activities>
       <sections>
       <section>
@@ -106,6 +155,11 @@
         <sectionid>2</sectionid>
         <title>Capitulo 1: Desarrollo Neurologico Infantil</title>
         <directory>sections/section_2</directory>
+      </section>
+      <section>
+        <sectionid>3</sectionid>
+        <title>Capitulo 2: Funciones Emocionales</title>
+        <directory>sections/section_3</directory>
       </section>
       </sections>
       <course>
@@ -242,6 +296,17 @@
         <section>section_2</section>
         <name>section_2_userinfo</name>
         <value>1</value>
+      </setting>      <setting>
+        <level>section</level>
+        <section>section_3</section>
+        <name>section_3_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>section</level>
+        <section>section_3</section>
+        <name>section_3_userinfo</name>
+        <value>1</value>
       </setting>
       <setting>
         <level>activity</level>
@@ -341,6 +406,83 @@
         <level>activity</level>
         <activity>quiz_9</activity>
         <name>quiz_9_userinfo</name>
+        <value>1</value>
+      </setting>      <setting>
+        <level>activity</level>
+        <activity>label_10</activity>
+        <name>label_10_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>label_10</activity>
+        <name>label_10_userinfo</name>
+        <value>1</value>
+      </setting>      <setting>
+        <level>activity</level>
+        <activity>resource_11</activity>
+        <name>resource_11_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>resource_11</activity>
+        <name>resource_11_userinfo</name>
+        <value>1</value>
+      </setting>      <setting>
+        <level>activity</level>
+        <activity>resource_12</activity>
+        <name>resource_12_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>resource_12</activity>
+        <name>resource_12_userinfo</name>
+        <value>1</value>
+      </setting>      <setting>
+        <level>activity</level>
+        <activity>resource_13</activity>
+        <name>resource_13_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>resource_13</activity>
+        <name>resource_13_userinfo</name>
+        <value>1</value>
+      </setting>      <setting>
+        <level>activity</level>
+        <activity>glossary_14</activity>
+        <name>glossary_14_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>glossary_14</activity>
+        <name>glossary_14_userinfo</name>
+        <value>1</value>
+      </setting>      <setting>
+        <level>activity</level>
+        <activity>resource_15</activity>
+        <name>resource_15_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>resource_15</activity>
+        <name>resource_15_userinfo</name>
+        <value>1</value>
+      </setting>      <setting>
+        <level>activity</level>
+        <activity>quiz_16</activity>
+        <name>quiz_16_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>quiz_16</activity>
+        <name>quiz_16_userinfo</name>
         <value>1</value>
       </setting>
     </settings>

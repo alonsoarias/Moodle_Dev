@@ -12,8 +12,8 @@
     <filesize>12281</filesize>
     <mimetype>application/vnd.openxmlformats-officedocument.wordprocessingml.document</mimetype>
     <status>0</status>
-    <timecreated>1768677387</timecreated>
-    <timemodified>1768677387</timemodified>
+    <timecreated>1768677774</timecreated>
+    <timemodified>1768677774</timemodified>
     <source>Titulo presentacion y programa.docx</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -33,8 +33,8 @@
     <filesize>19499923</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768677387</timecreated>
-    <timemodified>1768677387</timemodified>
+    <timecreated>1768677774</timecreated>
+    <timemodified>1768677774</timemodified>
     <source>2-Esculpiendo el Cerebro Primera Infancia (Cap 1).pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -54,8 +54,8 @@
     <filesize>195021</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768677387</timecreated>
-    <timemodified>1768677387</timemodified>
+    <timecreated>1768677774</timecreated>
+    <timemodified>1768677774</timemodified>
     <source>3-DOCUMENTO DE ESTUDIO COMPLEMENTARIO (Cap 1).pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -75,9 +75,72 @@
     <filesize>118985</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768677387</timecreated>
-    <timemodified>1768677387</timemodified>
+    <timecreated>1768677774</timecreated>
+    <timemodified>1768677774</timemodified>
     <source>5- Bibliografia de referencia y recomendada (Cap 1).pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="5">
+    <contenthash>64a9f2e5d6ea1e631607c91ebf230bc4213ea88f</contenthash>
+    <contextid>111</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>2- CEREBRO EN CONSTRUCCION.pdf</filename>
+    <userid>2</userid>
+    <filesize>17371661</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768677774</timecreated>
+    <timemodified>1768677774</timemodified>
+    <source>2- CEREBRO EN CONSTRUCCION.pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="6">
+    <contenthash>8b0964de0ea75b10e16d04659e869ad7d6ea9ee5</contenthash>
+    <contextid>112</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>3-DOCUMENTO COMPLEMENTARIO CAP 2.pdf</filename>
+    <userid>2</userid>
+    <filesize>133874</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768677774</timecreated>
+    <timemodified>1768677774</timemodified>
+    <source>3-DOCUMENTO COMPLEMENTARIO CAP 2.pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="7">
+    <contenthash>8d6c66ea4dd7e2c45ccf07f7be20de572e771e02</contenthash>
+    <contextid>114</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>4-BIBLIOGRAFIA CAP 2.pdf</filename>
+    <userid>2</userid>
+    <filesize>217011</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768677774</timecreated>
+    <timemodified>1768677774</timemodified>
+    <source>4-BIBLIOGRAFIA CAP 2.pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
     <sortorder>0</sortorder>
