@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 4 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap4_P1::Que es la sinaptogenesis? {
+  ~La muerte de sinapsis
+  =El proceso de formacion de nuevas conexiones entre neuronas
+  ~La mielinizacion de axones
+  ~La division celular
+}
+
+::Cap4_P2::Hasta que edad aproximadamente se extiende la poda sinaptica? {
+  ~2 anos
+  ~8 anos
+  =16 anos
+  ~25 anos
+}
+
+::Cap4_P3::Que significa desarrollo cerebral heterocronico? {
+  ~Todas las regiones maduran al mismo tiempo
+  =Distintas regiones maduran a ritmos diferentes
+  ~El cerebro no cambia con el tiempo
+  ~Solo el lobulo frontal se desarrolla
+}
+
+::Cap4_P4::A que edad aproximadamente se completa la maduracion de la corteza prefrontal? {
+  ~10 anos
+  ~18 anos
+  =Alrededor de los 30 anos
+  ~5 anos
+}
+
+::Cap4_P5::Que funcion tiene la microglia en la poda sinaptica? {
+  ~Crea nuevas sinapsis
+  =Participa en la eliminacion de sinapsis
+  ~Produce mielina
+  ~Transporta nutrientes
+}
+
+::Cap4_P6::Que es la fuerza sinaptica? {
+  ~El tamano de la sinapsis
+  =El refuerzo y eficacia de las sinapsis existentes por practica
+  ~La velocidad de transmision
+  ~La cantidad de neurotransmisores
+}
+
+::Cap4_P7::Donde persiste la neurogenesis en la edad adulta? {
+  ~En todo el cerebro
+  =En el hipocampo y bulbo olfatorio
+  ~En la corteza motora
+  ~No hay neurogenesis adulta
+}
+
+::Cap4_P8::Que receptor es crucial para la induccion de la potenciacion a largo plazo? {
+  ~Receptor de dopamina
+  =Receptor NMDA
+  ~Receptor de serotonina
+  ~Receptor GABA
+}
+
+::Cap4_P9::Que es el eje HPA? {
+  ~Un tipo de neurona
+  =Sistema de regulacion del estres (Hipotalamo-Hipofisis-Adrenal)
+  ~Una region del cerebelo
+  ~Un neurotransmisor
+}
+
+::Cap4_P10::Que factor de transcripcion es importante para la consolidacion del aprendizaje? {
+  ~ADN polimerasa
+  =CREB
+  ~Hemoglobina
+  ~Insulina
+}
+

@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="21" moduleid="21" modulename="glossary" contextid="120">
+  <glossary id="21">
+    <name>Glosario de Terminos - Capitulo 3</name>
+    <intro>&lt;p&gt;Terminos como apoptosis, bilinguismo, neurogenesis, plasticidad Hebbiana, plasticidad sinaptica y memoria implicita.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="44">
+        <userid>2</userid>
+        <concept>Apoptosis</concept>
+        <definition>&lt;p&gt;Muerte celular programada. Eliminacion selectiva de celulas durante el desarrollo para optimizar la eficiencia de las redes neuronales.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="45">
+        <userid>2</userid>
+        <concept>Bilinguismo</concept>
+        <definition>&lt;p&gt;Uso activo y habitual de dos lenguas. Requiere adaptacion y reorganizacion del cerebro, generando ventajas cognitivas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="46">
+        <userid>2</userid>
+        <concept>Bilinguismo Balanceado</concept>
+        <definition>&lt;p&gt;Individuos igualmente competentes en ambos idiomas, ya sea de baja o alta competencia linguistica.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="47">
+        <userid>2</userid>
+        <concept>Calmodulina Quinasa 2</concept>
+        <definition>&lt;p&gt;Proteina quinasa activada por calcio, imprescindible para la plasticidad y mediadora de aprendizaje y memoria.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="48">
+        <userid>2</userid>
+        <concept>Colateralizacion</concept>
+        <definition>&lt;p&gt;Mecanismo de plasticidad referido al crecimiento de axones sanos de neuronas no afectadas por lesion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="49">
+        <userid>2</userid>
+        <concept>Compensacion Conductual</concept>
+        <definition>&lt;p&gt;Mecanismo de neuroplasticidad donde el paciente desarrolla nuevas combinaciones de conductas tras dano cerebral.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="50">
+        <userid>2</userid>
+        <concept>Control Inhibitorio</concept>
+        <definition>&lt;p&gt;Habilidad mejorada con bilinguismo: capacidad de bloquear informacion irrelevante para enfocarse en reglas pertinentes.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="51">
+        <userid>2</userid>
+        <concept>Conectividad Cerebral</concept>
+        <definition>&lt;p&gt;Capacidad del cerebro de formar, reforzar y modificar las conexiones entre neuronas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="52">
+        <userid>2</userid>
+        <concept>Desenmascaramiento</concept>
+        <definition>&lt;p&gt;Mecanismo donde conexiones neuronales en reposo pueden activarse despues de dano cerebral.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="53">
+        <userid>2</userid>
+        <concept>Entorno Enriquecido</concept>
+        <definition>&lt;p&gt;Entorno estimulante y seguro que fomenta nuevas conexiones neuronales.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="54">
+        <userid>2</userid>
+        <concept>Glutamato</concept>
+        <definition>&lt;p&gt;Aminoacido neurotransmisor excitador fundamental en el sistema nervioso central.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="55">
+        <userid>2</userid>
+        <concept>Neuroeducacion</concept>
+        <definition>&lt;p&gt;Campo que combina neurociencia, psicologia y educacion para comprender como aprende el cerebro.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="56">
+        <userid>2</userid>
+        <concept>Neurogenesis</concept>
+        <definition>&lt;p&gt;Nacimiento y proliferacion de nuevas neuronas en el cerebro. La actividad fisica la promueve en el hipocampo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="57">
+        <userid>2</userid>
+        <concept>Periodo Critico</concept>
+        <definition>&lt;p&gt;Ventana de tiempo restringida donde la influencia de la experiencia es determinante e irreversible.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="58">
+        <userid>2</userid>
+        <concept>Periodo Sensible</concept>
+        <definition>&lt;p&gt;Ventana temporal mas amplia donde los cambios pueden modificarse aunque con esfuerzo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="59">
+        <userid>2</userid>
+        <concept>Primeros 1000 Dias</concept>
+        <definition>&lt;p&gt;Nueve meses de gestacion mas primer y segundo ano de vida. Foco de politicas de intervencion nutricional.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="60">
+        <userid>2</userid>
+        <concept>Primeros 7000 Dias</concept>
+        <definition>&lt;p&gt;Desde concepcion hasta los 18 anos. La plasticidad en areas frontales se extiende por mas de 15 anos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="61">
+        <userid>2</userid>
+        <concept>Principio de Kennard</concept>
+        <definition>&lt;p&gt;La recuperacion funcional es mayor cuando las lesiones cerebrales se producen en edades tempranas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="62">
+        <userid>2</userid>
+        <concept>Plasticidad Cerebral</concept>
+        <definition>&lt;p&gt;Capacidad del cerebro para reorganizar sus conexiones neuronales en respuesta a experiencias y estimulos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="63">
+        <userid>2</userid>
+        <concept>Plasticidad Estructural</concept>
+        <definition>&lt;p&gt;Cambios en la estructura fisica del cerebro como sinaptogenesis, neurogenesis y poda sinaptica.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="64">
+        <userid>2</userid>
+        <concept>Plasticidad Funcional</concept>
+        <definition>&lt;p&gt;Capacidad del cerebro para reasignar tareas cognitivas a diferentes areas corticales.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="65">
+        <userid>2</userid>
+        <concept>Plasticidad Sinaptica</concept>
+        <definition>&lt;p&gt;Cambio en la fuerza o eficacia de la conexion funcional entre neuronas, pilar de la maleabilidad cerebral.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="66">
+        <userid>2</userid>
+        <concept>Potenciacion a Largo Plazo</concept>
+        <definition>&lt;p&gt;Propiedad sinaptica de reforzarse tras breves e intensas descargas neurales, fundamental para la memoria.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="67">
+        <userid>2</userid>
+        <concept>Redes Perineuronales</concept>
+        <definition>&lt;p&gt;Estructuras de matriz extracelular cuya maduracion coincide con el cierre del periodo critico.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="68">
+        <userid>2</userid>
+        <concept>Reserva Cognitiva</concept>
+        <definition>&lt;p&gt;Ventaja funcional que confiere la estimulacion continua, protegiendo contra el deterioro cognitivo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="69">
+        <userid>2</userid>
+        <concept>Teoria Distributiva</concept>
+        <definition>&lt;p&gt;Estrategia que favorece el aprendizaje mediante estimulos cortos, breves e intensos (20-25 minutos diarios).&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

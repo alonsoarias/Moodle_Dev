@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 3 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap3_P1::Que es la plasticidad cerebral? {
+  ~La rigidez de las estructuras cerebrales
+  =La capacidad del cerebro para reorganizar sus conexiones en respuesta a experiencias
+  ~El tamano fijo del cerebro
+  ~La cantidad de neuronas al nacer
+}
+
+::Cap3_P2::Cual es la diferencia entre periodo critico y periodo sensible? {
+  ~No hay diferencia, son sinonimos
+  ~El periodo critico es mas largo
+  =El periodo critico es mas estricto e irreversible, el sensible es mas flexible
+  ~El periodo sensible ocurre antes que el critico
+}
+
+::Cap3_P3::Hasta que edad aproximadamente se extiende la plasticidad en areas frontales? {
+  ~2 anos
+  ~7 anos
+  =18 anos o mas (7000 dias)
+  ~10 anos
+}
+
+::Cap3_P4::Que es la potenciacion a largo plazo (PLP)? {
+  ~La muerte de neuronas
+  =El refuerzo sinaptico tras descargas neurales intensas
+  ~La reduccion de sinapsis
+  ~El crecimiento del craneo
+}
+
+::Cap3_P5::Que establece el Principio de Kennard? {
+  ~Las lesiones en adultos se recuperan mejor
+  =La recuperacion funcional es mayor cuando las lesiones ocurren en edades tempranas
+  ~El cerebro no puede recuperarse de lesiones
+  ~Solo los ninos mayores de 10 anos pueden recuperarse
+}
+
+::Cap3_P6::Que es la apoptosis? {
+  ~La creacion de nuevas neuronas
+  =La muerte celular programada para optimizar redes neuronales
+  ~El crecimiento de dendritas
+  ~La formacion de mielina
+}
+
+::Cap3_P7::Que beneficio cognitivo confiere el bilinguismo? {
+  ~Ninguno demostrado
+  ~Solo mejora la pronunciacion
+  =Mejora el control inhibitorio y la flexibilidad cognitiva
+  ~Reduce la memoria
+}
+
+::Cap3_P8::Que es la reserva cognitiva? {
+  ~La cantidad de neuronas de reserva
+  =Ventaja funcional de la estimulacion continua que protege contra deterioro
+  ~El espacio libre en el cerebro
+  ~La memoria a corto plazo
+}
+
+::Cap3_P9::Que estrategia de estudio favorece mejor el aprendizaje duradero? {
+  ~Estudiar muchas horas seguidas (teoria acumulativa)
+  =Estimulos cortos y distribuidos de 20-25 minutos (teoria distributiva)
+  ~Estudiar solo antes del examen
+  ~No importa la estrategia
+}
+
+::Cap3_P10::Que son las redes perineuronales (PNNs)? {
+  ~Tipos de neuronas
+  ~Neurotransmisores
+  =Estructuras de matriz extracelular cuya maduracion cierra el periodo critico
+  ~Vasos sanguineos del cerebro
+}
+

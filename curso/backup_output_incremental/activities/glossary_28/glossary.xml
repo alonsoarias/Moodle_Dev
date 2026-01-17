@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="28" moduleid="28" modulename="glossary" contextid="127">
+  <glossary id="28">
+    <name>Glosario de Terminos - Capitulo 4</name>
+    <intro>&lt;p&gt;Terminos como 1000/7000 dias, desarrollo heterocronico, periodos criticos/sensibles, poda sinaptica y refinamiento neural.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="70">
+        <userid>2</userid>
+        <concept>7000 Dias</concept>
+        <definition>&lt;p&gt;Ventana de oportunidad extendida que demuestra que el desarrollo cerebral se extiende hasta los 18 anos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="71">
+        <userid>2</userid>
+        <concept>1000 Dias</concept>
+        <definition>&lt;p&gt;Ventana critica que la creencia popular dice que se cierra, pero la neurociencia demuestra que el desarrollo no se limita a este periodo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="72">
+        <userid>2</userid>
+        <concept>Desarrollo Cerebral Heterocronico</concept>
+        <definition>&lt;p&gt;Caracteristica donde distintas regiones maduran a ritmos diferentes.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="73">
+        <userid>2</userid>
+        <concept>Periodo Critico</concept>
+        <definition>&lt;p&gt;Ventana temporal estricta donde si la experiencia no ocurre, la funcion no se desarrolla o es irreversible.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="74">
+        <userid>2</userid>
+        <concept>Periodo Sensible</concept>
+        <definition>&lt;p&gt;Ventana temporal flexible donde el cerebro es receptivo. El aprendizaje sigue siendo posible despues con mayor esfuerzo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="75">
+        <userid>2</userid>
+        <concept>Plasticidad Neural</concept>
+        <definition>&lt;p&gt;Capacidad fundamental del sistema nervioso para modificarse, reorganizarse y adaptarse a la experiencia.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="76">
+        <userid>2</userid>
+        <concept>Sinaptogenesis</concept>
+        <definition>&lt;p&gt;Proceso de generacion o formacion masiva de nuevas conexiones entre neuronas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="77">
+        <userid>2</userid>
+        <concept>Poda Sinaptica</concept>
+        <definition>&lt;p&gt;Eliminacion selectiva de sinapsis menos utilizadas. Proceso de refinamiento hasta los 16 anos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="78">
+        <userid>2</userid>
+        <concept>Neurogenesis</concept>
+        <definition>&lt;p&gt;Creacion de nuevas neuronas que persiste en el hipocampo y bulbo olfatorio si son estimuladas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="79">
+        <userid>2</userid>
+        <concept>Mielinizacion</concept>
+        <definition>&lt;p&gt;Recubrimiento de axones con capa aislante que aumenta velocidad de transmision. Continua hasta la adultez.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="80">
+        <userid>2</userid>
+        <concept>Microglia</concept>
+        <definition>&lt;p&gt;Celulas inmunes del sistema nervioso que participan en la eliminacion de sinapsis durante la poda.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="81">
+        <userid>2</userid>
+        <concept>Fuerza Sinaptica</concept>
+        <definition>&lt;p&gt;Refuerzo de la practica y eficacia de sinapsis existentes, mecanismo del aprendizaje duradero.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="82">
+        <userid>2</userid>
+        <concept>Potenciacion a Largo Plazo (LTP)</concept>
+        <definition>&lt;p&gt;Mecanismo molecular principal que traduce la actividad en anclaje de memoria a largo plazo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="83">
+        <userid>2</userid>
+        <concept>Corteza Prefrontal</concept>
+        <definition>&lt;p&gt;Area involucrada en autorregulacion, pensamiento y aprendizaje. Su maduracion no se completa hasta los treinta.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="84">
+        <userid>2</userid>
+        <concept>Hipocampo</concept>
+        <definition>&lt;p&gt;Region esencial para la memoria explicita y relacional. Donde persiste la neurogenesis adulta.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="85">
+        <userid>2</userid>
+        <concept>Amigdala</concept>
+        <definition>&lt;p&gt;Estructura cuyo volumen y reactividad pueden verse afectados por estres cronico y desigualdad social.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="86">
+        <userid>2</userid>
+        <concept>Memoria de Trabajo</concept>
+        <definition>&lt;p&gt;Habilidad de las funciones ejecutivas para mantener y manipular informacion a corto plazo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="87">
+        <userid>2</userid>
+        <concept>Eje HPA</concept>
+        <definition>&lt;p&gt;Sistema de regulacion del estres que se activa cronicamente ante incertidumbre y amenazas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="88">
+        <userid>2</userid>
+        <concept>Receptor NMDA</concept>
+        <definition>&lt;p&gt;Receptor cuya activacion intensa es crucial para la induccion de la potenciacion a largo plazo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="89">
+        <userid>2</userid>
+        <concept>Receptor AMPA</concept>
+        <definition>&lt;p&gt;Receptores cuya insercion aumenta la sensibilidad de la sinapsis y fortalece la comunicacion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="90">
+        <userid>2</userid>
+        <concept>CREB</concept>
+        <definition>&lt;p&gt;Factor de transcripcion que se activa durante la consolidacion del aprendizaje para sintesis de proteinas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768682579</timecreated>
+        <timemodified>1768682579</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

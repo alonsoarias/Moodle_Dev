@@ -12,8 +12,8 @@
     <filesize>12281</filesize>
     <mimetype>application/vnd.openxmlformats-officedocument.wordprocessingml.document</mimetype>
     <status>0</status>
-    <timecreated>1768681839</timecreated>
-    <timemodified>1768681839</timemodified>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
     <source>Titulo presentacion y programa.docx</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -33,8 +33,8 @@
     <filesize>19499923</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768681839</timecreated>
-    <timemodified>1768681839</timemodified>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
     <source>2-Esculpiendo el Cerebro Primera Infancia (Cap 1).pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -54,8 +54,8 @@
     <filesize>195021</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768681839</timecreated>
-    <timemodified>1768681839</timemodified>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
     <source>3-DOCUMENTO DE ESTUDIO COMPLEMENTARIO (Cap 1).pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -75,8 +75,8 @@
     <filesize>118985</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768681839</timecreated>
-    <timemodified>1768681839</timemodified>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
     <source>5- Bibliografia de referencia y recomendada (Cap 1).pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -96,8 +96,8 @@
     <filesize>17371661</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768681839</timecreated>
-    <timemodified>1768681839</timemodified>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
     <source>2- CEREBRO EN CONSTRUCCION.pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -117,8 +117,8 @@
     <filesize>133874</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768681839</timecreated>
-    <timemodified>1768681839</timemodified>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
     <source>3-DOCUMENTO COMPLEMENTARIO CAP 2.pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -138,9 +138,135 @@
     <filesize>217011</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768681839</timecreated>
-    <timemodified>1768681839</timemodified>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
     <source>4-BIBLIOGRAFIA CAP 2.pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="8">
+    <contenthash>177e1933b5675b276ececee2ced66c081c940c7d</contenthash>
+    <contextid>118</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>2-El Cerebro Moldeable Principios y Práctica.pdf</filename>
+    <userid>2</userid>
+    <filesize>13359062</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
+    <source>2-El Cerebro Moldeable Principios y Práctica.pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="9">
+    <contenthash>8294f7f8132db683782eddf76466311ba7b5ec74</contenthash>
+    <contextid>119</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>3-Documento de estudio cap 3.pdf</filename>
+    <userid>2</userid>
+    <filesize>227333</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
+    <source>3-Documento de estudio cap 3.pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="10">
+    <contenthash>43390186521eb01e589830fad60fd3d89107f3cb</contenthash>
+    <contextid>121</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>5-BIBLIOGRAFIA CAP 3.pdf</filename>
+    <userid>2</userid>
+    <filesize>274697</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
+    <source>5-BIBLIOGRAFIA CAP 3.pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="11">
+    <contenthash>773c9b34a8604723281291e8c56217b2fa4e4e40</contenthash>
+    <contextid>125</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>2-El Cerebro Plástico De la Construcción a la Maestría.pdf</filename>
+    <userid>2</userid>
+    <filesize>19793814</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
+    <source>2-El Cerebro Plástico De la Construcción a la Maestría.pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="12">
+    <contenthash>8cf39023f24bcac26ec6e5c2b18dc8d79a8dcbc8</contenthash>
+    <contextid>126</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>3-Documento de estudio cap 4.pdf</filename>
+    <userid>2</userid>
+    <filesize>147323</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
+    <source>3-Documento de estudio cap 4.pdf</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="13">
+    <contenthash>4e97db8afa83d791d6b03cdb7383304d01160dc9</contenthash>
+    <contextid>128</contextid>
+    <component>mod_resource</component>
+    <filearea>content</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>5-BIBLIOGRAFIA CAP 4.pdf</filename>
+    <userid>2</userid>
+    <filesize>92708</filesize>
+    <mimetype>application/pdf</mimetype>
+    <status>0</status>
+    <timecreated>1768682579</timecreated>
+    <timemodified>1768682579</timemodified>
+    <source>5-BIBLIOGRAFIA CAP 4.pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
     <sortorder>0</sortorder>

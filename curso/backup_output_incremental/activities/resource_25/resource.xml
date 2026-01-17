@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="25" moduleid="25" modulename="resource" contextid="124">
+  <resource id="25">
+    <name>Video: Sinaptogenesis</name>
+    <intro>&lt;p&gt;Video sobre la formacion de sinapsis y las ventanas de oportunidad en el desarrollo infantil.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <tobemigrated>0</tobemigrated>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>0</display>
+    <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
+    <filterfiles>0</filterfiles>
+    <revision>1</revision>
+    <timemodified>1768682579</timemodified>
+  </resource>
+</activity>
