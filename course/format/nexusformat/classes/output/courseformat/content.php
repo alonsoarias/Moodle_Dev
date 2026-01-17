@@ -95,8 +95,11 @@ class content extends content_base {
         // Get sections data for sidebar.
         $data->sidebarunits = $this->get_sidebar_units($modinfo, $output, $canviewhidden);
 
-        // Get first activity URL for initial load.
-        $data->initialactivityurl = $this->get_first_activity_url($modinfo);
+        // Get the section number from URL if specified (for section-specific first activity).
+        $sectionparam = $data->selectedsection > 0 ? $data->selectedsection : null;
+
+        // Get first activity URL for initial load (from specific section if specified).
+        $data->initialactivityurl = $this->get_first_activity_url($modinfo, $sectionparam);
 
         // Get activity cmid from URL parameter (for activity persistence on reload).
         $urlcmid = optional_param('cmid', 0, PARAM_INT);
@@ -113,13 +116,13 @@ class content extends content_base {
             }
         }
 
-        // If no URL cmid, use first activity for auto-load.
+        // If no URL cmid, use first activity for auto-load (from specific section if specified).
         if (empty($data->initialactivitycmid)) {
-            $data->initialactivitycmid = $this->get_first_activity_cmid($modinfo);
+            $data->initialactivitycmid = $this->get_first_activity_cmid($modinfo, $sectionparam);
         }
         $data->hasinitialactivity = !empty($data->initialactivitycmid) ? 1 : 0;
 
-        // Also keep firstactivitycmid for backwards compatibility.
+        // Also keep firstactivitycmid for backwards compatibility (always from whole course).
         $data->firstactivitycmid = $this->get_first_activity_cmid($modinfo);
         $data->hasfirstactivity = !empty($data->firstactivitycmid) ? 1 : 0;
 
@@ -675,15 +678,21 @@ class content extends content_base {
     }
 
     /**
-     * Get the URL of the first activity in the course.
+     * Get the URL of the first activity in the course or a specific section.
      *
      * @param \course_modinfo $modinfo The course modinfo
+     * @param int|null $sectionnum Optional section number to search in
      * @return string|null URL of first activity or null
      */
-    protected function get_first_activity_url(\course_modinfo $modinfo): ?string {
+    protected function get_first_activity_url(\course_modinfo $modinfo, ?int $sectionnum = null): ?string {
         $sections = $modinfo->get_section_info_all();
 
         foreach ($sections as $section) {
+            // If a specific section is requested, skip other sections.
+            if ($sectionnum !== null && $section->section != $sectionnum) {
+                continue;
+            }
+
             if (!empty($modinfo->sections[$section->section])) {
                 foreach ($modinfo->sections[$section->section] as $cmid) {
                     $cm = $modinfo->get_cm($cmid);
@@ -692,23 +701,39 @@ class content extends content_base {
                     }
                 }
             }
+
+            // If we found a specific section but it had no activities, don't continue.
+            if ($sectionnum !== null) {
+                break;
+            }
+        }
+
+        // If specific section had no activities, fall back to first activity in course.
+        if ($sectionnum !== null) {
+            return $this->get_first_activity_url($modinfo, null);
         }
 
         return null;
     }
 
     /**
-     * Get the cmid of the first loadable activity in the course.
+     * Get the cmid of the first loadable activity in the course or a specific section.
      *
      * @param \course_modinfo $modinfo The course modinfo
+     * @param int|null $sectionnum Optional section number to search in
      * @return int|null cmid of first activity or null
      */
-    protected function get_first_activity_cmid(\course_modinfo $modinfo): ?int {
+    protected function get_first_activity_cmid(\course_modinfo $modinfo, ?int $sectionnum = null): ?int {
         $sections = $modinfo->get_section_info_all();
 
         foreach ($sections as $section) {
             // Skip delegated sections.
             if (!empty($section->component)) {
+                continue;
+            }
+
+            // If a specific section is requested, skip other sections.
+            if ($sectionnum !== null && $section->section != $sectionnum) {
                 continue;
             }
 
@@ -725,6 +750,16 @@ class content extends content_base {
                     }
                 }
             }
+
+            // If we found a specific section but it had no activities, don't continue.
+            if ($sectionnum !== null) {
+                break;
+            }
+        }
+
+        // If specific section had no activities, fall back to first activity in course.
+        if ($sectionnum !== null) {
+            return $this->get_first_activity_cmid($modinfo, null);
         }
 
         return null;

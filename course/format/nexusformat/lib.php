@@ -239,18 +239,38 @@ class format_nexusformat extends core_courseformat\base {
     /**
      * Called after the course has been loaded.
      * This adds a body class for full-width styling.
-     * Only add the class on course view and section pages to avoid affecting activity pages.
+     * Also redirects section.php URLs to view.php for consistent navigation.
      */
     public function page_set_course(\moodle_page $page): void {
+        global $DB;
+
         parent::page_set_course($page);
 
-        // Only add format body class on course view and section pages.
+        // Redirect section.php to view.php with section parameter.
+        // This ensures consistent navigation and keeps the course menu visible.
+        $pagetype = $page->pagetype ?? '';
+        if (strpos($pagetype, 'course-view-section-') === 0) {
+            // We're on section.php - redirect to view.php with section parameter.
+            $course = $this->get_course();
+            $sectionid = $this->get_sectionid();
+            if ($sectionid) {
+                // Get the section number from section ID.
+                $section = $DB->get_record('course_sections', ['id' => $sectionid], 'section');
+                if ($section) {
+                    $cmid = optional_param('cmid', 0, PARAM_INT);
+                    $params = ['id' => $course->id, 'section' => $section->section];
+                    if ($cmid > 0) {
+                        $params['cmid'] = $cmid;
+                    }
+                    $url = new moodle_url('/course/view.php', $params);
+                    redirect($url);
+                }
+            }
+        }
+
+        // Only add format body class on course view pages.
         // This ensures breadcrumbs and other elements are not hidden on activity pages
         // like /mod/page/view.php, /mod/quiz/view.php, etc.
-        // The page type for course view is 'course-view-{formatname}'.
-        // The page type for single section view is 'course-view-section-{formatname}'.
-        // Both start with 'course-view', so we only check for that prefix.
-        $pagetype = $page->pagetype ?? '';
         if (strpos($pagetype, 'course-view') === 0) {
             $page->add_body_class('format-nexusformat');
         }
