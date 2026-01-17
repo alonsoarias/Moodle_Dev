@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="49" moduleid="49" modulename="glossary" contextid="148">
+  <glossary id="49">
+    <name>Glosario de Terminos - Capitulo 7</name>
+    <intro>&lt;p&gt;Terminos como epigenetica, metilacion, histonas, expresion genetica y herencia epigenetica.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768683151</timecreated>
+    <timemodified>1768683151</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="129">
+        <userid>2</userid>
+        <concept>Adaptacion Selectiva</concept>
+        <definition>&lt;p&gt;Proceso donde los genes que favorecen supervivencia y reproduccion se vuelven mas comunes en una poblacion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="130">
+        <userid>2</userid>
+        <concept>Alelo Corto del Gen 5HTT</concept>
+        <definition>&lt;p&gt;Variante genetica que aumenta vulnerabilidad a depresion, pero solo se manifiesta ante maltrato infantil o estres cronico.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="131">
+        <userid>2</userid>
+        <concept>Celula Diploide</concept>
+        <definition>&lt;p&gt;Tipo de celula con cromosomas emparejados en el nucleo. En humanos contienen los 23 pares de cromosomas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="132">
+        <userid>2</userid>
+        <concept>Cromosoma</concept>
+        <definition>&lt;p&gt;Estructura organizada formada por ADN y proteinas que contiene la mayor parte de la informacion genetica.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="133">
+        <userid>2</userid>
+        <concept>Epi (Prefijo)</concept>
+        <definition>&lt;p&gt;Raiz griega que significa lo que circunda, lo que rodea, sobre o cerca de.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="134">
+        <userid>2</userid>
+        <concept>Epigenetica</concept>
+        <definition>&lt;p&gt;Teoria que estudia como los factores del entorno influyen en la actividad de los genes sin modificar la secuencia de ADN.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="135">
+        <userid>2</userid>
+        <concept>Etologia</concept>
+        <definition>&lt;p&gt;Disciplina cientifica que estudia el comportamiento de los animales en su ambiente natural.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="136">
+        <userid>2</userid>
+        <concept>Genes Codificadores</concept>
+        <definition>&lt;p&gt;Segmentos de ADN que contienen instrucciones para producir proteinas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="137">
+        <userid>2</userid>
+        <concept>Hipersensibilidad</concept>
+        <definition>&lt;p&gt;Estado biologico resultante de interaccion epigenetica entre vulnerabilidad genetica y consumo repetido de sustancia.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="138">
+        <userid>2</userid>
+        <concept>Interaccion Reciproca</concept>
+        <definition>&lt;p&gt;Principio que establece que genes y ambiente se influyen mutuamente de forma dinamica.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="139">
+        <userid>2</userid>
+        <concept>Preformismo</concept>
+        <definition>&lt;p&gt;Creencia que postula que la codificacion genetica predetermina todo el desarrollo de forma estatica.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="140">
+        <userid>2</userid>
+        <concept>Psicologia Evolucionista</concept>
+        <definition>&lt;p&gt;Rama que estudia los patrones de conducta heredados que fueron adaptativos para la supervivencia.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="141">
+        <userid>2</userid>
+        <concept>Rango de Reaccion</concept>
+        <definition>&lt;p&gt;Variedad de posibles consecuencias que un genotipo puede manifestar segun los estimulos del medio.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="142">
+        <userid>2</userid>
+        <concept>Sociobiologia</concept>
+        <definition>&lt;p&gt;Estudio del modo en que los individuos pueden trascender su herencia genetica a traves de la interaccion social.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="143">
+        <userid>2</userid>
+        <concept>Zonas Ocultas</concept>
+        <definition>&lt;p&gt;Regiones no codificadoras de los cromosomas que contienen capas de informacion maleable y sensible a la experiencia.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 10 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap10_P1::Que es la atencion segun el material? {
+  ~Un proceso simple y estatico
+  =Sistema funcional complejo, dinamico y jerarquico que filtra informacion
+  ~Solo la capacidad de concentrarse
+  ~Un tipo de memoria
+}
+
+::Cap10_P2::Cual es el nivel jerarquico mas elevado de atencion? {
+  ~Atencion focalizada
+  ~Atencion selectiva
+  ~Atencion sostenida
+  =Atencion dividida
+}
+
+::Cap10_P3::Que es el afecto atento? {
+  ~Un tipo de carino
+  =Interacciones reciprocas nino-cuidador que fortalecen circuitos neuronales
+  ~Una enfermedad
+  ~Un medicamento
+}
+
+::Cap10_P4::Que es la tecnoferencia? {
+  ~Ayuda tecnologica para aprender
+  =Interferencia del uso de pantallas con interaccion familiar cara a cara
+  ~Un tipo de aplicacion educativa
+  ~Tecnologia para mejorar la atencion
+}
+
+::Cap10_P5::Que es la automatizacion cerebral? {
+  ~Perdida de control voluntario
+  =Proceso donde la repeticion hace que una secuencia requiera menos esfuerzo neural
+  ~Un tipo de enfermedad
+  ~Robotizacion del pensamiento
+}
+
+::Cap10_P6::Que marca biologicamente que se ha alcanzado el automatismo en una red neuronal? {
+  ~Dopamina
+  =Calmodulina 2
+  ~Serotonina
+  ~Adrenalina
+}
+
+::Cap10_P7::Cual es la funcion de la Red Ejecutiva? {
+  ~Mantener el estado de vigilia
+  =Seleccion voluntaria, planificacion y resolucion de conflictos
+  ~Solo orientar en el espacio
+  ~Procesar informacion sensorial basica
+}
+
+::Cap10_P8::A que edad aproximadamente se desarrollan los conectomas para pensar armoniosamente? {
+  ~2-3 anos
+  =7-8 anos
+  ~12-13 anos
+  ~18 anos
+}
+
+::Cap10_P9::Que tipo de atencion es requisito previo para cualquier aprendizaje? {
+  =Atencion focalizada
+  ~Atencion dividida
+  ~Atencion alternante
+  ~Atencion automatica
+}
+
+::Cap10_P10::Que son los procesos automaticos (bottom-up)? {
+  ~Conductas controladas conscientemente
+  =Conductas involuntarias impulsadas por estimulos del entorno
+  ~Movimientos lentos y deliberados
+  ~Pensamientos abstractos
+}
+

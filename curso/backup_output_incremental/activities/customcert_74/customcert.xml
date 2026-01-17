@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="74" moduleid="74" modulename="customcert" contextid="173">
+  <customcert id="74">
+    <name>Certificado del Curso</name>
+    <intro>&lt;p&gt;Felicitaciones por completar el curso &quot;Huellas Invisibles: Neurodesarrollo en la Primera Infancia&quot;. Descargue su certificado de participacion.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <requiredtime>0</requiredtime>
+    <verifyany>0</verifyany>
+    <deliveryoption>0</deliveryoption>
+    <emailstudents>0</emailstudents>
+    <emailteachers>0</emailteachers>
+    <emailothers></emailothers>
+    <protection></protection>
+    <language></language>
+    <timecreated>1768683151</timecreated>
+    <timemodified>1768683151</timemodified>
+    <templateid>0</templateid>
+    <template>
+      <pages>
+      </pages>
+    </template>
+    <issues>
+    </issues>
+  </customcert>
+</activity>

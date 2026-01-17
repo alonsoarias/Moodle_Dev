@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 7 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap7_P1::Que significa el prefijo epi en epigenetica? {
+  ~Significa copia exacta
+  ~Significa despues de en la historia
+  =Significa sobre, alrededor o circundando a los genes
+  ~Significa reemplazo genetico
+}
+
+::Cap7_P2::Cual es la diferencia fundamental entre epigenetica y preformismo? {
+  ~La epigenetica altera la secuencia del ADN
+  ~Ambas coinciden en que el desarrollo es fijo
+  =La epigenetica propone interaccion dinamica entre genes y ambiente
+  ~El preformismo se enfoca en la maduracion unicamente
+}
+
+::Cap7_P3::Que factor ambiental es crucial para que el alelo corto del gen 5HTT cause depresion? {
+  ~Exposicion a sustancias adictivas
+  ~La simple herencia del gen es suficiente
+  ~Una dieta deficiente
+  =Maltrato en la ninez o estres cronico
+}
+
+::Cap7_P4::Que es el rango de reaccion? {
+  ~La velocidad de respuesta neuronal
+  =Variedad de consecuencias que un genotipo puede manifestar segun el ambiente
+  ~La cantidad de genes activos
+  ~El tiempo de desarrollo cerebral
+}
+
+::Cap7_P5::En cuanto tiempo pueden verse efectos epigeneticos transmitidos a nietos? {
+  ~Solo a hijos directos
+  ~No se pueden transmitir
+  ~Se necesitan 200 anos
+  =Aproximadamente 30 anos o dos generaciones
+}
+
+::Cap7_P6::Cual es un ejemplo de adaptacion selectiva en humanos? {
+  ~Cambio de color de pelaje
+  ~Determinacion del sexo por temperatura
+  ~Hipersensibilidad en adictos
+  =Desarrollo de tolerancia a la lactosa en poblaciones ganaderas
+}
+
+::Cap7_P7::Donde se encontro informacion genetica oculta y maleable? {
+  =En la region no codificadora del ADN y fuera de la secuencia de ADN
+  ~Unicamente en las histonas
+  ~Exclusivamente en ARN de transferencia
+  ~En las mitocondrias solamente
+}
+
+::Cap7_P8::Que estudia la etologia? {
+  ~Los genes humanos
+  =El comportamiento de animales en su ambiente natural
+  ~Las enfermedades geneticas
+  ~La estructura del ADN
+}
+
+::Cap7_P9::Que es la hipersensibilidad en el contexto epigenetico? {
+  ~Alergia a alimentos
+  =Estado biologico de deseo intenso por droga debido a interaccion genes-consumo
+  ~Sensibilidad auditiva aumentada
+  ~Reaccion a la luz
+}
+
+::Cap7_P10::Que postula el preformismo? {
+  ~Que el ambiente es mas importante que los genes
+  =Que la codificacion genetica predetermina todo el desarrollo de forma estatica
+  ~Que genes y ambiente interactuan
+  ~Que no existen los genes
+}
+

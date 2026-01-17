@@ -34,6 +34,10 @@ curso/backup_output_v3/
 curso/backup_output_v4/*
 !curso/backup_output_v4/mbz_split_v4/
 
-# Keep MBZ files available for download
-!curso/backup_output_incremental/*.mbz
-!curso/backup_output_chapter2/*.mbz
+# MBZ files are too large for GitHub (>100MB), exclude them
+# Generate locally with: php curso/generate_mbz_incremental.php 11
+curso/backup_output_incremental/*.mbz
+curso/backup_output_chapter2/*.mbz
+
+# Keep GIFT files for question import
+!curso/backup_output_incremental/*.gift.txt

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module id="65" version="2024042200">
+  <modulename>quiz</modulename>
+  <sectionid>10</sectionid>
+  <sectionnumber>9</sectionnumber>
+  <idnumber></idnumber>
+  <added>1768683151</added>
+  <score>0</score>
+  <indent>0</indent>
+  <visible>1</visible>
+  <visibleoncoursepage>1</visibleoncoursepage>
+  <visibleold>1</visibleold>
+  <groupmode>0</groupmode>
+  <groupingid>0</groupingid>
+  <completion>0</completion>
+  <completiongradeitemnumber>$@NULL@$</completiongradeitemnumber>
+  <completionview>0</completionview>
+  <completionexpected>0</completionexpected>
+  <completionpassgrade>0</completionpassgrade>
+  <availability>$@NULL@$</availability>
+  <showdescription>1</showdescription>
+  <downloadcontent>1</downloadcontent>
+  <lang></lang>
+  <tags></tags>
+</module>

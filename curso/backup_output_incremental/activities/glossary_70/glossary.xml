@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="70" moduleid="70" modulename="glossary" contextid="169">
+  <glossary id="70">
+    <name>Glosario de Terminos - Capitulo 10</name>
+    <intro>&lt;p&gt;Terminos como atencion sostenida, selectiva, dividida, funciones ejecutivas y regulacion atencional.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768683151</timecreated>
+    <timemodified>1768683151</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="175">
+        <userid>2</userid>
+        <concept>Afecto Atento</concept>
+        <definition>&lt;p&gt;Interacciones reciprocas nino-cuidador (servir y devolver) que fortalecen circuitos neuronales de atencion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="176">
+        <userid>2</userid>
+        <concept>Atencion</concept>
+        <definition>&lt;p&gt;Sistema funcional complejo, dinamico y jerarquico que filtra informacion relevante, prioriza e inhibe estimulos irrelevantes.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="177">
+        <userid>2</userid>
+        <concept>Atencion Alternante</concept>
+        <definition>&lt;p&gt;Capacidad de flexibilidad cognitiva que permite cambiar el foco entre tareas con requisitos distintos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="178">
+        <userid>2</userid>
+        <concept>Atencion Consciente (Top-Down)</concept>
+        <definition>&lt;p&gt;Operacion controlada que requiere esfuerzo, impulsada por informacion almacenada en memoria.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="179">
+        <userid>2</userid>
+        <concept>Atencion Dividida</concept>
+        <definition>&lt;p&gt;Habilidad de responder simultaneamente a multiples tareas. Nivel jerarquico mas elevado con mayor carga cognitiva.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="180">
+        <userid>2</userid>
+        <concept>Atencion Focalizada</concept>
+        <definition>&lt;p&gt;Habilidad para dar respuesta basica ante un estimulo especifico. Requisito previo para cualquier aprendizaje.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="181">
+        <userid>2</userid>
+        <concept>Atencion Selectiva</concept>
+        <definition>&lt;p&gt;Capacidad de priorizar estimulos relevantes mientras se inhiben activamente los distractores.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="182">
+        <userid>2</userid>
+        <concept>Atencion Sostenida</concept>
+        <definition>&lt;p&gt;Capacidad de mantener el foco atencional en una tarea durante tiempo prolongado sin cometer errores.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="183">
+        <userid>2</userid>
+        <concept>Automatizacion</concept>
+        <definition>&lt;p&gt;Proceso cerebral donde la repeticion hace que una secuencia se vuelva rutinaria, requiriendo menos esfuerzo neural.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="184">
+        <userid>2</userid>
+        <concept>Calmodulina 2</concept>
+        <definition>&lt;p&gt;Cinasa que actua como marcador biologico determinante de que se ha alcanzado automatismo en una red neuronal.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="185">
+        <userid>2</userid>
+        <concept>Conciencia</concept>
+        <definition>&lt;p&gt;Proceso global que resume informacion pertinente al individuo y entorno de manera general, a diferencia de la atencion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="186">
+        <userid>2</userid>
+        <concept>Conectomas</concept>
+        <definition>&lt;p&gt;Grandes redes corticales que conectan partes del encefalo. Su desarrollo permite pensar de forma armoniosa.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="187">
+        <userid>2</userid>
+        <concept>Control Inhibitorio</concept>
+        <definition>&lt;p&gt;Capacidad de la Red Ejecutiva para frenar respuestas automaticas o impulsivas ante emocion o estimulo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="188">
+        <userid>2</userid>
+        <concept>Potenciacion a Largo Plazo (PLP)</concept>
+        <definition>&lt;p&gt;Fenomeno donde la repeticion constante sincroniza el disparo neuronal, creando redes de automatismo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="189">
+        <userid>2</userid>
+        <concept>Procesos Automaticos (Bottom-Up)</concept>
+        <definition>&lt;p&gt;Conductas involuntarias e inconscientes impulsadas directamente por datos del entorno.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="190">
+        <userid>2</userid>
+        <concept>Red de Alerta</concept>
+        <definition>&lt;p&gt;Sistema encargado de mantener estado de vigilia y preparacion para recibir estimulos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="191">
+        <userid>2</userid>
+        <concept>Red de Orientacion</concept>
+        <definition>&lt;p&gt;Sistema que permite seleccionar informacion sensorial especifica y ubicar estimulos en el espacio.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="192">
+        <userid>2</userid>
+        <concept>Red Ejecutiva</concept>
+        <definition>&lt;p&gt;Sistema atencional mas sofisticado, responsable de seleccion voluntaria, planificacion y resolucion de conflictos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="193">
+        <userid>2</userid>
+        <concept>Tecnoferencia</concept>
+        <definition>&lt;p&gt;Como el uso excesivo de pantallas interfiere con interaccion familiar, habituando a gratificacion inmediata.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768683151</timecreated>
+        <timemodified>1768683151</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

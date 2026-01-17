@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="61" moduleid="61" modulename="resource" contextid="160">
+  <resource id="61">
+    <name>Libro: Arquitectos de Mentes</name>
+    <intro>&lt;p&gt;Libro &quot;Arquitectos de Mentes: Construyendo el Cerebro&quot; sobre socializacion y desarrollo.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <tobemigrated>0</tobemigrated>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>0</display>
+    <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
+    <filterfiles>0</filterfiles>
+    <revision>1</revision>
+    <timemodified>1768683151</timemodified>
+  </resource>
+</activity>

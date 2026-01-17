@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="55" moduleid="55" modulename="resource" contextid="154">
+  <resource id="55">
+    <name>Documento de Estudio</name>
+    <intro>&lt;p&gt;Documento de estudio sobre neurofisiologia del reflejo de apnea.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <tobemigrated>0</tobemigrated>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>0</display>
+    <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
+    <filterfiles>0</filterfiles>
+    <revision>1</revision>
+    <timemodified>1768683151</timemodified>
+  </resource>
+</activity>
