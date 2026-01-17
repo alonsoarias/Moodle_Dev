@@ -1304,10 +1304,14 @@ SLOT;
         $slot++;
     }
 
+    // Question categories use course context (50), not module context
+    // contextlevel 50 = CONTEXT_COURSE
+    $courseContextId = 50;
+
     $allQuestions[] = [
         'categoryid' => $categoryId,
         'categoryname' => $categoryName,
-        'contextid' => $contextId,
+        'contextid' => $courseContextId,  // Use course context, not quiz module context
         'questions' => $questionsForCategory
     ];
 
@@ -1849,12 +1853,13 @@ function generateQuestionsXMLFile() {
 ENTRY;
         }
 
+        // contextlevel 50 = CONTEXT_COURSE, contextinstanceid = course id (1)
         $categoriesXml .= <<<CAT
   <question_category id="{$catId}">
     <name>{$catName}</name>
     <contextid>{$catContextId}</contextid>
-    <contextlevel>70</contextlevel>
-    <contextinstanceid>{$catId}</contextinstanceid>
+    <contextlevel>50</contextlevel>
+    <contextinstanceid>1</contextinstanceid>
     <info>Preguntas del capitulo</info>
     <infoformat>0</infoformat>
     <stamp>{$stamp}</stamp>
