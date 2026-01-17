@@ -32,9 +32,9 @@ CONTENIDO DEL CURSO:
 - Capitulo 8: Reflejo de Apnea
 - Capitulo 9: Socializacion en la Primera Infancia
 - Capitulo 10: La Atencion
-- Cierre del Curso (Encuesta + Certificado)
+- Cierre del Curso (Intro + Encuesta + Certificado)
 
-Total: 74 actividades, 12 secciones
+Total: 75 actividades, 12 secciones
 
 NOTA: Los quizzes estan vacios. Importar preguntas desde
 los archivos GIFT en: curso/backup_output_incremental/*.gift.txt

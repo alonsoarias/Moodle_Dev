@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<activity id="73" moduleid="73" modulename="feedback" contextid="172">
-  <feedback id="73">
+<activity id="74" moduleid="74" modulename="feedback" contextid="173">
+  <feedback id="74">
     <name>Encuesta de Opinion - Cierre del Curso</name>
     <intro>&lt;p&gt;Por favor, complete esta breve encuesta para ayudarnos a mejorar el curso. Sus respuestas son anonimas.&lt;/p&gt;</intro>
     <introformat>1</introformat>
@@ -14,7 +14,7 @@
     <publish_stats>0</publish_stats>
     <timeopen>0</timeopen>
     <timeclose>0</timeclose>
-    <timemodified>1768683151</timemodified>
+    <timemodified>1768689196</timemodified>
     <completionsubmit>1</completionsubmit>
     <items>
       <item id="1">

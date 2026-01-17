@@ -274,9 +274,15 @@ function generateChapterIntroLabel($activity, $activityDir, $time, $chapterNum, 
         // 9: Medio Acuatico - olas
         9 => '<svg viewBox="0 0 50 50" width="40" height="40"><path d="M5 20 Q12 15 20 20 Q28 25 35 20 Q42 15 50 20" fill="none" stroke="white" stroke-width="2"/><path d="M5 30 Q12 25 20 30 Q28 35 35 30 Q42 25 50 30" fill="none" stroke="white" stroke-width="2"/><path d="M5 40 Q12 35 20 40 Q28 45 35 40 Q42 35 50 40" fill="none" stroke="white" stroke-width="2" opacity="0.6"/><circle cx="25" cy="12" r="4" fill="none" stroke="white" stroke-width="1.5"/></svg>',
         // 10: Estimulacion Temprana - estrella/objetivo
-        10 => '<svg viewBox="0 0 50 50" width="40" height="40"><circle cx="25" cy="25" r="18" fill="none" stroke="white" stroke-width="2"/><circle cx="25" cy="25" r="10" fill="none" stroke="white" stroke-width="1.5"/><circle cx="25" cy="25" r="4" fill="white"/><line x1="25" y1="3" x2="25" y2="10" stroke="white" stroke-width="1.5"/><line x1="25" y1="40" x2="25" y2="47" stroke="white" stroke-width="1.5"/><line x1="3" y1="25" x2="10" y2="25" stroke="white" stroke-width="1.5"/><line x1="40" y1="25" x2="47" y2="25" stroke="white" stroke-width="1.5"/></svg>'
+        10 => '<svg viewBox="0 0 50 50" width="40" height="40"><circle cx="25" cy="25" r="18" fill="none" stroke="white" stroke-width="2"/><circle cx="25" cy="25" r="10" fill="none" stroke="white" stroke-width="1.5"/><circle cx="25" cy="25" r="4" fill="white"/><line x1="25" y1="3" x2="25" y2="10" stroke="white" stroke-width="1.5"/><line x1="25" y1="40" x2="25" y2="47" stroke="white" stroke-width="1.5"/><line x1="3" y1="25" x2="10" y2="25" stroke="white" stroke-width="1.5"/><line x1="40" y1="25" x2="47" y2="25" stroke="white" stroke-width="1.5"/></svg>',
+        // 11: Cierre del Curso - trofeo/certificado
+        11 => '<svg viewBox="0 0 50 50" width="40" height="40"><path d="M15 8 L35 8 L35 20 Q35 32 25 38 Q15 32 15 20 Z" fill="none" stroke="white" stroke-width="2"/><path d="M10 8 L10 16 Q10 22 15 22" fill="none" stroke="white" stroke-width="1.5"/><path d="M40 8 L40 16 Q40 22 35 22" fill="none" stroke="white" stroke-width="1.5"/><line x1="25" y1="38" x2="25" y2="44" stroke="white" stroke-width="2"/><line x1="18" y1="44" x2="32" y2="44" stroke="white" stroke-width="2"/><path d="M22 18 L25 24 L28 18" fill="none" stroke="white" stroke-width="1.5"/></svg>'
     ];
     $iconSvg = isset($chapterSvgIcons[$chapterNum]) ? $chapterSvgIcons[$chapterNum] : '<svg viewBox="0 0 50 50" width="40" height="40"><rect x="10" y="8" width="30" height="38" rx="3" fill="none" stroke="white" stroke-width="2"/><line x1="15" y1="16" x2="35" y2="16" stroke="white" stroke-width="1.5"/><line x1="15" y1="24" x2="35" y2="24" stroke="white" stroke-width="1.5"/><line x1="15" y1="32" x2="28" y2="32" stroke="white" stroke-width="1.5"/></svg>';
+
+    // Para el cierre (seccion 11), usar texto diferente
+    $sectionLabel = ($chapterNum == 11) ? 'Finalizacion' : "Capitulo {$chapterNum}";
+    $sectionBadge = ($chapterNum == 11) ? '&#10003;' : $chapterNum; // Check mark for closing
 
     $content = <<<HTML
 <div style="max-width: 900px; margin: 0 auto 30px auto; font-family: 'Segoe UI', Roboto, sans-serif;">
@@ -287,11 +293,11 @@ function generateChapterIntroLabel($activity, $activityDir, $time, $chapterNum, 
                 {$iconSvg}
             </div>
             <div style="flex: 1;">
-                <div style="color: rgba(255,255,255,0.7); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;">Capitulo {$chapterNum}</div>
+                <div style="color: rgba(255,255,255,0.7); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;">{$sectionLabel}</div>
                 <h2 style="color: white; margin: 5px 0 0 0; font-size: 1.5em; font-weight: 600;">{$chapterTitleEsc}</h2>
             </div>
             <div style="background: rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2);">
-                <span style="color: white; font-size: 1.5em; font-weight: 700;">{$chapterNum}</span>
+                <span style="color: white; font-size: 1.5em; font-weight: 700;">{$sectionBadge}</span>
             </div>
         </div>
 
@@ -785,9 +791,9 @@ function processSections($maxFase) {
         $activities = $sectionData['activities'];
         $sequence = [];
 
-        // Obtener descripcion del capitulo si existe
+        // Obtener descripcion del capitulo si existe (incluye seccion 11 - Cierre)
         $chapterDesc = null;
-        if ($sectionNum >= 1 && $sectionNum <= 10 && isset($CHAPTER_DESCRIPTIONS[$sectionNum])) {
+        if ($sectionNum >= 1 && $sectionNum <= 11 && isset($CHAPTER_DESCRIPTIONS[$sectionNum])) {
             $chapterDesc = $CHAPTER_DESCRIPTIONS[$sectionNum];
             // Usar la introduccion del capitulo como summary de la seccion
             $sectionSummary = $chapterDesc['intro'];
@@ -795,8 +801,8 @@ function processSections($maxFase) {
 
         logMessage("Seccion {$sectionNum}: {$sectionName}", '📁');
 
-        // Agregar intro de capitulo al inicio de cada capitulo (secciones 1-10)
-        if ($sectionNum >= 1 && $sectionNum <= 10 && $chapterDesc) {
+        // Agregar intro de capitulo al inicio de cada capitulo (secciones 1-11, incluye cierre)
+        if ($sectionNum >= 1 && $sectionNum <= 11 && $chapterDesc) {
             $moduleId = $nextModuleId++;
             $instanceId = $nextInstanceId++;
             $contextId = $nextContextId++;

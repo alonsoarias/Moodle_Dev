@@ -165,6 +165,18 @@ $CHAPTER_DESCRIPTIONS = [
         'glossary_desc' => 'Terminos como atencion sostenida, selectiva, dividida, funciones ejecutivas y regulacion atencional.',
         'quiz_desc' => 'Autoevaluacion sobre atencion, funciones ejecutivas y aprendizaje.',
         'biblio_desc' => 'Bibliografia sobre neurociencia de la atencion y desarrollo cognitivo.'
+    ],
+    // Seccion 11: Cierre del Curso
+    11 => [
+        'title' => 'Cierre del Curso',
+        'intro' => 'Felicitaciones por completar el curso "Huellas Invisibles: Neurodesarrollo y Neuroaprendizaje Acuatico en la Primera Infancia". A lo largo de estos 10 capitulos hemos explorado los fundamentos del desarrollo neurologico infantil, las funciones emocionales, la plasticidad cerebral, la sinaptogenesis, el periodo sensoriomotor, el estres y apego, la teoria epigenetica, el reflejo de apnea, la socializacion temprana y la atencion. Te invitamos a completar la encuesta de opinion para ayudarnos a mejorar y a descargar tu certificado de participacion.',
+        'objectives' => [
+            'Reflexionar sobre los aprendizajes adquiridos',
+            'Completar la encuesta de satisfaccion del curso',
+            'Obtener el certificado de participacion'
+        ],
+        'feedback_desc' => 'Encuesta de opinion para evaluar tu experiencia con el curso y ayudarnos a mejorar futuras ediciones.',
+        'certificate_desc' => 'Certificado de participacion que acredita la finalizacion del curso Huellas Invisibles.'
     ]
 ];
 

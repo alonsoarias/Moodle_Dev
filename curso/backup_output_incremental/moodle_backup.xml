@@ -6,7 +6,7 @@
     <moodle_release>4.4</moodle_release>
     <backup_version>2024042200</backup_version>
     <backup_release>4.4</backup_release>
-    <backup_date>1768683151</backup_date>
+    <backup_date>1768689196</backup_date>
     <mnet_remoteusers>0</mnet_remoteusers>
     <include_files>1</include_files>
     <include_file_references_to_external_content>0</include_file_references_to_external_content>
@@ -16,7 +16,7 @@
     <original_course_format>topics</original_course_format>
     <original_course_fullname>Huellas Invisibles: Neurociencia del Desarrollo Infantil</original_course_fullname>
     <original_course_shortname>huellas-invisibles</original_course_shortname>
-    <original_course_startdate>1768683151</original_course_startdate>
+    <original_course_startdate>1768689196</original_course_startdate>
     <original_course_enddate>0</original_course_enddate>
     <original_course_contextid>50</original_course_contextid>
     <original_system_contextid>1</original_system_contextid>
@@ -539,16 +539,23 @@
       <activity>
         <moduleid>73</moduleid>
         <sectionid>12</sectionid>
-        <modulename>feedback</modulename>
-        <title>Encuesta de Opinion - Cierre del Curso</title>
-        <directory>activities/feedback_73</directory>
+        <modulename>label</modulename>
+        <title>Introduccion - Capitulo 11</title>
+        <directory>activities/label_73</directory>
       </activity>
       <activity>
         <moduleid>74</moduleid>
         <sectionid>12</sectionid>
+        <modulename>feedback</modulename>
+        <title>Encuesta de Opinion - Cierre del Curso</title>
+        <directory>activities/feedback_74</directory>
+      </activity>
+      <activity>
+        <moduleid>75</moduleid>
+        <sectionid>12</sectionid>
         <modulename>customcert</modulename>
         <title>Certificado del Curso</title>
-        <directory>activities/customcert_74</directory>
+        <directory>activities/customcert_75</directory>
       </activity>
       </activities>
       <sections>
@@ -1652,25 +1659,36 @@
         <value>1</value>
       </setting>      <setting>
         <level>activity</level>
-        <activity>feedback_73</activity>
-        <name>feedback_73_included</name>
+        <activity>label_73</activity>
+        <name>label_73_included</name>
         <value>1</value>
       </setting>
       <setting>
         <level>activity</level>
-        <activity>feedback_73</activity>
-        <name>feedback_73_userinfo</name>
+        <activity>label_73</activity>
+        <name>label_73_userinfo</name>
         <value>1</value>
       </setting>      <setting>
         <level>activity</level>
-        <activity>customcert_74</activity>
-        <name>customcert_74_included</name>
+        <activity>feedback_74</activity>
+        <name>feedback_74_included</name>
         <value>1</value>
       </setting>
       <setting>
         <level>activity</level>
-        <activity>customcert_74</activity>
-        <name>customcert_74_userinfo</name>
+        <activity>feedback_74</activity>
+        <name>feedback_74_userinfo</name>
+        <value>1</value>
+      </setting>      <setting>
+        <level>activity</level>
+        <activity>customcert_75</activity>
+        <name>customcert_75_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>customcert_75</activity>
+        <name>customcert_75_userinfo</name>
         <value>1</value>
       </setting>
     </settings>
