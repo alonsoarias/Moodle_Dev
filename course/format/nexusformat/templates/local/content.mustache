@@ -1067,6 +1067,35 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
     // Auto-load activity on page load (only in view mode)
     // Uses initialActivityCmid which respects URL parameter for persistence
     if (!isEditing) {
+        // Helper function to expand a unit (section)
+        function expandUnit($unit) {
+            if (!$unit || !$unit.length) return;
+            if (!$unit.hasClass('expanded')) {
+                $unit.addClass('expanded');
+                $unit.find('> .nexus-unit-lessons').show();
+                var $header = $unit.find('> .nexus-unit-header');
+                $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+                $header.attr('aria-expanded', 'true');
+            }
+        }
+
+        // Helper function to expand a subsection
+        function expandSubsection($subsection) {
+            if (!$subsection || !$subsection.length) return;
+            // First expand the parent unit
+            var $parentUnit = $subsection.closest('.nexus-unit');
+            expandUnit($parentUnit);
+            // Then expand the subsection itself
+            if (!$subsection.hasClass('expanded')) {
+                $subsection.addClass('expanded');
+                $subsection.find('> .nexus-subsection-content').show();
+                var $subHeader = $subsection.find('> .nexus-subsection-header');
+                $subHeader.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $subHeader.attr('aria-expanded', 'true');
+            }
+        }
+
         // If a specific section is selected via URL, find and expand it
         // This can be a regular section (.nexus-unit) or a subsection (.nexus-subsection)
         if (selectedSection > 0) {
@@ -1080,35 +1109,13 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
             }
 
             // Expand the regular section if found
-            if ($selectedUnit.length && !$selectedUnit.hasClass('expanded')) {
-                $selectedUnit.addClass('expanded');
-                $selectedUnit.find('> .nexus-unit-lessons').show();
-                var $header = $selectedUnit.find('> .nexus-unit-header');
-                $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
-                $header.attr('aria-expanded', 'true');
+            if ($selectedUnit.length) {
+                expandUnit($selectedUnit);
             }
 
             // Expand the subsection if found (and its parent section)
             if ($selectedSubsection && $selectedSubsection.length) {
-                // First expand the parent section
-                var $parentUnit = $selectedSubsection.closest('.nexus-unit');
-                if ($parentUnit.length && !$parentUnit.hasClass('expanded')) {
-                    $parentUnit.addClass('expanded');
-                    $parentUnit.find('> .nexus-unit-lessons').show();
-                    var $parentHeader = $parentUnit.find('> .nexus-unit-header');
-                    $parentHeader.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                    $parentHeader.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
-                    $parentHeader.attr('aria-expanded', 'true');
-                }
-                // Then expand the subsection
-                if (!$selectedSubsection.hasClass('expanded')) {
-                    $selectedSubsection.addClass('expanded');
-                    $selectedSubsection.find('> .nexus-subsection-content').show();
-                    $selectedSubsection.find('> .nexus-subsection-header .nexus-unit-toggle i')
-                        .removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                    $selectedSubsection.find('> .nexus-subsection-header').attr('aria-expanded', 'true');
-                }
+                expandSubsection($selectedSubsection);
             }
 
             // If initialActivityCmid is 0, find the first activity in this section/subsection
@@ -1130,22 +1137,10 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 $initialLesson.addClass('active');
                 // Ensure the parent unit is expanded
                 var $parentUnit = $initialLesson.closest('.nexus-unit');
-                if ($parentUnit.length && !$parentUnit.hasClass('expanded')) {
-                    $parentUnit.addClass('expanded');
-                    $parentUnit.find('> .nexus-unit-lessons').show();
-                    var $header = $parentUnit.find('> .nexus-unit-header');
-                    $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                    $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
-                    $header.attr('aria-expanded', 'true');
-                }
+                expandUnit($parentUnit);
                 // Also expand any parent subsections
                 var $parentSubsection = $initialLesson.closest('.nexus-subsection');
-                if ($parentSubsection.length && !$parentSubsection.hasClass('expanded')) {
-                    $parentSubsection.addClass('expanded');
-                    $parentSubsection.find('> .nexus-subsection-content').show();
-                    $parentSubsection.find('> .nexus-subsection-header .nexus-unit-toggle i')
-                        .removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                }
+                expandSubsection($parentSubsection);
             }
             // Load the activity content
             loadActivityContent(initialActivityCmid, true);
