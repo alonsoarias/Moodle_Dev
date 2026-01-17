@@ -1285,6 +1285,10 @@ XML;
             'questionxml' => $questionXml
         ];
 
+        // Use course context (50) for question references - this ensures proper mapping during restore
+        // The course context is defined in moodle_backup.xml as original_course_contextid
+        $courseContextForRef = 50;
+
         $questionSlots .= <<<SLOT
       <question_instance id="{$slot}">
         <slot>{$slot}</slot>
@@ -1293,7 +1297,7 @@ XML;
         <requireprevious>0</requireprevious>
         <maxmark>1.0000000</maxmark>
         <question_reference>
-          <usingcontextid>{$contextId}</usingcontextid>
+          <usingcontextid>{$courseContextForRef}</usingcontextid>
           <component>mod_quiz</component>
           <questionarea>slot</questionarea>
           <questionbankentryid>{$bankEntryId}</questionbankentryid>

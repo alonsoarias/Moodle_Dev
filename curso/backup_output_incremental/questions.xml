@@ -7,7 +7,7 @@
     <contextinstanceid>1</contextinstanceid>
     <info>Preguntas del capitulo</info>
     <infoformat>0</infoformat>
-    <stamp>localhost+1768678639+cat1001</stamp>
+    <stamp>localhost+1768678983+cat1001</stamp>
     <parent>0</parent>
     <sortorder>999</sortorder>
     <idnumber></idnumber>
@@ -32,11 +32,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+1ac080ded80d71fb</stamp>
-        <version>localhost+1768678639+a788c3e6419caf67</version>
+        <stamp>localhost+1768678983+0be7370b0bfc6bc8</stamp>
+        <version>localhost+1768678983+4ac90f5252774e29</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -110,11 +110,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+f3b0319a8112ec28</stamp>
-        <version>localhost+1768678639+6a06e3a0e199b21d</version>
+        <stamp>localhost+1768678983+dce6468fe92ca61d</stamp>
+        <version>localhost+1768678983+fb15bb6784c4bcae</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -188,11 +188,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+9fba5473db7e0102</stamp>
-        <version>localhost+1768678639+15040efc8728412d</version>
+        <stamp>localhost+1768678983+7f89be3b7e9a0b4a</stamp>
+        <version>localhost+1768678983+08ed8c4933d7064e</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -266,11 +266,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+1d157d5d02a62365</stamp>
-        <version>localhost+1768678639+9a5b7ff3c62fc7f1</version>
+        <stamp>localhost+1768678983+09f29fbe451222aa</stamp>
+        <version>localhost+1768678983+be3a358b1a769e25</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -344,11 +344,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+fbdf6e11329259f8</stamp>
-        <version>localhost+1768678639+c00945434bbe2633</version>
+        <stamp>localhost+1768678983+ecbf70a3f6748c6c</stamp>
+        <version>localhost+1768678983+4a27809f32c3d19b</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -422,11 +422,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+047b612a9aacc20f</stamp>
-        <version>localhost+1768678639+a73b9ec934ae26b0</version>
+        <stamp>localhost+1768678983+47817de37d2460d1</stamp>
+        <version>localhost+1768678983+0634ccf5e7c3eff0</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -500,11 +500,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+d293bd4bbdfac0f2</stamp>
-        <version>localhost+1768678639+a3b2f2839d4f6b05</version>
+        <stamp>localhost+1768678983+e7c25e408ebf7a37</stamp>
+        <version>localhost+1768678983+ef382ba40a3f8ff9</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -578,11 +578,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+bfaf47529ee92549</stamp>
-        <version>localhost+1768678639+a9ac047607b2c697</version>
+        <stamp>localhost+1768678983+02821eaae325e077</stamp>
+        <version>localhost+1768678983+5456a9a93980d254</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -656,11 +656,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+09eb517ad173a5e9</stamp>
-        <version>localhost+1768678639+e3efbb19ece96494</version>
+        <stamp>localhost+1768678983+42131bc353ebc20e</stamp>
+        <version>localhost+1768678983+ce5bba3b6fe5e4dd</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -734,11 +734,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+b92678fcc4055f30</stamp>
-        <version>localhost+1768678639+669fc5aba92944fb</version>
+        <stamp>localhost+1768678983+9211b05a4299dce9</stamp>
+        <version>localhost+1768678983+8b980823959a6c39</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -801,7 +801,7 @@
     <contextinstanceid>1</contextinstanceid>
     <info>Preguntas del capitulo</info>
     <infoformat>0</infoformat>
-    <stamp>localhost+1768678639+cat1002</stamp>
+    <stamp>localhost+1768678983+cat1002</stamp>
     <parent>0</parent>
     <sortorder>999</sortorder>
     <idnumber></idnumber>
@@ -826,11 +826,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+c8708fdc99be8bc6</stamp>
-        <version>localhost+1768678639+ae9f10b2cdce8ec6</version>
+        <stamp>localhost+1768678983+eaaad6cbd8015ad0</stamp>
+        <version>localhost+1768678983+c7136587a3a07fad</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -904,11 +904,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+0b5078722d01f03e</stamp>
-        <version>localhost+1768678639+a34a4a96069ad4c6</version>
+        <stamp>localhost+1768678983+9bc154285d768ceb</stamp>
+        <version>localhost+1768678983+672d0142bce05670</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -982,11 +982,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+e1a557c00d9626f0</stamp>
-        <version>localhost+1768678639+a294584d83af4a3c</version>
+        <stamp>localhost+1768678983+42a60185709b4de9</stamp>
+        <version>localhost+1768678983+59facd5505e3fb68</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1060,11 +1060,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+b467ef8cd380b7c3</stamp>
-        <version>localhost+1768678639+c7514a1f6e10a5e5</version>
+        <stamp>localhost+1768678983+dd33a85a1214fdbd</stamp>
+        <version>localhost+1768678983+964dd5cbe5aa9408</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1138,11 +1138,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+6ac0c753ce6d41e2</stamp>
-        <version>localhost+1768678639+b9df8ec900f12c07</version>
+        <stamp>localhost+1768678983+b37de334e51e72df</stamp>
+        <version>localhost+1768678983+5860aa08ae4020a3</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1216,11 +1216,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+84d072b1837b0d7a</stamp>
-        <version>localhost+1768678639+0a7102a479dea4af</version>
+        <stamp>localhost+1768678983+032fbbf94ba76c72</stamp>
+        <version>localhost+1768678983+85c9bc805ddc790a</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1294,11 +1294,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+6d6e91c2285e1e7b</stamp>
-        <version>localhost+1768678639+b1d7546681a8e675</version>
+        <stamp>localhost+1768678983+287d6cc52a8842d8</stamp>
+        <version>localhost+1768678983+c94788dec7aca13c</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1372,11 +1372,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+802ced546ea62e9f</stamp>
-        <version>localhost+1768678639+7b663f18a1a45159</version>
+        <stamp>localhost+1768678983+b25624f21f59d641</stamp>
+        <version>localhost+1768678983+434cbe5feec5c47e</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1450,11 +1450,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+b654ddf2d164e370</stamp>
-        <version>localhost+1768678639+a2c6dad2ec530dab</version>
+        <stamp>localhost+1768678983+e994cd60f41972ae</stamp>
+        <version>localhost+1768678983+d7d157eedb9cdce2</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1528,11 +1528,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768678639+b4bdcb6d88e4ffc3</stamp>
-        <version>localhost+1768678639+3e8a7e49bf3c0c69</version>
+        <stamp>localhost+1768678983+5699bd67f34ce0f7</stamp>
+        <version>localhost+1768678983+778bd94e7f47c1cc</version>
         <hidden>0</hidden>
-        <timecreated>1768678639</timecreated>
-        <timemodified>1768678639</timemodified>
+        <timecreated>1768678983</timecreated>
+        <timemodified>1768678983</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
