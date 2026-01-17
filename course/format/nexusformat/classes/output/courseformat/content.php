@@ -723,6 +723,11 @@ class content extends content_base {
      * Get the cmid of the first loadable activity in the course or a specific section.
      * This method also handles subsections (delegated sections).
      *
+     * Logic:
+     * - If a section has direct activities, return the first one
+     * - If a section has no direct activities but has subsections, search the first
+     *   subsection for activities recursively
+     *
      * @param \course_modinfo $modinfo The course modinfo
      * @param int|null $sectionnum Optional section number to search in (can be a subsection)
      * @return int|null cmid of first activity or null
@@ -747,15 +752,34 @@ class content extends content_base {
             }
 
             if (!empty($modinfo->sections[$section->section])) {
+                // First pass: look for direct activities (modules with a URL).
                 foreach ($modinfo->sections[$section->section] as $cmid) {
                     $cm = $modinfo->get_cm($cmid);
                     // Skip hidden/stealth activities.
                     if (!$cm->uservisible || $cm->is_stealth()) {
                         continue;
                     }
-                    // Check if it has a URL (is viewable).
+                    // Check if it has a URL (is viewable, not a subsection container).
                     if ($cm->url) {
                         return (int)$cm->id;
+                    }
+                }
+
+                // Second pass: no direct activities found, look for subsections.
+                // A subsection is a course module that has a delegated section.
+                foreach ($modinfo->sections[$section->section] as $cmid) {
+                    $cm = $modinfo->get_cm($cmid);
+                    if (!$cm->uservisible || $cm->is_stealth()) {
+                        continue;
+                    }
+                    // Check if this module has a delegated section (it's a subsection container).
+                    $delegatedsection = $cm->get_delegated_section_info();
+                    if ($delegatedsection) {
+                        // Recursively search this subsection for activities.
+                        $firstactivity = $this->get_first_activity_cmid($modinfo, $delegatedsection->section);
+                        if ($firstactivity !== null) {
+                            return $firstactivity;
+                        }
                     }
                 }
             }

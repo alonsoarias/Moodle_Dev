@@ -269,32 +269,50 @@ class format_nexusformat extends core_courseformat\base {
             }
         }
 
-        // Redirect to correct section when cmid doesn't match specified section.
-        // This ensures URLs like section=1&cmid=9 redirect to section=28&cmid=9
-        // when cmid=9 is actually in section 28 (a subsection of section 1).
+        // Handle section/cmid redirects for correct URL representation.
         if (isset($SCRIPT) && strpos($SCRIPT, '/course/view.php') !== false) {
             $sectionparam = optional_param('section', 0, PARAM_INT);
             $cmid = optional_param('cmid', 0, PARAM_INT);
 
-            if ($sectionparam > 0 && $cmid > 0) {
+            if ($sectionparam > 0) {
                 $course = $this->get_course();
                 $modinfo = get_fast_modinfo($course);
 
-                try {
-                    $cm = $modinfo->get_cm($cmid);
-                    if ($cm && $cm->uservisible) {
-                        // If cmid is in a different section than the one specified, redirect.
-                        if ($cm->sectionnum != $sectionparam) {
-                            $url = new moodle_url('/course/view.php', [
-                                'id' => $course->id,
-                                'section' => $cm->sectionnum,
-                                'cmid' => $cmid,
-                            ]);
-                            redirect($url);
+                // Case 1: cmid provided - redirect if cmid is in a different section.
+                // This ensures URLs like section=1&cmid=9 redirect to section=28&cmid=9
+                // when cmid=9 is actually in section 28 (a subsection of section 1).
+                if ($cmid > 0) {
+                    try {
+                        $cm = $modinfo->get_cm($cmid);
+                        if ($cm && $cm->uservisible) {
+                            if ($cm->sectionnum != $sectionparam) {
+                                $url = new moodle_url('/course/view.php', [
+                                    'id' => $course->id,
+                                    'section' => $cm->sectionnum,
+                                    'cmid' => $cmid,
+                                ]);
+                                redirect($url);
+                            }
                         }
+                    } catch (\Exception $e) {
+                        // Invalid cmid, fall through to Case 2.
+                        $cmid = 0;
                     }
-                } catch (\Exception $e) {
-                    // Invalid cmid, ignore and continue.
+                }
+
+                // Case 2: no cmid or invalid cmid - if section has no direct activities but has
+                // subsections, redirect to the first subsection with its first activity.
+                if ($cmid == 0) {
+                    $firstactivity = $this->find_first_activity_in_section($modinfo, $sectionparam);
+                    if ($firstactivity !== null && $firstactivity['sectionnum'] != $sectionparam) {
+                        // First activity is in a subsection, redirect to that subsection.
+                        $url = new moodle_url('/course/view.php', [
+                            'id' => $course->id,
+                            'section' => $firstactivity['sectionnum'],
+                            'cmid' => $firstactivity['cmid'],
+                        ]);
+                        redirect($url);
+                    }
                 }
             }
         }
@@ -468,6 +486,67 @@ class format_nexusformat extends core_courseformat\base {
 
         $rv['section_availability'] = $renderer->render($availability);
         return $rv;
+    }
+
+    /**
+     * Find the first activity in a section, including subsections.
+     *
+     * Returns information about the first loadable activity found:
+     * - If the section has direct activities, returns the first one (same section)
+     * - If the section has no direct activities but has subsections, searches
+     *   recursively and returns the first activity from the first subsection
+     *
+     * @param \course_modinfo $modinfo The course modinfo
+     * @param int $sectionnum The section number to search in
+     * @return array|null Array with 'cmid' and 'sectionnum' keys, or null if no activity found
+     */
+    protected function find_first_activity_in_section(\course_modinfo $modinfo, int $sectionnum): ?array {
+        $sections = $modinfo->get_section_info_all();
+
+        foreach ($sections as $section) {
+            if ($section->section != $sectionnum) {
+                continue;
+            }
+
+            // Found the section.
+            if (!empty($modinfo->sections[$section->section])) {
+                // First pass: look for direct activities (modules with a URL).
+                foreach ($modinfo->sections[$section->section] as $cmid) {
+                    $cm = $modinfo->get_cm($cmid);
+                    if (!$cm->uservisible || $cm->is_stealth()) {
+                        continue;
+                    }
+                    // Check if it has a URL (is viewable, not a subsection container).
+                    if ($cm->url) {
+                        return [
+                            'cmid' => (int)$cm->id,
+                            'sectionnum' => $sectionnum,
+                        ];
+                    }
+                }
+
+                // Second pass: no direct activities, look for subsections.
+                foreach ($modinfo->sections[$section->section] as $cmid) {
+                    $cm = $modinfo->get_cm($cmid);
+                    if (!$cm->uservisible || $cm->is_stealth()) {
+                        continue;
+                    }
+                    // Check if this module has a delegated section (it's a subsection container).
+                    $delegatedsection = $cm->get_delegated_section_info();
+                    if ($delegatedsection) {
+                        // Recursively search this subsection for activities.
+                        $result = $this->find_first_activity_in_section($modinfo, $delegatedsection->section);
+                        if ($result !== null) {
+                            return $result;
+                        }
+                    }
+                }
+            }
+
+            break; // Only process the requested section.
+        }
+
+        return null;
     }
 
     /**
