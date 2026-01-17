@@ -19,7 +19,8 @@ function generateGlossaryActivity($activity, $activityDir, $time, $glossaryData,
     // Obtener datos del glosario para este capitulo
     $chapterGlossary = isset($glossaryData[$chapter]) ? $glossaryData[$chapter] : null;
     $introText = $chapterGlossary ? $chapterGlossary['intro'] : "Glosario de terminos del Capitulo {$chapter}";
-    $intro = escapeXml('<p>' . $introText . '</p>');
+    // Usar texto plano escapado para evitar problemas de parsing
+    $intro = escapeXml($introText);
     $terms = $chapterGlossary ? $chapterGlossary['terms'] : [];
 
     // module.xml
@@ -57,14 +58,15 @@ XML;
     foreach ($terms as $term) {
         $entryId = $nextEntryId++;
         $termEsc = escapeXml($term['term']);
-        $defEsc = escapeXml('<p>' . $term['definition'] . '</p>');
+        // Usar texto plano para evitar problemas de parsing XML
+        $defEsc = escapeXml($term['definition']);
 
         $entriesXml .= <<<ENTRY
       <entry id="{$entryId}">
         <userid>2</userid>
         <concept>{$termEsc}</concept>
         <definition>{$defEsc}</definition>
-        <definitionformat>1</definitionformat>
+        <definitionformat>0</definitionformat>
         <definitiontrust>0</definitiontrust>
         <attachment></attachment>
         <timecreated>{$time}</timecreated>
@@ -75,21 +77,24 @@ XML;
         <casesensitive>0</casesensitive>
         <fullmatch>0</fullmatch>
         <approved>1</approved>
-        <aliases></aliases>
-        <ratings></ratings>
-        <tags></tags>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+        <tags>
+        </tags>
       </entry>
 ENTRY;
     }
 
-    // glossary.xml - Estructura completa con todos los campos requeridos
+    // glossary.xml - Estructura exacta Moodle 4.4 (campos en orden correcto, sin extras)
     $glossaryXml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <activity id="{$instanceId}" moduleid="{$moduleId}" modulename="glossary" contextid="{$contextId}">
   <glossary id="{$instanceId}">
     <name>{$name}</name>
     <intro>{$intro}</intro>
-    <introformat>1</introformat>
+    <introformat>0</introformat>
     <allowduplicatedentries>0</allowduplicatedentries>
     <displayformat>dictionary</displayformat>
     <mainglossary>0</mainglossary>
@@ -100,7 +105,6 @@ ENTRY;
     <allowprintview>1</allowprintview>
     <usedynalink>1</usedynalink>
     <defaultapproval>1</defaultapproval>
-    <approvaldisplayformat>default</approvaldisplayformat>
     <globalglossary>0</globalglossary>
     <entbypage>10</entbypage>
     <editalways>0</editalways>
@@ -116,8 +120,8 @@ ENTRY;
     <entries>
 {$entriesXml}
     </entries>
-    <oneperpage>0</oneperpage>
-    <categories></categories>
+    <categories>
+    </categories>
   </glossary>
 </activity>
 XML;

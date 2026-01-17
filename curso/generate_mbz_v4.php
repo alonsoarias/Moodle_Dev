@@ -188,7 +188,7 @@ function generateMoodleBackupXML() {
     foreach ($allSections as $section) {
         $sectionsXml .= "      <section>\n";
         $sectionsXml .= "        <sectionid>{$section['id']}</sectionid>\n";
-        $sectionsXml .= "        <title>{$section['name']}</title>\n";
+        $sectionsXml .= "        <title>" . escapeXml($section['name']) . "</title>\n";
         $sectionsXml .= "        <directory>sections/section_{$section['id']}</directory>\n";
         $sectionsXml .= "      </section>\n";
     }
@@ -202,6 +202,45 @@ function generateMoodleBackupXML() {
         $activitiesXml .= "        <title>" . escapeXml($act['name']) . "</title>\n";
         $activitiesXml .= "        <directory>activities/{$act['modulename']}_{$act['moduleid']}</directory>\n";
         $activitiesXml .= "      </activity>\n";
+    }
+
+    // Generar settings de secciones
+    $sectionSettings = '';
+    foreach ($allSections as $section) {
+        $sectionSettings .= <<<SETTING
+      <setting>
+        <level>section</level>
+        <section>section_{$section['id']}</section>
+        <name>section_{$section['id']}_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>section</level>
+        <section>section_{$section['id']}</section>
+        <name>section_{$section['id']}_userinfo</name>
+        <value>0</value>
+      </setting>
+SETTING;
+    }
+
+    // Generar settings de actividades
+    $activitySettings = '';
+    foreach ($allActivities as $act) {
+        $actDir = "{$act['modulename']}_{$act['moduleid']}";
+        $activitySettings .= <<<SETTING
+      <setting>
+        <level>activity</level>
+        <activity>{$actDir}</activity>
+        <name>{$actDir}_included</name>
+        <value>1</value>
+      </setting>
+      <setting>
+        <level>activity</level>
+        <activity>{$actDir}</activity>
+        <name>{$actDir}_userinfo</name>
+        <value>0</value>
+      </setting>
+SETTING;
     }
 
     $xml = <<<XML
@@ -349,6 +388,8 @@ function generateMoodleBackupXML() {
         <name>legacyfiles</name>
         <value>0</value>
       </setting>
+{$sectionSettings}
+{$activitySettings}
     </settings>
   </information>
 </moodle_backup>
