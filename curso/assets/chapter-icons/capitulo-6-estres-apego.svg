@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#fcb69f;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="55" fill="url(#grad6)"/>
+  <!-- Parent figure -->
+  <circle cx="45" cy="40" r="10" fill="#fff" opacity="0.9"/>
+  <ellipse cx="45" cy="60" rx="12" ry="15" fill="#fff" opacity="0.9"/>
+  <!-- Child figure -->
+  <circle cx="65" cy="50" r="7" fill="#fff" opacity="0.9"/>
+  <ellipse cx="65" cy="65" rx="8" ry="10" fill="#fff" opacity="0.9"/>
+  <!-- Connection/bond -->
+  <path d="M50 55 Q55 60 60 58" stroke="#fcb69f" stroke-width="3" fill="none"/>
+  <!-- Heart symbol for attachment -->
+  <path d="M55 48 C53 45 48 45 48 50 C48 54 55 58 55 58 C55 58 62 54 62 50 C62 45 57 45 55 48" fill="#fcb69f" opacity="0.8"/>
+  <text x="60" y="105" font-family="Arial, sans-serif" font-size="8" fill="#555" text-anchor="middle">Capítulo 6</text>
+</svg>

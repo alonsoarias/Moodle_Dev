@@ -209,6 +209,22 @@ $VIDEO_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120"
   <text x="100" y="105" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle" opacity="0.8">Subir video .mp4</text>
 </svg>';
 
+// Iconos SVG para cada sección/capítulo
+$CHAPTER_ICONS = [
+    0 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="gradIntro" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#gradIntro)"/><rect x="30" y="35" width="60" height="45" rx="3" fill="#fff" opacity="0.9"/><line x1="60" y1="35" x2="60" y2="80" stroke="#667eea" stroke-width="2"/><line x1="35" y1="45" x2="55" y2="45" stroke="#764ba2" stroke-width="2" opacity="0.6"/><line x1="35" y1="52" x2="55" y2="52" stroke="#764ba2" stroke-width="2" opacity="0.5"/><line x1="35" y1="59" x2="50" y2="59" stroke="#764ba2" stroke-width="2" opacity="0.4"/><path d="M70 50 Q67 48 68 45 Q66 42 70 40 Q73 38 78 40 Q82 38 85 42 Q88 45 86 50 Q88 55 82 58 Q78 60 75 58 Q70 60 68 55 Q66 52 70 50" fill="#667eea" opacity="0.7"/></svg>',
+    1 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#667eea"/><stop offset="100%" style="stop-color:#764ba2"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad1)"/><path d="M40 70 Q30 60 35 50 Q30 40 40 35 Q45 25 60 25 Q75 25 80 35 Q90 40 85 50 Q90 60 80 70 Q75 80 60 80 Q45 80 40 70" fill="#fff" opacity="0.9"/><path d="M50 45 Q55 40 65 45 M45 55 Q55 50 70 55 M50 65 Q55 60 65 65" stroke="#667eea" stroke-width="2" fill="none"/><circle cx="55" cy="48" r="3" fill="#764ba2"/><circle cx="65" cy="55" r="3" fill="#764ba2"/><circle cx="52" cy="62" r="3" fill="#764ba2"/></svg>',
+    2 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f093fb"/><stop offset="100%" style="stop-color:#f5576c"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad2)"/><path d="M60 75 C35 55 35 35 50 35 C55 35 60 40 60 45 C60 40 65 35 70 35 C85 35 85 55 60 75" fill="#fff" opacity="0.9"/><ellipse cx="60" cy="42" rx="12" ry="8" fill="#f5576c" opacity="0.6"/><path d="M55 40 Q58 38 62 40 M52 44 Q58 42 66 44" stroke="white" stroke-width="1.5" fill="none"/></svg>',
+    3 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4facfe"/><stop offset="100%" style="stop-color:#00f2fe"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad3)"/><path d="M35 55 Q40 35 60 40 Q80 35 85 55 Q90 75 60 80 Q30 75 35 55" fill="#fff" opacity="0.9"/><path d="M45 50 C55 45 65 55 75 50" stroke="#4facfe" stroke-width="2" fill="none"/><path d="M40 60 C50 55 70 65 80 60" stroke="#00f2fe" stroke-width="2" fill="none"/><path d="M45 70 C55 65 65 75 75 70" stroke="#4facfe" stroke-width="2" fill="none"/><circle cx="50" cy="50" r="3" fill="#fff"/><circle cx="70" cy="55" r="2" fill="#fff"/></svg>',
+    4 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fa709a"/><stop offset="100%" style="stop-color:#fee140"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad4)"/><circle cx="40" cy="50" r="12" fill="#fff" opacity="0.9"/><circle cx="80" cy="50" r="12" fill="#fff" opacity="0.9"/><circle cx="60" cy="75" r="12" fill="#fff" opacity="0.9"/><line x1="50" y1="55" x2="70" y2="55" stroke="#fa709a" stroke-width="3"/><line x1="45" y1="60" x2="55" y2="68" stroke="#fee140" stroke-width="3"/><line x1="75" y1="60" x2="65" y2="68" stroke="#fee140" stroke-width="3"/><circle cx="55" cy="55" r="2" fill="#fa709a"/><circle cx="65" cy="55" r="2" fill="#fa709a"/></svg>',
+    5 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#a8edea"/><stop offset="100%" style="stop-color:#fed6e3"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad5)"/><path d="M40 70 L40 50 L45 45 L50 50 L50 45 L55 42 L60 50 L60 40 L65 38 L70 50 L70 45 L75 48 L75 60 L70 75 L45 75 Z" fill="#fff" opacity="0.9"/><path d="M80 45 Q85 50 80 55" stroke="#a8edea" stroke-width="2" fill="none"/><path d="M85 42 Q92 50 85 58" stroke="#fed6e3" stroke-width="2" fill="none"/><circle cx="52" cy="55" r="2" fill="#fed6e3"/><circle cx="60" cy="52" r="2" fill="#a8edea"/></svg>',
+    6 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ffecd2"/><stop offset="100%" style="stop-color:#fcb69f"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad6)"/><circle cx="45" cy="40" r="10" fill="#fff" opacity="0.9"/><ellipse cx="45" cy="60" rx="12" ry="15" fill="#fff" opacity="0.9"/><circle cx="65" cy="50" r="7" fill="#fff" opacity="0.9"/><ellipse cx="65" cy="65" rx="8" ry="10" fill="#fff" opacity="0.9"/><path d="M50 55 Q55 60 60 58" stroke="#fcb69f" stroke-width="3" fill="none"/><path d="M55 48 C53 45 48 45 48 50 C48 54 55 58 55 58 C55 58 62 54 62 50 C62 45 57 45 55 48" fill="#fcb69f" opacity="0.8"/></svg>',
+    7 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad7" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#a18cd1"/><stop offset="100%" style="stop-color:#fbc2eb"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad7)"/><path d="M40 30 Q55 40 70 30 Q85 40 80 55 Q75 70 60 75 Q45 80 40 65 Q35 50 50 40 Q65 30 70 45" stroke="#fff" stroke-width="4" fill="none" opacity="0.9"/><path d="M80 30 Q65 40 50 30 Q35 40 40 55 Q45 70 60 75 Q75 80 80 65 Q85 50 70 40 Q55 30 50 45" stroke="#fff" stroke-width="4" fill="none" opacity="0.9"/><line x1="45" y1="38" x2="55" y2="42" stroke="#a18cd1" stroke-width="2"/><line x1="55" y1="60" x2="65" y2="58" stroke="#a18cd1" stroke-width="2"/><circle cx="48" cy="38" r="3" fill="#a18cd1"/></svg>',
+    8 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad8" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#89f7fe"/><stop offset="100%" style="stop-color:#66a6ff"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad8)"/><path d="M25 65 Q35 60 45 65 Q55 70 65 65 Q75 60 85 65 Q95 70 105 65" stroke="#fff" stroke-width="3" fill="none" opacity="0.6"/><path d="M20 75 Q30 70 40 75 Q50 80 60 75 Q70 70 80 75 Q90 80 100 75" stroke="#fff" stroke-width="3" fill="none" opacity="0.4"/><circle cx="60" cy="50" r="18" fill="#fff" opacity="0.9"/><path d="M52 48 Q55 50 58 48" stroke="#66a6ff" stroke-width="2" fill="none"/><path d="M62 48 Q65 50 68 48" stroke="#66a6ff" stroke-width="2" fill="none"/><ellipse cx="60" cy="56" rx="4" ry="2" fill="#89f7fe" opacity="0.6"/><circle cx="75" cy="40" r="4" fill="#fff" opacity="0.5"/><circle cx="82" cy="48" r="3" fill="#fff" opacity="0.4"/></svg>',
+    9 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad9" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ffecd2"/><stop offset="100%" style="stop-color:#fcb69f"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad9)"/><circle cx="35" cy="45" r="10" fill="#fff" opacity="0.9"/><ellipse cx="35" cy="68" rx="10" ry="12" fill="#fff" opacity="0.9"/><circle cx="60" cy="50" r="8" fill="#fff" opacity="0.9"/><ellipse cx="60" cy="70" rx="8" ry="10" fill="#fff" opacity="0.9"/><circle cx="85" cy="45" r="10" fill="#fff" opacity="0.9"/><ellipse cx="85" cy="68" rx="10" ry="12" fill="#fff" opacity="0.9"/><path d="M45 50 Q52 55 55 52" stroke="#fcb69f" stroke-width="2" fill="none"/><path d="M65 52 Q68 55 75 50" stroke="#fcb69f" stroke-width="2" fill="none"/><path d="M60 40 C58 38 55 38 55 41 C55 44 60 46 60 46 C60 46 65 44 65 41 C65 38 62 38 60 40" fill="#fcb69f" opacity="0.7"/></svg>',
+    10 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="grad10" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f5af19"/><stop offset="100%" style="stop-color:#f12711"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#grad10)"/><ellipse cx="60" cy="55" rx="30" ry="20" fill="#fff" opacity="0.9"/><circle cx="60" cy="55" r="12" fill="#f5af19"/><circle cx="60" cy="55" r="6" fill="#333"/><circle cx="57" cy="52" r="2" fill="#fff"/><line x1="25" y1="55" x2="30" y2="55" stroke="#fff" stroke-width="2"/><line x1="90" y1="55" x2="95" y2="55" stroke="#fff" stroke-width="2"/><line x1="60" y1="25" x2="60" y2="30" stroke="#fff" stroke-width="2"/><line x1="60" y1="80" x2="60" y2="85" stroke="#fff" stroke-width="2"/></svg>',
+    11 => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><linearGradient id="gradCierre" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#11998e"/><stop offset="100%" style="stop-color:#38ef7d"/></linearGradient></defs><circle cx="60" cy="60" r="55" fill="url(#gradCierre)"/><rect x="30" y="35" width="60" height="40" rx="2" fill="#fff" opacity="0.9"/><path d="M55 75 L50 90 L55 85 L60 90 L65 85 L70 90 L65 75" fill="#38ef7d"/><circle cx="60" cy="75" r="8" fill="#11998e"/><circle cx="60" cy="75" r="5" fill="#38ef7d"/><line x1="40" y1="45" x2="80" y2="45" stroke="#11998e" stroke-width="1.5" opacity="0.6"/><line x1="45" y1="52" x2="75" y2="52" stroke="#11998e" stroke-width="2" opacity="0.8"/><path d="M55 55 L58 58 L68 48" stroke="#38ef7d" stroke-width="3" fill="none"/></svg>'
+];
+
 // ============================================================================
 // FUNCIÓN PRINCIPAL
 // ============================================================================
@@ -403,7 +419,7 @@ function generateResourceXML($activity, $dir) {
   <visibleold>1</visibleold>
   <groupmode>0</groupmode>
   <groupingid>0</groupingid>
-  <completion>1</completion>
+  <completion>2</completion>
   <completiongradeitemnumber>\$@NULL@\$</completiongradeitemnumber>
   <completionview>1</completionview>
   <completionexpected>0</completionexpected>
@@ -516,7 +532,7 @@ function generateVideoPlaceholderXML($activity, $dir) {
   <visibleold>1</visibleold>
   <groupmode>0</groupmode>
   <groupingid>0</groupingid>
-  <completion>1</completion>
+  <completion>2</completion>
   <completiongradeitemnumber>\$@NULL@\$</completiongradeitemnumber>
   <completionview>1</completionview>
   <completionexpected>0</completionexpected>
@@ -724,11 +740,19 @@ XML;
 XML;
     file_put_contents(OUTPUT_DIR . '/course/enrolments.xml', $enrolXml);
 
-    // Secciones
+    // Secciones con iconos
+    global $CHAPTER_ICONS;
     foreach ($allSections as $sec) {
         $dir = OUTPUT_DIR . "/sections/section_{$sec['id']}";
         $nameEsc = htmlspecialchars($sec['name']);
-        $summaryEsc = htmlspecialchars($sec['summary']);
+
+        // Generar summary con icono SVG
+        $icon = isset($CHAPTER_ICONS[$sec['number']]) ? $CHAPTER_ICONS[$sec['number']] : '';
+        $summaryHtml = '<div style="display: flex; align-items: center; gap: 15px; padding: 10px;">';
+        $summaryHtml .= '<div style="flex-shrink: 0;">' . $icon . '</div>';
+        $summaryHtml .= '<div><strong>' . $sec['summary'] . '</strong></div>';
+        $summaryHtml .= '</div>';
+        $summaryEsc = htmlspecialchars($summaryHtml);
 
         $sectionXml = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>

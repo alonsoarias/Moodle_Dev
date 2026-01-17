@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="gradIntro" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="55" fill="url(#gradIntro)"/>
+  <!-- Book/Course symbol -->
+  <rect x="30" y="35" width="60" height="45" rx="3" fill="#fff" opacity="0.9"/>
+  <!-- Book spine -->
+  <line x1="60" y1="35" x2="60" y2="80" stroke="#667eea" stroke-width="2"/>
+  <!-- Text lines on left page -->
+  <line x1="35" y1="45" x2="55" y2="45" stroke="#764ba2" stroke-width="2" opacity="0.6"/>
+  <line x1="35" y1="52" x2="55" y2="52" stroke="#764ba2" stroke-width="2" opacity="0.5"/>
+  <line x1="35" y1="59" x2="50" y2="59" stroke="#764ba2" stroke-width="2" opacity="0.4"/>
+  <line x1="35" y1="66" x2="55" y2="66" stroke="#764ba2" stroke-width="2" opacity="0.5"/>
+  <!-- Brain icon on right page -->
+  <path d="M70 50 Q67 48 68 45 Q66 42 70 40 Q73 38 78 40 Q82 38 85 42 Q88 45 86 50 Q88 55 82 58 Q78 60 75 58 Q70 60 68 55 Q66 52 70 50" fill="#667eea" opacity="0.7"/>
+  <!-- Huellas (footprints) -->
+  <ellipse cx="72" cy="72" rx="3" ry="4" fill="#764ba2" opacity="0.4"/>
+  <ellipse cx="80" cy="70" rx="3" ry="4" fill="#764ba2" opacity="0.5"/>
+  <text x="60" y="105" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle">Presentación</text>
+</svg>
