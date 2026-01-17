@@ -1440,7 +1440,19 @@ XML;
     file_put_contents($activityDir . '/comments.xml', '<?xml version="1.0" encoding="UTF-8"?><comments></comments>');
     file_put_contents($activityDir . '/calendar.xml', '<?xml version="1.0" encoding="UTF-8"?><events></events>');
     file_put_contents($activityDir . '/competencies.xml', '<?xml version="1.0" encoding="UTF-8"?><course_module_competencies></course_module_competencies>');
-    file_put_contents($activityDir . '/inforef.xml', '<?xml version="1.0" encoding="UTF-8"?><inforef><fileref></fileref><question_categoryref></question_categoryref></inforef>');
+    // CRITICAL: Include question_categoryref with the category ID
+    // This tells Moodle which question categories are "needed" by this quiz
+    // Without this, questions.xml parser skips the category (see restore_questions_parser_processor.class.php:129-130)
+    $inforefXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<inforef>
+  <fileref></fileref>
+  <question_categoryref>
+    <question_category id="{$categoryId}"/>
+  </question_categoryref>
+</inforef>
+XML;
+    file_put_contents($activityDir . '/inforef.xml', $inforefXml);
 
     return count($questions);
 }
