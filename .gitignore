@@ -41,3 +41,7 @@ curso/backup_output_chapter2/*.mbz
 
 # Keep GIFT files for question import
 !curso/backup_output_incremental/*.gift.txt
+
+# Keep split MBZ parts for download (under 100MB each)
+# To reconstruct: cat mbz_split/huellas-completo.mbz.part_* > huellas-completo.mbz
+!curso/backup_output_incremental/mbz_split/
