@@ -496,9 +496,9 @@ $QUIZ_DATA_6_10 = [
     ],
 ];
 
-// Merge con datos de capitulos 1-5
+// Merge con datos de capitulos 1-5 (usar + para preservar claves numericas)
 if (isset($QUIZ_DATA)) {
-    $QUIZ_DATA = array_merge($QUIZ_DATA, $QUIZ_DATA_6_10);
+    $QUIZ_DATA = $QUIZ_DATA + $QUIZ_DATA_6_10;
 } else {
     $QUIZ_DATA = $QUIZ_DATA_6_10;
 }

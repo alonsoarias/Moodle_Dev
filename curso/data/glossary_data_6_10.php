@@ -122,9 +122,9 @@ $GLOSSARY_DATA_6_10 = [
     ],
 ];
 
-// Merge con datos de capitulos 1-5
+// Merge con datos de capitulos 1-5 (usar + para preservar claves numericas)
 if (isset($GLOSSARY_DATA)) {
-    $GLOSSARY_DATA = array_merge($GLOSSARY_DATA, $GLOSSARY_DATA_6_10);
+    $GLOSSARY_DATA = $GLOSSARY_DATA + $GLOSSARY_DATA_6_10;
 } else {
     $GLOSSARY_DATA = $GLOSSARY_DATA_6_10;
 }
