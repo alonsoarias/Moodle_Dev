@@ -1272,6 +1272,14 @@ ANSWER;
         </question_hints>
         <tags>
         </tags>
+        <plugin_qbank_comment_question>
+          <comments>
+          </comments>
+        </plugin_qbank_comment_question>
+        <plugin_qbank_customfields_question>
+          <customfields>
+          </customfields>
+        </plugin_qbank_customfields_question>
       </question>
 XML;
 
