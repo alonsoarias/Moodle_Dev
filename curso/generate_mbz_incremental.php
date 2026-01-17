@@ -1291,11 +1291,13 @@ XML;
         // where quizcontextid is the MODULE context, not the course context
         $questionSlots .= <<<SLOT
       <question_instance id="{$slot}">
+        <quizid>{$instanceId}</quizid>
         <slot>{$slot}</slot>
         <page>1</page>
         <displaynumber>\$@NULL@\$</displaynumber>
         <requireprevious>0</requireprevious>
         <maxmark>1.0000000</maxmark>
+        <quizgradeitemid>\$@NULL@\$</quizgradeitemid>
         <question_reference>
           <usingcontextid>{$contextId}</usingcontextid>
           <component>mod_quiz</component>
