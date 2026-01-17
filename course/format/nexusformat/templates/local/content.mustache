@@ -1068,8 +1068,18 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
     // Uses initialActivityCmid which respects URL parameter for persistence
     if (!isEditing) {
         // If a specific section is selected via URL, find and expand it
+        // This can be a regular section (.nexus-unit) or a subsection (.nexus-subsection)
         if (selectedSection > 0) {
+            // First try to find a regular section (unit)
             var $selectedUnit = $('.nexus-unit[data-sectionnumber="' + selectedSection + '"]');
+
+            // If not found, try to find a subsection
+            var $selectedSubsection = null;
+            if (!$selectedUnit.length) {
+                $selectedSubsection = $('.nexus-subsection[data-sectionnumber="' + selectedSection + '"]');
+            }
+
+            // Expand the regular section if found
             if ($selectedUnit.length && !$selectedUnit.hasClass('expanded')) {
                 $selectedUnit.addClass('expanded');
                 $selectedUnit.find('> .nexus-unit-lessons').show();
@@ -1079,11 +1089,36 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 $header.attr('aria-expanded', 'true');
             }
 
-            // If initialActivityCmid is 0, find the first activity in this section
-            if (initialActivityCmid === 0 && $selectedUnit.length) {
-                var $firstLesson = $selectedUnit.find('.nexus-lesson').first();
-                if ($firstLesson.length) {
-                    initialActivityCmid = $firstLesson.data('cmid');
+            // Expand the subsection if found (and its parent section)
+            if ($selectedSubsection && $selectedSubsection.length) {
+                // First expand the parent section
+                var $parentUnit = $selectedSubsection.closest('.nexus-unit');
+                if ($parentUnit.length && !$parentUnit.hasClass('expanded')) {
+                    $parentUnit.addClass('expanded');
+                    $parentUnit.find('> .nexus-unit-lessons').show();
+                    var $parentHeader = $parentUnit.find('> .nexus-unit-header');
+                    $parentHeader.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                    $parentHeader.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+                    $parentHeader.attr('aria-expanded', 'true');
+                }
+                // Then expand the subsection
+                if (!$selectedSubsection.hasClass('expanded')) {
+                    $selectedSubsection.addClass('expanded');
+                    $selectedSubsection.find('> .nexus-subsection-content').show();
+                    $selectedSubsection.find('> .nexus-subsection-header .nexus-unit-toggle i')
+                        .removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                    $selectedSubsection.find('> .nexus-subsection-header').attr('aria-expanded', 'true');
+                }
+            }
+
+            // If initialActivityCmid is 0, find the first activity in this section/subsection
+            if (initialActivityCmid === 0) {
+                var $container = $selectedUnit.length ? $selectedUnit : $selectedSubsection;
+                if ($container && $container.length) {
+                    var $firstLesson = $container.find('.nexus-lesson').first();
+                    if ($firstLesson.length) {
+                        initialActivityCmid = $firstLesson.data('cmid');
+                    }
                 }
             }
         }
@@ -1095,7 +1130,7 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 $initialLesson.addClass('active');
                 // Ensure the parent unit is expanded
                 var $parentUnit = $initialLesson.closest('.nexus-unit');
-                if (!$parentUnit.hasClass('expanded')) {
+                if ($parentUnit.length && !$parentUnit.hasClass('expanded')) {
                     $parentUnit.addClass('expanded');
                     $parentUnit.find('> .nexus-unit-lessons').show();
                     var $header = $parentUnit.find('> .nexus-unit-header');

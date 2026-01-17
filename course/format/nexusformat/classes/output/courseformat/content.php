@@ -710,23 +710,29 @@ class content extends content_base {
 
     /**
      * Get the cmid of the first loadable activity in the course or a specific section.
+     * This method also handles subsections (delegated sections).
      *
      * @param \course_modinfo $modinfo The course modinfo
-     * @param int|null $sectionnum Optional section number to search in
+     * @param int|null $sectionnum Optional section number to search in (can be a subsection)
      * @return int|null cmid of first activity or null
      */
     protected function get_first_activity_cmid(\course_modinfo $modinfo, ?int $sectionnum = null): ?int {
         $sections = $modinfo->get_section_info_all();
 
         foreach ($sections as $section) {
-            // Skip delegated sections.
-            if (!empty($section->component)) {
-                continue;
-            }
-
-            // If a specific section is requested, skip other sections.
-            if ($sectionnum !== null && $section->section != $sectionnum) {
-                continue;
+            // If a specific section is requested, check if this is that section.
+            // This includes both regular sections AND subsections (delegated sections).
+            if ($sectionnum !== null) {
+                if ($section->section != $sectionnum) {
+                    continue;
+                }
+                // Found the requested section (could be a subsection).
+            } else {
+                // When no specific section is requested, skip delegated sections
+                // as they are shown nested inside their parent sections.
+                if (!empty($section->component)) {
+                    continue;
+                }
             }
 
             if (!empty($modinfo->sections[$section->section])) {
