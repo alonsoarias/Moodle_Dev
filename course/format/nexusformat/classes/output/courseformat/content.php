@@ -101,7 +101,18 @@ class content extends content_base {
             try {
                 $cm = $modinfo->get_cm($urlcmid);
                 if ($cm && $cm->uservisible) {
-                    $data->initialactivitycmid = $urlcmid;
+                    // If a section is specified, verify the cmid belongs to that section.
+                    if ($sectionparam !== null) {
+                        // Check if cmid is in the specified section.
+                        if ($cm->sectionnum == $sectionparam) {
+                            $data->initialactivitycmid = $urlcmid;
+                        }
+                        // If cmid doesn't belong to the section, it will be ignored
+                        // and the first activity of the section will be loaded instead.
+                    } else {
+                        // No section specified, accept any valid cmid.
+                        $data->initialactivitycmid = $urlcmid;
+                    }
                 }
             } catch (\Exception $e) {
                 // Invalid cmid, ignore.
@@ -109,7 +120,7 @@ class content extends content_base {
             }
         }
 
-        // If no URL cmid, use first activity for auto-load (from specific section if specified).
+        // If no valid URL cmid, use first activity for auto-load (from specific section if specified).
         if (empty($data->initialactivitycmid)) {
             $data->initialactivitycmid = $this->get_first_activity_cmid($modinfo, $sectionparam);
         }
