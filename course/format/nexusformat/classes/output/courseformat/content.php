@@ -708,11 +708,10 @@ class content extends content_base {
             }
         }
 
-        // If specific section had no activities, fall back to first activity in course.
-        if ($sectionnum !== null) {
-            return $this->get_first_activity_url($modinfo, null);
-        }
-
+        // If no specific section was requested and we found nothing, return null.
+        // If a specific section was requested but had no activities, also return null.
+        // We do NOT fall back to the first activity of the course when a section is
+        // explicitly requested - the user wants that specific section.
         return null;
     }
 
@@ -757,11 +756,10 @@ class content extends content_base {
             }
         }
 
-        // If specific section had no activities, fall back to first activity in course.
-        if ($sectionnum !== null) {
-            return $this->get_first_activity_cmid($modinfo, null);
-        }
-
+        // If no specific section was requested and we found nothing, return null.
+        // If a specific section was requested but had no activities, also return null.
+        // We do NOT fall back to the first activity of the course when a section is
+        // explicitly requested - the user wants that specific section.
         return null;
     }
 
