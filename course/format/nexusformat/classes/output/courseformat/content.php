@@ -59,15 +59,16 @@ class content extends content_base {
         // Get base data from parent.
         $data = parent::export_for_template($output);
 
-        // Check if we're on a section.php page (single section view).
-        // On section.php pages, we want to show the standard Moodle layout
-        // so that secondary navigation and breadcrumbs are visible.
-        $pagetype = $PAGE->pagetype ?? '';
-        $issectionpage = (strpos($pagetype, 'course-section') === 0);
+        // Check if we're on a single section view (section.php page).
+        // The format's get_sectionid() returns the section ID when viewing a single section.
+        // On single section view, we want to show the standard Moodle layout
+        // with section navigation (previous/next) instead of the Nexus two-column layout.
+        $singlesectionid = $format->get_sectionid();
+        $issinglesectionview = !empty($singlesectionid);
 
         // Add Nexus-specific data.
-        // Use standard Moodle layout on section.php pages to preserve navigation.
-        $data->nexusformat = $issectionpage ? false : true;
+        // Use standard Moodle layout on single section view to preserve navigation.
+        $data->nexusformat = $issinglesectionview ? false : true;
         $data->courseid = $course->id;
         $data->coursefullname = format_string($course->fullname);
         $data->courseshortname = format_string($course->shortname);

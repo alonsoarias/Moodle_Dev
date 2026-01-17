@@ -181,9 +181,10 @@ class format_nexusformat extends core_courseformat\base {
         // This ensures breadcrumbs and other elements are not hidden on activity pages
         // like /mod/page/view.php, /mod/quiz/view.php, etc.
         // The page type for course view is 'course-view-{formatname}'.
-        // The page type for section view is 'course-section-{formatname}'.
+        // The page type for single section view is 'course-view-section-{formatname}'.
+        // Both start with 'course-view', so we only check for that prefix.
         $pagetype = $page->pagetype ?? '';
-        if (strpos($pagetype, 'course-view') === 0 || strpos($pagetype, 'course-section') === 0) {
+        if (strpos($pagetype, 'course-view') === 0) {
             $page->add_body_class('format-nexusformat');
         }
     }
