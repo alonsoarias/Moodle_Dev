@@ -112,26 +112,54 @@ class format_nexusformat extends core_courseformat\base {
     /**
      * The URL to use for the specified course (with section).
      *
+     * Unlike the default format behavior which uses section.php for single section view,
+     * Nexus Format always uses view.php with a section parameter. This keeps the course
+     * navigation menu visible when viewing a single section.
+     *
      * @param int|stdClass $section Section object from database or just field course_sections.section
-     * @param array $options options for view URL
+     * @param array $options options for view URL. At the moment core uses:
+     *     'navigation' (bool) if true and section has no separate page, the function returns null
+     *     'sr' (int) used by multipage formats to specify to which section to return
      * @return null|moodle_url
      */
     public function get_view_url($section, $options = []): ?moodle_url {
+        global $PAGE;
+
         $course = $this->get_course();
         $url = new moodle_url('/course/view.php', ['id' => $course->id]);
 
-        if (array_key_exists('sr', $options) && !is_null($options['sr'])) {
-            $sectionno = $options['sr'];
-        } else if (is_object($section)) {
+        $sr = null;
+        if (array_key_exists('sr', $options)) {
+            $sr = $options['sr'];
+        }
+
+        if (is_object($section)) {
             $sectionno = $section->section;
         } else {
             $sectionno = $section;
         }
 
-        if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
-            // Display section on separate page.
-            $sectioninfo = $this->get_section($sectionno);
-            return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
+        if ($sectionno !== null) {
+            if ($sr !== null) {
+                if ($sr) {
+                    $sectionno = $sr;
+                }
+            }
+            // Always use view.php with section parameter to keep navigation visible.
+            // Only redirect to section.php if we're already on section.php (to avoid loops).
+            if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
+                if (isset($PAGE->url) && strpos($PAGE->url->get_path(), 'course/section.php') !== false) {
+                    // Already on section.php, use section.php URL to maintain consistency.
+                    $sectioninfo = $this->get_section($sectionno);
+                    return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
+                }
+            }
+            // Use view.php with section parameter for all other cases.
+            if ($sectionno != 0) {
+                $url->param('section', $sectionno);
+            } else {
+                $url->set_anchor('section-' . $sectionno);
+            }
         }
 
         return $url;
@@ -155,6 +183,45 @@ class format_nexusformat extends core_courseformat\base {
      */
     public function supports_components(): bool {
         return true;
+    }
+
+    /**
+     * Loads all of the course sections into the navigation.
+     *
+     * This method ensures that when a section is specified via the URL parameter,
+     * it is expanded in the course navigation.
+     *
+     * @param global_navigation $navigation
+     * @param navigation_node $node The course node within the navigation
+     * @return void
+     */
+    public function extend_course_navigation($navigation, navigation_node $node): void {
+        global $PAGE;
+
+        // If section is specified in course/view.php, make sure it is expanded in navigation.
+        if ($navigation->includesectionnum === false) {
+            $selectedsection = optional_param('section', null, PARAM_INT);
+            if ($selectedsection !== null && (!defined('AJAX_SCRIPT') || AJAX_SCRIPT == '0') &&
+                    $PAGE->url->compare(new moodle_url('/course/view.php'), URL_MATCH_BASE)) {
+                $navigation->includesectionnum = $selectedsection;
+            }
+        }
+
+        // Check if there are callbacks to extend course navigation.
+        parent::extend_course_navigation($navigation, $node);
+
+        // We want to remove the general section if it is empty.
+        $modinfo = get_fast_modinfo($this->get_course());
+        $sections = $modinfo->get_sections();
+        if (!isset($sections[0])) {
+            // The general section is empty - find the navigation node for it.
+            $section = $modinfo->get_section_info(0);
+            $generalsection = $node->get($section->id, navigation_node::TYPE_SECTION);
+            if ($generalsection) {
+                // We found the node - now remove it.
+                $generalsection->remove();
+            }
+        }
     }
 
     /**
