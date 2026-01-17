@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="3" moduleid="3" modulename="glossary" contextid="102">
+  <glossary id="3">
+    <name>Glosario de Terminos - Capitulo 2</name>
+    <intro>&lt;p&gt;Glosario de terminos del capitulo&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <approvaldisplayformat>default</approvaldisplayformat>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768681005</timecreated>
+    <timemodified>1768681005</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="1">
+        <userid>2</userid>
+        <concept>Cerebro Anterior</concept>
+        <definition>Division del cerebro que se relaciona con la motricidad.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="2">
+        <userid>2</userid>
+        <concept>Cerebro Posterior</concept>
+        <definition>Division del cerebro relacionada con la sensibilidad. Los lobulos posteriores maduran antes que el frontal.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="3">
+        <userid>2</userid>
+        <concept>Cisura de Rolando</concept>
+        <definition>Surco que historicamente dividio el cerebro anterior (motor) del cerebro posterior (sensitivo).</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="4">
+        <userid>2</userid>
+        <concept>Corteza Anterior</concept>
+        <definition>Parte de la corteza relacionada con lo motor.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="5">
+        <userid>2</userid>
+        <concept>Corteza Posterior</concept>
+        <definition>Parte de la corteza relacionada con lo sensitivo.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="6">
+        <userid>2</userid>
+        <concept>Depresion</concept>
+        <definition>En ninos y adultos, puede ser resultado de hipoactivacion de regiones frontales o hiperactivacion del hemisferio derecho.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="7">
+        <userid>2</userid>
+        <concept>Efecto de Modulacion</concept>
+        <definition>Funcion del hemisferio derecho controlando al izquierdo a medida que madura. Le baja o sube el volumen.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="8">
+        <userid>2</userid>
+        <concept>Funciones Ejecutivas</concept>
+        <definition>Procesos cognitivos, emocionales y de regulacion de respuestas conductuales que coordinan capacidades frente a diferentes demandas.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="9">
+        <userid>2</userid>
+        <concept>Lobulos Frontales</concept>
+        <definition>Juegan papel fundamental en el procedimiento de respuestas emocionales. Su rol central es establecer objetivos y crear planes.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="10">
+        <userid>2</userid>
+        <concept>Lobulos Parietales</concept>
+        <definition>Contienen los sistemas sensitivos y sensoriales. Son funcionales antes del nacimiento.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="11">
+        <userid>2</userid>
+        <concept>Lobulos Temporales</concept>
+        <definition>Juegan papel importante en la percepcion de las emociones y reconocimiento de expresiones faciales.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="12">
+        <userid>2</userid>
+        <concept>Orbito Frontal Derecho</concept>
+        <definition>Area del cerebro considerada el centro emocional, utilizada por los hombres al actuar o tomar decisiones.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="13">
+        <userid>2</userid>
+        <concept>Orbito Frontal Izquierdo</concept>
+        <definition>Area del cerebro considerada la racional, utilizada por las mujeres al actuar o tomar decisiones.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="14">
+        <userid>2</userid>
+        <concept>Talamo</concept>
+        <definition>Organo al que van todos los organos sensoriales, excepto el olfato. Cuando los estimulos llegan, se tienen sensaciones.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="15">
+        <userid>2</userid>
+        <concept>Virilizacion del Cuerpo Calloso</concept>
+        <definition>Proceso de maduracion de las conexiones del cuerpo calloso que permite la interaccion de ambos hemisferios, ocurre a los 8 anos.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="16">
+        <userid>2</userid>
+        <concept>Aferencias y Eferencias</concept>
+        <definition>Componentes de la organizacion cortical: recibir (aferencias), pensar y responder (eferencias).</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="17">
+        <userid>2</userid>
+        <concept>Areas de Asociacion</concept>
+        <definition>Areas terciarias que comprenden toda la corteza no especializada en funcion sensitiva o motora. Son las que conectan todo.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="18">
+        <userid>2</userid>
+        <concept>Olfato</concept>
+        <definition>Sentido que no va al talamo sino directamente a la corteza, por eso puede tener efecto inmediato de relajacion o contraccion.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="19">
+        <userid>2</userid>
+        <concept>Sensorio-Motor</concept>
+        <definition>Primer periodo del desarrollo de la inteligencia segun Piaget.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="20">
+        <userid>2</userid>
+        <concept>Somatoestesia</concept>
+        <definition>Las sensaciones corporales. Los sentidos somatoestesicos son los primeros en desarrollarse embriologicamente.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+      <entry id="21">
+        <userid>2</userid>
+        <concept>Demorar la Recompensa</concept>
+        <definition>Habilidad estudiada por Walter Mischel. Comienza a los 4 anos y favorece la habilidad social en la adolescencia.</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment></attachment>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <teacherentry>0</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases></aliases>
+        <ratings></ratings>
+        <tags></tags>
+      </entry>
+    </entries>
+    <oneperpage>0</oneperpage>
+    <categories></categories>
+  </glossary>
+</activity>

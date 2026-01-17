@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+  <user id="2" contextid="5">
+    <username>admin</username>
+    <idnumber></idnumber>
+    <email>admin@example.com</email>
+    <firstname>Admin</firstname>
+    <lastname>User</lastname>
+    <auth>manual</auth>
+    <confirmed>1</confirmed>
+    <suspended>0</suspended>
+    <deleted>0</deleted>
+    <timecreated>1768681005</timecreated>
+    <timemodified>1768681005</timemodified>
+  </user>
+</users>

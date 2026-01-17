@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <moodle_backup>
   <information>
-    <name>backup-huellas-invisibles-incremental.mbz</name>
+    <name>backup-capitulo2-only.mbz</name>
     <moodle_version>2024042200</moodle_version>
     <moodle_release>4.4</moodle_release>
     <backup_version>2024042200</backup_version>
     <backup_release>4.4</backup_release>
-    <backup_date>1768680635</backup_date>
+    <backup_date>1768681005</backup_date>
     <mnet_remoteusers>0</mnet_remoteusers>
     <include_files>1</include_files>
     <include_file_references_to_external_content>0</include_file_references_to_external_content>
     <original_wwwroot>https://campus.example.com</original_wwwroot>
-    <original_site_identifier_hash>mbzgen_incremental</original_site_identifier_hash>
+    <original_site_identifier_hash>mbzgen_chapter2</original_site_identifier_hash>
     <original_course_id>2</original_course_id>
     <original_course_format>topics</original_course_format>
-    <original_course_fullname>Huellas Invisibles: Neurociencia del Desarrollo Infantil</original_course_fullname>
-    <original_course_shortname>huellas-invisibles</original_course_shortname>
-    <original_course_startdate>1768680635</original_course_startdate>
+    <original_course_fullname>Capitulo 2: Funciones Emocionales</original_course_fullname>
+    <original_course_shortname>cap2-emociones</original_course_shortname>
+    <original_course_startdate>1768681005</original_course_startdate>
     <original_course_enddate>0</original_course_enddate>
     <original_course_contextid>50</original_course_contextid>
     <original_system_contextid>1</original_system_contextid>
     <details>
-      <detail backup_id="mbzgen_incremental">
+      <detail backup_id="mbzgen_chapter2">
         <type>course</type>
         <format>moodle2</format>
         <interactive>0</interactive>
@@ -36,81 +36,41 @@
         <moduleid>1</moduleid>
         <sectionid>1</sectionid>
         <modulename>label</modulename>
-        <title>Presentacion del Curso</title>
+        <title>Introduccion - Capitulo 2</title>
         <directory>activities/label_1</directory>
       </activity>
       <activity>
         <moduleid>2</moduleid>
         <sectionid>1</sectionid>
-        <modulename>resource</modulename>
-        <title>Programa del Curso</title>
-        <directory>activities/resource_2</directory>
+        <modulename>label</modulename>
+        <title>Video: Funciones Emocionales</title>
+        <directory>activities/label_2</directory>
       </activity>
       <activity>
         <moduleid>3</moduleid>
-        <sectionid>2</sectionid>
-        <modulename>label</modulename>
-        <title>Introduccion - Capitulo 1</title>
-        <directory>activities/label_3</directory>
+        <sectionid>1</sectionid>
+        <modulename>glossary</modulename>
+        <title>Glosario de Terminos - Capitulo 2</title>
+        <directory>activities/glossary_3</directory>
       </activity>
       <activity>
         <moduleid>4</moduleid>
-        <sectionid>2</sectionid>
-        <modulename>resource</modulename>
-        <title>Video: Desarrollo Neurologico Infantil</title>
-        <directory>activities/resource_4</directory>
-      </activity>
-      <activity>
-        <moduleid>5</moduleid>
-        <sectionid>2</sectionid>
-        <modulename>resource</modulename>
-        <title>Libro: Esculpiendo el Cerebro - Primera Infancia</title>
-        <directory>activities/resource_5</directory>
-      </activity>
-      <activity>
-        <moduleid>6</moduleid>
-        <sectionid>2</sectionid>
-        <modulename>resource</modulename>
-        <title>Documento de Estudio Complementario</title>
-        <directory>activities/resource_6</directory>
-      </activity>
-      <activity>
-        <moduleid>7</moduleid>
-        <sectionid>2</sectionid>
-        <modulename>glossary</modulename>
-        <title>Glosario de Terminos - Capitulo 1</title>
-        <directory>activities/glossary_7</directory>
-      </activity>
-      <activity>
-        <moduleid>8</moduleid>
-        <sectionid>2</sectionid>
-        <modulename>resource</modulename>
-        <title>Bibliografia de Referencia</title>
-        <directory>activities/resource_8</directory>
-      </activity>
-      <activity>
-        <moduleid>9</moduleid>
-        <sectionid>2</sectionid>
+        <sectionid>1</sectionid>
         <modulename>quiz</modulename>
-        <title>Autoevaluacion - Capitulo 1</title>
-        <directory>activities/quiz_9</directory>
+        <title>Autoevaluacion - Capitulo 2</title>
+        <directory>activities/quiz_4</directory>
       </activity>
       </activities>
       <sections>
       <section>
         <sectionid>1</sectionid>
-        <title>Presentacion del Curso</title>
+        <title>Capitulo 2: Funciones Emocionales</title>
         <directory>sections/section_1</directory>
-      </section>
-      <section>
-        <sectionid>2</sectionid>
-        <title>Capitulo 1: Desarrollo Neurologico Infantil</title>
-        <directory>sections/section_2</directory>
       </section>
       </sections>
       <course>
         <courseid>2</courseid>
-        <title>Huellas Invisibles: Neurociencia del Desarrollo Infantil</title>
+        <title>Capitulo 2: Funciones Emocionales</title>
         <directory>course</directory>
       </course>
     </contents>
@@ -118,7 +78,7 @@
       <setting>
         <level>root</level>
         <name>filename</name>
-        <value>backup-huellas-invisibles-incremental.mbz</value>
+        <value>backup-capitulo2-only.mbz</value>
       </setting>
       <setting>
         <level>root</level>
@@ -231,17 +191,6 @@
         <section>section_1</section>
         <name>section_1_userinfo</name>
         <value>1</value>
-      </setting>      <setting>
-        <level>section</level>
-        <section>section_2</section>
-        <name>section_2_included</name>
-        <value>1</value>
-      </setting>
-      <setting>
-        <level>section</level>
-        <section>section_2</section>
-        <name>section_2_userinfo</name>
-        <value>1</value>
       </setting>
       <setting>
         <level>activity</level>
@@ -256,91 +205,36 @@
         <value>1</value>
       </setting>      <setting>
         <level>activity</level>
-        <activity>resource_2</activity>
-        <name>resource_2_included</name>
+        <activity>label_2</activity>
+        <name>label_2_included</name>
         <value>1</value>
       </setting>
       <setting>
         <level>activity</level>
-        <activity>resource_2</activity>
-        <name>resource_2_userinfo</name>
+        <activity>label_2</activity>
+        <name>label_2_userinfo</name>
         <value>1</value>
       </setting>      <setting>
         <level>activity</level>
-        <activity>label_3</activity>
-        <name>label_3_included</name>
+        <activity>glossary_3</activity>
+        <name>glossary_3_included</name>
         <value>1</value>
       </setting>
       <setting>
         <level>activity</level>
-        <activity>label_3</activity>
-        <name>label_3_userinfo</name>
+        <activity>glossary_3</activity>
+        <name>glossary_3_userinfo</name>
         <value>1</value>
       </setting>      <setting>
         <level>activity</level>
-        <activity>resource_4</activity>
-        <name>resource_4_included</name>
+        <activity>quiz_4</activity>
+        <name>quiz_4_included</name>
         <value>1</value>
       </setting>
       <setting>
         <level>activity</level>
-        <activity>resource_4</activity>
-        <name>resource_4_userinfo</name>
-        <value>1</value>
-      </setting>      <setting>
-        <level>activity</level>
-        <activity>resource_5</activity>
-        <name>resource_5_included</name>
-        <value>1</value>
-      </setting>
-      <setting>
-        <level>activity</level>
-        <activity>resource_5</activity>
-        <name>resource_5_userinfo</name>
-        <value>1</value>
-      </setting>      <setting>
-        <level>activity</level>
-        <activity>resource_6</activity>
-        <name>resource_6_included</name>
-        <value>1</value>
-      </setting>
-      <setting>
-        <level>activity</level>
-        <activity>resource_6</activity>
-        <name>resource_6_userinfo</name>
-        <value>1</value>
-      </setting>      <setting>
-        <level>activity</level>
-        <activity>glossary_7</activity>
-        <name>glossary_7_included</name>
-        <value>1</value>
-      </setting>
-      <setting>
-        <level>activity</level>
-        <activity>glossary_7</activity>
-        <name>glossary_7_userinfo</name>
-        <value>1</value>
-      </setting>      <setting>
-        <level>activity</level>
-        <activity>resource_8</activity>
-        <name>resource_8_included</name>
-        <value>1</value>
-      </setting>
-      <setting>
-        <level>activity</level>
-        <activity>resource_8</activity>
-        <name>resource_8_userinfo</name>
-        <value>1</value>
-      </setting>      <setting>
-        <level>activity</level>
-        <activity>quiz_9</activity>
-        <name>quiz_9_included</name>
-        <value>1</value>
-      </setting>
-      <setting>
-        <level>activity</level>
-        <activity>quiz_9</activity>
-        <name>quiz_9_userinfo</name>
+        <activity>quiz_4</activity>
+        <name>quiz_4_userinfo</name>
         <value>1</value>
       </setting>
     </settings>
