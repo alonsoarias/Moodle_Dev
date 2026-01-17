@@ -59,23 +59,16 @@ class content extends content_base {
         // Get base data from parent.
         $data = parent::export_for_template($output);
 
-        // Detect if we're on section.php (not view.php with section parameter).
-        // On section.php, Moodle disables secondary navigation, so we fall back to standard layout.
-        // On view.php?section=X, we keep the full Nexus layout with navigation visible.
-        $pagetype = $PAGE->pagetype ?? '';
-        $issectionphp = (strpos($pagetype, 'course-view-section-') === 0);
-
-        // Get the section number if one is specified (either via section.php or view.php?section=X).
-        $singlesectionnum = $format->get_sectionnum();
+        // Get the section number if one is specified via URL parameter.
+        // Note: section.php URLs are automatically redirected to view.php in lib.php,
+        // so we always use the full Nexus Format layout here.
         $displaysection = optional_param('section', 0, PARAM_INT);
 
-        // Add Nexus-specific data.
-        // Only use standard Moodle layout when on section.php (which hides navigation).
-        // When on view.php with section parameter, keep the Nexus layout with full navigation.
-        $data->nexusformat = $issectionphp ? false : true;
+        // Always use Nexus Format layout (section.php is redirected to view.php).
+        $data->nexusformat = true;
 
         // Pass the selected section number to the template for auto-expanding in sidebar.
-        $data->selectedsection = $displaysection > 0 ? $displaysection : ($singlesectionnum ?? 0);
+        $data->selectedsection = $displaysection;
         $data->courseid = $course->id;
         $data->coursefullname = format_string($course->fullname);
         $data->courseshortname = format_string($course->shortname);

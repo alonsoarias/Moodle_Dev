@@ -242,17 +242,17 @@ class format_nexusformat extends core_courseformat\base {
      * Also redirects section.php URLs to view.php for consistent navigation.
      */
     public function page_set_course(\moodle_page $page): void {
-        global $DB;
+        global $DB, $SCRIPT;
 
         parent::page_set_course($page);
 
         // Redirect section.php to view.php with section parameter.
         // This ensures consistent navigation and keeps the course menu visible.
-        $pagetype = $page->pagetype ?? '';
-        if (strpos($pagetype, 'course-view-section-') === 0) {
+        // We check $SCRIPT because pagetype is not yet set when this method is called.
+        if (isset($SCRIPT) && strpos($SCRIPT, '/course/section.php') !== false) {
             // We're on section.php - redirect to view.php with section parameter.
             $course = $this->get_course();
-            $sectionid = $this->get_sectionid();
+            $sectionid = optional_param('id', 0, PARAM_INT);
             if ($sectionid) {
                 // Get the section number from section ID.
                 $section = $DB->get_record('course_sections', ['id' => $sectionid], 'section');
@@ -271,6 +271,7 @@ class format_nexusformat extends core_courseformat\base {
         // Only add format body class on course view pages.
         // This ensures breadcrumbs and other elements are not hidden on activity pages
         // like /mod/page/view.php, /mod/quiz/view.php, etc.
+        $pagetype = $page->pagetype ?? '';
         if (strpos($pagetype, 'course-view') === 0) {
             $page->add_body_class('format-nexusformat');
         }
