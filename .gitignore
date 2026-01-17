@@ -28,3 +28,7 @@ phpcs.xml
 *.temp
 .cache/
 local/educambot_backup_*/
+
+# MBZ generator output directories
+curso/backup_output_v3/
+curso/backup_output_v4/
