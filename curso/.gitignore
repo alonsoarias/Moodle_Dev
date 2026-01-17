@@ -1,6 +1,9 @@
-# Archivos MBZ (demasiado grandes para Git)
+# Archivos MBZ completos (demasiado grandes para Git)
 *.mbz
 
 # Archivos temporales del generador
 backup_output/
 curso_content/
+
+# NO excluir los archivos ZIP de las partes
+!mbz_parts/*.zip
