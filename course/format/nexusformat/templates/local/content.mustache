@@ -760,21 +760,10 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
 
     // Navigate to specific activity
     function navigateToActivity(cmid) {
-        // Update sidebar selection
-        $('.nexus-lesson').removeClass('active');
         var $lesson = $('.nexus-lesson[data-cmid="' + cmid + '"]');
         if ($lesson.length) {
-            $lesson.addClass('active');
-
-            // Expand parent unit if needed
-            var $parentUnit = $lesson.closest('.nexus-unit');
-            if (!$parentUnit.hasClass('expanded')) {
-                $parentUnit.addClass('expanded');
-                $parentUnit.find('> .nexus-unit-lessons').show();
-                var $header = $parentUnit.find('> .nexus-unit-header');
-                $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
-            }
+            // Expand all parents and mark active
+            expandAndActivateLesson($lesson);
 
             // Scroll to lesson in sidebar on desktop
             if ($(window).width() > 992) {
@@ -855,14 +844,59 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         $('#nexus-tab-' + tab).show();
     });
 
+    // ==========================================
+    // HELPER FUNCTIONS FOR EXPANDING SECTIONS
+    // ==========================================
+
+    // Helper function to expand a unit (section)
+    function expandUnit($unit) {
+        if (!$unit || !$unit.length) return;
+        if (!$unit.hasClass('expanded')) {
+            $unit.addClass('expanded');
+            $unit.find('> .nexus-unit-lessons').show();
+            var $header = $unit.find('> .nexus-unit-header');
+            $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+            $header.attr('aria-expanded', 'true');
+        }
+    }
+
+    // Helper function to expand a subsection (and its parent unit)
+    function expandSubsection($subsection) {
+        if (!$subsection || !$subsection.length) return;
+        // First expand the parent unit
+        var $parentUnit = $subsection.closest('.nexus-unit');
+        expandUnit($parentUnit);
+        // Then expand the subsection itself
+        if (!$subsection.hasClass('expanded')) {
+            $subsection.addClass('expanded');
+            $subsection.find('> .nexus-subsection-content').show();
+            var $subHeader = $subsection.find('> .nexus-subsection-header');
+            $subHeader.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            $subHeader.attr('aria-expanded', 'true');
+        }
+    }
+
+    // Helper function to expand all parents of an activity and mark it active
+    function expandAndActivateLesson($lesson) {
+        if (!$lesson || !$lesson.length) return;
+        // Expand parent unit
+        var $parentUnit = $lesson.closest('.nexus-unit');
+        expandUnit($parentUnit);
+        // Expand parent subsection if exists
+        var $parentSubsection = $lesson.closest('.nexus-subsection');
+        if ($parentSubsection.length) {
+            expandSubsection($parentSubsection);
+        }
+        // Mark as active
+        $('.nexus-lesson').removeClass('active');
+        $lesson.addClass('active');
+    }
+
     // Section name click handler - expand section and load first activity
     $('.nexus-unit-name').on('click', function(e) {
         e.preventDefault();
         var $unit = $(this).closest('.nexus-unit');
-        var $header = $unit.find('> .nexus-unit-header');
-        var $lessons = $unit.find('> .nexus-unit-lessons');
-        var $toggleIcon = $header.find('.nexus-unit-toggle i');
-        var $folderIcon = $header.find('.nexus-unit-icon i');
 
         // Switch to Content tab
         $('.nexus-tab').removeClass('active');
@@ -870,28 +904,21 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         $('.nexus-tab-pane').hide();
         $('#nexus-tab-content').show();
 
-        // Expand the section if not already expanded
-        if (!$unit.hasClass('expanded')) {
-            $lessons.slideDown(200);
-            $unit.addClass('expanded');
-            $toggleIcon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
-            $folderIcon.removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
-            $header.attr('aria-expanded', 'true');
-        }
+        // Expand the section
+        expandUnit($unit);
 
         // Scroll to the section header
         $('html, body').animate({
             scrollTop: $unit.offset().top - 100
         }, 300);
 
-        // Load the first activity of this section if available
+        // Find the first activity of this section (may be in a subsection)
         var $firstLesson = $unit.find('.nexus-lesson').first();
         if ($firstLesson.length) {
             var cmid = $firstLesson.data('cmid');
             if (cmid) {
-                // Update active state
-                $('.nexus-lesson').removeClass('active');
-                $firstLesson.addClass('active');
+                // Expand all parents and mark active
+                expandAndActivateLesson($firstLesson);
                 // Load the activity content
                 loadActivityContent(cmid);
             }
@@ -1067,35 +1094,6 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
     // Auto-load activity on page load (only in view mode)
     // Uses initialActivityCmid which respects URL parameter for persistence
     if (!isEditing) {
-        // Helper function to expand a unit (section)
-        function expandUnit($unit) {
-            if (!$unit || !$unit.length) return;
-            if (!$unit.hasClass('expanded')) {
-                $unit.addClass('expanded');
-                $unit.find('> .nexus-unit-lessons').show();
-                var $header = $unit.find('> .nexus-unit-header');
-                $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
-                $header.attr('aria-expanded', 'true');
-            }
-        }
-
-        // Helper function to expand a subsection
-        function expandSubsection($subsection) {
-            if (!$subsection || !$subsection.length) return;
-            // First expand the parent unit
-            var $parentUnit = $subsection.closest('.nexus-unit');
-            expandUnit($parentUnit);
-            // Then expand the subsection itself
-            if (!$subsection.hasClass('expanded')) {
-                $subsection.addClass('expanded');
-                $subsection.find('> .nexus-subsection-content').show();
-                var $subHeader = $subsection.find('> .nexus-subsection-header');
-                $subHeader.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
-                $subHeader.attr('aria-expanded', 'true');
-            }
-        }
-
         // If a specific section is selected via URL, find and expand it
         // This can be a regular section (.nexus-unit) or a subsection (.nexus-subsection)
         if (selectedSection > 0) {
@@ -1134,13 +1132,8 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         if (initialActivityCmid > 0) {
             var $initialLesson = $('.nexus-lesson[data-cmid="' + initialActivityCmid + '"]');
             if ($initialLesson.length) {
-                $initialLesson.addClass('active');
-                // Ensure the parent unit is expanded
-                var $parentUnit = $initialLesson.closest('.nexus-unit');
-                expandUnit($parentUnit);
-                // Also expand any parent subsections
-                var $parentSubsection = $initialLesson.closest('.nexus-subsection');
-                expandSubsection($parentSubsection);
+                // Expand all parents and mark active
+                expandAndActivateLesson($initialLesson);
             }
             // Load the activity content
             loadActivityContent(initialActivityCmid, true);
