@@ -240,6 +240,7 @@ class format_nexusformat extends core_courseformat\base {
      * Called after the course has been loaded.
      * This adds a body class for full-width styling.
      * Also redirects section.php URLs to view.php for consistent navigation.
+     * Also redirects to correct section when cmid belongs to a different section.
      */
     public function page_set_course(\moodle_page $page): void {
         global $DB, $SCRIPT;
@@ -264,6 +265,36 @@ class format_nexusformat extends core_courseformat\base {
                     }
                     $url = new moodle_url('/course/view.php', $params);
                     redirect($url);
+                }
+            }
+        }
+
+        // Redirect to correct section when cmid doesn't match specified section.
+        // This ensures URLs like section=1&cmid=9 redirect to section=28&cmid=9
+        // when cmid=9 is actually in section 28 (a subsection of section 1).
+        if (isset($SCRIPT) && strpos($SCRIPT, '/course/view.php') !== false) {
+            $sectionparam = optional_param('section', 0, PARAM_INT);
+            $cmid = optional_param('cmid', 0, PARAM_INT);
+
+            if ($sectionparam > 0 && $cmid > 0) {
+                $course = $this->get_course();
+                $modinfo = get_fast_modinfo($course);
+
+                try {
+                    $cm = $modinfo->get_cm($cmid);
+                    if ($cm && $cm->uservisible) {
+                        // If cmid is in a different section than the one specified, redirect.
+                        if ($cm->sectionnum != $sectionparam) {
+                            $url = new moodle_url('/course/view.php', [
+                                'id' => $course->id,
+                                'section' => $cm->sectionnum,
+                                'cmid' => $cmid,
+                            ]);
+                            redirect($url);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Invalid cmid, ignore and continue.
                 }
             }
         }
