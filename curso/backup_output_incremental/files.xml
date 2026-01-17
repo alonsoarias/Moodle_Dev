@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files>
   <file id="1">
+    <contenthash>0377aaa15985f116854fea70b63445740160e96e</contenthash>
+    <contextid>100</contextid>
+    <component>mod_label</component>
+    <filearea>intro</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>huellas_invisibles.png</filename>
+    <userid>2</userid>
+    <filesize>966293</filesize>
+    <mimetype>image/png</mimetype>
+    <status>0</status>
+    <timecreated>1768676949</timecreated>
+    <timemodified>1768676949</timemodified>
+    <source>huellas_invisibles.png</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="2">
     <contenthash>8f3748997fd96e4421aaf599ba026a4d877d94a4</contenthash>
     <contextid>101</contextid>
     <component>mod_resource</component>
@@ -12,8 +33,8 @@
     <filesize>12281</filesize>
     <mimetype>application/vnd.openxmlformats-officedocument.wordprocessingml.document</mimetype>
     <status>0</status>
-    <timecreated>1768676398</timecreated>
-    <timemodified>1768676398</timemodified>
+    <timecreated>1768676949</timecreated>
+    <timemodified>1768676949</timemodified>
     <source>Titulo presentacion y programa.docx</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -21,9 +42,30 @@
     <repositorytype>$@NULL@$</repositorytype>
     <repositoryid>$@NULL@$</repositoryid>
     <reference>$@NULL@$</reference>
-  </file>  <file id="2">
+  </file>  <file id="3">
+    <contenthash>0377aaa15985f116854fea70b63445740160e96e</contenthash>
+    <contextid>102</contextid>
+    <component>mod_label</component>
+    <filearea>intro</filearea>
+    <itemid>0</itemid>
+    <filepath>/</filepath>
+    <filename>huellas_cap1.png</filename>
+    <userid>2</userid>
+    <filesize>966293</filesize>
+    <mimetype>image/png</mimetype>
+    <status>0</status>
+    <timecreated>1768676949</timecreated>
+    <timemodified>1768676949</timemodified>
+    <source>huellas_cap1.png</source>
+    <author>Huellas Invisibles</author>
+    <license>allrightsreserved</license>
+    <sortorder>0</sortorder>
+    <repositorytype>$@NULL@$</repositorytype>
+    <repositoryid>$@NULL@$</repositoryid>
+    <reference>$@NULL@$</reference>
+  </file>  <file id="4">
     <contenthash>ae8c2a2259c19174882d85a97f93bad5f5ad32bb</contenthash>
-    <contextid>103</contextid>
+    <contextid>104</contextid>
     <component>mod_resource</component>
     <filearea>content</filearea>
     <itemid>0</itemid>
@@ -33,8 +75,8 @@
     <filesize>19499923</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768676398</timecreated>
-    <timemodified>1768676398</timemodified>
+    <timecreated>1768676949</timecreated>
+    <timemodified>1768676949</timemodified>
     <source>2-Esculpiendo el Cerebro Primera Infancia (Cap 1).pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -42,9 +84,9 @@
     <repositorytype>$@NULL@$</repositorytype>
     <repositoryid>$@NULL@$</repositoryid>
     <reference>$@NULL@$</reference>
-  </file>  <file id="3">
+  </file>  <file id="5">
     <contenthash>97a119e84c309a3df3358f1b40d7458cd5b3b63d</contenthash>
-    <contextid>104</contextid>
+    <contextid>105</contextid>
     <component>mod_resource</component>
     <filearea>content</filearea>
     <itemid>0</itemid>
@@ -54,8 +96,8 @@
     <filesize>195021</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768676398</timecreated>
-    <timemodified>1768676398</timemodified>
+    <timecreated>1768676949</timecreated>
+    <timemodified>1768676949</timemodified>
     <source>3-DOCUMENTO DE ESTUDIO COMPLEMENTARIO (Cap 1).pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>
@@ -63,9 +105,9 @@
     <repositorytype>$@NULL@$</repositorytype>
     <repositoryid>$@NULL@$</repositoryid>
     <reference>$@NULL@$</reference>
-  </file>  <file id="4">
+  </file>  <file id="6">
     <contenthash>7018f9e5cd6275cbff862a0ead55bdc5a95232f1</contenthash>
-    <contextid>106</contextid>
+    <contextid>107</contextid>
     <component>mod_resource</component>
     <filearea>content</filearea>
     <itemid>0</itemid>
@@ -75,8 +117,8 @@
     <filesize>118985</filesize>
     <mimetype>application/pdf</mimetype>
     <status>0</status>
-    <timecreated>1768676398</timecreated>
-    <timemodified>1768676398</timemodified>
+    <timecreated>1768676949</timecreated>
+    <timemodified>1768676949</timemodified>
     <source>5- Bibliografia de referencia y recomendada (Cap 1).pdf</source>
     <author>Huellas Invisibles</author>
     <license>allrightsreserved</license>

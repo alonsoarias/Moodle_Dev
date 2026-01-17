@@ -135,9 +135,11 @@ XML;
 }
 
 /**
- * Genera los XMLs para un label de presentacion del curso (sin imagen)
+ * Genera los XMLs para un label de presentacion del curso CON imagen
  */
 function generateIntroLabelActivity($activity, $activityDir, $time) {
+    global $allFiles, $nextFileId, $generationTime;
+
     $moduleId = $activity['moduleid'];
     $instanceId = $activity['instanceid'];
     $contextId = $activity['contextid'];
@@ -145,32 +147,88 @@ function generateIntroLabelActivity($activity, $activityDir, $time) {
     $sectionNum = $activity['sectionnumber'];
     $name = escapeXml($activity['name']);
 
+    // Copiar imagen del curso
+    $imagePath = CONTENT_DIR . '/huellas invisibles.png';
+    $imageUrl = '';
+    $fileId = null;
+
+    if (file_exists($imagePath)) {
+        $content = file_get_contents($imagePath);
+        $hash = sha1($content);
+        $filename = 'huellas_invisibles.png';
+        $filesize = filesize($imagePath);
+
+        $hashDir = OUTPUT_DIR . '/files/' . substr($hash, 0, 2);
+        if (!is_dir($hashDir)) {
+            mkdir($hashDir, 0755, true);
+        }
+        $destPath = $hashDir . '/' . $hash;
+        if (!file_exists($destPath)) {
+            copy($imagePath, $destPath);
+        }
+
+        $fileId = $nextFileId++;
+        $allFiles[] = [
+            'id' => $fileId,
+            'contenthash' => $hash,
+            'contextid' => $contextId,
+            'component' => 'mod_label',
+            'filearea' => 'intro',
+            'itemid' => 0,
+            'filepath' => '/',
+            'filename' => $filename,
+            'userid' => 2,
+            'filesize' => $filesize,
+            'mimetype' => 'image/png',
+            'status' => 0,
+            'timecreated' => $generationTime,
+            'timemodified' => $generationTime,
+            'source' => $filename,
+            'author' => 'Huellas Invisibles',
+            'license' => 'allrightsreserved',
+            'sortorder' => 0
+        ];
+
+        $imageUrl = '@@PLUGINFILE@@/' . $filename;
+    }
+
     $content = <<<HTML
-<div style="text-align: center; padding: 30px; background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 15px; color: white; margin: 20px 0;">
-    <h1 style="font-family: 'Rubik', sans-serif; font-size: 2.5em; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-        Huellas Invisibles
-    </h1>
-    <h2 style="font-family: 'Rubik', sans-serif; font-size: 1.5em; font-weight: 300; margin-bottom: 25px;">
-        Neurociencia del Desarrollo Infantil
-    </h2>
-    <p style="font-size: 1.1em; line-height: 1.8; max-width: 800px; margin: 0 auto 20px auto;">
-        Bienvenido a este viaje por el fascinante mundo del neurodesarrollo en la primera infancia.
-        A traves de 10 capitulos exploraremos como se construye el cerebro infantil,
-        la plasticidad neuronal, las emociones, el apego y el papel fundamental del medio acuatico
-        en la estimulacion temprana.
-    </p>
-    <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 25px;">
-        <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;">
-            <strong style="font-size: 2em; display: block;">10</strong>
-            <span style="font-size: 0.9em;">Capitulos</span>
-        </div>
-        <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;">
-            <strong style="font-size: 2em; display: block;">100+</strong>
-            <span style="font-size: 0.9em;">Preguntas</span>
-        </div>
-        <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 10px;">
-            <strong style="font-size: 2em; display: block;">190+</strong>
-            <span style="font-size: 0.9em;">Terminos</span>
+<div style="max-width: 900px; margin: 0 auto; font-family: 'Segoe UI', Roboto, sans-serif;">
+    <!-- Banner con imagen -->
+    <div style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 30px;">
+        <img src="{$imageUrl}" alt="Huellas Invisibles" style="width: 100%; height: auto; display: block;" />
+    </div>
+
+    <!-- Contenido principal -->
+    <div style="background: linear-gradient(135deg, #0170B9 0%, #1a5a8a 100%); border-radius: 20px; padding: 40px; color: white; box-shadow: 0 8px 32px rgba(1,112,185,0.3);">
+        <h1 style="font-size: 2.2em; margin: 0 0 10px 0; font-weight: 700; letter-spacing: -0.5px;">
+            Huellas Invisibles
+        </h1>
+        <h2 style="font-size: 1.3em; font-weight: 300; margin: 0 0 25px 0; opacity: 0.9;">
+            Neurociencia del Desarrollo en la Primera Infancia
+        </h2>
+
+        <p style="font-size: 1.05em; line-height: 1.8; margin: 0 0 30px 0; opacity: 0.95;">
+            Bienvenido a este viaje por el fascinante mundo del neurodesarrollo infantil.
+            Exploraremos como se construye el cerebro en los primeros anos de vida,
+            la plasticidad neuronal, las emociones, el apego y el papel del medio acuatico
+            en la estimulacion temprana.
+        </p>
+
+        <!-- Stats cards -->
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px 30px; border-radius: 15px; text-align: center; min-width: 100px;">
+                <div style="font-size: 2.5em; font-weight: 700; line-height: 1;">10</div>
+                <div style="font-size: 0.85em; opacity: 0.8; margin-top: 5px;">Capitulos</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px 30px; border-radius: 15px; text-align: center; min-width: 100px;">
+                <div style="font-size: 2.5em; font-weight: 700; line-height: 1;">100+</div>
+                <div style="font-size: 0.85em; opacity: 0.8; margin-top: 5px;">Preguntas</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px 30px; border-radius: 15px; text-align: center; min-width: 100px;">
+                <div style="font-size: 2.5em; font-weight: 700; line-height: 1;">190+</div>
+                <div style="font-size: 0.85em; opacity: 0.8; margin-top: 5px;">Terminos</div>
+            </div>
         </div>
     </div>
 </div>
@@ -218,6 +276,168 @@ XML;
 </activity>
 XML;
     file_put_contents($activityDir . '/label.xml', $labelXml);
+
+    // Actualizar inforef con archivo de imagen
+    if ($fileId) {
+        $inforef = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<inforef>
+  <fileref>
+    <file><id>{$fileId}</id></file>
+  </fileref>
+</inforef>
+XML;
+        file_put_contents($activityDir . '/inforef.xml', $inforef);
+    }
+
+    generateActivityCommonXMLs($activityDir);
+}
+
+/**
+ * Genera un label de introduccion para un capitulo
+ */
+function generateChapterIntroLabel($activity, $activityDir, $time, $chapterNum, $chapterTitle, $chapterIntro) {
+    global $allFiles, $nextFileId, $generationTime;
+
+    $moduleId = $activity['moduleid'];
+    $instanceId = $activity['instanceid'];
+    $contextId = $activity['contextid'];
+    $sectionId = $activity['sectionid'];
+    $sectionNum = $activity['sectionnumber'];
+    $name = escapeXml($activity['name']);
+
+    // Copiar imagen del curso para el capitulo
+    $imagePath = CONTENT_DIR . '/huellas invisibles.png';
+    $imageUrl = '';
+    $fileId = null;
+
+    if (file_exists($imagePath)) {
+        $content = file_get_contents($imagePath);
+        $hash = sha1($content);
+        $filename = 'huellas_cap' . $chapterNum . '.png';
+        $filesize = filesize($imagePath);
+
+        $hashDir = OUTPUT_DIR . '/files/' . substr($hash, 0, 2);
+        if (!is_dir($hashDir)) {
+            mkdir($hashDir, 0755, true);
+        }
+        $destPath = $hashDir . '/' . $hash;
+        if (!file_exists($destPath)) {
+            copy($imagePath, $destPath);
+        }
+
+        $fileId = $nextFileId++;
+        $allFiles[] = [
+            'id' => $fileId,
+            'contenthash' => $hash,
+            'contextid' => $contextId,
+            'component' => 'mod_label',
+            'filearea' => 'intro',
+            'itemid' => 0,
+            'filepath' => '/',
+            'filename' => $filename,
+            'userid' => 2,
+            'filesize' => $filesize,
+            'mimetype' => 'image/png',
+            'status' => 0,
+            'timecreated' => $generationTime,
+            'timemodified' => $generationTime,
+            'source' => $filename,
+            'author' => 'Huellas Invisibles',
+            'license' => 'allrightsreserved',
+            'sortorder' => 0
+        ];
+
+        $imageUrl = '@@PLUGINFILE@@/' . $filename;
+    }
+
+    $chapterTitleEsc = escapeXml($chapterTitle);
+    $chapterIntroEsc = escapeXml($chapterIntro);
+
+    $content = <<<HTML
+<div style="max-width: 900px; margin: 0 auto 30px auto; font-family: 'Segoe UI', Roboto, sans-serif;">
+    <div style="background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
+        <!-- Header con numero de capitulo -->
+        <div style="display: flex; align-items: center; gap: 20px; padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <span style="color: white; font-size: 1.8em; font-weight: 700;">{$chapterNum}</span>
+            </div>
+            <div style="flex: 1;">
+                <div style="color: rgba(255,255,255,0.7); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;">Capitulo {$chapterNum}</div>
+                <h2 style="color: white; margin: 5px 0 0 0; font-size: 1.5em; font-weight: 600;">{$chapterTitleEsc}</h2>
+            </div>
+        </div>
+
+        <!-- Contenido con imagen -->
+        <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px; padding: 30px;">
+                <p style="color: rgba(255,255,255,0.9); font-size: 1.05em; line-height: 1.8; margin: 0;">
+                    {$chapterIntroEsc}
+                </p>
+            </div>
+            <div style="flex: 0 0 250px; padding: 20px;">
+                <img src="{$imageUrl}" alt="Capitulo {$chapterNum}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
+            </div>
+        </div>
+    </div>
+</div>
+HTML;
+    $contentEsc = escapeXml($content);
+
+    $moduleXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<module id="{$moduleId}" version="2024042200">
+  <modulename>label</modulename>
+  <sectionid>{$sectionId}</sectionid>
+  <sectionnumber>{$sectionNum}</sectionnumber>
+  <idnumber></idnumber>
+  <added>{$time}</added>
+  <score>0</score>
+  <indent>0</indent>
+  <visible>1</visible>
+  <visibleoncoursepage>1</visibleoncoursepage>
+  <visibleold>1</visibleold>
+  <groupmode>0</groupmode>
+  <groupingid>0</groupingid>
+  <completion>0</completion>
+  <completiongradeitemnumber>\$@NULL@\$</completiongradeitemnumber>
+  <completionview>0</completionview>
+  <completionexpected>0</completionexpected>
+  <completionpassgrade>0</completionpassgrade>
+  <availability>\$@NULL@\$</availability>
+  <showdescription>0</showdescription>
+  <downloadcontent>1</downloadcontent>
+  <lang></lang>
+  <tags></tags>
+</module>
+XML;
+    file_put_contents($activityDir . '/module.xml', $moduleXml);
+
+    $labelXml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="{$instanceId}" moduleid="{$moduleId}" modulename="label" contextid="{$contextId}">
+  <label id="{$instanceId}">
+    <name>{$name}</name>
+    <intro>{$contentEsc}</intro>
+    <introformat>1</introformat>
+    <timemodified>{$time}</timemodified>
+  </label>
+</activity>
+XML;
+    file_put_contents($activityDir . '/label.xml', $labelXml);
+
+    // Actualizar inforef con archivo de imagen
+    if ($fileId) {
+        $inforef = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<inforef>
+  <fileref>
+    <file><id>{$fileId}</id></file>
+  </fileref>
+</inforef>
+XML;
+        file_put_contents($activityDir . '/inforef.xml', $inforef);
+    }
 
     generateActivityCommonXMLs($activityDir);
 }
@@ -665,6 +885,34 @@ function processSections($maxFase) {
         }
 
         logMessage("Seccion {$sectionNum}: {$sectionName}", '📁');
+
+        // Agregar intro de capitulo al inicio de cada capitulo (secciones 1-10)
+        if ($sectionNum >= 1 && $sectionNum <= 10 && $chapterDesc) {
+            $moduleId = $nextModuleId++;
+            $instanceId = $nextInstanceId++;
+            $contextId = $nextContextId++;
+
+            $chapterTitle = $chapterDesc['title'];
+            $chapterIntro = $chapterDesc['intro'];
+
+            $introActivity = [
+                'moduleid' => $moduleId,
+                'instanceid' => $instanceId,
+                'contextid' => $contextId,
+                'sectionid' => $sectionId,
+                'sectionnumber' => $sectionNum,
+                'name' => "Introduccion - Capitulo {$sectionNum}",
+                'modulename' => 'label'
+            ];
+
+            $activityDir = OUTPUT_DIR . "/activities/label_{$moduleId}";
+            mkdir($activityDir, 0755, true);
+            generateChapterIntroLabel($introActivity, $activityDir, $generationTime, $sectionNum, $chapterTitle, $chapterIntro);
+
+            $allActivities[] = $introActivity;
+            $sequence[] = $moduleId;
+            logMessage("  + Intro capitulo: {$chapterTitle}", '🎯');
+        }
 
         foreach ($activities as $actData) {
             $moduleId = $nextModuleId++;

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<activity id="7" moduleid="7" modulename="resource" contextid="106">
-  <resource id="7">
-    <name>Bibliografia de Referencia</name>
-    <intro>&lt;p&gt;Referencias bibliograficas y lecturas recomendadas sobre neurodesarrollo infantil.&lt;/p&gt;</intro>
+<activity id="6" moduleid="6" modulename="resource" contextid="105">
+  <resource id="6">
+    <name>Documento de Estudio Complementario</name>
+    <intro>&lt;p&gt;Documento complementario que profundiza en los conceptos de neurodesarrollo presentados en el capitulo.&lt;/p&gt;</intro>
     <introformat>1</introformat>
     <tobemigrated>0</tobemigrated>
     <legacyfiles>0</legacyfiles>
@@ -11,6 +11,6 @@
     <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
     <filterfiles>0</filterfiles>
     <revision>1</revision>
-    <timemodified>1768676398</timemodified>
+    <timemodified>1768676949</timemodified>
   </resource>
 </activity>

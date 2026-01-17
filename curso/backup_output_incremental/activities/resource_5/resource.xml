@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <activity id="5" moduleid="5" modulename="resource" contextid="104">
   <resource id="5">
-    <name>Documento de Estudio Complementario</name>
-    <intro>&lt;p&gt;Documento complementario que profundiza en los conceptos de neurodesarrollo presentados en el capitulo.&lt;/p&gt;</intro>
+    <name>Libro: Esculpiendo el Cerebro - Primera Infancia</name>
+    <intro>&lt;p&gt;Libro que explora como se esculpe el cerebro durante la primera infancia, detallando los mecanismos de desarrollo neurologico.&lt;/p&gt;</intro>
     <introformat>1</introformat>
     <tobemigrated>0</tobemigrated>
     <legacyfiles>0</legacyfiles>
@@ -11,6 +11,6 @@
     <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
     <filterfiles>0</filterfiles>
     <revision>1</revision>
-    <timemodified>1768676398</timemodified>
+    <timemodified>1768676949</timemodified>
   </resource>
 </activity>

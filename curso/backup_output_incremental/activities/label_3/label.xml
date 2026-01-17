@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="3" moduleid="3" modulename="label" contextid="102">
+  <label id="3">
+    <name>Introduccion - Capitulo 1</name>
+    <intro>&lt;div style=&quot;max-width: 900px; margin: 0 auto 30px auto; font-family: &apos;Segoe UI&apos;, Roboto, sans-serif;&quot;&gt;
+    &lt;div style=&quot;background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.15);&quot;&gt;
+        &lt;!-- Header con numero de capitulo --&gt;
+        &lt;div style=&quot;display: flex; align-items: center; gap: 20px; padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.1);&quot;&gt;
+            &lt;div style=&quot;background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;&quot;&gt;
+                &lt;span style=&quot;color: white; font-size: 1.8em; font-weight: 700;&quot;&gt;1&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;flex: 1;&quot;&gt;
+                &lt;div style=&quot;color: rgba(255,255,255,0.7); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;&quot;&gt;Capitulo 1&lt;/div&gt;
+                &lt;h2 style=&quot;color: white; margin: 5px 0 0 0; font-size: 1.5em; font-weight: 600;&quot;&gt;Desarrollo Neurologico Infantil&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Contenido con imagen --&gt;
+        &lt;div style=&quot;display: flex; flex-wrap: wrap;&quot;&gt;
+            &lt;div style=&quot;flex: 1; min-width: 300px; padding: 30px;&quot;&gt;
+                &lt;p style=&quot;color: rgba(255,255,255,0.9); font-size: 1.05em; line-height: 1.8; margin: 0;&quot;&gt;
+                    En este capitulo exploraremos las bases del neurodesarrollo infantil, incluyendo conceptos fundamentales como la amigdala, las areas de Broca y Wernicke, las areas de Brodmann, y los procesos de mielinizacion y poda sinaptica. Comprenderemos como se estructura el cerebro desde la corteza cerebral hasta el sistema limbico, y el rol crucial de las neuronas espejo en el desarrollo temprano.
+                &lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;flex: 0 0 250px; padding: 20px;&quot;&gt;
+                &lt;img src=&quot;@@PLUGINFILE@@/huellas_cap1.png&quot; alt=&quot;Capitulo 1&quot; style=&quot;width: 100%; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);&quot; /&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</intro>
+    <introformat>1</introformat>
+    <timemodified>1768676949</timemodified>
+  </label>
+</activity>

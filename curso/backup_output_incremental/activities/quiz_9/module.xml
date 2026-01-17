@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module id="3" version="2024042200">
-  <modulename>resource</modulename>
+<module id="9" version="2024042200">
+  <modulename>quiz</modulename>
   <sectionid>2</sectionid>
   <sectionnumber>1</sectionnumber>
   <idnumber></idnumber>
-  <added>1768676398</added>
+  <added>1768676949</added>
   <score>0</score>
   <indent>0</indent>
   <visible>1</visible>
@@ -13,10 +13,10 @@
   <groupmode>0</groupmode>
   <groupingid>0</groupingid>
   <completion>2</completion>
-  <completiongradeitemnumber>$@NULL@$</completiongradeitemnumber>
-  <completionview>1</completionview>
+  <completiongradeitemnumber>0</completiongradeitemnumber>
+  <completionview>0</completionview>
   <completionexpected>0</completionexpected>
-  <completionpassgrade>0</completionpassgrade>
+  <completionpassgrade>1</completionpassgrade>
   <availability>$@NULL@$</availability>
   <showdescription>1</showdescription>
   <downloadcontent>1</downloadcontent>

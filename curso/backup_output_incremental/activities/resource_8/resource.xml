@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<activity id="2" moduleid="2" modulename="resource" contextid="101">
-  <resource id="2">
-    <name>Programa del Curso</name>
-    <intro></intro>
+<activity id="8" moduleid="8" modulename="resource" contextid="107">
+  <resource id="8">
+    <name>Bibliografia de Referencia</name>
+    <intro>&lt;p&gt;Referencias bibliograficas y lecturas recomendadas sobre neurodesarrollo infantil.&lt;/p&gt;</intro>
     <introformat>1</introformat>
     <tobemigrated>0</tobemigrated>
     <legacyfiles>0</legacyfiles>
