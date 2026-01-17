@@ -1285,10 +1285,10 @@ XML;
             'questionxml' => $questionXml
         ];
 
-        // Use course context (50) for question references - this ensures proper mapping during restore
-        // The course context is defined in moodle_backup.xml as original_course_contextid
-        $courseContextForRef = 50;
-
+        // Use the quiz module context for question references - this is CRITICAL
+        // During restore, Moodle maps the old module context (contextId) to the new module context
+        // The JOIN in qbank_helper::get_question_structure uses: qr.usingcontextid = :quizcontextid
+        // where quizcontextid is the MODULE context, not the course context
         $questionSlots .= <<<SLOT
       <question_instance id="{$slot}">
         <slot>{$slot}</slot>
@@ -1297,7 +1297,7 @@ XML;
         <requireprevious>0</requireprevious>
         <maxmark>1.0000000</maxmark>
         <question_reference>
-          <usingcontextid>{$courseContextForRef}</usingcontextid>
+          <usingcontextid>{$contextId}</usingcontextid>
           <component>mod_quiz</component>
           <questionarea>slot</questionarea>
           <questionbankentryid>{$bankEntryId}</questionbankentryid>
