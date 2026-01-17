@@ -1275,7 +1275,15 @@ ANSWER;
       </question>
 XML;
 
-        $questionsForCategory[] = $questionXml;
+        // Store question with bank entry info for Moodle 4.x structure
+        $bankEntryId = $questionId; // Use questionId as bank entry ID
+        $versionId = $questionId;   // Use same ID for version
+
+        $questionsForCategory[] = [
+            'bankentryid' => $bankEntryId,
+            'versionid' => $versionId,
+            'questionxml' => $questionXml
+        ];
 
         $questionSlots .= <<<SLOT
       <question_instance id="{$slot}">
@@ -1288,7 +1296,7 @@ XML;
           <usingcontextid>{$contextId}</usingcontextid>
           <component>mod_quiz</component>
           <questionarea>slot</questionarea>
-          <questionbankentryid>{$questionId}</questionbankentryid>
+          <questionbankentryid>{$bankEntryId}</questionbankentryid>
           <version>\$@NULL@\$</version>
         </question_reference>
       </question_instance>
@@ -1814,8 +1822,32 @@ function generateQuestionsXMLFile() {
         $catId = $catData['categoryid'];
         $catName = escapeXml($catData['categoryname']);
         $catContextId = $catData['contextid'];
-        $questionsXml = implode("\n", $catData['questions']);
         $stamp = 'localhost+' . $generationTime . '+cat' . $catId;
+
+        // Build question_bank_entries with Moodle 4.x structure
+        $bankEntriesXml = '';
+        foreach ($catData['questions'] as $qData) {
+            $bankEntryId = $qData['bankentryid'];
+            $versionId = $qData['versionid'];
+            $questionXml = $qData['questionxml'];
+
+            $bankEntriesXml .= <<<ENTRY
+      <question_bank_entry id="{$bankEntryId}">
+        <questioncategoryid>{$catId}</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="{$versionId}">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
+{$questionXml}
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>
+ENTRY;
+        }
 
         $categoriesXml .= <<<CAT
   <question_category id="{$catId}">
@@ -1828,9 +1860,10 @@ function generateQuestionsXMLFile() {
     <stamp>{$stamp}</stamp>
     <parent>0</parent>
     <sortorder>999</sortorder>
-    <questions>
-{$questionsXml}
-    </questions>
+    <idnumber></idnumber>
+    <question_bank_entries>
+{$bankEntriesXml}
+    </question_bank_entries>
   </question_category>
 CAT;
     }

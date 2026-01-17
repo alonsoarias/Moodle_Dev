@@ -7,10 +7,20 @@
     <contextinstanceid>1001</contextinstanceid>
     <info>Preguntas del capitulo</info>
     <infoformat>0</infoformat>
-    <stamp>localhost+1768677774+cat1001</stamp>
+    <stamp>localhost+1768678402+cat1001</stamp>
     <parent>0</parent>
     <sortorder>999</sortorder>
-    <questions>
+    <idnumber></idnumber>
+    <question_bank_entries>
+      <question_bank_entry id="1">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="1">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="1">
         <parent>0</parent>
         <name>Cual es el beneficio principal de la poda sinaptic...</name>
@@ -22,11 +32,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+ffe21476de9c6a6c</stamp>
-        <version>localhost+1768677774+cc2d994a3c0df3cc</version>
+        <stamp>localhost+1768678402+fa8014e3f7c7a5dd</stamp>
+        <version>localhost+1768678402+0d62aaa5a4d027c0</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -77,6 +87,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="2">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="2">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="2">
         <parent>0</parent>
         <name>Cual es la caracteristica del desarrollo del hemis...</name>
@@ -88,11 +110,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+29a80d675a7889ee</stamp>
-        <version>localhost+1768677774+d01c8ebbe094f486</version>
+        <stamp>localhost+1768678402+9c1c74912d534bd2</stamp>
+        <version>localhost+1768678402+c2d449aa37b1808a</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -143,6 +165,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="3">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="3">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="3">
         <parent>0</parent>
         <name>Que estructuras cerebrales se ven afectadas por el...</name>
@@ -154,11 +188,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+5022a322959129a1</stamp>
-        <version>localhost+1768677774+dfdf3d30d66388ef</version>
+        <stamp>localhost+1768678402+d63ec01e457632bb</stamp>
+        <version>localhost+1768678402+e98a07ba6d5794c6</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -209,6 +243,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="4">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="4">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="4">
         <parent>0</parent>
         <name>Cual es la funcion principal del Area de Broca?...</name>
@@ -220,11 +266,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+b6dc2d2e172d16e2</stamp>
-        <version>localhost+1768677774+804e095698c6f78f</version>
+        <stamp>localhost+1768678402+a4bf744e031bc596</stamp>
+        <version>localhost+1768678402+3a044631226c732a</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -275,6 +321,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="5">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="5">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="5">
         <parent>0</parent>
         <name>A los 2 anos, la densidad sinaptica es:...</name>
@@ -286,11 +344,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+504ff4cd0782ec3b</stamp>
-        <version>localhost+1768677774+5cf691c24d09597c</version>
+        <stamp>localhost+1768678402+4e7f35d3813ac887</stamp>
+        <version>localhost+1768678402+eb0431383353e28b</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -341,6 +399,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="6">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="6">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="6">
         <parent>0</parent>
         <name>Existen diferencias de genero en el desarrollo del...</name>
@@ -352,11 +422,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+e5e5b5d658af71bd</stamp>
-        <version>localhost+1768677774+e748071ac21d4914</version>
+        <stamp>localhost+1768678402+62a2377ef5dc86a8</stamp>
+        <version>localhost+1768678402+a3c18091771db28c</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -407,6 +477,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="7">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="7">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="7">
         <parent>0</parent>
         <name>El Area de Wernicke corresponde a que area de Brod...</name>
@@ -418,11 +500,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+4a114a0d9f3b52d6</stamp>
-        <version>localhost+1768677774+73a7e31e079b2820</version>
+        <stamp>localhost+1768678402+6e608ac2550ba374</stamp>
+        <version>localhost+1768678402+1b2c99dbdff299f8</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -473,6 +555,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="8">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="8">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="8">
         <parent>0</parent>
         <name>A los 2 anos el movimiento voluntario se desarroll...</name>
@@ -484,11 +578,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+872e7312caf1905b</stamp>
-        <version>localhost+1768677774+472ab5e15fbbdb40</version>
+        <stamp>localhost+1768678402+ebdab13e33526203</stamp>
+        <version>localhost+1768678402+c5e3930c9eda59fc</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -539,6 +633,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="9">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="9">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="9">
         <parent>0</parent>
         <name>Los picos de aceleracion del desarrollo cerebral f...</name>
@@ -550,11 +656,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+229b8d6b2d80715b</stamp>
-        <version>localhost+1768677774+8c4552da634b4f5d</version>
+        <stamp>localhost+1768678402+8a83af241793c985</stamp>
+        <version>localhost+1768678402+550797cab1fa29b8</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -605,6 +711,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="10">
+        <questioncategoryid>1001</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="10">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="10">
         <parent>0</parent>
         <name>El giro angular tiene como funcion principal:...</name>
@@ -616,11 +734,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+8122395cc63be976</stamp>
-        <version>localhost+1768677774+0625dc950d422607</version>
+        <stamp>localhost+1768678402+38c683143fc49f6e</stamp>
+        <version>localhost+1768678402+755ff3e0e96e46a0</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -671,7 +789,11 @@
         <tags>
         </tags>
       </question>
-    </questions>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>
+    </question_bank_entries>
   </question_category>  <question_category id="1002">
     <name>Preguntas Capitulo 2</name>
     <contextid>115</contextid>
@@ -679,10 +801,20 @@
     <contextinstanceid>1002</contextinstanceid>
     <info>Preguntas del capitulo</info>
     <infoformat>0</infoformat>
-    <stamp>localhost+1768677774+cat1002</stamp>
+    <stamp>localhost+1768678402+cat1002</stamp>
     <parent>0</parent>
     <sortorder>999</sortorder>
-    <questions>
+    <idnumber></idnumber>
+    <question_bank_entries>
+      <question_bank_entry id="11">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="11">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="11">
         <parent>0</parent>
         <name>Cual es la consecuencia de una lesion en el hemisf...</name>
@@ -694,11 +826,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+a40dd1f306847e3f</stamp>
-        <version>localhost+1768677774+5f88eefa68bce37c</version>
+        <stamp>localhost+1768678402+6f4562d7d8919054</stamp>
+        <version>localhost+1768678402+a8fa42fc35b1f7b3</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -749,6 +881,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="12">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="12">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="12">
         <parent>0</parent>
         <name>Cual afirmacion describe correctamente el patron d...</name>
@@ -760,11 +904,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+fe3a5cc734e5375a</stamp>
-        <version>localhost+1768677774+648279124feb74d9</version>
+        <stamp>localhost+1768678402+1bd5579ecfaa80a9</stamp>
+        <version>localhost+1768678402+7c57efafc38e14fc</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -815,6 +959,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="13">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="13">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="13">
         <parent>0</parent>
         <name>Que dos mecanismos pueden causar depresion en nino...</name>
@@ -826,11 +982,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+f85596cdc805eb5d</stamp>
-        <version>localhost+1768677774+f11000f412944c55</version>
+        <stamp>localhost+1768678402+47c0ff3c1a3762cd</stamp>
+        <version>localhost+1768678402+0b09327ad54a4b47</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -881,6 +1037,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="14">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="14">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="14">
         <parent>0</parent>
         <name>Que funcion tiene la region anterior del lobulo te...</name>
@@ -892,11 +1060,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+686c2716d6594861</stamp>
-        <version>localhost+1768677774+5908e2b0632b2120</version>
+        <stamp>localhost+1768678402+f8cc8502181cf220</stamp>
+        <version>localhost+1768678402+76e1ee55b37ca99f</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -947,6 +1115,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="15">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="15">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="15">
         <parent>0</parent>
         <name>A que edad ocurre la virilizacion del cuerpo callo...</name>
@@ -958,11 +1138,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+935167d2c5452343</stamp>
-        <version>localhost+1768677774+e6113413ba823eca</version>
+        <stamp>localhost+1768678402+28fea66fe40a62b3</stamp>
+        <version>localhost+1768678402+1f7d1ba1c186e3cc</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1013,6 +1193,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="16">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="16">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="16">
         <parent>0</parent>
         <name>Cual es la caracteristica unica del sentido del ol...</name>
@@ -1024,11 +1216,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+fdfd6bd0cf248a14</stamp>
-        <version>localhost+1768677774+f3895957544192e1</version>
+        <stamp>localhost+1768678402+d66f4104ce7837b9</stamp>
+        <version>localhost+1768678402+6de7264a195a0a8e</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1079,6 +1271,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="17">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="17">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="17">
         <parent>0</parent>
         <name>A que edad comienza la habilidad de demorar la rec...</name>
@@ -1090,11 +1294,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+9b19dc096defe7e0</stamp>
-        <version>localhost+1768677774+f25fdd848e752a89</version>
+        <stamp>localhost+1768678402+79762ba172673157</stamp>
+        <version>localhost+1768678402+e1b2eac965c104ea</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1145,6 +1349,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="18">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="18">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="18">
         <parent>0</parent>
         <name>Los lobulos parietales son funcionales:...</name>
@@ -1156,11 +1372,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+d3945d0f6a217803</stamp>
-        <version>localhost+1768677774+b31d46c88da163ef</version>
+        <stamp>localhost+1768678402+414643cfecb994f1</stamp>
+        <version>localhost+1768678402+e6519a22a5717f9f</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1211,6 +1427,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="19">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="19">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="19">
         <parent>0</parent>
         <name>El efecto de modulacion se refiere a:...</name>
@@ -1222,11 +1450,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+6de1c4adda6e4b66</stamp>
-        <version>localhost+1768677774+e742a6938abdd21b</version>
+        <stamp>localhost+1768678402+f6b12942e3bd3476</stamp>
+        <version>localhost+1768678402+7d215bf3b96588d9</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1277,6 +1505,18 @@
         <tags>
         </tags>
       </question>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>      <question_bank_entry id="20">
+        <questioncategoryid>1002</questioncategoryid>
+        <idnumber></idnumber>
+        <ownerid>2</ownerid>
+        <question_version>
+          <question_versions id="20">
+            <version>1</version>
+            <status>ready</status>
+            <questions>
       <question id="20">
         <parent>0</parent>
         <name>Las funciones ejecutivas incluyen:...</name>
@@ -1288,11 +1528,11 @@
         <penalty>0.3333333</penalty>
         <qtype>multichoice</qtype>
         <length>1</length>
-        <stamp>localhost+1768677774+c0123f2025fec9b8</stamp>
-        <version>localhost+1768677774+0996b875e7915efe</version>
+        <stamp>localhost+1768678402+c45de817162ff62f</stamp>
+        <version>localhost+1768678402+63411b0bf208bb69</version>
         <hidden>0</hidden>
-        <timecreated>1768677774</timecreated>
-        <timemodified>1768677774</timemodified>
+        <timecreated>1768678402</timecreated>
+        <timemodified>1768678402</timemodified>
         <createdby>2</createdby>
         <modifiedby>2</modifiedby>
         <plugin_qtype_multichoice_question>
@@ -1343,6 +1583,10 @@
         <tags>
         </tags>
       </question>
-    </questions>
+            </questions>
+          </question_versions>
+        </question_version>
+      </question_bank_entry>
+    </question_bank_entries>
   </question_category>
 </question_categories>
