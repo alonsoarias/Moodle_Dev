@@ -1302,6 +1302,7 @@ function generateGlobalXMLs() {
     generateGradeHistoryXML();
     generateGroupsXML();
     generateRolesXML();
+    generateUsersXML();
 }
 
 function generateMoodleBackupXML() {
@@ -1341,7 +1342,7 @@ function generateMoodleBackupXML() {
         <level>section</level>
         <section>section_{$section['id']}</section>
         <name>section_{$section['id']}_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>
 SETTING;
     }
@@ -1359,7 +1360,7 @@ SETTING;
         <level>activity</level>
         <activity>{$act['modulename']}_{$act['moduleid']}</activity>
         <name>{$act['modulename']}_{$act['moduleid']}_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>
 SETTING;
     }
@@ -1422,7 +1423,7 @@ SETTING;
       <setting>
         <level>root</level>
         <name>users</name>
-        <value>0</value>
+        <value>1</value>
       </setting>
       <setting>
         <level>root</level>
@@ -1704,6 +1705,66 @@ function generateGroupsXML() {
 
 function generateRolesXML() {
     file_put_contents(OUTPUT_DIR . '/roles.xml', '<?xml version="1.0" encoding="UTF-8"?><roles_definition></roles_definition>');
+}
+
+function generateUsersXML() {
+    global $generationTime;
+
+    // Usuario 2 es usado en las entradas del glosario
+    $xml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+  <user id="2" contextid="1">
+    <username>admin</username>
+    <idnumber></idnumber>
+    <email>admin@example.com</email>
+    <firstname>Admin</firstname>
+    <lastname>Usuario</lastname>
+    <auth>manual</auth>
+    <confirmed>1</confirmed>
+    <policyagreed>0</policyagreed>
+    <deleted>0</deleted>
+    <suspended>0</suspended>
+    <mnethostid>1</mnethostid>
+    <password></password>
+    <lang>es</lang>
+    <calendartype>gregorian</calendartype>
+    <theme></theme>
+    <timezone>99</timezone>
+    <firstaccess>{$generationTime}</firstaccess>
+    <lastaccess>{$generationTime}</lastaccess>
+    <lastlogin>{$generationTime}</lastlogin>
+    <currentlogin>{$generationTime}</currentlogin>
+    <lastip>127.0.0.1</lastip>
+    <picture>0</picture>
+    <description></description>
+    <descriptionformat>1</descriptionformat>
+    <mailformat>1</mailformat>
+    <maildigest>0</maildigest>
+    <maildisplay>2</maildisplay>
+    <autosubscribe>1</autosubscribe>
+    <trackforums>0</trackforums>
+    <timecreated>{$generationTime}</timecreated>
+    <timemodified>{$generationTime}</timemodified>
+    <trustbitmask>0</trustbitmask>
+    <imagealt></imagealt>
+    <lastnamephonetic></lastnamephonetic>
+    <firstnamephonetic></firstnamephonetic>
+    <middlename></middlename>
+    <alternatename></alternatename>
+    <moodlenetprofile></moodlenetprofile>
+    <custom_fields>
+    </custom_fields>
+    <tags>
+    </tags>
+    <preferences>
+    </preferences>
+    <roles>
+    </roles>
+  </user>
+</users>
+XML;
+    file_put_contents(OUTPUT_DIR . '/users.xml', $xml);
 }
 
 // ============================================================================

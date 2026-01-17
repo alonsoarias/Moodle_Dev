@@ -6,7 +6,7 @@
     <moodle_release>4.4</moodle_release>
     <backup_version>2024042200</backup_version>
     <backup_release>4.4</backup_release>
-    <backup_date>1768675657</backup_date>
+    <backup_date>1768676398</backup_date>
     <mnet_remoteusers>0</mnet_remoteusers>
     <include_files>1</include_files>
     <include_file_references_to_external_content>0</include_file_references_to_external_content>
@@ -16,7 +16,7 @@
     <original_course_format>topics</original_course_format>
     <original_course_fullname>Huellas Invisibles: Neurociencia del Desarrollo Infantil</original_course_fullname>
     <original_course_shortname>huellas-invisibles</original_course_shortname>
-    <original_course_startdate>1768675657</original_course_startdate>
+    <original_course_startdate>1768676398</original_course_startdate>
     <original_course_enddate>0</original_course_enddate>
     <original_course_contextid>50</original_course_contextid>
     <original_system_contextid>1</original_system_contextid>
@@ -121,7 +121,7 @@
       <setting>
         <level>root</level>
         <name>users</name>
-        <value>0</value>
+        <value>1</value>
       </setting>
       <setting>
         <level>root</level>
@@ -223,7 +223,7 @@
         <level>section</level>
         <section>section_1</section>
         <name>section_1_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>      <setting>
         <level>section</level>
         <section>section_2</section>
@@ -234,7 +234,7 @@
         <level>section</level>
         <section>section_2</section>
         <name>section_2_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>
       <setting>
         <level>activity</level>
@@ -246,7 +246,7 @@
         <level>activity</level>
         <activity>label_1</activity>
         <name>label_1_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>      <setting>
         <level>activity</level>
         <activity>resource_2</activity>
@@ -257,7 +257,7 @@
         <level>activity</level>
         <activity>resource_2</activity>
         <name>resource_2_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>      <setting>
         <level>activity</level>
         <activity>resource_3</activity>
@@ -268,7 +268,7 @@
         <level>activity</level>
         <activity>resource_3</activity>
         <name>resource_3_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>      <setting>
         <level>activity</level>
         <activity>resource_4</activity>
@@ -279,7 +279,7 @@
         <level>activity</level>
         <activity>resource_4</activity>
         <name>resource_4_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>      <setting>
         <level>activity</level>
         <activity>resource_5</activity>
@@ -290,7 +290,7 @@
         <level>activity</level>
         <activity>resource_5</activity>
         <name>resource_5_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>      <setting>
         <level>activity</level>
         <activity>glossary_6</activity>
@@ -301,7 +301,7 @@
         <level>activity</level>
         <activity>glossary_6</activity>
         <name>glossary_6_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>      <setting>
         <level>activity</level>
         <activity>resource_7</activity>
@@ -312,7 +312,7 @@
         <level>activity</level>
         <activity>resource_7</activity>
         <name>resource_7_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>      <setting>
         <level>activity</level>
         <activity>quiz_8</activity>
@@ -323,7 +323,7 @@
         <level>activity</level>
         <activity>quiz_8</activity>
         <name>quiz_8_userinfo</name>
-        <value>0</value>
+        <value>1</value>
       </setting>
     </settings>
   </information>
