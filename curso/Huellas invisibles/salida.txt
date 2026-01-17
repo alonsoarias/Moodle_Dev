@@ -1,0 +1,147 @@
+ El volumen de la unidad C no tiene etiqueta.
+ El n£mero de serie del volumen es: E23F-BD38
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles
+
+17/01/2026  08:03 a.ÿm.    <DIR>          .
+17/01/2026  08:03 a.ÿm.    <DIR>          ..
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 1 Desarrollo Neurol¢gico Infantil
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 10- La Atenci¢n
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 2- Funciones emocionales_
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 3 - Plasticidad Cerebral
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 4- Sinaptog‚nesis
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 5 -  Per¡odo sensoriomotor
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 6 - Stress y Apego
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 7- Teor¡a Epigen‚tica
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 8 - Reflejo de Apnea
+17/01/2026  08:01 a.ÿm.    <DIR>          Capitulo 9 - Socializaci¢n en la 1er infancia
+15/01/2026  06:13 a.ÿm.            12.211 Encuesta De Opini¢n - Cierre Curso Huellas Invisibles.docx
+14/01/2026  09:32 a.ÿm.           966.293 huellas invisibles.png
+17/01/2026  08:05 a.ÿm.                 0 salida.txt
+14/01/2026  11:37 a.ÿm.            12.281 Titulo presentacion y programa.docx
+               4 archivos        990.785 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 1 Desarrollo Neurol¢gico Infantil
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+25/11/2025  05:10 a.ÿm.       501.322.071 1-Capitulo 1 Desarrollo Neurologico Infantil_0.mp4
+07/01/2026  08:44 a.ÿm.        19.499.923 2-Esculpiendo el Cerebro Primera Infancia (Cap 1).pdf
+18/12/2025  10:13 a.ÿm.           195.021 3-DOCUMENTO DE ESTUDIO COMPLEMENTARIO (Cap 1).pdf
+18/12/2025  10:21 a.ÿm.            96.381 4- Glosario de T‚rminos Clave (Cap 1).pdf
+18/12/2025  10:29 a.ÿm.           118.985 5- Bibliografia de referencia y recomendada (Cap 1).pdf
+14/12/2025  01:05 p.ÿm.           237.682 6-Autoevaluacion- Tests Capitulo 1.pdf
+15/01/2026  06:28 a.ÿm.            14.306 7-Material complementario Video como funciona el cerebro.docx
+               7 archivos    521.484.369 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 10- La Atenci¢n
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+06/01/2026  01:34 p.ÿm.        16.302.718 2-El Arquitecto Invisible Un Viaje al Coraz¢n de la Atenci¢n.pdf
+07/01/2026  08:34 a.ÿm.           203.336 3-Documento de estudio Capitulo 10.pdf
+07/01/2026  08:38 a.ÿm.           166.480 4-GLOSARIO Capitulo 10.pdf
+07/01/2026  08:40 a.ÿm.           243.381 5-BIBLIOGRAFIA CAPITULO 10.pdf
+04/01/2026  11:05 a.ÿm.            17.215 6-Test capitulo 10.docx
+04/01/2026  08:04 a.ÿm.       243.841.133 Capitulo 10 Atencion_0.mp4
+               6 archivos    260.774.263 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 2- Funciones emocionales_
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+14/12/2025  01:53 p.ÿm.       220.974.791 1-Capitulo 2 Funciones emocionales.mp4
+18/12/2025  09:42 a.ÿm.        17.371.661 2- CEREBRO EN CONSTRUCCION.pdf
+18/12/2025  11:28 a.ÿm.           133.874 3-DOCUMENTO COMPLEMENTARIO CAP 2.pdf
+18/12/2025  11:39 a.ÿm.           217.011 4-BIBLIOGRAFIA CAP 2.pdf
+18/12/2025  11:33 a.ÿm.           159.012 5-GLOSARIO CAP.2.pdf
+07/01/2026  08:47 a.ÿm.           250.366 6-TEST DE AUTOEVALUACION.docx
+               6 archivos    239.106.715 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 3 - Plasticidad Cerebral
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+14/12/2025  01:57 p.ÿm.       163.092.399 1- Capitulo 3 Plasticidad Cerebral.mp4
+04/12/2025  09:46 a.ÿm.        13.359.062 2-El Cerebro Moldeable Principios y Pr ctica.pdf
+18/12/2025  11:48 a.ÿm.           227.333 3-Documento de estudio cap 3.pdf
+18/12/2025  11:52 a.ÿm.           221.273 4-GLOSARIO CAP 3.pdf
+18/12/2025  11:54 a.ÿm.           274.697 5-BIBLIOGRAFIA CAP 3.pdf
+04/12/2025  10:11 a.ÿm.           318.508 6- test Capitulo 3 Plasticidad cerebral.docx
+               6 archivos    177.493.272 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 4- Sinaptog‚nesis
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+14/12/2025  01:59 p.ÿm.       210.088.615 1- Capitulo 4 Sinaptogenesis.mp4
+13/01/2026  02:46 p.ÿm.        19.793.814 2-El Cerebro Pl stico De la Construcci¢n a la Maestr¡a.pdf
+18/12/2025  12:01 p.ÿm.           147.323 3-Documento de estudio cap 4.pdf
+18/12/2025  12:05 p.ÿm.           122.336 4-GLOSARIO CAP 4.pdf
+18/12/2025  12:08 p.ÿm.            92.708 5-BIBLIOGRAFIA CAP 4.pdf
+13/01/2026  02:36 p.ÿm.            13.206 5-Test Capitulo 4.docx
+               6 archivos    230.258.002 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 5 -  Per¡odo sensoriomotor
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+15/12/2025  08:10 a.ÿm.       219.410.247 1-Capitulo 5 Periodo sensoriomotor_0.mp4
+18/12/2025  09:25 a.ÿm.        11.260.613 2-Construyendo_la_Realidad_La_Mente_Sensoriomotora2.pdf
+06/01/2026  11:43 a.ÿm.           115.094 3-Documento Complementario de Estudio Cap 5.pdf
+06/01/2026  11:49 a.ÿm.           196.608 4-GLOSARIO CAPITULO 5.pdf
+06/01/2026  12:09 p.ÿm.           285.094 5-BIBLIOGRAFIA CAPITULO 5.pdf
+15/12/2025  07:16 a.ÿm.            18.167 6- test Capitulo 5.docx
+               6 archivos    231.285.823 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 6 - Stress y Apego
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+07/01/2026  08:58 a.ÿm.       592.795.274 1-Capitulo 6 Stress y apego.mp4
+06/01/2026  01:01 p.ÿm.        19.119.675 2-Arquitectos_del_Cerebro_Infantil_Apego_y_Estr‚s.pdf
+06/01/2026  01:40 p.ÿm.           255.417 3-Documento de estudio capitulo 6.pdf
+06/01/2026  01:44 p.ÿm.           167.591 4-GLOSARIO Capitulo 6.pdf
+06/01/2026  01:49 p.ÿm.           102.844 5- BIBLIOGRAFIA CAPITULO 6.pdf
+04/01/2026  10:24 a.ÿm.            17.686 6- Test Cap 6.docx
+               6 archivos    612.458.487 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 7- Teor¡a Epigen‚tica
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+07/01/2026  10:05 a.ÿm.       347.648.500 1-Capitulo 7 Epigenetica_0.mp4
+13/01/2026  11:35 a.ÿm.        14.090.483 2-Huellas Invisibles Entorno y Genes.pdf
+13/01/2026  11:41 a.ÿm.           208.609 3-Documento de estudio Capitulo 7.pdf
+13/01/2026  11:48 a.ÿm.            99.270 4-GLOSARIO Capitulo 7.pdf
+13/01/2026  11:43 a.ÿm.           248.943 5-BIBLIOGRAFIA CAPITULO 7.pdf
+13/01/2026  11:21 a.ÿm.            17.963 6-Test Capitulo 7.docx
+               6 archivos    362.313.768 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 8 - Reflejo de Apnea
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+07/01/2026  10:07 a.ÿm.       209.676.242 1-Capitulo 8 Reflejo de apnea_0.mp4
+06/01/2026  02:06 p.ÿm.        17.396.573 2-Ancestral Water Echo.pdf
+06/01/2026  02:09 p.ÿm.           200.996 3-Documento de estudio Capitulo 8.pdf
+06/01/2026  02:12 p.ÿm.           160.411 4-GLOSARIO Capitulo 8.pdf
+06/01/2026  02:16 p.ÿm.           254.014 5-BIBLIOGRAFIA CAPITULO 8.pdf
+04/01/2026  09:22 a.ÿm.            17.470 6-test Capitulo 8 8.docx
+               6 archivos    227.705.706 bytes
+
+ Directorio de C:\MAMP\htdocs\NADI\Huellas invisibles\Capitulo 9 - Socializaci¢n en la 1er infancia
+
+17/01/2026  08:01 a.ÿm.    <DIR>          .
+17/01/2026  08:01 a.ÿm.    <DIR>          ..
+07/01/2026  10:11 a.ÿm.       746.969.888 1-Capitulo 9 Socializacion.mp4
+07/01/2026  08:16 a.ÿm.        13.895.171 2-Arquitectos de Mentes Construyendo el Cerebro.pdf
+07/01/2026  07:43 a.ÿm.           189.954 3-Documento de estudio Capitulo 9.pdf
+07/01/2026  07:48 a.ÿm.           172.337 4-GLOSARIO Capitulo 9.pdf
+07/01/2026  08:18 a.ÿm.           194.996 5- BIBLIOGRAFIA capitulo 9.pdf
+07/01/2026  08:13 a.ÿm.            19.012 6-TEST CAPITULO 9.docx
+               6 archivos    761.441.358 bytes
+
+     Total de archivos en la lista:
+              65 archivos  3.625.312.548 bytes
+              32 dirs   2.194.153.472 bytes libres
