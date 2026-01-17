@@ -1,0 +1,6 @@
+# Archivos MBZ (demasiado grandes para Git)
+*.mbz
+
+# Archivos temporales del generador
+backup_output/
+curso_content/

@@ -1,0 +1,8 @@
+# Archivos de salida del generador
+backup_output/
+
+# Contenido del curso extraído
+curso_content/
+
+# Archivos MBZ generados
+*.mbz
