@@ -70,6 +70,42 @@ body.format-nexusformat.path-course-view .secondary-navigation {
     max-width: 100%;
 }
 
+/* =============================================
+   Section Page Styles (course/section.php)
+   Ensure navigation and breadcrumbs are visible
+   ============================================= */
+
+/* On section pages, ensure page header with navigation is always visible */
+body.format-nexusformat.path-course-section #page-header {
+    display: block !important;
+}
+
+/* Ensure secondary navigation is visible on section pages */
+body.format-nexusformat.path-course-section .secondary-navigation {
+    display: block !important;
+    max-width: 100%;
+}
+
+/* Style the section page content area */
+body.format-nexusformat.path-course-section #region-main {
+    padding: 1rem;
+}
+
+/* Style sections on section page to match format aesthetics */
+body.format-nexusformat.path-course-section .course-content .section {
+    background-color: #fff;
+    border-radius: var(--nexus-border-radius);
+    box-shadow: var(--nexus-card-shadow);
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+body.format-nexusformat.path-course-section .course-content .section-header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
 /* Ensure drawers don't interfere */
 body.format-nexusformat.path-course-view.drawer-open-left #page-content {
     margin-left: 0;
