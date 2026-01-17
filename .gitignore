@@ -33,3 +33,4 @@ local/educambot_backup_*/
 curso/backup_output_v3/
 curso/backup_output_v4/*
 !curso/backup_output_v4/mbz_split_v4/
+curso/backup_output_incremental/
