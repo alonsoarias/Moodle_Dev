@@ -1,0 +1,122 @@
+Actividad 1
+MEDIOS EDUCATIVOS - SISTEMA DE PRODUCCIÓN DE RECURSOS EDUCATIVOS DIGITALES
+Requerimiento:
+Configurar un entorno que permita seleccionar, diligenciar y hacer seguimiento a los procesos de producción de recursos educativos que hacen parte de los programas de formación en modalidad virtual de la UDES, asegurando calidad, trazabilidad y cumplimiento de validación de entregables.
+Insumos
+Entorno por curso a virtualizar en plataforma Moodle: entorno donde los diferentes usuarios (expertos disciplinares, asesores metodológicos, correctores de estilos, etc.) ingresarán con usuario y contraseña para realizar las actividades correspondientes a su rol:
+Diligenciar formulario de caracterización con recursos educativos
+Diligenciar formulario de los recursos educativos seleccionados en la caracterización 
+Validar las actividades realizadas por cada rol en el proceso 
+
+
+Gestión de usuarios y roles: la plataforma Moodle, contará con una gestión de usuarios y roles, permitiendo la autenticación segura y la asignación de permisos diferenciados según roles específicos de cada usuario dentro del proceso de producción de recursos educativos.
+
+Formularios: estos formularios garantizarán la recolección estandarizada de la información necesaria para la producción y cada formulario tendrá campos adaptados según el contenido a recolectar.
+
+Notificaciones: permitirá alertar a los usuarios sobre el estado de avance de los procesos de producción de recursos educativos. Estas notificaciones garantizarán una fluidez continua del trabajo colaborativo al informar oportunamente cuándo una etapa ha finalizado y puede comenzar la siguiente.
+
+Caracterización de recursos educativos: (seleccionar los tipos de recursos educativos a diseñar y usar).
+Catálogo de recursos educativos
+  
+ 
+Roles que intervienen en la virtualización de cursos
+ 
+Cargo/Rol
+Descripción / Funciones
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1
+Experto disciplinar
+
+Diligencia los formularios de  caracterización, y de los recursos educativos seleccionados del catálogo.
+Asesor metodológico
+ Acompaña al experto en el proceso de diligenciamiento del formulario de caracterización de recursos educativos, y del diligenciamiento de los formatos de los recursos educativos seleccionados del catálogo.
+Asesor metodológico
+Si es requerido realimenta y una vez conforme:
+ 
+Aprueba  caracterización y recursos educativos.
+___________________________________________
+ 
+Se notifica a Revisor Curricular
+ 
+ 
+ 
+ 
+ 
+2
+Revisor Curricular
+ Revisa, y si es requerido realiza recomendaciones de ajuste al Asesor metodológico sobre la caracterización y recursos educativos.  
+*AM Solicita ajustes a disciplinar
+Experto disciplinar
+Ajusta según recomendaciones  
+Asesor metodológico
+Si es requerido realimenta y una vez conforme:
+ 
+Aprueba elementos de caracterización y recursos educativos.
+___________________________________________
+ 
+Se notifica a Par o corrector según equipo de trabajo conformado 
+   
+ 
+ 
+ 
+3
+Par disciplinar
+ 
+Revisa, y si es requerido realiza recomendaciones a Asesor metodológico.
+*AM Solicita ajustes a disciplinar
+Experto disciplinar
+Realiza ajustes
+Asesor metodológico
+Si es requerido realimenta y una vez conforme:
+ 
+Aprueba elementos  caracterización y recursos educativos.
+___________________________________________
+ 
+Se notifica a corrector
+ 
+ 
+ 
+ 
+4
+Corrector de estilo
+Ajusta textos de caracterización y recursos educativos.
+Asesor metodológico
+Si es requerido realimenta y una vez conforme:
+ 
+Aprueba elementos caracterización y recursos educativos.
+___________________________________________
+ 
+Se notifica a jefe de medios y coordinación de producción
+5
+Coordinación de producción
+Asigna recursos a equipo de producción
+6
+Producción
+Desarrollo de recursos educativos
+7
+Coordinación de producción
+Aprueba recursos educativos diseñado.
+ 
+Se notifica a Alistamiento
+8
+Alistamiento
+Alistamiento de recursos en plataforma Udes virtual
+Se notifica a Asesor metodológico
+9
+Asesor metodológico
+Aprobación de curso en plataforma Udes Virtual
+ 
+ 
+Proceso de configuración 
+Permitir ingresar la caracterización
+Ingresar contenidos de los recursos educativos seleccionados en la caracterización
+Hacer seguimiento y notificar
+le adjunto la caracterización en Excel y dos ejemplos de los formatos de recursos que tenemos
+lo importante es que se monte en un curso en Moodle y se trabajen desde la nube, que no los puedan descargar.
