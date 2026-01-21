@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_udes';
-$plugin->version = 2026012103; // Updated: Added GDPR privacy provider for full Moodle standards compliance.
+$plugin->version = 2026012104; // Updated: v2.0.0 - MULTIPLE characterizations per activity with independent workflows.
 $plugin->requires = 2022041900; // Moodle 4.0 or later.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v1.0.3';
+$plugin->maturity = MATURITY_ALPHA; // ALPHA: Major architecture change to support multiple characterizations.
+$plugin->release = 'v2.0.0';

@@ -4,43 +4,14 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <!-- Main table - Includes team members from Excel rows 1-9 -->
-    <TABLE NAME="udes" COMMENT="UDES production instances">
+    <!-- Main table - UDES activity instance (container for multiple characterizations) -->
+    <TABLE NAME="udes" COMMENT="UDES production activity instances - Container for characterizations">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Activity name"/>
         <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Activity description"/>
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-
-        <!-- Excel H1-I1: Programa Académico -->
-        <FIELD NAME="programa_academico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H1-I1"/>
-
-        <!-- Excel H2-I2: Nombre del Curso -->
-        <FIELD NAME="nombre_curso" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H2-I2"/>
-
-        <!-- Excel H3-I3: Asesor Metodológico (Diseñador Instruccional) -->
-        <FIELD NAME="asesor_metodologico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H3-I3"/>
-
-        <!-- Excel H4-I4: Experto Disciplinar -->
-        <FIELD NAME="experto_disciplinar" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H4-I4"/>
-
-        <!-- Excel H5-I5: Par Académico -->
-        <FIELD NAME="par_academico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H5-I5"/>
-
-        <!-- Excel H6-I6: Corrector de Estilo -->
-        <FIELD NAME="corrector_estilo" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H6-I6"/>
-
-        <!-- Excel H7-I7: Coordinación Producción -->
-        <FIELD NAME="coordinacion_produccion" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H7-I7"/>
-
-        <!-- Excel H8-I8: Producción (Profesional de diseño) -->
-        <FIELD NAME="produccion" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H8-I8"/>
-
-        <!-- Excel H9-I9: Alistamiento -->
-        <FIELD NAME="alistamiento" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H9-I9"/>
-
-        <FIELD NAME="currentphase" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Current workflow phase"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
@@ -50,26 +21,36 @@
       </KEYS>
     </TABLE>
 
-    <!-- Caracterización table - Excel rows 11-15: Recursos Generales -->
-    <TABLE NAME="udes_caracterizacion" COMMENT="Caracterización de recursos educativos - Excel rows 11-15">
+    <!-- Caracterización table - MULTIPLE characterization matrices per UDES activity -->
+    <TABLE NAME="udes_caracterizacion" COMMENT="Characterization matrices - Multiple per UDES activity, each with independent workflow">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Parent UDES activity"/>
+        <FIELD NAME="nombre" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Characterization matrix identifier/name"/>
 
-        <!-- Excel J11: CVP -->
-        <FIELD NAME="cvp" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Curso Virtual Portable - Excel J11"/>
+        <!-- Course information - Excel H1-I2 -->
+        <FIELD NAME="programa_academico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H1-I1: Academic Program"/>
+        <FIELD NAME="nombre_curso" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H2-I2: Course Name"/>
 
-        <!-- Excel J12: Sala para clases virtuales -->
-        <FIELD NAME="sala_clases" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Sala para clases virtuales - Excel J12"/>
+        <!-- Team members - Excel H3-I9 -->
+        <FIELD NAME="asesor_metodologico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H3-I3: Methodological Advisor"/>
+        <FIELD NAME="experto_disciplinar" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H4-I4: Subject Matter Expert"/>
+        <FIELD NAME="par_academico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H5-I5: Academic Peer"/>
+        <FIELD NAME="corrector_estilo" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H6-I6: Style Corrector"/>
+        <FIELD NAME="coordinacion_produccion" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H7-I7: Production Coordinator"/>
+        <FIELD NAME="produccion" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H8-I8: Production Professional"/>
+        <FIELD NAME="alistamiento" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H9-I9: Readiness"/>
 
-        <!-- Excel J13: Video de bienvenida -->
-        <FIELD NAME="video_bienvenida" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Video de bienvenida - Excel J13"/>
+        <!-- General course resources - Excel J11-J15 -->
+        <FIELD NAME="cvp" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Portable Virtual Course - Excel J11"/>
+        <FIELD NAME="sala_clases" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Virtual Classroom - Excel J12"/>
+        <FIELD NAME="video_bienvenida" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Welcome Video - Excel J13"/>
+        <FIELD NAME="foro_curso" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course Forum - Excel J14"/>
+        <FIELD NAME="mapa_curso" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course Map - Excel J15"/>
 
-        <!-- Excel J14: Foro del curso -->
-        <FIELD NAME="foro_curso" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foro del curso - Excel J14"/>
-
-        <!-- Excel J15: Mapa del curso -->
-        <FIELD NAME="mapa_curso" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Mapa del curso - Excel J15"/>
+        <!-- Workflow tracking for THIS characterization (6 phases from Actividad.txt) -->
+        <FIELD NAME="currentphase" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Current phase (1-6) per Actividad.txt"/>
+        <FIELD NAME="estado" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="borrador" SEQUENCE="false" COMMENT="Status: borrador, en_proceso, aprobado, rechazado"/>
 
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -78,32 +59,36 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="udesid" TYPE="foreign" FIELDS="udesid" REFTABLE="udes" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="currentphase" UNIQUE="false" FIELDS="currentphase"/>
+        <INDEX NAME="estado" UNIQUE="false" FIELDS="estado"/>
+      </INDEXES>
     </TABLE>
 
-    <!-- Recursos table - Excel structure with dual columns (Unit + Theme resources) -->
-    <TABLE NAME="udes_recursos" COMMENT="Educational resources - Excel dual column structure">
+    <!-- Recursos table - Educational resources linked to specific characterization -->
+    <TABLE NAME="udes_recursos" COMMENT="Educational resources - Excel dual column structure (Unit + Theme)">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="caracterizacionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Parent characterization matrix"/>
 
-        <!-- Unidad (1-5 según Excel) -->
+        <!-- Unit (1-5 per Excel) -->
         <FIELD NAME="unidad" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Unit number 1-5"/>
 
-        <!-- Item del tema (1.1, 1.2, 1.3, 1.4, 1.5 según Excel) -->
-        <FIELD NAME="item" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Item number (e.g., 1.1, 1.2) - Excel column J"/>
+        <!-- Item (1.1, 1.2, etc.) - Excel column J -->
+        <FIELD NAME="item" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Item number (1.1, 1.2) - Excel column J"/>
 
-        <!-- Nombre de la unidad - Excel column C-E -->
+        <!-- Unit name - Excel columns C-E -->
         <FIELD NAME="nombre_unidad" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel columns C-E"/>
 
-        <!-- Nombre del tema - Excel column K -->
+        <!-- Topic name - Excel column K -->
         <FIELD NAME="nombre_tema" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel column K"/>
 
-        <!-- RECURSOS DE LA UNIDAD (Excel columns G-H) -->
+        <!-- UNIT RESOURCES (Excel columns G-H) -->
         <FIELD NAME="tipo_recurso_unidad" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Resource type for unit - Excel column G"/>
         <FIELD NAME="recurso_unidad" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Specific resource for unit - Excel column H"/>
         <FIELD NAME="contenido_unidad" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Content/form data for unit resource"/>
 
-        <!-- RECURSOS DEL TEMA (Excel columns L-M) -->
+        <!-- TOPIC/THEME RESOURCES (Excel columns L-M) -->
         <FIELD NAME="tipo_recurso_tema" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Resource type for theme - Excel column L"/>
         <FIELD NAME="recurso_tema" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Specific resource for theme - Excel column M"/>
         <FIELD NAME="contenido_tema" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Content/form data for theme resource"/>
@@ -115,7 +100,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="udesid" TYPE="foreign" FIELDS="udesid" REFTABLE="udes" REFFIELDS="id"/>
+        <KEY NAME="caracterizacionid" TYPE="foreign" FIELDS="caracterizacionid" REFTABLE="udes_caracterizacion" REFFIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
@@ -124,20 +109,20 @@
       </INDEXES>
     </TABLE>
 
-    <!-- Workflow tracking table -->
-    <TABLE NAME="udes_workflow" COMMENT="Workflow phase tracking">
+    <!-- Workflow tracking table - Per characterization (6 phases) -->
+    <TABLE NAME="udes_workflow" COMMENT="Workflow phase tracking per characterization">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="phase" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Phase number 1-6"/>
+        <FIELD NAME="caracterizacionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Parent characterization"/>
+        <FIELD NAME="phase" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Phase 1-6 per Actividad.txt"/>
         <FIELD NAME="estado" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="pendiente" SEQUENCE="false" COMMENT="pendiente, en_proceso, aprobado, rechazado"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User responsible"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User responsible for phase"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="udesid" TYPE="foreign" FIELDS="udesid" REFTABLE="udes" REFFIELDS="id"/>
+        <KEY NAME="caracterizacionid" TYPE="foreign" FIELDS="caracterizacionid" REFTABLE="udes_caracterizacion" REFFIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
@@ -146,13 +131,13 @@
       </INDEXES>
     </TABLE>
 
-    <!-- Aprobaciones table -->
-    <TABLE NAME="udes_aprobaciones" COMMENT="Approvals for each phase">
+    <!-- Approvals table - Per characterization phase -->
+    <TABLE NAME="udes_aprobaciones" COMMENT="Approvals/rejections for each phase per characterization">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="phase" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
-        <FIELD NAME="rol" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Role who approved"/>
+        <FIELD NAME="caracterizacionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Parent characterization"/>
+        <FIELD NAME="phase" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Phase 1-6"/>
+        <FIELD NAME="rol" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Role who approved/rejected"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="aprobado" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=approved, 0=rejected"/>
         <FIELD NAME="comentario" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
@@ -160,7 +145,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="udesid" TYPE="foreign" FIELDS="udesid" REFTABLE="udes" REFFIELDS="id"/>
+        <KEY NAME="caracterizacionid" TYPE="foreign" FIELDS="caracterizacionid" REFTABLE="udes_caracterizacion" REFFIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
@@ -168,11 +153,11 @@
       </INDEXES>
     </TABLE>
 
-    <!-- Comentarios table -->
-    <TABLE NAME="udes_comentarios" COMMENT="Comments and feedback">
+    <!-- Comments table - Per characterization -->
+    <TABLE NAME="udes_comentarios" COMMENT="Comments and feedback per characterization">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="caracterizacionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Parent characterization"/>
         <FIELD NAME="recursoid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Optional: related resource"/>
         <FIELD NAME="phase" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -181,30 +166,31 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="udesid" TYPE="foreign" FIELDS="udesid" REFTABLE="udes" REFFIELDS="id"/>
+        <KEY NAME="caracterizacionid" TYPE="foreign" FIELDS="caracterizacionid" REFTABLE="udes_caracterizacion" REFFIELDS="id"/>
         <KEY NAME="recursoid" TYPE="foreign" FIELDS="recursoid" REFTABLE="udes_recursos" REFFIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
 
-    <!-- Asignaciones de roles -->
-    <TABLE NAME="udes_role_assignments" COMMENT="Role assignments for UDES production">
+    <!-- Role assignments - Per characterization -->
+    <TABLE NAME="udes_role_assignments" COMMENT="Role assignments for each characterization">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="caracterizacionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Parent characterization"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="rol" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="udesid" TYPE="foreign" FIELDS="udesid" REFTABLE="udes" REFFIELDS="id"/>
+        <KEY NAME="caracterizacionid" TYPE="foreign" FIELDS="caracterizacionid" REFTABLE="udes_caracterizacion" REFFIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="rol" UNIQUE="false" FIELDS="rol"/>
-        <INDEX NAME="udes_user_rol" UNIQUE="true" FIELDS="udesid, userid, rol"/>
+        <INDEX NAME="caract_user_rol" UNIQUE="true" FIELDS="caracterizacionid, userid, rol"/>
       </INDEXES>
     </TABLE>
+
   </TABLES>
 </XMLDB>
