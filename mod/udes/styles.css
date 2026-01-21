@@ -1,0 +1,447 @@
+/**
+ * Styles for mod_udes.
+ *
+ * @package    mod_udes
+ * @copyright  2026 Universidad de Santander - UDES
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Workflow phases display */
+.udes-workflow {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.udes-phases {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.udes-phase {
+    flex: 1;
+    min-width: 150px;
+    padding: 15px;
+    background-color: #ffffff;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.udes-phase:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.udes-phase.active {
+    border-color: #0070c0;
+    background-color: #e7f3ff;
+}
+
+.udes-phase.completed {
+    border-color: #28a745;
+    background-color: #d4edda;
+}
+
+.udes-phase strong {
+    display: block;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.udes-phase p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Content area */
+.udes-content {
+    margin: 30px 0;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.udes-content h4 {
+    color: #0070c0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #0070c0;
+    padding-bottom: 10px;
+}
+
+.udes-content h5 {
+    color: #333;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+/* Form groups */
+.udes-content .form-group {
+    margin-bottom: 20px;
+}
+
+.udes-content .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.udes-content .form-group input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Approval buttons */
+.udes-approval-buttons {
+    display: flex;
+    gap: 15px;
+    padding: 20px 0;
+}
+
+.udes-approval-buttons .btn {
+    min-width: 120px;
+}
+
+/* Comments section */
+.udes-comments {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.udes-comments h4 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.udes-comment {
+    margin-bottom: 15px;
+    border-left: 3px solid #0070c0;
+}
+
+.udes-comment .card-body {
+    padding: 15px;
+}
+
+.udes-comment .card-subtitle {
+    font-weight: 600;
+    color: #0070c0;
+}
+
+.udes-comment .card-text {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+/* Resources table */
+.udes-content table {
+    width: 100%;
+    margin: 20px 0;
+}
+
+.udes-content table th {
+    background-color: #0070c0;
+    color: #ffffff;
+    padding: 12px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.udes-content table td {
+    padding: 10px 12px;
+    vertical-align: middle;
+}
+
+.udes-content table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.udes-content table .btn {
+    margin-right: 5px;
+}
+
+/* Resource form */
+.udes-resource-form {
+    max-width: 800px;
+}
+
+.udes-resource-form .form-group {
+    margin-bottom: 20px;
+}
+
+.udes-resource-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.udes-resource-form .form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.udes-resource-form select.form-control {
+    cursor: pointer;
+}
+
+.udes-resource-form textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Summary statistics */
+.udes-summary {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #e7f3ff;
+    border-left: 4px solid #0070c0;
+    border-radius: 4px;
+}
+
+.udes-summary h4 {
+    color: #0070c0;
+    margin-bottom: 15px;
+}
+
+.udes-summary ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.udes-summary li {
+    padding: 5px 0;
+    border-bottom: 1px solid #d1e7f8;
+}
+
+.udes-summary li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .udes-phases {
+        flex-direction: column;
+    }
+
+    .udes-phase {
+        min-width: 100%;
+    }
+
+    .udes-approval-buttons {
+        flex-direction: column;
+    }
+
+    .udes-approval-buttons .btn {
+        width: 100%;
+    }
+
+    .udes-content table {
+        font-size: 0.9em;
+    }
+
+    .udes-content table .btn {
+        font-size: 0.8em;
+        padding: 4px 8px;
+    }
+}
+
+/* Alert customization */
+.udes-content .alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.udes-content .alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.udes-content .alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.udes-content .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.udes-content .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+/* Button customization */
+.btn-udes-primary {
+    background-color: #0070c0;
+    border-color: #0070c0;
+    color: #ffffff;
+}
+
+.btn-udes-primary:hover {
+    background-color: #005a9e;
+    border-color: #005a9e;
+}
+
+/* Loading spinner */
+.udes-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 112, 192, 0.3);
+    border-radius: 50%;
+    border-top-color: #0070c0;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Progress indicator */
+.udes-progress {
+    margin: 20px 0;
+}
+
+.udes-progress-bar {
+    height: 30px;
+    background-color: #e9ecef;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.udes-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0070c0 0%, #00a0e3 100%);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Badge for status */
+.udes-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.udes-badge-pendiente {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.udes-badge-en_proceso {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.udes-badge-aprobado {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.udes-badge-rechazado {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Card for resource details */
+.udes-resource-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    background-color: #ffffff;
+    transition: box-shadow 0.2s;
+}
+
+.udes-resource-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.udes-resource-card h5 {
+    color: #0070c0;
+    margin-bottom: 15px;
+}
+
+.udes-resource-card .resource-meta {
+    color: #6c757d;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+/* Timeline for workflow */
+.udes-timeline {
+    position: relative;
+    padding-left: 30px;
+    margin: 20px 0;
+}
+
+.udes-timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #0070c0;
+}
+
+.udes-timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+}
+
+.udes-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #0070c0;
+    border: 3px solid #ffffff;
+}
+
+.udes-timeline-item.completed::before {
+    background-color: #28a745;
+}
+
+.udes-timeline-item.active::before {
+    background-color: #ffc107;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+    }
+}
