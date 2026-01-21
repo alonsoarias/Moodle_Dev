@@ -18,7 +18,8 @@
  * Plugin strings are defined here.
  *
  * @package     mod_udes
- * @copyright   2026 Universidad de Santander - UDES
+ * @copyright   2026 Universidad de Santander - UDES (udes.edu.co)
+ * @author      Alonso Arias <soporte@orioncloud.com.co>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -76,9 +77,21 @@ $string['recursos_evaluativos'] = 'Recursos Evaluativos';
 $string['recursos_colaborativos'] = 'Recursos Colaborativos';
 $string['recursos_externos'] = 'Recursos Externos';
 
-// Caracterización.
+// Caracterización - Excel rows 1-9: Team Members.
 $string['programa_academico'] = 'Programa Académico';
+$string['programa_academico_help'] = 'Escriba el nombre del programa académico (Excel H1-I1)';
 $string['nombre_curso'] = 'Nombre del Curso';
+$string['nombre_curso_help'] = 'Escriba el nombre del curso (Excel H2-I2)';
+$string['asesor_metodologico'] = 'Asesor Metodológico (Diseñador Instruccional)';
+$string['experto_disciplinar'] = 'Experto Disciplinar';
+$string['par_academico'] = 'Par Académico';
+$string['corrector_estilo'] = 'Corrector de Estilo';
+$string['coordinacion_produccion'] = 'Coordinación de Producción';
+$string['produccion_nombre'] = 'Producción (Profesional de Diseño)';
+$string['alistamiento_nombre'] = 'Alistamiento';
+
+// Caracterización - Excel rows 11-15: General Resources.
+$string['recursos_generales'] = 'Recursos Generales del Curso';
 $string['cvp'] = 'Curso Virtual Portable (CVP)';
 $string['sala_clases'] = 'Sala para Clases Virtuales';
 $string['video_bienvenida'] = 'Video de Bienvenida';

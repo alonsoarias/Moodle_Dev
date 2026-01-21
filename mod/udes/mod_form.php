@@ -60,18 +60,55 @@ class mod_udes_mod_form extends moodleform_mod {
 
         $this->standard_intro_elements();
 
-        // UDES specific fields.
+        // UDES specific fields - Based on Excel structure (rows 1-9).
         $mform->addElement('header', 'udesconfig', get_string('caracterizacion', 'mod_udes'));
 
-        // Programa académico.
+        // Excel H1-I1: Programa académico.
         $mform->addElement('text', 'programa_academico', get_string('programa_academico', 'mod_udes'),
             array('size' => '64'));
         $mform->setType('programa_academico', PARAM_TEXT);
+        $mform->addHelpButton('programa_academico', 'programa_academico', 'mod_udes');
 
-        // Nombre del curso.
+        // Excel H2-I2: Nombre del curso.
         $mform->addElement('text', 'nombre_curso', get_string('nombre_curso', 'mod_udes'),
             array('size' => '64'));
         $mform->setType('nombre_curso', PARAM_TEXT);
+        $mform->addHelpButton('nombre_curso', 'nombre_curso', 'mod_udes');
+
+        // Excel H3-I3: Asesor Metodológico.
+        $mform->addElement('text', 'asesor_metodologico', get_string('asesor_metodologico', 'mod_udes'),
+            array('size' => '64'));
+        $mform->setType('asesor_metodologico', PARAM_TEXT);
+
+        // Excel H4-I4: Experto Disciplinar.
+        $mform->addElement('text', 'experto_disciplinar', get_string('experto_disciplinar', 'mod_udes'),
+            array('size' => '64'));
+        $mform->setType('experto_disciplinar', PARAM_TEXT);
+
+        // Excel H5-I5: Par Académico.
+        $mform->addElement('text', 'par_academico', get_string('par_academico', 'mod_udes'),
+            array('size' => '64'));
+        $mform->setType('par_academico', PARAM_TEXT);
+
+        // Excel H6-I6: Corrector de Estilo.
+        $mform->addElement('text', 'corrector_estilo', get_string('corrector_estilo', 'mod_udes'),
+            array('size' => '64'));
+        $mform->setType('corrector_estilo', PARAM_TEXT);
+
+        // Excel H7-I7: Coordinación de Producción.
+        $mform->addElement('text', 'coordinacion_produccion', get_string('coordinacion_produccion', 'mod_udes'),
+            array('size' => '64'));
+        $mform->setType('coordinacion_produccion', PARAM_TEXT);
+
+        // Excel H8-I8: Producción.
+        $mform->addElement('text', 'produccion', get_string('produccion_nombre', 'mod_udes'),
+            array('size' => '64'));
+        $mform->setType('produccion', PARAM_TEXT);
+
+        // Excel H9-I9: Alistamiento.
+        $mform->addElement('text', 'alistamiento', get_string('alistamiento_nombre', 'mod_udes'),
+            array('size' => '64'));
+        $mform->setType('alistamiento', PARAM_TEXT);
 
         // Add standard elements.
         $this->standard_coursemodule_elements();

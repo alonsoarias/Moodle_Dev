@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <!-- Main table -->
+    <!-- Main table - Includes team members from Excel rows 1-9 -->
     <TABLE NAME="udes" COMMENT="UDES production instances">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -12,8 +12,34 @@
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Activity name"/>
         <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Activity description"/>
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="programa_academico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="nombre_curso" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+
+        <!-- Excel H1-I1: Programa Académico -->
+        <FIELD NAME="programa_academico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H1-I1"/>
+
+        <!-- Excel H2-I2: Nombre del Curso -->
+        <FIELD NAME="nombre_curso" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H2-I2"/>
+
+        <!-- Excel H3-I3: Asesor Metodológico (Diseñador Instruccional) -->
+        <FIELD NAME="asesor_metodologico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H3-I3"/>
+
+        <!-- Excel H4-I4: Experto Disciplinar -->
+        <FIELD NAME="experto_disciplinar" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H4-I4"/>
+
+        <!-- Excel H5-I5: Par Académico -->
+        <FIELD NAME="par_academico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H5-I5"/>
+
+        <!-- Excel H6-I6: Corrector de Estilo -->
+        <FIELD NAME="corrector_estilo" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H6-I6"/>
+
+        <!-- Excel H7-I7: Coordinación Producción -->
+        <FIELD NAME="coordinacion_produccion" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H7-I7"/>
+
+        <!-- Excel H8-I8: Producción (Profesional de diseño) -->
+        <FIELD NAME="produccion" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H8-I8"/>
+
+        <!-- Excel H9-I9: Alistamiento -->
+        <FIELD NAME="alistamiento" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel H9-I9"/>
+
         <FIELD NAME="currentphase" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Current workflow phase"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -24,16 +50,22 @@
       </KEYS>
     </TABLE>
 
-    <!-- Caracterización table -->
-    <TABLE NAME="udes_caracterizacion" COMMENT="Caracterización de recursos educativos">
+    <!-- Caracterización table - Excel rows 11-15: Recursos Generales -->
+    <TABLE NAME="udes_caracterizacion" COMMENT="Caracterización de recursos educativos - Excel rows 11-15">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="cvp" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Curso Virtual Portable"/>
-        <FIELD NAME="sala_clases" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Sala para clases virtuales"/>
-        <FIELD NAME="video_bienvenida" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="foro_curso" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="mapa_curso" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+
+        <!-- Excel row 12: CVP -->
+        <FIELD NAME="cvp" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Curso Virtual Portable - Excel J12"/>
+
+        <!-- Excel row 13: Sala para clases virtuales -->
+        <FIELD NAME="sala_clases" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Sala para clases virtuales - Excel J13"/>
+
+        <!-- Additional general resources - Excel rows 14-15 -->
+        <FIELD NAME="recurso_general_1" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Excel J14"/>
+        <FIELD NAME="recurso_general_2" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Excel J15"/>
+
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
@@ -43,19 +75,35 @@
       </KEYS>
     </TABLE>
 
-    <!-- Recursos table -->
-    <TABLE NAME="udes_recursos" COMMENT="Educational resources">
+    <!-- Recursos table - Excel structure with dual columns (Unit + Theme resources) -->
+    <TABLE NAME="udes_recursos" COMMENT="Educational resources - Excel dual column structure">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="unidad" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
-        <FIELD NAME="tema" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Item tema (ej: 1.1, 1.2)"/>
-        <FIELD NAME="nombre_unidad" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="nombre_tema" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="tipo_recurso" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Categoría del recurso"/>
-        <FIELD NAME="recurso" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Tipo específico de recurso"/>
-        <FIELD NAME="contenido" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Contenido del formulario"/>
-        <FIELD NAME="estado" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="borrador" SEQUENCE="false"/>
+
+        <!-- Unidad (1-5 según Excel) -->
+        <FIELD NAME="unidad" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Unit number 1-5"/>
+
+        <!-- Item del tema (1.1, 1.2, 1.3, 1.4, 1.5 según Excel) -->
+        <FIELD NAME="item" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Item number (e.g., 1.1, 1.2) - Excel column J"/>
+
+        <!-- Nombre de la unidad - Excel column C-E -->
+        <FIELD NAME="nombre_unidad" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel columns C-E"/>
+
+        <!-- Nombre del tema - Excel column K -->
+        <FIELD NAME="nombre_tema" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Excel column K"/>
+
+        <!-- RECURSOS DE LA UNIDAD (Excel columns G-H) -->
+        <FIELD NAME="tipo_recurso_unidad" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Resource type for unit - Excel column G"/>
+        <FIELD NAME="recurso_unidad" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Specific resource for unit - Excel column H"/>
+        <FIELD NAME="contenido_unidad" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Content/form data for unit resource"/>
+
+        <!-- RECURSOS DEL TEMA (Excel columns L-M) -->
+        <FIELD NAME="tipo_recurso_tema" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Resource type for theme - Excel column L"/>
+        <FIELD NAME="recurso_tema" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Specific resource for theme - Excel column M"/>
+        <FIELD NAME="contenido_tema" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Content/form data for theme resource"/>
+
+        <FIELD NAME="estado" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="borrador" SEQUENCE="false" COMMENT="Status: borrador, aprobado, etc."/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User who created"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -67,7 +115,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="unidad" UNIQUE="false" FIELDS="unidad"/>
-        <INDEX NAME="tipo_recurso" UNIQUE="false" FIELDS="tipo_recurso"/>
+        <INDEX NAME="item" UNIQUE="false" FIELDS="item"/>
       </INDEXES>
     </TABLE>
 
