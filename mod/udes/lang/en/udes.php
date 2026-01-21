@@ -142,6 +142,7 @@ $string['estado_borrador'] = 'Draft';
 $string['aprobar'] = 'Approve';
 $string['rechazar'] = 'Reject';
 $string['comentario'] = 'Comment';
+$string['comentario_opcional'] = 'Optional comment about the decision';
 $string['comentarios'] = 'Comments';
 $string['agregar_comentario'] = 'Add Comment';
 $string['aprobaciones'] = 'Approvals';
@@ -174,6 +175,8 @@ $string['error_invalid_role'] = 'Invalid role for this phase';
 $string['error_already_approved'] = 'This phase has already been approved';
 $string['error_no_recursos'] = 'No resources available';
 $string['error_caracterizacion_not_found'] = 'Characterization not found';
+$string['error_comentario_empty'] = 'Comment cannot be empty';
+$string['error_invalid_action'] = 'Invalid action';
 
 // Messages.
 $string['success_saved'] = 'Saved successfully';

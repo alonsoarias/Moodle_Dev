@@ -38,16 +38,18 @@ class recurso_manager {
     /**
      * Create a new resource.
      *
-     * @param int $udesid UDES instance ID
+     * v2.0: Now uses caracterizacionid instead of udesid.
+     *
+     * @param int $caracterizacionid Caracterizacion ID
      * @param \stdClass $data Resource data
      * @param int $userid User creating the resource
      * @return int Resource ID
      */
-    public static function create_recurso($udesid, $data, $userid) {
+    public static function create_recurso($caracterizacionid, $data, $userid) {
         global $DB;
 
         $recurso = new \stdClass();
-        $recurso->udesid = $udesid;
+        $recurso->caracterizacionid = $caracterizacionid;
         $recurso->unidad = $data->unidad;
         $recurso->item = isset($data->item) ? $data->item : '';
         $recurso->nombre_unidad = isset($data->nombre_unidad) ? $data->nombre_unidad : '';
@@ -132,17 +134,19 @@ class recurso_manager {
     }
 
     /**
-     * Get all resources for a UDES instance.
+     * Get all resources for a caracterizacion.
      *
-     * @param int $udesid UDES instance ID
+     * v2.0: Now uses caracterizacionid instead of udesid.
+     *
+     * @param int $caracterizacionid Caracterizacion ID
      * @param array $filters Optional filters (unidad, tipo_recurso, etc.)
      * @return array Array of resource objects
      */
-    public static function get_recursos($udesid, $filters = array()) {
+    public static function get_recursos($caracterizacionid, $filters = array()) {
         global $DB;
 
-        $params = array('udesid' => $udesid);
-        $where = array('udesid = :udesid');
+        $params = array('caracterizacionid' => $caracterizacionid);
+        $where = array('caracterizacionid = :caracterizacionid');
 
         if (isset($filters['unidad'])) {
             $params['unidad'] = $filters['unidad'];
@@ -195,18 +199,20 @@ class recurso_manager {
     /**
      * Get resource count by category.
      *
-     * @param int $udesid UDES instance ID
+     * v2.0: Now uses caracterizacionid instead of udesid.
+     *
+     * @param int $caracterizacionid Caracterizacion ID
      * @return array Associative array of category => count
      */
-    public static function get_resource_count_by_category($udesid) {
+    public static function get_resource_count_by_category($caracterizacionid) {
         global $DB;
 
         $sql = "SELECT tipo_recurso, COUNT(*) as count
                 FROM {udes_recursos}
-                WHERE udesid = :udesid
+                WHERE caracterizacionid = :caracterizacionid
                 GROUP BY tipo_recurso";
 
-        $results = $DB->get_records_sql($sql, array('udesid' => $udesid));
+        $results = $DB->get_records_sql($sql, array('caracterizacionid' => $caracterizacionid));
 
         $counts = array();
         foreach ($results as $result) {
@@ -219,26 +225,30 @@ class recurso_manager {
     /**
      * Get total resource count.
      *
-     * @param int $udesid UDES instance ID
+     * v2.0: Now uses caracterizacionid instead of udesid.
+     *
+     * @param int $caracterizacionid Caracterizacion ID
      * @return int Total count
      */
-    public static function get_total_resource_count($udesid) {
+    public static function get_total_resource_count($caracterizacionid) {
         global $DB;
 
-        return $DB->count_records('udes_recursos', array('udesid' => $udesid));
+        return $DB->count_records('udes_recursos', array('caracterizacionid' => $caracterizacionid));
     }
 
     /**
      * Get resources grouped by unidad.
      *
-     * @param int $udesid UDES instance ID
+     * v2.0: Now uses caracterizacionid instead of udesid.
+     *
+     * @param int $caracterizacionid Caracterizacion ID
      * @return array Array grouped by unidad
      */
-    public static function get_recursos_by_unidad($udesid) {
+    public static function get_recursos_by_unidad($caracterizacionid) {
         global $DB;
 
         $recursos = $DB->get_records('udes_recursos',
-            array('udesid' => $udesid),
+            array('caracterizacionid' => $caracterizacionid),
             'unidad, tema'
         );
 

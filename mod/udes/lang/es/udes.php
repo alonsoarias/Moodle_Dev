@@ -141,6 +141,7 @@ $string['estado_borrador'] = 'Borrador';
 $string['aprobar'] = 'Aprobar';
 $string['rechazar'] = 'Rechazar';
 $string['comentario'] = 'Comentario';
+$string['comentario_opcional'] = 'Comentario opcional sobre la decisión';
 $string['comentarios'] = 'Comentarios';
 $string['agregar_comentario'] = 'Agregar Comentario';
 $string['aprobaciones'] = 'Aprobaciones';
@@ -173,6 +174,8 @@ $string['error_invalid_role'] = 'Rol no válido para esta fase';
 $string['error_already_approved'] = 'Esta fase ya ha sido aprobada';
 $string['error_no_recursos'] = 'No hay recursos disponibles';
 $string['error_caracterizacion_not_found'] = 'Caracterización no encontrada';
+$string['error_comentario_empty'] = 'El comentario no puede estar vacío';
+$string['error_invalid_action'] = 'Acción inválida';
 
 // Messages.
 $string['success_saved'] = 'Guardado correctamente';

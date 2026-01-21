@@ -27,6 +27,10 @@ require_once(__DIR__.'/lib.php');
 
 // Course module id.
 $id = required_param('id', PARAM_INT);
+
+// v2.0: Caracterizacion id (required).
+$caracterizacionid = required_param('caracterizacionid', PARAM_INT);
+
 $action = optional_param('action', 'list', PARAM_ALPHA);
 $recursoid = optional_param('recursoid', 0, PARAM_INT);
 
@@ -38,14 +42,21 @@ require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 
-$PAGE->set_url('/mod/udes/recursos.php', array('id' => $cm->id));
-$PAGE->set_title(format_string($moduleinstance->name));
+// v2.0: Validate caracterizacion belongs to this module.
+$caracterizacion = \mod_udes\caracterizacion_manager::get_caracterizacion($caracterizacionid);
+if (!$caracterizacion || $caracterizacion->udesid != $moduleinstance->id) {
+    throw new moodle_exception('error_caracterizacion_not_found', 'mod_udes');
+}
+
+$PAGE->set_url('/mod/udes/recursos.php', array('id' => $cm->id, 'caracterizacionid' => $caracterizacionid));
+$PAGE->set_title(format_string($moduleinstance->name) . ' - ' . format_string($caracterizacion->nombre));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
 // Check permissions.
 $canmanage = has_capability('mod/udes:expertodisciplinar', $modulecontext) ||
-             has_capability('mod/udes:asesormetodologico', $modulecontext);
+             has_capability('mod/udes:asesormetodologico', $modulecontext) ||
+             has_capability('mod/udes:manageall', $modulecontext);
 
 if (!$canmanage) {
     throw new moodle_exception('error_no_permission', 'mod_udes');
@@ -88,35 +99,35 @@ if ($action === 'save' && confirm_sesskey()) {
         \mod_udes\recurso_manager::update_recurso($recursoid, $data);
         $message = get_string('success_saved', 'mod_udes');
     } else {
-        // Create new resource.
-        \mod_udes\recurso_manager::create_recurso($moduleinstance->id, $data, $USER->id);
+        // Create new resource - v2.0: use caracterizacionid.
+        \mod_udes\recurso_manager::create_recurso($caracterizacionid, $data, $USER->id);
         $message = get_string('success_saved', 'mod_udes');
     }
 
-    redirect(new moodle_url('/mod/udes/recursos.php', array('id' => $cm->id)), $message);
+    redirect(new moodle_url('/mod/udes/recursos.php', array('id' => $cm->id, 'caracterizacionid' => $caracterizacionid)), $message);
 }
 
 if ($action === 'delete' && $recursoid > 0 && confirm_sesskey()) {
     \mod_udes\recurso_manager::delete_recurso($recursoid);
-    redirect(new moodle_url('/mod/udes/recursos.php', array('id' => $cm->id)),
+    redirect(new moodle_url('/mod/udes/recursos.php', array('id' => $cm->id, 'caracterizacionid' => $caracterizacionid)),
         get_string('success_saved', 'mod_udes'));
 }
 
 // Output starts here.
 echo $OUTPUT->header();
 
-echo html_writer::tag('h2', get_string('recursos', 'mod_udes'));
+echo html_writer::tag('h2', get_string('recursos', 'mod_udes') . ' - ' . format_string($caracterizacion->nombre));
 
-// Back link.
+// Back link - v2.0: back to caracterizacion view.
 echo html_writer::link(
-    new moodle_url('/mod/udes/view.php', array('id' => $cm->id)),
+    new moodle_url('/mod/udes/caracterizacion_view.php', array('id' => $cm->id, 'caracterizacionid' => $caracterizacionid)),
     get_string('volver', 'mod_udes'),
     array('class' => 'btn btn-secondary mb-3')
 );
 
 if ($action === 'list') {
-    // Display list of resources.
-    $recursos = \mod_udes\recurso_manager::get_recursos($moduleinstance->id);
+    // Display list of resources - v2.0: use caracterizacionid.
+    $recursos = \mod_udes\recurso_manager::get_recursos($caracterizacionid);
 
     if (empty($recursos)) {
         echo html_writer::tag('p', get_string('error_no_recursos', 'mod_udes'), array('class' => 'alert alert-info'));
@@ -174,6 +185,7 @@ if ($action === 'list') {
                 echo html_writer::link(
                     new moodle_url('/mod/udes/recursos.php', array(
                         'id' => $cm->id,
+                        'caracterizacionid' => $caracterizacionid,
                         'action' => 'edit',
                         'recursoid' => $recurso->id
                     )),
@@ -184,6 +196,7 @@ if ($action === 'list') {
                 echo html_writer::link(
                     new moodle_url('/mod/udes/recursos.php', array(
                         'id' => $cm->id,
+                        'caracterizacionid' => $caracterizacionid,
                         'action' => 'delete',
                         'recursoid' => $recurso->id,
                         'sesskey' => sesskey()
@@ -204,15 +217,15 @@ if ($action === 'list') {
 
     // Add resource button.
     echo html_writer::link(
-        new moodle_url('/mod/udes/recursos.php', array('id' => $cm->id, 'action' => 'add')),
+        new moodle_url('/mod/udes/recursos.php', array('id' => $cm->id, 'caracterizacionid' => $caracterizacionid, 'action' => 'add')),
         get_string('agregar_recurso', 'mod_udes'),
         array('class' => 'btn btn-primary')
     );
 
-    // Display summary statistics.
+    // Display summary statistics - v2.0: use caracterizacionid.
     echo html_writer::tag('h4', get_string('resumen', 'mod_udes'), array('class' => 'mt-4'));
-    $counts = \mod_udes\recurso_manager::get_resource_count_by_category($moduleinstance->id);
-    $total = \mod_udes\recurso_manager::get_total_resource_count($moduleinstance->id);
+    $counts = \mod_udes\recurso_manager::get_resource_count_by_category($caracterizacionid);
+    $total = \mod_udes\recurso_manager::get_total_resource_count($caracterizacionid);
 
     echo html_writer::tag('p', get_string('total_recursos', 'mod_udes') . ': ' . $total);
 
