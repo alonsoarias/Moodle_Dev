@@ -49,12 +49,20 @@ class recurso_manager {
         $recurso = new \stdClass();
         $recurso->udesid = $udesid;
         $recurso->unidad = $data->unidad;
-        $recurso->tema = $data->tema;
-        $recurso->nombre_unidad = $data->nombre_unidad;
-        $recurso->nombre_tema = $data->nombre_tema;
-        $recurso->tipo_recurso = $data->tipo_recurso;
-        $recurso->recurso = $data->recurso;
-        $recurso->contenido = isset($data->contenido) ? json_encode($data->contenido) : '';
+        $recurso->item = isset($data->item) ? $data->item : '';
+        $recurso->nombre_unidad = isset($data->nombre_unidad) ? $data->nombre_unidad : '';
+        $recurso->nombre_tema = isset($data->nombre_tema) ? $data->nombre_tema : '';
+
+        // Unit resources (Excel columns G-H).
+        $recurso->tipo_recurso_unidad = isset($data->tipo_recurso_unidad) ? $data->tipo_recurso_unidad : null;
+        $recurso->recurso_unidad = isset($data->recurso_unidad) ? $data->recurso_unidad : null;
+        $recurso->contenido_unidad = isset($data->contenido_unidad) ? json_encode($data->contenido_unidad) : null;
+
+        // Theme resources (Excel columns L-M).
+        $recurso->tipo_recurso_tema = isset($data->tipo_recurso_tema) ? $data->tipo_recurso_tema : null;
+        $recurso->recurso_tema = isset($data->recurso_tema) ? $data->recurso_tema : null;
+        $recurso->contenido_tema = isset($data->contenido_tema) ? json_encode($data->contenido_tema) : null;
+
         $recurso->estado = 'borrador';
         $recurso->userid = $userid;
         $recurso->timecreated = time();
@@ -76,14 +84,30 @@ class recurso_manager {
         $recurso = $DB->get_record('udes_recursos', array('id' => $recursoid), '*', MUST_EXIST);
 
         $recurso->unidad = $data->unidad;
-        $recurso->tema = $data->tema;
-        $recurso->nombre_unidad = $data->nombre_unidad;
-        $recurso->nombre_tema = $data->nombre_tema;
-        $recurso->tipo_recurso = $data->tipo_recurso;
-        $recurso->recurso = $data->recurso;
+        $recurso->item = isset($data->item) ? $data->item : $recurso->item;
+        $recurso->nombre_unidad = isset($data->nombre_unidad) ? $data->nombre_unidad : $recurso->nombre_unidad;
+        $recurso->nombre_tema = isset($data->nombre_tema) ? $data->nombre_tema : $recurso->nombre_tema;
 
-        if (isset($data->contenido)) {
-            $recurso->contenido = json_encode($data->contenido);
+        // Unit resources (Excel columns G-H).
+        if (isset($data->tipo_recurso_unidad)) {
+            $recurso->tipo_recurso_unidad = $data->tipo_recurso_unidad;
+        }
+        if (isset($data->recurso_unidad)) {
+            $recurso->recurso_unidad = $data->recurso_unidad;
+        }
+        if (isset($data->contenido_unidad)) {
+            $recurso->contenido_unidad = json_encode($data->contenido_unidad);
+        }
+
+        // Theme resources (Excel columns L-M).
+        if (isset($data->tipo_recurso_tema)) {
+            $recurso->tipo_recurso_tema = $data->tipo_recurso_tema;
+        }
+        if (isset($data->recurso_tema)) {
+            $recurso->recurso_tema = $data->recurso_tema;
+        }
+        if (isset($data->contenido_tema)) {
+            $recurso->contenido_tema = json_encode($data->contenido_tema);
         }
 
         $recurso->timemodified = time();
@@ -146,8 +170,14 @@ class recurso_manager {
 
         $recurso = $DB->get_record('udes_recursos', array('id' => $recursoid));
 
-        if ($recurso && !empty($recurso->contenido)) {
-            $recurso->contenido = json_decode($recurso->contenido);
+        if ($recurso) {
+            // Decode JSON content fields.
+            if (!empty($recurso->contenido_unidad)) {
+                $recurso->contenido_unidad = json_decode($recurso->contenido_unidad);
+            }
+            if (!empty($recurso->contenido_tema)) {
+                $recurso->contenido_tema = json_decode($recurso->contenido_tema);
+            }
         }
 
         return $recurso;

@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_udes';
-$plugin->version = 2026012101; // Updated: Added team members fields and dual-column resources structure.
+$plugin->version = 2026012102; // Updated: Fixed caracterizacion fields, dual-column resource implementation, and code-DB alignment.
 $plugin->requires = 2022041900; // Moodle 4.0 or later.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v1.0.1';
+$plugin->release = 'v1.0.2';

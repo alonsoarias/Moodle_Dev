@@ -54,30 +54,34 @@ if (!$canmanage) {
 // Process form submissions.
 if ($action === 'save' && confirm_sesskey()) {
     $unidad = required_param('unidad', PARAM_INT);
-    $tema = required_param('tema', PARAM_TEXT);
+    $item = required_param('item', PARAM_TEXT);
     $nombre_unidad = required_param('nombre_unidad', PARAM_TEXT);
     $nombre_tema = required_param('nombre_tema', PARAM_TEXT);
-    $tipo_recurso = required_param('tipo_recurso', PARAM_TEXT);
-    $recurso = required_param('recurso', PARAM_TEXT);
+
+    // Support for tema resources (Excel columns L-M).
+    $tipo_recurso_tema = optional_param('tipo_recurso_tema', '', PARAM_TEXT);
+    $recurso_tema = optional_param('recurso_tema', '', PARAM_TEXT);
 
     $data = new stdClass();
     $data->unidad = $unidad;
-    $data->tema = $tema;
+    $data->item = $item;
     $data->nombre_unidad = $nombre_unidad;
     $data->nombre_tema = $nombre_tema;
-    $data->tipo_recurso = $tipo_recurso;
-    $data->recurso = $recurso;
+    $data->tipo_recurso_tema = $tipo_recurso_tema;
+    $data->recurso_tema = $recurso_tema;
 
-    // Collect dynamic form fields.
-    $contenido = array();
-    $fields = \mod_udes\recurso_manager::get_resource_form_fields($tipo_recurso, $recurso);
-    foreach ($fields as $fieldname => $fielddef) {
-        $value = optional_param($fieldname, '', PARAM_RAW);
-        if (!empty($value)) {
-            $contenido[$fieldname] = $value;
+    // Collect dynamic form fields for tema resources.
+    $contenido_tema = array();
+    if (!empty($tipo_recurso_tema) && !empty($recurso_tema)) {
+        $fields = \mod_udes\recurso_manager::get_resource_form_fields($tipo_recurso_tema, $recurso_tema);
+        foreach ($fields as $fieldname => $fielddef) {
+            $value = optional_param($fieldname, '', PARAM_RAW);
+            if (!empty($value)) {
+                $contenido_tema[$fieldname] = $value;
+            }
         }
     }
-    $data->contenido = $contenido;
+    $data->contenido_tema = $contenido_tema;
 
     if ($recursoid > 0) {
         // Update existing resource.
@@ -143,9 +147,27 @@ if ($action === 'list') {
             foreach ($unidadrecursos as $recurso) {
                 echo html_writer::start_tag('tr');
                 echo html_writer::tag('td', $recurso->unidad . ' - ' . $recurso->nombre_unidad);
-                echo html_writer::tag('td', $recurso->tema . ' - ' . $recurso->nombre_tema);
-                echo html_writer::tag('td', udes_get_category_name($recurso->tipo_recurso));
-                echo html_writer::tag('td', $recurso->recurso);
+                echo html_writer::tag('td', $recurso->item . ' - ' . $recurso->nombre_tema);
+
+                // Display tipo_recurso column.
+                $tipos = array();
+                if (!empty($recurso->tipo_recurso_unidad)) {
+                    $tipos[] = udes_get_category_name($recurso->tipo_recurso_unidad);
+                }
+                if (!empty($recurso->tipo_recurso_tema)) {
+                    $tipos[] = udes_get_category_name($recurso->tipo_recurso_tema);
+                }
+                echo html_writer::tag('td', !empty($tipos) ? implode('<br>', $tipos) : '-');
+
+                // Display recurso column.
+                $recursos_list = array();
+                if (!empty($recurso->recurso_unidad)) {
+                    $recursos_list[] = $recurso->recurso_unidad . ' (Unidad)';
+                }
+                if (!empty($recurso->recurso_tema)) {
+                    $recursos_list[] = $recurso->recurso_tema . ' (Tema)';
+                }
+                echo html_writer::tag('td', !empty($recursos_list) ? implode('<br>', $recursos_list) : '-');
 
                 // Actions.
                 echo html_writer::start_tag('td');
@@ -220,7 +242,7 @@ if ($action === 'list') {
     ));
 
     echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $cm->id));
-    echo html_writer->empty_tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => 'save'));
+    echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => 'save'));
     echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
     if ($recursoid > 0) {
         echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'recursoid', 'value' => $recursoid));
@@ -250,14 +272,14 @@ if ($action === 'list') {
     ));
     echo html_writer::end_div();
 
-    // Tema.
+    // Item (Tema identifier like 1.1, 1.2).
     echo html_writer::start_div('form-group');
-    echo html_writer::tag('label', get_string('tema', 'mod_udes'));
+    echo html_writer::tag('label', 'Item (1.1, 1.2, etc.)');
     echo html_writer::empty_tag('input', array(
         'type' => 'text',
-        'name' => 'tema',
+        'name' => 'item',
         'class' => 'form-control',
-        'value' => $recurso ? $recurso->tema : '',
+        'value' => $recurso ? $recurso->item : '',
         'placeholder' => '1.1, 1.2, etc.',
         'required' => 'required'
     ));
@@ -275,9 +297,9 @@ if ($action === 'list') {
     ));
     echo html_writer::end_div();
 
-    // Tipo de recurso.
+    // Tipo de recurso del tema (Excel column L).
     echo html_writer::start_div('form-group');
-    echo html_writer::tag('label', get_string('tipo_recurso', 'mod_udes'));
+    echo html_writer::tag('label', get_string('tipo_recurso', 'mod_udes') . ' (Tema)');
     $resourcetypes = udes_get_resource_types();
     $typeoptions = array();
     foreach ($resourcetypes as $category => $types) {
@@ -285,22 +307,22 @@ if ($action === 'list') {
     }
     echo html_writer::select(
         $typeoptions,
-        'tipo_recurso',
-        $recurso ? $recurso->tipo_recurso : '',
+        'tipo_recurso_tema',
+        $recurso ? $recurso->tipo_recurso_tema : '',
         array('' => get_string('choose')),
-        array('class' => 'form-control', 'required' => 'required', 'id' => 'id_tipo_recurso')
+        array('class' => 'form-control', 'id' => 'id_tipo_recurso')
     );
     echo html_writer::end_div();
 
-    // Recurso específico.
+    // Recurso específico del tema (Excel column M).
     echo html_writer::start_div('form-group');
-    echo html_writer::tag('label', get_string('recurso', 'mod_udes'));
+    echo html_writer::tag('label', get_string('recurso', 'mod_udes') . ' (Tema)');
     echo html_writer::select(
         array(),
-        'recurso',
-        $recurso ? $recurso->recurso : '',
+        'recurso_tema',
+        $recurso ? $recurso->recurso_tema : '',
         array('' => get_string('choose')),
-        array('class' => 'form-control', 'required' => 'required', 'id' => 'id_recurso')
+        array('class' => 'form-control', 'id' => 'id_recurso')
     );
     echo html_writer::end_div();
 

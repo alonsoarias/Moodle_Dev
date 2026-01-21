@@ -56,15 +56,20 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="udesid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
 
-        <!-- Excel row 12: CVP -->
-        <FIELD NAME="cvp" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Curso Virtual Portable - Excel J12"/>
+        <!-- Excel J11: CVP -->
+        <FIELD NAME="cvp" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Curso Virtual Portable - Excel J11"/>
 
-        <!-- Excel row 13: Sala para clases virtuales -->
-        <FIELD NAME="sala_clases" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Sala para clases virtuales - Excel J13"/>
+        <!-- Excel J12: Sala para clases virtuales -->
+        <FIELD NAME="sala_clases" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Sala para clases virtuales - Excel J12"/>
 
-        <!-- Additional general resources - Excel rows 14-15 -->
-        <FIELD NAME="recurso_general_1" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Excel J14"/>
-        <FIELD NAME="recurso_general_2" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Excel J15"/>
+        <!-- Excel J13: Video de bienvenida -->
+        <FIELD NAME="video_bienvenida" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Video de bienvenida - Excel J13"/>
+
+        <!-- Excel J14: Foro del curso -->
+        <FIELD NAME="foro_curso" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foro del curso - Excel J14"/>
+
+        <!-- Excel J15: Mapa del curso -->
+        <FIELD NAME="mapa_curso" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Mapa del curso - Excel J15"/>
 
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
