@@ -76,193 +76,163 @@ if ($moduleinstance->intro) {
     echo $OUTPUT->box(format_module_intro('udes', $moduleinstance, $cm->id), 'generalbox', 'intro');
 }
 
-// Get user's role in this activity.
-$userroles = array();
-if (has_capability('mod/udes:expertodisciplinar', $modulecontext)) {
-    $userroles[] = 'experto_disciplinar';
-}
-if (has_capability('mod/udes:asesormetodologico', $modulecontext)) {
-    $userroles[] = 'asesor_metodologico';
-}
-if (has_capability('mod/udes:revisorcurricular', $modulecontext)) {
-    $userroles[] = 'revisor_curricular';
-}
-if (has_capability('mod/udes:pardisciplinar', $modulecontext)) {
-    $userroles[] = 'par_disciplinar';
-}
-if (has_capability('mod/udes:correctorestilo', $modulecontext)) {
-    $userroles[] = 'corrector_estilo';
-}
-if (has_capability('mod/udes:coordinacionproduccion', $modulecontext)) {
-    $userroles[] = 'coordinacion_produccion';
-}
-if (has_capability('mod/udes:produccion', $modulecontext)) {
-    $userroles[] = 'produccion';
-}
-if (has_capability('mod/udes:alistamiento', $modulecontext)) {
-    $userroles[] = 'alistamiento';
-}
+// v2.0: Display list of caracterizaciones.
+echo html_writer::start_div('udes-caracterizaciones-container');
 
-// Display current phase.
-$phases = udes_get_workflow_phases();
-echo html_writer::start_div('udes-workflow');
-echo html_writer::tag('h3', get_string('currentphase', 'mod_udes') . ': ' . $phases[$moduleinstance->currentphase]);
+// Check if user can create caracterizaciones.
+$cancreate = has_capability('mod/udes:expertodisciplinar', $modulecontext) ||
+             has_capability('mod/udes:asesormetodologico', $modulecontext) ||
+             has_capability('mod/udes:manageall', $modulecontext);
 
-// Display phase navigation.
-echo html_writer::start_div('udes-phases');
-foreach ($phases as $phasenum => $phasename) {
-    $phaseclass = 'udes-phase';
-    if ($phasenum == $moduleinstance->currentphase) {
-        $phaseclass .= ' active';
-    } else if ($phasenum < $moduleinstance->currentphase) {
-        $phaseclass .= ' completed';
-    }
-
-    echo html_writer::start_div($phaseclass);
-    echo html_writer::tag('strong', 'Fase ' . $phasenum);
-    echo html_writer::tag('p', $phasename);
+// Button to create new caracterization.
+if ($cancreate) {
+    echo html_writer::start_div('udes-actions mb-3');
+    echo html_writer::link(
+        new moodle_url('/mod/udes/caracterizacion.php', array('id' => $cm->id)),
+        get_string('nueva_caracterizacion', 'mod_udes'),
+        array('class' => 'btn btn-primary')
+    );
     echo html_writer::end_div();
 }
-echo html_writer::end_div();
-echo html_writer::end_div();
 
-// Display phase-specific content based on current phase.
-echo html_writer::start_div('udes-content');
+// Get all caracterizaciones for this activity.
+$caracterizaciones = \mod_udes\caracterizacion_manager::get_caracterizaciones_by_udes($moduleinstance->id);
 
-switch ($moduleinstance->currentphase) {
-    case 1:
-        // Fase 1: Caracterización.
-        echo html_writer::tag('h4', get_string('fase1_caracterizacion', 'mod_udes'));
-
-        // Check if user has permission for this phase.
-        if (in_array('experto_disciplinar', $userroles) || in_array('asesor_metodologico', $userroles)) {
-            // Display caracterización form.
-            $caracterizacion = $DB->get_record('udes_caracterizacion', array('udesid' => $moduleinstance->id));
-
-            echo html_writer::start_tag('form', array('method' => 'post', 'action' => 'save_caracterizacion.php'));
-            echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $cm->id));
-            echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
-
-            // CVP checkbox.
-            $checked = ($caracterizacion && $caracterizacion->cvp) ? 'checked' : '';
-            echo html_writer::start_div('form-group');
-            echo html_writer::tag('label',
-                html_writer::checkbox('cvp', '1', $checked) . ' ' . get_string('cvp', 'mod_udes')
-            );
-            echo html_writer::end_div();
-
-            // Sala clases checkbox.
-            $checked = ($caracterizacion && $caracterizacion->sala_clases) ? 'checked' : '';
-            echo html_writer::start_div('form-group');
-            echo html_writer::tag('label',
-                html_writer::checkbox('sala_clases', '1', $checked) . ' ' . get_string('sala_clases', 'mod_udes')
-            );
-            echo html_writer::end_div();
-
-            // Video bienvenida checkbox.
-            $checked = ($caracterizacion && $caracterizacion->video_bienvenida) ? 'checked' : '';
-            echo html_writer::start_div('form-group');
-            echo html_writer::tag('label',
-                html_writer::checkbox('video_bienvenida', '1', $checked) . ' ' . get_string('video_bienvenida', 'mod_udes')
-            );
-            echo html_writer::end_div();
-
-            // Foro curso checkbox.
-            $checked = ($caracterizacion && $caracterizacion->foro_curso) ? 'checked' : '';
-            echo html_writer::start_div('form-group');
-            echo html_writer::tag('label',
-                html_writer::checkbox('foro_curso', '1', $checked) . ' ' . get_string('foro_curso', 'mod_udes')
-            );
-            echo html_writer::end_div();
-
-            // Mapa curso checkbox.
-            $checked = ($caracterizacion && $caracterizacion->mapa_curso) ? 'checked' : '';
-            echo html_writer::start_div('form-group');
-            echo html_writer::tag('label',
-                html_writer::checkbox('mapa_curso', '1', $checked) . ' ' . get_string('mapa_curso', 'mod_udes')
-            );
-            echo html_writer::end_div();
-
-            // Submit button.
-            echo html_writer::empty_tag('input', array(
-                'type' => 'submit',
-                'class' => 'btn btn-primary',
-                'value' => get_string('guardar', 'mod_udes')
-            ));
-
-            echo html_writer::end_tag('form');
-
-            // Display resource selection.
-            echo html_writer::tag('h5', get_string('recursos', 'mod_udes'), array('class' => 'mt-4'));
-            echo html_writer::link(
-                new moodle_url('/mod/udes/recursos.php', array('id' => $cm->id)),
-                get_string('agregar_recurso', 'mod_udes'),
-                array('class' => 'btn btn-secondary')
-            );
-        } else {
-            echo html_writer::tag('p', get_string('error_no_permission', 'mod_udes'), array('class' => 'alert alert-warning'));
-        }
-        break;
-
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-        // Other phases - display review and approval interface.
-        echo html_writer::tag('h4', $phases[$moduleinstance->currentphase]);
-        echo html_writer::tag('p', 'Contenido de la fase ' . $moduleinstance->currentphase . ' en desarrollo.');
-
-        // Display approval buttons for users with proper permissions.
-        if (has_capability('mod/udes:approve', $modulecontext)) {
-            echo html_writer::start_div('udes-approval-buttons mt-4');
-
-            echo html_writer::link(
-                new moodle_url('/mod/udes/approve.php', array('id' => $cm->id, 'phase' => $moduleinstance->currentphase)),
-                get_string('aprobar', 'mod_udes'),
-                array('class' => 'btn btn-success')
-            );
-
-            echo ' ';
-
-            echo html_writer::link(
-                new moodle_url('/mod/udes/reject.php', array('id' => $cm->id, 'phase' => $moduleinstance->currentphase)),
-                get_string('rechazar', 'mod_udes'),
-                array('class' => 'btn btn-danger')
-            );
-
-            echo html_writer::end_div();
-        }
-        break;
-}
-
-echo html_writer::end_div();
-
-// Display comments section.
-echo html_writer::start_div('udes-comments mt-4');
-echo html_writer::tag('h4', get_string('comentarios', 'mod_udes'));
-
-$comentarios = $DB->get_records('udes_comentarios',
-    array('udesid' => $moduleinstance->id, 'phase' => $moduleinstance->currentphase),
-    'timecreated DESC'
-);
-
-if ($comentarios) {
-    foreach ($comentarios as $comentario) {
-        $user = $DB->get_record('user', array('id' => $comentario->userid));
-        echo html_writer::start_div('udes-comment card mb-2');
-        echo html_writer::start_div('card-body');
-        echo html_writer::tag('h6', fullname($user), array('class' => 'card-subtitle mb-2 text-muted'));
-        echo html_writer::tag('p', $comentario->comentario, array('class' => 'card-text'));
-        echo html_writer::tag('small', userdate($comentario->timecreated), array('class' => 'text-muted'));
-        echo html_writer::end_div();
-        echo html_writer::end_div();
-    }
+if (empty($caracterizaciones)) {
+    // No caracterizaciones yet.
+    echo html_writer::start_div('alert alert-info');
+    echo html_writer::tag('p', get_string('sin_caracterizaciones', 'mod_udes'));
+    echo html_writer::end_div();
 } else {
-    echo html_writer::tag('p', 'No hay comentarios aún.');
+    // Display caracterizaciones in a grid.
+    echo html_writer::tag('h3', get_string('lista_caracterizaciones', 'mod_udes'));
+
+    // Get workflow phases for display.
+    $phases = udes_get_workflow_phases();
+
+    echo html_writer::start_div('row');
+
+    foreach ($caracterizaciones as $caract) {
+        // Get progress information.
+        $progress = \mod_udes\caracterizacion_manager::get_caracterizacion_with_progress($caract->id);
+
+        // Phase badge class.
+        $phasebadgeclass = 'badge badge-secondary';
+        if ($caract->currentphase == 6 && $caract->estado == 'aprobado') {
+            $phasebadgeclass = 'badge badge-success';
+        } else if ($caract->estado == 'rechazado') {
+            $phasebadgeclass = 'badge badge-danger';
+        } else if ($caract->currentphase > 1) {
+            $phasebadgeclass = 'badge badge-info';
+        }
+
+        // Estado badge.
+        $estadobadgeclass = 'badge badge-secondary';
+        switch ($caract->estado) {
+            case 'aprobado':
+                $estadobadgeclass = 'badge badge-success';
+                break;
+            case 'rechazado':
+                $estadobadgeclass = 'badge badge-danger';
+                break;
+            case 'en_proceso':
+                $estadobadgeclass = 'badge badge-warning';
+                break;
+        }
+
+        echo html_writer::start_div('col-md-6 col-lg-4 mb-3');
+        echo html_writer::start_div('card h-100');
+        echo html_writer::start_div('card-body');
+
+        // Caracterization name.
+        echo html_writer::tag('h5', format_string($caract->nombre), array('class' => 'card-title'));
+
+        // Phase and status badges.
+        echo html_writer::start_div('mb-2');
+        echo html_writer::tag('span',
+            get_string('fase', 'mod_udes') . ' ' . $caract->currentphase . ': ' . $phases[$caract->currentphase],
+            array('class' => $phasebadgeclass)
+        );
+        echo ' ';
+        echo html_writer::tag('span',
+            get_string('estado_' . $caract->estado, 'mod_udes'),
+            array('class' => $estadobadgeclass)
+        );
+        echo html_writer::end_div();
+
+        // Course information.
+        if (!empty($caract->nombre_curso)) {
+            echo html_writer::tag('p',
+                html_writer::tag('strong', get_string('nombre_curso', 'mod_udes') . ': ') .
+                format_string($caract->nombre_curso),
+                array('class' => 'card-text small')
+            );
+        }
+
+        if (!empty($caract->programa_academico)) {
+            echo html_writer::tag('p',
+                html_writer::tag('strong', get_string('programa_academico', 'mod_udes') . ': ') .
+                format_string($caract->programa_academico),
+                array('class' => 'card-text small')
+            );
+        }
+
+        // Progress statistics.
+        echo html_writer::start_div('mt-2 small text-muted');
+        echo html_writer::tag('div',
+            get_string('recursos', 'mod_udes') . ': ' . $progress->recursos_count
+        );
+        echo html_writer::tag('div',
+            get_string('comentarios', 'mod_udes') . ': ' . $progress->comentarios_count
+        );
+        echo html_writer::end_div();
+
+        echo html_writer::end_div(); // card-body.
+
+        // Card footer with action buttons.
+        echo html_writer::start_div('card-footer');
+
+        // View/Edit button.
+        echo html_writer::link(
+            new moodle_url('/mod/udes/caracterizacion_view.php', array('id' => $cm->id, 'caracterizacionid' => $caract->id)),
+            get_string('ver', 'mod_udes'),
+            array('class' => 'btn btn-sm btn-info')
+        );
+
+        // Edit button (only for creators or managers).
+        if ($cancreate) {
+            echo ' ';
+            echo html_writer::link(
+                new moodle_url('/mod/udes/caracterizacion.php', array('id' => $cm->id, 'caracterizacionid' => $caract->id)),
+                get_string('editar', 'mod_udes'),
+                array('class' => 'btn btn-sm btn-secondary')
+            );
+        }
+
+        // Delete button (only for managers).
+        if (has_capability('mod/udes:manageall', $modulecontext)) {
+            echo ' ';
+            echo html_writer::link(
+                new moodle_url('/mod/udes/caracterizacion.php',
+                    array('id' => $cm->id, 'caracterizacionid' => $caract->id, 'action' => 'delete', 'sesskey' => sesskey())
+                ),
+                get_string('eliminar', 'mod_udes'),
+                array(
+                    'class' => 'btn btn-sm btn-danger',
+                    'onclick' => 'return confirm("' . get_string('confirm_delete_caracterizacion', 'mod_udes') . '");'
+                )
+            );
+        }
+
+        echo html_writer::end_div(); // card-footer.
+        echo html_writer::end_div(); // card.
+        echo html_writer::end_div(); // col.
+    }
+
+    echo html_writer::end_div(); // row.
 }
 
-echo html_writer::end_div();
+echo html_writer::end_div(); // container.
 
 // Finish the page.
 echo $OUTPUT->footer();

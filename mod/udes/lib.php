@@ -88,6 +88,8 @@ function udes_update_instance($data, $mform = null) {
 /**
  * Removes an instance of the mod_udes from the database.
  *
+ * v2.0: Deletes all caracterizaciones and their related data using cascade delete.
+ *
  * @param int $id Id of the module instance
  * @return bool True if successful, false on failure
  */
@@ -99,12 +101,16 @@ function udes_delete_instance($id) {
         return false;
     }
 
-    // Delete related records.
-    $DB->delete_records('udes_caracterizacion', array('udesid' => $id));
-    $DB->delete_records('udes_recursos', array('udesid' => $id));
-    $DB->delete_records('udes_workflow', array('udesid' => $id));
-    $DB->delete_records('udes_aprobaciones', array('udesid' => $id));
-    $DB->delete_records('udes_comentarios', array('udesid' => $id));
+    // v2.0: Get all caracterizaciones for this activity.
+    $caracterizaciones = $DB->get_records('udes_caracterizacion', array('udesid' => $id), '', 'id');
+
+    // Delete each caracterizacion with cascade (recursos, workflow, aprobaciones, comentarios).
+    foreach ($caracterizaciones as $caract) {
+        \mod_udes\caracterizacion_manager::delete_caracterizacion($caract->id);
+    }
+
+    // Delete role assignments.
+    $DB->delete_records('udes_role_assignments', array('udesid' => $id));
 
     // Delete main record.
     $DB->delete_records('udes', array('id' => $id));

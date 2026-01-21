@@ -162,6 +162,10 @@ $string['continuar'] = 'Continue';
 $string['volver'] = 'Back';
 $string['siguiente'] = 'Next';
 $string['anterior'] = 'Previous';
+$string['ver'] = 'View';
+$string['editar'] = 'Edit';
+$string['eliminar'] = 'Delete';
+$string['fase'] = 'Phase';
 
 // Errors.
 $string['error_no_permission'] = 'You do not have permission to perform this action';
@@ -169,6 +173,7 @@ $string['error_phase_not_ready'] = 'The previous phase has not been approved';
 $string['error_invalid_role'] = 'Invalid role for this phase';
 $string['error_already_approved'] = 'This phase has already been approved';
 $string['error_no_recursos'] = 'No resources available';
+$string['error_caracterizacion_not_found'] = 'Characterization not found';
 
 // Messages.
 $string['success_saved'] = 'Saved successfully';

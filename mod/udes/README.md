@@ -4,7 +4,7 @@ Plugin de Moodle para gestionar el proceso de producción de recursos educativos
 
 ## Descripción
 
-Este plugin implementa un sistema completo de workflow para la producción de recursos educativos digitales, siguiendo las 6 fases del proceso de virtualización de cursos de UDES:
+**v2.0**: Este plugin implementa un sistema completo de workflow para la producción de recursos educativos digitales, con soporte para **múltiples matrices de caracterización** por actividad. Cada caracterización tiene su propio equipo de trabajo, recursos y flujo independiente de 6 fases del proceso de virtualización de cursos de UDES:
 
 1. **Fase 1: Caracterización** - Diligenciamiento de la caracterización y selección de recursos educativos
 2. **Fase 2: Revisión Curricular** - Revisión y validación curricular
@@ -14,6 +14,16 @@ Este plugin implementa un sistema completo de workflow para la producción de re
 6. **Fase 6: Aprobación Final** - Aprobación final del curso
 
 ## Características
+
+### v2.0: Múltiples Caracterizaciones
+
+**Nuevo en v2.0**: Cada actividad UDES puede contener múltiples matrices de caracterización, permitiendo gestionar varios cursos o versiones desde una sola actividad. Cada caracterización es independiente y cuenta con:
+
+- **Identificador único**: Nombre personalizado para distinguir cada matriz
+- **Equipo de trabajo propio**: Asignación independiente de roles por caracterización
+- **Recursos generales**: Selección independiente de CVP, sala de clases, video bienvenida, etc.
+- **Workflow independiente**: Cada caracterización progresa por las 6 fases de forma autónoma
+- **Trazabilidad individual**: Recursos, comentarios y aprobaciones separados por caracterización
 
 ### Gestión de Roles
 El sistema maneja 8 roles específicos del proceso UDES:
@@ -134,22 +144,44 @@ Los roles UDES se implementan como capacidades de Moodle. Puede asignarlos a tra
 3. Seleccione "Producción de Recursos UDES"
 4. Complete el formulario:
    - Nombre de la actividad
-   - Programa académico
-   - Nombre del curso
+   - Descripción
 5. Guarde los cambios
 
-### Fase 1: Caracterización
+### v2.0: Creando Caracterizaciones
 
-1. Los usuarios con rol de Experto Disciplinar o Asesor Metodológico acceden a la actividad
-2. Completan el formulario de caracterización:
-   - Marcan si requieren CVP (Curso Virtual Portable)
-   - Seleccionan recursos generales (video de bienvenida, foro, mapa del curso, etc.)
-3. Agregan recursos educativos por unidad y tema:
+Una vez creada la actividad, puede crear múltiples caracterizaciones:
+
+1. Acceda a la actividad UDES
+2. Haga clic en "Nueva Caracterización"
+3. Complete el formulario de caracterización:
+   - **Nombre**: Identificador único (ej: "Matemáticas I - 2026-1")
+   - **Información del Curso**:
+     - Programa Académico (Excel H1-I1)
+     - Nombre del Curso (Excel H2-I2)
+   - **Equipo de Trabajo** (Excel H3-I9):
+     - Asesor Metodológico
+     - Experto Disciplinar
+     - Par Académico
+     - Corrector de Estilo
+     - Coordinación de Producción
+     - Producción
+     - Alistamiento
+   - **Recursos Generales** (Excel J11-J15):
+     - CVP (Curso Virtual Portable)
+     - Sala para Clases Virtuales
+     - Video de Bienvenida
+     - Foro del Curso
+     - Mapa del Curso
+4. Guarde la caracterización
+
+### Fase 1: Diligenciando la Caracterización
+
+1. Los usuarios con rol de Experto Disciplinar o Asesor Metodológico acceden a la caracterización
+2. Agregan recursos educativos por unidad y tema (Excel estructura dual G-H / L-M):
    - Seleccionan el tipo de recurso (categoría)
    - Eligen el recurso específico
    - Completan los campos requeridos según el tipo de recurso
-
-4. Una vez completa la caracterización, el Asesor Metodológico aprueba la fase
+3. Una vez completa la caracterización, avanzan a la siguiente fase
 
 ### Fases 2-6: Revisión y Producción
 
@@ -165,6 +197,7 @@ Cada fase subsecuente:
 mod/udes/
 ├── classes/
 │   ├── event/                    # Eventos del sistema
+│   ├── caracterizacion_manager.php  # v2.0: Gestión de caracterizaciones
 │   ├── workflow/                 # Gestión de workflow
 │   │   └── workflow_manager.php
 │   ├── form/                     # Formularios personalizados
@@ -173,38 +206,94 @@ mod/udes/
 │   ├── access.php                # Definición de capacidades
 │   └── install.xml               # Esquema de base de datos
 ├── lang/
-│   └── es/
-│       └── udes.php              # Cadenas en español
+│   ├── es/
+│   │   └── udes.php              # Cadenas en español
+│   └── en/
+│       └── udes.php              # Cadenas en inglés
 ├── backup/                       # Soporte para backup/restore
 ├── tests/                        # Tests unitarios
 ├── lib.php                       # Funciones principales
 ├── mod_form.php                  # Formulario de configuración
 ├── version.php                   # Información de versión
-├── view.php                      # Vista principal
+├── view.php                      # Vista principal (lista de caracterizaciones)
+├── caracterizacion.php           # v2.0: CRUD de caracterizaciones
+├── caracterizacion_form.php      # v2.0: Formulario de caracterización
+├── caracterizacion_view.php      # v2.0: Vista de caracterización individual
 ├── recursos.php                  # Gestión de recursos
 └── README.md                     # Este archivo
 ```
 
 ## Base de Datos
 
+### v2.0: Arquitectura Centrada en Caracterizaciones
+
+**Cambio arquitectónico importante**: La estructura de datos se reorganizó para soportar múltiples caracterizaciones por actividad.
+
 ### Tablas Principales
 
-- **udes**: Instancias de actividades
-- **udes_caracterizacion**: Datos de caracterización
-- **udes_recursos**: Recursos educativos
-- **udes_workflow**: Seguimiento de fases
-- **udes_aprobaciones**: Aprobaciones y rechazos
-- **udes_comentarios**: Comentarios y retroalimentación
-- **udes_role_assignments**: Asignaciones de roles
+- **udes**: Instancias de actividades (contenedor simplificado)
+  - id, course, name, intro, timecreated, timemodified
+
+- **udes_caracterizacion**: Matrices de caracterización (tabla central v2.0)
+  - id, udesid, nombre
+  - Información del curso: programa_academico, nombre_curso
+  - Equipo de trabajo: asesor_metodologico, experto_disciplinar, par_academico, corrector_estilo, coordinacion_produccion, produccion, alistamiento
+  - Recursos generales: cvp, sala_clases, video_bienvenida, foro_curso, mapa_curso
+  - Workflow: currentphase (1-6), estado (borrador/en_proceso/aprobado/rechazado)
+
+- **udes_recursos**: Recursos educativos por caracterización
+  - FK: caracterizacionid (antes: udesid)
+
+- **udes_workflow**: Seguimiento de fases por caracterización
+  - FK: caracterizacionid (antes: udesid)
+
+- **udes_aprobaciones**: Aprobaciones y rechazos por caracterización
+  - FK: caracterizacionid (antes: udesid)
+
+- **udes_comentarios**: Comentarios por caracterización
+  - FK: caracterizacionid (antes: udesid)
+
+- **udes_role_assignments**: Asignaciones de roles (mantiene udesid)
 
 ## API del Plugin
+
+### v2.0: Caracterizacion Manager (Nuevo)
+
+```php
+use mod_udes\caracterizacion_manager;
+
+// Crear nueva caracterización
+$caracterizacionid = caracterizacion_manager::create_caracterizacion($udesid, $data);
+
+// Actualizar caracterización
+caracterizacion_manager::update_caracterizacion($caracterizacionid, $data);
+
+// Eliminar caracterización (cascade delete)
+caracterizacion_manager::delete_caracterizacion($caracterizacionid);
+
+// Obtener caracterización
+$caract = caracterizacion_manager::get_caracterizacion($caracterizacionid);
+
+// Obtener todas las caracterizaciones de una actividad
+$caracterizaciones = caracterizacion_manager::get_caracterizaciones_by_udes($udesid, 'nombre ASC');
+
+// Obtener caracterización con estadísticas de progreso
+$progress = caracterizacion_manager::get_caracterizacion_with_progress($caracterizacionid);
+// Retorna: recursos_count, workflow_phases, aprobaciones_count, comentarios_count
+
+// Avanzar a la siguiente fase
+caracterizacion_manager::advance_to_next_phase($caracterizacionid, $userid);
+
+// Obtener estadísticas generales
+$stats = caracterizacion_manager::get_stats($udesid);
+```
 
 ### Workflow Manager
 
 ```php
 use mod_udes\workflow\workflow_manager;
 
-$workflow = new workflow_manager($udesid);
+$workflow = new workflow_manager($caracterizacionid); // v2.0: usa caracterizacionid
 
 // Obtener fase actual
 $phase = $workflow->get_current_phase();
@@ -225,13 +314,13 @@ $workflow->add_comment($userid, $comentario);
 use mod_udes\recurso_manager;
 
 // Crear recurso
-$recursoid = recurso_manager::create_recurso($udesid, $data, $userid);
+$recursoid = recurso_manager::create_recurso($caracterizacionid, $data, $userid); // v2.0: caracterizacionid
 
 // Obtener recursos
-$recursos = recurso_manager::get_recursos($udesid);
+$recursos = recurso_manager::get_recursos($caracterizacionid); // v2.0: caracterizacionid
 
 // Obtener conteo por categoría
-$counts = recurso_manager::get_resource_count_by_category($udesid);
+$counts = recurso_manager::get_resource_count_by_category($caracterizacionid); // v2.0: caracterizacionid
 ```
 
 ## Desarrollo
@@ -342,6 +431,38 @@ Para reportar bugs o solicitar nuevas características, por favor abra un issue 
   - DIAGRAMA DE FLUJO-ACT1-UDES (1).docx
 
 ## Changelog
+
+### Versión 2.0.0 ALPHA (2026-01-21)
+- 🆕 **CAMBIO ARQUITECTÓNICO MAYOR**: Soporte para múltiples caracterizaciones por actividad
+- 🆕 Tabla `udes_caracterizacion` como entidad central independiente
+- 🆕 Cada caracterización con su propio:
+  - Nombre identificador único
+  - Equipo de trabajo (7 roles)
+  - Recursos generales (CVP, sala clases, video bienvenida, foro, mapa)
+  - Workflow de 6 fases independiente
+  - Estado (borrador/en_proceso/aprobado/rechazado)
+- 🆕 Nueva clase `caracterizacion_manager` para gestión CRUD
+- 🆕 Archivos nuevos:
+  - `caracterizacion.php` - Controlador CRUD
+  - `caracterizacion_form.php` - Formulario Moodle
+  - `caracterizacion_view.php` - Vista de caracterización individual
+  - `classes/caracterizacion_manager.php` - Manager con 9 métodos
+- 🔄 `view.php` actualizado: lista de caracterizaciones en cards
+- 🔄 `lib.php` actualizado: delete_instance con cascade por caracterización
+- 🔄 `db/install.xml` restructurado: FKs cambiados de udesid a caracterizacionid
+- 🔄 Cadenas de idioma actualizadas (ES + EN)
+- ⚠️ **BREAKING CHANGE**: No compatible con v1.x (requiere reinstalación limpia)
+
+### Versión 1.0.3 (2026-01-21)
+- ✅ Agregadas cadenas de idioma en inglés (lang/en/udes.php)
+- ✅ Cumplimiento completo de estándares Moodle
+- ✅ Documentación de cumplimiento GDPR
+
+### Versión 1.0.2 (2026-01-21)
+- 🐛 Correcciones de bugs críticos
+
+### Versión 1.0.1 (2026-01-21)
+- ✅ Versión inicial funcional con 25 archivos
 
 ### Versión 1.0.0 (2026-01-21)
 - ✅ Versión inicial
