@@ -52,6 +52,23 @@ $string['description'] = 'Descripción';
 $string['recursos'] = 'Recursos';
 $string['caracterizacion'] = 'Caracterización';
 
+// v2.0: Multiple characterizations.
+$string['caracterizaciones'] = 'Caracterizaciones';
+$string['caracterizaciones_info'] = 'Esta actividad permite crear múltiples matrices de caracterización. Cada una con su propio equipo, recursos y flujo de trabajo independiente de 6 fases.';
+$string['caracterizacion_nombre'] = 'Nombre de la Caracterización';
+$string['caracterizacion_nombre_help'] = 'Ingrese un nombre identificador para esta matriz de caracterización (ej: "Matemáticas I - 2026-1")';
+$string['nueva_caracterizacion'] = 'Nueva Caracterización';
+$string['editar_caracterizacion'] = 'Editar Caracterización';
+$string['eliminar_caracterizacion'] = 'Eliminar Caracterización';
+$string['ver_caracterizacion'] = 'Ver Caracterización';
+$string['lista_caracterizaciones'] = 'Lista de Caracterizaciones';
+$string['sin_caracterizaciones'] = 'No hay caracterizaciones creadas. Cree la primera caracterización para comenzar.';
+$string['confirm_delete_caracterizacion'] = '¿Está seguro que desea eliminar esta caracterización? Esta acción eliminará todos los recursos, comentarios y aprobaciones asociadas.';
+$string['error_caracterizacion_nombre_empty'] = 'El nombre de la caracterización no puede estar vacío';
+$string['course_information'] = 'Información del Curso';
+$string['team_members'] = 'Equipo de Trabajo';
+$string['general_resources'] = 'Recursos Generales del Curso';
+
 // Workflow phases.
 $string['fase1_caracterizacion'] = 'Fase 1: Diligencia la Caracterización';
 $string['fase2_revision_curricular'] = 'Fase 2: Revisión Curricular';
