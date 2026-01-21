@@ -178,9 +178,23 @@ $string['help_notificaciones'] = 'Se envían notificaciones automáticas al fina
 // Privacy.
 $string['privacy:metadata:udes_recursos'] = 'Información sobre los recursos educativos creados';
 $string['privacy:metadata:udes_recursos:userid'] = 'ID del usuario que creó el recurso';
-$string['privacy:metadata:udes_recursos:contenido'] = 'Contenido del recurso';
+$string['privacy:metadata:udes_recursos:contenido_unidad'] = 'Contenido del recurso de unidad';
+$string['privacy:metadata:udes_recursos:contenido_tema'] = 'Contenido del recurso de tema';
+$string['privacy:metadata:udes_recursos:timecreated'] = 'Fecha de creación del recurso';
+$string['privacy:metadata:udes_recursos:timemodified'] = 'Fecha de última modificación del recurso';
+
 $string['privacy:metadata:udes_comentarios'] = 'Comentarios realizados en el proceso';
 $string['privacy:metadata:udes_comentarios:userid'] = 'ID del usuario que comentó';
 $string['privacy:metadata:udes_comentarios:comentario'] = 'Texto del comentario';
+$string['privacy:metadata:udes_comentarios:timecreated'] = 'Fecha del comentario';
+
 $string['privacy:metadata:udes_aprobaciones'] = 'Aprobaciones y rechazos en el proceso';
 $string['privacy:metadata:udes_aprobaciones:userid'] = 'ID del usuario que aprobó/rechazó';
+$string['privacy:metadata:udes_aprobaciones:comentario'] = 'Comentario de aprobación/rechazo';
+$string['privacy:metadata:udes_aprobaciones:aprobado'] = 'Si fue aprobado (1) o rechazado (0)';
+$string['privacy:metadata:udes_aprobaciones:timecreated'] = 'Fecha de aprobación/rechazo';
+
+$string['privacy:metadata:udes_workflow'] = 'Información de seguimiento del workflow';
+$string['privacy:metadata:udes_workflow:userid'] = 'ID del usuario responsable de la fase';
+$string['privacy:metadata:udes_workflow:timecreated'] = 'Fecha de inicio de la fase';
+$string['privacy:metadata:udes_workflow:timemodified'] = 'Fecha de última modificación de la fase';

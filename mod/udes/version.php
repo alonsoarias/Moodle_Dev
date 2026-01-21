@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_udes';
-$plugin->version = 2026012102; // Updated: Fixed caracterizacion fields, dual-column resource implementation, and code-DB alignment.
+$plugin->version = 2026012103; // Updated: Added GDPR privacy provider for full Moodle standards compliance.
 $plugin->requires = 2022041900; // Moodle 4.0 or later.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v1.0.2';
+$plugin->release = 'v1.0.3';
