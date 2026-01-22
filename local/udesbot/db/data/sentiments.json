@@ -1,0 +1,158 @@
+{
+    "version": "2.0.0",
+    "description": "udesbot sentiment patterns - comprehensive emotional state detection",
+    "lang": "es",
+    "sentiments": {
+        "positive": {
+            "keywords": [
+                "gracias", "excelente", "genial", "perfecto", "increible",
+                "bueno", "bien", "fantastico", "maravilloso", "util",
+                "me encanta", "feliz", "contento", "contenta", "alegre",
+                "super", "chevere", "bacano", "chido", "genialoso",
+                "espectacular", "grandioso", "asombroso", "brillante",
+                "satisfecho", "satisfecha", "agradecido", "agradecida",
+                "encantado", "encantada", "felicidades", "enhorabuena",
+                "me sirvio", "funciono", "lo logre", "pude", "exito",
+                "estupendo", "magnifico", "fabuloso", "extraordinario",
+                "impresionante", "fenomenal", "excepcional", "sobresaliente",
+                "emocionado", "emocionada", "entusiasmado", "entusiasmada",
+                "motivado", "motivada", "inspirado", "inspirada",
+                "aliviado", "aliviada", "tranquilo", "tranquila",
+                "optimista", "esperanzado", "confiado", "seguro",
+                "agradable", "amable", "cordial", "atento", "atenta",
+                "me gusta", "me fascina", "me agrada", "me parece bien",
+                "que bueno", "que bien", "que genial", "que alegria",
+                "por fin", "al fin", "finalmente", "ya era hora"
+            ],
+            "weight": 1.0
+        },
+        "negative": {
+            "keywords": [
+                "malo", "mal", "terrible", "horrible", "pesimo",
+                "inutil", "decepcionado", "decepcionada", "triste",
+                "molesto", "molesta", "peor", "feo", "deficiente",
+                "insatisfecho", "insatisfecha", "descontento", "descontenta",
+                "aburrido", "aburrida", "cansado", "cansada",
+                "no me gusto", "no sirvio", "no funciono", "falle",
+                "desagradable", "desafortunado", "lamentable", "penoso",
+                "inadecuado", "inapropiado", "incorrecto", "erroneo",
+                "pobre", "debil", "flojo", "mediocre", "regular",
+                "desanimado", "desanimada", "desmotivado", "desmotivada",
+                "deprimido", "deprimida", "melancolico", "melancolica",
+                "triste", "afligido", "afligida", "apenado", "apenada",
+                "arrepentido", "arrepentida", "avergonzado", "avergonzada",
+                "no me agrada", "me disgusta", "me desagrada",
+                "que mal", "que horror", "que pena", "que lastima",
+                "fatal", "desastroso", "catastrofico", "nefasto"
+            ],
+            "weight": 1.0
+        },
+        "frustrated": {
+            "keywords": [
+                "frustrado", "frustrada", "harto", "harta",
+                "no puedo mas", "imposible", "desesperado", "desesperada",
+                "urgente", "ya no se", "colmado", "agotado", "agotada",
+                "estresado", "estresada", "abrumado", "abrumada",
+                "no aguanto", "me rindo", "no hay forma", "es ridiculo",
+                "increible que", "como es posible", "inaceptable",
+                "exasperado", "exasperada", "irritado", "irritada",
+                "enfurecido", "enfurecida", "furioso", "furiosa",
+                "indignado", "indignada", "ofendido", "ofendida",
+                "llevo horas", "llevo dias", "ya intente todo",
+                "nada funciona", "siempre lo mismo", "otra vez",
+                "no puede ser", "esto es absurdo", "que desastre",
+                "estoy cansado de", "estoy harto de", "ya basta",
+                "esto me supera", "no lo soporto", "me tiene harto",
+                "colmo de males", "el colmo", "ya estuvo",
+                "que coraje", "que rabia", "me da rabia", "me enoja",
+                "impotente", "desolado", "desolada", "desesperanza"
+            ],
+            "weight": 1.2
+        },
+        "confused": {
+            "keywords": [
+                "confundido", "confundida", "perdido", "perdida",
+                "no entiendo", "no se", "no comprendo", "complicado",
+                "dificil", "lio", "enredo", "mareado", "mareada",
+                "desorientado", "desorientada", "sin entender",
+                "no le encuentro sentido", "no capto", "no pillo",
+                "me perdi", "estoy perdido", "no tengo idea",
+                "que loco", "que raro", "que extrano", "no me cuadra",
+                "no tiene sentido", "no entiendo nada", "todo confuso",
+                "enredado", "enredada", "revuelto", "mezclado",
+                "borroso", "difuso", "ambiguo", "incierto",
+                "desconcertado", "desconcertada", "perplejo", "perpleja",
+                "aturdido", "aturdida", "atolondrado", "atolondrada",
+                "bloqueado", "bloqueada", "trabado", "trabada",
+                "cual es cual", "cual es la diferencia", "como distingo",
+                "no se por donde empezar", "no se que hacer",
+                "estoy en blanco", "me quede en blanco", "no me sale"
+            ],
+            "weight": 1.1
+        },
+        "anxious": {
+            "keywords": [
+                "nervioso", "nerviosa", "preocupado", "preocupada",
+                "ansioso", "ansiosa", "estresado", "estresada",
+                "asustado", "asustada", "tenso", "tensa", "angustiado",
+                "agobiado", "agobiada", "inquieto", "inquieta",
+                "intranquilo", "intranquila", "miedo", "temor",
+                "angustia", "ansiedad", "panico", "terror",
+                "temeroso", "temerosa", "aprensivo", "aprensiva",
+                "alterado", "alterada", "perturbado", "perturbada",
+                "inseguro", "insegura", "dudoso", "dudosa",
+                "me preocupa", "me asusta", "me da miedo", "me aterra",
+                "no voy a poder", "no lo voy a lograr", "voy a fallar",
+                "me va a ir mal", "voy a reprobar", "no alcanza",
+                "se me acaba el tiempo", "no me da tiempo", "muy poco tiempo",
+                "presion", "bajo presion", "presionado", "presionada",
+                "agitado", "agitada", "impaciente", "desesperado"
+            ],
+            "weight": 1.1
+        },
+        "hopeful": {
+            "keywords": [
+                "espero", "esperanza", "ojalá", "ojala", "quisiera",
+                "me gustaria", "seria bueno", "seria genial", "seria perfecto",
+                "tal vez", "quizas", "quiza", "puede ser", "capaz",
+                "con suerte", "si todo sale bien", "si dios quiere",
+                "confio", "creo que si", "pienso que si",
+                "tengo fe", "mantengo la esperanza", "no pierdo la esperanza",
+                "seguramente", "probablemente", "posiblemente",
+                "algun dia", "en el futuro", "pronto", "eventualmente",
+                "lo voy a lograr", "lo puedo hacer", "voy a intentar"
+            ],
+            "weight": 0.9
+        },
+        "curious": {
+            "keywords": [
+                "me pregunto", "quisiera saber", "me gustaria saber",
+                "tengo curiosidad", "estoy curioso", "estoy curiosa",
+                "interesante", "intrigante", "llamativo", "atractivo",
+                "me llama la atencion", "me intriga", "me interesa",
+                "quiero aprender", "quiero saber mas", "cuentame mas",
+                "dime mas", "explica mas", "que mas", "y que mas",
+                "como es eso", "como funciona eso", "por que eso",
+                "investigando", "explorando", "descubriendo"
+            ],
+            "weight": 0.8
+        },
+        "neutral": {
+            "keywords": [],
+            "weight": 0.5
+        }
+    },
+    "urgency_keywords": [
+        "urgente", "emergencia", "ahora", "inmediato", "inmediatamente",
+        "rapido", "pronto", "hoy", "antes de", "deadline", "ya",
+        "ayuda", "socorro", "por favor ayuda", "necesito ya",
+        "cuanto antes", "lo antes posible", "asap", "es urgente",
+        "no puede esperar", "critico", "importante", "prioritario",
+        "de vida o muerte", "extremadamente urgente", "super urgente",
+        "ahora mismo", "en este momento", "ya ya", "rapidisimo",
+        "lo mas pronto", "cuanto antes mejor", "a la brevedad",
+        "sin demora", "sin falta", "para hoy", "para ya",
+        "se vence hoy", "vence hoy", "ultimo dia", "ultimo momento",
+        "antes que cierre", "antes de la fecha", "no tengo tiempo"
+    ]
+}

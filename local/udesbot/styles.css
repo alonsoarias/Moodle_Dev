@@ -1,0 +1,1709 @@
+/**
+ * udesbot widget styles.
+ *
+ * @package     local_udesbot
+ * @author      Alonso Arias <soporte@orioncloud.com.co>
+ * @copyright   2025 OrionCloud<https://orioncloud.com.co>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* ==============================================
+   CSS Custom Properties with Fallbacks (v1.9.0)
+   ============================================== */
+
+#udesbot-chat {
+    /* Default values - will be overridden by inline styles from theme */
+    --udesbot-primary: #0f6fc5;
+    --udesbot-secondary: #084a8a;
+    --udesbot-text: #1f2937;
+    --udesbot-background: #f9fafb;
+    --udesbot-user: #0f6fc5;
+    --udesbot-bot: #ffffff;
+}
+
+/* Main container */
+#udesbot-chat {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999999;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    direction: ltr;
+}
+
+/* Floating button - uses theme primary color */
+#udesbot-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 999998;
+    background-color: var(--udesbot-primary);
+}
+
+#udesbot-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+#udesbot-btn:active {
+    transform: scale(0.95);
+}
+
+/* Icon states */
+#udesbot-btn .udesbot-open-icon,
+#udesbot-btn .udesbot-close-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#udesbot-btn .udesbot-close-icon {
+    display: none;
+}
+
+#udesbot-chat.udesbot-active #udesbot-btn .udesbot-open-icon {
+    display: none;
+}
+
+#udesbot-chat.udesbot-active #udesbot-btn .udesbot-close-icon {
+    display: flex;
+}
+
+/* Chat popup panel */
+.udesbot-popup {
+    display: none;
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 380px;
+    height: 500px;
+    max-height: calc(100vh - 140px);
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 999997;
+    flex-direction: column;
+    overflow: visible; /* v2.0.1: Allow mascot tooltip to overflow */
+    transition: all 0.3s ease;
+}
+
+#udesbot-chat.udesbot-active .udesbot-popup {
+    display: flex;
+}
+
+/* Header - uses theme primary color */
+.udesbot-header {
+    padding: 12px 16px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    background-color: var(--udesbot-primary);
+}
+
+.udesbot-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.udesbot-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.udesbot-namearea {
+    display: flex;
+    flex-direction: column;
+}
+
+.udesbot-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.udesbot-status {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.udesbot-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.udesbot-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.udesbot-action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Messages area - uses theme background color */
+.udesbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    padding-bottom: 90px; /* v2.0.1: Space for mascot */
+    background: var(--udesbot-background);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+}
+
+/* Message */
+.udesbot-message {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+    animation: udesbot-fadeIn 0.3s ease;
+}
+
+@keyframes udesbot-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.udesbot-message-content {
+    padding: 10px 14px;
+    border-radius: 12px;
+    line-height: 1.5;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+/* Bot message - uses theme bot color and text color */
+.udesbot-bot {
+    align-self: flex-start;
+}
+
+.udesbot-bot .udesbot-message-content {
+    background: var(--udesbot-bot);
+    color: var(--udesbot-text);
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 4px;
+}
+
+/* User message - uses theme user color */
+.udesbot-user {
+    align-self: flex-end;
+}
+
+.udesbot-user .udesbot-message-content {
+    background: var(--udesbot-user);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+/* Error message */
+.udesbot-error .udesbot-message-content {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+/* Confidence indicator */
+.udesbot-confidence {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+    padding-left: 4px;
+}
+
+/* Send area */
+.udesbot-sendarea {
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 10px;
+    background: white;
+    flex-shrink: 0;
+    align-items: flex-end;
+}
+
+#udesbot-textarea {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    resize: none;
+    font-size: 14px;
+    font-family: inherit;
+    max-height: 100px;
+    overflow-y: auto;
+    line-height: 1.4;
+}
+
+#udesbot-textarea:focus {
+    outline: none;
+    border-color: var(--udesbot-primary);
+    box-shadow: 0 0 0 3px rgba(15, 111, 197, 0.1);
+}
+
+/* Send button - uses theme primary color */
+.udesbot-send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s, transform 0.2s;
+    flex-shrink: 0;
+    background-color: var(--udesbot-primary);
+}
+
+.udesbot-send-btn:hover {
+    opacity: 0.9;
+    background-color: var(--udesbot-secondary);
+}
+
+.udesbot-send-btn:active {
+    transform: scale(0.95);
+}
+
+/* Loading indicator - uses theme primary color */
+.udesbot-loading {
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 10px;
+    background: rgba(249, 250, 251, 0.95);
+}
+
+.udesbot-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e5e7eb;
+    border-top-color: var(--udesbot-primary);
+    border-radius: 50%;
+    animation: udesbot-spin 0.8s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes udesbot-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Scrollbar */
+.udesbot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.udesbot-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.udesbot-messages::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.udesbot-messages::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* ==============================================
+   v3.8.2 - Menu Options (same style as shortcuts)
+   ============================================== */
+
+.udesbot-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.udesbot-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-family: inherit;
+}
+
+.udesbot-option-btn:hover {
+    background: var(--udesbot-primary);
+    border-color: var(--udesbot-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.udesbot-option-btn:hover .udesbot-option-icon,
+.udesbot-option-btn:hover .udesbot-option-text {
+    color: #ffffff;
+}
+
+.udesbot-option-btn:active {
+    transform: translateY(0);
+}
+
+.udesbot-option-btn:disabled,
+.udesbot-option-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Option icon - same as shortcut icon */
+.udesbot-option-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--udesbot-primary);
+    font-size: 16px;
+}
+
+/* Option text - same as shortcut name */
+.udesbot-option-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--udesbot-text);
+    line-height: 1.3;
+}
+
+/* ==============================================
+   Widget Icon Styles (v1.8.1)
+   ============================================== */
+
+/* Emoji icon in header */
+.udesbot-emoji-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+/* Bootstrap icon in header */
+.udesbot-bs-icon {
+    font-size: 24px;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Custom icon in header */
+.udesbot-custom-icon {
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+/* ==============================================
+   Mascot Styles (v2.0.1 - fixed positioning)
+   ============================================== */
+
+/* Mascot container - positioned relative to popup, not messages */
+.udesbot-mascot-container {
+    position: absolute;
+    bottom: 70px; /* Above the input area */
+    left: 10px;
+    width: 70px;
+    height: 70px;
+    z-index: 999998; /* High z-index to stay above messages */
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    pointer-events: auto;
+}
+
+.udesbot-mascot-container:hover {
+    transform: scale(1.1);
+}
+
+/* SVG container */
+.udesbot-mascot-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.udesbot-mascot-svg svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Mascot tooltip */
+.udesbot-mascot-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    max-width: 260px;
+    margin-bottom: 12px;
+    animation: udesbot-tooltip-fade-in 0.3s ease;
+    z-index: 999999; /* v2.0.1: Higher than mascot */
+}
+
+.udesbot-mascot-tooltip.visible {
+    display: block;
+}
+
+.udesbot-mascot-tooltip .tooltip-content {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--udesbot-text);
+}
+
+.udesbot-mascot-tooltip .tooltip-content strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.udesbot-mascot-tooltip .tooltip-arrow {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+@keyframes udesbot-tooltip-fade-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Popular questions in tooltip */
+.udesbot-popular-questions {
+    margin-top: 4px;
+}
+
+.udesbot-popular-q {
+    display: block;
+    padding: 6px 8px;
+    margin: 4px 0;
+    background: #f3f4f6;
+    border-radius: 6px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.udesbot-popular-q:hover {
+    background: var(--udesbot-primary);
+    color: white;
+    text-decoration: none;
+}
+
+/* Similar questions in tooltip */
+.udesbot-similar-questions {
+    margin-top: 4px;
+}
+
+.udesbot-similar-q {
+    display: block;
+    padding: 6px 8px;
+    margin: 4px 0;
+    background: #fef3c7;
+    border-radius: 6px;
+    color: #92400e;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.udesbot-similar-q:hover {
+    background: #fde68a;
+    color: #78350f;
+    text-decoration: none;
+}
+
+/* ==============================================
+   Inactivity Warning Styles (v1.9.0)
+   ============================================== */
+
+.udesbot-inactivity-warning {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    text-align: center;
+    animation: udesbot-fadeIn 0.3s ease;
+}
+
+.udesbot-inactivity-warning p {
+    margin: 0 0 8px 0;
+    color: #92400e;
+    font-size: 13px;
+}
+
+.udesbot-inactivity-warning button {
+    background: var(--udesbot-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.udesbot-inactivity-warning button:hover {
+    background: var(--udesbot-secondary);
+}
+
+/* ==============================================
+   History Messages Indicator (v1.9.0)
+   ============================================== */
+
+.udesbot-history-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 12px 0;
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+.udesbot-history-divider::before,
+.udesbot-history-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 0 10px;
+}
+
+.udesbot-history-message {
+    opacity: 0.8;
+}
+
+/* ==============================================
+   Role-based Styling (v1.9.0)
+   ============================================== */
+
+/* Student role - default styling */
+#udesbot-chat.udesbot-role-student {
+    /* Uses default theme colors */
+}
+
+/* Teacher role - professional styling */
+#udesbot-chat.udesbot-role-teacher .udesbot-header,
+#udesbot-chat.udesbot-role-editingteacher .udesbot-header {
+    /* Teachers get a slightly different gradient */
+    background: linear-gradient(135deg, var(--udesbot-primary), var(--udesbot-secondary));
+}
+
+/* Manager role - enhanced styling */
+#udesbot-chat.udesbot-role-manager .udesbot-header {
+    background: linear-gradient(135deg, var(--udesbot-primary), #1e3a5f);
+}
+
+/* Admin badge for managers */
+#udesbot-chat.udesbot-role-manager .udesbot-name::after {
+    content: ' (Admin)';
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+/* ==============================================
+   Mascot State Animations
+   ============================================== */
+
+/* State: Idle - gentle floating */
+.udesbot-mascot-container[data-state="idle"] .udesbot-mascot-svg {
+    animation: udesbot-mascot-bob 3s ease-in-out infinite;
+}
+
+@keyframes udesbot-mascot-bob {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-6px) rotate(2deg);
+    }
+}
+
+/* State: Thinking */
+.udesbot-mascot-container[data-state="thinking"] .udesbot-mascot-svg {
+    animation: udesbot-mascot-think 1s ease-in-out infinite;
+}
+
+.udesbot-mascot-container[data-state="thinking"] #eyes {
+    animation: udesbot-eyes-blink 0.5s ease infinite;
+}
+
+@keyframes udesbot-mascot-think {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-5deg);
+    }
+    75% {
+        transform: rotate(5deg);
+    }
+}
+
+@keyframes udesbot-eyes-blink {
+    0%, 40%, 60%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(0.1);
+    }
+}
+
+/* State: Success - celebration */
+.udesbot-mascot-container[data-state="success"] .udesbot-mascot-svg {
+    animation: udesbot-mascot-celebrate 0.8s ease-out;
+}
+
+@keyframes udesbot-mascot-celebrate {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    25% {
+        transform: scale(1.15) rotate(-8deg);
+    }
+    50% {
+        transform: scale(1.1) rotate(8deg);
+    }
+    75% {
+        transform: scale(1.15) rotate(-4deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* State: Confused */
+.udesbot-mascot-container[data-state="confused"] .udesbot-mascot-svg {
+    animation: udesbot-mascot-confused 1.2s ease-in-out;
+}
+
+@keyframes udesbot-mascot-confused {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-5px) rotate(-5deg);
+    }
+    40% {
+        transform: translateX(5px) rotate(5deg);
+    }
+    60% {
+        transform: translateX(-3px) rotate(-3deg);
+    }
+    80% {
+        transform: translateX(3px) rotate(3deg);
+    }
+}
+
+/* State: Greeting - entrance animation */
+.udesbot-mascot-container[data-state="greeting"] .udesbot-mascot-svg {
+    animation: udesbot-mascot-greeting 1s ease-out;
+}
+
+.udesbot-mascot-container[data-state="greeting"] #arms {
+    animation: udesbot-arms-wave 0.5s ease-in-out 2;
+}
+
+@keyframes udesbot-mascot-greeting {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes udesbot-arms-wave {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-20deg);
+    }
+}
+
+/* State: Suggesting - attention bounce */
+.udesbot-mascot-container[data-state="suggesting"] .udesbot-mascot-svg {
+    animation: udesbot-mascot-bounce 0.6s ease-in-out 3;
+}
+
+@keyframes udesbot-mascot-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+/* ==============================================
+   Accessibility - Reduced Motion
+   ============================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .udesbot-mascot-container,
+    .udesbot-mascot-svg,
+    .udesbot-mascot-container #eyes,
+    .udesbot-mascot-container #arms,
+    .udesbot-mascot-container #body {
+        animation: none !important;
+    }
+
+    .udesbot-mascot-tooltip {
+        animation: none !important;
+    }
+}
+
+/* ==============================================
+   Responsive - Mobile
+   ============================================== */
+
+@media (max-width: 480px) {
+    .udesbot-popup {
+        width: calc(100vw - 20px);
+        right: 10px;
+        bottom: 90px;
+        height: calc(100vh - 120px);
+        max-height: 600px;
+    }
+
+    #udesbot-chat {
+        right: 10px;
+        bottom: 10px;
+    }
+
+    #udesbot-btn {
+        right: 10px;
+        bottom: 10px;
+        width: 56px;
+        height: 56px;
+    }
+
+    /* Smaller mascot on mobile (v2.0.1) */
+    .udesbot-mascot-container {
+        width: 55px;
+        height: 55px;
+        bottom: 65px; /* Above input area on mobile */
+        left: 5px;
+    }
+
+    .udesbot-mascot-tooltip {
+        min-width: 160px;
+        max-width: 220px;
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+}
+
+/* Hide mascot on very small screens */
+@media (max-width: 360px) {
+    .udesbot-mascot-container {
+        display: none;
+    }
+}
+
+/* ==============================================
+   Typing Indicator (v2.0.0)
+   ============================================== */
+
+.udesbot-typing {
+    display: none;
+    align-self: flex-start;
+    padding: 12px 16px;
+    background: var(--udesbot-bot);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    margin-top: 8px;
+}
+
+.udesbot-typing-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.udesbot-typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #9ca3af;
+    border-radius: 50%;
+    animation: udesbot-typing-bounce 1.4s ease-in-out infinite;
+}
+
+.udesbot-typing-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.udesbot-typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.udesbot-typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes udesbot-typing-bounce {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        background: #9ca3af;
+    }
+    30% {
+        transform: translateY(-8px);
+        background: var(--udesbot-primary);
+    }
+}
+
+/* ==============================================
+   Message Footer (Timestamp & Actions) (v2.0.0)
+   ============================================== */
+
+.udesbot-message-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 0 4px;
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.udesbot-timestamp {
+    flex-shrink: 0;
+}
+
+.udesbot-bot .udesbot-message-footer {
+    justify-content: flex-start;
+}
+
+.udesbot-user .udesbot-message-footer {
+    justify-content: flex-end;
+}
+
+.udesbot-user .udesbot-timestamp {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.udesbot-bot .udesbot-confidence {
+    margin: 0;
+    padding: 0;
+    color: #6b7280;
+    font-size: 11px;
+}
+
+/* ==============================================
+   Feedback Buttons (v2.0.0)
+   ============================================== */
+
+.udesbot-feedback {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.udesbot-feedback-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: all 0.2s;
+}
+
+.udesbot-feedback-btn:hover {
+    background: #f3f4f6;
+}
+
+.udesbot-feedback-btn.udesbot-thumbs-up:hover,
+.udesbot-feedback-btn.udesbot-thumbs-up.selected {
+    color: #10b981;
+    background: #d1fae5;
+}
+
+.udesbot-feedback-btn.udesbot-thumbs-down:hover,
+.udesbot-feedback-btn.udesbot-thumbs-down.selected {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+.udesbot-feedback-btn:disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.udesbot-feedback-btn.selected:disabled {
+    opacity: 1;
+}
+
+.udesbot-feedback-thanks {
+    font-size: 10px;
+    color: #10b981;
+    margin-left: 4px;
+    animation: udesbot-fadeIn 0.3s ease;
+}
+
+/* ==============================================
+   Export Button (v2.0.0)
+   ============================================== */
+
+#udesbot-export {
+    cursor: pointer;
+}
+
+#udesbot-export:hover svg {
+    transform: scale(1.1);
+}
+
+#udesbot-export svg {
+    transition: transform 0.2s;
+}
+
+/* ==============================================
+   Rich Message Content (v2.0.0)
+   ============================================== */
+
+.udesbot-message-content a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.udesbot-message-content a:hover {
+    opacity: 0.8;
+}
+
+.udesbot-bot .udesbot-message-content a {
+    color: var(--udesbot-primary);
+}
+
+.udesbot-message-content ul,
+.udesbot-message-content ol {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.udesbot-message-content li {
+    margin: 4px 0;
+}
+
+.udesbot-message-content code {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.udesbot-message-content pre {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+
+.udesbot-message-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.udesbot-message-content strong {
+    font-weight: 600;
+}
+
+.udesbot-message-content em {
+    font-style: italic;
+}
+
+/* ==============================================
+   Online Status Indicator (v2.0.0)
+   ============================================== */
+
+.udesbot-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.udesbot-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: udesbot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes udesbot-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.9);
+    }
+}
+
+/* ==============================================
+   Mobile Responsive Updates (v2.0.0)
+   ============================================== */
+
+@media (max-width: 480px) {
+    .udesbot-message-footer {
+        font-size: 10px;
+        gap: 6px;
+    }
+
+    .udesbot-feedback-btn {
+        width: 22px;
+        height: 22px;
+    }
+
+    .udesbot-feedback-btn svg {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+/* ==============================================
+   Credits Section (v2.0.4)
+   ============================================== */
+
+.udesbot-credits {
+    padding: 6px 16px;
+    text-align: center;
+    font-size: 11px;
+    color: #9ca3af;
+    background: #f3f4f6;
+    border-top: 1px solid #e5e7eb;
+    flex-shrink: 0;
+}
+
+.udesbot-credits a {
+    color: var(--udesbot-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.udesbot-credits a:hover {
+    text-decoration: underline;
+}
+
+/* ==============================================
+   Bootstrap 5 Compatibility Fallbacks (v2.0.9)
+   ============================================== */
+
+/* Badge fallbacks for Bootstrap 5 compatibility */
+/* These ensure badge-* classes work when bg-* is expected */
+.badge.badge-success {
+    background-color: #198754 !important;
+    color: #fff !important;
+}
+
+.badge.badge-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.badge.badge-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.badge.badge-primary {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+.badge.badge-secondary {
+    background-color: #6c757d !important;
+    color: #fff !important;
+}
+
+.badge.badge-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* Close button compatibility (Bootstrap 4/5) */
+.close.btn-close {
+    background: transparent;
+    border: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: .5;
+}
+
+.close.btn-close:hover {
+    opacity: .75;
+}
+
+/* Ensure Font Awesome icons display correctly */
+.fa {
+    display: inline-block;
+    font-style: normal;
+}
+
+/* ==============================================
+   v2.2.0 Enhancements - Button Animation Only
+   ============================================== */
+
+/* Enhanced floating button with gradient and animation */
+#udesbot-btn {
+    background: linear-gradient(135deg, var(--udesbot-primary) 0%, var(--udesbot-secondary) 100%);
+    box-shadow:
+        0 4px 15px rgba(15, 111, 197, 0.4),
+        0 0 30px rgba(15, 111, 197, 0.15);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+#udesbot-btn:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow:
+        0 8px 25px rgba(15, 111, 197, 0.5),
+        0 0 40px rgba(15, 111, 197, 0.25);
+}
+
+/* Subtle pulse animation on button */
+#udesbot-btn::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid var(--udesbot-primary);
+    opacity: 0;
+    animation: udesbot-btn-pulse 3s ease-in-out infinite;
+}
+
+@keyframes udesbot-btn-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.15);
+        opacity: 0.4;
+    }
+}
+
+/* ==============================================
+   v2.2.1 - Straight Borders & External Mascot
+   ============================================== */
+
+/* Popup with straight borders */
+.udesbot-popup {
+    border-radius: 0 !important;
+}
+
+/* Header with straight borders */
+.udesbot-header {
+    border-radius: 0 !important;
+}
+
+/* Credits with straight borders */
+.udesbot-credits {
+    border-radius: 0 !important;
+}
+
+/* Messages area - no padding at bottom for external mascot */
+.udesbot-messages {
+    padding-bottom: 16px !important;
+}
+
+/* ==============================================
+   External Mascot Positioning (v2.2.1)
+   Mascot positioned outside chat container
+   ============================================== */
+
+/* Move mascot outside the chat popup - to the left */
+.udesbot-mascot-container {
+    position: fixed !important;
+    bottom: 100px !important;
+    right: 410px !important; /* Position to the left of the popup (380px width + 20px gap + 10px) */
+    left: auto !important;
+    width: 80px !important;
+    height: 80px !important;
+    z-index: 999999 !important;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+/* Tooltip repositioned for external mascot */
+.udesbot-mascot-tooltip {
+    left: auto !important;
+    right: 0 !important;
+    transform: none !important;
+    bottom: 100% !important;
+    margin-bottom: 10px !important;
+}
+
+.udesbot-mascot-tooltip .tooltip-arrow {
+    left: auto !important;
+    right: 30px !important;
+    transform: rotate(45deg) !important;
+}
+
+/* Hide mascot when chat is closed */
+#udesbot-chat:not(.udesbot-active) .udesbot-mascot-container {
+    display: none !important;
+}
+
+/* Mobile - mascot below the popup on the left */
+@media (max-width: 480px) {
+    .udesbot-popup {
+        border-radius: 0 !important;
+    }
+
+    .udesbot-header {
+        border-radius: 0 !important;
+    }
+
+    .udesbot-credits {
+        border-radius: 0 !important;
+    }
+
+    /* On mobile, position mascot at bottom left corner */
+    .udesbot-mascot-container {
+        right: auto !important;
+        left: 10px !important;
+        bottom: 10px !important;
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .udesbot-mascot-tooltip {
+        left: 0 !important;
+        right: auto !important;
+        min-width: 200px !important;
+    }
+
+    .udesbot-mascot-tooltip .tooltip-arrow {
+        left: 20px !important;
+        right: auto !important;
+    }
+}
+
+/* ==============================================
+   Shortcuts with Descriptions (v2.2.2)
+   ============================================== */
+
+.udesbot-shortcuts-container {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.udesbot-shortcuts-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    margin-bottom: 10px;
+    padding-left: 2px;
+}
+
+.udesbot-shortcuts-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.udesbot-shortcut-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1 1 calc(50% - 3px);
+    min-width: 140px;
+    max-width: calc(50% - 3px);
+    text-align: left;
+}
+
+.udesbot-shortcut-btn:hover {
+    background: var(--udesbot-primary);
+    border-color: var(--udesbot-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.udesbot-shortcut-btn:hover .udesbot-shortcut-icon,
+.udesbot-shortcut-btn:hover .udesbot-shortcut-name,
+.udesbot-shortcut-btn:hover .udesbot-shortcut-desc {
+    color: #ffffff;
+}
+
+.udesbot-shortcut-btn:active {
+    transform: translateY(0);
+}
+
+.udesbot-shortcut-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--udesbot-primary);
+    font-size: 16px;
+}
+
+.udesbot-shortcut-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    flex: 1;
+}
+
+.udesbot-shortcut-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--udesbot-text);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.udesbot-shortcut-desc {
+    font-size: 10px;
+    color: #6b7280;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Mobile adjustments for shortcuts */
+@media (max-width: 480px) {
+    .udesbot-shortcuts-grid {
+        max-height: 140px;
+    }
+
+    .udesbot-shortcut-btn {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+}
+
+/* ==============================================
+   v3.8.0 - Scroll to Bottom Button
+   ============================================== */
+
+.udesbot-scroll-btn {
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--udesbot-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    z-index: 10;
+    opacity: 0.9;
+}
+
+.udesbot-scroll-btn:hover {
+    transform: scale(1.1);
+    opacity: 1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+.udesbot-scroll-btn:active {
+    transform: scale(0.95);
+}
+
+/* ==============================================
+   v3.8.0 - Character Counter
+   ============================================== */
+
+.udesbot-char-counter {
+    position: absolute;
+    bottom: 8px;
+    right: 60px;
+    font-size: 10px;
+    color: #9ca3af;
+    pointer-events: none;
+    transition: color 0.2s;
+}
+
+.udesbot-char-counter.near-limit {
+    color: #f59e0b;
+}
+
+.udesbot-char-counter.over-limit {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.udesbot-sendarea {
+    position: relative;
+}
+
+/* ==============================================
+   v3.8.0 - Keyboard Helper
+   ============================================== */
+
+.udesbot-keyboard-helper {
+    position: absolute;
+    bottom: -18px;
+    left: 0;
+    font-size: 10px;
+    color: #9ca3af;
+}
+
+.udesbot-kbd-hint kbd {
+    display: inline-block;
+    padding: 1px 4px;
+    font-size: 9px;
+    font-family: monospace;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    box-shadow: 0 1px 0 #d1d5db;
+}
+
+/* ==============================================
+   v3.8.0 - Time Separator
+   ============================================== */
+
+.udesbot-time-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 16px 0;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.udesbot-time-separator::before,
+.udesbot-time-separator::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #d1d5db, transparent);
+    margin: 0 12px;
+}
+
+.udesbot-time-separator span {
+    padding: 4px 12px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+/* ==============================================
+   v3.8.0 - Screen Reader Announcements
+   ============================================== */
+
+.udesbot-sr-announcement {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ==============================================
+   v3.8.0 - Improved Animations
+   ============================================== */
+
+.udesbot-message {
+    animation: udesbot-slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes udesbot-slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.udesbot-user {
+    animation: udesbot-slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes udesbot-slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(15px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+.udesbot-bot {
+    animation: udesbot-slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes udesbot-slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-15px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Message hover effect */
+.udesbot-message:hover .udesbot-message-content {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ==============================================
+   v3.8.0 - Enhanced Mobile Experience
+   ============================================== */
+
+@media (max-width: 480px) {
+    .udesbot-scroll-btn {
+        width: 32px;
+        height: 32px;
+        bottom: 75px;
+        right: 15px;
+    }
+
+    .udesbot-char-counter {
+        right: 55px;
+        font-size: 9px;
+    }
+
+    .udesbot-keyboard-helper {
+        display: none;
+    }
+
+    .udesbot-action-btn {
+        padding: 10px;
+    }
+
+    .udesbot-feedback-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* Time separator on mobile */
+    .udesbot-time-separator {
+        font-size: 10px;
+        margin: 12px 0;
+    }
+
+    .udesbot-time-separator span {
+        padding: 3px 10px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+    .udesbot-char-counter {
+        display: none;
+    }
+}
+
+/* ==============================================
+   v3.8.0 - Focus Visible Styles (Accessibility)
+   ============================================== */
+
+.udesbot-option-btn:focus-visible,
+.udesbot-shortcut-btn:focus-visible,
+.udesbot-action-btn:focus-visible,
+.udesbot-feedback-btn:focus-visible,
+.udesbot-scroll-btn:focus-visible,
+#udesbot-btn:focus-visible,
+#udesbot-textarea:focus-visible {
+    outline: 2px solid var(--udesbot-primary);
+    outline-offset: 2px;
+}

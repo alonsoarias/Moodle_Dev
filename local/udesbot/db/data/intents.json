@@ -1,0 +1,408 @@
+{
+    "version": "3.7.0",
+    "description": "udesbot intent patterns - comprehensive user intent classification with verb analysis",
+    "lang": "es",
+    "question_words": {
+        "description": "Palabras interrogativas en español para detección de preguntas",
+        "words": [
+            "como", "cómo", "que", "qué", "cual", "cuál", "cuales", "cuáles",
+            "donde", "dónde", "cuando", "cuándo", "quien", "quién", "quienes", "quiénes",
+            "cuanto", "cuánto", "cuanta", "cuánta", "cuantos", "cuántos", "cuantas", "cuántas",
+            "porque", "por qué", "para que", "para qué"
+        ],
+        "patterns": [
+            "^(cómo|como)\\s+",
+            "^(qué|que)\\s+",
+            "^(cuál|cual|cuáles|cuales)\\s+",
+            "^(dónde|donde)\\s+",
+            "^(cuándo|cuando)\\s+",
+            "^(quién|quien|quiénes|quienes)\\s+",
+            "^(cuánto|cuanto|cuánta|cuanta|cuántos|cuantos|cuántas|cuantas)\\s+",
+            "^(por qué|porque|para qué|para que)\\s+"
+        ]
+    },
+    "verb_analysis": {
+        "description": "Análisis de verbos para detectar acciones transitivas vs reflexivas (v3.7.0)",
+        "reflexive_markers": {
+            "description": "Pronombres reflexivos que indican acción sobre sí mismo",
+            "words": ["me", "mi", "yo", "mío", "mía", "conmigo", "a mi mismo", "a mí mismo"],
+            "patterns": [
+                "\\bme\\s+(matriculo|inscribo|registro|doy de baja|desinscribo)",
+                "\\bcomo\\s+me\\s+",
+                "\\byo\\s+(quiero|necesito|puedo)",
+                "\\b(matricularme|inscribirme|registrarme|darme de baja)"
+            ]
+        },
+        "transitive_markers": {
+            "description": "Palabras que indican acción sobre otra persona/cosa",
+            "words": ["a un", "a una", "a los", "a las", "al", "estudiante", "estudiantes", "usuario", "usuarios", "alumno", "alumnos", "persona", "personas", "participante", "participantes"],
+            "patterns": [
+                "\\b(matricular|inscribir|registrar|agregar|añadir|eliminar|dar de baja)\\s+(a\\s+)?(un|una|el|la|los|las|al)",
+                "\\b(matriculo|inscribo|registro|agrego|añado|elimino)\\s+(a\\s+)?(un|una|el|la)",
+                "\\b(crear|configurar|gestionar|administrar)\\s+(un|una|el|la|los|las)"
+            ]
+        },
+        "action_objects": {
+            "description": "Objetos comunes de acciones en Moodle",
+            "people": ["estudiante", "estudiantes", "alumno", "alumnos", "usuario", "usuarios", "profesor", "profesores", "docente", "docentes", "participante", "participantes", "persona", "personas"],
+            "courses": ["curso", "cursos", "asignatura", "asignaturas", "materia", "materias", "clase", "clases"],
+            "activities": ["tarea", "tareas", "cuestionario", "cuestionarios", "foro", "foros", "actividad", "actividades", "recurso", "recursos", "archivo", "archivos"],
+            "content": ["seccion", "secciones", "tema", "temas", "modulo", "modulos", "bloque", "bloques", "contenido", "contenidos"]
+        }
+    },
+    "verb_conjugations": {
+        "description": "Conjugaciones de verbos comunes para matching flexible (v3.7.0)",
+        "matricular": {
+            "infinitive": "matricular",
+            "stems": ["matricul", "matric"],
+            "conjugations": ["matriculo", "matriculas", "matricula", "matriculamos", "matriculan", "matricule", "matriculen", "matriculé", "matriculaste", "matriculó", "matricularon"],
+            "reflexive": ["matricularme", "matricularte", "matricularse", "matricularnos"],
+            "gerund": "matriculando",
+            "participle": "matriculado"
+        },
+        "inscribir": {
+            "infinitive": "inscribir",
+            "stems": ["inscrib", "inscri"],
+            "conjugations": ["inscribo", "inscribes", "inscribe", "inscribimos", "inscriben", "inscriba", "inscriban", "inscribí", "inscribiste", "inscribió", "inscribieron"],
+            "reflexive": ["inscribirme", "inscribirte", "inscribirse", "inscribirnos"],
+            "gerund": "inscribiendo",
+            "participle": "inscrito"
+        },
+        "crear": {
+            "infinitive": "crear",
+            "stems": ["cre", "crea"],
+            "conjugations": ["creo", "creas", "crea", "creamos", "crean", "cree", "creen", "creé", "creaste", "creó", "crearon"],
+            "gerund": "creando",
+            "participle": "creado"
+        },
+        "configurar": {
+            "infinitive": "configurar",
+            "stems": ["configur", "config"],
+            "conjugations": ["configuro", "configuras", "configura", "configuramos", "configuran", "configure", "configuren"],
+            "gerund": "configurando",
+            "participle": "configurado"
+        },
+        "calificar": {
+            "infinitive": "calificar",
+            "stems": ["calific", "calif"],
+            "conjugations": ["califico", "calificas", "califica", "calificamos", "califican", "califique", "califiquen"],
+            "gerund": "calificando",
+            "participle": "calificado"
+        },
+        "agregar": {
+            "infinitive": "agregar",
+            "stems": ["agreg", "agre"],
+            "conjugations": ["agrego", "agregas", "agrega", "agregamos", "agregan", "agregue", "agreguen"],
+            "gerund": "agregando",
+            "participle": "agregado"
+        },
+        "eliminar": {
+            "infinitive": "eliminar",
+            "stems": ["elimin", "elim"],
+            "conjugations": ["elimino", "eliminas", "elimina", "eliminamos", "eliminan", "elimine", "eliminen"],
+            "gerund": "eliminando",
+            "participle": "eliminado"
+        },
+        "enviar": {
+            "infinitive": "enviar",
+            "stems": ["envi", "envia"],
+            "conjugations": ["envio", "envías", "envía", "enviamos", "envían", "envíe", "envíen", "envié", "enviaste", "envió"],
+            "gerund": "enviando",
+            "participle": "enviado"
+        },
+        "entregar": {
+            "infinitive": "entregar",
+            "stems": ["entreg", "entre"],
+            "conjugations": ["entrego", "entregas", "entrega", "entregamos", "entregan", "entregue", "entreguen"],
+            "gerund": "entregando",
+            "participle": "entregado"
+        },
+        "descargar": {
+            "infinitive": "descargar",
+            "stems": ["descarg", "desca"],
+            "conjugations": ["descargo", "descargas", "descarga", "descargamos", "descargan", "descargue", "descarguen"],
+            "gerund": "descargando",
+            "participle": "descargado"
+        },
+        "subir": {
+            "infinitive": "subir",
+            "stems": ["sub", "subi"],
+            "conjugations": ["subo", "subes", "sube", "subimos", "suben", "suba", "suban", "subí", "subiste", "subió"],
+            "gerund": "subiendo",
+            "participle": "subido"
+        },
+        "ver": {
+            "infinitive": "ver",
+            "stems": ["v", "ve"],
+            "conjugations": ["veo", "ves", "ve", "vemos", "ven", "vea", "vean", "vi", "viste", "vio", "vieron"],
+            "gerund": "viendo",
+            "participle": "visto"
+        },
+        "editar": {
+            "infinitive": "editar",
+            "stems": ["edit", "edi"],
+            "conjugations": ["edito", "editas", "edita", "editamos", "editan", "edite", "editen"],
+            "gerund": "editando",
+            "participle": "editado"
+        },
+        "modificar": {
+            "infinitive": "modificar",
+            "stems": ["modific", "modif"],
+            "conjugations": ["modifico", "modificas", "modifica", "modificamos", "modifican", "modifique", "modifiquen"],
+            "gerund": "modificando",
+            "participle": "modificado"
+        },
+        "cambiar": {
+            "infinitive": "cambiar",
+            "stems": ["cambi", "cambia"],
+            "conjugations": ["cambio", "cambias", "cambia", "cambiamos", "cambian", "cambie", "cambien"],
+            "gerund": "cambiando",
+            "participle": "cambiado"
+        },
+        "acceder": {
+            "infinitive": "acceder",
+            "stems": ["acced", "acce"],
+            "conjugations": ["accedo", "accedes", "accede", "accedemos", "acceden", "acceda", "accedan"],
+            "gerund": "accediendo",
+            "participle": "accedido"
+        },
+        "gestionar": {
+            "infinitive": "gestionar",
+            "stems": ["gestion", "gesti"],
+            "conjugations": ["gestiono", "gestionas", "gestiona", "gestionamos", "gestionan", "gestione", "gestionen"],
+            "gerund": "gestionando",
+            "participle": "gestionado"
+        },
+        "administrar": {
+            "infinitive": "administrar",
+            "stems": ["administr", "admin"],
+            "conjugations": ["administro", "administras", "administra", "administramos", "administran", "administre", "administren"],
+            "gerund": "administrando",
+            "participle": "administrado"
+        }
+    },
+    "intents": {
+        "greeting": {
+            "patterns": [
+                "^(hola|buenas?|buenos|hey|hi|hello|saludos|que tal|qué tal)",
+                "^(buen(a|o)s?\\s+(dia|dias|día|días|tarde|tardes|noche|noches))",
+                "^(ola|wenas|buen dia|buen día|holi|holaa|holita)",
+                "^(como estas|cómo estás|como andas|qué onda|que onda)",
+                "^(ey|epa|epale|quiubo|quiubole|ke onda|kiubo)"
+            ],
+            "keywords": [
+                "hola", "buenas", "buenos dias", "buenas tardes", "buenas noches",
+                "hey", "hi", "hello", "saludos", "que tal", "como estas",
+                "buen dia", "wenas", "holi", "ola", "epale", "quiubo"
+            ],
+            "weight": 1.0
+        },
+        "farewell": {
+            "patterns": [
+                "^(adiós|adios|chao|chau|bye|hasta luego|nos vemos)",
+                "(gracias.*adiós|gracias.*chao|me voy|hasta pronto)",
+                "^(bay|byee|chau chau|hasta manana|hasta mañana)",
+                "^(nos vemos|que te vaya bien|cuídate|cuidate)",
+                "^(hasta la proxima|hasta otra|me retiro|me despido)"
+            ],
+            "keywords": [
+                "adios", "chao", "bye", "hasta luego", "nos vemos", "chau",
+                "hasta pronto", "me retiro", "me despido", "hasta manana",
+                "hasta la proxima", "que te vaya bien", "cuidate", "bay"
+            ],
+            "weight": 1.0
+        },
+        "thanks": {
+            "patterns": [
+                "^(gracias|muchas gracias|te agradezco|thanks|thx|grax|gcias)",
+                "(eres genial|me ayudaste|muy util|muy útil|excelente|perfecto)",
+                "^(te lo agradezco|mil gracias|super gracias|infinitas gracias)",
+                "(me sirvio|me sirvió|eso era|justo eso|era eso)",
+                "^(ok gracias|vale gracias|listo gracias|genial gracias)"
+            ],
+            "keywords": [
+                "gracias", "muchas gracias", "te agradezco", "thanks", "thx",
+                "genial", "perfecto", "excelente", "me ayudaste", "muy util",
+                "mil gracias", "super", "eres genial", "me sirvio", "grax"
+            ],
+            "weight": 1.0
+        },
+        "query": {
+            "patterns": [
+                "(qué|que)\\s+(es|son|significa|quiere decir|significa)",
+                "(cómo|como)\\s+(es|son|funciona|se hace|puedo|hago|se usa)",
+                "(dónde|donde)\\s+(está|estan|encuentro|queda|veo|miro|hay)",
+                "(cuándo|cuando)\\s+(es|son|empieza|termina|vence|inicia|sera)",
+                "(cuánto|cuanto|cuánta|cuanta)\\s+(es|son|cuesta|falta|tengo|vale|tiempo)",
+                "(por qué|porque|porqué)\\s+",
+                "(quién|quien)\\s+(es|son|puede|debo|me|esta)",
+                "(cuál|cual|cuáles|cuales)\\s+(es|son|hay|tengo)",
+                "^(hay|existe|tienen|tengo|puedo|debo)\\s+",
+                "\\?$",
+                "^(dime|me puedes decir|podrias decirme|me dices|me indicas)",
+                "^(explica|explicame|cuentame|informame)"
+            ],
+            "keywords": [
+                "que", "como", "donde", "cuando", "cuanto", "porque", "quien", "cual",
+                "hay", "dime", "explicame", "que es", "como funciona", "donde esta",
+                "cuando es", "cuanto cuesta", "quien es", "cual es", "existe", "tienen"
+            ],
+            "weight": 0.9
+        },
+        "action": {
+            "patterns": [
+                "^(quiero|necesito|dame|muéstrame|muestrame|déjame|dejame)",
+                "^(puedo|podría|podria|quisiera|me gustaría|me gustaria)",
+                "^(ayúdame|ayudame|ayuda|help|auxilio|socorro)",
+                "(entregar|enviar|subir|descargar|ver|abrir|crear|editar|borrar)",
+                "(inscribir|matricular|registrar|cambiar|modificar|actualizar)",
+                "^(hazme|hagame|permiteme|necesito que|quiero que)",
+                "(hacer|realizar|ejecutar|completar|terminar|finalizar)",
+                "^(dame acceso|permiteme ver|dejame acceder)"
+            ],
+            "keywords": [
+                "quiero", "necesito", "ayuda", "entregar", "subir", "descargar",
+                "cambiar", "modificar", "hacer", "crear", "editar", "borrar",
+                "dame", "muestrame", "ayudame", "dejame", "permiteme",
+                "inscribir", "registrar", "actualizar", "enviar"
+            ],
+            "weight": 0.85
+        },
+        "navigation": {
+            "patterns": [
+                "(dónde|donde)\\s+(está|queda|encuentro|veo|accedo|ubico|hay)",
+                "(cómo|como)\\s+(llego|accedo|entro|voy|navego|encuentro)\\s+a?",
+                "(ir|llevar|mostrar|abrir|llevame)\\s+(a|la|el|mi|al)",
+                "(link|enlace|url|dirección|direccion|página|pagina)\\s+(de|del|a|para)",
+                "^(donde hay|donde queda|donde esta el|donde encuentro)",
+                "^(como llego a|como voy a|como accedo a|como entro a)",
+                "^(llevame a|muestrame|abreme|dame el link)"
+            ],
+            "keywords": [
+                "donde esta", "como llego", "ir a", "abrir", "enlace", "pagina",
+                "link", "donde queda", "como accedo", "navegar", "ubicar",
+                "encontrar", "llevame", "muestrame", "acceder", "entrar"
+            ],
+            "weight": 0.8
+        },
+        "complaint": {
+            "patterns": [
+                "(no funciona|no sirve|no puedo|no me deja|error|falla)",
+                "(problema|falla|fallo|bug|roto|mal|dañado|defectuoso)",
+                "(frustrado|frustrada|enojado|enojada|molesto|molesta|harto)",
+                "(terrible|horrible|pésimo|pesimo|malísimo|malisimo|inútil|inutil)",
+                "(ayuda urgente|urgente|emergencia|socorro|es urgente)",
+                "(no entiendo|no sé|no se|confundido|confundida|perdido|perdida)",
+                "(esto es un desastre|que mal|que horrible|que frustante)",
+                "(llevo horas|ya intente todo|nada funciona|no hay forma)",
+                "(siempre pasa|otra vez|de nuevo el mismo problema)"
+            ],
+            "keywords": [
+                "no funciona", "error", "problema", "ayuda", "urgente", "no puedo",
+                "falla", "frustrado", "molesto", "no me deja", "no sirve",
+                "horrible", "terrible", "harto", "desesperado", "emergencia",
+                "no entiendo", "confundido", "perdido", "roto", "mal"
+            ],
+            "weight": 0.95
+        },
+        "affirmation": {
+            "patterns": [
+                "^(sí|si|claro|ok|okay|vale|bien|correcto|exacto|afirmativo)",
+                "^(eso|así|asi|así es|eso mismo|exactamente|efectivamente)",
+                "^(dale|listo|de acuerdo|okey|okei|sep|sip|aja|ajá)",
+                "^(por supuesto|desde luego|obviamente|naturalmente|claro que si)",
+                "^(eso es|asi es|correcto|exacto|preciso|en efecto)",
+                "^(afirmativo|positivo|confirmado|seguro|cierto)"
+            ],
+            "keywords": [
+                "si", "claro", "ok", "vale", "bien", "correcto", "exacto",
+                "dale", "listo", "de acuerdo", "eso", "afirmativo",
+                "por supuesto", "efectivamente", "aja", "sip", "sep"
+            ],
+            "weight": 1.0
+        },
+        "negation": {
+            "patterns": [
+                "^(no|nope|negativo|para nada|de ninguna manera)",
+                "^(tampoco|ni|nunca|jamás|jamas|nel|nop|ño)",
+                "^(no gracias|no quiero|no necesito|no es eso)",
+                "^(en absoluto|ni de broma|ni loco|ni en suenos)",
+                "^(nada de eso|para nada|de ningún modo|de ninguna forma)"
+            ],
+            "keywords": [
+                "no", "nope", "negativo", "nunca", "tampoco", "no gracias",
+                "jamas", "nel", "nop", "para nada", "de ninguna manera",
+                "ni", "en absoluto", "no quiero", "no necesito"
+            ],
+            "weight": 1.0
+        },
+        "clarification": {
+            "patterns": [
+                "^(qué quieres decir|que quieres decir|a qué te refieres|a que te refieres)",
+                "^(no entendí|no entendi|puedes explicar|explícame|explicame mejor)",
+                "^(más claro|mas claro|más detalles|mas detalles|en otras palabras)",
+                "^(no me queda claro|no comprendo|sigo sin entender)",
+                "^(podrias repetir|puedes ser mas especifico|a que se refiere)",
+                "^(que significa|como asi|en que sentido)"
+            ],
+            "keywords": [
+                "que quieres decir", "no entendi", "explicame", "mas claro",
+                "mas detalles", "no comprendo", "no me queda claro",
+                "a que te refieres", "como asi", "en otras palabras",
+                "no entiendo", "puedes explicar", "que significa"
+            ],
+            "weight": 0.9
+        },
+        "repeat": {
+            "patterns": [
+                "^(repite|repetir|otra vez|de nuevo|nuevamente)",
+                "^(qué dijiste|que dijiste|cómo era|como era|perdón)",
+                "^(puedes repetir|repítelo|repitelo|dilo otra vez)",
+                "^(no escuche|no lei bien|me perdi|no cache)",
+                "^(vuelve a decir|di de nuevo|una vez mas)"
+            ],
+            "keywords": [
+                "repite", "otra vez", "de nuevo", "que dijiste", "como era",
+                "puedes repetir", "repitelo", "nuevamente", "vuelve a decir",
+                "no escuche", "me perdi", "una vez mas"
+            ],
+            "weight": 0.85
+        },
+        "confirmation": {
+            "patterns": [
+                "^(estas seguro|está seguro|estás seguro|de verdad)",
+                "^(en serio|seguro que|es cierto que|es verdad que)",
+                "^(me confirmas|puedes confirmar|confirma que|verificar)"
+            ],
+            "keywords": [
+                "seguro", "de verdad", "en serio", "confirmar", "verificar",
+                "es cierto", "es verdad", "estas seguro", "me confirmas"
+            ],
+            "weight": 0.8
+        },
+        "suggestion": {
+            "patterns": [
+                "^(que me recomiendas|que sugieres|que opinas|cual crees)",
+                "^(deberia|debería|me conviene|es mejor|es preferible)",
+                "^(tu opinion|tu sugerencia|que harías|que harias)"
+            ],
+            "keywords": [
+                "recomiendas", "sugieres", "opinas", "deberia", "conviene",
+                "mejor", "preferible", "opinion", "sugerencia", "cual crees"
+            ],
+            "weight": 0.75
+        },
+        "humor": {
+            "patterns": [
+                "^(jaja|jeje|xD|lol|haha|jejeje|jajaja)",
+                "^(que chistoso|que gracioso|muy bueno|buen chiste)",
+                "(me hiciste reir|me dio risa|eso estuvo bueno)"
+            ],
+            "keywords": [
+                "jaja", "jeje", "xD", "lol", "gracioso", "chistoso",
+                "chiste", "risa", "divertido", "haha", "jejeje"
+            ],
+            "weight": 0.6
+        }
+    }
+}
