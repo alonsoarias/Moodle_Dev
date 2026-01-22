@@ -1,0 +1,363 @@
+{
+    "version": "3.6.0",
+    "description": "udesbot - General questions and main menu for all users - Ampliada",
+    "rules": [
+        {
+            "id": "menu_principal",
+            "category": "general",
+            "pattern": "Menu principal",
+            "keywords": [
+                "menu", "inicio", "ayuda", "opciones", "que puedo hacer", "como me ayudas",
+                "que opciones tengo", "mostrar menu", "ver menu", "inicio chat", "empezar",
+                "necesito ayuda", "ayudame", "que haces", "en que me puedes ayudar",
+                "como funciona", "guia", "asistencia"
+            ],
+            "response": "¿En que puedo ayudarte? Selecciona una opcion o escribe tu pregunta:",
+            "tags": ["menu", "inicio"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis cursos", "icon": "bi-collection", "action": "mis cursos"},
+                {"text": "Calendario", "icon": "bi-calendar-event", "action": "calendario"},
+                {"text": "Mensajes", "icon": "bi-envelope", "action": "mensajes"},
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"}
+            ]
+        },
+        {
+            "id": "saludo",
+            "category": "general",
+            "pattern": "Hola",
+            "keywords": ["hola", "buenos dias", "buenas tardes", "buenas noches", "saludos", "hey", "ola", "hi", "hello", "que tal", "como estas", "que hay"],
+            "response": "¡Hola! Soy tu asistente virtual en <strong>{{site.name}}</strong>. ¿En que puedo ayudarte hoy?",
+            "tags": ["saludo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver menu", "icon": "bi-list", "action": "menu"}
+            ]
+        },
+        {
+            "id": "login",
+            "category": "general",
+            "pattern": "Como inicio sesion",
+            "keywords": [
+                "iniciar sesion", "login", "entrar", "acceder", "ingresar", "conectarme",
+                "loguearme", "entrar al sistema", "acceso", "como entro", "no puedo entrar",
+                "ingresar a la plataforma", "como me conecto", "autenticar", "autenticacion",
+                "entrar a moodle", "acceso plataforma", "iniciar", "loguearse"
+            ],
+            "response": "Para iniciar sesion:<br><br>1. Ve a la pagina principal<br>2. Haz clic en <strong>Acceder</strong><br>3. Ingresa tu usuario y contrasena<br>4. Haz clic en <strong>Acceder</strong><br><br>Si olvidaste tu contrasena, haz clic en <strong>¿Olvidaste tu contrasena?</strong>",
+            "tags": ["login", "sesion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Olvide mi contrasena", "icon": "bi-key", "action": "olvide contrasena"},
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "logout",
+            "category": "general",
+            "pattern": "Como cierro sesion",
+            "keywords": ["cerrar sesion", "logout", "salir", "desconectar", "desloguearme", "terminar sesion", "finalizar sesion"],
+            "response": "Para cerrar sesion:<br><br>1. Haz clic en tu foto/avatar (arriba derecha)<br>2. Selecciona <strong>Cerrar sesion</strong><br><br>Siempre cierra sesion en computadoras compartidas.",
+            "tags": ["logout", "sesion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "password",
+            "category": "general",
+            "pattern": "Como cambio mi contrasena",
+            "keywords": ["cambiar contrasena", "nueva contrasena", "password", "clave", "olvide contrasena", "resetear contrasena", "recuperar contrasena", "modificar clave", "actualizar contrasena"],
+            "response": "Para cambiar tu contrasena:<br><br>1. Haz clic en tu foto/avatar<br>2. Ve a <strong>Preferencias</strong><br>3. Selecciona <strong>Cambiar contrasena</strong><br>4. Ingresa tu contrasena actual y la nueva<br>5. Guarda cambios<br><br><strong>Requisitos:</strong> Minimo 8 caracteres, 1 numero, 1 mayuscula.",
+            "tags": ["contrasena", "password"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "perfil",
+            "category": "general",
+            "pattern": "Como edito mi perfil",
+            "keywords": ["editar perfil", "mi perfil", "cambiar foto", "actualizar perfil", "datos personales", "modificar perfil", "cambiar nombre", "mi informacion", "mis datos"],
+            "response": "Para editar tu perfil:<br><br>1. Haz clic en tu foto/avatar<br>2. Selecciona <strong>Perfil</strong><br>3. Haz clic en <strong>Editar perfil</strong><br>4. Modifica tus datos (nombre, email, foto, descripcion)<br>5. Haz clic en <strong>Actualizar perfil</strong>",
+            "tags": ["perfil", "foto"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "notificaciones",
+            "category": "general",
+            "pattern": "Como configuro las notificaciones",
+            "keywords": ["notificaciones", "alertas", "avisos", "configurar notificaciones", "emails", "correos", "mensajes sistema", "desactivar notificaciones", "silenciar"],
+            "response": "Para configurar notificaciones:<br><br>1. Haz clic en tu foto/avatar<br>2. Ve a <strong>Preferencias</strong><br>3. Selecciona <strong>Preferencias de notificacion</strong><br><br>Puedes activar/desactivar notificaciones por:<br>- Web (en el sitio)<br>- Email<br>- App movil",
+            "tags": ["notificaciones", "alertas"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "app_movil",
+            "category": "general",
+            "pattern": "Existe app movil",
+            "keywords": ["app movil", "aplicacion", "moodle app", "celular", "telefono", "android", "iphone", "ios", "smartphone", "descargar app", "aplicacion movil"],
+            "response": "Si, existe la <strong>App Moodle</strong>:<br><br><strong>Descargar:</strong><br>- Android: Google Play Store<br>- iPhone: App Store<br><br><strong>Conectar:</strong><br>1. Abre la app<br>2. Ingresa: <strong>{{site.url}}</strong><br>3. Inicia sesion con tus credenciales",
+            "tags": ["app", "movil"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "idioma",
+            "category": "general",
+            "pattern": "Como cambio el idioma",
+            "keywords": ["cambiar idioma", "idioma", "espanol", "ingles", "language", "lenguaje", "traduccion", "otro idioma"],
+            "response": "Para cambiar el idioma:<br><br>1. Haz clic en tu foto/avatar<br>2. Ve a <strong>Preferencias</strong><br>3. Busca <strong>Idioma preferido</strong><br>4. Selecciona tu idioma<br>5. Guarda cambios",
+            "tags": ["idioma"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "buscar",
+            "category": "general",
+            "pattern": "Como busco contenido",
+            "keywords": ["buscar", "buscador", "encontrar", "search", "busqueda", "como encuentro", "donde esta"],
+            "response": "Para buscar contenido:<br><br>1. Usa la <strong>lupa</strong> en la barra superior<br>2. Escribe tu busqueda<br>3. Presiona Enter<br><br>Puedes buscar: cursos, actividades, usuarios, mensajes de foros.",
+            "tags": ["buscar", "search"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "soporte",
+            "category": "general",
+            "pattern": "Soporte tecnico",
+            "keywords": ["soporte", "contacto", "ayuda tecnica", "reportar problema", "error", "falla", "no funciona", "problema tecnico", "bug", "necesito ayuda", "asistencia"],
+            "response": "Para obtener ayuda:<br><br><strong>Problemas academicos:</strong><br>Contacta a tu profesor por mensajeria.<br><br><strong>Problemas tecnicos:</strong><br>Contacta al administrador del sitio.<br><br><strong>Al reportar incluye:</strong><br>- Descripcion del problema<br>- Captura de pantalla<br>- Navegador utilizado",
+            "tags": ["soporte", "ayuda"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tablero",
+            "category": "general",
+            "pattern": "Que es el tablero",
+            "keywords": ["tablero", "dashboard", "pagina inicio", "area personal", "mi tablero", "panel principal", "pagina principal"],
+            "response": "El <strong>Tablero</strong> es tu pagina personal:<br><br>- <strong>Timeline:</strong> Actividades proximas<br>- <strong>Cursos:</strong> Tus cursos recientes<br>- <strong>Calendario:</strong> Eventos importantes<br><br>Accede haciendo clic en <strong>Tablero</strong> o <strong>Inicio</strong>.",
+            "tags": ["tablero", "dashboard"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "gracias",
+            "category": "general",
+            "pattern": "Gracias",
+            "keywords": ["gracias", "muchas gracias", "te agradezco", "genial", "perfecto", "excelente", "muy bien", "ok", "vale", "entendido", "listo", "claro"],
+            "response": "¡De nada! Estoy aqui para ayudarte. Si tienes mas preguntas, no dudes en escribirme.",
+            "tags": ["gracias"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu principal", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "despedida",
+            "category": "general",
+            "pattern": "Adios",
+            "keywords": ["adios", "hasta luego", "bye", "chao", "nos vemos", "hasta pronto", "me voy", "chau", "hasta la proxima"],
+            "response": "¡Hasta luego! Fue un gusto ayudarte. Estoy disponible 24/7 cuando me necesites.",
+            "tags": ["adios"],
+            "enabled": true,
+            "showoptions": false
+        },
+        {
+            "id": "quien_eres",
+            "category": "general",
+            "pattern": "Quien eres",
+            "keywords": ["quien eres", "que eres", "eres un bot", "eres una persona", "como te llamas", "tu nombre", "que haces", "para que sirves"],
+            "response": "Soy <strong>{{botname}}</strong>, tu asistente virtual en <strong>{{site.name}}</strong>.<br><br>Puedo ayudarte con:<br>- Informacion sobre cursos y actividades<br>- Calificaciones y progreso<br>- Navegacion en la plataforma<br>- Soporte general<br><br>¡Preguntame lo que necesites!",
+            "tags": ["identidad", "bot"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver menu", "icon": "bi-list", "action": "menu"}
+            ]
+        },
+        {
+            "id": "no_entiendo",
+            "category": "general",
+            "pattern": "No entiendo",
+            "keywords": ["no entiendo", "no comprendo", "explicame mejor", "mas claro", "no me queda claro", "puedes repetir", "otra vez"],
+            "response": "Disculpa si no fui claro. Intenta reformular tu pregunta de forma diferente o selecciona una opcion del menu.<br><br>Si el problema persiste, puedes contactar a soporte tecnico.",
+            "tags": ["confusion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver menu", "icon": "bi-list", "action": "menu"},
+                {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"}
+            ]
+        },
+        {
+            "id": "accesibilidad",
+            "category": "general",
+            "pattern": "Como configuro la accesibilidad",
+            "keywords": [
+                "accesibilidad", "discapacidad", "lector pantalla", "alto contraste",
+                "tamano letra", "fuente grande", "screen reader", "acceso visual",
+                "dificultad visual", "teclado solo"
+            ],
+            "response": "Opciones de <strong>accesibilidad</strong> en Moodle:<br><br><strong>En tu perfil:</strong><br>1. Avatar > Preferencias<br>2. Busca opciones de accesibilidad<br><br><strong>En tu navegador:</strong><br>- Zoom: Ctrl + / Ctrl -<br>- Alto contraste: Configuracion del SO<br><br>Moodle es compatible con lectores de pantalla.",
+            "tags": ["accesibilidad", "discapacidad"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "privacidad",
+            "category": "general",
+            "pattern": "Como configuro mi privacidad",
+            "keywords": [
+                "privacidad", "datos personales", "quien ve mi perfil", "ocultar email",
+                "visibilidad", "proteger datos", "configuracion privacidad", "gdpr"
+            ],
+            "response": "Para configurar tu <strong>privacidad</strong>:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Privacidad</strong><br><br><strong>Puedes configurar:</strong><br>- Quien ve tu perfil<br>- Visibilidad del email<br>- Ultimo acceso visible<br>- Consentimiento de datos",
+            "tags": ["privacidad", "datos"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "navegadores",
+            "category": "general",
+            "pattern": "Que navegador debo usar",
+            "keywords": [
+                "navegador", "browser", "chrome", "firefox", "edge", "safari",
+                "navegador recomendado", "compatible", "que navegador", "internet explorer"
+            ],
+            "response": "<strong>Navegadores recomendados:</strong><br><br>- Google Chrome (ultima version)<br>- Mozilla Firefox (ultima version)<br>- Microsoft Edge (ultima version)<br>- Safari (Mac)<br><br><strong>Importante:</strong><br>- Manten tu navegador actualizado<br>- Internet Explorer NO es compatible<br>- Habilita JavaScript y cookies",
+            "tags": ["navegador", "browser", "compatible"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "problema_carga",
+            "category": "general",
+            "pattern": "La pagina no carga correctamente",
+            "keywords": [
+                "no carga", "carga lenta", "pagina blanca", "error carga", "no abre",
+                "se congela", "pantalla blanca", "no responde", "tarda mucho"
+            ],
+            "response": "Si la pagina no carga correctamente:<br><br><strong>Soluciones:</strong><br>1. <strong>Recargar:</strong> Ctrl+F5 (borrar cache)<br>2. <strong>Borrar cache:</strong> Configuracion del navegador<br>3. <strong>Otro navegador:</strong> Prueba Chrome o Firefox<br>4. <strong>Conexion:</strong> Verifica tu internet<br><br>Si persiste, contacta a soporte.",
+            "tags": ["carga", "error", "lento"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Soporte", "icon": "bi-question-circle", "action": "soporte tecnico"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "zona_horaria",
+            "category": "general",
+            "pattern": "Como cambio la zona horaria",
+            "keywords": [
+                "zona horaria", "hora incorrecta", "cambiar hora", "timezone",
+                "hora diferente", "horario", "hora del sistema", "desfase horario"
+            ],
+            "response": "Para cambiar tu <strong>zona horaria</strong>:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Editar perfil</strong><br>4. Busca <strong>Zona horaria</strong><br>5. Selecciona tu zona<br>6. Guardar cambios<br><br><strong>Importante:</strong> Afecta como ves fechas limite y eventos.",
+            "tags": ["zona horaria", "hora", "timezone"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "atajos_teclado",
+            "category": "general",
+            "pattern": "Existen atajos de teclado",
+            "keywords": [
+                "atajos teclado", "shortcuts", "teclas rapidas", "comandos teclado",
+                "acceso rapido", "hotkeys", "combinacion teclas"
+            ],
+            "response": "<strong>Atajos utiles en Moodle:</strong><br><br><strong>Navegador:</strong><br>- Ctrl+F: Buscar en pagina<br>- Ctrl+P: Imprimir<br>- Tab: Navegar entre elementos<br><br><strong>Editor de texto:</strong><br>- Ctrl+B: Negrita<br>- Ctrl+I: Cursiva<br>- Ctrl+Z: Deshacer<br><br>Los atajos varian segun el navegador.",
+            "tags": ["atajos", "teclado", "shortcuts"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "modo_edicion",
+            "category": "general",
+            "pattern": "Que es el modo edicion",
+            "keywords": [
+                "modo edicion", "editar curso", "activar edicion", "modo editor",
+                "edicion activada", "modificar curso", "anadir contenido"
+            ],
+            "response": "El <strong>modo edicion</strong> permite modificar el curso:<br><br><strong>Solo para profesores/editores:</strong><br>1. Entra al curso<br>2. Activa <strong>Modo de edicion</strong> (arriba derecha)<br><br><strong>Permite:</strong><br>- Agregar actividades y recursos<br>- Reorganizar contenido<br>- Modificar configuraciones<br><br>Los estudiantes NO ven esta opcion.",
+            "tags": ["edicion", "modificar", "profesor"],
+            "archetypes": ["teacher", "editingteacher", "manager"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "archivo_personal",
+            "category": "general",
+            "pattern": "Que es el archivo personal",
+            "keywords": [
+                "archivos privados", "mis archivos", "archivo personal", "almacenamiento",
+                "subir archivos", "espacio personal", "guardar archivos", "repositorio personal"
+            ],
+            "response": "El <strong>Archivo personal</strong> es tu espacio de almacenamiento:<br><br><strong>Acceder:</strong><br>1. Clic en tu avatar<br>2. <strong>Archivos privados</strong><br><br><strong>Usos:</strong><br>- Guardar archivos para usar en cursos<br>- Almacenar borradores<br>- Organizar en carpetas<br><br><strong>Limite:</strong> Consulta el espacio disponible con tu administrador.",
+            "tags": ["archivos", "almacenamiento", "personal"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mi perfil", "icon": "bi-person-circle", "action": "editar perfil"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

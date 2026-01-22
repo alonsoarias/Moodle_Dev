@@ -1,0 +1,568 @@
+{
+    "version": "3.6.0",
+    "description": "udesbot - Administracion del sitio - Expandida v3.6.0 con 32 reglas",
+    "rules": [
+        {
+            "id": "menu_admin",
+            "category": "administracion",
+            "pattern": "Menu de administrador",
+            "keywords": ["menu administrador", "opciones admin", "que puedo hacer como admin", "administracion sitio", "panel admin", "opciones administrador"],
+            "response": "Como administrador tienes acceso a:<br><br><strong>Gestion:</strong><br>- Usuarios y roles<br>- Cursos y categorias<br>- Plugins y temas<br><br><strong>Monitoreo:</strong><br>- Logs y reportes<br>- Tareas programadas<br>- Rendimiento",
+            "tags": ["admin", "administrador"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Usuarios", "icon": "bi-people-fill", "action": "gestionar usuarios"},
+                {"text": "Cursos", "icon": "bi-journal-bookmark-fill", "action": "gestionar cursos"},
+                {"text": "Reportes", "icon": "bi-graph-up-arrow", "action": "reportes sitio"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_curso",
+            "category": "administracion",
+            "pattern": "Como creo un curso",
+            "keywords": ["crear curso", "nuevo curso", "anadir curso", "agregar curso", "configurar curso", "abrir curso"],
+            "response": "Para crear un curso:<br><br>1. <strong>Administracion > Cursos > Gestionar cursos</strong><br>2. Selecciona la categoria<br>3. Clic en <strong>Crear nuevo curso</strong><br>4. Completa: nombre, formato, fechas<br>5. Guarda",
+            "tags": ["crear", "curso"],
+            "archetypes": ["manager", "coursecreator", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Cursos", "icon": "bi-journal-bookmark-fill", "action": "gestionar cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "gestionar_usuarios",
+            "category": "administracion",
+            "pattern": "Como gestiono usuarios",
+            "keywords": ["gestionar usuarios", "crear usuario", "agregar usuario", "editar usuario", "administrar usuarios", "nuevo usuario"],
+            "response": "Para gestionar usuarios:<br><br><strong>Crear usuario:</strong><br>1. <strong>Administracion > Usuarios > Agregar usuario</strong><br>2. Completa datos y guarda<br><br><strong>Carga masiva:</strong><br>1. <strong>Usuarios > Subir usuarios</strong><br>2. Prepara CSV y sube",
+            "tags": ["usuarios", "crear"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Usuarios", "icon": "bi-people-fill", "action": "gestionar usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_reportes",
+            "category": "administracion",
+            "pattern": "Como veo los reportes",
+            "keywords": ["reportes sitio", "logs", "registros", "estadisticas", "actividad sitio", "informes", "analytics"],
+            "response": "Para ver reportes:<br><br>1. <strong>Administracion > Informes</strong><br><br><strong>Disponibles:</strong><br>- Logs (actividad detallada)<br>- Logs en vivo<br>- Estadisticas de uso<br>- Seguridad del sistema",
+            "tags": ["reportes", "logs"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Reportes", "icon": "bi-graph-up-arrow", "action": "reportes sitio"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "backup_sitio",
+            "category": "administracion",
+            "pattern": "Como hago backup",
+            "keywords": ["backup", "respaldo", "copia seguridad", "respaldar", "guardar copia", "restaurar"],
+            "response": "Para gestionar backups:<br><br><strong>Backup de curso:</strong><br>1. Curso > Administracion > Backup<br>2. Selecciona elementos<br>3. Genera archivo .mbz<br><br><strong>Automaticos:</strong><br>Administracion > Cursos > Backups automaticos",
+            "tags": ["backup", "respaldo"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Backups", "icon": "bi-cloud-arrow-up-fill", "action": "backup"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "seguridad",
+            "category": "administracion",
+            "pattern": "Como configuro la seguridad",
+            "keywords": ["seguridad", "politicas", "contrasenas", "https", "ssl", "configurar seguridad"],
+            "response": "Configuracion de seguridad:<br><br><strong>Administracion > Seguridad:</strong><br>- Politicas de contrasenas<br>- HTTPS y cookies<br>- Anti-spam (reCAPTCHA)<br>- Bloqueo de IPs",
+            "tags": ["seguridad", "politicas"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Seguridad", "icon": "bi-shield-fill-check", "action": "seguridad"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "plugins",
+            "category": "administracion",
+            "pattern": "Como gestiono plugins",
+            "keywords": ["plugins", "instalar plugin", "desactivar plugin", "modulos", "extensiones", "complementos"],
+            "response": "Para gestionar plugins:<br><br>1. <strong>Administracion > Plugins > Vista general</strong><br><br><strong>Opciones:</strong><br>- Activar/desactivar<br>- Configurar cada plugin<br>- Instalar desde ZIP",
+            "tags": ["plugins", "modulos"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Plugins", "icon": "bi-puzzle-fill", "action": "plugins"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "configuracion",
+            "category": "administracion",
+            "pattern": "Como configuro el sitio",
+            "keywords": ["configurar sitio", "configuracion moodle", "ajustes sitio", "configuracion general", "opciones sitio"],
+            "response": "Configuracion del sitio:<br><br><strong>Administracion del sitio:</strong><br>- General: Nombre, zona horaria<br>- Apariencia: Tema, logo<br>- Usuarios: Autenticacion<br>- Cursos: Formatos<br><br>Usa el buscador para encontrar opciones.",
+            "tags": ["configuracion", "ajustes"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Configuracion", "icon": "bi-gear-fill", "action": "configuracion"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "cache",
+            "category": "administracion",
+            "pattern": "Como limpio el cache",
+            "keywords": ["cache", "limpiar cache", "purgar", "rendimiento", "borrar cache", "vaciar cache"],
+            "response": "Para purgar cache:<br><br>1. <strong>Desarrollo > Purgar caches</strong><br>2. Clic <strong>Purgar todos</strong><br><br>Hazlo despues de cambios en configuracion o plugins.",
+            "tags": ["cache", "purgar"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "roles",
+            "category": "administracion",
+            "pattern": "Como gestiono roles",
+            "keywords": ["roles", "permisos", "capabilities", "asignar rol", "crear rol", "modificar rol"],
+            "response": "Gestion de roles:<br><br><strong>Ver roles:</strong><br>Usuarios > Permisos > Definir roles<br><br><strong>Roles por defecto:</strong><br>Manager, Course creator, Teacher, Student, Guest<br><br><strong>Asignar:</strong><br>- Global: Usuarios > Asignar roles<br>- Curso: Participantes > Inscribir",
+            "tags": ["roles", "permisos"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Usuarios", "icon": "bi-people-fill", "action": "gestionar usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "matricular_usuarios",
+            "category": "administracion",
+            "pattern": "Como matriculo usuarios en un curso",
+            "keywords": [
+                "matricular", "matriculo", "matricular usuario", "matricular usuarios",
+                "matricular estudiante", "matricular estudiantes", "matricular alumno", "matricular alumnos",
+                "inscribir usuario", "inscribir usuarios", "inscribir estudiante", "inscribir estudiantes",
+                "agregar estudiante", "agregar estudiantes", "agregar alumno", "agregar alumnos",
+                "agregar usuario al curso", "anadir estudiante", "anadir alumno",
+                "enrollar", "agregar al curso", "meter al curso", "incluir en curso",
+                "como inscribo a un estudiante", "como agrego un estudiante",
+                "como matriculo a un estudiante", "como matriculo a un alumno",
+                "matriculo a un", "inscribo a un", "agrego a un",
+                "matricular a un estudiante", "inscribir a un estudiante",
+                "como matriculo estudiantes", "como inscribo estudiantes",
+                "añadir estudiante al curso", "agregar alumno al curso",
+                "meter estudiante", "incluir estudiante", "registrar estudiante"
+            ],
+            "response": "Para matricular usuarios en un curso:<br><br><strong>Individual:</strong><br>1. Curso > Participantes<br>2. Clic en <strong>Matricular usuarios</strong><br>3. Busca el usuario y asigna rol<br><br><strong>Masivo:</strong><br>1. Administracion > Usuarios > Subir usuarios<br>2. CSV con columna course1",
+            "tags": ["matricular", "inscribir", "estudiante", "alumno", "agregar"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "priority": 10,
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver participantes", "icon": "bi-people", "action": "ver participantes del curso"},
+                {"text": "Carga masiva", "icon": "bi-upload", "action": "como cargo usuarios masivamente"},
+                {"text": "Roles", "icon": "bi-person-badge", "action": "gestionar roles"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tareas_programadas",
+            "category": "administracion",
+            "pattern": "Como veo las tareas programadas",
+            "keywords": ["tareas programadas", "cron", "scheduled tasks", "tareas cron", "trabajos programados"],
+            "response": "Para ver tareas programadas:<br><br>1. <strong>Administracion > Servidor > Tareas programadas</strong><br><br><strong>Puedes:</strong><br>- Ver proxima ejecucion<br>- Ejecutar manualmente<br>- Desactivar tareas<br>- Ver logs de ejecucion",
+            "tags": ["cron", "tareas"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "carga_masiva_usuarios",
+            "category": "administracion",
+            "pattern": "Como cargo usuarios masivamente",
+            "keywords": [
+                "carga masiva", "subir usuarios", "importar usuarios", "cargar csv",
+                "subir csv", "usuarios csv", "crear muchos usuarios", "crear usuarios masivo",
+                "upload users", "bulk upload", "importar estudiantes", "carga usuarios"
+            ],
+            "response": "Para carga masiva de usuarios:<br><br>1. <strong>Administracion > Usuarios > Subir usuarios</strong><br>2. Prepara CSV con columnas:<br>   - username, password, firstname, lastname, email<br>   - course1 (para matricular)<br>3. Sube el archivo<br>4. Configura opciones<br>5. Ejecuta la carga<br><br><strong>Tip:</strong> Descarga la plantilla de ejemplo.",
+            "tags": ["usuarios", "csv", "masivo"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Gestionar usuarios", "icon": "bi-people", "action": "gestionar usuarios"},
+                {"text": "Matricular", "icon": "bi-person-plus", "action": "matricular usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "metodos_inscripcion",
+            "category": "administracion",
+            "pattern": "Como configuro los metodos de inscripcion",
+            "keywords": [
+                "metodos inscripcion", "auto inscripcion", "inscripcion manual", "clave inscripcion",
+                "contrasena curso", "matricula automatica", "enrollment methods", "habilitar inscripcion",
+                "configurar inscripcion", "tipos inscripcion"
+            ],
+            "response": "Para configurar metodos de inscripcion:<br><br>1. Curso > <strong>Participantes</strong><br>2. Engranaje > <strong>Metodos de inscripcion</strong><br><br><strong>Tipos comunes:</strong><br>- <strong>Manual:</strong> Tu agregas usuarios<br>- <strong>Auto inscripcion:</strong> Usuarios se inscriben (con/sin clave)<br>- <strong>Cohorte:</strong> Grupos sincronizados<br>- <strong>Meta:</strong> Vincula a otro curso",
+            "tags": ["inscripcion", "metodos", "matricula"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Matricular usuarios", "icon": "bi-person-plus", "action": "matricular usuarios"},
+                {"text": "Ver participantes", "icon": "bi-people", "action": "participantes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_categoria",
+            "category": "administracion",
+            "pattern": "Como creo una categoria de cursos",
+            "keywords": [
+                "crear categoria", "nueva categoria", "categoria cursos", "organizar cursos",
+                "agregar categoria", "anadir categoria", "subcategoria", "categorias"
+            ],
+            "response": "Para crear una categoria:<br><br>1. <strong>Administracion > Cursos > Gestionar categorias</strong><br>2. Clic en <strong>Crear categoria</strong><br>3. Completa:<br>   - Nombre de la categoria<br>   - Categoria padre (si es subcategoria)<br>   - Descripcion (opcional)<br>4. Guardar<br><br><strong>Tip:</strong> Organiza por departamento, periodo o tipo.",
+            "tags": ["categoria", "organizar", "cursos"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear curso", "icon": "bi-journal-plus", "action": "crear curso"},
+                {"text": "Gestionar cursos", "icon": "bi-journals", "action": "gestionar cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "cambiar_tema",
+            "category": "administracion",
+            "pattern": "Como cambio el tema del sitio",
+            "keywords": [
+                "cambiar tema", "tema moodle", "apariencia", "theme", "diseño sitio",
+                "personalizar apariencia", "boost", "classic", "instalar tema"
+            ],
+            "response": "Para cambiar el tema:<br><br>1. <strong>Administracion > Apariencia > Selector de tema</strong><br>2. Elige el tema (Boost es el predeterminado)<br>3. <strong>Usar tema</strong><br><br><strong>Personalizar:</strong><br>- Administracion > Apariencia > Boost/Tema<br>- Cambia logo, colores, fuentes<br><br><strong>Nuevo tema:</strong><br>- Instalar desde ZIP",
+            "tags": ["tema", "apariencia", "diseño"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Apariencia", "icon": "bi-palette", "action": "configurar apariencia"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "notificaciones_sitio",
+            "category": "administracion",
+            "pattern": "Como configuro las notificaciones",
+            "keywords": [
+                "notificaciones", "configurar notificaciones", "alertas", "avisos",
+                "email notificacion", "mensajes sistema", "preferencias notificacion"
+            ],
+            "response": "Para configurar notificaciones:<br><br><strong>Por defecto del sitio:</strong><br>1. Administracion > Mensajeria > Preferencias de notificacion<br><br><strong>Por usuario:</strong><br>1. Perfil > Preferencias > Notificaciones<br>2. Activa/desactiva por tipo:<br>   - Tareas asignadas<br>   - Mensajes<br>   - Calificaciones<br>   - Foros",
+            "tags": ["notificaciones", "email", "alertas"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ocultar_curso_admin",
+            "category": "administracion",
+            "pattern": "Como oculto un curso para estudiantes",
+            "keywords": [
+                "ocultar curso", "curso invisible", "esconder curso", "curso no visible",
+                "desactivar curso", "curso oculto", "visibilidad curso"
+            ],
+            "response": "Para ocultar un curso:<br><br>1. <strong>Editar configuracion</strong> del curso<br>2. En <strong>General</strong> busca <strong>Visibilidad del curso</strong><br>3. Selecciona <strong>Ocultar</strong><br>4. Guardar<br><br><strong>Resultado:</strong><br>- Estudiantes no lo ven<br>- Profesores y admins si lo ven (atenuado)<br>- Util para cursos en preparacion",
+            "tags": ["ocultar", "visibilidad", "curso"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Gestionar cursos", "icon": "bi-journals", "action": "gestionar cursos"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "restablecer_curso",
+            "category": "administracion",
+            "pattern": "Como restablezco un curso",
+            "keywords": [
+                "restablecer curso", "reiniciar curso", "limpiar curso", "borrar entregas",
+                "nueva cohorte", "reset curso", "vaciar curso", "curso nuevo periodo"
+            ],
+            "response": "Para restablecer un curso (nuevo periodo):<br><br>1. Curso > <strong>Administracion > Restablecer</strong><br>2. Selecciona que borrar:<br>   - ✓ Inscripciones (quita estudiantes)<br>   - ✓ Calificaciones<br>   - ✓ Entregas de tareas<br>   - ✓ Intentos de cuestionarios<br>3. <strong>Restablecer curso</strong><br><br><strong>Nota:</strong> El contenido (actividades, recursos) se mantiene.",
+            "tags": ["restablecer", "reiniciar", "limpiar"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Backup", "icon": "bi-cloud-arrow-up", "action": "como hago backup"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_participantes",
+            "category": "administracion",
+            "pattern": "Como veo los participantes de un curso",
+            "keywords": [
+                "ver participantes", "participantes curso", "lista estudiantes", "alumnos curso",
+                "quienes estan inscritos", "ver inscritos", "estudiantes inscritos"
+            ],
+            "response": "Para ver participantes:<br><br>1. Entra al curso<br>2. Menu lateral > <strong>Participantes</strong><br><br><strong>Filtros disponibles:</strong><br>- Por rol (estudiante, profesor)<br>- Por grupo<br>- Por estado<br>- Nombre/email<br><br><strong>Acciones:</strong><br>- Ver perfil<br>- Enviar mensaje<br>- Modificar rol",
+            "tags": ["participantes", "estudiantes", "inscritos"],
+            "archetypes": ["manager", "editingteacher", "teacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Matricular", "icon": "bi-person-plus", "action": "matricular usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "cohortes",
+            "category": "administracion",
+            "pattern": "Como gestiono cohortes",
+            "keywords": [
+                "cohortes", "audiencias", "grupos globales", "cohorte usuarios",
+                "crear cohorte", "sincronizar cohorte", "cohort", "grupo sistema"
+            ],
+            "response": "Para gestionar cohortes (grupos globales):<br><br>1. <strong>Administracion > Usuarios > Cohortes</strong><br>2. <strong>Agregar cohorte</strong><br>3. Asigna nombre e ID<br><br><strong>Usos:</strong><br>- Sincronizar inscripciones automaticas<br>- Agrupar usuarios por departamento/area<br>- Matriculacion masiva por cohorte",
+            "tags": ["cohortes", "grupos", "audiencias"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Usuarios", "icon": "bi-people", "action": "gestionar usuarios"},
+                {"text": "Matricular", "icon": "bi-person-plus", "action": "matricular usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "restaurar_curso",
+            "category": "administracion",
+            "pattern": "Como restauro un curso desde backup",
+            "keywords": [
+                "restaurar curso", "restore", "importar curso", "recuperar curso",
+                "cargar backup", "subir mbz", "restaurar mbz", "importar backup"
+            ],
+            "response": "Para restaurar un curso:<br><br>1. <strong>Administracion > Cursos > Restaurar</strong><br>2. Sube el archivo <strong>.mbz</strong><br>3. Selecciona destino:<br>   - Curso nuevo<br>   - Curso existente (fusionar/reemplazar)<br>4. Elige que restaurar<br>5. <strong>Ejecutar restauracion</strong>",
+            "tags": ["restaurar", "backup", "importar"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Backup", "icon": "bi-cloud-arrow-up", "action": "como hago backup"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "duplicar_curso",
+            "category": "administracion",
+            "pattern": "Como duplico un curso",
+            "keywords": [
+                "duplicar curso", "copiar curso", "clonar curso", "replicar curso",
+                "curso plantilla", "crear copia curso", "template curso"
+            ],
+            "response": "Para duplicar un curso:<br><br><strong>Opcion 1 - Backup/Restaurar:</strong><br>1. Haz backup del curso original<br>2. Restaura en nueva ubicacion<br><br><strong>Opcion 2 - Importar:</strong><br>1. Crea curso nuevo vacio<br>2. Importar > Selecciona curso origen<br>3. Elige contenido a copiar",
+            "tags": ["duplicar", "copiar", "clonar"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear curso", "icon": "bi-journal-plus", "action": "crear curso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "exportar_calificaciones",
+            "category": "administracion",
+            "pattern": "Como exporto las calificaciones",
+            "keywords": [
+                "exportar calificaciones", "descargar notas", "excel calificaciones",
+                "exportar notas", "csv calificaciones", "bajar calificaciones"
+            ],
+            "response": "Para exportar calificaciones:<br><br>1. Curso > <strong>Calificaciones</strong><br>2. Menu > <strong>Exportar</strong><br>3. Elige formato:<br>   - Excel (xlsx)<br>   - CSV texto plano<br>   - XML<br>4. Selecciona items a exportar<br>5. <strong>Descargar</strong>",
+            "tags": ["exportar", "calificaciones", "excel"],
+            "archetypes": ["manager", "editingteacher", "teacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "libro calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "autenticacion",
+            "category": "administracion",
+            "pattern": "Como configuro la autenticacion",
+            "keywords": [
+                "autenticacion", "login ldap", "sso", "oauth", "metodos login",
+                "active directory", "autenticacion externa", "saml", "google login"
+            ],
+            "response": "Para configurar autenticacion:<br><br>1. <strong>Administracion > Plugins > Autenticacion</strong><br><br><strong>Metodos disponibles:</strong><br>- <strong>Manual:</strong> Usuarios creados en Moodle<br>- <strong>LDAP:</strong> Active Directory<br>- <strong>OAuth2:</strong> Google, Microsoft<br>- <strong>SAML:</strong> SSO empresarial<br><br>Activa y configura cada metodo.",
+            "tags": ["autenticacion", "login", "sso", "ldap"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Seguridad", "icon": "bi-shield", "action": "seguridad"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "insignias",
+            "category": "administracion",
+            "pattern": "Como creo insignias",
+            "keywords": [
+                "insignias", "badges", "crear insignia", "reconocimientos",
+                "medallas", "logros", "gamificacion", "badge curso"
+            ],
+            "response": "Para crear insignias:<br><br><strong>Insignia de curso:</strong><br>1. Curso > <strong>Insignias > Agregar insignia</strong><br>2. Sube imagen y descripcion<br>3. Configura criterios:<br>   - Completar actividades<br>   - Alcanzar calificacion<br>   - Completar curso<br>4. <strong>Habilitar acceso</strong>",
+            "tags": ["insignias", "badges", "gamificacion"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Competencias", "icon": "bi-award", "action": "competencias"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "competencias",
+            "category": "administracion",
+            "pattern": "Como gestiono competencias",
+            "keywords": [
+                "competencias", "marcos competencias", "learning outcomes",
+                "resultados aprendizaje", "objetivos", "competency framework"
+            ],
+            "response": "Para gestionar competencias:<br><br>1. <strong>Administracion > Competencias > Marcos</strong><br>2. Crea un marco de competencias<br>3. Agrega competencias al marco<br>4. En cursos, vincula actividades a competencias<br><br><strong>Seguimiento:</strong><br>- Ver progreso por estudiante<br>- Planes de aprendizaje individuales",
+            "tags": ["competencias", "objetivos", "outcomes"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Insignias", "icon": "bi-patch-check", "action": "insignias"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "informes_personalizados",
+            "category": "administracion",
+            "pattern": "Como creo informes personalizados",
+            "keywords": [
+                "informes personalizados", "reportes custom", "report builder",
+                "crear informe", "informe a medida", "reporte personalizado"
+            ],
+            "response": "Para crear informes personalizados:<br><br>1. <strong>Administracion > Informes > Generador de informes</strong><br>2. <strong>Nuevo informe</strong><br>3. Selecciona fuente de datos<br>4. Agrega columnas y filtros<br>5. Configura condiciones<br>6. Guarda y programa (opcional)<br><br><strong>Tip:</strong> Exporta a Excel/PDF.",
+            "tags": ["informes", "reportes", "analytics"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Reportes", "icon": "bi-graph-up", "action": "reportes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "gestionar_bloques",
+            "category": "administracion",
+            "pattern": "Como gestiono los bloques",
+            "keywords": [
+                "bloques", "widgets", "agregar bloque", "quitar bloque",
+                "bloque calendario", "bloque actividad", "sidebar", "panel lateral"
+            ],
+            "response": "Para gestionar bloques:<br><br>1. Activa <strong>modo edicion</strong><br>2. Clic en <strong>Agregar bloque</strong> (panel lateral)<br>3. Selecciona el bloque deseado<br><br><strong>Bloques utiles:</strong><br>- Calendario<br>- Actividad reciente<br>- Usuarios en linea<br>- Navegacion<br><br>Arrastra para reordenar.",
+            "tags": ["bloques", "widgets", "sidebar"],
+            "archetypes": ["manager", "editingteacher", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Modo edicion", "icon": "bi-pencil", "action": "modo edicion"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "suspender_usuarios",
+            "category": "administracion",
+            "pattern": "Como suspendo un usuario",
+            "keywords": [
+                "suspender usuario", "desactivar usuario", "bloquear usuario",
+                "inhabilitar cuenta", "suspender cuenta", "usuario suspendido"
+            ],
+            "response": "Para suspender un usuario:<br><br>1. <strong>Administracion > Usuarios > Examinar usuarios</strong><br>2. Busca el usuario<br>3. Clic en <strong>Editar</strong><br>4. Marca <strong>Cuenta suspendida</strong><br>5. Guardar<br><br><strong>Efecto:</strong><br>- No puede iniciar sesion<br>- Mantiene datos y matriculas<br>- Puede reactivarse luego",
+            "tags": ["suspender", "bloquear", "desactivar"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Usuarios", "icon": "bi-people", "action": "gestionar usuarios"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "eliminar_usuarios",
+            "category": "administracion",
+            "pattern": "Como elimino usuarios",
+            "keywords": [
+                "eliminar usuario", "borrar usuario", "delete user",
+                "quitar usuario", "remover usuario", "eliminar cuenta"
+            ],
+            "response": "Para eliminar usuarios:<br><br><strong>Individual:</strong><br>1. Usuarios > Examinar usuarios<br>2. Busca > Eliminar<br><br><strong>Masivo:</strong><br>1. <strong>Usuarios > Acciones masivas</strong><br>2. Filtra usuarios a eliminar<br>3. Selecciona y confirma<br><br><strong>Advertencia:</strong> Esta accion es irreversible. Los datos se pierden.",
+            "tags": ["eliminar", "borrar", "usuarios"],
+            "archetypes": ["manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Suspender", "icon": "bi-pause-circle", "action": "suspender usuario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "gdpr_privacidad",
+            "category": "administracion",
+            "pattern": "Como gestiono solicitudes de privacidad",
+            "keywords": [
+                "gdpr", "privacidad", "datos personales", "solicitud eliminacion",
+                "derecho olvido", "exportar datos usuario", "proteccion datos"
+            ],
+            "response": "Para gestionar privacidad (GDPR):<br><br>1. <strong>Administracion > Usuarios > Solicitudes de datos</strong><br><br><strong>Tipos:</strong><br>- <strong>Exportar:</strong> Descarga datos del usuario<br>- <strong>Eliminar:</strong> Borra datos personales<br><br><strong>Configurar:</strong><br>Administracion > Privacidad y politicas<br>- Retencion de datos<br>- Propositos de datos",
+            "tags": ["gdpr", "privacidad", "datos"],
+            "archetypes": ["siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Seguridad", "icon": "bi-shield", "action": "seguridad"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}

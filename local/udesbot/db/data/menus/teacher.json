@@ -1,0 +1,23 @@
+{
+    "version": "2.0.9",
+    "description": "udesbot menu for teachers",
+    "archetype": "editingteacher",
+    "menu": {
+        "title": "Menu Docente",
+        "greeting": "¡Hola profesor! ¿Necesitas ayuda con la configuracion del curso?",
+        "options": [
+            {"id": "grades", "label": "Calificar Tareas", "icon": "📝", "action": "calificar tareas", "enabled": true},
+            {"id": "students", "label": "Mis Estudiantes", "icon": "👥", "action": "ver participantes", "enabled": true},
+            {"id": "reports", "label": "Reportes", "icon": "📊", "action": "ver reportes del curso", "enabled": true},
+            {"id": "activities", "label": "Actividades", "icon": "📋", "action": "agregar actividades", "enabled": true},
+            {"id": "groups", "label": "Grupos", "icon": "👨‍👩‍👧‍👦", "action": "gestionar grupos", "enabled": true},
+            {"id": "backup", "label": "Copia de Seguridad", "icon": "💾", "action": "backup del curso", "enabled": true}
+        ]
+    },
+    "suggestions": [
+        "¿Como califico las tareas?",
+        "¿Como creo rubricas?",
+        "¿Como extiendo plazos?",
+        "¿Como gestiono grupos?"
+    ]
+}

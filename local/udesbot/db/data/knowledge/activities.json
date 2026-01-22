@@ -1,0 +1,545 @@
+{
+    "version": "3.6.0",
+    "description": "udesbot - Actividades y recursos - Expandida v3.6.0 con 33 reglas",
+    "rules": [
+        {
+            "id": "entregar_tarea",
+            "category": "tareas",
+            "pattern": "Como entrego una tarea",
+            "keywords": [
+                "entregar tarea", "subir tarea", "enviar tarea", "adjuntar archivo", "assignment",
+                "cargar tarea", "subir archivo", "enviar trabajo", "como subo mi tarea",
+                "donde entrego la tarea", "como hago para entregar", "enviar mi trabajo",
+                "subir mi entrega", "hacer entrega", "mandar tarea", "tarea como entregar"
+            ],
+            "response": "Para entregar una tarea:<br><br>1. Entra al curso y busca la <strong>Tarea</strong><br>2. Haz clic en <strong>Agregar entrega</strong><br>3. Arrastra tu archivo o haz clic para seleccionarlo<br>4. Haz clic en <strong>Guardar cambios</strong><br>5. Si se requiere: haz clic en <strong>Enviar tarea</strong><br><br><strong>Verifica:</strong> Formato correcto, tamano y fecha limite.",
+            "tags": ["tarea", "entrega"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Tareas pendientes", "icon": "bi-journal-check", "action": "mis tareas"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "estado_tarea",
+            "category": "tareas",
+            "pattern": "Como veo el estado de mi tarea",
+            "keywords": ["estado tarea", "mi entrega", "tarea enviada", "revision tarea", "entregue tarea", "ya envie", "se envio mi tarea"],
+            "response": "Para ver el estado de tu tarea:<br><br>1. Abre la tarea<br>2. Veras el resumen de entrega<br><br><strong>Estados:</strong><br>- Sin entregar: No has subido nada<br>- Borrador: Guardado, no enviado<br>- Enviado: Esperando revision<br>- Calificado: Ya revisado",
+            "tags": ["estado", "entrega"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tarea_tarde",
+            "category": "tareas",
+            "pattern": "Que pasa si entrego tarde",
+            "keywords": ["tarea tarde", "entrega tardia", "fuera plazo", "fecha vencida", "despues de la fecha", "se me paso la fecha", "no entregue a tiempo"],
+            "response": "Sobre entregas tardias:<br><br>Depende de la configuracion:<br>- <strong>Permitidas:</strong> Puedes entregar (puede haber penalizacion)<br>- <strong>Fecha estricta:</strong> No puedes entregar despues<br>- <strong>Extension:</strong> El profesor puede darte mas tiempo<br><br>Contacta al profesor ANTES si tienes problemas.",
+            "tags": ["tarde", "plazo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis profesores", "icon": "bi-person-badge", "action": "mis profesores"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "cuestionario",
+            "category": "tareas",
+            "pattern": "Como hago un cuestionario",
+            "keywords": [
+                "cuestionario", "examen", "test", "quiz", "hacer examen", "evaluacion",
+                "presentar examen", "responder cuestionario", "como presento el examen",
+                "como respondo el quiz", "como hago el test", "tomar examen", "rendir examen",
+                "como entro al examen", "como inicio el cuestionario", "comenzar examen"
+            ],
+            "response": "Para realizar un cuestionario:<br><br><strong>Antes:</strong> Verifica tiempo limite e intentos permitidos.<br><br><strong>Durante:</strong><br>1. Clic en <strong>Comenzar intento</strong><br>2. Responde las preguntas<br>3. Panel lateral muestra tu avance<br>4. Clic en <strong>Enviar todo y terminar</strong><br><br><strong>Colores:</strong> Blanco=Sin responder, Azul=Respondida",
+            "tags": ["cuestionario", "examen"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "mis calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tiempo_cuestionario",
+            "category": "tareas",
+            "pattern": "Que pasa si se acaba el tiempo",
+            "keywords": ["tiempo cuestionario", "tiempo limite", "se acabo tiempo", "temporizador", "termino tiempo", "cronometro examen"],
+            "response": "Cuando el tiempo termina:<br><br>- El cuestionario se <strong>envia automaticamente</strong><br>- Se guardan las respuestas hasta ese momento<br>- Preguntas sin responder quedan vacias<br><br><strong>Tip:</strong> No dejes preguntas para el final.",
+            "tags": ["tiempo", "limite"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "foro",
+            "category": "tareas",
+            "pattern": "Como participo en un foro",
+            "keywords": ["foro", "participar foro", "responder foro", "crear tema", "discusion", "publicar foro", "comentar foro"],
+            "response": "Para participar en un foro:<br><br><strong>Crear tema:</strong><br>1. Clic en <strong>Anadir tema de discusion</strong><br>2. Escribe asunto y mensaje<br>3. Envia<br><br><strong>Responder:</strong><br>1. Abre el tema<br>2. Clic en <strong>Responder</strong><br>3. Escribe tu respuesta",
+            "tags": ["foro", "discusion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "clase_virtual",
+            "category": "tareas",
+            "pattern": "Como entro a una clase virtual",
+            "keywords": ["bigbluebutton", "clase virtual", "videoconferencia", "sesion virtual", "clase en vivo", "zoom", "meet", "videollamada", "sesion en linea"],
+            "response": "Para entrar a una clase virtual:<br><br>1. Busca la actividad de videoconferencia<br>2. Verifica que sea la hora programada<br>3. Haz clic en <strong>Unirse a la sesion</strong><br>4. Permite acceso a microfono/camara<br><br>Las grabaciones pueden estar disponibles despues.",
+            "tags": ["videoconferencia", "virtual"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Calendario", "icon": "bi-calendar-event", "action": "calendario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "h5p",
+            "category": "tareas",
+            "pattern": "Que es H5P",
+            "keywords": ["h5p", "contenido interactivo", "interactivo", "video interactivo", "actividad interactiva"],
+            "response": "H5P es contenido interactivo:<br><br><strong>Tipos:</strong><br>- Video interactivo con preguntas<br>- Presentaciones interactivas<br>- Arrastrar y soltar<br>- Lineas de tiempo<br><br>Abre la actividad e interactua con el contenido.",
+            "tags": ["h5p", "interactivo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "taller",
+            "category": "tareas",
+            "pattern": "Como funciona el taller",
+            "keywords": ["taller", "workshop", "evaluacion pares", "coevaluacion", "evaluar companeros"],
+            "response": "El Taller tiene fases:<br><br>1. <strong>Envio:</strong> Subes tu trabajo<br>2. <strong>Evaluacion:</strong> Evaluas trabajos de companeros<br>3. <strong>Calificacion:</strong> Tu nota = tu trabajo + tus evaluaciones<br><br>Sigue las fechas de cada fase.",
+            "tags": ["taller", "pares"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "encuesta",
+            "category": "tareas",
+            "pattern": "Como completo una encuesta",
+            "keywords": ["retroalimentacion", "feedback", "encuesta", "cuestionario opinion", "llenar encuesta", "responder encuesta"],
+            "response": "Para completar una encuesta:<br><br>1. Abre la actividad<br>2. Responde todas las preguntas<br>3. Haz clic en <strong>Enviar</strong><br><br>Generalmente es anonima y NO tiene calificacion.",
+            "tags": ["encuesta", "feedback"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "scorm",
+            "category": "tareas",
+            "pattern": "Que es un SCORM",
+            "keywords": ["scorm", "paquete scorm", "contenido scorm", "modulo scorm"],
+            "response": "SCORM es un paquete de contenido interactivo:<br><br><strong>Caracteristicas:</strong><br>- Contenido multimedia<br>- Avance guardado automaticamente<br>- Puede incluir evaluaciones internas<br><br><strong>Uso:</strong><br>1. Haz clic en la actividad SCORM<br>2. Clic en <strong>Entrar</strong><br>3. Navega por el contenido<br>4. Tu progreso se guarda automaticamente",
+            "tags": ["scorm", "paquete"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "wiki",
+            "category": "tareas",
+            "pattern": "Como uso la wiki",
+            "keywords": ["wiki", "crear wiki", "editar wiki", "wiki colaborativa"],
+            "response": "La Wiki es una herramienta colaborativa:<br><br><strong>Para editar:</strong><br>1. Abre la wiki<br>2. Clic en <strong>Editar</strong><br>3. Modifica el contenido<br>4. Guarda cambios<br><br><strong>Historial:</strong> Puedes ver versiones anteriores y quien edito.",
+            "tags": ["wiki", "colaborativo"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "glosario",
+            "category": "tareas",
+            "pattern": "Como uso el glosario",
+            "keywords": ["glosario", "agregar termino", "definicion", "diccionario curso"],
+            "response": "El Glosario es un diccionario del curso:<br><br><strong>Agregar termino:</strong><br>1. Abre el glosario<br>2. Clic en <strong>Agregar entrada</strong><br>3. Escribe el termino y definicion<br>4. Guarda<br><br>Los terminos pueden aparecer resaltados en el curso.",
+            "tags": ["glosario", "definiciones"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_tarea",
+            "category": "tareas",
+            "pattern": "Como creo una tarea",
+            "keywords": [
+                "crear tarea", "nueva tarea", "agregar tarea", "configurar tarea",
+                "asignar tarea", "poner tarea", "anadir tarea", "assignment crear",
+                "como pongo una tarea", "crear asignacion"
+            ],
+            "response": "Para crear una tarea como docente:<br><br>1. Activa el <strong>modo edicion</strong><br>2. En la seccion deseada, clic en <strong>Añadir actividad</strong><br>3. Selecciona <strong>Tarea</strong><br>4. Configura:<br>   - Nombre y descripcion<br>   - Fechas de entrega<br>   - Tipo de entrega (archivo/texto)<br>   - Calificacion<br>5. Guarda<br><br><strong>Tip:</strong> Usa rubricas para evaluar.",
+            "tags": ["crear", "tarea", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "como creo un cuestionario"},
+                {"text": "Ver entregas", "icon": "bi-file-earmark-check", "action": "ver entregas de tarea"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_entregas_tarea",
+            "category": "tareas",
+            "pattern": "Como veo las entregas de una tarea",
+            "keywords": [
+                "ver entregas", "entregas tarea", "revisar tareas", "calificar tareas",
+                "estudiantes entregaron", "quien entrego", "lista entregas",
+                "revisar entregas", "ver trabajos estudiantes"
+            ],
+            "response": "Para ver y calificar entregas:<br><br>1. Abre la tarea<br>2. Clic en <strong>Ver todas las entregas</strong><br><br><strong>Puedes:</strong><br>- Filtrar por estado (entregado, pendiente, calificado)<br>- Descargar todas las entregas<br>- Calificar individual o masivamente<br>- Dar extension de tiempo<br><br><strong>Tip:</strong> Usa calificacion rapida.",
+            "tags": ["entregas", "calificar", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Libro calificaciones", "icon": "bi-journal-text", "action": "libro de calificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_cuestionario_docente",
+            "category": "tareas",
+            "pattern": "Como creo un cuestionario",
+            "keywords": [
+                "crear cuestionario", "crear examen", "crear test", "nuevo cuestionario",
+                "hacer quiz", "configurar examen", "agregar cuestionario", "poner examen",
+                "como pongo un examen", "disenar cuestionario"
+            ],
+            "response": "Para crear un cuestionario:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > Cuestionario</strong><br>3. Configura:<br>   - Nombre y descripcion<br>   - Fechas (apertura/cierre)<br>   - Limite de tiempo<br>   - Intentos permitidos<br>4. Guarda y luego <strong>Editar cuestionario</strong><br>5. Añade preguntas del banco o crea nuevas",
+            "tags": ["cuestionario", "examen", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Banco preguntas", "icon": "bi-collection", "action": "banco de preguntas"},
+                {"text": "Tipos de preguntas", "icon": "bi-question-square", "action": "tipos de preguntas"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "banco_preguntas",
+            "category": "tareas",
+            "pattern": "Como uso el banco de preguntas",
+            "keywords": [
+                "banco preguntas", "crear preguntas", "question bank", "preguntas guardadas",
+                "reutilizar preguntas", "organizar preguntas", "importar preguntas"
+            ],
+            "response": "El banco de preguntas permite reutilizar preguntas:<br><br><strong>Acceder:</strong><br>Curso > Administracion > <strong>Banco de preguntas</strong><br><br><strong>Organizar:</strong><br>- Crea categorias por tema<br>- Mueve preguntas entre categorias<br><br><strong>Importar:</strong><br>- Formato GIFT, Moodle XML, Aiken<br><br><strong>Exportar:</strong><br>- Para reusar en otros cursos",
+            "tags": ["preguntas", "banco", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "crear cuestionario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "tipos_preguntas",
+            "category": "tareas",
+            "pattern": "Que tipos de preguntas hay",
+            "keywords": [
+                "tipos preguntas", "pregunta multiple", "verdadero falso", "pregunta abierta",
+                "ensayo", "emparejamiento", "respuesta corta", "numerica"
+            ],
+            "response": "Tipos de preguntas en cuestionarios:<br><br><strong>Automaticas:</strong><br>- <strong>Opcion multiple:</strong> Una o varias correctas<br>- <strong>Verdadero/Falso:</strong> Dos opciones<br>- <strong>Emparejamiento:</strong> Relacionar columnas<br>- <strong>Respuesta corta:</strong> Texto breve<br>- <strong>Numerica:</strong> Numero exacto o rango<br><br><strong>Manual:</strong><br>- <strong>Ensayo:</strong> Texto largo (revision manual)",
+            "tags": ["preguntas", "tipos", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "crear cuestionario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "modo_edicion",
+            "category": "tareas",
+            "pattern": "Como activo el modo edicion",
+            "keywords": [
+                "modo edicion", "editar curso", "activar edicion", "turn editing on",
+                "modificar curso", "agregar contenido", "anadir actividad"
+            ],
+            "response": "Para activar el modo edicion:<br><br>1. Entra a tu curso<br>2. Clic en <strong>Modo de edicion</strong> (boton superior derecho)<br><br><strong>Con modo edicion puedes:</strong><br>- Agregar actividades y recursos<br>- Mover contenido<br>- Editar secciones<br>- Ocultar/mostrar elementos<br>- Eliminar contenido",
+            "tags": ["edicion", "curso", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear tarea", "icon": "bi-file-earmark-plus", "action": "crear tarea"},
+                {"text": "Crear cuestionario", "icon": "bi-question-circle", "action": "crear cuestionario"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "subir_archivo_recurso",
+            "category": "tareas",
+            "pattern": "Como subo un archivo al curso",
+            "keywords": [
+                "subir archivo curso", "agregar pdf", "subir documento", "agregar recurso",
+                "subir material", "compartir archivo", "subir presentacion", "agregar archivo"
+            ],
+            "response": "Para subir un archivo al curso:<br><br>1. Activa el <strong>modo edicion</strong><br>2. En la seccion deseada, clic en <strong>Añadir actividad o recurso</strong><br>3. Selecciona <strong>Archivo</strong><br>4. Arrastra el archivo o seleccionalo<br>5. Configura opciones de visualizacion<br>6. Guarda<br><br><strong>Tip:</strong> Puedes subir PDFs, documentos, videos, etc.",
+            "tags": ["archivo", "recurso", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Crear carpeta", "icon": "bi-folder-plus", "action": "crear carpeta"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "libro_calificaciones",
+            "category": "tareas",
+            "pattern": "Como uso el libro de calificaciones",
+            "keywords": [
+                "libro calificaciones", "gradebook", "configurar calificaciones",
+                "ponderacion notas", "categorias calificacion", "calcular notas"
+            ],
+            "response": "El libro de calificaciones:<br><br><strong>Acceder:</strong><br>Curso > <strong>Calificaciones</strong> > <strong>Configuracion</strong><br><br><strong>Puedes:</strong><br>- Crear categorias (Parcial 1, Tareas, etc.)<br>- Asignar pesos/ponderaciones<br>- Excluir calificaciones<br>- Ver informe de estudiantes<br>- Exportar a Excel<br><br><strong>Vista:</strong> Informe del calificador",
+            "tags": ["calificaciones", "libro", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver entregas", "icon": "bi-file-earmark-check", "action": "ver entregas"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "leccion",
+            "category": "actividades",
+            "pattern": "Como uso la leccion",
+            "keywords": [
+                "leccion", "lesson", "contenido interactivo", "leccion moodle",
+                "paginas leccion", "ramificacion", "leccion con preguntas"
+            ],
+            "response": "La <strong>Leccion</strong> presenta contenido con preguntas:<br><br><strong>Como estudiante:</strong><br>1. Abre la leccion<br>2. Lee cada pagina<br>3. Responde preguntas para avanzar<br>4. Navega segun tus respuestas<br><br><strong>Tip:</strong> Respuestas correctas te llevan adelante, incorrectas pueden regresarte.",
+            "tags": ["leccion", "interactivo", "contenido"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "base_datos",
+            "category": "actividades",
+            "pattern": "Como uso la base de datos",
+            "keywords": [
+                "base datos", "database", "agregar entrada", "campos base datos",
+                "registros", "coleccion datos", "formulario base datos"
+            ],
+            "response": "La <strong>Base de datos</strong> permite crear colecciones:<br><br><strong>Como estudiante:</strong><br>1. Abre la base de datos<br>2. Clic en <strong>Agregar entrada</strong><br>3. Completa los campos<br>4. Guarda<br><br><strong>Puedes:</strong> Ver entradas de otros, buscar, filtrar, comentar.",
+            "tags": ["base datos", "database", "entradas"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "chat",
+            "category": "actividades",
+            "pattern": "Como uso el chat",
+            "keywords": [
+                "chat", "sala chat", "conversacion tiempo real", "chat moodle",
+                "chatear", "mensaje instantaneo", "chat curso"
+            ],
+            "response": "Para usar el <strong>Chat</strong>:<br><br>1. Abre la actividad Chat<br>2. Clic en <strong>Entrar al chat</strong><br>3. Escribe tu mensaje<br>4. Presiona Enter para enviar<br><br><strong>Nota:</strong> Es en tiempo real. Todos los presentes ven los mensajes.",
+            "tags": ["chat", "tiempo real", "mensajes"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mensajes", "icon": "bi-chat", "action": "mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "eleccion",
+            "category": "actividades",
+            "pattern": "Como respondo una eleccion",
+            "keywords": [
+                "eleccion", "choice", "votacion", "encuesta simple", "seleccionar opcion",
+                "elegir opcion", "poll", "sondeo"
+            ],
+            "response": "Para responder una <strong>Eleccion</strong>:<br><br>1. Abre la actividad<br>2. Lee la pregunta<br>3. Selecciona tu opcion<br>4. Clic en <strong>Guardar mi eleccion</strong><br><br><strong>Nota:</strong> Algunas permiten cambiar respuesta, otras no. Revisa antes de enviar.",
+            "tags": ["eleccion", "votacion", "encuesta"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "consulta_feedback",
+            "category": "actividades",
+            "pattern": "Como respondo una consulta",
+            "keywords": [
+                "consulta", "feedback", "encuesta moodle", "cuestionario anonimo",
+                "evaluacion curso", "opinion", "formulario feedback"
+            ],
+            "response": "Para responder una <strong>Consulta/Feedback</strong>:<br><br>1. Abre la actividad<br>2. Responde cada pregunta<br>3. Clic en <strong>Enviar respuestas</strong><br><br><strong>Tipos de preguntas:</strong><br>- Opcion multiple<br>- Texto corto/largo<br>- Escala numerica<br><br>Generalmente es anonimo.",
+            "tags": ["consulta", "feedback", "encuesta"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_pagina",
+            "category": "recursos",
+            "pattern": "Como creo una pagina",
+            "keywords": [
+                "crear pagina", "page", "agregar pagina", "pagina html",
+                "contenido pagina", "recurso pagina", "pagina texto"
+            ],
+            "response": "Para crear una <strong>Pagina</strong>:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > Pagina</strong><br>3. Escribe nombre<br>4. Agrega contenido con el editor<br>5. Puedes insertar imagenes, videos, enlaces<br>6. Guardar<br><br><strong>Ideal para:</strong> Instrucciones, explicaciones, contenido HTML.",
+            "tags": ["pagina", "recurso", "contenido"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Modo edicion", "icon": "bi-pencil", "action": "modo edicion"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_etiqueta",
+            "category": "recursos",
+            "pattern": "Como creo una etiqueta",
+            "keywords": [
+                "etiqueta", "label", "separador", "titulo seccion",
+                "texto decorativo", "banner", "agregar etiqueta"
+            ],
+            "response": "Para crear una <strong>Etiqueta</strong>:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > Etiqueta</strong><br>3. Agrega texto, imagenes o multimedia<br>4. Guardar<br><br><strong>Usos:</strong><br>- Separar secciones<br>- Agregar instrucciones visuales<br>- Insertar videos/imagenes en el curso",
+            "tags": ["etiqueta", "label", "separador"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_url",
+            "category": "recursos",
+            "pattern": "Como agrego un enlace URL",
+            "keywords": [
+                "url", "enlace", "link", "agregar url", "enlace externo",
+                "pagina web", "sitio externo", "vincular pagina"
+            ],
+            "response": "Para agregar un <strong>Enlace URL</strong>:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > URL</strong><br>3. Escribe nombre descriptivo<br>4. Pega la URL completa (con https://)<br>5. Elige: abrir en misma ventana o nueva<br>6. Guardar",
+            "tags": ["url", "enlace", "link"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_carpeta",
+            "category": "recursos",
+            "pattern": "Como creo una carpeta de archivos",
+            "keywords": [
+                "carpeta", "folder", "carpeta archivos", "organizar archivos",
+                "multiples archivos", "directorio", "agregar carpeta"
+            ],
+            "response": "Para crear una <strong>Carpeta</strong>:<br><br>1. Activa <strong>modo edicion</strong><br>2. <strong>Añadir actividad > Carpeta</strong><br>3. Asigna nombre<br>4. Arrastra archivos o crea subcarpetas<br>5. Guardar<br><br><strong>Ideal para:</strong> Agrupar materiales relacionados, lecturas, recursos complementarios.",
+            "tags": ["carpeta", "folder", "archivos"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Subir archivo", "icon": "bi-upload", "action": "subir archivo"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "restricciones_acceso",
+            "category": "configuracion",
+            "pattern": "Como configuro restricciones de acceso",
+            "keywords": [
+                "restricciones", "acceso condicional", "prerequisitos", "condiciones acceso",
+                "bloquear actividad", "desbloquear", "disponibilidad"
+            ],
+            "response": "Para configurar <strong>Restricciones de acceso</strong>:<br><br>1. Edita la actividad/recurso<br>2. Busca <strong>Restriccion de acceso</strong><br>3. <strong>Agregar restriccion</strong>:<br>   - Fecha<br>   - Calificacion<br>   - Completar otra actividad<br>   - Grupo/agrupamiento<br>   - Perfil de usuario<br>4. Guardar",
+            "tags": ["restricciones", "acceso", "condiciones"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Modo edicion", "icon": "bi-pencil", "action": "modo edicion"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "completar_actividad",
+            "category": "configuracion",
+            "pattern": "Como configuro finalizacion de actividad",
+            "keywords": [
+                "finalizacion actividad", "completar actividad", "activity completion",
+                "marcar completado", "progreso actividad", "rastreo finalizacion"
+            ],
+            "response": "Para configurar <strong>Finalizacion de actividad</strong>:<br><br>1. Edita la actividad<br>2. Busca <strong>Finalizacion de actividad</strong><br>3. Elige condicion:<br>   - Manual: Estudiante marca<br>   - Automatica: Al ver, entregar, aprobar<br>4. Guardar<br><br><strong>Requisito:</strong> Rastreo de finalizacion activo en el curso.",
+            "tags": ["finalizacion", "completar", "progreso"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Progreso", "icon": "bi-check-circle", "action": "progreso curso"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "crear_leccion_docente",
+            "category": "actividades",
+            "pattern": "Como creo una leccion como docente",
+            "keywords": [
+                "crear leccion", "nueva leccion", "lesson docente", "disenar leccion",
+                "paginas leccion", "agregar leccion", "leccion ramificada"
+            ],
+            "response": "Para crear una <strong>Leccion</strong>:<br><br>1. <strong>Añadir actividad > Leccion</strong><br>2. Configura nombre y opciones<br>3. <strong>Agregar paginas</strong>:<br>   - Pagina de contenido<br>   - Pagina de pregunta<br>   - Cluster (ramificacion)<br>4. Define flujo entre paginas<br>5. Guarda<br><br><strong>Tip:</strong> Usa ramificacion para rutas personalizadas.",
+            "tags": ["leccion", "crear", "docente"],
+            "archetypes": ["teacher", "editingteacher", "manager", "siteadmin"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Modo edicion", "icon": "bi-pencil", "action": "modo edicion"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}
