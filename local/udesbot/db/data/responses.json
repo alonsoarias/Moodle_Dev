@@ -1,0 +1,157 @@
+{
+    "version": "1.0.0",
+    "description": "udesbot response templates - fallback and contextual responses",
+    "lang": "es",
+    "fallback": {
+        "no_match": [
+            "Hmm, no estoy seguro de entender tu pregunta. ¿Podrías reformularla?",
+            "Disculpa, no tengo información sobre eso. ¿Puedo ayudarte con algo más?",
+            "No encontré una respuesta exacta. ¿Podrías darme más detalles?",
+            "No estoy seguro de cómo ayudarte con eso. ¿Hay algo más en lo que pueda asistirte?",
+            "Esa pregunta me tomó por sorpresa. ¿Podrías explicar un poco más lo que necesitas?"
+        ],
+        "low_confidence": [
+            "Creo que puedo ayudarte, pero no estoy completamente seguro. ¿Es esto lo que buscas?",
+            "Puede que esto responda tu pregunta. Si no, por favor dime más detalles.",
+            "Encontré algo que podría ser útil. ¿Es esto lo que necesitas?"
+        ],
+        "suggestions_intro": [
+            "Tal vez te interese alguna de estas opciones:",
+            "Quizás pueda ayudarte con alguna de estas consultas:",
+            "Puede que alguna de estas opciones sea lo que buscas:"
+        ],
+        "try_again": [
+            "Intenta reformular tu pregunta de otra manera.",
+            "Prueba a preguntar de forma diferente.",
+            "Si me das más contexto, podré ayudarte mejor."
+        ]
+    },
+    "greetings": {
+        "morning": "Buenos días",
+        "afternoon": "Buenas tardes",
+        "evening": "Buenas noches",
+        "templates": [
+            "{greeting}, {name}. ¿En qué puedo ayudarte hoy?",
+            "{greeting}, {name}. Estoy aquí para asistirte. ¿Qué necesitas?",
+            "¡{greeting}! ¿Cómo puedo ayudarte, {name}?",
+            "{greeting}, {name}. ¿Tienes alguna pregunta o necesitas orientación?"
+        ]
+    },
+    "farewells": [
+        "¡Hasta pronto! Recuerda que estoy aquí cuando me necesites.",
+        "¡Que te vaya bien! Estaré disponible para cuando regreses.",
+        "¡Éxito en tus estudios! Aquí estaré si necesitas algo.",
+        "¡Nos vemos! Espero haberte sido de ayuda."
+    ],
+    "thanks": [
+        "¡De nada! Me alegra poder ayudarte.",
+        "¡Es un placer! Si tienes más preguntas, aquí estoy.",
+        "¡Para eso estoy! ¿Hay algo más en lo que pueda asistirte?",
+        "¡Encantado de ayudar! No dudes en consultarme si necesitas algo más."
+    ],
+    "empathetic": [
+        "Entiendo tu frustración, {name}. Vamos a resolver esto juntos.",
+        "Lamento que estés teniendo dificultades. Déjame ayudarte.",
+        "Comprendo que puede ser complicado. ¿Qué específicamente está pasando?",
+        "Estoy aquí para ayudarte. Cuéntame más sobre el problema."
+    ],
+    "clarification": [
+        "¿Podrías darme más detalles sobre lo que necesitas?",
+        "Necesito un poco más de información para ayudarte mejor. ¿Puedes ser más específico?",
+        "Para darte la mejor ayuda, ¿podrías explicarme un poco más?",
+        "No quiero darte información incorrecta. ¿Puedes aclararme qué es exactamente lo que buscas?"
+    ],
+    "affirmation": {
+        "templates": [
+            "Perfecto, ¿en qué más puedo ayudarte?",
+            "¡Genial! Si tienes otra pregunta, aquí estoy.",
+            "Excelente. ¿Hay algo más que necesites?",
+            "Muy bien. ¿Puedo asistirte con algo más?"
+        ]
+    },
+    "negation": {
+        "templates": [
+            "De acuerdo. ¿Hay algo diferente en lo que pueda ayudarte?",
+            "Entendido. ¿Qué otra cosa necesitas?",
+            "Vale, no hay problema. ¿En qué más puedo asistirte?",
+            "OK. Cuéntame entonces qué es lo que buscas."
+        ]
+    },
+    "encouragement": [
+        "¡Ánimo! Sé que lo puedes lograr.",
+        "No te preocupes, paso a paso llegarás a la meta.",
+        "Recuerda que cada desafío es una oportunidad de aprendizaje.",
+        "¡Confía en ti! Estás más cerca de lo que crees."
+    ],
+    "technical_issue": {
+        "intro": "Parece que tienes un problema técnico. Aquí hay algunas soluciones:",
+        "steps": [
+            "1. Intenta actualizar la página (F5 o Ctrl+R)",
+            "2. Limpia la caché de tu navegador",
+            "3. Prueba en modo incógnito o en otro navegador",
+            "4. Verifica tu conexión a internet"
+        ],
+        "contact_support": "Si el problema persiste, contacta a soporte técnico."
+    },
+    "topic_suggestions": {
+        "assignments": [
+            {"text": "Ver mis tareas pendientes", "action": "tareas pendientes"},
+            {"text": "¿Cómo entrego una tarea?", "action": "como entrego una tarea"},
+            {"text": "Próximas fechas de entrega", "action": "fechas de entrega"}
+        ],
+        "grades": [
+            {"text": "Ver mis calificaciones", "action": "mis calificaciones"},
+            {"text": "Mi promedio actual", "action": "mi promedio"},
+            {"text": "Retroalimentación del profesor", "action": "feedback del profesor"}
+        ],
+        "calendar": [
+            {"text": "Eventos de la semana", "action": "eventos esta semana"},
+            {"text": "Próximos exámenes", "action": "proximos examenes"},
+            {"text": "Ver calendario completo", "action": "calendario"}
+        ],
+        "course": [
+            {"text": "Mis cursos activos", "action": "mis cursos"},
+            {"text": "Contenido del curso", "action": "contenido del curso"},
+            {"text": "Información del curso", "action": "informacion del curso"}
+        ],
+        "messages": [
+            {"text": "Mis mensajes", "action": "mis mensajes"},
+            {"text": "Contactar al profesor", "action": "contactar profesor"},
+            {"text": "Notificaciones", "action": "notificaciones"}
+        ],
+        "general": [
+            {"text": "Mis tareas", "action": "mis tareas"},
+            {"text": "Mi calendario", "action": "calendario"},
+            {"text": "Mis calificaciones", "action": "calificaciones"}
+        ]
+    },
+    "quick_actions": {
+        "student": [
+            {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+            {"text": "Tareas Pendientes", "icon": "bi-list-task", "action": "tareas pendientes"},
+            {"text": "Calificaciones", "icon": "bi-bar-chart", "action": "calificaciones"},
+            {"text": "Calendario", "icon": "bi-calendar3", "action": "calendario"}
+        ],
+        "teacher": [
+            {"text": "Mis Cursos", "icon": "bi-book", "action": "mis cursos"},
+            {"text": "Calificar Tareas", "icon": "bi-check2-square", "action": "calificar tareas"},
+            {"text": "Participantes", "icon": "bi-people", "action": "participantes"},
+            {"text": "Informes", "icon": "bi-graph-up", "action": "informes del curso"}
+        ]
+    },
+    "help_topics": [
+        {"text": "¿Cómo entrego una tarea?", "action": "como entrego una tarea"},
+        {"text": "¿Dónde veo mis calificaciones?", "action": "ver calificaciones"},
+        {"text": "¿Cómo contacto al profesor?", "action": "contactar profesor"},
+        {"text": "¿Cómo participar en un foro?", "action": "participar en foro"},
+        {"text": "¿Cómo hago un quiz?", "action": "hacer un quiz"},
+        {"text": "¿Dónde veo mi progreso?", "action": "mi progreso"}
+    ],
+    "error_messages": {
+        "session_expired": "Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.",
+        "permission_denied": "No tienes permisos para acceder a esta sección.",
+        "course_not_found": "No se encontró el curso especificado.",
+        "network_error": "Error de conexión. Verifica tu conexión a internet.",
+        "generic_error": "Ha ocurrido un error. Por favor, intenta de nuevo."
+    }
+}

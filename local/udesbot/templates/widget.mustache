@@ -1,0 +1,187 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_udesbot/widget
+
+    udesbot chat widget template.
+
+    @package    local_udesbot
+    @author     Alonso Arias <soporte@orioncloud.com.co>
+    @copyright  2025 OrionCloud<https://orioncloud.com.co>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * botname - The name of the bot
+    * widgetlabel - The label for the widget button
+    * primarycolor - Primary color for the widget
+    * serviceurl - URL to the AJAX service
+    * sesskey - Session key for AJAX requests
+    * greetingmessage - Initial greeting message
+}}
+<div id="udesbot-chat" style="display:none;
+     --udesbot-primary: {{primarycolor}};
+     --udesbot-secondary: {{secondarycolor}};
+     --udesbot-text: {{textcolor}};
+     --udesbot-background: {{backgroundcolor}};
+     --udesbot-user: {{usercolor}};
+     --udesbot-bot: {{botcolor}};"
+     data-serviceurl="{{serviceurl}}"
+     data-historyurl="{{historyurl}}"
+     data-shortcutsurl="{{shortcutsurl}}"
+     data-sesskey="{{sesskey}}"
+     data-botname="{{botname}}"
+     data-courseid="{{courseid}}"
+     data-userrole="{{userrolearchetype}}"
+     data-inactivity-timeout="{{inactivitytimeout}}"
+     data-enable-history="{{enablehistory}}"
+     data-userid="{{userid}}"
+     data-userfirstname="{{userfirstname}}"
+     data-userlastname="{{userlastname}}"
+     data-userfullname="{{userfullname}}"
+     data-userrolearchetype="{{userrolearchetype}}"
+     data-feedbackurl="{{feedbackurl}}"
+     data-sound-enabled="{{soundenabled}}"
+     class="udesbot-role-{{userrolearchetype}}">
+
+    <!-- Chat popup panel -->
+    <div class="udesbot-popup">
+        <!-- Header -->
+        <div class="udesbot-header">
+            <div class="udesbot-info">
+                <span class="udesbot-avatar">
+                    {{#widgeticon}}
+                        {{#isdefault}}
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                        </svg>
+                        {{/isdefault}}
+                        {{#isemoji}}
+                        <span class="udesbot-emoji-icon">{{iconcode}}</span>
+                        {{/isemoji}}
+                        {{#isbootstrap}}
+                        <i class="bi {{iconcode}} udesbot-bs-icon"></i>
+                        {{/isbootstrap}}
+                        {{#iscustom}}
+                        <img src="{{iconurl}}" width="32" height="32" alt="{{botname}}" class="udesbot-custom-icon">
+                        {{/iscustom}}
+                    {{/widgeticon}}
+                </span>
+                <div class="udesbot-namearea">
+                    <span class="udesbot-name">{{botname}}</span>
+                    <span class="udesbot-status">{{#str}}online, local_udesbot{{/str}}</span>
+                </div>
+            </div>
+            <div class="udesbot-actions">
+                <a href="#" id="udesbot-export" class="udesbot-action-btn" title="{{#str}}exportchat, local_udesbot{{/str}}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                </a>
+                <a href="#" id="udesbot-clear" class="udesbot-action-btn" title="{{#str}}clearhistory, local_udesbot{{/str}}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                </a>
+                <a href="#" id="udesbot-close" class="udesbot-action-btn" title="{{#str}}close, core{{/str}}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages area -->
+        <div class="udesbot-messages" id="udesbot-messages">
+            <!-- Initial greeting -->
+            <div class="udesbot-message udesbot-bot">
+                <div class="udesbot-message-content">
+                    {{{greetingmessage}}}
+                </div>
+            </div>
+
+            <!-- Typing indicator (v2.0.0) -->
+            <div class="udesbot-typing" id="udesbot-typing" style="display:none">
+                <div class="udesbot-typing-dots">
+                    <span class="udesbot-typing-dot"></span>
+                    <span class="udesbot-typing-dot"></span>
+                    <span class="udesbot-typing-dot"></span>
+                </div>
+            </div>
+        </div>
+
+        {{#mascot}}
+            {{#enabled}}
+            <!-- Mascot container (v2.0.1) - positioned outside messages area to stay visible -->
+            <div class="udesbot-mascot-container"
+                 id="udesbot-mascot"
+                 data-type="{{type}}"
+                 data-state="idle"
+                 role="img"
+                 aria-label="{{#str}}mascot_aria_label, local_udesbot{{/str}}">
+                <!-- SVG mascot inline -->
+                <div class="udesbot-mascot-svg">
+                    {{{svgcontent}}}
+                </div>
+
+                <!-- Tooltip for suggestions -->
+                <div class="udesbot-mascot-tooltip" id="udesbot-mascot-tooltip">
+                    <div class="tooltip-content"></div>
+                    <div class="tooltip-arrow"></div>
+                </div>
+            </div>
+            {{/enabled}}
+        {{/mascot}}
+
+        <!-- Input area -->
+        <div class="udesbot-sendarea">
+            <textarea id="udesbot-textarea"
+                      placeholder="{{#str}}typeaquestion, local_udesbot{{/str}}"
+                      rows="1"></textarea>
+            <div id="udesbot-send" class="udesbot-send-btn" title="{{#str}}send, core{{/str}}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div class="udesbot-loading" id="udesbot-loading" style="display:none">
+            <div class="udesbot-spinner"></div>
+        </div>
+
+        <!-- Credits (v2.0.4, updated v3.8.0) -->
+        <div class="udesbot-credits">
+            {{#str}}developedby, local_udesbot{{/str}}
+            <a href="https://udes.edu.co" target="_blank" rel="noopener">Universidad de Santander - UDES</a>
+        </div>
+    </div>
+
+    <!-- Floating button -->
+    <div id="udesbot-btn">
+        <span class="udesbot-open-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+            </svg>
+        </span>
+        <span class="udesbot-close-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </span>
+    </div>
+</div>

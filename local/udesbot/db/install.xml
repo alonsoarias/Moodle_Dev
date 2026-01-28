@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/udesbot/db" VERSION="20251221" COMMENT="XMLDB file for Moodle local/udesbot"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_udesbot_category" COMMENT="Categories for organizing rules">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="parent" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Parent category ID"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="parent_fk" TYPE="foreign" FIELDS="parent" REFTABLE="local_udesbot_category" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_udesbot_rule" COMMENT="Basic rules for the udesbot">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Category this rule belongs to"/>
+        <FIELD NAME="pattern" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The question pattern to match"/>
+        <FIELD NAME="keywords" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Additional keywords for matching (one per line)"/>
+        <FIELD NAME="response" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The response text"/>
+        <FIELD NAME="tags" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated tags for searching"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Is this rule enabled (0/1)"/>
+        <FIELD NAME="showoptions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Show quick reply options after this response"/>
+        <FIELD NAME="contextaware" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=use context data in response"/>
+        <FIELD NAME="dynamicresponse" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=response has placeholders"/>
+        <FIELD NAME="requiredcontext" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Required context: site, course, activity"/>
+        <FIELD NAME="roles" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated role shortnames (student,teacher,manager)"/>
+        <FIELD NAME="courses" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated course IDs (empty = all courses)"/>
+        <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="es" SEQUENCE="false" COMMENT="Language code"/>
+        <FIELD NAME="langparent" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Parent rule ID for translations"/>
+        <FIELD NAME="helpfulcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of helpful feedback"/>
+        <FIELD NAME="nothelpfulcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of not helpful feedback"/>
+        <FIELD NAME="priority" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Manual priority for rule ordering"/>
+        <FIELD NAME="needs_review" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Flag for rules needing review"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="categoryid_fk" TYPE="foreign" FIELDS="categoryid" REFTABLE="local_udesbot_category" REFFIELDS="id"/>
+        <KEY NAME="langparent_fk" TYPE="foreign" FIELDS="langparent" REFTABLE="local_udesbot_rule" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
+        <INDEX NAME="contextaware_idx" UNIQUE="false" FIELDS="contextaware"/>
+        <INDEX NAME="lang_idx" UNIQUE="false" FIELDS="lang"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_udesbot_log" COMMENT="Log of bot conversations">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User who asked"/>
+        <FIELD NAME="question" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Question asked"/>
+        <FIELD NAME="response" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Bot response"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Rule matched (null if no match)"/>
+        <FIELD NAME="confidence" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="false" SEQUENCE="false" COMMENT="Match confidence 0-1"/>
+        <FIELD NAME="matched" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=matched rule, 0=no match"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="ruleid_fk" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_udesbot_rule" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="matched_idx" UNIQUE="false" FIELDS="matched"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_udesbot_option" COMMENT="Quick reply options for rules">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Rule that shows this option"/>
+        <FIELD NAME="text" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Button text"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Action text to send when clicked"/>
+        <FIELD NAME="targetruleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Rule to trigger when clicked"/>
+        <FIELD NAME="icon" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Emoji or icon"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="ruleid_fk" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_udesbot_rule" REFFIELDS="id"/>
+        <KEY NAME="targetruleid_fk" TYPE="foreign" FIELDS="targetruleid" REFTABLE="local_udesbot_rule" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_udesbot_shortcut" COMMENT="Quick shortcuts to Moodle resources">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Shortcut name"/>
+        <FIELD NAME="keywords" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Keywords to trigger shortcut (one per line)"/>
+        <FIELD NAME="actiontype" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Action type: assignments, grades, calendar, messages, course"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Description of what this shortcut does"/>
+        <FIELD NAME="icon" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Emoji or icon for the shortcut"/>
+        <FIELD NAME="roles" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated role archetypes that can use this shortcut"/>
+        <FIELD NAME="context" TYPE="char" LENGTH="20" NOTNULL="false" DEFAULT="any" SEQUENCE="false" COMMENT="Required context: any, course, activity"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="actiontype_idx" UNIQUE="false" FIELDS="actiontype"/>
+        <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
+        <INDEX NAME="sortorder_idx" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_udesbot_theme" COMMENT="Visual themes for widget">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="primarycolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="secondarycolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="textcolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="backgroundcolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="usercolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="botcolor" TYPE="char" LENGTH="7" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="isdefault" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="widgeticontype" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="default" SEQUENCE="false" COMMENT="Type of widget header icon: default, custom, emoji, fontawesome"/>
+        <FIELD NAME="widgeticonurl" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="URL or code for custom icon"/>
+        <FIELD NAME="mascottype" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="none" SEQUENCE="false" COMMENT="Type of mascot: none, clippy, robot, owl, custom"/>
+        <FIELD NAME="mascoturl" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="URL to custom mascot SVG"/>
+        <FIELD NAME="mascotenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether mascot is enabled"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="isdefault_idx" UNIQUE="false" FIELDS="isdefault"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_udesbot_feedback" COMMENT="User feedback on bot responses (v2.0.0)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User who submitted feedback"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Rule being rated"/>
+        <FIELD NAME="helpful" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=helpful, 0=not helpful"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="ruleid_fk" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_udesbot_rule" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_ruleid_idx" UNIQUE="false" FIELDS="userid, ruleid"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_udesbot_context" COMMENT="Conversation context for improved bot behavior (v3.0.0)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User ID"/>
+        <FIELD NAME="sessionid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Session identifier"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Course ID"/>
+        <FIELD NAME="state" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON encoded conversation state"/>
+        <FIELD NAME="last_topic" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Last detected topic"/>
+        <FIELD NAME="last_ruleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Last matched rule ID"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="last_ruleid_fk" TYPE="foreign" FIELDS="last_ruleid" REFTABLE="local_udesbot_rule" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid_sessionid_idx" UNIQUE="true" FIELDS="userid, sessionid"/>
+        <INDEX NAME="timemodified_idx" UNIQUE="false" FIELDS="timemodified"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_udesbot_pattern" COMMENT="Knowledge base patterns for bot NLP (v3.2.0)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Pattern type: intent, topic, sentiment, stopword, abbreviation, synonym, entity, conversation"/>
+        <FIELD NAME="patternkey" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Pattern key/identifier"/>
+        <FIELD NAME="patterndata" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="JSON encoded pattern data"/>
+        <FIELD NAME="weight" TYPE="number" LENGTH="5" DECIMALS="2" NOTNULL="true" DEFAULT="1.00" SEQUENCE="false" COMMENT="Pattern weight/priority"/>
+        <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="es" SEQUENCE="false" COMMENT="Language code"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="type_idx" UNIQUE="false" FIELDS="type"/>
+        <INDEX NAME="type_key_idx" UNIQUE="true" FIELDS="type, patternkey, lang"/>
+        <INDEX NAME="enabled_idx" UNIQUE="false" FIELDS="enabled"/>
+        <INDEX NAME="lang_idx" UNIQUE="false" FIELDS="lang"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

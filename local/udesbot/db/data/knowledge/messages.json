@@ -1,0 +1,262 @@
+{
+    "version": "3.6.0",
+    "description": "udesbot - Mensajeria y comunicacion",
+    "rules": [
+        {
+            "id": "enviar_mensaje",
+            "category": "mensajes",
+            "pattern": "Como envio un mensaje",
+            "keywords": [
+                "enviar mensaje", "escribir mensaje", "mandar mensaje", "nuevo mensaje",
+                "mensaje privado", "contactar", "comunicar", "escribir a alguien",
+                "como mando mensaje", "como escribo", "mensaje a compañero"
+            ],
+            "response": "Para enviar un mensaje:<br><br><strong>Opcion 1 - Icono mensajes:</strong><br>1. Clic en el icono de mensajes (arriba)<br>2. Busca la persona<br>3. Escribe y envia<br><br><strong>Opcion 2 - Desde perfil:</strong><br>1. Ve al perfil del usuario<br>2. Clic en <strong>Mensaje</strong><br><br>Puedes adjuntar archivos en algunos casos.",
+            "tags": ["mensaje", "enviar", "comunicacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver mensajes", "icon": "bi-envelope", "action": "ver mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "ver_mensajes",
+            "category": "mensajes",
+            "pattern": "Donde veo mis mensajes",
+            "keywords": [
+                "ver mensajes", "mis mensajes", "bandeja entrada", "inbox",
+                "mensajes recibidos", "leer mensajes", "revisar mensajes",
+                "donde estan mensajes", "mensajes nuevos"
+            ],
+            "response": "Para ver tus mensajes:<br><br>1. Clic en el <strong>icono de mensajes</strong> (burbuja, arriba derecha)<br>2. Veras conversaciones recientes<br>3. Clic en una para abrirla<br><br><strong>Panel completo:</strong><br>- Clic en <strong>Ver todos</strong><br>- O Avatar > Mensajes",
+            "tags": ["mensajes", "ver", "bandeja"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Enviar mensaje", "icon": "bi-send", "action": "enviar mensaje"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "eliminar_mensaje",
+            "category": "mensajes",
+            "pattern": "Como elimino un mensaje",
+            "keywords": [
+                "eliminar mensaje", "borrar mensaje", "quitar mensaje",
+                "eliminar conversacion", "borrar chat", "limpiar mensajes"
+            ],
+            "response": "Para eliminar mensajes:<br><br>1. Abre la conversacion<br>2. Clic en los tres puntos (⋮)<br>3. Selecciona <strong>Eliminar conversacion</strong><br><br><strong>Nota importante:</strong><br>- Solo se borra de TU vista<br>- La otra persona aun lo vera<br>- No se puede recuperar",
+            "tags": ["eliminar", "borrar", "mensaje"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver mensajes", "icon": "bi-envelope", "action": "ver mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "buscar_contacto",
+            "category": "mensajes",
+            "pattern": "Como busco un contacto",
+            "keywords": [
+                "buscar contacto", "encontrar persona", "buscar usuario",
+                "agregar contacto", "contactos", "lista contactos", "buscar compañero"
+            ],
+            "response": "Para buscar un contacto:<br><br>1. Clic en el icono de mensajes<br>2. Usa el <strong>buscador</strong> en la parte superior<br>3. Escribe el nombre<br>4. Selecciona de la lista<br><br><strong>Tambien puedes:</strong><br>- Buscar en Participantes del curso<br>- Usar el buscador global",
+            "tags": ["buscar", "contacto", "persona"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Enviar mensaje", "icon": "bi-send", "action": "enviar mensaje"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "bloquear_usuario",
+            "category": "mensajes",
+            "pattern": "Como bloqueo a un usuario",
+            "keywords": [
+                "bloquear", "bloquear usuario", "bloquear contacto", "no recibir mensajes",
+                "evitar mensajes", "silenciar", "ignorar usuario"
+            ],
+            "response": "Para bloquear a alguien:<br><br>1. Abre la conversacion con esa persona<br>2. Clic en los tres puntos (⋮)<br>3. Selecciona <strong>Bloquear usuario</strong><br><br><strong>Efecto:</strong><br>- No recibiras sus mensajes<br>- No podra contactarte<br><br>Puedes desbloquear desde Preferencias > Mensajes.",
+            "tags": ["bloquear", "silenciar", "privacidad"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Configurar mensajes", "icon": "bi-gear", "action": "configurar mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "configurar_mensajes",
+            "category": "mensajes",
+            "pattern": "Como configuro los mensajes",
+            "keywords": [
+                "configurar mensajes", "preferencias mensajes", "notificaciones mensaje",
+                "ajustes mensajes", "quien puede mensajearme", "opciones mensajes"
+            ],
+            "response": "Para configurar mensajes:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Preferencias de mensajes</strong><br><br><strong>Puedes configurar:</strong><br>- Quien puede contactarte<br>- Notificaciones de nuevos mensajes<br>- Sonidos<br>- Donde recibir (web, email, app)",
+            "tags": ["configurar", "preferencias", "mensajes"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Notificaciones", "icon": "bi-bell", "action": "configurar notificaciones"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "mensajes_grupales",
+            "category": "mensajes",
+            "pattern": "Puedo enviar mensajes grupales",
+            "keywords": [
+                "mensaje grupal", "mensajes grupales", "mensaje a varios",
+                "mensaje masivo", "mensaje grupo", "escribir a todos"
+            ],
+            "response": "Sobre mensajes grupales:<br><br><strong>Mensajeria estandar:</strong><br>- Es principalmente 1 a 1<br>- No hay chats grupales nativos<br><br><strong>Alternativas:</strong><br>- <strong>Foro del curso:</strong> Para comunicacion grupal<br>- <strong>Foro de anuncios:</strong> Profesor a todos<br>- <strong>Mensajes de curso:</strong> Algunos plugins lo permiten<br><br>Usa foros para comunicacion colectiva.",
+            "tags": ["grupal", "masivo", "varios"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Foros", "icon": "bi-chat-dots", "action": "como uso el foro"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "estado_conexion",
+            "category": "mensajes",
+            "pattern": "Pueden ver si estoy conectado",
+            "keywords": [
+                "estado conexion", "conectado", "en linea", "online",
+                "ultimo acceso", "cuando entre", "visible", "ocultar conexion"
+            ],
+            "response": "Sobre tu estado de conexion:<br><br><strong>Por defecto:</strong><br>- Otros pueden ver si estas \"en linea\"<br>- Se muestra tu ultimo acceso<br><br><strong>Para ocultarlo:</strong><br>1. Avatar > Preferencias<br>2. Privacidad<br>3. Desactiva \"Mostrar estado en linea\"<br><br>Esto afecta quien ve cuando estas conectado.",
+            "tags": ["conexion", "online", "estado", "privacidad"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Privacidad", "icon": "bi-shield-lock", "action": "configurar privacidad"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "mensaje_no_leido",
+            "category": "mensajes",
+            "pattern": "Como se si tengo mensajes sin leer",
+            "keywords": [
+                "mensajes sin leer", "no leidos", "nuevos mensajes",
+                "notificacion mensaje", "indicador mensajes", "mensaje pendiente"
+            ],
+            "response": "Para saber si tienes <strong>mensajes sin leer</strong>:<br><br><strong>Indicadores:</strong><br>- Numero rojo sobre el icono de mensajes<br>- Notificacion emergente (si esta activada)<br>- Email de aviso (segun configuracion)<br><br><strong>En la lista:</strong><br>- Mensajes no leidos aparecen resaltados<br>- Punto azul o texto en negrita",
+            "tags": ["no leido", "nuevo", "notificacion"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver mensajes", "icon": "bi-envelope", "action": "ver mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "adjuntar_archivo_mensaje",
+            "category": "mensajes",
+            "pattern": "Puedo adjuntar archivos en mensajes",
+            "keywords": [
+                "adjuntar archivo", "enviar archivo", "mandar imagen",
+                "compartir documento", "archivo mensaje", "subir imagen mensaje"
+            ],
+            "response": "Sobre <strong>adjuntar archivos</strong> en mensajes:<br><br><strong>Mensajeria basica:</strong><br>- La mensajeria estandar de Moodle es solo texto<br>- No permite adjuntar archivos directamente<br><br><strong>Alternativas:</strong><br>- Comparte enlaces a archivos<br>- Usa el foro para compartir documentos<br>- Sube a Archivos privados y comparte enlace<br><br>Depende de la configuracion del sitio.",
+            "tags": ["adjuntar", "archivo", "imagen"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Archivos privados", "icon": "bi-folder", "action": "archivos privados"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "marcar_favorito",
+            "category": "mensajes",
+            "pattern": "Puedo marcar conversaciones favoritas",
+            "keywords": [
+                "favoritos", "marcar favorito", "conversacion importante",
+                "destacar mensaje", "fijar conversacion", "anclar chat"
+            ],
+            "response": "Sobre <strong>conversaciones favoritas</strong>:<br><br>1. Abre la conversacion<br>2. Clic en la estrella o icono de favorito<br>3. La conversacion aparecera destacada<br><br><strong>Beneficios:</strong><br>- Acceso rapido a contactos frecuentes<br>- Aparecen primero en la lista<br><br><strong>Nota:</strong> Esta funcion depende de la version de Moodle.",
+            "tags": ["favorito", "destacar", "fijar"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver mensajes", "icon": "bi-envelope", "action": "ver mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "historial_mensajes",
+            "category": "mensajes",
+            "pattern": "Puedo ver el historial de mensajes",
+            "keywords": [
+                "historial mensajes", "mensajes antiguos", "conversaciones pasadas",
+                "mensajes anteriores", "ver historial", "chat anterior"
+            ],
+            "response": "Para ver <strong>historial de mensajes</strong>:<br><br>1. Clic en el icono de mensajes<br>2. Selecciona la conversacion<br>3. Desplazate hacia arriba para ver mensajes antiguos<br><br><strong>Nota:</strong><br>- El historial se conserva mientras no elimines la conversacion<br>- No hay limite de tiempo para ver mensajes antiguos<br>- Los mensajes eliminados no se recuperan",
+            "tags": ["historial", "antiguos", "pasados"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "responder_rapido",
+            "category": "mensajes",
+            "pattern": "Como respondo rapidamente a un mensaje",
+            "keywords": [
+                "responder rapido", "contestar mensaje", "respuesta rapida",
+                "reply", "responder", "como contesto"
+            ],
+            "response": "Para <strong>responder rapidamente</strong>:<br><br><strong>Desde notificacion:</strong><br>1. Clic en la notificacion emergente<br>2. Escribe tu respuesta<br>3. Presiona Enter o clic en Enviar<br><br><strong>Desde panel:</strong><br>1. Clic en el mensaje<br>2. Escribe en el campo de texto<br>3. Envia<br><br><strong>Atajo:</strong> Enter para enviar, Shift+Enter para nueva linea.",
+            "tags": ["responder", "rapido", "contestar"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Ver mensajes", "icon": "bi-envelope", "action": "ver mis mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "mensaje_profesor",
+            "category": "mensajes",
+            "pattern": "Como envio mensaje a mi profesor",
+            "keywords": [
+                "mensaje profesor", "escribir profesor", "contactar docente",
+                "comunicar profesor", "preguntar profesor", "hablar con profesor"
+            ],
+            "response": "Para <strong>enviar mensaje a tu profesor</strong>:<br><br><strong>Opcion 1:</strong><br>1. En el curso > <strong>Participantes</strong><br>2. Busca al profesor<br>3. Clic en su nombre > <strong>Mensaje</strong><br><br><strong>Opcion 2:</strong><br>1. Icono de mensajes<br>2. Busca el nombre del profesor<br>3. Escribe y envia<br><br><strong>Consejo:</strong> Se claro y respetuoso en tu mensaje.",
+            "tags": ["profesor", "docente", "contactar"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Mis profesores", "icon": "bi-person-badge", "action": "mis profesores"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        },
+        {
+            "id": "desbloquear_usuario",
+            "category": "mensajes",
+            "pattern": "Como desbloqueo a un usuario",
+            "keywords": [
+                "desbloquear", "desbloquear usuario", "quitar bloqueo",
+                "volver a recibir mensajes", "permitir mensajes"
+            ],
+            "response": "Para <strong>desbloquear un usuario</strong>:<br><br>1. Clic en tu avatar<br>2. <strong>Preferencias</strong><br>3. <strong>Preferencias de mensajes</strong><br>4. Busca <strong>Usuarios bloqueados</strong><br>5. Clic en <strong>Desbloquear</strong> junto al usuario<br><br><strong>Resultado:</strong><br>- Podras recibir sus mensajes nuevamente<br>- Podra contactarte",
+            "tags": ["desbloquear", "permitir", "contacto"],
+            "enabled": true,
+            "showoptions": true,
+            "options": [
+                {"text": "Configurar mensajes", "icon": "bi-gear", "action": "configurar mensajes"},
+                {"text": "Menu", "icon": "bi-house", "action": "menu"}
+            ]
+        }
+    ]
+}
