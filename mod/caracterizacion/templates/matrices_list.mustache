@@ -1,0 +1,77 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_caracterizacion/matrices_list
+
+    Template for displaying the list of characterization matrices.
+
+    Context variables required:
+    * matrices - Array of matrix objects
+    * cmid - Course module ID
+    * candelete - Whether user can delete matrices
+    * canedit - Whether user can edit matrices
+
+    @package     mod_caracterizacion
+    @copyright   2024 Alonso Arias <soporte@orioncloud.com.co>
+    @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="mod-caracterizacion-matrices-list">
+    <h3>{{#str}}matrices, mod_caracterizacion{{/str}}</h3>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>{{#str}}programaacademico, mod_caracterizacion{{/str}}</th>
+                    <th>{{#str}}nombredelcurso, mod_caracterizacion{{/str}}</th>
+                    <th>{{#str}}faseactual, mod_caracterizacion{{/str}}</th>
+                    <th>{{#str}}estado, mod_caracterizacion{{/str}}</th>
+                    <th>{{#str}}creador, mod_caracterizacion{{/str}}</th>
+                    <th>{{#str}}fechacreacion, mod_caracterizacion{{/str}}</th>
+                    <th>{{#str}}acciones, mod_caracterizacion{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#matrices}}
+                <tr>
+                    <td>{{programa_academico}}</td>
+                    <td>{{nombre_curso}}</td>
+                    <td>{{fase_actual}}</td>
+                    <td><span class="badge {{estadoclass}}">{{estado}}</span></td>
+                    <td>{{creador}}</td>
+                    <td>{{timecreated}}</td>
+                    <td class="text-nowrap">
+                        <a href="{{viewurl}}" class="btn btn-sm btn-outline-primary" title="{{#str}}ver, mod_caracterizacion{{/str}}">
+                            {{#pix}}i/preview, core{{/pix}}
+                        </a>
+                        {{#canedit}}
+                        <a href="{{editurl}}" class="btn btn-sm btn-outline-secondary" title="{{#str}}editar, mod_caracterizacion{{/str}}">
+                            {{#pix}}t/edit, core{{/pix}}
+                        </a>
+                        {{/canedit}}
+                        {{#candelete}}
+                        <a href="{{deleteurl}}" class="btn btn-sm btn-outline-danger" title="{{#str}}eliminar, mod_caracterizacion{{/str}}"
+                           onclick="return confirm('{{#str}}confirmareliminar, mod_caracterizacion{{/str}}');">
+                            {{#pix}}t/delete, core{{/pix}}
+                        </a>
+                        {{/candelete}}
+                    </td>
+                </tr>
+                {{/matrices}}
+            </tbody>
+        </table>
+    </div>
+</div>

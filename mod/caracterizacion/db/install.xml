@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/caracterizacion/db" VERSION="2024012800" COMMENT="XMLDB file for mod_caracterizacion"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+  <TABLES>
+    <!-- Main activity instance table -->
+    <TABLE NAME="caracterizacion" COMMENT="Stores the activity instance for resource production characterization.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course ID"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Activity name"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Activity description"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Characterization matrix: multiple matrices per activity -->
+    <TABLE NAME="caracterizacion_matriz" COMMENT="Stores individual characterization matrices.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="caracterizacionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="programa_academico" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="nombre_curso" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="fase_actual" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Current phase 1-6"/>
+        <FIELD NAME="estado" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="borrador" SEQUENCE="false" COMMENT="borrador,en_proceso,completada"/>
+        <FIELD NAME="creado_por" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_caracterizacion" TYPE="foreign" FIELDS="caracterizacionid" REFTABLE="caracterizacion" REFFIELDS="id"/>
+        <KEY NAME="fk_creado_por" TYPE="foreign" FIELDS="creado_por" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_caracterizacionid" UNIQUE="false" FIELDS="caracterizacionid"/>
+        <INDEX NAME="idx_fase" UNIQUE="false" FIELDS="fase_actual"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Role assignments per matrix -->
+    <TABLE NAME="caracterizacion_roles" COMMENT="Role assignments for each characterization matrix.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="matrizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="rol" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="asesor_metodologico,experto_disciplinar,revisor_curricular,par_academico,corrector_estilo,coord_produccion,produccion,alistamiento"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="nombre_completo" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_matriz" TYPE="foreign" FIELDS="matrizid" REFTABLE="caracterizacion_matriz" REFFIELDS="id"/>
+        <KEY NAME="fk_user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_matrizid" UNIQUE="false" FIELDS="matrizid"/>
+        <INDEX NAME="idx_rol" UNIQUE="false" FIELDS="rol"/>
+        <INDEX NAME="idx_matriz_rol" UNIQUE="true" FIELDS="matrizid, rol"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- General resources of the course -->
+    <TABLE NAME="caracterizacion_recursos_gen" COMMENT="General resources for the course in a characterization matrix.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="matrizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="recurso" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="cvp,sala_virtual,video_bienvenida,foro_curso,mapa_curso"/>
+        <FIELD NAME="incluido" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="observaciones" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_matriz" TYPE="foreign" FIELDS="matrizid" REFTABLE="caracterizacion_matriz" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_matrizid" UNIQUE="false" FIELDS="matrizid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Units (up to 5 per matrix) -->
+    <TABLE NAME="caracterizacion_unidades" COMMENT="Units within a characterization matrix.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="matrizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="numero" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" COMMENT="Unit number 1-5"/>
+        <FIELD NAME="nombre" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_matriz" TYPE="foreign" FIELDS="matrizid" REFTABLE="caracterizacion_matriz" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_matrizid" UNIQUE="false" FIELDS="matrizid"/>
+        <INDEX NAME="idx_matriz_numero" UNIQUE="true" FIELDS="matrizid, numero"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Topics per unit (up to 5 per unit) -->
+    <TABLE NAME="caracterizacion_temas" COMMENT="Topics within a unit.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="unidadid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="numero" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" COMMENT="Topic number 1-5"/>
+        <FIELD NAME="nombre" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_unidad" TYPE="foreign" FIELDS="unidadid" REFTABLE="caracterizacion_unidades" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_unidadid" UNIQUE="false" FIELDS="unidadid"/>
+        <INDEX NAME="idx_unidad_numero" UNIQUE="true" FIELDS="unidadid, numero"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Resources per topic -->
+    <TABLE NAME="caracterizacion_recursos" COMMENT="Resources assigned to each topic.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="temaid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="tipo_recurso" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="educativo_digital,interactivo_digital,evaluativo,colaborativo,externo"/>
+        <FIELD NAME="recurso" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Specific resource name"/>
+        <FIELD NAME="item" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="observaciones" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_tema" TYPE="foreign" FIELDS="temaid" REFTABLE="caracterizacion_temas" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_temaid" UNIQUE="false" FIELDS="temaid"/>
+        <INDEX NAME="idx_tipo" UNIQUE="false" FIELDS="tipo_recurso"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Phase tracking per matrix -->
+    <TABLE NAME="caracterizacion_fases" COMMENT="Phase tracking for each characterization matrix.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="matrizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="fase" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" COMMENT="Phase number 1-6"/>
+        <FIELD NAME="estado" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="pendiente" SEQUENCE="false" COMMENT="pendiente,en_revision,aprobada,rechazada"/>
+        <FIELD NAME="aprobado_por" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="fecha_inicio" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="fecha_fin" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_matriz" TYPE="foreign" FIELDS="matrizid" REFTABLE="caracterizacion_matriz" REFFIELDS="id"/>
+        <KEY NAME="fk_aprobado_por" TYPE="foreign" FIELDS="aprobado_por" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_matrizid" UNIQUE="false" FIELDS="matrizid"/>
+        <INDEX NAME="idx_matriz_fase" UNIQUE="true" FIELDS="matrizid, fase"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Comments per phase -->
+    <TABLE NAME="caracterizacion_comentarios" COMMENT="Comments for each phase review.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="faseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="comentario" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="accion" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="aprobar,rechazar,comentar"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_fase" TYPE="foreign" FIELDS="faseid" REFTABLE="caracterizacion_fases" REFFIELDS="id"/>
+        <KEY NAME="fk_user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_faseid" UNIQUE="false" FIELDS="faseid"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Notifications log -->
+    <TABLE NAME="caracterizacion_notif" COMMENT="Notification log for phase transitions.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="matrizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="fase" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid_from" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid_to" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="tipo" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="mensaje" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="leida" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_matriz" TYPE="foreign" FIELDS="matrizid" REFTABLE="caracterizacion_matriz" REFFIELDS="id"/>
+        <KEY NAME="fk_user_from" TYPE="foreign" FIELDS="userid_from" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="fk_user_to" TYPE="foreign" FIELDS="userid_to" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_matrizid" UNIQUE="false" FIELDS="matrizid"/>
+        <INDEX NAME="idx_userid_to" UNIQUE="false" FIELDS="userid_to"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

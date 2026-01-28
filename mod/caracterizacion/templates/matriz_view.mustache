@@ -1,0 +1,270 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_caracterizacion/matriz_view
+
+    Template for viewing a characterization matrix with phase progress.
+
+    @package     mod_caracterizacion
+    @copyright   2024 Alonso Arias <soporte@orioncloud.com.co>
+    @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="mod-caracterizacion-matriz-view" id="matriz-view-{{matrizid}}">
+
+    {{! ===== Course Information ===== }}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">{{#str}}infodelcurso, mod_caracterizacion{{/str}}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>{{#str}}programaacademico, mod_caracterizacion{{/str}}:</strong>
+                    <p>{{programa_academico}}</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>{{#str}}nombredelcurso, mod_caracterizacion{{/str}}:</strong>
+                    <p>{{nombre_curso}}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>{{#str}}creador, mod_caracterizacion{{/str}}:</strong>
+                    <p>{{creador}}</p>
+                </div>
+                <div class="col-md-6">
+                    <strong>{{#str}}fechacreacion, mod_caracterizacion{{/str}}:</strong>
+                    <p>{{fechacreacion}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{! ===== Roles ===== }}
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">{{#str}}asignacionroles, mod_caracterizacion{{/str}}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {{#roles}}
+                <div class="col-md-4 mb-2">
+                    <strong>{{label}}:</strong><br>
+                    {{nombre}}
+                </div>
+                {{/roles}}
+            </div>
+        </div>
+    </div>
+
+    {{! ===== General Resources ===== }}
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">{{#str}}recursosgenerales, mod_caracterizacion{{/str}}</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>{{#str}}recurso, mod_caracterizacion{{/str}}</th>
+                        <th>{{#str}}incluir, mod_caracterizacion{{/str}}</th>
+                        <th>{{#str}}observaciones, mod_caracterizacion{{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#recursos_generales}}
+                    <tr>
+                        <td>{{label}}</td>
+                        <td>
+                            {{#incluido}}
+                                <span class="badge badge-success">{{#str}}yes, core{{/str}}</span>
+                            {{/incluido}}
+                            {{^incluido}}
+                                <span class="badge badge-secondary">{{#str}}no, core{{/str}}</span>
+                            {{/incluido}}
+                        </td>
+                        <td>{{observaciones}}</td>
+                    </tr>
+                    {{/recursos_generales}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{! ===== Units and Topics ===== }}
+    {{#hasunidades}}
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">{{#str}}unidades, mod_caracterizacion{{/str}}</h4>
+        </div>
+        <div class="card-body">
+            {{#unidades}}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">{{#str}}unidadnum, mod_caracterizacion, {{numero}}{{/str}}: {{nombre}}</h5>
+                </div>
+                <div class="card-body">
+                    {{#hastemas}}
+                    {{#temas}}
+                    <div class="mb-3 pl-3 border-left border-primary">
+                        <h6><strong>{{#str}}tema, mod_caracterizacion{{/str}} {{numero}}:</strong> {{nombre}}</h6>
+                        {{#hasrecursos}}
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>{{#str}}tiporecurso, mod_caracterizacion{{/str}}</th>
+                                    <th>{{#str}}recurso, mod_caracterizacion{{/str}}</th>
+                                    <th>{{#str}}item, mod_caracterizacion{{/str}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#recursos}}
+                                <tr>
+                                    <td>{{tipo}}</td>
+                                    <td>{{recurso}}</td>
+                                    <td>{{item}}</td>
+                                </tr>
+                                {{/recursos}}
+                            </tbody>
+                        </table>
+                        {{/hasrecursos}}
+                    </div>
+                    {{/temas}}
+                    {{/hastemas}}
+                </div>
+            </div>
+            {{/unidades}}
+        </div>
+    </div>
+    {{/hasunidades}}
+
+    {{! ===== Resource Summary ===== }}
+    <div class="card mb-4">
+        <div class="card-header bg-warning">
+            <h4 class="mb-0">{{#str}}resumen, mod_caracterizacion{{/str}}</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm">
+                <tbody>
+                    {{#resumen}}
+                    <tr{{#istotal}} class="table-active font-weight-bold"{{/istotal}}>
+                        <td>{{label}}</td>
+                        <td class="text-right">{{count}}</td>
+                    </tr>
+                    {{/resumen}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{! ===== Phase Progress ===== }}
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">{{#str}}progresofases, mod_caracterizacion{{/str}}</h4>
+        </div>
+        <div class="card-body">
+            {{! Phase progress bar }}
+            <div class="progress mb-4" style="height: 30px;">
+                {{#fases}}
+                <div class="progress-bar {{#is_aprobada}}bg-success{{/is_aprobada}}{{#is_en_revision}}bg-primary progress-bar-striped progress-bar-animated{{/is_en_revision}}{{#is_rechazada}}bg-danger{{/is_rechazada}}{{#is_pendiente}}bg-light text-dark{{/is_pendiente}}"
+                     role="progressbar"
+                     style="width: 16.66%"
+                     title="{{label}}: {{estado}}">
+                    {{fase}}
+                </div>
+                {{/fases}}
+            </div>
+
+            {{! Phase details }}
+            <div class="accordion" id="fasesAccordion">
+                {{#fases}}
+                <div class="card">
+                    <div class="card-header {{#is_current}}bg-primary text-white{{/is_current}}" id="faseHead{{fase}}">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link {{^is_current}}text-dark{{/is_current}} {{#is_current}}text-white{{/is_current}}" type="button"
+                                    data-toggle="collapse" data-target="#faseBody{{fase}}"
+                                    aria-expanded="{{#is_current}}true{{/is_current}}{{^is_current}}false{{/is_current}}">
+                                {{label}}
+                                <span class="badge ml-2
+                                    {{#is_aprobada}}badge-success{{/is_aprobada}}
+                                    {{#is_en_revision}}badge-primary{{/is_en_revision}}
+                                    {{#is_rechazada}}badge-danger{{/is_rechazada}}
+                                    {{#is_pendiente}}badge-secondary{{/is_pendiente}}">
+                                    {{estado}}
+                                </span>
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="faseBody{{fase}}" class="collapse {{#is_current}}show{{/is_current}}" data-parent="#fasesAccordion">
+                        <div class="card-body">
+                            {{! Action buttons for current phase }}
+                            {{#is_current}}
+                            {{#canact}}
+                            {{#is_en_revision}}
+                            <div class="fase-actions mb-3" id="fase-actions-{{fase}}">
+                                <div class="form-group">
+                                    <label for="comentario-fase-{{fase}}">{{#str}}comentarios, mod_caracterizacion{{/str}}</label>
+                                    <textarea class="form-control fase-comentario" id="comentario-fase-{{fase}}" rows="3"
+                                              data-faseid="{{faseid}}" data-fase="{{fase}}"></textarea>
+                                </div>
+                                <button class="btn btn-success btn-fase-action mr-2"
+                                        data-action="aprobar" data-faseid="{{faseid}}"
+                                        data-matrizid="{{matrizid}}" data-cmid="{{cmid}}">
+                                    {{#pix}}i/valid, core{{/pix}} {{#str}}aprobar, mod_caracterizacion{{/str}}
+                                </button>
+                                <button class="btn btn-danger btn-fase-action mr-2"
+                                        data-action="rechazar" data-faseid="{{faseid}}"
+                                        data-matrizid="{{matrizid}}" data-cmid="{{cmid}}">
+                                    {{#pix}}i/invalid, core{{/pix}} {{#str}}rechazar, mod_caracterizacion{{/str}}
+                                </button>
+                            </div>
+                            {{/is_en_revision}}
+                            {{/canact}}
+                            {{/is_current}}
+
+                            {{! Comments list }}
+                            <h6>{{#str}}comentarios, mod_caracterizacion{{/str}}</h6>
+                            {{#hascomentarios}}
+                            <div class="list-group">
+                                {{#comentarios}}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>{{usuario}}</strong>
+                                        <small class="text-muted">{{fecha}}</small>
+                                    </div>
+                                    <p class="mb-1">{{comentario}}</p>
+                                    <small class="badge
+                                        {{#accion}}
+                                        badge-info
+                                        {{/accion}}">
+                                        {{accion}}
+                                    </small>
+                                </div>
+                                {{/comentarios}}
+                            </div>
+                            {{/hascomentarios}}
+                            {{^hascomentarios}}
+                            <p class="text-muted">{{#str}}sincomentarios, mod_caracterizacion{{/str}}</p>
+                            {{/hascomentarios}}
+                        </div>
+                    </div>
+                </div>
+                {{/fases}}
+            </div>
+        </div>
+    </div>
+</div>
