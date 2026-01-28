@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 6 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap6_P1::Cual es la diferencia principal entre estres normal y diestres? {
+  ~No hay diferencia
+  =El diestres es la alteracion patologica donde la respuesta se vuelve constante
+  ~El estres normal es mas intenso
+  ~El diestres solo ocurre en adultos
+}
+
+::Cap6_P2::Que es el apego segun el material? {
+  ~Una enfermedad infantil
+  =Necesidad innata del nino de formar vinculos afectivos para supervivencia
+  ~Un tipo de estres
+  ~Una estructura cerebral
+}
+
+::Cap6_P3::Que es la carga alostatica? {
+  ~El peso del cerebro
+  =Desgaste acumulado de sistemas biologicos ante amenazas intensas o duraderas
+  ~La cantidad de estres positivo
+  ~Una hormona del estres
+}
+
+::Cap6_P4::Cual hormona aporta energia rapida durante el estres? {
+  ~Insulina
+  =Cortisol
+  ~Melatonina
+  ~Oxitocina
+}
+
+::Cap6_P5::Que estructura cerebral es altamente vulnerable al cortisol prolongado? {
+  ~Cerebelo
+  =Hipocampo
+  ~Tronco encefalico
+  ~Medula espinal
+}
+
+::Cap6_P6::Que es la base segura en el contexto del apego? {
+  ~Un lugar fisico seguro
+  =El cuidador como refugio que brinda seguridad para explorar
+  ~Una tecnica de relajacion
+  ~Un tipo de vinculo inseguro
+}
+
+::Cap6_P7::Que caracteriza al estres toxico? {
+  ~Es beneficioso para el desarrollo
+  =Activacion frecuente y prolongada ante adversidades sin apoyo del cuidador
+  ~Solo dura unos minutos
+  ~No afecta el cerebro
+}
+
+::Cap6_P8::Donde se origina la via rapida y lenta de respuesta al estres? {
+  ~En el cerebelo
+  =En el hipotalamo
+  ~En la medula espinal
+  ~En el lobulo frontal
+}
+
+::Cap6_P9::Que libera la via rapida del estres? {
+  ~Cortisol
+  =Adrenalina
+  ~Dopamina
+  ~Serotonina
+}
+
+::Cap6_P10::Segun la epigenetica, las experiencias de la infancia pueden\: {
+  ~No tener ningun efecto duradero
+  =Transformar las estructuras del genoma y transmitirse a generaciones futuras
+  ~Solo afectar la memoria a corto plazo
+  ~Cambiar el color de ojos
+}
+

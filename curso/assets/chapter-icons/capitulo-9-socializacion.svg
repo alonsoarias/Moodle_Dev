@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="grad9" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#fcb69f;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="55" fill="url(#grad9)"/>
+  <!-- Three people representing socialization -->
+  <!-- Person 1 (left) -->
+  <circle cx="35" cy="45" r="10" fill="#fff" opacity="0.9"/>
+  <ellipse cx="35" cy="68" rx="10" ry="12" fill="#fff" opacity="0.9"/>
+  <!-- Person 2 (center/child) -->
+  <circle cx="60" cy="50" r="8" fill="#fff" opacity="0.9"/>
+  <ellipse cx="60" cy="70" rx="8" ry="10" fill="#fff" opacity="0.9"/>
+  <!-- Person 3 (right) -->
+  <circle cx="85" cy="45" r="10" fill="#fff" opacity="0.9"/>
+  <ellipse cx="85" cy="68" rx="10" ry="12" fill="#fff" opacity="0.9"/>
+  <!-- Connection lines -->
+  <path d="M45 50 Q52 55 55 52" stroke="#fcb69f" stroke-width="2" fill="none"/>
+  <path d="M65 52 Q68 55 75 50" stroke="#fcb69f" stroke-width="2" fill="none"/>
+  <!-- Hearts showing bonds -->
+  <path d="M60 40 C58 38 55 38 55 41 C55 44 60 46 60 46 C60 46 65 44 65 41 C65 38 62 38 60 40" fill="#fcb69f" opacity="0.7"/>
+  <text x="60" y="105" font-family="Arial, sans-serif" font-size="8" fill="#555" text-anchor="middle">Capítulo 9</text>
+</svg>

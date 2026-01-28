@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<course id="2" contextid="50">
+  <shortname>huellas-invisibles</shortname>
+  <fullname>Huellas Invisibles: Neurociencia del Desarrollo Infantil</fullname>
+  <idnumber></idnumber>
+  <summary>&lt;p&gt;Curso completo sobre neurodesarrollo y neuroaprendizaje acuatico en la primera infancia. Explora los fundamentos de la neurociencia aplicada al desarrollo infantil a traves de 10 capitulos tematicos.&lt;/p&gt;</summary>
+  <summaryformat>1</summaryformat>
+  <format>topics</format>
+  <showgrades>1</showgrades>
+  <newsitems>5</newsitems>
+  <startdate>1768689196</startdate>
+  <enddate>0</enddate>
+  <marker>0</marker>
+  <maxbytes>0</maxbytes>
+  <legacyfiles>0</legacyfiles>
+  <showreports>0</showreports>
+  <visible>1</visible>
+  <groupmode>0</groupmode>
+  <groupmodeforce>0</groupmodeforce>
+  <defaultgroupingid>0</defaultgroupingid>
+  <lang></lang>
+  <theme></theme>
+  <timecreated>1768689196</timecreated>
+  <timemodified>1768689196</timemodified>
+  <requested>0</requested>
+  <showactivitydates>1</showactivitydates>
+  <showcompletionconditions>1</showcompletionconditions>
+  <pdfexportfont></pdfexportfont>
+  <enablecompletion>1</enablecompletion>
+  <completionnotify>0</completionnotify>
+  <category id="1">
+    <name>Cursos</name>
+    <description></description>
+  </category>
+  <tags></tags>
+  <customfields></customfields>
+  <courseformatoptions></courseformatoptions>
+</course>

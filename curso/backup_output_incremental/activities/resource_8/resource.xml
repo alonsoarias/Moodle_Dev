@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="8" moduleid="8" modulename="resource" contextid="107">
+  <resource id="8">
+    <name>Bibliografia de Referencia</name>
+    <intro>&lt;p&gt;Referencias bibliograficas y lecturas recomendadas sobre neurodesarrollo infantil.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <tobemigrated>0</tobemigrated>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>0</display>
+    <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
+    <filterfiles>0</filterfiles>
+    <revision>1</revision>
+    <timemodified>1768689196</timemodified>
+  </resource>
+</activity>

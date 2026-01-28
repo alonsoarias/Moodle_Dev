@@ -1,0 +1,828 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<question_categories>
+  <question_category id="1001">
+    <name>Preguntas Capitulo 2</name>
+    <contextid>50</contextid>
+    <contextlevel>50</contextlevel>
+    <contextinstanceid>1</contextinstanceid>
+    <info></info>
+    <infoformat>0</infoformat>
+    <stamp>localhost+1768681005+c91d6a39f6e1</stamp>
+    <parent>0</parent>
+    <sortorder>999</sortorder>
+    <idnumber></idnumber>
+    <question_bank_entries>
+    <question_bank_entry id="1">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="1">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="1">
+        <parent>0</parent>
+        <name>Cual es la consecuencia de una lesion en el hemisferio izquierdo en un adulto?</name>
+        <questiontext>Cual es la consecuencia de una lesion en el hemisferio izquierdo en un adulto?</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+fae1551a3a91</stamp>
+        <version>localhost+1768681005+5872cd6ec070</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="1">
+              <answertext>Euforia o indiferencia emocional</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="2">
+              <answertext>Dificultad para reconocer expresiones faciales</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="3">
+              <answertext>Depresion y reacciones catastroficas</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="4">
+              <answertext>Perdida de la sensibilidad corporal</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="1">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="2">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="2">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="2">
+        <parent>0</parent>
+        <name>Cual afirmacion describe correctamente el patron de maduracion cerebral?</name>
+        <questiontext>Cual afirmacion describe correctamente el patron de maduracion cerebral?</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+f434883ef7d5</stamp>
+        <version>localhost+1768681005+9edb9d06b2d9</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="5">
+              <answertext>La maduracion ocurre en el cuerpo calloso a los 4 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="6">
+              <answertext>El cerebro madura de adelante hacia atras</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="7">
+              <answertext>Ambos hemisferios maduran simultaneamente</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="8">
+              <answertext>El cerebro madura de atras (sensorial) hacia adelante (motor)</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="2">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="3">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="3">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="3">
+        <parent>0</parent>
+        <name>Que dos mecanismos pueden causar depresion en ninos y adultos?</name>
+        <questiontext>Que dos mecanismos pueden causar depresion en ninos y adultos?</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+6ddec0d1c56c</stamp>
+        <version>localhost+1768681005+9a7085dfe209</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="9">
+              <answertext>Hiperactivacion del hemisferio izquierdo y baja actividad parietal</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="10">
+              <answertext>Hipoactivacion del lobulo temporal y lesion del cuerpo calloso</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="11">
+              <answertext>Hipoactivacion de regiones frontales o hiperactivacion del hemisferio derecho</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="12">
+              <answertext>Maduracion tardia del cerebro posterior</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="3">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="4">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="4">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="4">
+        <parent>0</parent>
+        <name>Que funcion tiene la region anterior del lobulo temporal en la percepcion de expresiones faciales?</name>
+        <questiontext>Que funcion tiene la region anterior del lobulo temporal en la percepcion de expresiones faciales?</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+7810267830de</stamp>
+        <version>localhost+1768681005+f4a8ae36e483</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="13">
+              <answertext>Entiende y recuerda el caracter de dichas expresiones</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="14">
+              <answertext>Reconoce la expresion facial en el momento</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="15">
+              <answertext>Procesa la informacion sensorial del tacto</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="16">
+              <answertext>Controla los musculos faciales</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="4">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="5">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="5">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="5">
+        <parent>0</parent>
+        <name>A que edad ocurre la virilizacion del cuerpo calloso?</name>
+        <questiontext>A que edad ocurre la virilizacion del cuerpo calloso?</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+095588f6c53b</stamp>
+        <version>localhost+1768681005+e6699c0246ab</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="17">
+              <answertext>4 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="18">
+              <answertext>6 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="19">
+              <answertext>8 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="20">
+              <answertext>12 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="5">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="6">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="6">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="6">
+        <parent>0</parent>
+        <name>Cual es la caracteristica unica del sentido del olfato?</name>
+        <questiontext>Cual es la caracteristica unica del sentido del olfato?</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+3402cfe9d1ec</stamp>
+        <version>localhost+1768681005+194f310e1812</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="21">
+              <answertext>Es el ultimo sentido en desarrollarse</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="22">
+              <answertext>No va al talamo sino directamente a la corteza</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="23">
+              <answertext>Solo funciona en la edad adulta</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="24">
+              <answertext>Depende del lobulo frontal</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="6">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="7">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="7">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="7">
+        <parent>0</parent>
+        <name>A que edad comienza la habilidad de demorar la recompensa segun Mischel?</name>
+        <questiontext>A que edad comienza la habilidad de demorar la recompensa segun Mischel?</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+f096c1c4b148</stamp>
+        <version>localhost+1768681005+a40d724c1ac7</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="25">
+              <answertext>2 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="26">
+              <answertext>4 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="27">
+              <answertext>6 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="28">
+              <answertext>8 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="7">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="8">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="8">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="8">
+        <parent>0</parent>
+        <name>Los lobulos parietales son funcionales:</name>
+        <questiontext>Los lobulos parietales son funcionales:</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+03dbe9a1dcfd</stamp>
+        <version>localhost+1768681005+647edd2bedb2</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="29">
+              <answertext>Despues del primer ano de vida</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="30">
+              <answertext>Antes del nacimiento</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="31">
+              <answertext>A partir de los 3 anos</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="32">
+              <answertext>En la adolescencia</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="8">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="9">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="9">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="9">
+        <parent>0</parent>
+        <name>El efecto de modulacion se refiere a:</name>
+        <questiontext>El efecto de modulacion se refiere a:</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+a593371bf01f</stamp>
+        <version>localhost+1768681005+d3a278fb458e</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="33">
+              <answertext>El control del hemisferio derecho sobre el izquierdo</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="34">
+              <answertext>La regulacion del sueno</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="35">
+              <answertext>El desarrollo del lenguaje</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="36">
+              <answertext>La maduracion del cerebelo</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="9">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+    <question_bank_entry id="10">
+      <questioncategoryid>1001</questioncategoryid>
+      <idnumber></idnumber>
+      <ownerid>2</ownerid>
+      <question_version id="10">
+        <version>1</version>
+        <status>ready</status>
+        <question_versions>
+      <question id="10">
+        <parent>0</parent>
+        <name>Las funciones ejecutivas incluyen:</name>
+        <questiontext>Las funciones ejecutivas incluyen:</questiontext>
+        <questiontextformat>1</questiontextformat>
+        <generalfeedback></generalfeedback>
+        <generalfeedbackformat>1</generalfeedbackformat>
+        <defaultmark>1.0000000</defaultmark>
+        <penalty>0.3333333</penalty>
+        <qtype>multichoice</qtype>
+        <length>1</length>
+        <stamp>localhost+1768681005+7d1b9aba8861</stamp>
+        <version>localhost+1768681005+40fbfa1ee3d2</version>
+        <hidden>0</hidden>
+        <timecreated>1768681005</timecreated>
+        <timemodified>1768681005</timemodified>
+        <createdby>2</createdby>
+        <modifiedby>2</modifiedby>
+        <plugin_qtype_multichoice_question>
+          <answers>
+            <answer id="37">
+              <answertext>Solo procesos motores</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="38">
+              <answertext>Solo procesos sensoriales</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="39">
+              <answertext>Procesos cognitivos, emocionales y de regulacion de respuestas conductuales</answertext>
+              <answerformat>1</answerformat>
+              <fraction>1.0000000</fraction>
+              <feedback>Correcto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+            <answer id="40">
+              <answertext>Unicamente la memoria a largo plazo</answertext>
+              <answerformat>1</answerformat>
+              <fraction>0.0000000</fraction>
+              <feedback>Incorrecto</feedback>
+              <feedbackformat>1</feedbackformat>
+            </answer>
+
+          </answers>
+          <multichoice id="10">
+            <layout>0</layout>
+            <single>1</single>
+            <shuffleanswers>1</shuffleanswers>
+            <correctfeedback>Respuesta correcta</correctfeedback>
+            <correctfeedbackformat>1</correctfeedbackformat>
+            <partiallycorrectfeedback>Parcialmente correcta</partiallycorrectfeedback>
+            <partiallycorrectfeedbackformat>1</partiallycorrectfeedbackformat>
+            <incorrectfeedback>Respuesta incorrecta</incorrectfeedback>
+            <incorrectfeedbackformat>1</incorrectfeedbackformat>
+            <answernumbering>abc</answernumbering>
+            <shownumcorrect>1</shownumcorrect>
+            <showstandardinstruction>0</showstandardinstruction>
+          </multichoice>
+        </plugin_qtype_multichoice_question>
+        <question_hints>
+        </question_hints>
+        <tags>
+        </tags>
+      </question>
+        </question_versions>
+      </question_version>
+    </question_bank_entry>
+
+    </question_bank_entries>
+  </question_category>
+</question_categories>

@@ -1,0 +1,2233 @@
+/**
+ * Nexus Format - Styles
+ *
+ * Two-column layout inspired by Edutin Academy
+ *
+ * @package    format_nexusformat
+ * @copyright  2024 Nexus Learning
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* =============================================
+   CSS Custom Properties (Variables)
+   Can be overridden by plugin settings via inline styles
+   ============================================= */
+
+:root {
+    --nexus-accent-color: #0d6efd;
+    --nexus-secondary-color: #764ba2;
+    --nexus-progress-color: #0dcaf0;
+    --nexus-content-width: 70%;
+    --nexus-sidebar-width: 30%;
+    --nexus-container-width: 100%;
+    --nexus-border-radius: 8px;
+    --nexus-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --nexus-card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --nexus-transition: 0.2s ease;
+    --nexus-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* =============================================
+   Full-Width Override for Moodle Containers
+   ONLY applies on course view page (path-course-view)
+   ============================================= */
+
+/* Override the 830px max-width restriction in Boost theme */
+body.format-nexusformat.path-course-view.pagelayout-standard #page.drawers .main-inner,
+body.format-nexusformat.path-course-view.limitedwidth #page.drawers .main-inner,
+body.format-nexusformat.path-course-view #page.drawers .main-inner,
+body.format-nexusformat.path-course-view .main-inner {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Override Boost theme container restrictions */
+body.format-nexusformat.path-course-view #page-content,
+body.format-nexusformat.path-course-view #region-main-box,
+body.format-nexusformat.path-course-view #region-main,
+body.format-nexusformat.path-course-view [role="main"],
+body.format-nexusformat.path-course-view .course-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Remove default course content padding */
+body.format-nexusformat.path-course-view #region-main {
+    padding: 0 !important;
+}
+
+/* Hide course header breadcrumb area for cleaner look - ONLY on course view */
+body.format-nexusformat.path-course-view #page-header {
+    display: none;
+}
+
+/* Ensure secondary navigation stays visible */
+body.format-nexusformat.path-course-view .secondary-navigation {
+    max-width: 100%;
+}
+
+/* Ensure drawers don't interfere */
+body.format-nexusformat.path-course-view.drawer-open-left #page-content {
+    margin-left: 0;
+}
+
+/* =============================================
+   Main Layout - Two Columns
+   Mobile-first responsive approach
+   ============================================= */
+
+/* Base styles - Mobile first (< 576px) */
+.nexus-format-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.nexus-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Left Column - Content Area */
+.nexus-content-area {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Right Column - Sidebar (drawer on mobile) */
+.nexus-sidebar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 85%;
+    max-width: 360px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-left: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 1040;
+    transition: right 0.3s ease, left 0.3s ease;
+}
+
+.nexus-sidebar.open {
+    right: 0;
+}
+
+/* Sidebar on left position - mobile */
+.nexus-sidebar-left .nexus-sidebar {
+    right: auto;
+    left: -100%;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.nexus-sidebar-left .nexus-sidebar.open {
+    left: 0;
+}
+
+/* =============================================
+   Small tablets (576px - 767px)
+   ============================================= */
+@media (min-width: 576px) {
+    .nexus-sidebar {
+        max-width: 320px;
+    }
+}
+
+/* =============================================
+   Tablets (768px - 991px)
+   ============================================= */
+@media (min-width: 768px) {
+    .nexus-sidebar {
+        max-width: 380px;
+    }
+}
+
+/* =============================================
+   Desktop (992px and up) - Two column layout
+   ============================================= */
+@media (min-width: 992px) {
+    /* Apply container width setting on desktop */
+    .nexus-format-container {
+        width: var(--nexus-container-width);
+        max-width: var(--nexus-container-width);
+    }
+
+    .nexus-layout {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    /* Content area uses setting width */
+    .nexus-content-area {
+        flex: 0 0 var(--nexus-content-width);
+        max-width: var(--nexus-content-width);
+    }
+
+    /* Sidebar becomes static on desktop - height adapts to content */
+    .nexus-sidebar {
+        position: sticky;
+        top: 60px;
+        right: auto;
+        left: auto;
+        flex: 0 0 var(--nexus-sidebar-width);
+        max-width: var(--nexus-sidebar-width);
+        min-width: 280px;
+        max-height: calc(100vh - 80px);
+        height: auto;
+        border-left: 1px solid #dee2e6;
+        box-shadow: var(--nexus-card-shadow);
+        z-index: auto;
+        transition: none;
+        overflow-y: auto;
+    }
+
+    /* Sidebar on left position - desktop */
+    .nexus-sidebar-left .nexus-sidebar {
+        order: -1;
+        border-left: none;
+        border-right: 1px solid #dee2e6;
+    }
+
+    .nexus-sidebar-left .nexus-content-area {
+        order: 1;
+    }
+}
+
+/* =============================================
+   Large desktop (1200px and up)
+   ============================================= */
+@media (min-width: 1200px) {
+    .nexus-sidebar {
+        min-width: 300px;
+    }
+}
+
+/* =============================================
+   Extra large desktop (1400px and up)
+   ============================================= */
+@media (min-width: 1400px) {
+    .nexus-sidebar {
+        min-width: 320px;
+    }
+}
+
+/* =============================================
+   Aspect ratio adjustments for wide screens
+   Only apply on desktop (992px+)
+   ============================================= */
+
+/* Ultra-wide screens (21:9 and wider) on desktop */
+@media (min-width: 992px) and (min-aspect-ratio: 21/9) {
+    .nexus-format-container {
+        max-width: min(var(--nexus-container-width), 2400px);
+    }
+}
+
+/* Wide screens (16:9 to 21:9) on desktop */
+@media (min-width: 992px) and (min-aspect-ratio: 16/9) and (max-aspect-ratio: 21/9) {
+    .nexus-format-container {
+        max-width: min(var(--nexus-container-width), 2000px);
+    }
+}
+
+/* Very large screens (2560px+) - ensure readability */
+@media (min-width: 2560px) {
+    .nexus-format-container {
+        max-width: min(var(--nexus-container-width), 2200px);
+    }
+
+    .nexus-sidebar {
+        min-width: 350px;
+    }
+}
+
+/* 4K screens (3840px+) */
+@media (min-width: 3840px) {
+    .nexus-format-container {
+        max-width: min(var(--nexus-container-width), 2800px);
+    }
+
+    .nexus-sidebar {
+        min-width: 400px;
+    }
+}
+
+/* =============================================
+   Content Area
+   ============================================= */
+
+.nexus-activity-content {
+    /* Content height adapts to activity - no forced min-height */
+}
+
+.nexus-activity-iframe {
+    width: 100%;
+    height: calc(100vh - 200px);
+    min-height: 600px;
+    border: none;
+}
+
+/* Placeholder */
+.nexus-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
+    color: #6c757d;
+    text-align: center;
+    padding: 2rem;
+}
+
+.nexus-placeholder-icon {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.nexus-placeholder-text {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Loading state */
+.nexus-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
+    color: #6c757d;
+}
+
+.nexus-loading p {
+    margin-top: 1rem;
+}
+
+/* Error state */
+.nexus-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
+    color: #dc3545;
+}
+
+.nexus-error p {
+    margin-top: 1rem;
+}
+
+/* =============================================
+   Sidebar - Tabs
+   ============================================= */
+
+.nexus-tabs {
+    display: flex;
+    border-bottom: 2px solid #e9ecef;
+    background-color: #fff;
+    flex-shrink: 0;
+}
+
+.nexus-tab {
+    flex: 1;
+    padding: 0.75rem 0.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.nexus-tab:hover {
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.nexus-tab.active {
+    color: var(--nexus-accent-color);
+    border-bottom-color: var(--nexus-accent-color);
+}
+
+.nexus-tab i {
+    font-size: 1.1rem;
+}
+
+.nexus-tab span {
+    font-size: 0.75rem;
+}
+
+/* =============================================
+   Sidebar - Tab Content
+   ============================================= */
+
+.nexus-tab-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Webkit scrollbar styling */
+.nexus-tab-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.nexus-tab-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.nexus-tab-content::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 4px;
+}
+
+.nexus-tab-content::-webkit-scrollbar-thumb:hover {
+    background-color: #a1a1a1;
+}
+
+.nexus-tab-pane {
+    padding: 1rem;
+}
+
+.nexus-tab-pane.active {
+    display: block;
+}
+
+/* Coming Soon placeholder for future phases */
+.nexus-coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.nexus-coming-soon i {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.nexus-coming-soon p {
+    margin: 0.5rem 0;
+    font-weight: 500;
+}
+
+.nexus-coming-soon small {
+    opacity: 0.7;
+}
+
+/* =============================================
+   Sidebar - Progress Bar
+   ============================================= */
+
+.nexus-progress-section {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.nexus-progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.nexus-progress-label {
+    color: #495057;
+    font-weight: 500;
+}
+
+.nexus-progress-percentage {
+    color: var(--nexus-accent-color);
+    font-weight: 600;
+}
+
+.nexus-progress-bar {
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.nexus-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--nexus-accent-color), var(--nexus-progress-color));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.nexus-progress-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #adb5bd;
+    margin-top: 0.25rem;
+}
+
+/* =============================================
+   Sidebar - Units List (Hierarchical Tree Structure)
+   ============================================= */
+
+.nexus-units-list {
+    padding: 0;
+}
+
+.nexus-unit {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.nexus-unit-header {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.2s ease;
+    gap: 0.5rem;
+    border-left: 3px solid transparent;
+}
+
+.nexus-unit-header:hover {
+    background-color: #f8f9fa;
+}
+
+/* Expanded section highlight */
+.nexus-unit.expanded > .nexus-unit-header {
+    background-color: #f0f4f8;
+    border-left-color: var(--nexus-accent-color);
+}
+
+.nexus-unit-toggle {
+    width: 20px;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+.nexus-unit-toggle i {
+    transition: transform 0.2s ease;
+}
+
+.nexus-unit-icon {
+    width: 20px;
+    flex-shrink: 0;
+    margin-right: 0.25rem;
+}
+
+.nexus-unit-icon i {
+    font-size: 0.95rem;
+}
+
+.nexus-unit-name {
+    flex: 1;
+    font-weight: 600;
+    color: #212529;
+    font-size: 0.9rem;
+}
+
+.nexus-unit-count {
+    color: #adb5bd;
+    font-size: 0.8rem;
+    background-color: #e9ecef;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+}
+
+/* Lessons container with tree structure */
+.nexus-unit-lessons {
+    background-color: #f8f9fa;
+    position: relative;
+    padding-left: 1rem;
+}
+
+/* Vertical tree line connecting all lessons */
+.nexus-unit-lessons::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    bottom: 0.75rem;
+    width: 2px;
+    background-color: #dee2e6;
+}
+
+/* =============================================
+   Sidebar - Lessons (Subsections with Tree Structure)
+   ============================================= */
+
+.nexus-lesson {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    cursor: pointer;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    flex-wrap: nowrap;
+    position: relative;
+}
+
+/* Horizontal branch line connecting to vertical tree */
+.nexus-lesson::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 1.25rem;
+    width: 0.75rem;
+    height: 2px;
+    background-color: #dee2e6;
+}
+
+/* Last lesson - cut the vertical line at the right point */
+.nexus-lesson:last-child::after {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 1.25rem;
+    bottom: 0;
+    width: 2px;
+    background-color: #f8f9fa;
+}
+
+.nexus-lesson:hover {
+    background-color: #e9ecef;
+    text-decoration: none;
+    color: inherit;
+}
+
+.nexus-lesson.active {
+    background-color: rgba(13, 110, 253, 0.08);
+    border-left: 3px solid var(--nexus-accent-color);
+    padding-left: calc(2.5rem - 3px);
+}
+
+/* Adjust branch line position for active state */
+.nexus-lesson.active::before {
+    left: calc(1.5rem - 3px);
+}
+
+.nexus-lesson-status {
+    width: 20px;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.nexus-lesson-status i {
+    font-size: 1rem;
+}
+
+.nexus-lesson.completed .nexus-lesson-status i {
+    color: #198754;
+}
+
+.nexus-lesson:not(.completed) .nexus-lesson-status i {
+    color: #adb5bd;
+}
+
+.nexus-lesson-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    object-fit: contain;
+    background-color: #fff;
+    padding: 2px;
+}
+
+.nexus-lesson-info {
+    flex: 1;
+    min-width: 80px;
+    overflow: hidden;
+}
+
+.nexus-lesson-num {
+    display: block;
+    font-size: 0.7rem;
+    color: #6c757d;
+    margin-bottom: 0.125rem;
+    white-space: nowrap;
+}
+
+.nexus-lesson-name {
+    display: block;
+    font-size: 0.85rem;
+    color: #212529;
+    line-height: 1.3;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+.nexus-lesson.active .nexus-lesson-name {
+    color: var(--nexus-accent-color);
+    font-weight: 500;
+}
+
+/* No lessons message */
+.nexus-no-lessons,
+.nexus-no-units {
+    padding: 1.5rem;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+/* =============================================
+   Editing Mode
+   ============================================= */
+
+.nexus-editing-mode {
+    padding: 1rem;
+    background-color: #fff;
+    min-height: calc(100vh - 200px);
+}
+
+.nexus-editing-mode ul {
+    margin: 0;
+    padding: 0;
+}
+
+/* =============================================
+   Responsive Design
+   ============================================= */
+
+/* Mobile sidebar toggle button - visible by default on mobile (mobile-first) */
+.nexus-sidebar-toggle {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--nexus-accent-color), var(--nexus-secondary-color));
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    z-index: 1050;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--nexus-transition), box-shadow var(--nexus-transition);
+}
+
+.nexus-sidebar-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.nexus-sidebar-toggle:active {
+    transform: scale(0.95);
+}
+
+.nexus-sidebar-toggle i {
+    font-size: 1.5rem;
+}
+
+/* Mobile sidebar close button - visible by default on mobile */
+.nexus-sidebar-close {
+    display: flex;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background-color var(--nexus-transition);
+}
+
+.nexus-sidebar-close:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+/* Mobile overlay */
+.nexus-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1039;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.nexus-sidebar-overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+/* Small screens - smaller toggle button */
+@media (max-width: 576px) {
+    .nexus-sidebar-toggle {
+        width: 50px;
+        height: 50px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .nexus-sidebar-toggle i {
+        font-size: 1.25rem;
+    }
+
+    .nexus-tab span {
+        display: none;
+    }
+
+    .nexus-tab i {
+        font-size: 1.25rem;
+    }
+
+    /* Reduce tree indentation on mobile */
+    .nexus-unit-lessons {
+        padding-left: 0.5rem;
+    }
+
+    .nexus-unit-lessons::before {
+        left: 1rem;
+    }
+
+    .nexus-lesson {
+        padding-left: 2rem;
+    }
+
+    .nexus-lesson::before {
+        left: 1rem;
+        width: 0.5rem;
+    }
+
+    .nexus-lesson:last-child::after {
+        left: 1rem;
+    }
+
+    .nexus-lesson.active {
+        padding-left: calc(2rem - 3px);
+    }
+
+    .nexus-lesson.active::before {
+        left: calc(1rem - 3px);
+    }
+
+    .nexus-lesson-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Adjust activity wrapper padding */
+    .nexus-activity-wrapper {
+        padding: 1rem;
+    }
+
+    .nexus-activity-title {
+        font-size: 1.25rem;
+    }
+
+    /* Adjust comments section padding */
+    .nexus-format-container .nexus-comments-section {
+        padding: 1rem;
+    }
+}
+
+/* Tablets */
+@media (min-width: 577px) and (max-width: 991px) {
+    .nexus-activity-iframe {
+        height: 60vh;
+        min-height: 400px;
+    }
+}
+
+/* Desktop - hide mobile controls */
+@media (min-width: 992px) {
+    .nexus-sidebar-toggle {
+        display: none;
+    }
+
+    .nexus-sidebar-close {
+        display: none;
+    }
+
+    .nexus-sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* =============================================
+   Dark Mode Support (if theme supports it)
+   ============================================= */
+
+@media (prefers-color-scheme: dark) {
+    .nexus-format-container {
+        /* Dark mode styles can be added here if needed */
+    }
+}
+
+/* =============================================
+   Print Styles
+   ============================================= */
+
+@media print {
+    .nexus-sidebar {
+        display: none;
+    }
+
+    .nexus-content-area {
+        max-width: 100%;
+        flex: none;
+    }
+
+    .nexus-activity-iframe {
+        height: auto;
+        min-height: auto;
+    }
+}
+
+/* =============================================
+   Activity Content (AJAX loaded)
+   ============================================= */
+
+.nexus-activity-wrapper {
+    padding: 1.5rem;
+}
+
+/* Hide completion indicators in activity content (already shown in sidebar) */
+.nexus-activity-wrapper .completion-info,
+.nexus-activity-wrapper .automatic-completion-conditions,
+.nexus-activity-wrapper .activity-completion,
+.nexus-activity-wrapper .completioncheckbox,
+.nexus-activity-wrapper .activity-actions .completion-dropdown,
+.nexus-activity-wrapper [data-region="completion-info"],
+.nexus-activity-wrapper .activity-altcontent .completion_complete,
+.nexus-activity-wrapper .activity-altcontent .completion_notcomplete,
+.nexus-activity-content .completion-info,
+.nexus-activity-content .automatic-completion-conditions,
+.nexus-activity-content .activity-completion,
+.nexus-activity-content [data-region="completion-info"] {
+    display: none !important;
+}
+
+.nexus-activity-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.nexus-activity-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nexus-activity-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.nexus-activity-intro {
+    margin-top: 1rem;
+    color: #495057;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.nexus-activity-main {
+    margin-bottom: 1.5rem;
+}
+
+/* Activity Navigation Buttons */
+.nexus-activity-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: #fff;
+    border-top: 1px solid #e9ecef;
+    gap: 1rem;
+}
+
+.nexus-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #495057;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: var(--nexus-border-radius);
+    cursor: pointer;
+    transition: all var(--nexus-transition);
+    min-width: 120px;
+    justify-content: center;
+}
+
+.nexus-nav-btn:hover:not(:disabled) {
+    background-color: var(--nexus-accent-color);
+    border-color: var(--nexus-accent-color);
+    color: #fff;
+}
+
+.nexus-nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.nexus-nav-btn i {
+    font-size: 0.85rem;
+}
+
+.nexus-nav-prev {
+    justify-content: flex-start;
+}
+
+.nexus-nav-next {
+    justify-content: flex-end;
+}
+
+.nexus-nav-info {
+    flex: 1;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Responsive navigation */
+@media (max-width: 576px) {
+    .nexus-activity-navigation {
+        padding: 0.75rem 1rem;
+    }
+
+    .nexus-nav-btn {
+        padding: 0.5rem 0.75rem;
+        min-width: auto;
+        font-size: 0.85rem;
+    }
+
+    .nexus-nav-btn span {
+        display: none;
+    }
+
+    .nexus-nav-btn i {
+        font-size: 1rem;
+    }
+
+    .nexus-nav-info {
+        font-size: 0.8rem;
+    }
+}
+
+.nexus-page-content,
+.nexus-book-content {
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.nexus-page-content img,
+.nexus-book-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.nexus-resource-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.nexus-resource-pdf {
+    width: 100%;
+    min-height: 600px;
+}
+
+.nexus-resource-video video,
+.nexus-resource-audio audio {
+    width: 100%;
+    border-radius: 4px;
+}
+
+.nexus-resource-download {
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.nexus-url-content {
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.nexus-activity-link {
+    padding: 1.5rem;
+}
+
+.nexus-book-more {
+    margin-top: 1rem;
+}
+
+/* Lesson clickable styles */
+.nexus-lesson {
+    cursor: pointer;
+}
+
+.nexus-lesson:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
+}
+
+/* =============================================
+   Hidden/Stealth Activity Indicators
+   ============================================= */
+
+.nexus-lesson.hidden-activity {
+    opacity: 0.6;
+    background-color: #fff3cd;
+}
+
+.nexus-lesson.hidden-activity:hover {
+    background-color: #ffecb5;
+}
+
+.nexus-lesson.stealth-activity {
+    opacity: 0.6;
+    background-color: #e2e3e5;
+}
+
+.nexus-lesson.stealth-activity:hover {
+    background-color: #d3d4d6;
+}
+
+.nexus-lesson-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.nexus-lesson-badge.badge-hidden {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.nexus-lesson-badge.badge-stealth {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.nexus-lesson-badge.badge-restricted {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+/* Section hidden indicator */
+.nexus-unit.hidden-section > .nexus-unit-header {
+    background-color: #fff3cd;
+    opacity: 0.7;
+}
+
+.nexus-unit.hidden-section > .nexus-unit-header:hover {
+    background-color: #ffecb5;
+}
+
+.nexus-unit-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    background-color: #ffc107;
+    color: #212529;
+    margin-left: 0.5rem;
+}
+
+/* Teacher/Manager specific styles */
+.nexus-teacher-view .nexus-unit.hidden-section,
+.nexus-teacher-view .nexus-lesson.hidden-activity,
+.nexus-teacher-view .nexus-lesson.stealth-activity {
+    display: flex !important;
+}
+
+/* Student view - hide completely */
+.nexus-student-view .nexus-unit.hidden-section,
+.nexus-student-view .nexus-lesson.hidden-activity,
+.nexus-student-view .nexus-lesson.stealth-activity {
+    display: none !important;
+}
+
+/* Availability info */
+.nexus-availability-info {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* =============================================
+   Course Header (Optional - shown in Nexus mode)
+   ============================================= */
+
+.nexus-course-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nexus-course-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.nexus-course-meta {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* =============================================
+   Editing Mode Enhancements
+   ============================================= */
+
+.nexus-editing-mode .section {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.nexus-editing-mode .section-header {
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.nexus-editing-mode .activity-item {
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.75rem;
+}
+
+.nexus-editing-mode .activity-item:last-child {
+    border-bottom: none;
+}
+
+/* =============================================
+   Subsections (Delegated Sections - mod_subsection)
+   ============================================= */
+
+.nexus-subsection {
+    margin: 0;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    position: relative;
+}
+
+.nexus-subsection-header {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    cursor: pointer;
+    background-color: #eef2f6;
+    transition: background-color 0.2s ease;
+    gap: 0.5rem;
+    border-left: 3px solid transparent;
+    position: relative;
+}
+
+/* Horizontal branch line for subsection header */
+.nexus-subsection-header::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    width: 0.75rem;
+    height: 2px;
+    background-color: #dee2e6;
+}
+
+.nexus-subsection-header:hover {
+    background-color: #e2e8ee;
+}
+
+.nexus-subsection.expanded > .nexus-subsection-header {
+    background-color: #e2e8f0;
+    border-left-color: #6c757d;
+}
+
+.nexus-subsection-name {
+    flex: 1;
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.85rem;
+}
+
+.nexus-subsection.expanded > .nexus-subsection-header .nexus-subsection-name {
+    color: #212529;
+    font-weight: 600;
+}
+
+/* Subsection content area with deeper indentation */
+.nexus-subsection-content {
+    background-color: #f1f3f5;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+/* Vertical tree line for subsection content */
+.nexus-subsection-content::before {
+    content: '';
+    position: absolute;
+    left: 3rem;
+    top: 0;
+    bottom: 0.75rem;
+    width: 2px;
+    background-color: #ced4da;
+}
+
+/* Lessons inside subsections have deeper indentation */
+.nexus-subsection-content .nexus-lesson {
+    padding-left: 4rem;
+}
+
+.nexus-subsection-content .nexus-lesson::before {
+    left: 3rem;
+    width: 0.75rem;
+}
+
+.nexus-subsection-content .nexus-lesson:last-child::after {
+    left: 3rem;
+    background-color: #f1f3f5;
+}
+
+/* Subsection visibility styles */
+.nexus-subsection.dimmed {
+    opacity: 0.7;
+}
+
+.nexus-subsection.dimmed > .nexus-subsection-header {
+    background-color: #fff3cd;
+}
+
+.nexus-subsection.dimmed > .nexus-subsection-header:hover {
+    background-color: #ffecb5;
+}
+
+/* Mobile adjustments for subsections */
+@media (max-width: 576px) {
+    .nexus-subsection-header {
+        padding-left: 2rem;
+    }
+
+    .nexus-subsection-header::before {
+        left: 1rem;
+        width: 0.5rem;
+    }
+
+    .nexus-subsection-content {
+        padding-left: 1rem;
+    }
+
+    .nexus-subsection-content::before {
+        left: 2rem;
+    }
+
+    .nexus-subsection-content .nexus-lesson {
+        padding-left: 3rem;
+    }
+
+    .nexus-subsection-content .nexus-lesson::before {
+        left: 2rem;
+    }
+
+    .nexus-subsection-content .nexus-lesson:last-child::after {
+        left: 2rem;
+    }
+}
+
+/* =========================================
+   GRADABLE ACTIVITIES TAB STYLES (Phase 3)
+   Using ID selectors for higher specificity
+   ========================================= */
+
+.nexus-format-container #nexus-tab-activities {
+    padding: 1rem;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activities-header {
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activities-header h6 {
+    font-weight: 600;
+    color: #212529;
+    font-size: 1rem;
+    margin: 0 0 0.25rem 0;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activities-header small {
+    display: block;
+    color: #6c757d;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-item:hover {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-item.completed {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-item.overdue {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f3f5;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-icon img,
+.nexus-format-container #nexus-tab-activities .nexus-activity-icon .icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #212529;
+    text-decoration: none;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-name:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-due,
+.nexus-format-container #nexus-tab-activities .nexus-activity-grade {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-due i,
+.nexus-format-container #nexus-tab-activities .nexus-activity-grade i {
+    font-size: 0.7rem;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-status {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-activity-status .badge {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    padding: 0;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-no-activities {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-no-activities i {
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.nexus-format-container #nexus-tab-activities .nexus-no-activities p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Mobile adjustments for activities */
+@media (max-width: 576px) {
+    .nexus-format-container #nexus-tab-activities .nexus-activity-item {
+        padding: 0.625rem;
+        gap: 0.5rem;
+    }
+
+    .nexus-format-container #nexus-tab-activities .nexus-activity-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .nexus-format-container #nexus-tab-activities .nexus-activity-icon img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .nexus-format-container #nexus-tab-activities .nexus-activity-meta {
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+}
+
+/* =========================================
+   NOTES TAB STYLES (Phase 5)
+   Using ID selectors for higher specificity
+   ========================================= */
+
+.nexus-format-container #nexus-tab-notes {
+    padding: 1rem;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-notes-header {
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-notes-header h6 {
+    font-weight: 600;
+    color: #212529;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-add-note-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-editor {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-editor input[type="text"] {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-editor textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-notes-loading {
+    padding: 2rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-item {
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-item:hover {
+    border-color: #dee2e6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-title {
+    font-weight: 600;
+    color: #212529;
+    font-size: 0.9rem;
+    flex: 1;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-actions {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-actions .btn {
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+    border: none;
+    background: transparent;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-actions .btn:hover {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-actions .btn i {
+    font-size: 0.875rem;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-content {
+    color: #495057;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-footer {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f1f3f4;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-note-date {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-no-notes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-no-notes i {
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.nexus-format-container #nexus-tab-notes .nexus-no-notes p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Mobile adjustments for notes */
+@media (max-width: 576px) {
+    .nexus-format-container #nexus-tab-notes .nexus-note-item {
+        padding: 0.75rem;
+    }
+
+    .nexus-format-container #nexus-tab-notes .nexus-notes-header .d-flex {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .nexus-format-container #nexus-tab-notes .nexus-add-note-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* =========================================
+   COMMENTS SECTION STYLES (Phase 6)
+   Comments section is placed below the main layout
+   ========================================= */
+
+.nexus-format-container .nexus-comments-section {
+    background-color: #fff;
+    border-top: 1px solid #e9ecef;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border-radius: var(--nexus-border-radius);
+    box-shadow: var(--nexus-card-shadow);
+}
+
+/* Comments section is now inside nexus-content-area, inherits its width */
+
+/* Participation Banner */
+.nexus-format-container .nexus-participation-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.nexus-format-container .nexus-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.nexus-format-container .nexus-banner-content i {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.nexus-format-container .nexus-banner-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.nexus-format-container .nexus-banner-close:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* Comments Header */
+.nexus-format-container .nexus-comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    gap: 1rem;
+}
+
+.nexus-format-container .nexus-comments-title-wrapper {
+    flex: 1;
+}
+
+.nexus-format-container .nexus-comments-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.nexus-format-container .nexus-comments-activity-name {
+    font-size: 0.95rem;
+    color: var(--nexus-accent-color);
+    font-weight: 500;
+    margin-top: 0.25rem;
+    padding-left: 1.75rem;
+}
+
+.nexus-format-container .nexus-comments-activity-name:empty {
+    display: none;
+}
+
+.nexus-format-container .nexus-comments-description {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.75rem;
+}
+
+.nexus-format-container .nexus-comments-title i {
+    color: #6c757d;
+}
+
+.nexus-format-container .nexus-comments-count {
+    font-weight: 400;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.nexus-format-container .nexus-comments-sort select {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background-color: #fff;
+    min-width: 140px;
+}
+
+/* Comment Editor */
+.nexus-format-container .nexus-comment-editor {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.nexus-format-container .nexus-comment-editor-avatar {
+    flex-shrink: 0;
+}
+
+.nexus-format-container .nexus-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.nexus-format-container .nexus-comment-editor-input {
+    flex: 1;
+}
+
+.nexus-format-container .nexus-comment-editor-input textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    resize: vertical;
+    min-height: 70px;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.2s ease;
+}
+
+.nexus-format-container .nexus-comment-editor-input textarea:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.nexus-format-container .nexus-comment-editor-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.nexus-format-container .nexus-comment-editor-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Comments List */
+.nexus-format-container .nexus-comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.nexus-format-container .nexus-comments-loading {
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.nexus-format-container .nexus-no-comments {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.nexus-format-container .nexus-no-comments i {
+    display: block;
+    margin-bottom: 0.75rem;
+    opacity: 0.5;
+}
+
+/* Individual Comment */
+.nexus-format-container .nexus-comment {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: box-shadow 0.2s ease;
+}
+
+.nexus-format-container .nexus-comment:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.nexus-format-container .nexus-comment-avatar {
+    flex-shrink: 0;
+}
+
+.nexus-format-container .nexus-comment-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.nexus-format-container .nexus-comment-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.nexus-format-container .nexus-comment-author {
+    font-weight: 600;
+    color: #212529;
+    font-size: 0.9rem;
+}
+
+.nexus-format-container .nexus-comment-role {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.nexus-format-container .nexus-comment-role.nexus-teacher-badge {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+.nexus-format-container .nexus-comment-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-left: auto;
+}
+
+.nexus-format-container .nexus-comment-content {
+    color: #495057;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    word-break: break-word;
+    margin-bottom: 0.75rem;
+}
+
+/* Comment Actions */
+.nexus-format-container .nexus-comment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f1f3f4;
+}
+
+.nexus-format-container .nexus-comment-actions button {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.nexus-format-container .nexus-comment-actions button:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.nexus-format-container .nexus-comment-like.liked {
+    color: #dc3545;
+}
+
+.nexus-format-container .nexus-comment-like.liked:hover {
+    color: #c82333;
+}
+
+.nexus-format-container .nexus-comment-like i {
+    transition: transform 0.2s ease;
+}
+
+.nexus-format-container .nexus-comment-like:hover i {
+    transform: scale(1.15);
+}
+
+/* Replies Toggle */
+.nexus-format-container .nexus-comment-replies-toggle {
+    margin-top: 0.75rem;
+}
+
+.nexus-format-container .nexus-show-replies {
+    background: none;
+    border: none;
+    color: #0d6efd;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0;
+}
+
+.nexus-format-container .nexus-show-replies:hover {
+    color: #0b5ed7;
+    text-decoration: underline;
+}
+
+/* Nested Replies */
+.nexus-format-container .nexus-comment-replies {
+    margin-top: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid #e9ecef;
+}
+
+.nexus-format-container .nexus-comment-replies .nexus-comment {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+.nexus-format-container .nexus-comment-replies .nexus-comment .nexus-avatar {
+    width: 32px;
+    height: 32px;
+}
+
+.nexus-format-container .nexus-reply {
+    margin-bottom: 0.75rem;
+}
+
+.nexus-format-container .nexus-reply:last-child {
+    margin-bottom: 0;
+}
+
+/* Reply Editor */
+.nexus-format-container .nexus-reply-editor {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.nexus-format-container .nexus-reply-editor textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    resize: vertical;
+    min-height: 60px;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.nexus-format-container .nexus-reply-editor textarea:focus {
+    outline: none;
+    border-color: #0d6efd;
+}
+
+.nexus-format-container .nexus-reply-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.nexus-format-container .nexus-reply-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Load More Button */
+.nexus-format-container .nexus-comments-more {
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 0.5rem;
+}
+
+.nexus-format-container .nexus-comments-more .btn {
+    min-width: 200px;
+}
+
+/* Mobile Adjustments for Comments */
+@media (max-width: 768px) {
+    .nexus-format-container .nexus-comments-section {
+        padding: 1rem;
+    }
+
+    .nexus-format-container .nexus-participation-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+
+    .nexus-format-container .nexus-banner-content {
+        flex-direction: column;
+    }
+
+    .nexus-format-container .nexus-comments-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .nexus-format-container .nexus-comments-sort {
+        width: 100%;
+    }
+
+    .nexus-format-container .nexus-comments-sort select {
+        width: 100%;
+    }
+
+    .nexus-format-container .nexus-comment-editor {
+        flex-direction: column;
+    }
+
+    .nexus-format-container .nexus-comment-editor-avatar {
+        align-self: flex-start;
+    }
+
+    .nexus-format-container .nexus-comment {
+        flex-direction: column;
+    }
+
+    .nexus-format-container .nexus-comment-avatar {
+        align-self: flex-start;
+    }
+
+    .nexus-format-container .nexus-comment-time {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 0.25rem;
+    }
+
+    .nexus-format-container .nexus-comment-replies {
+        padding-left: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .nexus-format-container .nexus-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .nexus-format-container .nexus-comment-actions {
+        gap: 0.5rem;
+    }
+
+    .nexus-format-container .nexus-comment-actions button {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.375rem;
+    }
+}

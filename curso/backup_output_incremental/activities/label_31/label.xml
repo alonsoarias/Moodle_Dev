@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="31" moduleid="31" modulename="label" contextid="130">
+  <label id="31">
+    <name>Introduccion - Capitulo 5</name>
+    <intro>&lt;div style=&quot;max-width: 900px; margin: 0 auto 30px auto; font-family: &apos;Segoe UI&apos;, Roboto, sans-serif;&quot;&gt;
+    &lt;div style=&quot;background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.15);&quot;&gt;
+        &lt;!-- Header con numero de capitulo --&gt;
+        &lt;div style=&quot;display: flex; align-items: center; gap: 20px; padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.1);&quot;&gt;
+            &lt;div style=&quot;background: rgba(255,255,255,0.15); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2);&quot;&gt;
+                &lt;svg viewBox=&quot;0 0 50 50&quot; width=&quot;40&quot; height=&quot;40&quot;&gt;&lt;circle cx=&quot;25&quot; cy=&quot;12&quot; r=&quot;6&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M25 18 L25 30 M18 24 L32 24&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M25 30 L18 42 M25 30 L35 38&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M35 38 L40 35&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M12 20 Q8 22 10 26&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;1.5&quot; opacity=&quot;0.5&quot;/&gt;&lt;/svg&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;flex: 1;&quot;&gt;
+                &lt;div style=&quot;color: rgba(255,255,255,0.7); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;&quot;&gt;Capitulo 5&lt;/div&gt;
+                &lt;h2 style=&quot;color: white; margin: 5px 0 0 0; font-size: 1.5em; font-weight: 600;&quot;&gt;Periodo Sensoriomotor&lt;/h2&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;background: rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2);&quot;&gt;
+                &lt;span style=&quot;color: white; font-size: 1.5em; font-weight: 700;&quot;&gt;5&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Contenido --&gt;
+        &lt;div style=&quot;padding: 30px;&quot;&gt;
+            &lt;p style=&quot;color: rgba(255,255,255,0.95); font-size: 1.05em; line-height: 1.8; margin: 0;&quot;&gt;
+                Estudiamos el periodo sensoriomotor de Piaget (0-24 meses), donde se desarrollan rapidamente las capacidades cognitivas. Exploramos conceptos como epigenetica, densidad sinaptica, egocentrismo extremo, esquemas sensoriomotores, memoria implicita y la permanencia del objeto. Analizamos como el cuerpo y el movimiento construyen la mente.
+            &lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</intro>
+    <introformat>1</introformat>
+    <timemodified>1768689196</timemodified>
+  </label>
+</activity>

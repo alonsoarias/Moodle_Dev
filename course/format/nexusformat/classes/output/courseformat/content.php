@@ -1,0 +1,809 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Contains the main content output class for Nexus Format.
+ *
+ * @package    format_nexusformat
+ * @copyright  2024 Nexus Learning
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace format_nexusformat\output\courseformat;
+
+use core_courseformat\output\local\content as content_base;
+use core_courseformat\base as course_format;
+use stdClass;
+use renderer_base;
+use completion_info;
+
+/**
+ * Main content output class for Nexus Format.
+ *
+ * This class handles the two-column layout with the activity content
+ * on the left and the navigation sidebar on the right.
+ *
+ * @package    format_nexusformat
+ * @copyright  2024 Nexus Learning
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class content extends content_base {
+
+    /**
+     * Export this data so it can be used as the context for a mustache template.
+     *
+     * @param renderer_base $output typically, the renderer that's calling this function
+     * @return stdClass data context for a mustache template
+     */
+    public function export_for_template(renderer_base $output): stdClass {
+        global $PAGE, $USER;
+
+        $format = $this->format;
+        $course = $format->get_course();
+        $modinfo = $format->get_modinfo();
+        $context = \context_course::instance($course->id);
+
+        // Get base data from parent.
+        $data = parent::export_for_template($output);
+
+        // Get the section number if one is specified via URL parameter.
+        // Note: section.php URLs are automatically redirected to view.php in lib.php,
+        // so we always use the full Nexus Format layout here.
+        $displaysection = optional_param('section', 0, PARAM_INT);
+
+        // Always use Nexus Format layout (section.php is redirected to view.php).
+        $data->nexusformat = true;
+
+        // Pass the selected section number to the template for auto-expanding in sidebar.
+        $data->selectedsection = $displaysection;
+        $data->courseid = $course->id;
+        $data->coursefullname = format_string($course->fullname);
+        $data->courseshortname = format_string($course->shortname);
+
+        // Use integers for Mustache boolean compatibility.
+        $data->editing = $PAGE->user_is_editing() ? 1 : 0;
+
+        // Determine user role capabilities for view mode.
+        $canviewhidden = has_capability('moodle/course:viewhiddenactivities', $context);
+        $canmanage = has_capability('moodle/course:manageactivities', $context);
+        $data->isteacher = ($canviewhidden || $canmanage) ? 1 : 0;
+        $data->isstudent = !$data->isteacher ? 1 : 0;
+
+        // Get progress information.
+        $data->progress = $this->get_progress_data($course, $modinfo);
+
+        // Get sections data for sidebar.
+        $data->sidebarunits = $this->get_sidebar_units($modinfo, $output, $canviewhidden);
+
+        // Get the section number from URL if specified (for section-specific first activity).
+        $sectionparam = $data->selectedsection > 0 ? $data->selectedsection : null;
+
+        // Get first activity URL for initial load (from specific section if specified).
+        $data->initialactivityurl = $this->get_first_activity_url($modinfo, $sectionparam);
+
+        // Get activity cmid from URL parameter (for activity persistence on reload).
+        $urlcmid = optional_param('cmid', 0, PARAM_INT);
+        if ($urlcmid > 0) {
+            // Verify the cmid is valid for this course.
+            try {
+                $cm = $modinfo->get_cm($urlcmid);
+                if ($cm && $cm->uservisible) {
+                    // If a section is specified, verify the cmid belongs to that section.
+                    if ($sectionparam !== null) {
+                        // Check if cmid is in the specified section.
+                        if ($cm->sectionnum == $sectionparam) {
+                            $data->initialactivitycmid = $urlcmid;
+                        }
+                        // If cmid doesn't belong to the section, it will be ignored
+                        // and the first activity of the section will be loaded instead.
+                    } else {
+                        // No section specified, accept any valid cmid.
+                        $data->initialactivitycmid = $urlcmid;
+                    }
+                }
+            } catch (\Exception $e) {
+                // Invalid cmid, ignore.
+                $urlcmid = 0;
+            }
+        }
+
+        // If no valid URL cmid, use first activity for auto-load (from specific section if specified).
+        if (empty($data->initialactivitycmid)) {
+            $data->initialactivitycmid = $this->get_first_activity_cmid($modinfo, $sectionparam);
+        }
+        $data->hasinitialactivity = !empty($data->initialactivitycmid) ? 1 : 0;
+
+        // Also keep firstactivitycmid for backwards compatibility (always from whole course).
+        $data->firstactivitycmid = $this->get_first_activity_cmid($modinfo);
+        $data->hasfirstactivity = !empty($data->firstactivitycmid) ? 1 : 0;
+
+        // Placeholder text.
+        $data->selectactivitytext = get_string('select_activity', 'format_nexusformat');
+
+        // Get gradable activities for the Activities tab.
+        $data->gradableactivities = $this->get_gradable_activities($course, $modinfo);
+        $data->hasgradableactivities = !empty($data->gradableactivities) ? 1 : 0;
+        $data->gradablecount = count($data->gradableactivities);
+
+        // Strings for JavaScript.
+        $data->strings = [
+            'loading' => get_string('loading', 'format_nexusformat'),
+            'error_loading' => get_string('error_loading', 'format_nexusformat'),
+        ];
+
+        // Get current user avatar for comments section.
+        $userpicture = new \user_picture($USER);
+        $userpicture->size = 40;
+        $data->useravatarurl = $userpicture->get_url($PAGE)->out(false);
+        $data->userid = $USER->id;
+
+        // Get plugin settings.
+        $data = $this->apply_plugin_settings($data);
+
+        return $data;
+    }
+
+    /**
+     * Apply plugin settings to template data.
+     *
+     * @param stdClass $data The template data
+     * @return stdClass Modified template data with settings
+     */
+    protected function apply_plugin_settings(stdClass $data): stdClass {
+        // Get settings with defaults.
+        $accentcolor = get_config('format_nexusformat', 'accentcolor') ?: '#0d6efd';
+        $secondarycolor = get_config('format_nexusformat', 'secondarycolor') ?: '#764ba2';
+        $progresscolor = get_config('format_nexusformat', 'progresscolor') ?: '#0dcaf0';
+        $contentwidth = get_config('format_nexusformat', 'contentwidth') ?: '70';
+        $containerwidth = get_config('format_nexusformat', 'containerwidth') ?: '100';
+        $borderradius = get_config('format_nexusformat', 'cardborderradius') ?: '8';
+        $sidebarposition = get_config('format_nexusformat', 'sidebarposition') ?: 'right';
+
+        // Feature toggles.
+        $enableactivitiestab = get_config('format_nexusformat', 'enableactivitiestab');
+        $enablenotes = get_config('format_nexusformat', 'enablenotes');
+        $enablecomments = get_config('format_nexusformat', 'enablecomments');
+        $enableparticipationbanner = get_config('format_nexusformat', 'enableparticipationbanner');
+        $enablecardshadows = get_config('format_nexusformat', 'enablecardshadows');
+
+        // Default all features to enabled if not set.
+        $data->enableactivitiestab = ($enableactivitiestab === false || $enableactivitiestab === '') ? 1 : (int)$enableactivitiestab;
+        $data->enablenotes = ($enablenotes === false || $enablenotes === '') ? 1 : (int)$enablenotes;
+        $data->enablecomments = ($enablecomments === false || $enablecomments === '') ? 1 : (int)$enablecomments;
+        $data->enableparticipationbanner = ($enableparticipationbanner === false || $enableparticipationbanner === '') ? 1 : (int)$enableparticipationbanner;
+        $data->enablecardshadows = ($enablecardshadows === false || $enablecardshadows === '') ? 1 : (int)$enablecardshadows;
+
+        // Sidebar position.
+        $data->sidebarleft = ($sidebarposition === 'left') ? 1 : 0;
+
+        // Calculate sidebar width from content width.
+        $sidebarwidth = 100 - (int)$contentwidth;
+
+        // Build custom CSS styles string.
+        $customstyles = [];
+        $customstyles[] = "--nexus-accent-color: {$accentcolor}";
+        $customstyles[] = "--nexus-secondary-color: {$secondarycolor}";
+        $customstyles[] = "--nexus-progress-color: {$progresscolor}";
+        $customstyles[] = "--nexus-content-width: {$contentwidth}%";
+        $customstyles[] = "--nexus-sidebar-width: {$sidebarwidth}%";
+        $customstyles[] = "--nexus-container-width: {$containerwidth}%";
+        $customstyles[] = "--nexus-border-radius: {$borderradius}px";
+
+        // Card shadows.
+        if ($data->enablecardshadows) {
+            $customstyles[] = "--nexus-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08)";
+            $customstyles[] = "--nexus-card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12)";
+        } else {
+            $customstyles[] = "--nexus-card-shadow: none";
+            $customstyles[] = "--nexus-card-shadow-hover: none";
+        }
+
+        $data->customstyles = implode('; ', $customstyles);
+
+        return $data;
+    }
+
+    /**
+     * Get progress data for the course.
+     *
+     * @param stdClass $course The course object
+     * @param \course_modinfo $modinfo The course modinfo
+     * @return stdClass Progress data
+     */
+    protected function get_progress_data(stdClass $course, \course_modinfo $modinfo): stdClass {
+        global $USER;
+
+        $progress = new stdClass();
+        $progress->percentage = 0;
+        $progress->completed = 0;
+        $progress->total = 0;
+
+        $completion = new completion_info($course);
+        if (!$completion->is_enabled()) {
+            $progress->enabled = false;
+            return $progress;
+        }
+
+        $progress->enabled = true;
+        $cms = $modinfo->get_cms();
+
+        foreach ($cms as $cm) {
+            if ($cm->completion == COMPLETION_TRACKING_NONE) {
+                continue;
+            }
+            if (!$cm->uservisible) {
+                continue;
+            }
+
+            $progress->total++;
+            $completiondata = $completion->get_data($cm, true, $USER->id);
+            if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                $progress->completed++;
+            }
+        }
+
+        if ($progress->total > 0) {
+            $progress->percentage = round(($progress->completed / $progress->total) * 100);
+        }
+
+        $progress->displaytext = get_string('progress_completed', 'format_nexusformat', $progress->percentage);
+
+        return $progress;
+    }
+
+    /**
+     * Get gradable activities for the Activities tab.
+     *
+     * @param stdClass $course The course object
+     * @param \course_modinfo $modinfo The course modinfo
+     * @return array Array of gradable activity data
+     */
+    protected function get_gradable_activities(stdClass $course, \course_modinfo $modinfo): array {
+        global $USER, $CFG;
+        require_once($CFG->libdir . '/gradelib.php');
+
+        $activities = [];
+        $completion = new completion_info($course);
+
+        // Get all grade items for activities in this course.
+        $gradeitems = \grade_item::fetch_all([
+            'courseid' => $course->id,
+            'itemtype' => 'mod',
+        ]);
+
+        if (!$gradeitems) {
+            return $activities;
+        }
+
+        foreach ($gradeitems as $gradeitem) {
+            // Skip items without a valid module.
+            if (empty($gradeitem->iteminstance) || empty($gradeitem->itemmodule)) {
+                continue;
+            }
+
+            // Get the course module.
+            try {
+                $cm = $modinfo->get_cm($gradeitem->cmid ?? 0);
+            } catch (\Exception $e) {
+                // Try to find by module and instance.
+                $cm = null;
+                foreach ($modinfo->get_cms() as $coursemodule) {
+                    if ($coursemodule->modname === $gradeitem->itemmodule &&
+                        $coursemodule->instance == $gradeitem->iteminstance) {
+                        $cm = $coursemodule;
+                        break;
+                    }
+                }
+            }
+
+            if (!$cm || !$cm->uservisible) {
+                continue;
+            }
+
+            $activity = new stdClass();
+            $activity->id = $cm->id;
+            $activity->name = format_string($cm->name);
+            $activity->modname = $cm->modname;
+            $activity->icon = $cm->get_icon_url()->out(false);
+            $activity->url = $cm->url ? $cm->url->out(false) : '';
+
+            // Get grade info.
+            $activity->grademax = $gradeitem->grademax;
+            $activity->gradepass = $gradeitem->gradepass;
+            $activity->hasgrade = ($gradeitem->gradetype != GRADE_TYPE_NONE);
+
+            // Get user's grade.
+            $grades = grade_get_grades($course->id, 'mod', $cm->modname, $cm->instance, $USER->id);
+            $activity->usergrade = null;
+            $activity->gradeformatted = get_string('not_graded', 'format_nexusformat');
+            $activity->isgraded = 0;
+            $activity->ispassed = 0;
+            $activity->isfailed = 0;
+
+            if (!empty($grades->items[0]->grades[$USER->id])) {
+                $usergrade = $grades->items[0]->grades[$USER->id];
+                if ($usergrade->grade !== null) {
+                    $activity->usergrade = $usergrade->grade;
+                    $activity->gradeformatted = round($usergrade->grade, 2) . ' / ' . round($gradeitem->grademax, 2);
+                    $activity->isgraded = 1;
+
+                    // Check if passed.
+                    if ($gradeitem->gradepass > 0) {
+                        if ($usergrade->grade >= $gradeitem->gradepass) {
+                            $activity->ispassed = 1;
+                        } else {
+                            $activity->isfailed = 1;
+                        }
+                    }
+                }
+            }
+
+            // Get completion status.
+            $activity->iscomplete = 0;
+            $activity->isincomplete = 0;
+            $activity->hascompletion = 0;
+
+            if ($completion->is_enabled($cm) && $cm->completion != COMPLETION_TRACKING_NONE) {
+                $activity->hascompletion = 1;
+                $completiondata = $completion->get_data($cm, true, $USER->id);
+
+                if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                    $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                    $activity->iscomplete = 1;
+                } else {
+                    $activity->isincomplete = 1;
+                }
+            }
+
+            // Status label.
+            if ($activity->iscomplete || $activity->isgraded) {
+                $activity->statuslabel = get_string('status_completed', 'format_nexusformat');
+                $activity->statusclass = 'success';
+            } else {
+                $activity->statuslabel = get_string('status_pending', 'format_nexusformat');
+                $activity->statusclass = 'warning';
+            }
+
+            // Due date if available.
+            $activity->duedate = null;
+            $activity->duedateformatted = '';
+            $activity->isoverdue = 0;
+
+            // Check for due dates in common modules.
+            $instance = $this->get_module_instance($cm);
+            if ($instance) {
+                $duefield = null;
+                if (isset($instance->duedate) && $instance->duedate > 0) {
+                    $duefield = $instance->duedate;
+                } else if (isset($instance->timeclose) && $instance->timeclose > 0) {
+                    $duefield = $instance->timeclose;
+                } else if (isset($instance->cutoffdate) && $instance->cutoffdate > 0) {
+                    $duefield = $instance->cutoffdate;
+                }
+
+                if ($duefield) {
+                    $activity->duedate = $duefield;
+                    $activity->duedateformatted = userdate($duefield, get_string('strftimedatetimeshort', 'langconfig'));
+                    if ($duefield < time() && !$activity->iscomplete && !$activity->isgraded) {
+                        $activity->isoverdue = 1;
+                    }
+                }
+            }
+
+            $activities[] = $activity;
+        }
+
+        // Sort by: incomplete first, then by name.
+        usort($activities, function($a, $b) {
+            // Incomplete activities first.
+            if ($a->iscomplete != $b->iscomplete) {
+                return $a->iscomplete - $b->iscomplete;
+            }
+            // Then by name.
+            return strcmp($a->name, $b->name);
+        });
+
+        return $activities;
+    }
+
+    /**
+     * Get module instance record.
+     *
+     * @param \cm_info $cm Course module info
+     * @return object|null Module instance or null
+     */
+    protected function get_module_instance(\cm_info $cm): ?object {
+        global $DB;
+        try {
+            return $DB->get_record($cm->modname, ['id' => $cm->instance]);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get sidebar units data - replicates Moodle courseindex structure.
+     *
+     * @param \course_modinfo $modinfo The course modinfo
+     * @param renderer_base $output The renderer
+     * @param bool $canviewhidden Whether user can view hidden activities
+     * @return array Array of unit data for sidebar
+     */
+    protected function get_sidebar_units(\course_modinfo $modinfo, renderer_base $output, bool $canviewhidden = false): array {
+        global $USER;
+
+        $format = $this->format;
+        $course = $format->get_course();
+        $completion = new completion_info($course);
+        $context = \context_course::instance($course->id);
+        $units = [];
+
+        // Get section preferences for collapsed state.
+        $preferences = $format->get_sections_preferences();
+
+        $sections = $modinfo->get_section_info_all();
+
+        foreach ($sections as $section) {
+            // Skip delegated sections (they are handled as part of their parent activity).
+            if (!empty($section->component)) {
+                continue;
+            }
+
+            // For section 0 (General section), only show if it has visible activities.
+            if ($section->section == 0) {
+                // Check if section 0 has any visible activities.
+                $hassection0activities = false;
+                if (!empty($modinfo->sections[0])) {
+                    foreach ($modinfo->sections[0] as $cmid) {
+                        $cm = $modinfo->get_cm($cmid);
+                        if ($cm->uservisible && !$cm->is_stealth()) {
+                            $hassection0activities = true;
+                            break;
+                        }
+                    }
+                }
+                if (!$hassection0activities) {
+                    continue;
+                }
+            }
+
+            // Check section visibility.
+            $sectionvisible = $section->visible;
+            $sectionuservisible = $section->uservisible;
+
+            // For teachers: show all sections with visibility indicators.
+            // For students: only show visible sections they can access.
+            if (!$canviewhidden && !$sectionuservisible) {
+                continue;
+            }
+
+            // Build section data similar to courseindex.
+            $unit = $this->export_section_for_sidebar($section, $modinfo, $completion, $canviewhidden, $preferences);
+
+            if ($unit !== null) {
+                $units[] = $unit;
+            }
+        }
+
+        return $units;
+    }
+
+    /**
+     * Export a single section for the sidebar.
+     *
+     * @param \section_info $section The section info
+     * @param \course_modinfo $modinfo The course modinfo
+     * @param completion_info $completion The completion info
+     * @param bool $canviewhidden Whether user can view hidden
+     * @param array $preferences Section preferences
+     * @param int $depth Nesting depth (for subsections)
+     * @return stdClass|null Section data or null if should be skipped
+     */
+    protected function export_section_for_sidebar(
+        \section_info $section,
+        \course_modinfo $modinfo,
+        completion_info $completion,
+        bool $canviewhidden,
+        array $preferences,
+        int $depth = 0
+    ): ?stdClass {
+        global $USER;
+
+        $format = $this->format;
+        $course = $format->get_course();
+
+        // Determine collapsed state from preferences.
+        $indexcollapsed = false;
+        if (isset($preferences[$section->id]) && !empty($preferences[$section->id]->indexcollapsed)) {
+            $indexcollapsed = true;
+        }
+
+        $unit = new stdClass();
+        $unit->id = $section->id;
+        $unit->num = $section->section;
+        $unit->name = $format->get_section_name($section);
+        $unit->sectionurl = course_get_url($course, $section->section, ['navigation' => true])->out(false);
+
+        // Collapsed state - section 0 or section 1 expanded by default, rest collapsed.
+        $isFirstSection = ($section->section == 0 || $section->section == 1);
+        $unit->expanded = ($isFirstSection && !$indexcollapsed) ? 1 : 0;
+        $unit->indexcollapsed = $indexcollapsed ? 1 : 0;
+
+        // Section visibility flags.
+        $unit->visible = !empty($section->visible) ? 1 : 0;
+        $unit->ishidden = !$section->visible ? 1 : 0;
+        $unit->hiddentext = get_string('hiddenfromstudents');
+        $unit->current = $format->is_section_current($section) ? 1 : 0;
+        $unit->depth = $depth;
+        $unit->issubsection = ($depth > 0) ? 1 : 0;
+
+        // For delegated/subsections.
+        $unit->isdelegated = !empty($section->component) ? 1 : 0;
+        $unit->component = $section->component ?? '';
+
+        // Get availability info for section.
+        $unit->hasrestrictions = 0;
+        if (!empty($section->availability)) {
+            $ci = new \core_availability\info_section($section);
+            $fullinfo = $ci->get_full_information();
+            if (!empty($fullinfo)) {
+                $unit->hasrestrictions = 1;
+                $unit->availabilityinfo = $fullinfo;
+            }
+        }
+
+        // Get course modules in this section.
+        $unit->cms = [];
+        if (!empty($modinfo->sections[$section->section])) {
+            $cmindex = 1;
+            foreach ($modinfo->sections[$section->section] as $cmid) {
+                $cm = $modinfo->get_cm($cmid);
+
+                // Check visibility.
+                $activityvisible = $cm->visible;
+                $activityuservisible = $cm->uservisible;
+                $isstealth = $cm->is_stealth();
+
+                // For students: only show visible activities.
+                if (!$canviewhidden && (!$activityuservisible || $isstealth)) {
+                    continue;
+                }
+
+                // Check for delegated section (subsection activity).
+                $delegatedsectioninfo = $cm->get_delegated_section_info();
+
+                $cmdata = new stdClass();
+                $cmdata->id = $cm->id;
+                $cmdata->num = $section->section . '.' . $cmindex;
+                $cmdata->name = $cm->get_formatted_name();
+                $cmdata->url = $cm->url ? $cm->url->out(false) : '';
+                $cmdata->modname = $cm->modname;
+                $cmdata->icon = $cm->get_icon_url()->out(false);
+                $cmdata->anchor = "module-{$cm->id}";
+                $cmdata->active = 0;
+                $cmdata->uservisible = $activityuservisible ? 1 : 0;
+
+                // Visibility flags.
+                $cmdata->visible = $activityvisible ? 1 : 0;
+                $cmdata->ishidden = !$activityvisible ? 1 : 0;
+                $cmdata->isstealth = $isstealth ? 1 : 0;
+                $cmdata->isrestricted = (!$activityuservisible && $activityvisible) ? 1 : 0;
+                $cmdata->accessvisible = ($activityvisible && $activityuservisible) ? 1 : 0;
+
+                // Visibility badge.
+                if ($cmdata->ishidden) {
+                    $cmdata->visibilitybadge = get_string('hiddenfromstudents');
+                    $cmdata->badgeclass = 'badge-hidden';
+                } else if ($cmdata->isstealth) {
+                    $cmdata->visibilitybadge = get_string('hiddenoncoursepage');
+                    $cmdata->badgeclass = 'badge-stealth';
+                } else if ($cmdata->isrestricted) {
+                    $cmdata->visibilitybadge = get_string('restricted');
+                    $cmdata->badgeclass = 'badge-restricted';
+                }
+
+                // Availability info.
+                if ($cm->availableinfo) {
+                    $cmdata->availabilityinfo = $cm->availableinfo;
+                    $cmdata->hascmrestrictions = 1;
+                }
+
+                // Completion status - using courseindex pattern.
+                $cmdata->hascompletion = 0;
+                $cmdata->iscomplete = 0;
+                $cmdata->isincomplete = 0;
+                $cmdata->isfail = 0;
+                $cmdata->completionstate = 0;
+
+                if ($completion->is_enabled($cm) && $cm->completion != COMPLETION_TRACKING_NONE) {
+                    $completiondata = $completion->get_data($cm, true, $USER->id);
+                    $cmdata->completionstate = $completiondata->completionstate;
+                    $cmdata->hascompletion = 1;
+
+                    if ($completiondata->completionstate == COMPLETION_COMPLETE ||
+                        $completiondata->completionstate == COMPLETION_COMPLETE_PASS) {
+                        $cmdata->iscomplete = 1;
+                    } else if ($completiondata->completionstate == COMPLETION_COMPLETE_FAIL) {
+                        $cmdata->isfail = 1;
+                    } else {
+                        $cmdata->isincomplete = 1;
+                    }
+                }
+
+                // Handle delegated sections (subsections).
+                $cmdata->hasdelegatedsection = 0;
+                if (!empty($delegatedsectioninfo)) {
+                    $cmdata->hasdelegatedsection = 1;
+                    $cmdata->delegatedsectionid = $delegatedsectioninfo->id;
+
+                    // Recursively export the subsection.
+                    $subsectiondata = $this->export_section_for_sidebar(
+                        $delegatedsectioninfo,
+                        $modinfo,
+                        $completion,
+                        $canviewhidden,
+                        $preferences,
+                        $depth + 1
+                    );
+
+                    if ($subsectiondata !== null) {
+                        $cmdata->sectioninfo = $subsectiondata;
+                    }
+                }
+
+                $unit->cms[] = $cmdata;
+                $cmindex++;
+            }
+        }
+
+        $unit->hascms = !empty($unit->cms);
+        $unit->cmcount = count($unit->cms);
+
+        // For backward compatibility with existing template.
+        $unit->lessons = $unit->cms;
+        $unit->haslessons = $unit->hascms;
+        $unit->lessoncount = $unit->cmcount;
+
+        return $unit;
+    }
+
+    /**
+     * Get the URL of the first activity in the course or a specific section.
+     *
+     * @param \course_modinfo $modinfo The course modinfo
+     * @param int|null $sectionnum Optional section number to search in
+     * @return string|null URL of first activity or null
+     */
+    protected function get_first_activity_url(\course_modinfo $modinfo, ?int $sectionnum = null): ?string {
+        $sections = $modinfo->get_section_info_all();
+
+        foreach ($sections as $section) {
+            // If a specific section is requested, skip other sections.
+            if ($sectionnum !== null && $section->section != $sectionnum) {
+                continue;
+            }
+
+            if (!empty($modinfo->sections[$section->section])) {
+                foreach ($modinfo->sections[$section->section] as $cmid) {
+                    $cm = $modinfo->get_cm($cmid);
+                    if ($cm->uservisible && !$cm->is_stealth() && $cm->url) {
+                        return $cm->url->out(false);
+                    }
+                }
+            }
+
+            // If we found a specific section but it had no activities, don't continue.
+            if ($sectionnum !== null) {
+                break;
+            }
+        }
+
+        // If no specific section was requested and we found nothing, return null.
+        // If a specific section was requested but had no activities, also return null.
+        // We do NOT fall back to the first activity of the course when a section is
+        // explicitly requested - the user wants that specific section.
+        return null;
+    }
+
+    /**
+     * Get the cmid of the first loadable activity in the course or a specific section.
+     * This method also handles subsections (delegated sections).
+     *
+     * Logic:
+     * - If a section has direct activities, return the first one
+     * - If a section has no direct activities but has subsections, search the first
+     *   subsection for activities recursively
+     *
+     * @param \course_modinfo $modinfo The course modinfo
+     * @param int|null $sectionnum Optional section number to search in (can be a subsection)
+     * @return int|null cmid of first activity or null
+     */
+    protected function get_first_activity_cmid(\course_modinfo $modinfo, ?int $sectionnum = null): ?int {
+        $sections = $modinfo->get_section_info_all();
+
+        foreach ($sections as $section) {
+            // If a specific section is requested, check if this is that section.
+            // This includes both regular sections AND subsections (delegated sections).
+            if ($sectionnum !== null) {
+                if ($section->section != $sectionnum) {
+                    continue;
+                }
+                // Found the requested section (could be a subsection).
+            } else {
+                // When no specific section is requested, skip delegated sections
+                // as they are shown nested inside their parent sections.
+                if (!empty($section->component)) {
+                    continue;
+                }
+            }
+
+            if (!empty($modinfo->sections[$section->section])) {
+                // First pass: look for direct activities (modules with a URL).
+                foreach ($modinfo->sections[$section->section] as $cmid) {
+                    $cm = $modinfo->get_cm($cmid);
+                    // Skip hidden/stealth activities.
+                    if (!$cm->uservisible || $cm->is_stealth()) {
+                        continue;
+                    }
+                    // Check if it has a URL (is viewable, not a subsection container).
+                    if ($cm->url) {
+                        return (int)$cm->id;
+                    }
+                }
+
+                // Second pass: no direct activities found, look for subsections.
+                // A subsection is a course module that has a delegated section.
+                foreach ($modinfo->sections[$section->section] as $cmid) {
+                    $cm = $modinfo->get_cm($cmid);
+                    if (!$cm->uservisible || $cm->is_stealth()) {
+                        continue;
+                    }
+                    // Check if this module has a delegated section (it's a subsection container).
+                    $delegatedsection = $cm->get_delegated_section_info();
+                    if ($delegatedsection) {
+                        // Recursively search this subsection for activities.
+                        $firstactivity = $this->get_first_activity_cmid($modinfo, $delegatedsection->section);
+                        if ($firstactivity !== null) {
+                            return $firstactivity;
+                        }
+                    }
+                }
+            }
+
+            // If we found a specific section but it had no activities, don't continue.
+            if ($sectionnum !== null) {
+                break;
+            }
+        }
+
+        // If no specific section was requested and we found nothing, return null.
+        // If a specific section was requested but had no activities, also return null.
+        // We do NOT fall back to the first activity of the course when a section is
+        // explicitly requested - the user wants that specific section.
+        return null;
+    }
+
+    /**
+     * Get the template name for this content.
+     *
+     * @param renderer_base $renderer The renderer
+     * @return string The template name
+     */
+    public function get_template_name(renderer_base $renderer): string {
+        return 'format_nexusformat/local/content';
+    }
+}

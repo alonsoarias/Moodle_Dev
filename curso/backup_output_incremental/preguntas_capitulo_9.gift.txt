@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 9 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap9_P1::A que edad madura principalmente la autorregulacion en el lobulo frontal? {
+  ~1-2 anos
+  ~3-4 anos
+  =5-6 anos
+  ~10-12 anos
+}
+
+::Cap9_P2::Que son las aferencias? {
+  ~Respuestas motoras
+  =Senales sensoriales que ingresan al sistema nervioso
+  ~Conexiones entre hemisferios
+  ~Tipos de neuronas
+}
+
+::Cap9_P3::Cuando ocurre fundamentalmente la mielinizacion? {
+  ~Durante el ejercicio
+  =Mientras el nino duerme
+  ~Durante las comidas
+  ~Solo en la adolescencia
+}
+
+::Cap9_P4::Que mide el instrumento CAS? {
+  ~Coeficiente intelectual tradicional
+  =Funciones cognitivas basadas en el modelo de Luria
+  ~Habilidades motoras
+  ~Desarrollo emocional
+}
+
+::Cap9_P5::Que son las fases sensibles? {
+  ~Periodos de enfermedad
+  =Periodos donde el cerebro es extremadamente receptivo a ciertos estimulos
+  ~Etapas de crecimiento fisico
+  ~Momentos de estres
+}
+
+::Cap9_P6::Que es el conectoma? {
+  ~Un tipo de celula
+  =Mapa total de conexiones neurales del cerebro
+  ~Una enfermedad neurologica
+  ~Un neurotransmisor
+}
+
+::Cap9_P7::Que divide el modelo de Luria? {
+  ~El cerebro en dos hemisferios
+  =La actividad cerebral en tres unidades funcionales
+  ~Las emociones en categorias
+  ~Los tipos de memoria
+}
+
+::Cap9_P8::Que es la plasticidad mielinica? {
+  ~Rigidez de las conexiones
+  =Capacidad de la sustancia blanca de modificarse con estimulacion
+  ~Perdida de mielina
+  ~Crecimiento de neuronas
+}
+
+::Cap9_P9::Que resulta de la poda dendritica? {
+  ~Mas conexiones pero menos eficientes
+  =Menos conexiones pero mayor precision cualitativa
+  ~Ninguna diferencia funcional
+  ~Perdida de capacidades
+}
+
+::Cap9_P10::Cuando tiene picos de crecimiento acelerado la sinaptogenesis? {
+  ~Solo antes del nacimiento
+  =En la infancia temprana
+  ~En la adolescencia
+  ~En la edad adulta
+}
+

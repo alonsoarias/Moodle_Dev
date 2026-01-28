@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 2 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap2_P1::Cual es la consecuencia de una lesion en el hemisferio izquierdo en un adulto? {
+  ~Euforia o indiferencia emocional
+  ~Dificultad para reconocer expresiones faciales
+  =Depresion y reacciones catastroficas
+  ~Perdida de la sensibilidad corporal
+}
+
+::Cap2_P2::Cual afirmacion describe correctamente el patron de maduracion cerebral? {
+  ~La maduracion ocurre en el cuerpo calloso a los 4 anos
+  ~El cerebro madura de adelante hacia atras
+  ~Ambos hemisferios maduran simultaneamente
+  =El cerebro madura de atras (sensorial) hacia adelante (motor)
+}
+
+::Cap2_P3::Que dos mecanismos pueden causar depresion en ninos y adultos? {
+  ~Hiperactivacion del hemisferio izquierdo y baja actividad parietal
+  ~Hipoactivacion del lobulo temporal y lesion del cuerpo calloso
+  =Hipoactivacion de regiones frontales o hiperactivacion del hemisferio derecho
+  ~Maduracion tardia del cerebro posterior
+}
+
+::Cap2_P4::Que funcion tiene la region anterior del lobulo temporal en la percepcion de expresiones faciales? {
+  =Entiende y recuerda el caracter de dichas expresiones
+  ~Reconoce la expresion facial en el momento
+  ~Procesa la informacion sensorial del tacto
+  ~Controla los musculos faciales
+}
+
+::Cap2_P5::A que edad ocurre la virilizacion del cuerpo calloso? {
+  ~4 anos
+  ~6 anos
+  =8 anos
+  ~12 anos
+}
+
+::Cap2_P6::Cual es la caracteristica unica del sentido del olfato? {
+  ~Es el ultimo sentido en desarrollarse
+  =No va al talamo sino directamente a la corteza
+  ~Solo funciona en la edad adulta
+  ~Depende del lobulo frontal
+}
+
+::Cap2_P7::A que edad comienza la habilidad de demorar la recompensa segun Mischel? {
+  ~2 anos
+  =4 anos
+  ~6 anos
+  ~8 anos
+}
+
+::Cap2_P8::Los lobulos parietales son funcionales\: {
+  ~Despues del primer ano de vida
+  =Antes del nacimiento
+  ~A partir de los 3 anos
+  ~En la adolescencia
+}
+
+::Cap2_P9::El efecto de modulacion se refiere a\: {
+  =El control del hemisferio derecho sobre el izquierdo
+  ~La regulacion del sueno
+  ~El desarrollo del lenguaje
+  ~La maduracion del cerebelo
+}
+
+::Cap2_P10::Las funciones ejecutivas incluyen\: {
+  ~Solo procesos motores
+  ~Solo procesos sensoriales
+  =Procesos cognitivos, emocionales y de regulacion de respuestas conductuales
+  ~Unicamente la memoria a largo plazo
+}
+

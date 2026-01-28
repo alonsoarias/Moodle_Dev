@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="1" moduleid="1" modulename="label" contextid="100">
+  <label id="1">
+    <name>Introduccion - Capitulo 2</name>
+    <intro>&lt;div style=&quot;max-width: 900px; margin: 0 auto 30px auto; font-family: &apos;Segoe UI&apos;, Roboto, sans-serif;&quot;&gt;
+    &lt;div style=&quot;background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.15);&quot;&gt;
+        &lt;div style=&quot;display: flex; align-items: center; gap: 20px; padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.1);&quot;&gt;
+            &lt;div style=&quot;background: rgba(255,255,255,0.15); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2);&quot;&gt;
+                &lt;svg viewBox=&quot;0 0 50 50&quot; width=&quot;40&quot; height=&quot;40&quot;&gt;&lt;circle cx=&quot;25&quot; cy=&quot;20&quot; r=&quot;12&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M25 35 L25 45 M20 40 L30 40&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot;/&gt;&lt;circle cx=&quot;21&quot; cy=&quot;18&quot; r=&quot;2&quot; fill=&quot;white&quot;/&gt;&lt;circle cx=&quot;29&quot; cy=&quot;18&quot; r=&quot;2&quot; fill=&quot;white&quot;/&gt;&lt;path d=&quot;M20 24 Q25 28 30 24&quot; stroke=&quot;white&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/&gt;&lt;/svg&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;div style=&quot;color: rgba(255,255,255,0.7); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;&quot;&gt;Capitulo 2&lt;/div&gt;
+                &lt;h2 style=&quot;color: white; margin: 0; font-size: 28px; font-weight: 600;&quot;&gt;Funciones Emocionales&lt;/h2&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div style=&quot;padding: 25px 30px; color: rgba(255,255,255,0.9); font-size: 16px; line-height: 1.7;&quot;&gt;
+            &lt;p style=&quot;margin: 0;&quot;&gt;Este capitulo aborda las funciones emocionales del cerebro, explorando conceptos como el cerebro anterior y posterior, la cisura de Rolando, la corteza anterior y posterior, y la lateralizacion hemisferica. Estudiaremos la funcion pragmatica del lenguaje, el hemisferio dominante, y como las emociones se procesan en diferentes areas cerebrales.&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</intro>
+    <introformat>1</introformat>
+    <timemodified>1768681005</timemodified>
+  </label>
+</activity>

@@ -1,0 +1,6 @@
+# Archivos temporales del generador
+backup_output/
+curso_content/
+
+# NO excluir los archivos ZIP de las partes
+!mbz_parts/*.zip

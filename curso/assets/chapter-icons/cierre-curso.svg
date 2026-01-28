@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="gradCierre" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#11998e;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#38ef7d;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="55" fill="url(#gradCierre)"/>
+  <!-- Certificate/Diploma -->
+  <rect x="30" y="35" width="60" height="40" rx="2" fill="#fff" opacity="0.9"/>
+  <!-- Certificate ribbon -->
+  <path d="M55 75 L50 90 L55 85 L60 90 L65 85 L70 90 L65 75" fill="#38ef7d"/>
+  <!-- Certificate seal -->
+  <circle cx="60" cy="75" r="8" fill="#11998e"/>
+  <circle cx="60" cy="75" r="5" fill="#38ef7d"/>
+  <!-- Certificate text lines -->
+  <line x1="40" y1="45" x2="80" y2="45" stroke="#11998e" stroke-width="1.5" opacity="0.6"/>
+  <line x1="45" y1="52" x2="75" y2="52" stroke="#11998e" stroke-width="2" opacity="0.8"/>
+  <line x1="50" y1="60" x2="70" y2="60" stroke="#11998e" stroke-width="1" opacity="0.5"/>
+  <!-- Checkmark -->
+  <path d="M55 55 L58 58 L68 48" stroke="#38ef7d" stroke-width="3" fill="none"/>
+  <text x="60" y="108" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle">Cierre</text>
+</svg>

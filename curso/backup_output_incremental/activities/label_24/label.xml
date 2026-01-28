@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="24" moduleid="24" modulename="label" contextid="123">
+  <label id="24">
+    <name>Introduccion - Capitulo 4</name>
+    <intro>&lt;div style=&quot;max-width: 900px; margin: 0 auto 30px auto; font-family: &apos;Segoe UI&apos;, Roboto, sans-serif;&quot;&gt;
+    &lt;div style=&quot;background: linear-gradient(135deg, #0170B9 0%, #3a3a3a 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.15);&quot;&gt;
+        &lt;!-- Header con numero de capitulo --&gt;
+        &lt;div style=&quot;display: flex; align-items: center; gap: 20px; padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.1);&quot;&gt;
+            &lt;div style=&quot;background: rgba(255,255,255,0.15); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2);&quot;&gt;
+                &lt;svg viewBox=&quot;0 0 50 50&quot; width=&quot;40&quot; height=&quot;40&quot;&gt;&lt;circle cx=&quot;18&quot; cy=&quot;15&quot; r=&quot;6&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M18 21 L18 35 M12 27 L24 27 M18 35 L12 45 M18 35 L24 45&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot;/&gt;&lt;circle cx=&quot;35&quot; cy=&quot;20&quot; r=&quot;4&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;path d=&quot;M35 24 L35 34 M31 28 L39 28 M35 34 L31 42 M35 34 L39 42&quot; stroke=&quot;white&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/&gt;&lt;path d=&quot;M24 25 Q28 22 31 25&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;1.5&quot; opacity=&quot;0.6&quot;/&gt;&lt;/svg&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;flex: 1;&quot;&gt;
+                &lt;div style=&quot;color: rgba(255,255,255,0.7); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px;&quot;&gt;Capitulo 4&lt;/div&gt;
+                &lt;h2 style=&quot;color: white; margin: 5px 0 0 0; font-size: 1.5em; font-weight: 600;&quot;&gt;Sinaptogenesis&lt;/h2&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;background: rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2);&quot;&gt;
+                &lt;span style=&quot;color: white; font-size: 1.5em; font-weight: 700;&quot;&gt;4&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Contenido --&gt;
+        &lt;div style=&quot;padding: 30px;&quot;&gt;
+            &lt;p style=&quot;color: rgba(255,255,255,0.95); font-size: 1.05em; line-height: 1.8; margin: 0;&quot;&gt;
+                Este capitulo se centra en la sinaptogenesis y las ventanas de oportunidad del desarrollo. Analizaremos los conceptos de los 1000 y 7000 dias, el desarrollo cerebral heterocronico, los periodos criticos vs sensibles, y como la experiencia moldea las conexiones neuronales. Exploraremos la poda y el refinamiento sinaptico.
+            &lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</intro>
+    <introformat>1</introformat>
+    <timemodified>1768689196</timemodified>
+  </label>
+</activity>

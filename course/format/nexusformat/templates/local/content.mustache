@@ -1,0 +1,1676 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template format_nexusformat/local/content
+
+    Nexus Format main content template with two-column layout.
+
+    Classes required for JS:
+    * nexus-content-area - The main content area (left column)
+    * nexus-sidebar - The sidebar navigation (right column)
+    * nexus-unit - A collapsible unit in the sidebar
+    * nexus-lesson - A lesson item in the sidebar
+
+    Data attributes required for JS:
+    * data-courseid - Course ID for AJAX calls
+    * data-cmid - Course module ID for lessons
+
+    Context variables required for this template:
+    * nexusformat - Boolean indicating this is nexus format
+    * courseid - The course ID
+    * progress - Progress data object
+    * sidebarunits - Array of unit objects for sidebar
+    * sections - Array of section objects (from parent)
+
+    Example context (json):
+    {
+        "nexusformat": true,
+        "courseid": 2,
+        "editing": false,
+        "progress": {
+            "enabled": true,
+            "percentage": 45,
+            "completed": 9,
+            "total": 20,
+            "displaytext": "45% completed"
+        },
+        "sidebarunits": [
+            {
+                "id": 1,
+                "num": 1,
+                "name": "Introduction",
+                "expanded": true,
+                "haslessons": true,
+                "lessoncount": 3,
+                "lessons": [
+                    {
+                        "id": 10,
+                        "num": "1.1",
+                        "name": "Welcome Video",
+                        "url": "/mod/page/view.php?id=10",
+                        "modname": "page",
+                        "icon": "/theme/image.php/boost/page/icon",
+                        "active": true,
+                        "completed": true
+                    }
+                ]
+            }
+        ],
+        "selectactivitytext": "Select an activity from the sidebar to view its content."
+    }
+}}
+
+<div id="nexus-format-container" class="nexus-format-container {{#isteacher}}nexus-teacher-view{{/isteacher}}{{#isstudent}}nexus-student-view{{/isstudent}} {{#sidebarleft}}nexus-sidebar-left{{/sidebarleft}}" data-courseid="{{courseid}}" style="{{#customstyles}}{{customstyles}}{{/customstyles}}">
+    {{#nexusformat}}
+    {{! Mobile sidebar toggle button }}
+    <button type="button" class="nexus-sidebar-toggle" id="nexus-sidebar-toggle" aria-label="{{#str}}toggle_sidebar, format_nexusformat{{/str}}">
+        <i class="fa fa-bars" aria-hidden="true"></i>
+    </button>
+
+    {{! Mobile overlay }}
+    <div class="nexus-sidebar-overlay" id="nexus-sidebar-overlay"></div>
+
+    <div class="nexus-layout">
+        {{! Left Column - Main Content Area }}
+        <div class="nexus-content-area" id="nexus-content-area">
+            {{#editing}}
+            {{! In editing mode, show the standard Moodle sections }}
+            <div class="nexus-editing-mode">
+                <h2 class="accesshide">{{{title}}}</h2>
+                {{{completionhelp}}}
+                <ul class="{{format}}" data-for="course_sectionlist">
+                    {{#initialsection}}
+                        {{> core_courseformat/local/content/section }}
+                    {{/initialsection}}
+                    {{#sections}}
+                        {{> core_courseformat/local/content/section }}
+                    {{/sections}}
+                </ul>
+                {{#numsections}}
+                    {{^singlesection}}
+                        {{> core_courseformat/local/content/addsection}}
+                    {{/singlesection}}
+                {{/numsections}}
+                {{#bulkedittools}}
+                    {{> core_courseformat/local/content/bulkedittools}}
+                {{/bulkedittools}}
+            </div>
+            {{/editing}}
+            {{^editing}}
+            {{! In view mode, show content in iframe/embed style }}
+            <div class="nexus-activity-content" id="nexus-activity-content">
+                <div class="nexus-placeholder">
+                    <div class="nexus-placeholder-icon">
+                        <i class="fa fa-hand-pointer-o fa-3x" aria-hidden="true"></i>
+                    </div>
+                    <p class="nexus-placeholder-text">{{selectactivitytext}}</p>
+                </div>
+            </div>
+
+            {{! Activity Navigation Buttons }}
+            <div class="nexus-activity-navigation" id="nexus-activity-navigation" style="display: none;">
+                <button type="button" class="nexus-nav-btn nexus-nav-prev" id="nexus-nav-prev" disabled>
+                    <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    <span>{{#str}}nav_previous, format_nexusformat{{/str}}</span>
+                </button>
+                <div class="nexus-nav-info" id="nexus-nav-info"></div>
+                <button type="button" class="nexus-nav-btn nexus-nav-next" id="nexus-nav-next" disabled>
+                    <span>{{#str}}nav_next, format_nexusformat{{/str}}</span>
+                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            {{! Comments Section - Inside content area }}
+            {{#enablecomments}}
+            <div class="nexus-comments-section" id="nexus-comments-section" style="display: none;">
+                {{#enableparticipationbanner}}
+                {{! Participation Banner }}
+                <div class="nexus-participation-banner" id="nexus-participation-banner" style="display: none;">
+                    <div class="nexus-banner-content">
+                        <i class="fa fa-users" aria-hidden="true"></i>
+                        <span>{{#str}}participation_banner, format_nexusformat{{/str}}</span>
+                    </div>
+                    <button type="button" class="nexus-banner-close" id="nexus-banner-close">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+                {{/enableparticipationbanner}}
+
+                {{! Comments Header }}
+                <div class="nexus-comments-header">
+                    <div class="nexus-comments-title-wrapper">
+                        <div class="nexus-comments-title">
+                            <i class="fa fa-comments" aria-hidden="true"></i>
+                            <span>{{#str}}comments, format_nexusformat{{/str}}</span>
+                            <span class="nexus-comments-count" id="nexus-comments-count">(0)</span>
+                        </div>
+                        <div class="nexus-comments-activity-name" id="nexus-comments-activity-name"></div>
+                        <p class="nexus-comments-description">{{#str}}comments_description, format_nexusformat{{/str}}</p>
+                    </div>
+                    <div class="nexus-comments-sort">
+                        <select id="nexus-comments-sort" class="form-select form-select-sm">
+                            <option value="newest">{{#str}}sort_newest, format_nexusformat{{/str}}</option>
+                            <option value="oldest">{{#str}}sort_oldest, format_nexusformat{{/str}}</option>
+                            <option value="likes">{{#str}}sort_likes, format_nexusformat{{/str}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{! Comment Editor }}
+                <div class="nexus-comment-editor" id="nexus-comment-editor">
+                    <div class="nexus-comment-editor-avatar">
+                        <img src="{{useravatarurl}}" alt="" class="nexus-avatar" />
+                    </div>
+                    <div class="nexus-comment-editor-input">
+                        <input type="hidden" id="nexus-comment-id" value="0">
+                        <input type="hidden" id="nexus-comment-parentid" value="0">
+                        <textarea id="nexus-comment-content" class="form-control"
+                                  placeholder="{{#str}}comment_placeholder, format_nexusformat{{/str}}"
+                                  rows="2"></textarea>
+                        <div class="nexus-comment-editor-actions">
+                            <button type="button" class="btn btn-sm btn-primary" id="nexus-post-comment-btn">
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                {{#str}}post_comment, format_nexusformat{{/str}}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary" id="nexus-cancel-comment-btn" style="display: none;">
+                                {{#str}}cancel, format_nexusformat{{/str}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{! Comments List }}
+                <div class="nexus-comments-list" id="nexus-comments-list">
+                    <div class="nexus-comments-loading text-center py-3">
+                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                        <span>{{#str}}loading_comments, format_nexusformat{{/str}}</span>
+                    </div>
+                </div>
+
+                {{! Load More Button }}
+                <div class="nexus-comments-more" id="nexus-comments-more" style="display: none;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="nexus-load-more-comments">
+                        {{#str}}load_more_comments, format_nexusformat{{/str}}
+                    </button>
+                </div>
+            </div>
+
+            {{! Comment Template (hidden, used by JS) }}
+            <template id="nexus-comment-template">
+                <div class="nexus-comment" data-commentid="">
+                    <div class="nexus-comment-avatar">
+                        <img src="" alt="" class="nexus-avatar" />
+                    </div>
+                    <div class="nexus-comment-body">
+                        <div class="nexus-comment-header">
+                            <span class="nexus-comment-author"></span>
+                            <span class="nexus-comment-role"></span>
+                            <span class="nexus-comment-time"></span>
+                        </div>
+                        <div class="nexus-comment-content"></div>
+                        <div class="nexus-comment-actions">
+                            <button type="button" class="nexus-comment-like">
+                                <i class="fa fa-heart-o" aria-hidden="true"></i>
+                                <span class="nexus-like-count">0</span>
+                            </button>
+                            <button type="button" class="nexus-comment-reply">
+                                <i class="fa fa-reply" aria-hidden="true"></i>
+                                {{#str}}reply, format_nexusformat{{/str}}
+                            </button>
+                            <button type="button" class="nexus-comment-edit" style="display: none;">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                {{#str}}edit_comment, format_nexusformat{{/str}}
+                            </button>
+                            <button type="button" class="nexus-comment-delete" style="display: none;">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                {{#str}}delete_comment, format_nexusformat{{/str}}
+                            </button>
+                        </div>
+                        <div class="nexus-comment-replies-toggle" style="display: none;">
+                            <button type="button" class="nexus-show-replies">
+                                <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                <span class="nexus-replies-count"></span>
+                            </button>
+                        </div>
+                        <div class="nexus-comment-replies" style="display: none;"></div>
+                        <div class="nexus-reply-editor" style="display: none;">
+                            <textarea class="form-control nexus-reply-content" rows="2"
+                                      placeholder="{{#str}}write_reply, format_nexusformat{{/str}}"></textarea>
+                            <div class="nexus-reply-actions">
+                                <button type="button" class="btn btn-sm btn-primary nexus-submit-reply">
+                                    {{#str}}reply, format_nexusformat{{/str}}
+                                </button>
+                                <button type="button" class="btn btn-sm btn-secondary nexus-cancel-reply">
+                                    {{#str}}cancel_reply, format_nexusformat{{/str}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            {{/enablecomments}}
+            {{/editing}}
+        </div>
+
+        {{! Right Column - Sidebar }}
+        <div class="nexus-sidebar" id="nexus-sidebar">
+            {{! Mobile close button }}
+            <button type="button" class="nexus-sidebar-close" id="nexus-sidebar-close" aria-label="{{#str}}close_sidebar, format_nexusformat{{/str}}">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+
+            {{! Tabs }}
+            <div class="nexus-tabs">
+                <button class="nexus-tab active" data-tab="content" type="button">
+                    <i class="fa fa-list" aria-hidden="true"></i>
+                    <span>{{#str}}tab_content, format_nexusformat{{/str}}</span>
+                </button>
+                {{#enableactivitiestab}}
+                <button class="nexus-tab" data-tab="activities" type="button">
+                    <i class="fa fa-tasks" aria-hidden="true"></i>
+                    <span>{{#str}}tab_activities, format_nexusformat{{/str}}</span>
+                </button>
+                {{/enableactivitiestab}}
+                {{#enablenotes}}
+                <button class="nexus-tab" data-tab="notes" type="button">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                    <span>{{#str}}tab_notes, format_nexusformat{{/str}}</span>
+                </button>
+                {{/enablenotes}}
+            </div>
+
+            {{! Tab Content }}
+            <div class="nexus-tab-content">
+                {{! Content Tab }}
+                <div class="nexus-tab-pane active" id="nexus-tab-content" data-tab="content">
+                    {{! Progress Bar }}
+                    {{#progress.enabled}}
+                    <div class="nexus-progress-section">
+                        <div class="nexus-progress-header">
+                            <span class="nexus-progress-label">{{#str}}progress, format_nexusformat{{/str}}</span>
+                            <span class="nexus-progress-percentage">{{progress.percentage}}%</span>
+                        </div>
+                        <div class="nexus-progress-bar">
+                            <div class="nexus-progress-fill" style="width: {{progress.percentage}}%;"></div>
+                        </div>
+                        <div class="nexus-progress-scale">
+                            <span>0</span>
+                            <span>50</span>
+                            <span>100</span>
+                        </div>
+                    </div>
+                    {{/progress.enabled}}
+
+                    {{! Units List - Replicates Moodle courseindex structure }}
+                    <div class="nexus-units-list" role="tree">
+                        {{#sidebarunits}}
+                        <div class="nexus-unit {{#expanded}}expanded{{/expanded}} {{#ishidden}}dimmed{{/ishidden}} {{#current}}current{{/current}} {{#hasrestrictions}}restrictions{{/hasrestrictions}}"
+                             data-unitid="{{id}}" data-sectionnumber="{{num}}" role="treeitem">
+                            <div class="nexus-unit-header" role="button" tabindex="0"
+                                 aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}"
+                                 data-toggle="collapse" data-target="#nexus-section-{{id}}">
+                                <span class="nexus-unit-toggle">
+                                    {{#expanded}}
+                                    <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                    {{/expanded}}
+                                    {{^expanded}}
+                                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                                    {{/expanded}}
+                                </span>
+                                <span class="nexus-unit-icon">
+                                    {{#expanded}}
+                                    <i class="fa fa-folder-open text-primary" aria-hidden="true"></i>
+                                    {{/expanded}}
+                                    {{^expanded}}
+                                    <i class="fa fa-folder text-muted" aria-hidden="true"></i>
+                                    {{/expanded}}
+                                </span>
+                                <a href="{{sectionurl}}" class="nexus-unit-name text-truncate" data-action="view-section">{{name}}</a>
+                                <span class="nexus-unit-count">({{cmcount}})</span>
+                                {{#current}}
+                                <span class="badge bg-primary text-white ms-2 px-2 rounded-pill nexus-current-badge">
+                                    {{#str}}currentsection, format_topics{{/str}}
+                                </span>
+                                {{/current}}
+                                {{#ishidden}}
+                                <span class="nexus-unit-badge" title="{{hiddentext}}">
+                                    <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                                </span>
+                                {{/ishidden}}
+                                {{#hasrestrictions}}
+                                <span class="nexus-unit-badge restrictions" title="{{#str}}restricted{{/str}}">
+                                    <i class="fa fa-lock" aria-hidden="true"></i>
+                                </span>
+                                {{/hasrestrictions}}
+                            </div>
+                            <div class="nexus-unit-lessons" id="nexus-section-{{id}}" {{^expanded}}style="display: none;"{{/expanded}} role="group">
+                                {{#cms}}
+                                {{^hasdelegatedsection}}
+                                {{! Regular course module }}
+                                <div class="nexus-lesson {{#active}}active{{/active}} {{#iscomplete}}completed{{/iscomplete}} {{^accessvisible}}dimmed{{/accessvisible}} {{#hascmrestrictions}}restrictions{{/hascmrestrictions}}"
+                                     data-cmid="{{id}}" data-url="{{url}}" data-anchor="{{anchor}}" role="treeitem" tabindex="0">
+                                    <span class="nexus-lesson-status">
+                                        {{#hascompletion}}
+                                            {{#iscomplete}}
+                                            <i class="fa fa-check-circle text-success" aria-hidden="true" title="{{#str}}done, completion{{/str}}"></i>
+                                            {{/iscomplete}}
+                                            {{#isfail}}
+                                            <i class="fa fa-times-circle text-danger" aria-hidden="true" title="{{#str}}failed, completion{{/str}}"></i>
+                                            {{/isfail}}
+                                            {{#isincomplete}}
+                                            <i class="fa fa-circle-o" aria-hidden="true" title="{{#str}}todo, completion{{/str}}"></i>
+                                            {{/isincomplete}}
+                                        {{/hascompletion}}
+                                        {{^hascompletion}}
+                                        <span class="nexus-no-completion"></span>
+                                        {{/hascompletion}}
+                                    </span>
+                                    <img src="{{icon}}" alt="" class="nexus-lesson-icon" />
+                                    <div class="nexus-lesson-info">
+                                        <span class="nexus-lesson-name text-truncate">{{name}}</span>
+                                        {{#availabilityinfo}}
+                                        <span class="nexus-availability-info small text-muted">{{{availabilityinfo}}}</span>
+                                        {{/availabilityinfo}}
+                                    </div>
+                                    {{#visibilitybadge}}
+                                    <span class="nexus-lesson-badge {{badgeclass}}">{{visibilitybadge}}</span>
+                                    {{/visibilitybadge}}
+                                    {{#hascmrestrictions}}
+                                    <span class="nexus-lesson-lock">
+                                        <i class="fa fa-lock" aria-hidden="true"></i>
+                                    </span>
+                                    {{/hascmrestrictions}}
+                                </div>
+                                {{/hasdelegatedsection}}
+                                {{#hasdelegatedsection}}
+                                {{! Delegated section (subsection) - render as nested unit }}
+                                {{#sectioninfo}}
+                                <div class="nexus-subsection {{#expanded}}expanded{{/expanded}} {{#ishidden}}dimmed{{/ishidden}}"
+                                     data-unitid="{{id}}" data-sectionnumber="{{num}}" role="treeitem">
+                                    <div class="nexus-subsection-header" role="button" tabindex="0"
+                                         aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}"
+                                         data-toggle="collapse" data-target="#nexus-subsection-{{id}}">
+                                        <span class="nexus-unit-toggle">
+                                            {{#expanded}}
+                                            <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                            {{/expanded}}
+                                            {{^expanded}}
+                                            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                                            {{/expanded}}
+                                        </span>
+                                        <span class="nexus-subsection-name text-truncate">{{name}}</span>
+                                        <span class="nexus-unit-count">({{cmcount}})</span>
+                                        {{#ishidden}}
+                                        <span class="nexus-unit-badge" title="{{hiddentext}}">
+                                            <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                                        </span>
+                                        {{/ishidden}}
+                                    </div>
+                                    <div class="nexus-subsection-content" id="nexus-subsection-{{id}}" {{^expanded}}style="display: none;"{{/expanded}} role="group">
+                                        {{#cms}}
+                                        <div class="nexus-lesson {{#active}}active{{/active}} {{#iscomplete}}completed{{/iscomplete}} {{^accessvisible}}dimmed{{/accessvisible}}"
+                                             data-cmid="{{id}}" data-url="{{url}}" data-anchor="{{anchor}}" role="treeitem" tabindex="0">
+                                            <span class="nexus-lesson-status">
+                                                {{#hascompletion}}
+                                                    {{#iscomplete}}
+                                                    <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                                                    {{/iscomplete}}
+                                                    {{#isfail}}
+                                                    <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                                                    {{/isfail}}
+                                                    {{#isincomplete}}
+                                                    <i class="fa fa-circle-o" aria-hidden="true"></i>
+                                                    {{/isincomplete}}
+                                                {{/hascompletion}}
+                                                {{^hascompletion}}
+                                                <span class="nexus-no-completion"></span>
+                                                {{/hascompletion}}
+                                            </span>
+                                            <img src="{{icon}}" alt="" class="nexus-lesson-icon" />
+                                            <div class="nexus-lesson-info">
+                                                <span class="nexus-lesson-name text-truncate">{{name}}</span>
+                                            </div>
+                                            {{#visibilitybadge}}
+                                            <span class="nexus-lesson-badge {{badgeclass}}">{{visibilitybadge}}</span>
+                                            {{/visibilitybadge}}
+                                        </div>
+                                        {{/cms}}
+                                        {{^hascms}}
+                                        <div class="nexus-no-lessons">
+                                            <em>{{#str}}no_gradable_activities, format_nexusformat{{/str}}</em>
+                                        </div>
+                                        {{/hascms}}
+                                    </div>
+                                </div>
+                                {{/sectioninfo}}
+                                {{/hasdelegatedsection}}
+                                {{/cms}}
+                                {{^hascms}}
+                                <div class="nexus-no-lessons">
+                                    <em>{{#str}}no_gradable_activities, format_nexusformat{{/str}}</em>
+                                </div>
+                                {{/hascms}}
+                            </div>
+                        </div>
+                        {{/sidebarunits}}
+                        {{^sidebarunits}}
+                        <div class="nexus-no-units">
+                            <p>{{#str}}no_gradable_activities, format_nexusformat{{/str}}</p>
+                        </div>
+                        {{/sidebarunits}}
+                    </div>
+                </div>
+
+                {{#enableactivitiestab}}
+                {{! Activities Tab - Gradable Activities List }}
+                <div class="nexus-tab-pane" id="nexus-tab-activities" data-tab="activities" style="display: none;">
+                    <div class="nexus-activities-header mb-3">
+                        <h6 class="mb-1">{{#str}}gradable_activities, format_nexusformat{{/str}}</h6>
+                        {{#hasgradableactivities}}
+                        <small class="text-muted">{{gradablecount}} {{#str}}tab_activities, format_nexusformat{{/str}}</small>
+                        {{/hasgradableactivities}}
+                    </div>
+
+                    {{#hasgradableactivities}}
+                    <div class="nexus-activities-list">
+                        {{#gradableactivities}}
+                        <div class="nexus-activity-item {{#iscomplete}}completed{{/iscomplete}} {{#isoverdue}}overdue{{/isoverdue}}" data-cmid="{{id}}">
+                            <div class="nexus-activity-icon">
+                                <img src="{{icon}}" alt="" class="icon" />
+                            </div>
+                            <div class="nexus-activity-info">
+                                <a href="{{url}}" class="nexus-activity-name text-truncate" title="{{name}}">{{name}}</a>
+                                <div class="nexus-activity-meta">
+                                    {{#duedate}}
+                                    <span class="nexus-activity-due {{#isoverdue}}text-danger{{/isoverdue}}">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        {{duedateformatted}}
+                                    </span>
+                                    {{/duedate}}
+                                    <span class="nexus-activity-grade">
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        {{gradeformatted}}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="nexus-activity-status">
+                                {{#iscomplete}}
+                                <span class="badge bg-success">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                </span>
+                                {{/iscomplete}}
+                                {{#isincomplete}}
+                                    {{#isoverdue}}
+                                    <span class="badge bg-danger">
+                                        <i class="fa fa-exclamation" aria-hidden="true"></i>
+                                    </span>
+                                    {{/isoverdue}}
+                                    {{^isoverdue}}
+                                    <span class="badge bg-warning">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                    </span>
+                                    {{/isoverdue}}
+                                {{/isincomplete}}
+                                {{^hascompletion}}
+                                    {{#isgraded}}
+                                    <span class="badge bg-success">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                    </span>
+                                    {{/isgraded}}
+                                    {{^isgraded}}
+                                    <span class="badge bg-secondary">
+                                        <i class="fa fa-minus" aria-hidden="true"></i>
+                                    </span>
+                                    {{/isgraded}}
+                                {{/hascompletion}}
+                            </div>
+                        </div>
+                        {{/gradableactivities}}
+                    </div>
+                    {{/hasgradableactivities}}
+
+                    {{^hasgradableactivities}}
+                    <div class="nexus-no-activities text-center py-4">
+                        <i class="fa fa-tasks fa-2x text-muted mb-2" aria-hidden="true"></i>
+                        <p class="text-muted mb-0">{{#str}}no_gradable_activities, format_nexusformat{{/str}}</p>
+                    </div>
+                    {{/hasgradableactivities}}
+                </div>
+                {{/enableactivitiestab}}
+
+                {{#enablenotes}}
+                {{! Notes Tab }}
+                <div class="nexus-tab-pane" id="nexus-tab-notes" data-tab="notes" style="display: none;">
+                    <div class="nexus-notes-header mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">{{#str}}my_notes, format_nexusformat{{/str}}</h6>
+                            <button type="button" class="btn btn-sm btn-primary nexus-add-note-btn" id="nexus-add-note-btn">
+                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                <span>{{#str}}add_note, format_nexusformat{{/str}}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{! Note Editor (hidden by default) }}
+                    <div class="nexus-note-editor" id="nexus-note-editor" style="display: none;">
+                        <input type="hidden" id="nexus-note-id" value="0">
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm" id="nexus-note-title"
+                                   placeholder="{{#str}}note_title, format_nexusformat{{/str}}" maxlength="255">
+                        </div>
+                        <div class="mb-2">
+                            <textarea class="form-control" id="nexus-note-content" rows="4"
+                                      placeholder="{{#str}}note_placeholder, format_nexusformat{{/str}}"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-primary nexus-save-note-btn" id="nexus-save-note-btn">
+                                <i class="fa fa-save" aria-hidden="true"></i>
+                                {{#str}}save_note, format_nexusformat{{/str}}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary nexus-cancel-note-btn" id="nexus-cancel-note-btn">
+                                {{#str}}cancel, format_nexusformat{{/str}}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{! Notes List }}
+                    <div class="nexus-notes-list" id="nexus-notes-list">
+                        <div class="nexus-notes-loading text-center py-3">
+                            <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                            <span>{{#str}}loading, format_nexusformat{{/str}}</span>
+                        </div>
+                    </div>
+
+                    {{! Empty state template (hidden, used by JS) }}
+                    <template id="nexus-no-notes-template">
+                        <div class="nexus-no-notes text-center py-4">
+                            <i class="fa fa-sticky-note-o fa-2x text-muted mb-2" aria-hidden="true"></i>
+                            <p class="text-muted mb-0">{{#str}}no_notes, format_nexusformat{{/str}}</p>
+                        </div>
+                    </template>
+
+                    {{! Note item template (hidden, used by JS) }}
+                    <template id="nexus-note-template">
+                        <div class="nexus-note-item" data-noteid="">
+                            <div class="nexus-note-header">
+                                <span class="nexus-note-title"></span>
+                                <div class="nexus-note-actions">
+                                    <button type="button" class="btn btn-sm btn-link nexus-edit-note" title="{{#str}}edit_note, format_nexusformat{{/str}}">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-link text-danger nexus-delete-note" title="{{#str}}delete_note, format_nexusformat{{/str}}">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="nexus-note-content"></div>
+                            <div class="nexus-note-footer">
+                                <small class="text-muted nexus-note-date"></small>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                {{/enablenotes}}
+            </div>
+        </div>
+    </div>
+    {{/nexusformat}}
+
+    {{^nexusformat}}
+    {{! Fallback to standard format if nexusformat flag is not set }}
+    <div id="course-format-{{uniqid}}">
+        <h2 class="accesshide">{{{title}}}</h2>
+        {{{completionhelp}}}
+        <ul class="{{format}}" data-for="course_sectionlist">
+            {{#initialsection}}
+                {{> core_courseformat/local/content/section }}
+            {{/initialsection}}
+            {{#sections}}
+                {{> core_courseformat/local/content/section }}
+            {{/sections}}
+        </ul>
+        {{#numsections}}
+            {{^singlesection}}
+                {{> core_courseformat/local/content/addsection}}
+            {{/singlesection}}
+        {{/numsections}}
+        {{#bulkedittools}}
+            {{> core_courseformat/local/content/bulkedittools}}
+        {{/bulkedittools}}
+    </div>
+    {{/nexusformat}}
+</div>
+
+{{#js}}
+require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+    var $contentArea = $('#nexus-activity-content');
+    var courseid = {{courseid}};
+    var firstActivityCmid = {{#hasfirstactivity}}{{firstactivitycmid}}{{/hasfirstactivity}}{{^hasfirstactivity}}0{{/hasfirstactivity}};
+    var initialActivityCmid = {{#hasinitialactivity}}{{initialactivitycmid}}{{/hasinitialactivity}}{{^hasinitialactivity}}0{{/hasinitialactivity}};
+    var selectedSection = {{selectedsection}};
+    var isEditing = {{editing}};
+    var currentLoadedCmid = 0;
+
+    // ==========================================
+    // URL MANAGEMENT FOR ACTIVITY PERSISTENCE
+    // ==========================================
+    function updateUrlWithCmid(cmid) {
+        if (cmid && window.history && window.history.replaceState) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('cmid', cmid);
+            window.history.replaceState({cmid: cmid}, '', url.toString());
+        }
+    }
+
+    function getCmidFromUrl() {
+        var urlParams = new URLSearchParams(window.location.search);
+        return parseInt(urlParams.get('cmid')) || 0;
+    }
+
+    // ==========================================
+    // ACTIVITY NAVIGATION
+    // ==========================================
+    var $navContainer = $('#nexus-activity-navigation');
+    var $navPrev = $('#nexus-nav-prev');
+    var $navNext = $('#nexus-nav-next');
+    var $navInfo = $('#nexus-nav-info');
+    var activityList = [];
+
+    // Build ordered list of all visible activities
+    function buildActivityList() {
+        activityList = [];
+        $('.nexus-lesson').each(function() {
+            var cmid = $(this).data('cmid');
+            if (cmid) {
+                activityList.push(cmid);
+            }
+        });
+    }
+
+    // Get current activity position (1-indexed)
+    function getActivityPosition(cmid) {
+        var index = activityList.indexOf(cmid);
+        return index >= 0 ? index + 1 : 0;
+    }
+
+    // Update navigation buttons state
+    function updateNavigation(cmid) {
+        if (activityList.length === 0) {
+            buildActivityList();
+        }
+
+        var position = getActivityPosition(cmid);
+        var total = activityList.length;
+
+        if (position > 0 && total > 1) {
+            $navContainer.show();
+
+            // Update prev button
+            if (position > 1) {
+                $navPrev.prop('disabled', false);
+            } else {
+                $navPrev.prop('disabled', true);
+            }
+
+            // Update next button
+            if (position < total) {
+                $navNext.prop('disabled', false);
+            } else {
+                $navNext.prop('disabled', true);
+            }
+
+            // Update info text
+            $navInfo.text(position + ' / ' + total);
+        } else {
+            $navContainer.hide();
+        }
+    }
+
+    // Navigate to previous activity
+    function navigatePrev() {
+        var position = getActivityPosition(currentLoadedCmid);
+        if (position > 1) {
+            var prevCmid = activityList[position - 2];
+            navigateToActivity(prevCmid);
+        }
+    }
+
+    // Navigate to next activity
+    function navigateNext() {
+        var position = getActivityPosition(currentLoadedCmid);
+        if (position < activityList.length) {
+            var nextCmid = activityList[position];
+            navigateToActivity(nextCmid);
+        }
+    }
+
+    // Navigate to specific activity
+    function navigateToActivity(cmid) {
+        var $lesson = $('.nexus-lesson[data-cmid="' + cmid + '"]');
+        if ($lesson.length) {
+            // Expand all parents and mark active
+            expandAndActivateLesson($lesson);
+
+            // Scroll to lesson in sidebar on desktop
+            if ($(window).width() > 992) {
+                var $tabContent = $('#nexus-tab-content');
+                var lessonTop = $lesson.position().top;
+                $tabContent.animate({ scrollTop: $tabContent.scrollTop() + lessonTop - 100 }, 200);
+            }
+        }
+
+        // Load activity content
+        loadActivityContent(cmid);
+    }
+
+    // Navigation button click handlers
+    $navPrev.on('click', navigatePrev);
+    $navNext.on('click', navigateNext);
+
+    // Keyboard navigation
+    $(document).on('keydown', function(e) {
+        if (currentLoadedCmid > 0 && !$(e.target).is('input, textarea, select')) {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                navigatePrev();
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                navigateNext();
+            }
+        }
+    });
+
+    // Build activity list on page load
+    buildActivityList();
+
+    // ==========================================
+    // MOBILE SIDEBAR TOGGLE
+    // ==========================================
+    var $sidebar = $('#nexus-sidebar');
+    var $sidebarToggle = $('#nexus-sidebar-toggle');
+    var $sidebarClose = $('#nexus-sidebar-close');
+    var $sidebarOverlay = $('#nexus-sidebar-overlay');
+
+    function openSidebar() {
+        $sidebar.addClass('open');
+        $sidebarOverlay.addClass('show');
+        $('body').css('overflow', 'hidden');
+    }
+
+    function closeSidebar() {
+        $sidebar.removeClass('open');
+        $sidebarOverlay.removeClass('show');
+        $('body').css('overflow', '');
+    }
+
+    $sidebarToggle.on('click', openSidebar);
+    $sidebarClose.on('click', closeSidebar);
+    $sidebarOverlay.on('click', closeSidebar);
+
+    // Close sidebar when clicking a lesson on mobile
+    $(document).on('click', '.nexus-lesson', function() {
+        if ($(window).width() <= 992) {
+            closeSidebar();
+        }
+    });
+
+    // Close sidebar on escape key
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $sidebar.hasClass('open')) {
+            closeSidebar();
+        }
+    });
+
+    // Tab switching
+    $('.nexus-tab').on('click', function() {
+        var tab = $(this).data('tab');
+        $('.nexus-tab').removeClass('active');
+        $(this).addClass('active');
+        $('.nexus-tab-pane').hide();
+        $('#nexus-tab-' + tab).show();
+    });
+
+    // ==========================================
+    // HELPER FUNCTIONS FOR EXPANDING SECTIONS
+    // ==========================================
+
+    // Helper function to expand a unit (section)
+    function expandUnit($unit) {
+        if (!$unit || !$unit.length) return;
+        if (!$unit.hasClass('expanded')) {
+            $unit.addClass('expanded');
+            $unit.find('> .nexus-unit-lessons').show();
+            var $header = $unit.find('> .nexus-unit-header');
+            $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+            $header.attr('aria-expanded', 'true');
+        }
+    }
+
+    // Helper function to expand a subsection (and its parent unit)
+    function expandSubsection($subsection) {
+        if (!$subsection || !$subsection.length) return;
+        // First expand the parent unit
+        var $parentUnit = $subsection.closest('.nexus-unit');
+        expandUnit($parentUnit);
+        // Then expand the subsection itself
+        if (!$subsection.hasClass('expanded')) {
+            $subsection.addClass('expanded');
+            $subsection.find('> .nexus-subsection-content').show();
+            var $subHeader = $subsection.find('> .nexus-subsection-header');
+            $subHeader.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            $subHeader.attr('aria-expanded', 'true');
+        }
+    }
+
+    // Helper function to expand all parents of an activity and mark it active
+    function expandAndActivateLesson($lesson) {
+        if (!$lesson || !$lesson.length) return;
+        // Expand parent unit
+        var $parentUnit = $lesson.closest('.nexus-unit');
+        expandUnit($parentUnit);
+        // Expand parent subsection if exists
+        var $parentSubsection = $lesson.closest('.nexus-subsection');
+        if ($parentSubsection.length) {
+            expandSubsection($parentSubsection);
+        }
+        // Mark as active
+        $('.nexus-lesson').removeClass('active');
+        $lesson.addClass('active');
+    }
+
+    // Section name click handler - expand section and load first activity
+    $('.nexus-unit-name').on('click', function(e) {
+        e.preventDefault();
+        var $unit = $(this).closest('.nexus-unit');
+
+        // Switch to Content tab
+        $('.nexus-tab').removeClass('active');
+        $('.nexus-tab[data-tab="content"]').addClass('active');
+        $('.nexus-tab-pane').hide();
+        $('#nexus-tab-content').show();
+
+        // Expand the section
+        expandUnit($unit);
+
+        // Scroll to the section header
+        $('html, body').animate({
+            scrollTop: $unit.offset().top - 100
+        }, 300);
+
+        // Find the first activity of this section (may be in a subsection)
+        var $firstLesson = $unit.find('.nexus-lesson').first();
+        if ($firstLesson.length) {
+            var cmid = $firstLesson.data('cmid');
+            if (cmid) {
+                // Expand all parents and mark active
+                expandAndActivateLesson($firstLesson);
+                // Load the activity content
+                loadActivityContent(cmid);
+            }
+        }
+    });
+
+    // Unit expand/collapse
+    $('.nexus-unit-header').on('click keypress', function(e) {
+        if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
+            return;
+        }
+        // Don't prevent default if clicking on the section link (handled separately)
+        if ($(e.target).closest('.nexus-unit-name').length) {
+            return;
+        }
+        e.preventDefault();
+        var $unit = $(this).closest('.nexus-unit');
+        var $lessons = $unit.find('> .nexus-unit-lessons');
+        var $toggleIcon = $(this).find('.nexus-unit-toggle i');
+        var $folderIcon = $(this).find('.nexus-unit-icon i');
+        var expanded = $unit.hasClass('expanded');
+
+        if (expanded) {
+            $lessons.slideUp(200);
+            $unit.removeClass('expanded');
+            $toggleIcon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+            $folderIcon.removeClass('fa-folder-open text-primary').addClass('fa-folder text-muted');
+            $(this).attr('aria-expanded', 'false');
+        } else {
+            $lessons.slideDown(200);
+            $unit.addClass('expanded');
+            $toggleIcon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            $folderIcon.removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+            $(this).attr('aria-expanded', 'true');
+        }
+    });
+
+    // Subsection expand/collapse (delegated sections)
+    $('.nexus-subsection-header').on('click keypress', function(e) {
+        if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
+            return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        var $subsection = $(this).closest('.nexus-subsection');
+        var $content = $subsection.find('> .nexus-subsection-content');
+        var $icon = $(this).find('.nexus-unit-toggle i');
+        var expanded = $subsection.hasClass('expanded');
+
+        if (expanded) {
+            $content.slideUp(200);
+            $subsection.removeClass('expanded');
+            $icon.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+            $(this).attr('aria-expanded', 'false');
+        } else {
+            $content.slideDown(200);
+            $subsection.addClass('expanded');
+            $icon.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            $(this).attr('aria-expanded', 'true');
+        }
+    });
+
+    // Load activity content via AJAX
+    function loadActivityContent(cmid, skipUrlUpdate) {
+        // Track the currently loaded activity
+        currentLoadedCmid = cmid;
+
+        // Update URL for activity persistence (unless skipping, e.g., on initial load)
+        if (!skipUrlUpdate) {
+            updateUrlWithCmid(cmid);
+        }
+
+        // Show loading state
+        $contentArea.html('<div class="nexus-loading"><i class="fa fa-spinner fa-spin fa-3x"></i><p>{{#str}}loading, format_nexusformat{{/str}}</p></div>');
+
+        // Make AJAX call to get activity content
+        Ajax.call([{
+            methodname: 'format_nexusformat_get_activity_content',
+            args: { cmid: cmid }
+        }])[0].done(function(response) {
+            $contentArea.html('<div class="nexus-activity-wrapper">' + response.content + '</div>');
+            // Show comments section for this activity
+            showCommentsForActivity(cmid);
+            // Update URL after successful load
+            updateUrlWithCmid(cmid);
+            // Update navigation buttons
+            updateNavigation(cmid);
+        }).fail(function(error) {
+            $contentArea.html('<div class="nexus-error"><i class="fa fa-exclamation-triangle fa-3x"></i><p>{{#str}}error_loading, format_nexusformat{{/str}}</p></div>');
+            Notification.exception(error);
+            // Hide navigation on error
+            $navContainer.hide();
+        });
+    }
+
+    // Show comments section for activity (calls global function defined later)
+    var currentActivityCmid = 0;
+    function showCommentsForActivity(cmid) {
+        currentActivityCmid = cmid;
+        // Call global function defined in comments section
+        if (typeof window.loadCommentsForActivity === 'function') {
+            window.loadCommentsForActivity(cmid);
+        }
+    }
+
+    // Lesson click handler (Content tab sidebar)
+    $('.nexus-lesson').on('click keypress', function(e) {
+        if (e.type === 'keypress' && e.which !== 13 && e.which !== 32) {
+            return;
+        }
+        e.preventDefault();
+
+        var $lesson = $(this);
+        var cmid = $lesson.data('cmid');
+
+        // Update active state
+        $('.nexus-lesson').removeClass('active');
+        $lesson.addClass('active');
+
+        // Load the activity content via AJAX
+        loadActivityContent(cmid);
+    });
+
+    // Activity item click handler (Activities tab)
+    // When clicking on an activity in the Activities tab, load it in the content area
+    $('#nexus-tab-activities').on('click', '.nexus-activity-item', function(e) {
+        // Prevent if clicking directly on the link (let it handle separately)
+        if ($(e.target).closest('.nexus-activity-name').length) {
+            e.preventDefault();
+        }
+
+        var $item = $(this);
+        var cmid = $item.data('cmid');
+
+        if (!cmid) {
+            return;
+        }
+
+        // Switch to Content tab
+        $('.nexus-tab').removeClass('active');
+        $('.nexus-tab[data-tab="content"]').addClass('active');
+        $('.nexus-tab-pane').hide();
+        $('#nexus-tab-content').show();
+
+        // Update active state in sidebar
+        $('.nexus-lesson').removeClass('active');
+        var $sidebarLesson = $('.nexus-lesson[data-cmid="' + cmid + '"]');
+        if ($sidebarLesson.length) {
+            $sidebarLesson.addClass('active');
+            // Expand parent unit if collapsed
+            var $parentUnit = $sidebarLesson.closest('.nexus-unit');
+            if (!$parentUnit.hasClass('expanded')) {
+                $parentUnit.addClass('expanded');
+                $parentUnit.find('> .nexus-unit-lessons').show();
+                var $header = $parentUnit.find('> .nexus-unit-header');
+                $header.find('.nexus-unit-toggle i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $header.find('.nexus-unit-icon i').removeClass('fa-folder text-muted').addClass('fa-folder-open text-primary');
+                $header.attr('aria-expanded', 'true');
+            }
+        }
+
+        // Load the activity content via AJAX
+        loadActivityContent(cmid);
+    });
+
+    // Prevent default link behavior in Activities tab
+    $('#nexus-tab-activities').on('click', '.nexus-activity-name', function(e) {
+        e.preventDefault();
+        // Trigger the parent item click
+        $(this).closest('.nexus-activity-item').trigger('click');
+    });
+
+    // Auto-load activity on page load (only in view mode)
+    // Uses initialActivityCmid which respects URL parameter for persistence
+    if (!isEditing) {
+        // If a specific section is selected via URL, find and expand it
+        // This can be a regular section (.nexus-unit) or a subsection (.nexus-subsection)
+        if (selectedSection > 0) {
+            // First try to find a regular section (unit)
+            var $selectedUnit = $('.nexus-unit[data-sectionnumber="' + selectedSection + '"]');
+
+            // If not found, try to find a subsection
+            var $selectedSubsection = null;
+            if (!$selectedUnit.length) {
+                $selectedSubsection = $('.nexus-subsection[data-sectionnumber="' + selectedSection + '"]');
+            }
+
+            // Expand the regular section if found
+            if ($selectedUnit.length) {
+                expandUnit($selectedUnit);
+            }
+
+            // Expand the subsection if found (and its parent section)
+            if ($selectedSubsection && $selectedSubsection.length) {
+                expandSubsection($selectedSubsection);
+            }
+
+            // If initialActivityCmid is 0, find the first activity in this section/subsection
+            if (initialActivityCmid === 0) {
+                var $container = $selectedUnit.length ? $selectedUnit : $selectedSubsection;
+                if ($container && $container.length) {
+                    var $firstLesson = $container.find('.nexus-lesson').first();
+                    if ($firstLesson.length) {
+                        initialActivityCmid = $firstLesson.data('cmid');
+                    }
+                }
+            }
+        }
+
+        // If we have an activity to load, mark it and load it
+        if (initialActivityCmid > 0) {
+            var $initialLesson = $('.nexus-lesson[data-cmid="' + initialActivityCmid + '"]');
+            if ($initialLesson.length) {
+                // Expand all parents and mark active
+                expandAndActivateLesson($initialLesson);
+            }
+            // Load the activity content
+            loadActivityContent(initialActivityCmid, true);
+        }
+    }
+
+    // ==========================================
+    // NOTES FUNCTIONALITY
+    // ==========================================
+    var $notesList = $('#nexus-notes-list');
+    var $noteEditor = $('#nexus-note-editor');
+    var $noteId = $('#nexus-note-id');
+    var $noteTitle = $('#nexus-note-title');
+    var $noteContent = $('#nexus-note-content');
+    var notesLoaded = false;
+
+    // Load notes when notes tab is activated
+    $('.nexus-tab[data-tab="notes"]').on('click', function() {
+        if (!notesLoaded) {
+            loadNotes();
+        }
+    });
+
+    // Load notes from server
+    function loadNotes() {
+        $notesList.html('<div class="nexus-notes-loading text-center py-3"><i class="fa fa-spinner fa-spin"></i> {{#str}}loading, format_nexusformat{{/str}}</div>');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_get_notes',
+            args: { courseid: courseid }
+        }])[0].done(function(response) {
+            notesLoaded = true;
+            renderNotes(response.notes);
+        }).fail(function(error) {
+            $notesList.html('<div class="alert alert-danger">{{#str}}error_loading, format_nexusformat{{/str}}</div>');
+            Notification.exception(error);
+        });
+    }
+
+    // Render notes list
+    function renderNotes(notes) {
+        $notesList.empty();
+
+        if (!notes || notes.length === 0) {
+            var $template = $('#nexus-no-notes-template');
+            if ($template.length) {
+                $notesList.html($template.html());
+            } else {
+                $notesList.html('<div class="nexus-no-notes text-center py-4"><i class="fa fa-sticky-note-o fa-2x text-muted mb-2"></i><p class="text-muted mb-0">{{#str}}no_notes, format_nexusformat{{/str}}</p></div>');
+            }
+            return;
+        }
+
+        var $template = $('#nexus-note-template');
+        notes.forEach(function(note) {
+            var $noteItem;
+            if ($template.length) {
+                $noteItem = $($template.html());
+            } else {
+                $noteItem = $('<div class="nexus-note-item"><div class="nexus-note-header"><span class="nexus-note-title"></span><div class="nexus-note-actions"><button type="button" class="btn btn-sm btn-link nexus-edit-note"><i class="fa fa-pencil"></i></button><button type="button" class="btn btn-sm btn-link text-danger nexus-delete-note"><i class="fa fa-trash"></i></button></div></div><div class="nexus-note-content"></div><div class="nexus-note-footer"><small class="text-muted nexus-note-date"></small></div></div>');
+            }
+
+            $noteItem.attr('data-noteid', note.id);
+            $noteItem.find('.nexus-note-title').text(note.title || '{{#str}}my_notes, format_nexusformat{{/str}}');
+            $noteItem.find('.nexus-note-content').html(note.content);
+            $noteItem.find('.nexus-note-date').text(note.timemodifiedformatted);
+
+            $notesList.append($noteItem);
+        });
+    }
+
+    // Add note button
+    $('#nexus-add-note-btn').on('click', function() {
+        $noteId.val(0);
+        $noteTitle.val('');
+        $noteContent.val('');
+        $noteEditor.slideDown(200);
+        $noteTitle.focus();
+    });
+
+    // Cancel button
+    $('#nexus-cancel-note-btn').on('click', function() {
+        $noteEditor.slideUp(200);
+        $noteId.val(0);
+        $noteTitle.val('');
+        $noteContent.val('');
+    });
+
+    // Save note button
+    $('#nexus-save-note-btn').on('click', function() {
+        var content = $noteContent.val().trim();
+        if (!content) {
+            $noteContent.focus();
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{#str}}loading, format_nexusformat{{/str}}');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_save_note',
+            args: {
+                courseid: courseid,
+                content: content,
+                title: $noteTitle.val().trim(),
+                noteid: parseInt($noteId.val()) || 0,
+                cmid: 0
+            }
+        }])[0].done(function(response) {
+            $btn.prop('disabled', false).html('<i class="fa fa-save"></i> {{#str}}save_note, format_nexusformat{{/str}}');
+            $noteEditor.slideUp(200);
+            $noteId.val(0);
+            $noteTitle.val('');
+            $noteContent.val('');
+            loadNotes();
+        }).fail(function(error) {
+            $btn.prop('disabled', false).html('<i class="fa fa-save"></i> {{#str}}save_note, format_nexusformat{{/str}}');
+            Notification.exception(error);
+        });
+    });
+
+    // Edit note (delegated)
+    $notesList.on('click', '.nexus-edit-note', function() {
+        var $item = $(this).closest('.nexus-note-item');
+        var noteid = $item.data('noteid');
+        var title = $item.find('.nexus-note-title').text();
+        var content = $item.find('.nexus-note-content').html();
+
+        $noteId.val(noteid);
+        $noteTitle.val(title);
+        $noteContent.val(content);
+        $noteEditor.slideDown(200);
+        $noteTitle.focus();
+    });
+
+    // Delete note (delegated)
+    $notesList.on('click', '.nexus-delete-note', function() {
+        if (!confirm('{{#str}}confirm_delete_note, format_nexusformat{{/str}}')) {
+            return;
+        }
+
+        var $item = $(this).closest('.nexus-note-item');
+        var noteid = $item.data('noteid');
+
+        $item.css('opacity', '0.5');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_delete_note',
+            args: {
+                noteid: noteid,
+                courseid: courseid
+            }
+        }])[0].done(function(response) {
+            $item.slideUp(200, function() {
+                $(this).remove();
+                // Check if list is now empty
+                if ($notesList.find('.nexus-note-item').length === 0) {
+                    renderNotes([]);
+                }
+            });
+        }).fail(function(error) {
+            $item.css('opacity', '1');
+            Notification.exception(error);
+        });
+    });
+
+    // ==========================================
+    // COMMENTS FUNCTIONALITY
+    // ==========================================
+    var $commentsSection = $('#nexus-comments-section');
+    var $commentsList = $('#nexus-comments-list');
+    var $commentsCount = $('#nexus-comments-count');
+    var $commentsSort = $('#nexus-comments-sort');
+    var $commentContent = $('#nexus-comment-content');
+    var $commentId = $('#nexus-comment-id');
+    var $commentParentId = $('#nexus-comment-parentid');
+    var $postCommentBtn = $('#nexus-post-comment-btn');
+    var $cancelCommentBtn = $('#nexus-cancel-comment-btn');
+    var $participationBanner = $('#nexus-participation-banner');
+    var $loadMoreBtn = $('#nexus-comments-more');
+    var currentCmid = 0;
+    var commentsPage = 0;
+    var commentsPerPage = 10;
+    var totalComments = 0;
+    var bannerDismissed = false;
+
+    // Global function to load comments for an activity (called from loadActivityContent)
+    window.loadCommentsForActivity = function(cmid) {
+        currentCmid = cmid;
+        commentsPage = 0;
+        $commentsSection.show();
+
+        // Update the activity name in comments header
+        var $activeLesson = $('.nexus-lesson[data-cmid="' + cmid + '"]');
+        var activityName = '';
+        if ($activeLesson.length) {
+            activityName = $activeLesson.find('.nexus-lesson-name').text().trim();
+        }
+        $('#nexus-comments-activity-name').text(activityName ? activityName : '');
+
+        loadComments(true);
+    };
+
+    // Hide comments section
+    function hideCommentsSection() {
+        $commentsSection.hide();
+        $commentsList.empty();
+        currentCmid = 0;
+    }
+
+    // Load comments from server
+    function loadComments(reset) {
+        if (reset) {
+            commentsPage = 0;
+            $commentsList.html('<div class="nexus-comments-loading text-center py-3"><i class="fa fa-spinner fa-spin"></i> {{#str}}loading_comments, format_nexusformat{{/str}}</div>');
+        }
+
+        var sortby = $commentsSort.val();
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_get_comments',
+            args: {
+                cmid: currentCmid,
+                page: commentsPage,
+                perpage: commentsPerPage,
+                sortby: sortby
+            }
+        }])[0].done(function(response) {
+            totalComments = response.totalcount;
+            $commentsCount.text('(' + totalComments + ')');
+
+            if (reset) {
+                $commentsList.empty();
+            }
+
+            // Show participation banner if there are comments and not dismissed
+            if (totalComments > 0 && !bannerDismissed) {
+                $participationBanner.slideDown(200);
+            }
+
+            if (response.comments.length === 0 && reset) {
+                $commentsList.html('<div class="nexus-no-comments text-center py-4"><i class="fa fa-comments fa-2x text-muted mb-2"></i><p class="text-muted mb-0">{{#str}}no_comments, format_nexusformat{{/str}}</p></div>');
+                $loadMoreBtn.hide();
+                return;
+            }
+
+            renderComments(response.comments);
+
+            // Show/hide load more button
+            if ((commentsPage + 1) * commentsPerPage < totalComments) {
+                $loadMoreBtn.show();
+            } else {
+                $loadMoreBtn.hide();
+            }
+        }).fail(function(error) {
+            $commentsList.html('<div class="alert alert-danger">{{#str}}error_loading, format_nexusformat{{/str}}</div>');
+            Notification.exception(error);
+        });
+    }
+
+    // Render comments list
+    function renderComments(comments) {
+        var $template = $('#nexus-comment-template');
+        comments.forEach(function(comment) {
+            var $comment = createCommentElement(comment, $template);
+            $commentsList.append($comment);
+        });
+    }
+
+    // Create a comment element from template
+    function createCommentElement(comment, $template) {
+        var $comment;
+        if ($template.length) {
+            $comment = $($template.html());
+        } else {
+            $comment = $('<div class="nexus-comment"></div>');
+        }
+
+        $comment.attr('data-commentid', comment.id);
+        $comment.find('.nexus-avatar').attr('src', comment.avatarurl);
+        $comment.find('.nexus-comment-author').text(comment.username);
+        $comment.find('.nexus-comment-role').text(comment.role);
+        if (comment.isteacher) {
+            $comment.find('.nexus-comment-role').addClass('nexus-teacher-badge');
+        }
+        $comment.find('.nexus-comment-time').text(comment.timeago);
+        $comment.find('.nexus-comment-content').html(comment.content);
+        $comment.find('.nexus-like-count').text(comment.likecount);
+
+        // Set liked state
+        if (comment.userliked) {
+            $comment.find('.nexus-comment-like').addClass('liked');
+            $comment.find('.nexus-comment-like i').removeClass('fa-heart-o').addClass('fa-heart');
+        }
+
+        // Show edit/delete buttons if allowed
+        if (comment.canedit) {
+            $comment.find('.nexus-comment-edit').show();
+        }
+        if (comment.candelete) {
+            $comment.find('.nexus-comment-delete').show();
+        }
+
+        // Show replies toggle if has replies
+        if (comment.replycount > 0) {
+            $comment.find('.nexus-comment-replies-toggle').show();
+            $comment.find('.nexus-replies-count').text('{{#str}}show_replies, format_nexusformat{{/str}}'.replace('{$a}', comment.replycount));
+        }
+
+        return $comment;
+    }
+
+    // Sort change handler
+    $commentsSort.on('change', function() {
+        loadComments(true);
+    });
+
+    // Load more comments
+    $('#nexus-load-more-comments').on('click', function() {
+        commentsPage++;
+        loadComments(false);
+    });
+
+    // Close participation banner
+    $('#nexus-banner-close').on('click', function() {
+        bannerDismissed = true;
+        $participationBanner.slideUp(200);
+    });
+
+    // Post comment
+    $postCommentBtn.on('click', function() {
+        var content = $commentContent.val().trim();
+        if (!content) {
+            $commentContent.focus();
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+
+        var commentid = parseInt($commentId.val()) || 0;
+        var parentid = parseInt($commentParentId.val()) || 0;
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_save_comment',
+            args: {
+                cmid: currentCmid,
+                courseid: courseid,
+                content: content,
+                commentid: commentid,
+                parentid: parentid
+            }
+        }])[0].done(function(response) {
+            $btn.prop('disabled', false).html('<i class="fa fa-paper-plane"></i> {{#str}}post_comment, format_nexusformat{{/str}}');
+            $commentContent.val('');
+            $commentId.val(0);
+            $commentParentId.val(0);
+            $cancelCommentBtn.hide();
+            loadComments(true);
+        }).fail(function(error) {
+            $btn.prop('disabled', false).html('<i class="fa fa-paper-plane"></i> {{#str}}post_comment, format_nexusformat{{/str}}');
+            Notification.exception(error);
+        });
+    });
+
+    // Cancel edit
+    $cancelCommentBtn.on('click', function() {
+        $commentContent.val('');
+        $commentId.val(0);
+        $commentParentId.val(0);
+        $cancelCommentBtn.hide();
+    });
+
+    // Like comment (delegated)
+    $commentsList.on('click', '.nexus-comment-like', function() {
+        var $btn = $(this);
+        var $comment = $btn.closest('.nexus-comment');
+        var commentid = $comment.data('commentid');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_toggle_like',
+            args: { commentid: commentid }
+        }])[0].done(function(response) {
+            $btn.find('.nexus-like-count').text(response.likecount);
+            if (response.liked) {
+                $btn.addClass('liked');
+                $btn.find('i').removeClass('fa-heart-o').addClass('fa-heart');
+            } else {
+                $btn.removeClass('liked');
+                $btn.find('i').removeClass('fa-heart').addClass('fa-heart-o');
+            }
+        }).fail(function(error) {
+            Notification.exception(error);
+        });
+    });
+
+    // Edit comment (delegated)
+    $commentsList.on('click', '.nexus-comment-edit', function() {
+        var $comment = $(this).closest('.nexus-comment');
+        var commentid = $comment.data('commentid');
+        var content = $comment.find('.nexus-comment-content').text();
+
+        $commentId.val(commentid);
+        $commentContent.val(content);
+        $cancelCommentBtn.show();
+        $commentContent.focus();
+
+        // Scroll to editor
+        $('html, body').animate({
+            scrollTop: $('#nexus-comment-editor').offset().top - 100
+        }, 300);
+    });
+
+    // Delete comment (delegated)
+    $commentsList.on('click', '.nexus-comment-delete', function() {
+        if (!confirm('{{#str}}confirm_delete_comment, format_nexusformat{{/str}}')) {
+            return;
+        }
+
+        var $comment = $(this).closest('.nexus-comment');
+        var commentid = $comment.data('commentid');
+
+        $comment.css('opacity', '0.5');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_delete_comment',
+            args: { commentid: commentid }
+        }])[0].done(function(response) {
+            $comment.slideUp(200, function() {
+                $(this).remove();
+                totalComments--;
+                $commentsCount.text('(' + totalComments + ')');
+                if ($commentsList.find('.nexus-comment').length === 0) {
+                    $commentsList.html('<div class="nexus-no-comments text-center py-4"><i class="fa fa-comments fa-2x text-muted mb-2"></i><p class="text-muted mb-0">{{#str}}no_comments, format_nexusformat{{/str}}</p></div>');
+                }
+            });
+        }).fail(function(error) {
+            $comment.css('opacity', '1');
+            Notification.exception(error);
+        });
+    });
+
+    // Show reply editor (delegated)
+    $commentsList.on('click', '.nexus-comment-reply', function() {
+        var $comment = $(this).closest('.nexus-comment');
+        var $replyEditor = $comment.find('.nexus-reply-editor');
+        $replyEditor.slideDown(200);
+        $replyEditor.find('.nexus-reply-content').focus();
+    });
+
+    // Cancel reply (delegated)
+    $commentsList.on('click', '.nexus-cancel-reply', function() {
+        var $replyEditor = $(this).closest('.nexus-reply-editor');
+        $replyEditor.find('.nexus-reply-content').val('');
+        $replyEditor.slideUp(200);
+    });
+
+    // Submit reply (delegated)
+    $commentsList.on('click', '.nexus-submit-reply', function() {
+        var $btn = $(this);
+        var $replyEditor = $btn.closest('.nexus-reply-editor');
+        var $comment = $btn.closest('.nexus-comment');
+        var parentid = $comment.data('commentid');
+        var content = $replyEditor.find('.nexus-reply-content').val().trim();
+
+        if (!content) {
+            $replyEditor.find('.nexus-reply-content').focus();
+            return;
+        }
+
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_save_comment',
+            args: {
+                cmid: currentCmid,
+                courseid: courseid,
+                content: content,
+                commentid: 0,
+                parentid: parentid
+            }
+        }])[0].done(function(response) {
+            $btn.prop('disabled', false).html('{{#str}}reply, format_nexusformat{{/str}}');
+            $replyEditor.find('.nexus-reply-content').val('');
+            $replyEditor.slideUp(200);
+            // Reload to show the new reply
+            loadReplies($comment);
+        }).fail(function(error) {
+            $btn.prop('disabled', false).html('{{#str}}reply, format_nexusformat{{/str}}');
+            Notification.exception(error);
+        });
+    });
+
+    // Toggle replies visibility (delegated)
+    $commentsList.on('click', '.nexus-show-replies', function() {
+        var $btn = $(this);
+        var $comment = $btn.closest('.nexus-comment');
+        var $repliesContainer = $comment.find('.nexus-comment-replies');
+
+        if ($repliesContainer.is(':visible')) {
+            $repliesContainer.slideUp(200);
+            $btn.find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        } else {
+            loadReplies($comment);
+            $btn.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        }
+    });
+
+    // Load replies for a comment
+    function loadReplies($comment) {
+        var commentid = $comment.data('commentid');
+        var $repliesContainer = $comment.find('.nexus-comment-replies');
+
+        $repliesContainer.html('<div class="text-center py-2"><i class="fa fa-spinner fa-spin"></i></div>').slideDown(200);
+
+        Ajax.call([{
+            methodname: 'format_nexusformat_get_replies',
+            args: { commentid: commentid }
+        }])[0].done(function(response) {
+            $repliesContainer.empty();
+            var $template = $('#nexus-comment-template');
+            response.replies.forEach(function(reply) {
+                var $reply = createCommentElement(reply, $template);
+                $reply.addClass('nexus-reply');
+                // Hide reply button for nested replies (no further nesting)
+                $reply.find('.nexus-comment-reply').hide();
+                $reply.find('.nexus-comment-replies-toggle').hide();
+                $repliesContainer.append($reply);
+            });
+
+            // Update reply count
+            $comment.find('.nexus-replies-count').text('{{#str}}hide_replies, format_nexusformat{{/str}}');
+        }).fail(function(error) {
+            $repliesContainer.html('<div class="alert alert-danger">{{#str}}error_loading, format_nexusformat{{/str}}</div>');
+            Notification.exception(error);
+        });
+    }
+
+});
+{{/js}}

@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="35" moduleid="35" modulename="glossary" contextid="134">
+  <glossary id="35">
+    <name>Glosario de Terminos - Capitulo 5</name>
+    <intro>&lt;p&gt;Terminos como periodo sensoriomotor, epigenetica, densidad sinaptica, esquemas, permanencia del objeto y memoria implicita.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768689196</timecreated>
+    <timemodified>1768689196</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="91">
+        <userid>2</userid>
+        <concept>Periodo Sensoriomotor</concept>
+        <definition>&lt;p&gt;Primera etapa de Piaget (0-24 meses) donde las capacidades cognitivas del infante se desarrollan rapidamente.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="92">
+        <userid>2</userid>
+        <concept>Epigenetica</concept>
+        <definition>&lt;p&gt;Teoria que rige hoy el desarrollo humano, superando las teorias clasicas de Piaget y Erikson.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="93">
+        <userid>2</userid>
+        <concept>Densidad Sinaptica</concept>
+        <definition>&lt;p&gt;Durante el PSM (hasta 24 meses) existe densidad sinaptica 50% mayor que la de adultos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="94">
+        <userid>2</userid>
+        <concept>Egocentrismo Extremo</concept>
+        <definition>&lt;p&gt;Condicion inicial de bebes en el PSM donde no comprenden el mundo mas alla de su punto de vista.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="95">
+        <userid>2</userid>
+        <concept>Permanencia del Objeto</concept>
+        <definition>&lt;p&gt;Logro principal del PSM: comprension de que un objeto sigue existiendo aunque no pueda ser percibido.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="96">
+        <userid>2</userid>
+        <concept>Reacciones Circulares Primarias</concept>
+        <definition>&lt;p&gt;Subetapa (1-4 meses) donde el infante repite movimientos involuntarios centrados en su propio cuerpo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="97">
+        <userid>2</userid>
+        <concept>Reacciones Circulares Secundarias</concept>
+        <definition>&lt;p&gt;Subetapa (4-8 meses) donde los bebes se orientan a objetos y repiten acciones con resultados interesantes.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="98">
+        <userid>2</userid>
+        <concept>Reacciones Circulares Terciarias</concept>
+        <definition>&lt;p&gt;Subetapa (12-18 meses) caracterizada por experimentacion y curiosidad, el joven cientifico.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="99">
+        <userid>2</userid>
+        <concept>Internalizacion de Esquemas</concept>
+        <definition>&lt;p&gt;Subetapa final (18-24 meses) donde comienza el pensamiento simbolico.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="100">
+        <userid>2</userid>
+        <concept>Areas Corticales Primarias</concept>
+        <definition>&lt;p&gt;Punto de entrada o salida directo de la informacion sensorial o motora.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="101">
+        <userid>2</userid>
+        <concept>Areas Corticales Secundarias</concept>
+        <definition>&lt;p&gt;Encargadas de la interpretacion inicial de la aferencia sensorial.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="102">
+        <userid>2</userid>
+        <concept>Areas Corticales Terciarias</concept>
+        <definition>&lt;p&gt;Areas de asociacion que modulan e integran informacion para representar el mundo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="103">
+        <userid>2</userid>
+        <concept>Lobulo Parietal Posterior</concept>
+        <definition>&lt;p&gt;Denominado cerebro sensitivo, donde se procesa la cantidad de sensaciones.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="104">
+        <userid>2</userid>
+        <concept>Conexiones Interhemisfericas</concept>
+        <definition>&lt;p&gt;Estructuras como axones del cuerpo calloso que permiten comunicacion entre hemisferios.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="105">
+        <userid>2</userid>
+        <concept>Corteza Orbito-Frontal</concept>
+        <definition>&lt;p&gt;Region importante en regulacion de conducta social, toma de decisiones e inhibicion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="106">
+        <userid>2</userid>
+        <concept>Fasciculo Longitudinal Superior</concept>
+        <definition>&lt;p&gt;Fibras que conectan lobulo frontal con areas parietales, apoyando integracion sensorial y movimiento.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="107">
+        <userid>2</userid>
+        <concept>Neuronas de Espejo</concept>
+        <definition>&lt;p&gt;Categoria de neuronas que permite la anticipacion de movimientos, observada en atletas de elite.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="108">
+        <userid>2</userid>
+        <concept>Corriente Semantica Ventral</concept>
+        <definition>&lt;p&gt;Via de conexion que une regiones temporales con corteza orbito frontal para comprension de palabras.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="109">
+        <userid>2</userid>
+        <concept>Corriente Fonologica Dorsal</concept>
+        <definition>&lt;p&gt;Via que conecta corteza temporal con Area de Wernicke. Si esta bien conectada, el nino lee y comprende.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="110">
+        <userid>2</userid>
+        <concept>Desarrollo Psicomotor</concept>
+        <definition>&lt;p&gt;Maduracion del sistema nervioso central que permite evolucion de lenguaje, cognicion y area motora.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="111">
+        <userid>2</userid>
+        <concept>Control Inhibitorio</concept>
+        <definition>&lt;p&gt;Capacidad de suspender respuestas mecanicas, crucial para desarrollo social. Comienza a los 18 meses.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="112">
+        <userid>2</userid>
+        <concept>Enfoque Enactivo</concept>
+        <definition>&lt;p&gt;Enfoque moderno que subraya la interdependencia entre cuerpo, movimiento y cognicion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

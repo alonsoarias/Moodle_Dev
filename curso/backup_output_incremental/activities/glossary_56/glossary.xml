@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="56" moduleid="56" modulename="glossary" contextid="155">
+  <glossary id="56">
+    <name>Glosario de Terminos - Capitulo 8</name>
+    <intro>&lt;p&gt;Terminos relacionados con reflejo de apnea, bradicardia, inmersion y respuestas autonomicas.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768689196</timecreated>
+    <timemodified>1768689196</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="144">
+        <userid>2</userid>
+        <concept>Apnea</concept>
+        <definition>&lt;p&gt;Tecnica de retencion voluntaria de la respiracion. Combinada con agua fria potencia el reflejo de inmersion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="145">
+        <userid>2</userid>
+        <concept>Bradicardia</concept>
+        <definition>&lt;p&gt;Respuesta fisiologica de disminucion de frecuencia cardiaca para conservar oxigeno para organos vitales.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="146">
+        <userid>2</userid>
+        <concept>Cortisol</concept>
+        <definition>&lt;p&gt;Hormona del estres. La activacion parasimpatica mediante inmersion facial reduce sus niveles.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="147">
+        <userid>2</userid>
+        <concept>Endorfinas</concept>
+        <definition>&lt;p&gt;Neurotransmisores liberados tras inmersion en agua fria que generan sensacion de vitalidad, alerta y bienestar.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="148">
+        <userid>2</userid>
+        <concept>Grasa Parda</concept>
+        <definition>&lt;p&gt;Tejido adiposo activado con exposicion al frio que regula temperatura corporal y mejora metabolismo.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="149">
+        <userid>2</userid>
+        <concept>Nervio Trigemino</concept>
+        <definition>&lt;p&gt;Nervio craneal que inerva el rostro con receptores de temperatura y presion que disparan el reflejo de inmersion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="150">
+        <userid>2</userid>
+        <concept>Nervio Vago</concept>
+        <definition>&lt;p&gt;Componente principal del sistema parasimpatico. Su activacion mediante frio promueve relajacion profunda.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="151">
+        <userid>2</userid>
+        <concept>Noradrenalina</concept>
+        <definition>&lt;p&gt;Hormona y neurotransmisor liberado durante exposicion al frio, aumentando alerta, concentracion y energia.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="152">
+        <userid>2</userid>
+        <concept>Reflejo de Inmersion</concept>
+        <definition>&lt;p&gt;Reaccion fisiologica involuntaria cuando el rostro contacta agua fria (menor a 21C). Maximiza supervivencia bajo agua.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="153">
+        <userid>2</userid>
+        <concept>Resiliencia Mental</concept>
+        <definition>&lt;p&gt;Capacidad psicologica reforzada por practica de inmersion facial para manejar estres emocional y fisico.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="154">
+        <userid>2</userid>
+        <concept>Termalismo Funcional</concept>
+        <definition>&lt;p&gt;Disciplina que utiliza el agua y sus propiedades termicas para mejorar rendimiento fisico y bienestar mental.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="155">
+        <userid>2</userid>
+        <concept>Vasoconstriccion Periferica</concept>
+        <definition>&lt;p&gt;Estrechamiento de vasos sanguineos en extremidades que redistribuye flujo hacia organos vitales.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

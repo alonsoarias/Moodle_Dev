@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 5 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap5_P1::Que es el periodo sensoriomotor segun Piaget? {
+  ~La segunda etapa del desarrollo
+  =La primera etapa del desarrollo cognitivo (0-24 meses)
+  ~Una etapa que ocurre en la adolescencia
+  ~El periodo de desarrollo del lenguaje
+}
+
+::Cap5_P2::Cual es el logro principal del periodo sensoriomotor? {
+  ~El desarrollo del lenguaje
+  =La permanencia del objeto
+  ~La capacidad de leer
+  ~El pensamiento abstracto
+}
+
+::Cap5_P3::A que edad comienza el control inhibitorio? {
+  ~6 meses
+  ~12 meses
+  =18 meses
+  ~36 meses
+}
+
+::Cap5_P4::Que son las reacciones circulares terciarias? {
+  ~Movimientos involuntarios del bebe
+  =Experimentacion y curiosidad activa (12-18 meses)
+  ~Reflejos innatos
+  ~El pensamiento simbolico
+}
+
+::Cap5_P5::A que edad se percibe la memoria de trabajo? {
+  ~Al nacer
+  =A los 8 meses
+  ~A los 2 anos
+  ~A los 5 anos
+}
+
+::Cap5_P6::Que es la Cisura de Rolando? {
+  ~Un tipo de neurona
+  =Linea de division entre cerebro sensitivo y area motora
+  ~Un neurotransmisor
+  ~Una estructura del cerebelo
+}
+
+::Cap5_P7::Que son las neuronas de espejo? {
+  ~Neuronas que reflejan luz
+  =Neuronas que permiten la anticipacion de movimientos
+  ~Neuronas solo presentes en adultos
+  ~Neuronas del sistema visual
+}
+
+::Cap5_P8::Que caracteriza al egocentrismo extremo del bebe? {
+  ~Comprende todos los puntos de vista
+  =No comprende el mundo mas alla de su punto de vista actual
+  ~Es muy sociable
+  ~Tiene pensamiento abstracto
+}
+
+::Cap5_P9::Que teoria rige actualmente el desarrollo humano segun el material? {
+  ~Solo la teoria de Piaget
+  ~Solo la teoria de Erikson
+  =La teoria epigenetica
+  ~La teoria conductista
+}
+
+::Cap5_P10::Que conecta el Fasciculo Longitudinal Superior? {
+  ~Los dos ojos
+  =El lobulo frontal con areas parietales
+  ~El cerebro con la medula
+  ~Los dos oidos
+}
+

@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="63" moduleid="63" modulename="glossary" contextid="162">
+  <glossary id="63">
+    <name>Glosario de Terminos - Capitulo 9</name>
+    <intro>&lt;p&gt;Terminos como teoria de la mente, cognicion social, neuronas espejo e interaccion social.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768689196</timecreated>
+    <timemodified>1768689196</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="156">
+        <userid>2</userid>
+        <concept>Aferencias</concept>
+        <definition>&lt;p&gt;Senales o estimulos sensoriales que ingresan al sistema nervioso (input). Lo que el nino escucha, mira y siente.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="157">
+        <userid>2</userid>
+        <concept>Apego</concept>
+        <definition>&lt;p&gt;Vinculo emocional primordial entre nino y cuidadores basado en contacto fisico, juego y comunicacion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="158">
+        <userid>2</userid>
+        <concept>Autorregulacion</concept>
+        <definition>&lt;p&gt;Capacidad de influir y controlar el propio comportamiento y sentimientos. Madura en lobulo frontal entre 5-6 anos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="159">
+        <userid>2</userid>
+        <concept>CAS</concept>
+        <definition>&lt;p&gt;Cognitive Assessment System. Instrumento para evaluar funciones cognitivas en ninos de 5 a 18 anos basado en modelo de Luria.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="160">
+        <userid>2</userid>
+        <concept>Conectoma</concept>
+        <definition>&lt;p&gt;Mapa total de conexiones neurales del cerebro. Conexiones no establecidas a tiempo pueden generar dificultades permanentes.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="161">
+        <userid>2</userid>
+        <concept>Eferencias</concept>
+        <definition>&lt;p&gt;Respuestas o salidas (output) que el cerebro organiza despues de procesar informacion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="162">
+        <userid>2</userid>
+        <concept>Epigenetica</concept>
+        <definition>&lt;p&gt;Campo que estudia como estimulos externos y entorno pueden modificar expresion de genes sin cambiar codigo genetico.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="163">
+        <userid>2</userid>
+        <concept>Fases Sensibles</concept>
+        <definition>&lt;p&gt;Periodos criticos donde el cerebro es extremadamente receptivo a ciertos estimulos como vista y audicion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="164">
+        <userid>2</userid>
+        <concept>Funciones Ejecutivas</concept>
+        <definition>&lt;p&gt;Capacidades cognitivas complejas (planificacion, inhibicion, flexibilidad) para organizar conducta hacia metas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="165">
+        <userid>2</userid>
+        <concept>Lobulo Frontal</concept>
+        <definition>&lt;p&gt;Area del cerebro encargada de funciones ejecutivas, control de impulsos y toma de decisiones.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="166">
+        <userid>2</userid>
+        <concept>Mielina</concept>
+        <definition>&lt;p&gt;Sustancia blanca que recubre axones permitiendo que impulsos nerviosos viajen con mayor velocidad y eficiencia.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="167">
+        <userid>2</userid>
+        <concept>Mielinizacion</concept>
+        <definition>&lt;p&gt;Proceso de recubrimiento de fibras nerviosas con mielina. Ocurre fundamentalmente mientras el nino duerme.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="168">
+        <userid>2</userid>
+        <concept>Modelo de Luria</concept>
+        <definition>&lt;p&gt;Teoria que divide actividad cerebral en tres unidades: activacion, recepcion/integracion, y planificacion de conducta.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="169">
+        <userid>2</userid>
+        <concept>NEPSI</concept>
+        <definition>&lt;p&gt;Bateria neuropsicologica para evaluar desarrollo cognitivo en ninos de 3 a 16 anos.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="170">
+        <userid>2</userid>
+        <concept>Plasticidad Mielinica</concept>
+        <definition>&lt;p&gt;Capacidad de la sustancia blanca de modificarse y fortalecerse a traves de estimulacion y aprendizaje.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="171">
+        <userid>2</userid>
+        <concept>Poda Dendritica</concept>
+        <definition>&lt;p&gt;Proceso natural de eliminacion de conexiones excesivas. El cerebro gana en precision cualitativa.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="172">
+        <userid>2</userid>
+        <concept>Sinaptogenesis</concept>
+        <definition>&lt;p&gt;Proceso de formacion de nuevas sinapsis. Comienza antes del nacimiento con picos en infancia temprana.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="173">
+        <userid>2</userid>
+        <concept>Sustancia Gris</concept>
+        <definition>&lt;p&gt;Tejido cerebral compuesto por cuerpos de celulas neuronales. Proliferacion masiva en primeros meses.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="174">
+        <userid>2</userid>
+        <concept>Ubicacion Visoespacial</concept>
+        <definition>&lt;p&gt;Capacidad de percibir y organizar posicion de objetos en el espacio.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

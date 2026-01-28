@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 1 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap1_P1::Cual es el beneficio principal de la poda sinaptica? {
+  =Precision en las conexiones neuronales
+  ~Mayor cantidad de sinapsis
+  ~Aumento del tamano cerebral
+  ~Reduccion del consumo de energia
+}
+
+::Cap1_P2::Cual es la caracteristica del desarrollo del hemisferio izquierdo? {
+  ~Desarrollo global simultaneo
+  =Alargamiento secuencial
+  ~Maduracion emocional temprana
+  ~Predominio en funciones espaciales
+}
+
+::Cap1_P3::Que estructuras cerebrales se ven afectadas por el estres temprano? {
+  ~Solo el cerebelo
+  =Neocortex, hipocampo y amigdala
+  ~Unicamente el tronco encefalico
+  ~Solo la medula espinal
+}
+
+::Cap1_P4::Cual es la funcion principal del Area de Broca? {
+  ~Comprension del lenguaje
+  ~Procesamiento visual
+  ~Control motor de extremidades
+  =Produccion del lenguaje
+}
+
+::Cap1_P5::A los 2 anos, la densidad sinaptica es\: {
+  ~Igual que en adultos
+  ~25% inferior a adultos
+  =50% superior a adultos
+  ~El doble que en adultos
+}
+
+::Cap1_P6::Existen diferencias de genero en el desarrollo del hipocampo y la amigdala\: {
+  ~No existen diferencias significativas
+  ~Solo en el hipocampo
+  =Si, existen diferencias documentadas
+  ~Solo en la amigdala
+}
+
+::Cap1_P7::El Area de Wernicke corresponde a que area de Brodmann? {
+  ~Area 4
+  ~Area 17
+  =Area 22
+  ~Area 44
+}
+
+::Cap1_P8::A los 2 anos el movimiento voluntario se desarrolla gracias a\: {
+  ~Maduracion del cerebelo
+  ~Desarrollo del sistema limbico
+  =Mielinizacion de la via piramidal
+  ~Crecimiento del hipocampo
+}
+
+::Cap1_P9::Los picos de aceleracion del desarrollo cerebral finalizan aproximadamente a los\: {
+  =14 anos
+  ~6 anos
+  ~21 anos
+  ~3 anos
+}
+
+::Cap1_P10::El giro angular tiene como funcion principal\: {
+  ~Produccion del habla
+  ~Control motor fino
+  =Asociar informacion visual y auditiva
+  ~Regulacion emocional
+}
+

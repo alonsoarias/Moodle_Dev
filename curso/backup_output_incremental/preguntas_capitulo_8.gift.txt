@@ -1,0 +1,74 @@
+// Preguntas del Capitulo 8 - Huellas Invisibles
+// Formato GIFT para importar en Moodle
+// Banco de preguntas > Importar > Formato GIFT
+
+::Cap8_P1::Que es el reflejo de inmersion? {
+  ~Un reflejo aprendido
+  =Reaccion fisiologica involuntaria cuando el rostro contacta agua fria
+  ~Un tipo de natacion
+  ~Una tecnica de respiracion
+}
+
+::Cap8_P2::A que temperatura del agua se activa tipicamente el reflejo de inmersion? {
+  ~Cualquier temperatura
+  =Por debajo de 21 grados Celsius
+  ~Solo en agua caliente
+  ~A temperatura corporal
+}
+
+::Cap8_P3::Que es la bradicardia? {
+  ~Aumento de frecuencia cardiaca
+  =Disminucion de frecuencia cardiaca para conservar oxigeno
+  ~Un tipo de respiracion
+  ~Una enfermedad cardiaca
+}
+
+::Cap8_P4::Que nervio dispara el reflejo de inmersion? {
+  ~Nervio optico
+  =Nervio trigemino
+  ~Nervio auditivo
+  ~Nervio olfatorio
+}
+
+::Cap8_P5::Que es la vasoconstriccion periferica? {
+  ~Dilatacion de vasos en extremidades
+  =Estrechamiento de vasos en extremidades para redistribuir flujo a organos vitales
+  ~Un tipo de ejercicio
+  ~Aumento de presion arterial
+}
+
+::Cap8_P6::Que neurotransmisores se liberan tras inmersion en agua fria? {
+  ~Solo cortisol
+  =Endorfinas que generan sensacion de vitalidad y bienestar
+  ~Melatonina
+  ~Insulina
+}
+
+::Cap8_P7::Que es la grasa parda? {
+  ~Grasa que almacena calorias
+  =Tejido adiposo activado por frio que regula temperatura y mejora metabolismo
+  ~Un tipo de colesterol
+  ~Grasa visceral
+}
+
+::Cap8_P8::Que funcion tiene el nervio vago? {
+  ~Controla el movimiento de piernas
+  =Es componente principal del sistema parasimpatico, promueve relajacion
+  ~Controla la vision
+  ~Regula el apetito
+}
+
+::Cap8_P9::Que es el termalismo funcional? {
+  ~Medicion de temperatura corporal
+  =Disciplina que usa agua y propiedades termicas para mejorar rendimiento y bienestar
+  ~Un tipo de fiebre
+  ~Tratamiento de quemaduras
+}
+
+::Cap8_P10::Que es la resiliencia mental en el contexto de inmersion? {
+  ~La capacidad de aguantar bajo el agua
+  =Capacidad psicologica reforzada por practica de inmersion para manejar estres
+  ~Resistencia fisica
+  ~Tolerancia al dolor
+}
+

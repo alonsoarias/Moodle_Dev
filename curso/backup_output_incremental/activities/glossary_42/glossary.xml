@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="42" moduleid="42" modulename="glossary" contextid="141">
+  <glossary id="42">
+    <name>Glosario de Terminos - Capitulo 6</name>
+    <intro>&lt;p&gt;Terminos relacionados con apego, estres toxico, regulacion emocional y vinculo afectivo.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <allowduplicatedentries>0</allowduplicatedentries>
+    <displayformat>dictionary</displayformat>
+    <mainglossary>0</mainglossary>
+    <showspecial>1</showspecial>
+    <showalphabet>1</showalphabet>
+    <showall>1</showall>
+    <allowcomments>0</allowcomments>
+    <allowprintview>1</allowprintview>
+    <usedynalink>1</usedynalink>
+    <defaultapproval>1</defaultapproval>
+    <globalglossary>0</globalglossary>
+    <entbypage>10</entbypage>
+    <editalways>0</editalways>
+    <rsstype>0</rsstype>
+    <rssarticles>0</rssarticles>
+    <assessed>0</assessed>
+    <assesstimestart>0</assesstimestart>
+    <assesstimefinish>0</assesstimefinish>
+    <scale>0</scale>
+    <timecreated>1768689196</timecreated>
+    <timemodified>1768689196</timemodified>
+    <completionentries>0</completionentries>
+    <entries>
+      <entry id="113">
+        <userid>2</userid>
+        <concept>Adrenalina</concept>
+        <definition>&lt;p&gt;Hormona liberada por la medula de la glandula suprarrenal a traves de la via rapida del estres. Prepara al cuerpo para lucha o huida.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="114">
+        <userid>2</userid>
+        <concept>Alostasis</concept>
+        <definition>&lt;p&gt;Proceso mediante el cual el organismo cambia su configuracion interna para lograr estabilidad y manejar las amenazas del entorno.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="115">
+        <userid>2</userid>
+        <concept>Apego</concept>
+        <definition>&lt;p&gt;Necesidad innata del nino de formar vinculos afectivos para asegurar supervivencia y proteccion. Base del desarrollo social.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="116">
+        <userid>2</userid>
+        <concept>Base Segura</concept>
+        <definition>&lt;p&gt;Concepto que describe al cuidador como refugio que brinda seguridad para que el nino explore su entorno con confianza.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="117">
+        <userid>2</userid>
+        <concept>Carga Alostatica</concept>
+        <definition>&lt;p&gt;Desgaste acumulado de sistemas biologicos cuando las amenazas son demasiado intensas o duraderas.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="118">
+        <userid>2</userid>
+        <concept>Cortisol</concept>
+        <definition>&lt;p&gt;Glucocorticoide liberado por la corteza suprarrenal. Aporta energia rapida (glucosa) e inhibe sistemas no vitales como digestion.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="119">
+        <userid>2</userid>
+        <concept>Diestres</concept>
+        <definition>&lt;p&gt;Alteracion patologica del estres cuando la respuesta se vuelve constante, danando estructuras cerebrales y sistema inmunitario.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="120">
+        <userid>2</userid>
+        <concept>Epigenetica</concept>
+        <definition>&lt;p&gt;Marco cientifico que postula que las experiencias vividas en la infancia pueden transformar las estructuras del genoma.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="121">
+        <userid>2</userid>
+        <concept>Estres</concept>
+        <definition>&lt;p&gt;Reaccion normal y necesaria de adaptacion del organismo que activa un estado de alerta para enfrentar desafios.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="122">
+        <userid>2</userid>
+        <concept>Estres Toxico</concept>
+        <definition>&lt;p&gt;Activacion frecuente y prolongada de respuesta al estres ante adversidades cronicas sin apoyo del cuidador.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="123">
+        <userid>2</userid>
+        <concept>Hipocampo</concept>
+        <definition>&lt;p&gt;Estructura cerebral fundamental para generacion de recuerdos y memoria. Altamente vulnerable al cortisol prolongado.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="124">
+        <userid>2</userid>
+        <concept>Hipotalamo</concept>
+        <definition>&lt;p&gt;Region del cerebro donde se originan tanto la via rapida como la via lenta de respuesta al estres.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="125">
+        <userid>2</userid>
+        <concept>Homeostasis</concept>
+        <definition>&lt;p&gt;Estado de equilibrio dinamico del cuerpo que se ve desafiado por estimulos estresantes.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="126">
+        <userid>2</userid>
+        <concept>Poda Dendritica</concept>
+        <definition>&lt;p&gt;Proceso neurologico donde el cerebro elimina conexiones sinapticas innecesarias para afianzar estructuras.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="127">
+        <userid>2</userid>
+        <concept>Via Rapida (Adrenergica)</concept>
+        <definition>&lt;p&gt;Mecanismo de respuesta inmediata que envia mensaje nervioso desde hipotalamo para liberar adrenalina.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+      <entry id="128">
+        <userid>2</userid>
+        <concept>Via Lenta (Cortisol)</concept>
+        <definition>&lt;p&gt;Mecanismo hormonal que involucra hipotalamo e hipofisis para liberar cortisol. Tarda minutos en activarse.&lt;/p&gt;</definition>
+        <definitionformat>1</definitionformat>
+        <definitiontrust>0</definitiontrust>
+        <attachment>0</attachment>
+        <timecreated>1768689196</timecreated>
+        <timemodified>1768689196</timemodified>
+        <teacherentry>1</teacherentry>
+        <sourceglossaryid>0</sourceglossaryid>
+        <usedynalink>1</usedynalink>
+        <casesensitive>0</casesensitive>
+        <fullmatch>0</fullmatch>
+        <approved>1</approved>
+        <aliases>
+        </aliases>
+        <ratings>
+        </ratings>
+      </entry>
+
+    </entries>
+    <categories>
+    </categories>
+  </glossary>
+</activity>

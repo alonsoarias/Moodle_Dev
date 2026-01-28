@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<course id="2" contextid="50">
+  <shortname>cap2-emociones</shortname>
+  <fullname>Capitulo 2: Funciones Emocionales</fullname>
+  <idnumber></idnumber>
+  <summary>&lt;p&gt;Contenido del Capitulo 2 sobre Funciones Emocionales del curso Huellas Invisibles.&lt;/p&gt;</summary>
+  <summaryformat>1</summaryformat>
+  <format>topics</format>
+  <showgrades>1</showgrades>
+  <newsitems>5</newsitems>
+  <startdate>1768681005</startdate>
+  <enddate>0</enddate>
+  <marker>0</marker>
+  <maxbytes>0</maxbytes>
+  <legacyfiles>0</legacyfiles>
+  <showreports>0</showreports>
+  <visible>1</visible>
+  <groupmode>0</groupmode>
+  <groupmodeforce>0</groupmodeforce>
+  <defaultgroupingid>0</defaultgroupingid>
+  <lang></lang>
+  <theme></theme>
+  <timecreated>1768681005</timecreated>
+  <timemodified>1768681005</timemodified>
+  <requested>0</requested>
+  <showactivitydates>1</showactivitydates>
+  <showcompletionconditions>1</showcompletionconditions>
+  <pdfexportfont></pdfexportfont>
+  <enablecompletion>1</enablecompletion>
+  <completionnotify>0</completionnotify>
+  <category id="1">
+    <name>Miscellaneous</name>
+    <description></description>
+  </category>
+  <tags></tags>
+  <customfields></customfields>
+  <courseformatoptions></courseformatoptions>
+</course>

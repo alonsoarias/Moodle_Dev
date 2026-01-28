@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="32" moduleid="32" modulename="resource" contextid="131">
+  <resource id="32">
+    <name>Video: Periodo Sensoriomotor</name>
+    <intro>&lt;p&gt;Video sobre el periodo sensoriomotor y el desarrollo cognitivo en los primeros 24 meses.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <tobemigrated>0</tobemigrated>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>0</display>
+    <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
+    <filterfiles>0</filterfiles>
+    <revision>1</revision>
+    <timemodified>1768689196</timemodified>
+  </resource>
+</activity>

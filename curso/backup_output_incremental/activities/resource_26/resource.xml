@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="26" moduleid="26" modulename="resource" contextid="125">
+  <resource id="26">
+    <name>Libro: El Cerebro Plastico</name>
+    <intro>&lt;p&gt;Libro &quot;El Cerebro Plastico: De la Construccion a la Maestria&quot; sobre sinaptogenesis y desarrollo.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <tobemigrated>0</tobemigrated>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>0</display>
+    <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
+    <filterfiles>0</filterfiles>
+    <revision>1</revision>
+    <timemodified>1768689196</timemodified>
+  </resource>
+</activity>

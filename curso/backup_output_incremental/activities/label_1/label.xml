@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="1" moduleid="1" modulename="label" contextid="100">
+  <label id="1">
+    <name>Presentacion del Curso</name>
+    <intro>&lt;div style=&quot;max-width: 900px; margin: 0 auto; font-family: &apos;Segoe UI&apos;, Robik, sans-serif;&quot;&gt;
+    &lt;!-- Banner decorativo con CSS y SVG --&gt;
+    &lt;div style=&quot;position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 30px; background: linear-gradient(135deg, #0170B9 0%, #023e6b 50%, #3a3a3a 100%); padding: 50px 40px; text-align: center;&quot;&gt;
+        &lt;!-- Icono SVG cerebro --&gt;
+        &lt;div style=&quot;width: 120px; height: 120px; margin: 0 auto 20px auto; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid rgba(255,255,255,0.2);&quot;&gt;
+            &lt;svg viewBox=&quot;0 0 100 100&quot; width=&quot;80&quot; height=&quot;80&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&lt;defs&gt;&lt;linearGradient id=&quot;brainGrad&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;&gt;&lt;stop offset=&quot;0%&quot; style=&quot;stop-color:#ffffff;stop-opacity:1&quot; /&gt;&lt;stop offset=&quot;100%&quot; style=&quot;stop-color:#e0e0e0;stop-opacity:1&quot; /&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;ellipse cx=&quot;50&quot; cy=&quot;45&quot; rx=&quot;35&quot; ry=&quot;30&quot; fill=&quot;url(#brainGrad)&quot; opacity=&quot;0.9&quot;/&gt;&lt;path d=&quot;M30 35 Q25 25 35 20 Q45 15 50 25 Q55 15 65 20 Q75 25 70 35&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot; opacity=&quot;0.8&quot;/&gt;&lt;path d=&quot;M25 45 Q20 50 25 55 Q20 60 30 65&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot; opacity=&quot;0.6&quot;/&gt;&lt;path d=&quot;M75 45 Q80 50 75 55 Q80 60 70 65&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot; opacity=&quot;0.6&quot;/&gt;&lt;path d=&quot;M40 30 Q50 35 60 30&quot; fill=&quot;none&quot; stroke=&quot;#0170B9&quot; stroke-width=&quot;2&quot;/&gt;&lt;path d=&quot;M35 45 Q50 50 65 45&quot; fill=&quot;none&quot; stroke=&quot;#0170B9&quot; stroke-width=&quot;2&quot;/&gt;&lt;circle cx=&quot;35&quot; cy=&quot;75&quot; r=&quot;8&quot; fill=&quot;white&quot; opacity=&quot;0.7&quot;/&gt;&lt;circle cx=&quot;50&quot; cy=&quot;80&quot; r=&quot;6&quot; fill=&quot;white&quot; opacity=&quot;0.5&quot;/&gt;&lt;circle cx=&quot;65&quot; cy=&quot;75&quot; r=&quot;8&quot; fill=&quot;white&quot; opacity=&quot;0.7&quot;/&gt;&lt;/svg&gt;
+        &lt;/div&gt;
+        &lt;h1 style=&quot;color: white; font-size: 2.5em; margin: 0 0 10px 0; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);&quot;&gt;
+            Huellas Invisibles
+        &lt;/h1&gt;
+        &lt;p style=&quot;color: rgba(255,255,255,0.9); font-size: 1.2em; margin: 0; font-weight: 300;&quot;&gt;
+            Neurociencia del Desarrollo en la Primera Infancia
+        &lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Contenido principal --&gt;
+    &lt;div style=&quot;background: white; border-radius: 20px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e0e0e0;&quot;&gt;
+        &lt;p style=&quot;font-size: 1.1em; line-height: 1.9; margin: 0 0 30px 0; color: #444; text-align: justify;&quot;&gt;
+            Bienvenido a este viaje por el fascinante mundo del neurodesarrollo infantil.
+            Exploraremos como se construye el cerebro en los primeros anos de vida,
+            la plasticidad neuronal, las emociones, el apego y el papel del medio acuatico
+            en la estimulacion temprana.
+        &lt;/p&gt;
+
+        &lt;!-- Stats cards --&gt;
+        &lt;div style=&quot;display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;&quot;&gt;
+            &lt;div style=&quot;background: linear-gradient(135deg, #0170B9, #0288d1); padding: 25px 35px; border-radius: 15px; text-align: center; min-width: 120px; box-shadow: 0 4px 15px rgba(1,112,185,0.3);&quot;&gt;
+                &lt;div style=&quot;font-size: 2.5em; font-weight: 700; line-height: 1; color: white;&quot;&gt;10&lt;/div&gt;
+                &lt;div style=&quot;font-size: 0.9em; color: rgba(255,255,255,0.9); margin-top: 8px;&quot;&gt;Capitulos&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;background: linear-gradient(135deg, #0170B9, #0288d1); padding: 25px 35px; border-radius: 15px; text-align: center; min-width: 120px; box-shadow: 0 4px 15px rgba(1,112,185,0.3);&quot;&gt;
+                &lt;div style=&quot;font-size: 2.5em; font-weight: 700; line-height: 1; color: white;&quot;&gt;100+&lt;/div&gt;
+                &lt;div style=&quot;font-size: 0.9em; color: rgba(255,255,255,0.9); margin-top: 8px;&quot;&gt;Preguntas&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;background: linear-gradient(135deg, #0170B9, #0288d1); padding: 25px 35px; border-radius: 15px; text-align: center; min-width: 120px; box-shadow: 0 4px 15px rgba(1,112,185,0.3);&quot;&gt;
+                &lt;div style=&quot;font-size: 2.5em; font-weight: 700; line-height: 1; color: white;&quot;&gt;190+&lt;/div&gt;
+                &lt;div style=&quot;font-size: 0.9em; color: rgba(255,255,255,0.9); margin-top: 8px;&quot;&gt;Terminos&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</intro>
+    <introformat>1</introformat>
+    <timemodified>1768689196</timemodified>
+  </label>
+</activity>

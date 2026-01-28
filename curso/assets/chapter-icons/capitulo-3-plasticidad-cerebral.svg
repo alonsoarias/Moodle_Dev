@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="55" fill="url(#grad3)"/>
+  <!-- Flexible brain with connections -->
+  <path d="M35 55 Q40 35 60 40 Q80 35 85 55 Q90 75 60 80 Q30 75 35 55" fill="#fff" opacity="0.9"/>
+  <!-- Neural connections showing plasticity -->
+  <path d="M45 50 C55 45 65 55 75 50" stroke="#4facfe" stroke-width="2" fill="none"/>
+  <path d="M40 60 C50 55 70 65 80 60" stroke="#00f2fe" stroke-width="2" fill="none"/>
+  <path d="M45 70 C55 65 65 75 75 70" stroke="#4facfe" stroke-width="2" fill="none"/>
+  <!-- Sparkles representing change -->
+  <circle cx="50" cy="50" r="3" fill="#fff"/>
+  <circle cx="70" cy="55" r="2" fill="#fff"/>
+  <circle cx="55" cy="68" r="2.5" fill="#fff"/>
+  <text x="60" y="105" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle">Capítulo 3</text>
+</svg>

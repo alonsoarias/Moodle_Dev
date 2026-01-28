@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<activity id="50" moduleid="50" modulename="resource" contextid="149">
+  <resource id="50">
+    <name>Bibliografia</name>
+    <intro>&lt;p&gt;Referencias sobre epigenetica del desarrollo y neurociencia.&lt;/p&gt;</intro>
+    <introformat>1</introformat>
+    <tobemigrated>0</tobemigrated>
+    <legacyfiles>0</legacyfiles>
+    <legacyfileslast>$@NULL@$</legacyfileslast>
+    <display>0</display>
+    <displayoptions>a:1:{s:10:"printintro";i:1;}</displayoptions>
+    <filterfiles>0</filterfiles>
+    <revision>1</revision>
+    <timemodified>1768689196</timemodified>
+  </resource>
+</activity>
