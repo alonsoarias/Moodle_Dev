@@ -51,10 +51,10 @@ $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
 // Load the AMD module for dynamic units/topics/resources.
-$PAGE->requires->js_call_amd('mod_caracterizacion/matriz_form', 'init', [
+$PAGE->requires->js_call_amd('mod_caracterizacion/matriz_form', 'init', [[
     'cmid' => $cmid,
     'matrizid' => $matrizid,
-]);
+]]);
 
 $form = new \mod_caracterizacion\form\matriz_form(null, [
     'cmid' => $cmid,

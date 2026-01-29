@@ -44,11 +44,11 @@ $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
 // Load AMD module for phase interactions.
-$PAGE->requires->js_call_amd('mod_caracterizacion/fase_manager', 'init', [
+$PAGE->requires->js_call_amd('mod_caracterizacion/fase_manager', 'init', [[
     'cmid' => $cmid,
     'matrizid' => $matrizid,
-    'currentphase' => $matriz->fase_actual,
-]);
+    'currentphase' => (int) $matriz->fase_actual,
+]]);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('vermatriz', 'mod_caracterizacion'));
@@ -187,6 +187,7 @@ foreach ($faserecords as $fr) {
         'is_rechazada' => ($fr->estado === 'rechazada'),
         'is_current' => ($fr->fase == $matriz->fase_actual),
         'canact' => caracterizacion_user_can_act_on_phase($fr->fase, $context),
+        'canapprove' => caracterizacion_user_can_approve_phase($fr->fase, $context),
         'comentarios' => [],
     ];
 

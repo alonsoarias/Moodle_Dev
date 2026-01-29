@@ -234,25 +234,83 @@ function caracterizacion_get_phases() {
 }
 
 /**
- * Get the role required for a given phase.
+ * Get all capabilities for users who can participate (act) in a given phase.
+ *
+ * According to the UDES workflow:
+ * - Phase 1: Experto fills in, Asesor accompanies.
+ * - Phase 2: Revisor reviews, Asesor coordinates adjustments.
+ * - Phase 3: Par reviews, Corrector adjusts, Asesor coordinates.
+ * - Phase 4: Coordinacion assigns, Produccion develops.
+ * - Phase 5: Alistamiento sets up in Moodle.
+ * - Phase 6: Asesor gives final approval.
  *
  * @param int $fase Phase number.
- * @return array Array of capability strings required for the phase.
+ * @return array Array of capability strings for actors in the phase.
  */
-function caracterizacion_get_phase_capabilities($fase) {
+function caracterizacion_get_phase_actor_capabilities($fase) {
     $map = [
         1 => ['mod/caracterizacion:expertodisciplinar', 'mod/caracterizacion:asesormetodologico'],
-        2 => ['mod/caracterizacion:revisorcurricular'],
-        3 => ['mod/caracterizacion:paracademico', 'mod/caracterizacion:correctorestilo'],
+        2 => ['mod/caracterizacion:revisorcurricular', 'mod/caracterizacion:asesormetodologico'],
+        3 => ['mod/caracterizacion:paracademico', 'mod/caracterizacion:correctorestilo',
+               'mod/caracterizacion:asesormetodologico'],
         4 => ['mod/caracterizacion:coordproduccion', 'mod/caracterizacion:produccion'],
         5 => ['mod/caracterizacion:alistamiento'],
-        6 => ['mod/caracterizacion:aprobarfase'],
+        6 => ['mod/caracterizacion:asesormetodologico'],
     ];
     return $map[$fase] ?? [];
 }
 
 /**
- * Check if a user can act on a specific phase.
+ * Get the capability required to APPROVE a given phase.
+ *
+ * According to the UDES workflow:
+ * - Phases 1, 2, 3, 6: Asesor metodologico approves.
+ * - Phase 4: Coordinacion de produccion approves.
+ * - Phase 5: Alistamiento completes the setup.
+ *
+ * @param int $fase Phase number.
+ * @return array Array of capability strings that can approve.
+ */
+function caracterizacion_get_phase_approval_capabilities($fase) {
+    $map = [
+        1 => ['mod/caracterizacion:asesormetodologico'],
+        2 => ['mod/caracterizacion:asesormetodologico'],
+        3 => ['mod/caracterizacion:asesormetodologico'],
+        4 => ['mod/caracterizacion:coordproduccion'],
+        5 => ['mod/caracterizacion:alistamiento'],
+        6 => ['mod/caracterizacion:asesormetodologico'],
+    ];
+    return $map[$fase] ?? [];
+}
+
+/**
+ * Get the roles to notify when a phase transitions.
+ *
+ * Following the UDES notification flow:
+ * - Phase 1 approved -> Notify Revisor Curricular.
+ * - Phase 2 approved -> Notify Par / Corrector.
+ * - Phase 3 approved -> Notify Coordinacion de Produccion.
+ * - Phase 4 approved -> Notify Alistamiento.
+ * - Phase 5 approved -> Notify Asesor Metodologico.
+ * - Phase 6 approved -> All (completed).
+ *
+ * @param int $fase The phase that was just approved.
+ * @return array Array of role keys to notify.
+ */
+function caracterizacion_get_phase_notification_targets($fase) {
+    $map = [
+        1 => ['revisor_curricular'],
+        2 => ['par_academico', 'corrector_estilo'],
+        3 => ['coord_produccion'],
+        4 => ['alistamiento'],
+        5 => ['asesor_metodologico'],
+        6 => [],
+    ];
+    return $map[$fase] ?? [];
+}
+
+/**
+ * Check if a user can act (participate) on a specific phase.
  *
  * @param int $fase Phase number.
  * @param object $context The module context.
@@ -260,7 +318,25 @@ function caracterizacion_get_phase_capabilities($fase) {
  * @return bool True if the user can act on the phase.
  */
 function caracterizacion_user_can_act_on_phase($fase, $context, $userid = null) {
-    $capabilities = caracterizacion_get_phase_capabilities($fase);
+    $capabilities = caracterizacion_get_phase_actor_capabilities($fase);
+    foreach ($capabilities as $cap) {
+        if (has_capability($cap, $context, $userid)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Check if a user can APPROVE or REJECT a specific phase.
+ *
+ * @param int $fase Phase number.
+ * @param object $context The module context.
+ * @param int|null $userid The user ID (null for current user).
+ * @return bool True if the user can approve the phase.
+ */
+function caracterizacion_user_can_approve_phase($fase, $context, $userid = null) {
+    $capabilities = caracterizacion_get_phase_approval_capabilities($fase);
     foreach ($capabilities as $cap) {
         if (has_capability($cap, $context, $userid)) {
             return true;

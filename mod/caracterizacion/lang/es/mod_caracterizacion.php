@@ -206,6 +206,7 @@ $string['completada'] = 'Completada';
 $string['aprobar'] = 'Aprobar';
 $string['rechazar'] = 'Rechazar';
 $string['comentar'] = 'Comentar';
+$string['reenviar'] = 'Reenviar a Revisión';
 $string['enviarrevision'] = 'Enviar a Revisión';
 $string['comentarioobligatorio'] = 'Debe ingresar un comentario para esta acción.';
 $string['accionrealizada'] = 'Acción realizada exitosamente.';

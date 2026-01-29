@@ -63,10 +63,24 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 return;
             }
 
-            // Confirm action.
-            var confirmMsg = (action === 'aprobar')
-                ? '¿Está seguro de que desea aprobar esta fase?'
-                : '¿Está seguro de que desea rechazar esta fase?';
+            // Build confirm message based on action type.
+            var confirmMsg = '';
+            switch (action) {
+                case 'aprobar':
+                    confirmMsg = '¿Está seguro de que desea aprobar esta fase?';
+                    break;
+                case 'rechazar':
+                    confirmMsg = '¿Está seguro de que desea rechazar esta fase?';
+                    break;
+                case 'comentar':
+                    confirmMsg = '¿Está seguro de que desea enviar este comentario?';
+                    break;
+                case 'reenviar':
+                    confirmMsg = '¿Está seguro de que desea reenviar esta fase a revisión?';
+                    break;
+                default:
+                    confirmMsg = '¿Está seguro de que desea realizar esta acción?';
+            }
 
             Notification.confirm(
                 'Confirmar acción',
@@ -86,7 +100,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
      * @param {number} faseid Phase record ID.
      * @param {number} matrizid Matrix ID.
      * @param {number} cmid Course module ID.
-     * @param {string} action Action type (aprobar/rechazar).
+     * @param {string} action Action type (aprobar/rechazar/comentar/reenviar).
      * @param {string} comentario Comment text.
      */
     var executeAction = function(faseid, matrizid, cmid, action, comentario) {

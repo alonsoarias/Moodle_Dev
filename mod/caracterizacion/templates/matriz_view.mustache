@@ -213,7 +213,6 @@
                         <div class="card-body">
                             {{! Action buttons for current phase }}
                             {{#is_current}}
-                            {{#canact}}
                             {{#is_en_revision}}
                             <div class="fase-actions mb-3" id="fase-actions-{{fase}}">
                                 <div class="form-group">
@@ -221,6 +220,8 @@
                                     <textarea class="form-control fase-comentario" id="comentario-fase-{{fase}}" rows="3"
                                               data-faseid="{{faseid}}" data-fase="{{fase}}"></textarea>
                                 </div>
+                                {{! Approvers can approve or reject }}
+                                {{#canapprove}}
                                 <button class="btn btn-success btn-fase-action mr-2"
                                         data-action="aprobar" data-faseid="{{faseid}}"
                                         data-matrizid="{{matrizid}}" data-cmid="{{cmid}}">
@@ -231,9 +232,36 @@
                                         data-matrizid="{{matrizid}}" data-cmid="{{cmid}}">
                                     {{#pix}}i/invalid, core{{/pix}} {{#str}}rechazar, mod_caracterizacion{{/str}}
                                 </button>
+                                {{/canapprove}}
+                                {{! Actors (non-approvers) can only comment }}
+                                {{#canact}}
+                                {{^canapprove}}
+                                <button class="btn btn-primary btn-fase-action mr-2"
+                                        data-action="comentar" data-faseid="{{faseid}}"
+                                        data-matrizid="{{matrizid}}" data-cmid="{{cmid}}">
+                                    {{#pix}}i/comment, core{{/pix}} {{#str}}comentar, mod_caracterizacion{{/str}}
+                                </button>
+                                {{/canapprove}}
+                                {{/canact}}
                             </div>
                             {{/is_en_revision}}
+                            {{! Resubmit button for rejected phases }}
+                            {{#is_rechazada}}
+                            {{#canact}}
+                            <div class="fase-actions mb-3" id="fase-reenviar-{{fase}}">
+                                <div class="form-group">
+                                    <label for="comentario-reenvio-{{fase}}">{{#str}}comentarios, mod_caracterizacion{{/str}}</label>
+                                    <textarea class="form-control fase-comentario" id="comentario-reenvio-{{fase}}" rows="3"
+                                              data-faseid="{{faseid}}" data-fase="{{fase}}"></textarea>
+                                </div>
+                                <button class="btn btn-warning btn-fase-action"
+                                        data-action="reenviar" data-faseid="{{faseid}}"
+                                        data-matrizid="{{matrizid}}" data-cmid="{{cmid}}">
+                                    {{#pix}}i/reload, core{{/pix}} {{#str}}reenviar, mod_caracterizacion{{/str}}
+                                </button>
+                            </div>
                             {{/canact}}
+                            {{/is_rechazada}}
                             {{/is_current}}
 
                             {{! Comments list }}

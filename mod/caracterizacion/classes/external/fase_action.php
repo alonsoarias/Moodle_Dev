@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * External function for phase actions (approve/reject).
+ * External function for phase actions (approve/reject/comment/resubmit).
  *
  * @package     mod_caracterizacion
  * @copyright   2024 Alonso Arias <soporte@orioncloud.com.co>
@@ -49,13 +49,19 @@ class fase_action extends external_api {
             'faseid' => new external_value(PARAM_INT, 'Phase record ID'),
             'matrizid' => new external_value(PARAM_INT, 'Matrix ID'),
             'cmid' => new external_value(PARAM_INT, 'Course module ID'),
-            'accion' => new external_value(PARAM_ALPHA, 'Action: aprobar or rechazar'),
+            'accion' => new external_value(PARAM_ALPHA, 'Action: aprobar, rechazar, comentar, or reenviar'),
             'comentario' => new external_value(PARAM_RAW, 'Comment text'),
         ]);
     }
 
     /**
      * Execute the phase action.
+     *
+     * Actions:
+     * - aprobar: Approve the phase (only the designated approver role).
+     * - rechazar: Reject the phase (only the designated approver role).
+     * - comentar: Add a review comment (any actor in the phase).
+     * - reenviar: Re-submit a rejected phase for review (actors).
      *
      * @param int $faseid Phase record ID.
      * @param int $matrizid Matrix ID.
@@ -82,15 +88,26 @@ class fase_action extends external_api {
         $fase = $DB->get_record('caracterizacion_fases', ['id' => $params['faseid']], '*', MUST_EXIST);
         $matriz = $DB->get_record('caracterizacion_matriz', ['id' => $params['matrizid']], '*', MUST_EXIST);
 
-        // Check permissions.
-        if (!caracterizacion_user_can_act_on_phase($fase->fase, $context)) {
-            return [
-                'success' => false,
-                'message' => get_string('sinpermisosfase', 'mod_caracterizacion'),
-            ];
+        $action = $params['accion'];
+
+        // Permission check: approve/reject requires approval capability; comment/reenviar requires actor capability.
+        if ($action === 'aprobar' || $action === 'rechazar') {
+            if (!caracterizacion_user_can_approve_phase($fase->fase, $context)) {
+                return [
+                    'success' => false,
+                    'message' => get_string('sinpermisosfase', 'mod_caracterizacion'),
+                ];
+            }
+        } else {
+            if (!caracterizacion_user_can_act_on_phase($fase->fase, $context)) {
+                return [
+                    'success' => false,
+                    'message' => get_string('sinpermisosfase', 'mod_caracterizacion'),
+                ];
+            }
         }
 
-        // Check that comment is provided.
+        // Check that comment is provided for all actions.
         if (empty(trim($params['comentario']))) {
             return [
                 'success' => false,
@@ -100,18 +117,16 @@ class fase_action extends external_api {
 
         $now = time();
 
-        // Save comment.
+        // Save comment for all actions.
         $comrecord = new \stdClass();
         $comrecord->faseid = $fase->id;
         $comrecord->userid = $USER->id;
         $comrecord->comentario = clean_param($params['comentario'], PARAM_TEXT);
-        $comrecord->accion = $params['accion'];
+        $comrecord->accion = $action;
         $comrecord->timecreated = $now;
         $DB->insert_record('caracterizacion_comentarios', $comrecord);
 
-        $phases = caracterizacion_get_phases();
-
-        if ($params['accion'] === 'aprobar') {
+        if ($action === 'aprobar') {
             // Approve current phase.
             $fase->estado = 'aprobada';
             $fase->aprobado_por = $USER->id;
@@ -143,18 +158,34 @@ class fase_action extends external_api {
                 $DB->update_record('caracterizacion_matriz', $matriz);
             }
 
-            // Send notification.
+            // Send targeted notification to the next phase's roles.
             self::send_phase_notification($matriz, $fase->fase, 'aprobada', $context);
 
-        } else if ($params['accion'] === 'rechazar') {
+        } else if ($action === 'rechazar') {
             // Reject current phase.
             $fase->estado = 'rechazada';
             $fase->timemodified = $now;
             $DB->update_record('caracterizacion_fases', $fase);
 
-            // Send notification.
+            // Send notification to actors of the current phase (they need to fix).
             self::send_phase_notification($matriz, $fase->fase, 'rechazada', $context);
+
+        } else if ($action === 'reenviar') {
+            // Re-submit a rejected phase for review.
+            if ($fase->estado !== 'rechazada') {
+                return [
+                    'success' => false,
+                    'message' => get_string('errorgenerico', 'mod_caracterizacion'),
+                ];
+            }
+            $fase->estado = 'en_revision';
+            $fase->timemodified = $now;
+            $DB->update_record('caracterizacion_fases', $fase);
+
+            // Notify the approver that the phase has been re-submitted.
+            self::send_phase_notification($matriz, $fase->fase, 'envio', $context);
         }
+        // For 'comentar', only the comment is saved (already done above).
 
         return [
             'success' => true,
@@ -175,11 +206,11 @@ class fase_action extends external_api {
     }
 
     /**
-     * Send notification for phase transition.
+     * Send notification for phase transition, targeting specific roles.
      *
      * @param object $matriz Matrix record.
      * @param int $fasenumber Phase number.
-     * @param string $tipo Notification type (aprobada/rechazada).
+     * @param string $tipo Notification type (aprobada/rechazada/envio).
      * @param object $context Module context.
      */
     private static function send_phase_notification($matriz, $fasenumber, $tipo, $context) {
@@ -188,16 +219,31 @@ class fase_action extends external_api {
         $phases = caracterizacion_get_phases();
         $fasename = get_string($phases[$fasenumber], 'mod_caracterizacion');
 
-        // Get all users assigned to roles in this matrix.
-        $roles = $DB->get_records('caracterizacion_roles', ['matrizid' => $matriz->id]);
+        // Determine target roles based on notification type.
+        if ($tipo === 'aprobada') {
+            // Notify the next phase's specific roles.
+            $targetroles = caracterizacion_get_phase_notification_targets($fasenumber);
+        } else {
+            // For rechazada/envio, notify all roles in this matrix (everyone needs to know).
+            $targetroles = [];
+        }
+
+        // Get users to notify.
+        $allroles = $DB->get_records('caracterizacion_roles', ['matrizid' => $matriz->id]);
         $notifiedusers = [];
 
-        foreach ($roles as $role) {
+        foreach ($allroles as $role) {
             if ($role->userid == $USER->id) {
-                continue; // Don't notify the actor.
+                continue;
             }
+
+            // If target roles specified, only notify those specific roles.
+            if (!empty($targetroles) && !in_array($role->rol, $targetroles)) {
+                continue;
+            }
+
             if (in_array($role->userid, $notifiedusers)) {
-                continue; // Don't double-notify.
+                continue;
             }
             $notifiedusers[] = $role->userid;
 
@@ -219,12 +265,18 @@ class fase_action extends external_api {
             $DB->insert_record('caracterizacion_notif', $notifrecord);
 
             // Send Moodle message.
+            $messagetype = 'fase' . $tipo;
+            $userto = \core_user::get_user($role->userid);
+            if (!$userto) {
+                continue;
+            }
+
             $eventdata = new \core\message\message();
             $eventdata->courseid = $DB->get_field('course_modules', 'course', ['id' => $context->instanceid]);
             $eventdata->component = 'mod_caracterizacion';
-            $eventdata->name = 'fase' . $tipo;
+            $eventdata->name = $messagetype;
             $eventdata->userfrom = $USER;
-            $eventdata->userto = \core_user::get_user($role->userid);
+            $eventdata->userto = $userto;
             $eventdata->subject = get_string('notif_subject_' . $tipo, 'mod_caracterizacion', $matriz->nombre_curso);
             $eventdata->fullmessage = $notifrecord->mensaje;
             $eventdata->fullmessageformat = FORMAT_PLAIN;
