@@ -175,7 +175,7 @@
         <FIELD NAME="faseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="comentario" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="accion" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="aprobar,rechazar,comentar"/>
+        <FIELD NAME="accion" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="aprobar,rechazar,comentar,reenviar"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
