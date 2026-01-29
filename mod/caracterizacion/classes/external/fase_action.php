@@ -107,6 +107,21 @@ class fase_action extends external_api {
             }
         }
 
+        // CRITICAL: Validate that the previous phase is approved (except for phase 1).
+        // This ensures the UDES requirement: "Each stage unlocks only when the previous is approved".
+        if ($fase->fase > 1) {
+            $prevfase = $DB->get_record('caracterizacion_fases', [
+                'matrizid' => $matriz->id,
+                'fase' => $fase->fase - 1,
+            ]);
+            if (!$prevfase || $prevfase->estado !== 'aprobada') {
+                return [
+                    'success' => false,
+                    'message' => get_string('faseanterionnoaprobada', 'mod_caracterizacion'),
+                ];
+            }
+        }
+
         // Check that comment is provided for all actions.
         if (empty(trim($params['comentario']))) {
             return [
