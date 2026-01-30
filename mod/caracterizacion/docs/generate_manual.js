@@ -512,9 +512,132 @@ const doc = new Document({
             new Paragraph({ children: [] }),
             new Paragraph({ children: [new TextRun({ text: 'El flujo de trabajo sigue la siguiente secuencia:', ...normalStyle })] }),
             new Paragraph({ children: [] }),
-            new Paragraph({ children: [new TextRun({ text: '[FASE 1: Caracterización] → [FASE 2: Revisión Curricular] → [FASE 3: Par/Corrector de Estilo]', size: 20, font: FONT_FAMILY, bold: true })] }),
-            new Paragraph({ children: [new TextRun({ text: '                                                                              ↓', size: 20, font: FONT_FAMILY })] }),
-            new Paragraph({ children: [new TextRun({ text: '[FASE 6: Aprobación Final] ← [FASE 5: Alistamiento Moodle] ← [FASE 4: Producción]', size: 20, font: FONT_FAMILY, bold: true })] }),
+
+            // Tabla del flujo de trabajo - Fila superior (Fases 1, 2, 3)
+            new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: [
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: 'FASE 1', bold: true, size: 22, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                }), new Paragraph({
+                                    children: [new TextRun({ text: 'Diligencia la Caracterización', size: 18, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                shading: { fill: '2874a6' },
+                                width: { size: 33, type: WidthType.PERCENTAGE }
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: '→', bold: true, size: 28, font: FONT_FAMILY })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                width: { size: 1, type: WidthType.PERCENTAGE },
+                                verticalAlign: 'center'
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: 'FASE 2', bold: true, size: 22, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                }), new Paragraph({
+                                    children: [new TextRun({ text: 'Revisión Curricular', size: 18, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                shading: { fill: '2e86ab' },
+                                width: { size: 33, type: WidthType.PERCENTAGE }
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: '→', bold: true, size: 28, font: FONT_FAMILY })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                width: { size: 1, type: WidthType.PERCENTAGE },
+                                verticalAlign: 'center'
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: 'FASE 3', bold: true, size: 22, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                }), new Paragraph({
+                                    children: [new TextRun({ text: 'Par / Corrector de Estilo', size: 18, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                shading: { fill: '5dade2' },
+                                width: { size: 33, type: WidthType.PERCENTAGE }
+                            }),
+                        ]
+                    })
+                ]
+            }),
+            new Paragraph({ children: [] }),
+            new Paragraph({
+                children: [new TextRun({ text: '↓ Continúa el flujo...', size: 20, font: FONT_FAMILY, italics: true })],
+                alignment: AlignmentType.RIGHT
+            }),
+            new Paragraph({ children: [] }),
+
+            // Tabla del flujo de trabajo - Fila inferior (Fases 4, 5, 6)
+            new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: [
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: 'FASE 4', bold: true, size: 22, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                }), new Paragraph({
+                                    children: [new TextRun({ text: 'Producción', size: 18, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                shading: { fill: '1abc9c' },
+                                width: { size: 33, type: WidthType.PERCENTAGE }
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: '→', bold: true, size: 28, font: FONT_FAMILY })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                width: { size: 1, type: WidthType.PERCENTAGE },
+                                verticalAlign: 'center'
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: 'FASE 5', bold: true, size: 22, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                }), new Paragraph({
+                                    children: [new TextRun({ text: 'Alistamiento en Moodle', size: 18, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                shading: { fill: '27ae60' },
+                                width: { size: 33, type: WidthType.PERCENTAGE }
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: '→', bold: true, size: 28, font: FONT_FAMILY })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                width: { size: 1, type: WidthType.PERCENTAGE },
+                                verticalAlign: 'center'
+                            }),
+                            new TableCell({
+                                children: [new Paragraph({
+                                    children: [new TextRun({ text: 'FASE 6', bold: true, size: 22, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                }), new Paragraph({
+                                    children: [new TextRun({ text: 'Aprobación Final', size: 18, font: FONT_FAMILY, color: 'FFFFFF' })],
+                                    alignment: AlignmentType.CENTER
+                                })],
+                                shading: { fill: '16a085' },
+                                width: { size: 33, type: WidthType.PERCENTAGE }
+                            }),
+                        ]
+                    })
+                ]
+            }),
             new Paragraph({ children: [] }),
 
             new Paragraph({
