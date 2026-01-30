@@ -129,6 +129,7 @@
                                     <th>{{#str}}tiporecurso, mod_caracterizacion{{/str}}</th>
                                     <th>{{#str}}recurso, mod_caracterizacion{{/str}}</th>
                                     <th>{{#str}}item, mod_caracterizacion{{/str}}</th>
+                                    <th>{{#str}}observaciones, mod_caracterizacion{{/str}}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -137,6 +138,7 @@
                                     <td>{{tipo}}</td>
                                     <td>{{recurso}}</td>
                                     <td>{{item}}</td>
+                                    <td>{{#hasobservaciones}}<small>{{observaciones}}</small>{{/hasobservaciones}}</td>
                                 </tr>
                                 {{/recursos}}
                             </tbody>

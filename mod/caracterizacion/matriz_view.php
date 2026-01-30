@@ -143,6 +143,8 @@ foreach ($unidades as $unidad) {
                 'tipo' => $tipolabel,
                 'recurso' => $reclabel,
                 'item' => format_string($rec->item),
+                'observaciones' => format_text($rec->observaciones, FORMAT_PLAIN),
+                'hasobservaciones' => !empty($rec->observaciones),
             ];
             if (isset($resourcecounts[$rec->tipo_recurso])) {
                 $resourcecounts[$rec->tipo_recurso]++;

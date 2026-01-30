@@ -232,7 +232,7 @@ define(['jquery', 'core/str', 'core/notification'], function($, Str, Notificatio
         html += '<div class="table-responsive">';
         html += '<table class="table table-sm table-bordered">';
         html += '<thead class="thead-light"><tr>';
-        html += '<th>Tipo de Recurso</th><th>Recurso</th><th>Ítem</th><th>Acciones</th>';
+        html += '<th>Tipo de Recurso</th><th>Recurso</th><th>Ítem/Título</th><th>Observaciones/Contenido</th><th>Acciones</th>';
         html += '</tr></thead><tbody>';
 
         tema.recursos.forEach(function(rec, rIndex) {
@@ -289,7 +289,15 @@ define(['jquery', 'core/str', 'core/notification'], function($, Str, Notificatio
         // Item input.
         html += '<td><input type="text" class="form-control form-control-sm resource-item" ' +
             'data-unit-index="' + uIndex + '" data-topic-index="' + tIndex +
-            '" data-resource-index="' + rIndex + '" value="' + escapeHtml(rec.item || '') + '"></td>';
+            '" data-resource-index="' + rIndex + '" value="' + escapeHtml(rec.item || '') + '" ' +
+            'placeholder="Título del recurso"></td>';
+
+        // Observations/Content textarea.
+        html += '<td><textarea class="form-control form-control-sm resource-observaciones" ' +
+            'data-unit-index="' + uIndex + '" data-topic-index="' + tIndex +
+            '" data-resource-index="' + rIndex + '" rows="2" ' +
+            'placeholder="Descripción, guión o contenido del recurso">' +
+            escapeHtml(rec.observaciones || '') + '</textarea></td>';
 
         // Delete button.
         html += '<td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-resource" ' +
@@ -477,6 +485,15 @@ define(['jquery', 'core/str', 'core/notification'], function($, Str, Notificatio
             var tIndex = parseInt($(this).data('topic-index'));
             var rIndex = parseInt($(this).data('resource-index'));
             unitsData[uIndex].temas[tIndex].recursos[rIndex].item = $(this).val();
+            syncHiddenField();
+        });
+
+        // Resource observaciones change.
+        container.on('change', '.resource-observaciones', function() {
+            var uIndex = parseInt($(this).data('unit-index'));
+            var tIndex = parseInt($(this).data('topic-index'));
+            var rIndex = parseInt($(this).data('resource-index'));
+            unitsData[uIndex].temas[tIndex].recursos[rIndex].observaciones = $(this).val();
             syncHiddenField();
         });
     };
