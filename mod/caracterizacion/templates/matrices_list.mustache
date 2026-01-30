@@ -31,10 +31,10 @@
 }}
 <div class="mod-caracterizacion-matrices-list">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="mb-0">{{#pix}}matrix, mod_caracterizacion, {{#str}}matrices, mod_caracterizacion{{/str}}{{/pix}} {{#str}}matrices, mod_caracterizacion{{/str}}</h3>
+        <h3 class="mb-0">{{#str}}matrices, mod_caracterizacion{{/str}}</h3>
         {{#cancreate}}
         <a href="{{createurl}}" class="btn btn-primary">
-            {{#pix}}t/add, core{{/pix}} {{#str}}crearmatriz, mod_caracterizacion{{/str}}
+            <i class="fa fa-plus mr-2"></i>{{#str}}crearmatriz, mod_caracterizacion{{/str}}
         </a>
         {{/cancreate}}
     </div>
@@ -63,21 +63,21 @@
                         {{nombre_curso}}
                     </td>
                     <td data-label="{{#str}}faseactual, mod_caracterizacion{{/str}}" class="text-center">
-                        <span class="badge badge-pill badge-primary">{{#pix}}phases, mod_caracterizacion{{/pix}} {{fase_actual}} / 6</span>
+                        <span class="badge badge-pill badge-primary">{{fase_actual}} / 6</span>
                     </td>
                     <td data-label="{{#str}}estado, mod_caracterizacion{{/str}}" class="text-center">
                         <span class="badge badge-{{estadoclass}}">
-                            {{#is_borrador}}{{#pix}}draft, mod_caracterizacion{{/pix}}{{/is_borrador}}
-                            {{#is_en_proceso}}{{#pix}}inprogress, mod_caracterizacion{{/pix}}{{/is_en_proceso}}
-                            {{#is_completada}}{{#pix}}completed, mod_caracterizacion{{/pix}}{{/is_completada}}
+                            {{#is_borrador}}<i class="fa fa-pencil mr-1"></i>{{/is_borrador}}
+                            {{#is_en_proceso}}<i class="fa fa-spinner mr-1"></i>{{/is_en_proceso}}
+                            {{#is_completada}}<i class="fa fa-check mr-1"></i>{{/is_completada}}
                             {{estado}}
                         </span>
                     </td>
                     <td data-label="{{#str}}creador, mod_caracterizacion{{/str}}">
-                        {{#pix}}i/user, core{{/pix}} {{creador}}
+                        <small class="text-muted"><i class="fa fa-user mr-1"></i></small>{{creador}}
                     </td>
                     <td data-label="{{#str}}fechacreacion, mod_caracterizacion{{/str}}">
-                        {{#pix}}i/calendar, core{{/pix}} {{timecreated}}
+                        <small class="text-muted"><i class="fa fa-calendar mr-1"></i></small>{{timecreated}}
                     </td>
                     <td data-label="{{#str}}acciones, mod_caracterizacion{{/str}}" class="text-center text-nowrap">
                         <div class="btn-group" role="group">
@@ -106,11 +106,11 @@
 
     {{^hasmatrices}}
     <div class="alert alert-info text-center py-4">
-        {{#pix}}info, mod_caracterizacion{{/pix}}
-        <p class="mb-0 mt-2">{{#str}}nomatrices, mod_caracterizacion{{/str}}</p>
+        <i class="fa fa-info-circle fa-2x mb-3 d-block"></i>
+        <p class="mb-0">{{#str}}nomatrices, mod_caracterizacion{{/str}}</p>
         {{#cancreate}}
         <a href="{{createurl}}" class="btn btn-primary mt-3">
-            {{#pix}}t/add, core{{/pix}} {{#str}}crearmatriz, mod_caracterizacion{{/str}}
+            <i class="fa fa-plus mr-2"></i>{{#str}}crearmatriz, mod_caracterizacion{{/str}}
         </a>
         {{/cancreate}}
     </div>

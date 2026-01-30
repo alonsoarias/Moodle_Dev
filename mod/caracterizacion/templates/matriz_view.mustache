@@ -37,9 +37,9 @@
                 {{#is_en_proceso}}badge-primary{{/is_en_proceso}}
                 {{#is_completada}}badge-success{{/is_completada}}"
                 style="font-size: 1rem; padding: 0.5rem 1rem;">
-                {{#is_borrador}}{{#pix}}draft, mod_caracterizacion, {{#str}}borrador, mod_caracterizacion{{/str}}{{/pix}}{{/is_borrador}}
-                {{#is_en_proceso}}{{#pix}}inprogress, mod_caracterizacion, {{#str}}en_proceso, mod_caracterizacion{{/str}}{{/pix}}{{/is_en_proceso}}
-                {{#is_completada}}{{#pix}}completed, mod_caracterizacion, {{#str}}completada, mod_caracterizacion{{/str}}{{/pix}}{{/is_completada}}
+                {{#is_borrador}}<i class="fa fa-pencil mr-1"></i>{{/is_borrador}}
+                {{#is_en_proceso}}<i class="fa fa-spinner fa-spin mr-1"></i>{{/is_en_proceso}}
+                {{#is_completada}}<i class="fa fa-check-circle mr-1"></i>{{/is_completada}}
                 {{estado}}
             </span>
             <div class="mt-2">
@@ -51,7 +51,7 @@
     {{! ===== Course Information ===== }}
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">{{#pix}}info, mod_caracterizacion, {{#str}}infodelcurso, mod_caracterizacion{{/str}}{{/pix}} {{#str}}infodelcurso, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-info-circle mr-2"></i>{{#str}}infodelcurso, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             <div class="row">
@@ -67,11 +67,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <strong>{{#str}}creador, mod_caracterizacion{{/str}}:</strong>
-                    <p>{{#pix}}i/user, core{{/pix}} {{creador}}</p>
+                    <p><i class="fa fa-user text-muted mr-1"></i>{{creador}}</p>
                 </div>
                 <div class="col-md-6">
                     <strong>{{#str}}fechacreacion, mod_caracterizacion{{/str}}:</strong>
-                    <p>{{#pix}}i/calendar, core{{/pix}} {{fechacreacion}}</p>
+                    <p><i class="fa fa-calendar text-muted mr-1"></i>{{fechacreacion}}</p>
                 </div>
             </div>
         </div>
@@ -80,7 +80,7 @@
     {{! ===== Roles ===== }}
     <div class="card mb-4">
         <div class="card-header bg-secondary text-white">
-            <h4 class="mb-0">{{#pix}}roles, mod_caracterizacion, {{#str}}asignacionroles, mod_caracterizacion{{/str}}{{/pix}} {{#str}}asignacionroles, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-users mr-2"></i>{{#str}}asignacionroles, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             <div class="row">
@@ -89,7 +89,7 @@
                     <div class="role-card p-3 h-100" style="background: #f8f9fa; border-radius: 8px; border-left: 4px solid #1a73e8;">
                         <strong class="d-block mb-1" style="font-size: 0.85rem; color: #5f6368;">{{label}}</strong>
                         <span style="font-size: 0.95rem;">
-                            {{#userid}}{{#pix}}i/user, core{{/pix}}{{/userid}}
+                            {{#userid}}<i class="fa fa-user-circle text-primary mr-1"></i>{{/userid}}
                             {{#nombre}}{{nombre}}{{/nombre}}
                             {{^nombre}}<em class="text-muted">{{#str}}sinasignar, mod_caracterizacion{{/str}}</em>{{/nombre}}
                         </span>
@@ -103,7 +103,7 @@
     {{! ===== General Resources ===== }}
     <div class="card mb-4">
         <div class="card-header bg-info text-white">
-            <h4 class="mb-0">{{#pix}}resources, mod_caracterizacion, {{#str}}recursosgenerales, mod_caracterizacion{{/str}}{{/pix}} {{#str}}recursosgenerales, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-cube mr-2"></i>{{#str}}recursosgenerales, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -118,13 +118,13 @@
                     <tbody>
                         {{#recursos_generales}}
                         <tr>
-                            <td>{{#pix}}i/files, core{{/pix}} {{label}}</td>
+                            <td><i class="fa fa-file-o text-info mr-2"></i>{{label}}</td>
                             <td class="text-center">
                                 {{#incluido}}
-                                    <span class="badge badge-success">{{#pix}}i/valid, core{{/pix}} {{#str}}yes, core{{/str}}</span>
+                                    <span class="badge badge-success"><i class="fa fa-check mr-1"></i>{{#str}}yes, core{{/str}}</span>
                                 {{/incluido}}
                                 {{^incluido}}
-                                    <span class="badge badge-secondary">{{#pix}}i/invalid, core{{/pix}} {{#str}}no, core{{/str}}</span>
+                                    <span class="badge badge-secondary"><i class="fa fa-times mr-1"></i>{{#str}}no, core{{/str}}</span>
                                 {{/incluido}}
                             </td>
                             <td>
@@ -143,14 +143,14 @@
     {{#hasunidades}}
     <div class="card mb-4">
         <div class="card-header bg-success text-white">
-            <h4 class="mb-0">{{#pix}}units, mod_caracterizacion, {{#str}}unidades, mod_caracterizacion{{/str}}{{/pix}} {{#str}}unidades, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-book mr-2"></i>{{#str}}unidades, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             {{#unidades}}
             <div class="card mb-3 shadow-sm">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        {{#pix}}i/folder, core{{/pix}}
+                        <i class="fa fa-folder-open text-success mr-2"></i>
                         {{#str}}unidadnum, mod_caracterizacion, {{numero}}{{/str}}: {{nombre}}
                     </h5>
                 </div>
@@ -194,7 +194,7 @@
     {{! ===== Resource Summary ===== }}
     <div class="card mb-4">
         <div class="card-header bg-warning">
-            <h4 class="mb-0">{{#pix}}summary, mod_caracterizacion, {{#str}}resumen, mod_caracterizacion{{/str}}{{/pix}} {{#str}}resumen, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-pie-chart mr-2"></i>{{#str}}resumen, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -203,8 +203,8 @@
                         {{#resumen}}
                         <tr{{#istotal}} class="table-active font-weight-bold" style="border-top: 2px solid #f9ab00;"{{/istotal}}>
                             <td>
-                                {{#istotal}}{{#pix}}i/report, core{{/pix}}{{/istotal}}
-                                {{^istotal}}{{#pix}}i/item, core{{/pix}}{{/istotal}}
+                                {{#istotal}}<i class="fa fa-calculator mr-2"></i>{{/istotal}}
+                                {{^istotal}}<i class="fa fa-circle-o text-muted mr-2"></i>{{/istotal}}
                                 {{label}}
                             </td>
                             <td class="text-right">
@@ -221,15 +221,15 @@
     {{! ===== Phase Progress ===== }}
     <div class="card mb-4">
         <div class="card-header bg-dark text-white">
-            <h4 class="mb-0">{{#pix}}phases, mod_caracterizacion, {{#str}}progresofases, mod_caracterizacion{{/str}}{{/pix}} {{#str}}progresofases, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-tasks mr-2"></i>{{#str}}progresofases, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             {{! Phase legend }}
             <div class="d-flex flex-wrap justify-content-center mb-3" style="gap: 1rem;">
-                <span class="badge badge-light border">{{#pix}}pending, mod_caracterizacion{{/pix}} {{#str}}pendiente, mod_caracterizacion{{/str}}</span>
-                <span class="badge badge-primary">{{#pix}}inreview, mod_caracterizacion{{/pix}} {{#str}}en_revision, mod_caracterizacion{{/str}}</span>
-                <span class="badge badge-success">{{#pix}}approved, mod_caracterizacion{{/pix}} {{#str}}aprobada, mod_caracterizacion{{/str}}</span>
-                <span class="badge badge-danger">{{#pix}}rejected, mod_caracterizacion{{/pix}} {{#str}}rechazada, mod_caracterizacion{{/str}}</span>
+                <span class="badge badge-light border"><i class="fa fa-circle text-muted mr-1"></i> {{#str}}pendiente, mod_caracterizacion{{/str}}</span>
+                <span class="badge badge-primary"><i class="fa fa-spinner mr-1"></i> {{#str}}en_revision, mod_caracterizacion{{/str}}</span>
+                <span class="badge badge-success"><i class="fa fa-check mr-1"></i> {{#str}}aprobada, mod_caracterizacion{{/str}}</span>
+                <span class="badge badge-danger"><i class="fa fa-times mr-1"></i> {{#str}}rechazada, mod_caracterizacion{{/str}}</span>
             </div>
 
             {{! Phase progress bar }}
@@ -241,8 +241,8 @@
                      title="{{label}}: {{estado}}"
                      data-toggle="tooltip">
                     <span class="d-flex align-items-center justify-content-center h-100">
-                        {{#is_aprobada}}{{#pix}}i/valid, core{{/pix}}{{/is_aprobada}}
-                        {{#is_rechazada}}{{#pix}}i/invalid, core{{/pix}}{{/is_rechazada}}
+                        {{#is_aprobada}}<i class="fa fa-check mr-1"></i>{{/is_aprobada}}
+                        {{#is_rechazada}}<i class="fa fa-times mr-1"></i>{{/is_rechazada}}
                         {{fase}}
                     </span>
                 </div>
@@ -299,7 +299,7 @@
                                 <button class="btn btn-primary btn-fase-action mr-2"
                                         data-action="comentar" data-faseid="{{faseid}}"
                                         data-matrizid="{{matrizid}}" data-cmid="{{cmid}}">
-                                    {{#pix}}comment, mod_caracterizacion{{/pix}} {{#str}}comentar, mod_caracterizacion{{/str}}
+                                    {{#pix}}i/comment, core{{/pix}} {{#str}}comentar, mod_caracterizacion{{/str}}
                                 </button>
                                 {{/canapprove}}
                                 {{/canact}}
@@ -325,17 +325,22 @@
                             {{/is_current}}
 
                             {{! Comments list }}
-                            <h6>{{#pix}}comment, mod_caracterizacion{{/pix}} {{#str}}comentarios, mod_caracterizacion{{/str}}</h6>
+                            <h6>{{#str}}comentarios, mod_caracterizacion{{/str}}</h6>
                             {{#hascomentarios}}
                             <div class="list-group">
                                 {{#comentarios}}
                                 <div class="list-group-item">
                                     <div class="d-flex justify-content-between">
-                                        <strong>{{#pix}}i/user, core{{/pix}} {{usuario}}</strong>
+                                        <strong>{{usuario}}</strong>
                                         <small class="text-muted">{{fecha}}</small>
                                     </div>
                                     <p class="mb-1">{{comentario}}</p>
-                                    <small class="badge badge-info">{{accion}}</small>
+                                    <small class="badge
+                                        {{#accion}}
+                                        badge-info
+                                        {{/accion}}">
+                                        {{accion}}
+                                    </small>
                                 </div>
                                 {{/comentarios}}
                             </div>

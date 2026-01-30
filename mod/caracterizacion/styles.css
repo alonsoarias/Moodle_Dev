@@ -31,58 +31,6 @@
 }
 
 /* =====================================================================
-   PIX ICON STYLES
-   ===================================================================== */
-
-/* General icon sizing for all pix icons in the plugin */
-.mod-caracterizacion-matriz-view .icon,
-.mod-caracterizacion-matrices-list .icon,
-.mod-caracterizacion-form .icon {
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
-    display: inline-block;
-}
-
-/* Larger icons in headers */
-.mod-caracterizacion-matriz-view .card-header .icon,
-.mod-caracterizacion-matrices-list h3 .icon {
-    width: 20px;
-    height: 20px;
-}
-
-/* Icons in badges */
-.mod-caracterizacion-matriz-view .badge .icon,
-.mod-caracterizacion-matrices-list .badge .icon {
-    width: 14px;
-    height: 14px;
-    margin-right: 4px;
-}
-
-/* Icons in buttons */
-.mod-caracterizacion-matriz-view .btn .icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 6px;
-}
-
-/* Icons in table cells */
-.mod-caracterizacion-matriz-view td .icon,
-.mod-caracterizacion-matrices-list td .icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 4px;
-}
-
-/* Progress bar icons */
-.mod-caracterizacion-matriz-view .progress-bar .icon {
-    width: 14px;
-    height: 14px;
-    margin-right: 4px;
-    filter: brightness(0) invert(1);
-}
-
-/* =====================================================================
    CARD STYLES
    ===================================================================== */
 
@@ -120,13 +68,10 @@
     gap: 0.5rem;
 }
 
-/* Icon styling for pix icons in headers */
-.mod-caracterizacion-matriz-view .card-header h4 .icon,
-.mod-caracterizacion-matriz-view .card-header h4 img {
-    width: 20px;
-    height: 20px;
+.mod-caracterizacion-matriz-view .card-header h4::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
     margin-right: 0.5rem;
-    vertical-align: middle;
 }
 
 .mod-caracterizacion-matriz-view .card-body {
@@ -601,12 +546,11 @@
     gap: 0.75rem;
 }
 
-/* Icon styling for pix icons in list header */
-.mod-caracterizacion-matrices-list h3 .icon,
-.mod-caracterizacion-matrices-list h3 img {
-    width: 24px;
-    height: 24px;
-    vertical-align: middle;
+.mod-caracterizacion-matrices-list h3::before {
+    content: "\f0ce";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    color: var(--caract-primary);
 }
 
 .mod-caracterizacion-matrices-list .table-responsive {
