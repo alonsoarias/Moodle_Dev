@@ -5,20 +5,23 @@ const fs = require('fs');
 const today = new Date();
 const dateStr = today.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
 
-// Estilos comunes
-const titleStyle = { bold: true, size: 48, color: '1a5276' };
-const heading1Style = { bold: true, size: 32, color: '2874a6' };
-const heading2Style = { bold: true, size: 28, color: '2e86ab' };
-const heading3Style = { bold: true, size: 24, color: '5dade2' };
-const normalStyle = { size: 22 };
-const smallStyle = { size: 20 };
-const italicStyle = { size: 22, italics: true };
+// Tipografía Arial para todo el documento
+const FONT_FAMILY = 'Arial';
+
+// Estilos comunes con Arial
+const titleStyle = { bold: true, size: 48, color: '1a5276', font: FONT_FAMILY };
+const heading1Style = { bold: true, size: 32, color: '2874a6', font: FONT_FAMILY };
+const heading2Style = { bold: true, size: 28, color: '2e86ab', font: FONT_FAMILY };
+const heading3Style = { bold: true, size: 24, color: '5dade2', font: FONT_FAMILY };
+const normalStyle = { size: 22, font: FONT_FAMILY };
+const smallStyle = { size: 20, font: FONT_FAMILY };
+const italicStyle = { size: 22, italics: true, font: FONT_FAMILY };
 
 // Función para crear celda de tabla
 function createCell(text, options = {}) {
     return new TableCell({
         children: [new Paragraph({
-            children: [new TextRun({ text, size: 20, bold: options.bold || false })],
+            children: [new TextRun({ text, size: 20, bold: options.bold || false, font: FONT_FAMILY })],
             alignment: options.align || AlignmentType.LEFT
         })],
         shading: options.shading ? { fill: options.shading } : undefined,
@@ -44,7 +47,7 @@ const doc = new Document({
         headers: {
             default: new Header({
                 children: [new Paragraph({
-                    children: [new TextRun({ text: 'Manual de Usuario - Plugin Caracterización RED | UDES', size: 18, color: '7f8c8d' })],
+                    children: [new TextRun({ text: 'Manual de Usuario - Plugin Caracterización RED | UDES', size: 18, color: '7f8c8d', font: FONT_FAMILY })],
                     alignment: AlignmentType.RIGHT
                 })]
             })
@@ -52,7 +55,7 @@ const doc = new Document({
         footers: {
             default: new Footer({
                 children: [new Paragraph({
-                    children: [new TextRun({ text: `© 2024 Universidad de Santander - UDES | Página `, size: 18 })],
+                    children: [new TextRun({ text: `© 2025 Universidad de Santander - UDES | Página `, size: 18, font: FONT_FAMILY })],
                     alignment: AlignmentType.CENTER
                 })]
             })
@@ -509,17 +512,9 @@ const doc = new Document({
             new Paragraph({ children: [] }),
             new Paragraph({ children: [new TextRun({ text: 'El flujo de trabajo sigue la siguiente secuencia:', ...normalStyle })] }),
             new Paragraph({ children: [] }),
-            new Paragraph({ children: [new TextRun({ text: '┌─────────────┐    ┌─────────────┐    ┌─────────────┐', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '│   FASE 1    │───>│   FASE 2    │───>│   FASE 3    │', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '│Caracteriza- │    │  Revisión   │    │Par/Corrector│', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '│   ción      │    │ Curricular  │    │  de Estilo  │', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '└─────────────┘    └─────────────┘    └──────┬──────┘', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '                                            │', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '┌─────────────┐    ┌─────────────┐    ┌──────▼──────┐', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '│   FASE 6    │<───│   FASE 5    │<───│   FASE 4    │', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '│  Aprobación │    │Alistamiento │    │ Producción  │', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '│   Final     │    │  en Moodle  │    │             │', size: 18, font: 'Courier New' })] }),
-            new Paragraph({ children: [new TextRun({ text: '└─────────────┘    └─────────────┘    └─────────────┘', size: 18, font: 'Courier New' })] }),
+            new Paragraph({ children: [new TextRun({ text: '[FASE 1: Caracterización] → [FASE 2: Revisión Curricular] → [FASE 3: Par/Corrector de Estilo]', size: 20, font: FONT_FAMILY, bold: true })] }),
+            new Paragraph({ children: [new TextRun({ text: '                                                                              ↓', size: 20, font: FONT_FAMILY })] }),
+            new Paragraph({ children: [new TextRun({ text: '[FASE 6: Aprobación Final] ← [FASE 5: Alistamiento Moodle] ← [FASE 4: Producción]', size: 20, font: FONT_FAMILY, bold: true })] }),
             new Paragraph({ children: [] }),
 
             new Paragraph({
@@ -1046,8 +1041,8 @@ const doc = new Document({
             new Paragraph({ children: [] }),
             new Paragraph({
                 children: [new TextRun({
-                    text: '© 2024 Universidad de Santander - UDES. Todos los derechos reservados.',
-                    bold: true, size: 20
+                    text: '© 2025 Universidad de Santander - UDES. Todos los derechos reservados.',
+                    bold: true, size: 20, font: FONT_FAMILY
                 })],
                 alignment: AlignmentType.CENTER
             }),
