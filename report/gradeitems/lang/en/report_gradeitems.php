@@ -103,3 +103,6 @@ $string['backtocourselist'] = 'Back to course list';
 
 // Errors.
 $string['nopermission'] = 'You do not have permission to view this report.';
+
+// Credits.
+$string['developedby'] = 'Developed by';

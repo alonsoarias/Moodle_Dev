@@ -243,6 +243,15 @@ if ($totalcount == 0) {
     echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $baseurl);
 }
 
+// Developer credits.
+echo html_writer::start_div('mt-4 pt-3 border-top text-center text-muted');
+echo html_writer::tag('small', get_string('developedby', 'report_gradeitems') . ' ');
+echo html_writer::link('https://orioncloud.com.co', 'OrionCloud.com.co', [
+    'target' => '_blank',
+    'class' => 'text-muted',
+]);
+echo html_writer::end_div();
+
 echo $OUTPUT->footer();
 
 /**
