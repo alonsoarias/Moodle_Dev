@@ -303,6 +303,7 @@ const doc = new Document({
                     createRow(['Par Académico', 'udes_par_academico', 'teacher']),
                     createRow(['Corrector de Estilo', 'udes_corrector_estilo', 'teacher']),
                     createRow(['Coordinación de Producción', 'udes_coord_produccion', 'editingteacher']),
+                    createRow(['Jefe de Medios', 'udes_jefe_medios', 'editingteacher']),
                     createRow(['Producción', 'udes_produccion', 'teacher']),
                     createRow(['Alistamiento', 'udes_alistamiento', 'teacher']),
                 ]
@@ -318,9 +319,9 @@ const doc = new Document({
             new Paragraph({ children: [] }),
             new Paragraph({ children: [new TextRun({ text: '1. Vaya a Administración del sitio → Plugins → Vista general de plugins', ...normalStyle })] }),
             new Paragraph({ children: [new TextRun({ text: '2. Busque "Caracterización RED" en la lista de módulos de actividad', ...normalStyle })] }),
-            new Paragraph({ children: [new TextRun({ text: '3. Verifique que la versión mostrada sea la correcta (1.1.2)', ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: '3. Verifique que la versión mostrada sea la correcta (1.2.0)', ...normalStyle })] }),
             new Paragraph({ children: [new TextRun({ text: '4. Vaya a Administración del sitio → Usuarios → Permisos → Definir roles', ...normalStyle })] }),
-            new Paragraph({ children: [new TextRun({ text: '5. Verifique que los 8 roles UDES estén presentes en la lista', ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: '5. Verifique que los 9 roles UDES estén presentes en la lista', ...normalStyle })] }),
             new Paragraph({ children: [new PageBreak()] }),
 
             // ============ 4. ROLES Y PERMISOS ============
@@ -331,7 +332,7 @@ const doc = new Document({
             new Paragraph({ children: [] }),
             new Paragraph({
                 children: [new TextRun({
-                    text: 'El plugin define 8 roles específicos que corresponden a los actores del proceso de producción de RED de la UDES. Cada rol tiene permisos específicos que determinan qué acciones puede realizar en cada fase del proceso.',
+                    text: 'El plugin define 9 roles específicos que corresponden a los actores del proceso de producción de RED de la UDES. Cada rol tiene permisos específicos que determinan qué acciones puede realizar en cada fase del proceso.',
                     ...normalStyle
                 })]
             }),
@@ -435,8 +436,23 @@ const doc = new Document({
             new Paragraph({ children: [new TextRun({ text: 'Permisos: Ver todas las matrices, Actuar en fase 4, Aprobar fase 4', ...normalStyle })] }),
             new Paragraph({ children: [] }),
 
+            // Jefe de Medios
+            new Paragraph({ children: [new TextRun({ text: '4.1.7 Jefe de Medios', ...heading3Style })] }),
+            new Paragraph({ children: [] }),
+            new Paragraph({ children: [new TextRun({ text: 'Descripción: El Jefe de Medios Educativos es responsable de supervisar el área de producción de recursos educativos digitales. Recibe notificaciones junto con Coordinación de Producción cuando la fase 3 es aprobada.', ...normalStyle })] }),
+            new Paragraph({ children: [] }),
+            new Paragraph({ children: [new TextRun({ text: 'Responsabilidades principales:', bold: true, ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: '• Supervisar el proceso de producción de RED', ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: '• Recibir notificaciones cuando se aprueban las caracterizaciones', ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: '• Monitorear el estado de las producciones', ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: '• Coordinar con el equipo de producción', ...normalStyle })] }),
+            new Paragraph({ children: [] }),
+            new Paragraph({ children: [new TextRun({ text: 'Fases de participación: Fase 4 (Producción) - Rol de supervisión', ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: 'Permisos: Ver todas las matrices', ...normalStyle })] }),
+            new Paragraph({ children: [] }),
+
             // Producción
-            new Paragraph({ children: [new TextRun({ text: '4.1.7 Producción (Diseñador)', ...heading3Style })] }),
+            new Paragraph({ children: [new TextRun({ text: '4.1.8 Producción (Diseñador)', ...heading3Style })] }),
             new Paragraph({ children: [] }),
             new Paragraph({ children: [new TextRun({ text: 'Descripción: El profesional de Producción es responsable de crear los recursos educativos digitales según las especificaciones de la caracterización.', ...normalStyle })] }),
             new Paragraph({ children: [] }),
@@ -451,7 +467,7 @@ const doc = new Document({
             new Paragraph({ children: [] }),
 
             // Alistamiento
-            new Paragraph({ children: [new TextRun({ text: '4.1.8 Alistamiento', ...heading3Style })] }),
+            new Paragraph({ children: [new TextRun({ text: '4.1.9 Alistamiento', ...heading3Style })] }),
             new Paragraph({ children: [] }),
             new Paragraph({ children: [new TextRun({ text: 'Descripción: El profesional de Alistamiento es responsable de subir y configurar todos los recursos en la plataforma UDES Virtual (Moodle).', ...normalStyle })] }),
             new Paragraph({ children: [] }),
@@ -474,19 +490,20 @@ const doc = new Document({
             new Table({
                 width: { size: 100, type: WidthType.PERCENTAGE },
                 rows: [
-                    createRow(['Permiso', 'Exp.', 'Ases.', 'Rev.', 'Par', 'Corr.', 'Coord.', 'Prod.', 'Alist.'], true),
-                    createRow(['Crear matriz', 'Sí', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No']),
-                    createRow(['Editar matriz', 'Sí', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No']),
-                    createRow(['Ver todas las matrices', 'No', 'Sí', 'No', 'No', 'No', 'Sí', 'No', 'No']),
-                    createRow(['Actuar Fase 1', 'Sí', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No']),
-                    createRow(['Actuar Fase 2', 'No', 'Sí', 'Sí', 'No', 'No', 'No', 'No', 'No']),
-                    createRow(['Actuar Fase 3', 'No', 'Sí', 'No', 'Sí', 'Sí', 'No', 'No', 'No']),
-                    createRow(['Actuar Fase 4', 'No', 'No', 'No', 'No', 'No', 'Sí', 'Sí', 'No']),
-                    createRow(['Actuar Fase 5', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'Sí']),
-                    createRow(['Actuar Fase 6', 'No', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No']),
-                    createRow(['Aprobar Fase 1,2,3,6', 'No', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No']),
-                    createRow(['Aprobar Fase 4', 'No', 'No', 'No', 'No', 'No', 'Sí', 'No', 'No']),
-                    createRow(['Aprobar Fase 5', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'Sí']),
+                    createRow(['Permiso', 'Exp.', 'Ases.', 'Rev.', 'Par', 'Corr.', 'Coord.', 'Jefe', 'Prod.', 'Alist.'], true),
+                    createRow(['Crear matriz', 'Sí', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No', 'No']),
+                    createRow(['Editar matriz', 'Sí', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No', 'No']),
+                    createRow(['Ver todas las matrices', 'No', 'Sí', 'No', 'No', 'No', 'Sí', 'Sí', 'No', 'No']),
+                    createRow(['Actuar Fase 1', 'Sí', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No', 'No']),
+                    createRow(['Actuar Fase 2', 'No', 'Sí', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No']),
+                    createRow(['Actuar Fase 3', 'No', 'Sí', 'No', 'Sí', 'Sí', 'No', 'No', 'No', 'No']),
+                    createRow(['Actuar Fase 4', 'No', 'No', 'No', 'No', 'No', 'Sí', 'No', 'Sí', 'No']),
+                    createRow(['Actuar Fase 5', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'Sí']),
+                    createRow(['Actuar Fase 6', 'No', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No', 'No']),
+                    createRow(['Aprobar Fase 1,2,3,6', 'No', 'Sí', 'No', 'No', 'No', 'No', 'No', 'No', 'No']),
+                    createRow(['Aprobar Fase 4', 'No', 'No', 'No', 'No', 'No', 'Sí', 'No', 'No', 'No']),
+                    createRow(['Aprobar Fase 5', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'Sí']),
+                    createRow(['Notificado Fase 3→4', 'No', 'No', 'No', 'No', 'No', 'Sí', 'Sí', 'No', 'No']),
                 ]
             }),
             new Paragraph({ children: [new PageBreak()] }),
@@ -711,8 +728,9 @@ const doc = new Document({
                 heading: HeadingLevel.HEADING_2
             }),
             new Paragraph({ children: [] }),
-            new Paragraph({ children: [new TextRun({ text: 'Actores: Coordinación de Producción, Producción (Diseñador)', bold: true, ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: 'Actores: Coordinación de Producción, Jefe de Medios (supervisión), Producción (Diseñador)', bold: true, ...normalStyle })] }),
             new Paragraph({ children: [new TextRun({ text: 'Aprobador: Coordinación de Producción', bold: true, ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: 'Notificados al iniciar: Coordinación de Producción y Jefe de Medios', bold: true, ...normalStyle })] }),
             new Paragraph({ children: [] }),
             new Paragraph({ children: [new TextRun({ text: 'Descripción detallada:', bold: true, ...normalStyle })] }),
             new Paragraph({ children: [new TextRun({ text: 'En esta fase se materializan los recursos educativos digitales. El equipo de producción crea videos, infografías, interactivos y demás recursos especificados en la caracterización.', ...normalStyle })] }),
@@ -821,6 +839,7 @@ const doc = new Document({
             new Paragraph({ children: [new TextRun({ text: '• Par Académico: Seleccione al par evaluador', ...normalStyle })] }),
             new Paragraph({ children: [new TextRun({ text: '• Corrector de Estilo: Seleccione al corrector de textos', ...normalStyle })] }),
             new Paragraph({ children: [new TextRun({ text: '• Coordinación de Producción: Seleccione al coordinador del equipo de diseño', ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: '• Jefe de Medios: Seleccione al jefe del área de medios educativos (recibirá notificaciones)', ...normalStyle })] }),
             new Paragraph({ children: [new TextRun({ text: '• Producción: Seleccione al diseñador gráfico/multimedia', ...normalStyle })] }),
             new Paragraph({ children: [new TextRun({ text: '• Alistamiento: Seleccione al profesional de alistamiento', ...normalStyle })] }),
             new Paragraph({ children: [] }),
@@ -1070,7 +1089,7 @@ const doc = new Document({
             new Paragraph({ children: [] }),
 
             new Paragraph({ children: [new TextRun({ text: 'P: ¿Cómo puedo ver todas las matrices del sistema?', bold: true, ...normalStyle })] }),
-            new Paragraph({ children: [new TextRun({ text: 'R: Necesita el permiso mod/caracterizacion:vertodasmatrices. Este permiso está asignado a los roles de Asesor Metodológico y Coordinación de Producción.', ...normalStyle })] }),
+            new Paragraph({ children: [new TextRun({ text: 'R: Necesita el permiso mod/caracterizacion:vertodasmatrices. Este permiso está asignado a los roles de Asesor Metodológico, Coordinación de Producción y Jefe de Medios.', ...normalStyle })] }),
             new Paragraph({ children: [] }),
 
             new Paragraph({ children: [new TextRun({ text: 'P: ¿Qué pasa si se rechaza una fase?', bold: true, ...normalStyle })] }),

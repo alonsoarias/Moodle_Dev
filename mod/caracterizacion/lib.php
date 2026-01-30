@@ -289,7 +289,7 @@ function caracterizacion_get_phase_approval_capabilities($fase) {
  * Following the UDES notification flow:
  * - Phase 1 approved -> Notify Revisor Curricular.
  * - Phase 2 approved -> Notify Par / Corrector.
- * - Phase 3 approved -> Notify Coordinacion de Produccion.
+ * - Phase 3 approved -> Notify Jefe de Medios AND Coordinacion de Produccion.
  * - Phase 4 approved -> Notify Alistamiento.
  * - Phase 5 approved -> Notify Asesor Metodologico.
  * - Phase 6 approved -> All (completed).
@@ -301,7 +301,7 @@ function caracterizacion_get_phase_notification_targets($fase) {
     $map = [
         1 => ['revisor_curricular'],
         2 => ['par_academico', 'corrector_estilo'],
-        3 => ['coord_produccion'],
+        3 => ['coord_produccion', 'jefe_medios'],  // Both are notified when phase 3 is approved.
         4 => ['alistamiento'],
         5 => ['asesor_metodologico'],
         6 => [],
