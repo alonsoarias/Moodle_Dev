@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @return bool
  */
-function xmldb_mod_caracterizacion_install() {
+function xmldb_caracterizacion_install() {
     global $DB;
 
     // Define the 8 UDES roles with their capabilities.
