@@ -43,6 +43,14 @@ function xmldb_caracterizacion_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024012901, 'caracterizacion');
     }
 
+    // Upgrade to version 2024012902: Ensure UDES roles exist and capabilities are registered.
+    if ($oldversion < 2024012902) {
+        // Re-create or update the 8 UDES workflow roles.
+        caracterizacion_create_udes_roles();
+
+        upgrade_mod_savepoint(true, 2024012902, 'caracterizacion');
+    }
+
     return true;
 }
 
