@@ -262,3 +262,9 @@ $string['guardarcontinuar'] = 'Guardar y Continuar';
 $string['errorgenerico'] = 'Ha ocurrido un error al procesar la solicitud.';
 $string['errormatriznoexiste'] = 'La matriz de caracterización no existe.';
 $string['errorsinpermisos'] = 'No tiene permisos para realizar esta acción.';
+
+// Additional UI strings.
+$string['crearmatriz'] = 'Nueva Matriz';
+$string['sinasignar'] = 'Sin asignar';
+$string['hasmatrices'] = 'Hay matrices disponibles';
+$string['nomatricesinfo'] = 'Aún no se han creado matrices de caracterización en esta actividad.';

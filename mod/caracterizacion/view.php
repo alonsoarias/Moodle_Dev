@@ -64,17 +64,13 @@ if ($moduleinstance->intro) {
     echo $OUTPUT->box(format_module_intro('caracterizacion', $moduleinstance, $cm->id), 'generalbox mod_introbox', 'intro');
 }
 
-// Show "New Matrix" button if user has capability.
-if (has_capability('mod/caracterizacion:crearmatriz', $context)) {
-    $newurl = new moodle_url('/mod/caracterizacion/matriz_edit.php', ['cmid' => $cm->id]);
-    echo html_writer::div(
-        $OUTPUT->single_button($newurl, get_string('nuevamatriz', 'mod_caracterizacion'), 'get'),
-        'mb-3'
-    );
-}
+// Check capabilities.
+$cancreate = has_capability('mod/caracterizacion:crearmatriz', $context);
+$canedit = has_capability('mod/caracterizacion:editarmatriz', $context);
+$candelete = has_capability('mod/caracterizacion:eliminarmatriz', $context);
+$canviewall = has_capability('mod/caracterizacion:vertodasmatrices', $context);
 
 // Load matrices.
-$canviewall = has_capability('mod/caracterizacion:vertodasmatrices', $context);
 if ($canviewall) {
     $matrices = $DB->get_records('caracterizacion_matriz', ['caracterizacionid' => $moduleinstance->id], 'timecreated DESC');
 } else {
@@ -86,63 +82,70 @@ if ($canviewall) {
 
 $phases = caracterizacion_get_phases();
 
-if (empty($matrices)) {
-    echo $OUTPUT->notification(get_string('nomatrices', 'mod_caracterizacion'), 'info');
-} else {
-    // Render matrices list using the template.
-    $templatedata = [
-        'matrices' => [],
-        'cmid' => $cm->id,
-        'candelete' => has_capability('mod/caracterizacion:eliminarmatriz', $context),
-        'canedit' => has_capability('mod/caracterizacion:editarmatriz', $context),
-    ];
+// Render matrices list using the template.
+$templatedata = [
+    'matrices' => [],
+    'cmid' => $cm->id,
+    'candelete' => $candelete,
+    'canedit' => $canedit,
+    'cancreate' => $cancreate,
+    'createurl' => (new moodle_url('/mod/caracterizacion/matriz_edit.php', ['cmid' => $cm->id]))->out(false),
+    'hasmatrices' => !empty($matrices),
+];
 
-    foreach ($matrices as $matriz) {
-        $creator = $DB->get_record('user', ['id' => $matriz->creado_por]);
-        $creatorname = $creator ? fullname($creator) : '-';
-        $estadostr = get_string($matriz->estado, 'mod_caracterizacion');
-        $fasestr = isset($phases[$matriz->fase_actual]) ?
-            get_string($phases[$matriz->fase_actual], 'mod_caracterizacion') :
-            get_string('fase1', 'mod_caracterizacion');
+foreach ($matrices as $matriz) {
+    $creator = $DB->get_record('user', ['id' => $matriz->creado_por]);
+    $creatorname = $creator ? fullname($creator) : '-';
+    $estadostr = get_string($matriz->estado, 'mod_caracterizacion');
+    $fasestr = isset($phases[$matriz->fase_actual]) ?
+        get_string($phases[$matriz->fase_actual], 'mod_caracterizacion') :
+        get_string('fase1', 'mod_caracterizacion');
 
-        $estadoclass = 'badge-secondary';
-        switch ($matriz->estado) {
-            case 'en_proceso':
-                $estadoclass = 'badge-primary';
-                break;
-            case 'completada':
-                $estadoclass = 'badge-success';
-                break;
-        }
+    // Status class and flags for template.
+    $estadoclass = 'borrador';
+    $is_borrador = ($matriz->estado === 'borrador');
+    $is_en_proceso = ($matriz->estado === 'en_proceso');
+    $is_completada = ($matriz->estado === 'completada');
 
-        $templatedata['matrices'][] = [
-            'id' => $matriz->id,
-            'programa_academico' => format_string($matriz->programa_academico),
-            'nombre_curso' => format_string($matriz->nombre_curso),
-            'fase_actual' => $fasestr,
-            'fase_num' => $matriz->fase_actual,
-            'estado' => $estadostr,
-            'estadoclass' => $estadoclass,
-            'creador' => $creatorname,
-            'timecreated' => userdate($matriz->timecreated),
-            'timemodified' => userdate($matriz->timemodified),
-            'viewurl' => (new moodle_url('/mod/caracterizacion/matriz_view.php', [
-                'cmid' => $cm->id,
-                'matrizid' => $matriz->id,
-            ]))->out(false),
-            'editurl' => (new moodle_url('/mod/caracterizacion/matriz_edit.php', [
-                'cmid' => $cm->id,
-                'matrizid' => $matriz->id,
-            ]))->out(false),
-            'deleteurl' => (new moodle_url('/mod/caracterizacion/matriz_delete.php', [
-                'cmid' => $cm->id,
-                'matrizid' => $matriz->id,
-                'sesskey' => sesskey(),
-            ]))->out(false),
-        ];
+    if ($is_en_proceso) {
+        $estadoclass = 'en_proceso';
+    } else if ($is_completada) {
+        $estadoclass = 'completada';
     }
 
-    echo $OUTPUT->render_from_template('mod_caracterizacion/matrices_list', $templatedata);
+    $templatedata['matrices'][] = [
+        'id' => $matriz->id,
+        'programa_academico' => format_string($matriz->programa_academico),
+        'nombre_curso' => format_string($matriz->nombre_curso),
+        'fase_actual' => $matriz->fase_actual,
+        'fase_num' => $matriz->fase_actual,
+        'fase_label' => $fasestr,
+        'estado' => $estadostr,
+        'estadoclass' => $estadoclass,
+        'is_borrador' => $is_borrador,
+        'is_en_proceso' => $is_en_proceso,
+        'is_completada' => $is_completada,
+        'creador' => $creatorname,
+        'timecreated' => userdate($matriz->timecreated),
+        'timemodified' => userdate($matriz->timemodified),
+        'canedit' => $canedit,
+        'candelete' => $candelete,
+        'viewurl' => (new moodle_url('/mod/caracterizacion/matriz_view.php', [
+            'cmid' => $cm->id,
+            'matrizid' => $matriz->id,
+        ]))->out(false),
+        'editurl' => (new moodle_url('/mod/caracterizacion/matriz_edit.php', [
+            'cmid' => $cm->id,
+            'matrizid' => $matriz->id,
+        ]))->out(false),
+        'deleteurl' => (new moodle_url('/mod/caracterizacion/matriz_delete.php', [
+            'cmid' => $cm->id,
+            'matrizid' => $matriz->id,
+            'sesskey' => sesskey(),
+        ]))->out(false),
+    ];
 }
+
+echo $OUTPUT->render_from_template('mod_caracterizacion/matrices_list', $templatedata);
 
 echo $OUTPUT->footer();

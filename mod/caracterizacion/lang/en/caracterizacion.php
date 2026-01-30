@@ -262,3 +262,9 @@ $string['guardarcontinuar'] = 'Save and Continue';
 $string['errorgenerico'] = 'An error occurred while processing the request.';
 $string['errormatriznoexiste'] = 'The characterization matrix does not exist.';
 $string['errorsinpermisos'] = 'You do not have permissions to perform this action.';
+
+// Additional UI strings.
+$string['crearmatriz'] = 'New Matrix';
+$string['sinasignar'] = 'Not assigned';
+$string['hasmatrices'] = 'Matrices available';
+$string['nomatricesinfo'] = 'No characterization matrices have been created in this activity yet.';

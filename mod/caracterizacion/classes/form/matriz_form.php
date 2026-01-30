@@ -90,6 +90,7 @@ class matriz_form extends \moodleform {
             'par_academico' => 'paracademico',
             'corrector_estilo' => 'correctorestilo',
             'coord_produccion' => 'coordproduccion',
+            'jefe_medios' => 'jefemedios',
             'produccion' => 'produccion',
             'alistamiento' => 'alistamiento',
         ];
@@ -147,11 +148,29 @@ class matriz_form extends \moodleform {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
-        if (empty($data['programa_academico'])) {
+        // Validate required course info fields.
+        if (empty(trim($data['programa_academico'] ?? ''))) {
             $errors['programa_academico'] = get_string('required');
         }
-        if (empty($data['nombre_curso'])) {
+        if (empty(trim($data['nombre_curso'] ?? ''))) {
             $errors['nombre_curso'] = get_string('required');
+        }
+
+        // Validate that at least the key roles are assigned (Experto and Asesor are required for Phase 1).
+        $requiredroles = ['asesor_metodologico', 'experto_disciplinar'];
+        foreach ($requiredroles as $role) {
+            $fieldname = 'rol_' . $role;
+            if (empty($data[$fieldname]) || $data[$fieldname] == 0) {
+                $errors[$fieldname] = get_string('required');
+            }
+        }
+
+        // Validate units data JSON structure if provided.
+        if (!empty($data['unidades_data'])) {
+            $unidades = json_decode($data['unidades_data'], true);
+            if ($unidades === null && json_last_error() !== JSON_ERROR_NONE) {
+                $errors['unidades_data'] = get_string('errorgenerico', 'mod_caracterizacion');
+            }
         }
 
         return $errors;

@@ -240,7 +240,7 @@ function caracterizacion_get_phases() {
  * - Phase 1: Experto fills in, Asesor accompanies.
  * - Phase 2: Revisor reviews, Asesor coordinates adjustments.
  * - Phase 3: Par reviews, Corrector adjusts, Asesor coordinates.
- * - Phase 4: Coordinacion assigns, Produccion develops.
+ * - Phase 4: Coordinacion and Jefe de Medios supervise, Produccion develops.
  * - Phase 5: Alistamiento sets up in Moodle.
  * - Phase 6: Asesor gives final approval.
  *
@@ -253,7 +253,8 @@ function caracterizacion_get_phase_actor_capabilities($fase) {
         2 => ['mod/caracterizacion:revisorcurricular', 'mod/caracterizacion:asesormetodologico'],
         3 => ['mod/caracterizacion:paracademico', 'mod/caracterizacion:correctorestilo',
                'mod/caracterizacion:asesormetodologico'],
-        4 => ['mod/caracterizacion:coordproduccion', 'mod/caracterizacion:produccion'],
+        4 => ['mod/caracterizacion:coordproduccion', 'mod/caracterizacion:jefemedios',
+               'mod/caracterizacion:produccion'],  // Jefe de Medios supervises Phase 4.
         5 => ['mod/caracterizacion:alistamiento'],
         6 => ['mod/caracterizacion:asesormetodologico'],
     ];

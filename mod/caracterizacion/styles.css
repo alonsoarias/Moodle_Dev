@@ -1,0 +1,978 @@
+/**
+ * Custom styles for mod_caracterizacion plugin.
+ *
+ * @package     mod_caracterizacion
+ * @copyright   2024 Alonso Arias <soporte@orioncloud.com.co>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* =====================================================================
+   GENERAL STYLES AND VARIABLES
+   ===================================================================== */
+
+.mod-caracterizacion-matriz-view,
+.mod-caracterizacion-matrices-list,
+.mod-caracterizacion-form {
+    --caract-primary: #1a73e8;
+    --caract-primary-dark: #1557b0;
+    --caract-primary-light: #e8f0fe;
+    --caract-secondary: #5f6368;
+    --caract-success: #1e8e3e;
+    --caract-success-light: #e6f4ea;
+    --caract-danger: #d93025;
+    --caract-danger-light: #fce8e6;
+    --caract-warning: #f9ab00;
+    --caract-warning-light: #fef7e0;
+    --caract-info: #1a73e8;
+    --caract-border-radius: 12px;
+    --caract-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --caract-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --caract-transition: all 0.3s ease;
+}
+
+/* =====================================================================
+   CARD STYLES
+   ===================================================================== */
+
+.mod-caracterizacion-matriz-view .card,
+.mod-caracterizacion-form .card,
+#mod-caracterizacion-unidades-container .card {
+    border: none;
+    border-radius: var(--caract-border-radius);
+    box-shadow: var(--caract-shadow);
+    transition: var(--caract-transition);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.mod-caracterizacion-matriz-view .card:hover,
+#mod-caracterizacion-unidades-container .card:hover {
+    box-shadow: var(--caract-shadow-hover);
+}
+
+.mod-caracterizacion-matriz-view .card-header,
+.mod-caracterizacion-form .card-header,
+#mod-caracterizacion-unidades-container .card-header {
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+}
+
+.mod-caracterizacion-matriz-view .card-header h4,
+.mod-caracterizacion-matriz-view .card-header h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mod-caracterizacion-matriz-view .card-header h4::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    margin-right: 0.5rem;
+}
+
+.mod-caracterizacion-matriz-view .card-body {
+    padding: 1.5rem;
+}
+
+/* Card header color overrides with gradients */
+.mod-caracterizacion-matriz-view .card-header.bg-primary {
+    background: linear-gradient(135deg, var(--caract-primary) 0%, var(--caract-primary-dark) 100%) !important;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-success {
+    background: linear-gradient(135deg, var(--caract-success) 0%, #137333 100%) !important;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-warning {
+    background: linear-gradient(135deg, var(--caract-warning) 0%, #e69500 100%) !important;
+    color: #212529 !important;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-dark {
+    background: linear-gradient(135deg, #343a40 0%, #1d2124 100%) !important;
+}
+
+/* =====================================================================
+   COURSE INFORMATION SECTION
+   ===================================================================== */
+
+.mod-caracterizacion-matriz-view .card-body .row > div {
+    margin-bottom: 1rem;
+}
+
+.mod-caracterizacion-matriz-view .card-body strong {
+    color: var(--caract-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.mod-caracterizacion-matriz-view .card-body p {
+    color: #212529;
+    font-size: 1rem;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+/* =====================================================================
+   ROLES SECTION
+   ===================================================================== */
+
+.mod-caracterizacion-matriz-view .card-header.bg-secondary + .card-body .col-md-4 {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid var(--caract-primary);
+    transition: var(--caract-transition);
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-secondary + .card-body .col-md-4:hover {
+    background: var(--caract-primary-light);
+    transform: translateX(4px);
+}
+
+/* =====================================================================
+   GENERAL RESOURCES TABLE
+   ===================================================================== */
+
+.mod-caracterizacion-matriz-view .table {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.mod-caracterizacion-matriz-view .table thead th {
+    background: #f1f3f5;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--caract-secondary);
+    padding: 0.75rem 1rem;
+}
+
+.mod-caracterizacion-matriz-view .table tbody td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-color: #f1f3f5;
+}
+
+.mod-caracterizacion-matriz-view .table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Badges */
+.mod-caracterizacion-matriz-view .badge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+
+.mod-caracterizacion-matriz-view .badge-success {
+    background: var(--caract-success-light);
+    color: var(--caract-success);
+    border: 1px solid var(--caract-success);
+}
+
+.mod-caracterizacion-matriz-view .badge-secondary {
+    background: #f1f3f5;
+    color: var(--caract-secondary);
+    border: 1px solid #dee2e6;
+}
+
+.mod-caracterizacion-matriz-view .badge-primary {
+    background: var(--caract-primary-light);
+    color: var(--caract-primary);
+    border: 1px solid var(--caract-primary);
+}
+
+.mod-caracterizacion-matriz-view .badge-danger {
+    background: var(--caract-danger-light);
+    color: var(--caract-danger);
+    border: 1px solid var(--caract-danger);
+}
+
+.mod-caracterizacion-matriz-view .badge-warning {
+    background: var(--caract-warning-light);
+    color: #8a6d3b;
+    border: 1px solid var(--caract-warning);
+}
+
+.mod-caracterizacion-matriz-view .badge-info {
+    background: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #74c0fc;
+}
+
+/* =====================================================================
+   UNITS AND TOPICS SECTION
+   ===================================================================== */
+
+.mod-caracterizacion-matriz-view .card-header.bg-success + .card-body > .card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-success + .card-body > .card > .card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.75rem 1.25rem;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-success + .card-body > .card > .card-header h5 {
+    font-size: 1rem;
+    color: var(--caract-success);
+    font-weight: 600;
+}
+
+/* Topics */
+.mod-caracterizacion-matriz-view .border-left.border-primary {
+    border-left: 4px solid var(--caract-primary) !important;
+    padding-left: 1.25rem;
+    margin-left: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(90deg, var(--caract-primary-light) 0%, transparent 100%);
+    padding: 1rem 1rem 1rem 1.25rem;
+    border-radius: 0 8px 8px 0;
+}
+
+.mod-caracterizacion-matriz-view .border-left.border-primary h6 {
+    color: var(--caract-primary-dark);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+/* Resources table in topics */
+.mod-caracterizacion-matriz-view .border-left.border-primary .table {
+    background: white;
+    margin-bottom: 0;
+}
+
+.mod-caracterizacion-matriz-view .border-left.border-primary .table thead.thead-light th {
+    background: #e9ecef;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.mod-caracterizacion-matriz-view .border-left.border-primary .table td {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* =====================================================================
+   RESOURCE SUMMARY SECTION
+   ===================================================================== */
+
+.mod-caracterizacion-matriz-view .card-header.bg-warning + .card-body {
+    padding: 1rem 1.5rem;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-warning + .card-body .table {
+    margin-bottom: 0;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-warning + .card-body .table td {
+    padding: 0.6rem 1rem;
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-warning + .card-body .table tr.table-active {
+    background: var(--caract-warning-light);
+    border-top: 2px solid var(--caract-warning);
+}
+
+.mod-caracterizacion-matriz-view .card-header.bg-warning + .card-body .table tr.table-active td {
+    font-size: 1.1rem;
+    color: #7c5a00;
+}
+
+/* =====================================================================
+   PHASE PROGRESS SECTION
+   ===================================================================== */
+
+.mod-caracterizacion-matriz-view .card-header.bg-dark + .card-body {
+    padding: 1.5rem;
+}
+
+/* Progress bar */
+.mod-caracterizacion-matriz-view .progress {
+    height: 40px;
+    border-radius: 20px;
+    background: #e9ecef;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: visible;
+    margin-bottom: 2rem;
+}
+
+.mod-caracterizacion-matriz-view .progress-bar {
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    transition: var(--caract-transition);
+    position: relative;
+}
+
+.mod-caracterizacion-matriz-view .progress-bar:first-child {
+    border-radius: 20px 0 0 20px;
+}
+
+.mod-caracterizacion-matriz-view .progress-bar:last-child {
+    border-radius: 0 20px 20px 0;
+}
+
+.mod-caracterizacion-matriz-view .progress-bar.bg-success {
+    background: linear-gradient(135deg, var(--caract-success) 0%, #137333 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.mod-caracterizacion-matriz-view .progress-bar.bg-primary {
+    background: linear-gradient(135deg, var(--caract-primary) 0%, var(--caract-primary-dark) 100%) !important;
+}
+
+.mod-caracterizacion-matriz-view .progress-bar.bg-danger {
+    background: linear-gradient(135deg, var(--caract-danger) 0%, #b31412 100%) !important;
+}
+
+.mod-caracterizacion-matriz-view .progress-bar.bg-light {
+    background: #f1f3f5 !important;
+    color: #868e96 !important;
+    border-right: 1px solid #dee2e6;
+}
+
+/* Phase accordion */
+.mod-caracterizacion-matriz-view .accordion .card {
+    border: 1px solid #e9ecef;
+    margin-bottom: 0.5rem;
+    border-radius: 10px !important;
+    overflow: hidden;
+}
+
+.mod-caracterizacion-matriz-view .accordion .card-header {
+    padding: 0;
+    background: #f8f9fa;
+    border-bottom: none;
+}
+
+.mod-caracterizacion-matriz-view .accordion .card-header.bg-primary {
+    background: linear-gradient(135deg, var(--caract-primary) 0%, var(--caract-primary-dark) 100%) !important;
+}
+
+.mod-caracterizacion-matriz-view .accordion .card-header button {
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: none;
+    background: transparent;
+}
+
+.mod-caracterizacion-matriz-view .accordion .card-header button:hover,
+.mod-caracterizacion-matriz-view .accordion .card-header button:focus {
+    text-decoration: none;
+}
+
+.mod-caracterizacion-matriz-view .accordion .card-header button .badge {
+    flex-shrink: 0;
+}
+
+.mod-caracterizacion-matriz-view .accordion .card-body {
+    border-top: 1px solid #e9ecef;
+    background: #fafbfc;
+}
+
+/* Phase actions */
+.mod-caracterizacion-matriz-view .fase-actions {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 1.5rem;
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .form-group label {
+    font-weight: 600;
+    color: var(--caract-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: var(--caract-transition);
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .form-control:focus {
+    border-color: var(--caract-primary);
+    box-shadow: 0 0 0 3px var(--caract-primary-light);
+}
+
+/* Action buttons */
+.mod-caracterizacion-matriz-view .fase-actions .btn {
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: var(--caract-transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .btn-success {
+    background: var(--caract-success);
+    border-color: var(--caract-success);
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .btn-success:hover {
+    background: #137333;
+    border-color: #137333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 142, 62, 0.3);
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .btn-danger {
+    background: var(--caract-danger);
+    border-color: var(--caract-danger);
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .btn-danger:hover {
+    background: #b31412;
+    border-color: #b31412;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(217, 48, 37, 0.3);
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .btn-primary {
+    background: var(--caract-primary);
+    border-color: var(--caract-primary);
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .btn-primary:hover {
+    background: var(--caract-primary-dark);
+    border-color: var(--caract-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .btn-warning {
+    background: var(--caract-warning);
+    border-color: var(--caract-warning);
+    color: #212529;
+}
+
+.mod-caracterizacion-matriz-view .fase-actions .btn-warning:hover {
+    background: #e69500;
+    border-color: #e69500;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(249, 171, 0, 0.3);
+}
+
+/* Comments list */
+.mod-caracterizacion-matriz-view .list-group {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.mod-caracterizacion-matriz-view .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f1f3f5;
+    padding: 1rem 1.25rem;
+    background: white;
+    transition: var(--caract-transition);
+}
+
+.mod-caracterizacion-matriz-view .list-group-item:last-child {
+    border-bottom: none;
+}
+
+.mod-caracterizacion-matriz-view .list-group-item:hover {
+    background: #f8f9fa;
+}
+
+.mod-caracterizacion-matriz-view .list-group-item strong {
+    color: var(--caract-primary-dark);
+    font-size: 0.95rem;
+}
+
+.mod-caracterizacion-matriz-view .list-group-item .text-muted {
+    font-size: 0.8rem;
+}
+
+.mod-caracterizacion-matriz-view .list-group-item p {
+    color: #495057;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* =====================================================================
+   MATRICES LIST PAGE
+   ===================================================================== */
+
+.mod-caracterizacion-matrices-list h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mod-caracterizacion-matrices-list h3::before {
+    content: "\f0ce";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    color: var(--caract-primary);
+}
+
+.mod-caracterizacion-matrices-list .table-responsive {
+    border-radius: var(--caract-border-radius);
+    box-shadow: var(--caract-shadow);
+    overflow: hidden;
+}
+
+.mod-caracterizacion-matrices-list .table {
+    margin-bottom: 0;
+}
+
+.mod-caracterizacion-matrices-list .table thead.thead-dark th {
+    background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mod-caracterizacion-matrices-list .table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: #f1f3f5;
+}
+
+.mod-caracterizacion-matrices-list .table tbody tr {
+    transition: var(--caract-transition);
+}
+
+.mod-caracterizacion-matrices-list .table tbody tr:hover {
+    background: var(--caract-primary-light);
+}
+
+/* Status badges in list */
+.mod-caracterizacion-matrices-list .badge-borrador {
+    background: #f1f3f5;
+    color: #868e96;
+    border: 1px solid #dee2e6;
+}
+
+.mod-caracterizacion-matrices-list .badge-en_proceso {
+    background: var(--caract-primary-light);
+    color: var(--caract-primary);
+    border: 1px solid var(--caract-primary);
+}
+
+.mod-caracterizacion-matrices-list .badge-completada {
+    background: var(--caract-success-light);
+    color: var(--caract-success);
+    border: 1px solid var(--caract-success);
+}
+
+/* Action buttons in list */
+.mod-caracterizacion-matrices-list .btn-sm {
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    transition: var(--caract-transition);
+}
+
+.mod-caracterizacion-matrices-list .btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+}
+
+.mod-caracterizacion-matrices-list .btn-outline-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+.mod-caracterizacion-matrices-list .btn-outline-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(217, 48, 37, 0.3);
+}
+
+/* =====================================================================
+   FORM STYLES (MATRIX EDIT)
+   ===================================================================== */
+
+#mod-caracterizacion-unidades-container {
+    margin-top: 1rem;
+}
+
+#mod-caracterizacion-unidades-container .btn-add-unit {
+    background: linear-gradient(135deg, var(--caract-primary) 0%, var(--caract-primary-dark) 100%);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: var(--caract-transition);
+}
+
+#mod-caracterizacion-unidades-container .btn-add-unit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+
+/* Unit cards in form */
+#mod-caracterizacion-unidades-container .unit-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#mod-caracterizacion-unidades-container .unit-card > .card-header {
+    background: linear-gradient(135deg, var(--caract-success) 0%, #137333 100%) !important;
+    padding: 0.875rem 1.25rem;
+}
+
+#mod-caracterizacion-unidades-container .unit-card > .card-header h5 {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+#mod-caracterizacion-unidades-container .unit-card > .card-header .btn-outline-light {
+    border-radius: 6px;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+    transition: var(--caract-transition);
+}
+
+#mod-caracterizacion-unidades-container .unit-card > .card-header .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Topic cards in form */
+#mod-caracterizacion-unidades-container .topic-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    margin-left: 1rem !important;
+    background: #fafbfc;
+}
+
+#mod-caracterizacion-unidades-container .topic-card > .card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 0.625rem 1rem;
+}
+
+#mod-caracterizacion-unidades-container .topic-card > .card-header h6 {
+    font-weight: 600;
+    color: var(--caract-secondary);
+    font-size: 0.95rem;
+}
+
+/* Form inputs in units container */
+#mod-caracterizacion-unidades-container .form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 0.6rem 0.875rem;
+    transition: var(--caract-transition);
+}
+
+#mod-caracterizacion-unidades-container .form-control:focus {
+    border-color: var(--caract-primary);
+    box-shadow: 0 0 0 3px var(--caract-primary-light);
+}
+
+#mod-caracterizacion-unidades-container .form-control-sm {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.875rem;
+}
+
+/* Resource table in form */
+#mod-caracterizacion-unidades-container .table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#mod-caracterizacion-unidades-container .table thead.thead-light th {
+    background: #e9ecef;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--caract-secondary);
+    padding: 0.6rem 0.75rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+#mod-caracterizacion-unidades-container .table td {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+#mod-caracterizacion-unidades-container .table select {
+    min-width: 140px;
+}
+
+#mod-caracterizacion-unidades-container .table textarea {
+    min-height: 60px;
+    resize: vertical;
+}
+
+/* Add buttons in form */
+#mod-caracterizacion-unidades-container .btn-info,
+#mod-caracterizacion-unidades-container .btn-outline-success {
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.4rem 0.875rem;
+    transition: var(--caract-transition);
+}
+
+#mod-caracterizacion-unidades-container .btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    border: none;
+}
+
+#mod-caracterizacion-unidades-container .btn-info:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+#mod-caracterizacion-unidades-container .btn-outline-success:hover {
+    background: var(--caract-success);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(30, 142, 62, 0.3);
+}
+
+/* Summary card in form */
+#mod-caracterizacion-unidades-container .border-warning {
+    border: 2px solid var(--caract-warning) !important;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#mod-caracterizacion-unidades-container .border-warning .card-header {
+    background: linear-gradient(135deg, var(--caract-warning) 0%, #e69500 100%) !important;
+    color: #212529;
+}
+
+#mod-caracterizacion-unidades-container .border-warning .card-header h5 {
+    font-weight: 600;
+}
+
+#mod-caracterizacion-unidades-container .border-warning .table-active {
+    background: var(--caract-warning-light);
+}
+
+#mod-caracterizacion-unidades-container .border-warning .font-weight-bold td {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #7c5a00;
+}
+
+/* =====================================================================
+   FORM ELEMENTS (MOODLE FORM)
+   ===================================================================== */
+
+.mform .form-group label,
+.mform .col-form-label {
+    font-weight: 600;
+    color: var(--caract-secondary);
+}
+
+.mform .form-control-static {
+    padding-top: 0.5rem;
+}
+
+.mform #id_infocurso .fcontainer,
+.mform #id_rolesheader .fcontainer,
+.mform #id_recursosgenheader .fcontainer,
+.mform #id_unidadesheader .fcontainer {
+    padding: 0.5rem 0;
+}
+
+/* =====================================================================
+   RESPONSIVE ADJUSTMENTS
+   ===================================================================== */
+
+@media (max-width: 768px) {
+    .mod-caracterizacion-matriz-view .card-body {
+        padding: 1rem;
+    }
+
+    .mod-caracterizacion-matriz-view .progress {
+        height: 30px;
+    }
+
+    .mod-caracterizacion-matriz-view .progress-bar {
+        font-size: 0.75rem;
+    }
+
+    .mod-caracterizacion-matriz-view .fase-actions .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .mod-caracterizacion-matriz-view .border-left.border-primary {
+        margin-left: 0;
+        border-radius: 8px;
+    }
+
+    #mod-caracterizacion-unidades-container .topic-card {
+        margin-left: 0 !important;
+    }
+
+    #mod-caracterizacion-unidades-container .table-responsive {
+        font-size: 0.8rem;
+    }
+
+    #mod-caracterizacion-unidades-container .table select,
+    #mod-caracterizacion-unidades-container .table input,
+    #mod-caracterizacion-unidades-container .table textarea {
+        min-width: 100px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .mod-caracterizacion-matriz-view .card-header h4 {
+        font-size: 1rem;
+    }
+
+    .mod-caracterizacion-matrices-list .table thead {
+        display: none;
+    }
+
+    .mod-caracterizacion-matrices-list .table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .mod-caracterizacion-matrices-list .table tbody td {
+        display: block;
+        text-align: left;
+        padding: 0.5rem 0;
+        border: none;
+    }
+
+    .mod-caracterizacion-matrices-list .table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        display: block;
+        color: var(--caract-secondary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* =====================================================================
+   PRINT STYLES
+   ===================================================================== */
+
+@media print {
+    .mod-caracterizacion-matriz-view .card {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+        break-inside: avoid;
+    }
+
+    .mod-caracterizacion-matriz-view .fase-actions,
+    .mod-caracterizacion-matriz-view .btn {
+        display: none;
+    }
+
+    .mod-caracterizacion-matriz-view .accordion .collapse {
+        display: block !important;
+    }
+
+    .mod-caracterizacion-matriz-view .progress {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}
+
+/* =====================================================================
+   ANIMATIONS
+   ===================================================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mod-caracterizacion-matriz-view .card,
+.mod-caracterizacion-matrices-list .table tbody tr,
+#mod-caracterizacion-unidades-container .card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Staggered animation for cards */
+.mod-caracterizacion-matriz-view .card:nth-child(1) { animation-delay: 0.05s; }
+.mod-caracterizacion-matriz-view .card:nth-child(2) { animation-delay: 0.1s; }
+.mod-caracterizacion-matriz-view .card:nth-child(3) { animation-delay: 0.15s; }
+.mod-caracterizacion-matriz-view .card:nth-child(4) { animation-delay: 0.2s; }
+.mod-caracterizacion-matriz-view .card:nth-child(5) { animation-delay: 0.25s; }
+.mod-caracterizacion-matriz-view .card:nth-child(6) { animation-delay: 0.3s; }
+
+/* Loading spinner */
+.mod-caracterizacion-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.mod-caracterizacion-loading::after {
+    content: "";
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f1f3f5;
+    border-top-color: var(--caract-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

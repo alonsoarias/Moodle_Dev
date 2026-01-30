@@ -164,11 +164,12 @@ if ($data = $form->get_data()) {
         $DB->update_record('caracterizacion_matriz', $matrizrecord);
     }
 
-    // Save roles.
+    // Save roles (including Jefe de Medios - 9 roles total).
     $DB->delete_records('caracterizacion_roles', ['matrizid' => $matrizid]);
     $roledefs = [
         'asesor_metodologico', 'experto_disciplinar', 'revisor_curricular',
-        'par_academico', 'corrector_estilo', 'coord_produccion', 'produccion', 'alistamiento',
+        'par_academico', 'corrector_estilo', 'coord_produccion', 'jefe_medios',
+        'produccion', 'alistamiento',
     ];
     foreach ($roledefs as $rolekey) {
         $fieldname = 'rol_' . $rolekey;

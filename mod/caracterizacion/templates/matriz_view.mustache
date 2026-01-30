@@ -25,10 +25,33 @@
 }}
 <div class="mod-caracterizacion-matriz-view" id="matriz-view-{{matrizid}}">
 
+    {{! ===== Header with status ===== }}
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div>
+            <h2 class="mb-1">{{nombre_curso}}</h2>
+            <p class="text-muted mb-0">{{programa_academico}}</p>
+        </div>
+        <div class="text-right">
+            <span class="badge badge-pill badge-lg
+                {{#is_borrador}}badge-secondary{{/is_borrador}}
+                {{#is_en_proceso}}badge-primary{{/is_en_proceso}}
+                {{#is_completada}}badge-success{{/is_completada}}"
+                style="font-size: 1rem; padding: 0.5rem 1rem;">
+                {{#is_borrador}}<i class="fa fa-pencil mr-1"></i>{{/is_borrador}}
+                {{#is_en_proceso}}<i class="fa fa-spinner fa-spin mr-1"></i>{{/is_en_proceso}}
+                {{#is_completada}}<i class="fa fa-check-circle mr-1"></i>{{/is_completada}}
+                {{estado}}
+            </span>
+            <div class="mt-2">
+                <small class="text-muted">{{#str}}faseactual, mod_caracterizacion{{/str}}: <strong>{{fase_actual}}</strong> / 6</small>
+            </div>
+        </div>
+    </div>
+
     {{! ===== Course Information ===== }}
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">{{#str}}infodelcurso, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-info-circle mr-2"></i>{{#str}}infodelcurso, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             <div class="row">
@@ -44,11 +67,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <strong>{{#str}}creador, mod_caracterizacion{{/str}}:</strong>
-                    <p>{{creador}}</p>
+                    <p><i class="fa fa-user text-muted mr-1"></i>{{creador}}</p>
                 </div>
                 <div class="col-md-6">
                     <strong>{{#str}}fechacreacion, mod_caracterizacion{{/str}}:</strong>
-                    <p>{{fechacreacion}}</p>
+                    <p><i class="fa fa-calendar text-muted mr-1"></i>{{fechacreacion}}</p>
                 </div>
             </div>
         </div>
@@ -57,14 +80,20 @@
     {{! ===== Roles ===== }}
     <div class="card mb-4">
         <div class="card-header bg-secondary text-white">
-            <h4 class="mb-0">{{#str}}asignacionroles, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-users mr-2"></i>{{#str}}asignacionroles, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             <div class="row">
                 {{#roles}}
-                <div class="col-md-4 mb-2">
-                    <strong>{{label}}:</strong><br>
-                    {{nombre}}
+                <div class="col-md-4 col-sm-6 mb-3">
+                    <div class="role-card p-3 h-100" style="background: #f8f9fa; border-radius: 8px; border-left: 4px solid #1a73e8;">
+                        <strong class="d-block mb-1" style="font-size: 0.85rem; color: #5f6368;">{{label}}</strong>
+                        <span style="font-size: 0.95rem;">
+                            {{#userid}}<i class="fa fa-user-circle text-primary mr-1"></i>{{/userid}}
+                            {{#nombre}}{{nombre}}{{/nombre}}
+                            {{^nombre}}<em class="text-muted">{{#str}}sinasignar, mod_caracterizacion{{/str}}</em>{{/nombre}}
+                        </span>
+                    </div>
                 </div>
                 {{/roles}}
             </div>
@@ -74,34 +103,39 @@
     {{! ===== General Resources ===== }}
     <div class="card mb-4">
         <div class="card-header bg-info text-white">
-            <h4 class="mb-0">{{#str}}recursosgenerales, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-cube mr-2"></i>{{#str}}recursosgenerales, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>{{#str}}recurso, mod_caracterizacion{{/str}}</th>
-                        <th>{{#str}}incluir, mod_caracterizacion{{/str}}</th>
-                        <th>{{#str}}observaciones, mod_caracterizacion{{/str}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#recursos_generales}}
-                    <tr>
-                        <td>{{label}}</td>
-                        <td>
-                            {{#incluido}}
-                                <span class="badge badge-success">{{#str}}yes, core{{/str}}</span>
-                            {{/incluido}}
-                            {{^incluido}}
-                                <span class="badge badge-secondary">{{#str}}no, core{{/str}}</span>
-                            {{/incluido}}
-                        </td>
-                        <td>{{observaciones}}</td>
-                    </tr>
-                    {{/recursos_generales}}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">{{#str}}recurso, mod_caracterizacion{{/str}}</th>
+                            <th style="width: 15%;" class="text-center">{{#str}}incluir, mod_caracterizacion{{/str}}</th>
+                            <th style="width: 50%;">{{#str}}observaciones, mod_caracterizacion{{/str}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#recursos_generales}}
+                        <tr>
+                            <td><i class="fa fa-file-o text-info mr-2"></i>{{label}}</td>
+                            <td class="text-center">
+                                {{#incluido}}
+                                    <span class="badge badge-success"><i class="fa fa-check mr-1"></i>{{#str}}yes, core{{/str}}</span>
+                                {{/incluido}}
+                                {{^incluido}}
+                                    <span class="badge badge-secondary"><i class="fa fa-times mr-1"></i>{{#str}}no, core{{/str}}</span>
+                                {{/incluido}}
+                            </td>
+                            <td>
+                                {{#observaciones}}{{observaciones}}{{/observaciones}}
+                                {{^observaciones}}<span class="text-muted">-</span>{{/observaciones}}
+                            </td>
+                        </tr>
+                        {{/recursos_generales}}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -109,13 +143,16 @@
     {{#hasunidades}}
     <div class="card mb-4">
         <div class="card-header bg-success text-white">
-            <h4 class="mb-0">{{#str}}unidades, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-book mr-2"></i>{{#str}}unidades, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
             {{#unidades}}
-            <div class="card mb-3">
+            <div class="card mb-3 shadow-sm">
                 <div class="card-header">
-                    <h5 class="mb-0">{{#str}}unidadnum, mod_caracterizacion, {{numero}}{{/str}}: {{nombre}}</h5>
+                    <h5 class="mb-0">
+                        <i class="fa fa-folder-open text-success mr-2"></i>
+                        {{#str}}unidadnum, mod_caracterizacion, {{numero}}{{/str}}: {{nombre}}
+                    </h5>
                 </div>
                 <div class="card-body">
                     {{#hastemas}}
@@ -157,36 +194,57 @@
     {{! ===== Resource Summary ===== }}
     <div class="card mb-4">
         <div class="card-header bg-warning">
-            <h4 class="mb-0">{{#str}}resumen, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-pie-chart mr-2"></i>{{#str}}resumen, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
-            <table class="table table-sm">
-                <tbody>
-                    {{#resumen}}
-                    <tr{{#istotal}} class="table-active font-weight-bold"{{/istotal}}>
-                        <td>{{label}}</td>
-                        <td class="text-right">{{count}}</td>
-                    </tr>
-                    {{/resumen}}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <tbody>
+                        {{#resumen}}
+                        <tr{{#istotal}} class="table-active font-weight-bold" style="border-top: 2px solid #f9ab00;"{{/istotal}}>
+                            <td>
+                                {{#istotal}}<i class="fa fa-calculator mr-2"></i>{{/istotal}}
+                                {{^istotal}}<i class="fa fa-circle-o text-muted mr-2"></i>{{/istotal}}
+                                {{label}}
+                            </td>
+                            <td class="text-right">
+                                <span class="{{#istotal}}badge badge-warning{{/istotal}}">{{count}}</span>
+                            </td>
+                        </tr>
+                        {{/resumen}}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     {{! ===== Phase Progress ===== }}
     <div class="card mb-4">
         <div class="card-header bg-dark text-white">
-            <h4 class="mb-0">{{#str}}progresofases, mod_caracterizacion{{/str}}</h4>
+            <h4 class="mb-0"><i class="fa fa-tasks mr-2"></i>{{#str}}progresofases, mod_caracterizacion{{/str}}</h4>
         </div>
         <div class="card-body">
+            {{! Phase legend }}
+            <div class="d-flex flex-wrap justify-content-center mb-3" style="gap: 1rem;">
+                <span class="badge badge-light border"><i class="fa fa-circle text-muted mr-1"></i> {{#str}}pendiente, mod_caracterizacion{{/str}}</span>
+                <span class="badge badge-primary"><i class="fa fa-spinner mr-1"></i> {{#str}}en_revision, mod_caracterizacion{{/str}}</span>
+                <span class="badge badge-success"><i class="fa fa-check mr-1"></i> {{#str}}aprobada, mod_caracterizacion{{/str}}</span>
+                <span class="badge badge-danger"><i class="fa fa-times mr-1"></i> {{#str}}rechazada, mod_caracterizacion{{/str}}</span>
+            </div>
+
             {{! Phase progress bar }}
-            <div class="progress mb-4" style="height: 30px;">
+            <div class="progress mb-4" style="height: 40px;">
                 {{#fases}}
                 <div class="progress-bar {{#is_aprobada}}bg-success{{/is_aprobada}}{{#is_en_revision}}bg-primary progress-bar-striped progress-bar-animated{{/is_en_revision}}{{#is_rechazada}}bg-danger{{/is_rechazada}}{{#is_pendiente}}bg-light text-dark{{/is_pendiente}}"
                      role="progressbar"
                      style="width: 16.66%"
-                     title="{{label}}: {{estado}}">
-                    {{fase}}
+                     title="{{label}}: {{estado}}"
+                     data-toggle="tooltip">
+                    <span class="d-flex align-items-center justify-content-center h-100">
+                        {{#is_aprobada}}<i class="fa fa-check mr-1"></i>{{/is_aprobada}}
+                        {{#is_rechazada}}<i class="fa fa-times mr-1"></i>{{/is_rechazada}}
+                        {{fase}}
+                    </span>
                 </div>
                 {{/fases}}
             </div>

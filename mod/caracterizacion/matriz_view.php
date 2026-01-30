@@ -67,6 +67,11 @@ $templatedata = [
     'programa_academico' => format_string($matriz->programa_academico),
     'nombre_curso' => format_string($matriz->nombre_curso),
     'sesskey' => sesskey(),
+    'fase_actual' => $matriz->fase_actual,
+    'estado' => get_string($matriz->estado, 'mod_caracterizacion'),
+    'is_borrador' => ($matriz->estado === 'borrador'),
+    'is_en_proceso' => ($matriz->estado === 'en_proceso'),
+    'is_completada' => ($matriz->estado === 'completada'),
 ];
 
 // Creator info.
@@ -74,7 +79,7 @@ $creator = $DB->get_record('user', ['id' => $matriz->creado_por]);
 $templatedata['creador'] = $creator ? fullname($creator) : '-';
 $templatedata['fechacreacion'] = userdate($matriz->timecreated);
 
-// Roles.
+// Roles (including Jefe de Medios).
 $roles = $DB->get_records('caracterizacion_roles', ['matrizid' => $matrizid]);
 $rolelabels = [
     'asesor_metodologico' => 'asesormetodologico',
@@ -83,6 +88,7 @@ $rolelabels = [
     'par_academico' => 'paracademico',
     'corrector_estilo' => 'correctorestilo',
     'coord_produccion' => 'coordproduccion',
+    'jefe_medios' => 'jefemedios',
     'produccion' => 'produccion',
     'alistamiento' => 'alistamiento',
 ];
@@ -93,6 +99,7 @@ foreach ($roles as $role) {
     $templatedata['roles'][] = [
         'label' => $label,
         'nombre' => format_string($role->nombre_completo),
+        'userid' => $role->userid,
     ];
 }
 
