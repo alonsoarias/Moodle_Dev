@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - Plugin Caracterización RED</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            color: #333;
+        }
+        h1 {
+            color: #1a5276;
+            border-bottom: 3px solid #1a5276;
+            padding-bottom: 10px;
+            font-size: 24pt;
+        }
+        h2 {
+            color: #2874a6;
+            border-bottom: 1px solid #2874a6;
+            padding-bottom: 5px;
+            font-size: 16pt;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2e86ab;
+            font-size: 14pt;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #5dade2;
+            font-size: 12pt;
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #2874a6;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9f9;
+        }
+        .info-box {
+            background-color: #e8f6f3;
+            border-left: 4px solid #1abc9c;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .warning-box {
+            background-color: #fef9e7;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .header-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header-info h1 {
+            margin-bottom: 5px;
+        }
+        .header-info p {
+            color: #7f8c8d;
+            margin: 5px 0;
+        }
+        .toc {
+            background-color: #f4f6f7;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc > ul {
+            padding-left: 0;
+        }
+        .toc a {
+            color: #2874a6;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .workflow-diagram {
+            background-color: #f8f9f9;
+            border: 1px solid #bdc3c7;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 10pt;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 9pt;
+            color: white;
+        }
+        .badge-gray { background-color: #95a5a6; }
+        .badge-blue { background-color: #3498db; }
+        .badge-green { background-color: #27ae60; }
+        .badge-red { background-color: #e74c3c; }
+        code {
+            background-color: #f4f6f7;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-info">
+    <h1>Manual de Usuario</h1>
+    <h2 style="border: none; color: #1a5276;">Plugin Caracterización RED</h2>
+    <p><strong>Módulo de Caracterización de Recursos Educativos Digitales</strong></p>
+    <p>Universidad de Santander - UDES</p>
+    <hr>
+    <p><strong>Versión:</strong> 1.1.2 | <strong>Fecha:</strong> Enero 2024</p>
+    <p><strong>Autor:</strong> Alonso Arias - OrionCloud</p>
+</div>
+
+<div class="toc">
+    <h3 style="margin-top: 0;">Tabla de Contenidos</h3>
+    <ul>
+        <li><a href="#introduccion">1. Introducción</a></li>
+        <li><a href="#requisitos">2. Requisitos del Sistema</a></li>
+        <li><a href="#instalacion">3. Instalación</a></li>
+        <li><a href="#roles">4. Roles y Permisos</a></li>
+        <li><a href="#flujo">5. Flujo de Trabajo - Las 6 Fases</a></li>
+        <li><a href="#guia">6. Guía de Uso</a>
+            <ul>
+                <li><a href="#crear-actividad">Crear una Actividad</a></li>
+                <li><a href="#crear-matriz">Crear una Matriz de Caracterización</a></li>
+                <li><a href="#gestionar-fases">Gestionar Fases</a></li>
+            </ul>
+        </li>
+        <li><a href="#recursos">7. Tipos de Recursos</a></li>
+        <li><a href="#notificaciones">8. Notificaciones</a></li>
+        <li><a href="#faq">9. Preguntas Frecuentes</a></li>
+    </ul>
+</div>
+
+<h2 id="introduccion">1. Introducción</h2>
+
+<p>El <strong>Módulo de Caracterización RED</strong> es un plugin para Moodle desarrollado específicamente para la <strong>Universidad de Santander (UDES)</strong>. Este módulo permite gestionar el proceso completo de producción de Recursos Educativos Digitales (RED), siguiendo un flujo de trabajo estructurado en <strong>6 fases</strong> que involucra a diferentes roles del equipo de producción académica.</p>
+
+<h3>Objetivos del Plugin</h3>
+<ul>
+    <li>Centralizar la gestión de caracterización de cursos virtuales</li>
+    <li>Automatizar el flujo de trabajo de producción de RED</li>
+    <li>Facilitar la colaboración entre los diferentes roles del proceso</li>
+    <li>Generar un seguimiento detallado del progreso de cada matriz</li>
+    <li>Mantener un inventario de recursos educativos por curso</li>
+</ul>
+
+<h2 id="requisitos">2. Requisitos del Sistema</h2>
+
+<table>
+    <tr>
+        <th>Requisito</th>
+        <th>Versión Mínima</th>
+    </tr>
+    <tr>
+        <td>Moodle</td>
+        <td>4.0 o superior</td>
+    </tr>
+    <tr>
+        <td>PHP</td>
+        <td>7.4 o superior</td>
+    </tr>
+    <tr>
+        <td>Base de datos</td>
+        <td>MySQL 5.7+ / PostgreSQL 10+ / MariaDB 10.2+</td>
+    </tr>
+</table>
+
+<h2 id="instalacion">3. Instalación</h2>
+
+<h3>Pasos de Instalación</h3>
+<ol>
+    <li>Descargue el plugin y extraiga el contenido en la carpeta <code>/mod/caracterizacion/</code> de su instalación de Moodle.</li>
+    <li>Inicie sesión como administrador en Moodle.</li>
+    <li>Vaya a <strong>Administración del sitio → Notificaciones</strong>.</li>
+    <li>Moodle detectará el nuevo plugin y mostrará la pantalla de instalación.</li>
+    <li>Haga clic en <strong>"Actualizar base de datos de Moodle ahora"</strong>.</li>
+    <li>El plugin creará automáticamente las tablas necesarias y los 8 roles UDES.</li>
+</ol>
+
+<h3>Roles Creados Automáticamente</h3>
+
+<table>
+    <tr>
+        <th>Rol</th>
+        <th>Nombre en Moodle</th>
+    </tr>
+    <tr><td>Experto Disciplinar</td><td><code>udes_experto_disciplinar</code></td></tr>
+    <tr><td>Asesor Metodológico</td><td><code>udes_asesor_metodologico</code></td></tr>
+    <tr><td>Revisor Curricular</td><td><code>udes_revisor_curricular</code></td></tr>
+    <tr><td>Par Académico</td><td><code>udes_par_academico</code></td></tr>
+    <tr><td>Corrector de Estilo</td><td><code>udes_corrector_estilo</code></td></tr>
+    <tr><td>Coordinación de Producción</td><td><code>udes_coord_produccion</code></td></tr>
+    <tr><td>Producción</td><td><code>udes_produccion</code></td></tr>
+    <tr><td>Alistamiento</td><td><code>udes_alistamiento</code></td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2 id="roles">4. Roles y Permisos</h2>
+
+<h3>Descripción Detallada de Roles</h3>
+
+<h4>Experto Disciplinar</h4>
+<ul>
+    <li><strong>Responsabilidad:</strong> Diligencia los formularios de caracterización y define los recursos educativos necesarios.</li>
+    <li><strong>Fase de participación:</strong> Fase 1</li>
+    <li><strong>Permisos:</strong> Crear y editar matrices, actuar en fase 1</li>
+</ul>
+
+<h4>Asesor Metodológico (Diseñador Instruccional)</h4>
+<ul>
+    <li><strong>Responsabilidad:</strong> Acompaña al experto disciplinar, coordina ajustes y aprueba las fases.</li>
+    <li><strong>Fase de participación:</strong> Fases 1, 2, 3 y 6</li>
+    <li><strong>Permisos:</strong> Crear y editar matrices, aprobar/rechazar fases, ver todas las matrices</li>
+</ul>
+
+<h4>Revisor Curricular</h4>
+<ul>
+    <li><strong>Responsabilidad:</strong> Revisa la caracterización y realiza recomendaciones curriculares.</li>
+    <li><strong>Fase de participación:</strong> Fase 2</li>
+    <li><strong>Permisos:</strong> Ver y actuar en fase 2</li>
+</ul>
+
+<h4>Par Académico (Par Disciplinar)</h4>
+<ul>
+    <li><strong>Responsabilidad:</strong> Revisa el contenido desde la perspectiva disciplinar.</li>
+    <li><strong>Fase de participación:</strong> Fase 3</li>
+    <li><strong>Permisos:</strong> Ver y actuar en fase 3</li>
+</ul>
+
+<h4>Corrector de Estilo</h4>
+<ul>
+    <li><strong>Responsabilidad:</strong> Ajusta textos de caracterización y recursos educativos.</li>
+    <li><strong>Fase de participación:</strong> Fase 3</li>
+    <li><strong>Permisos:</strong> Ver y actuar en fase 3</li>
+</ul>
+
+<h4>Coordinación de Producción</h4>
+<ul>
+    <li><strong>Responsabilidad:</strong> Asigna recursos al equipo de producción y aprueba la fase 4.</li>
+    <li><strong>Fase de participación:</strong> Fase 4</li>
+    <li><strong>Permisos:</strong> Ver todas las matrices, actuar y aprobar fase 4</li>
+</ul>
+
+<h4>Producción (Diseñador)</h4>
+<ul>
+    <li><strong>Responsabilidad:</strong> Desarrolla los recursos educativos digitales.</li>
+    <li><strong>Fase de participación:</strong> Fase 4</li>
+    <li><strong>Permisos:</strong> Ver y actuar en fase 4</li>
+</ul>
+
+<h4>Alistamiento</h4>
+<ul>
+    <li><strong>Responsabilidad:</strong> Alista los recursos en la plataforma UDES Virtual.</li>
+    <li><strong>Fase de participación:</strong> Fase 5</li>
+    <li><strong>Permisos:</strong> Ver, actuar y aprobar fase 5</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2 id="flujo">5. Flujo de Trabajo - Las 6 Fases</h2>
+
+<p>El proceso de producción de RED sigue un flujo secuencial de 6 fases:</p>
+
+<div class="workflow-diagram">
+┌─────────────────────────────────────────────────────────────────────┐
+│                     FLUJO DE TRABAJO UDES                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  FASE 1                    FASE 2                    FASE 3         │
+│  ┌──────────────┐         ┌──────────────┐         ┌──────────────┐ │
+│  │ Diligencia   │  ────►  │  Revisión    │  ────►  │ Par/Corrector│ │
+│  │Caracterización│        │  Curricular  │         │  de Estilo   │ │
+│  └──────────────┘         └──────────────┘         └──────────────┘ │
+│  • Experto                • Revisor                • Par Académico  │
+│  • Asesor                 • Asesor                 • Corrector      │
+│                                                    • Asesor         │
+│                                                                     │
+│  FASE 4                    FASE 5                    FASE 6         │
+│  ┌──────────────┐         ┌──────────────┐         ┌──────────────┐ │
+│  │  Producción  │  ────►  │ Alistamiento │  ────►  │  Aprobación  │ │
+│  │              │         │  en Moodle   │         │    Final     │ │
+│  └──────────────┘         └──────────────┘         └──────────────┘ │
+│  • Coord.Prod.            • Alistamiento           • Asesor         │
+│  • Producción                                                       │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+</div>
+
+<h3>Detalle de Cada Fase</h3>
+
+<h4>Fase 1: Diligencia la Caracterización</h4>
+<div class="info-box">
+    <strong>Actores:</strong> Experto Disciplinar, Asesor Metodológico<br>
+    <strong>Aprobador:</strong> Asesor Metodológico
+</div>
+<p><strong>Actividades:</strong></p>
+<ul>
+    <li>El Experto Disciplinar completa el formulario de caracterización</li>
+    <li>Define información del curso (programa académico, nombre)</li>
+    <li>Asigna los roles del proceso</li>
+    <li>Selecciona recursos generales del curso</li>
+    <li>Define unidades, temas y recursos específicos</li>
+    <li>El Asesor Metodológico acompaña y revisa</li>
+    <li>El Asesor aprueba para pasar a fase 2</li>
+</ul>
+
+<h4>Fase 2: Revisión Curricular</h4>
+<div class="info-box">
+    <strong>Actores:</strong> Revisor Curricular, Asesor Metodológico<br>
+    <strong>Aprobador:</strong> Asesor Metodológico
+</div>
+<p><strong>Actividades:</strong></p>
+<ul>
+    <li>El Revisor Curricular analiza la caracterización</li>
+    <li>Verifica coherencia con el currículo del programa</li>
+    <li>Realiza observaciones y recomendaciones</li>
+    <li>El Asesor coordina los ajustes necesarios</li>
+    <li>El Asesor aprueba para pasar a fase 3</li>
+</ul>
+
+<h4>Fase 3: Par / Corrector de Estilo</h4>
+<div class="info-box">
+    <strong>Actores:</strong> Par Académico, Corrector de Estilo, Asesor Metodológico<br>
+    <strong>Aprobador:</strong> Asesor Metodológico
+</div>
+<p><strong>Actividades:</strong></p>
+<ul>
+    <li>El Par Académico revisa desde la perspectiva disciplinar</li>
+    <li>El Corrector de Estilo ajusta redacción y estilo</li>
+    <li>El Asesor coordina y consolida los ajustes</li>
+    <li>El Asesor aprueba para pasar a fase 4</li>
+</ul>
+
+<h4>Fase 4: Producción</h4>
+<div class="info-box">
+    <strong>Actores:</strong> Coordinación de Producción, Producción (Diseñador)<br>
+    <strong>Aprobador:</strong> Coordinación de Producción
+</div>
+<p><strong>Actividades:</strong></p>
+<ul>
+    <li>Coordinación asigna recursos al equipo de diseño</li>
+    <li>El equipo de Producción desarrolla los RED</li>
+    <li>Se crean videos, infografías, interactivos, etc.</li>
+    <li>Coordinación revisa y aprueba la producción</li>
+</ul>
+
+<h4>Fase 5: Alistamiento en Moodle</h4>
+<div class="info-box">
+    <strong>Actores:</strong> Alistamiento<br>
+    <strong>Aprobador:</strong> Alistamiento
+</div>
+<p><strong>Actividades:</strong></p>
+<ul>
+    <li>El profesional de Alistamiento sube los recursos a UDES Virtual</li>
+    <li>Configura las actividades en el curso Moodle</li>
+    <li>Verifica funcionamiento de todos los elementos</li>
+    <li>Marca la fase como completada</li>
+</ul>
+
+<h4>Fase 6: Aprobación Final del Curso</h4>
+<div class="info-box">
+    <strong>Actores:</strong> Asesor Metodológico<br>
+    <strong>Aprobador:</strong> Asesor Metodológico
+</div>
+<p><strong>Actividades:</strong></p>
+<ul>
+    <li>El Asesor Metodológico realiza revisión final</li>
+    <li>Verifica que todos los elementos estén correctamente alistados</li>
+    <li>Aprueba el curso para su publicación</li>
+    <li>La matriz queda en estado "Completada"</li>
+</ul>
+
+<div class="page-break"></div>
+
+<h2 id="guia">6. Guía de Uso</h2>
+
+<h3 id="crear-actividad">Crear una Actividad de Caracterización</h3>
+<ol>
+    <li>Ingrese al curso donde desea agregar la actividad.</li>
+    <li>Active el <strong>modo de edición</strong> del curso.</li>
+    <li>En la sección deseada, haga clic en <strong>"Añadir una actividad o recurso"</strong>.</li>
+    <li>Seleccione <strong>"Caracterización RED"</strong> de la lista.</li>
+    <li>Complete el formulario:
+        <ul>
+            <li><strong>Nombre:</strong> Nombre descriptivo de la actividad</li>
+            <li><strong>Descripción:</strong> Descripción opcional</li>
+        </ul>
+    </li>
+    <li>Haga clic en <strong>"Guardar cambios y mostrar"</strong>.</li>
+</ol>
+
+<h3 id="crear-matriz">Crear una Nueva Matriz de Caracterización</h3>
+<ol>
+    <li>Acceda a la actividad de Caracterización RED.</li>
+    <li>Haga clic en el botón <strong>"Nueva Matriz de Caracterización"</strong>.</li>
+    <li>Complete las secciones del formulario:</li>
+</ol>
+
+<h4>Sección 1: Información del Curso</h4>
+<ul>
+    <li><strong>Programa Académico:</strong> Nombre del programa (ej: "Ingeniería de Sistemas")</li>
+    <li><strong>Nombre del Curso:</strong> Nombre completo del curso</li>
+</ul>
+
+<h4>Sección 2: Asignación de Roles</h4>
+<p>Seleccione los usuarios que participarán en cada rol:</p>
+<ul>
+    <li>Asesor Metodológico</li>
+    <li>Experto Disciplinar</li>
+    <li>Revisor Curricular</li>
+    <li>Par Académico</li>
+    <li>Corrector de Estilo</li>
+    <li>Coordinación de Producción</li>
+    <li>Producción</li>
+    <li>Alistamiento</li>
+</ul>
+
+<h4>Sección 3: Recursos Generales del Curso</h4>
+<p>Marque los recursos generales que incluirá el curso:</p>
+<ul>
+    <li>Curso Virtual Portable (CVP)</li>
+    <li>Sala para Clases Virtuales</li>
+    <li>Video de Bienvenida</li>
+    <li>Foro del Curso</li>
+    <li>Mapa del Curso</li>
+</ul>
+<p>Para cada recurso puede agregar observaciones.</p>
+
+<h4>Sección 4: Unidades y Temas</h4>
+<p>Defina la estructura del curso:</p>
+<ol>
+    <li>Agregue unidades con su nombre</li>
+    <li>Dentro de cada unidad, agregue los temas</li>
+    <li>Para cada tema, agregue los recursos educativos necesarios</li>
+</ol>
+<p>Haga clic en <strong>"Guardar"</strong> para crear la matriz.</p>
+
+<h3 id="gestionar-fases">Gestionar Fases</h3>
+
+<h4>Ver el Estado de una Matriz</h4>
+<ol>
+    <li>Desde la lista de matrices, haga clic en <strong>"Ver"</strong> en la matriz deseada.</li>
+    <li>La vista muestra: información del curso, roles asignados, recursos, unidades, y el <strong>progreso de fases</strong>.</li>
+</ol>
+
+<h4>Acciones sobre las Fases</h4>
+<table>
+    <tr>
+        <th>Acción</th>
+        <th>Descripción</th>
+        <th>Quién puede</th>
+    </tr>
+    <tr>
+        <td><strong>Comentar</strong></td>
+        <td>Agregar observaciones a la fase</td>
+        <td>Actores de la fase</td>
+    </tr>
+    <tr>
+        <td><strong>Enviar a Revisión</strong></td>
+        <td>Marcar la fase como lista para aprobación</td>
+        <td>Actores de la fase</td>
+    </tr>
+    <tr>
+        <td><strong>Aprobar</strong></td>
+        <td>Aprobar la fase y avanzar a la siguiente</td>
+        <td>Aprobador de la fase</td>
+    </tr>
+    <tr>
+        <td><strong>Rechazar</strong></td>
+        <td>Rechazar y devolver para correcciones</td>
+        <td>Aprobador de la fase</td>
+    </tr>
+</table>
+
+<h4>Estados de las Fases</h4>
+<table>
+    <tr>
+        <th>Estado</th>
+        <th>Descripción</th>
+        <th>Indicador</th>
+    </tr>
+    <tr>
+        <td>Pendiente</td>
+        <td>La fase no ha iniciado</td>
+        <td><span class="badge badge-gray">Pendiente</span></td>
+    </tr>
+    <tr>
+        <td>En Revisión</td>
+        <td>La fase está siendo trabajada</td>
+        <td><span class="badge badge-blue">En Revisión</span></td>
+    </tr>
+    <tr>
+        <td>Aprobada</td>
+        <td>La fase fue aprobada</td>
+        <td><span class="badge badge-green">Aprobada</span></td>
+    </tr>
+    <tr>
+        <td>Rechazada</td>
+        <td>La fase fue rechazada</td>
+        <td><span class="badge badge-red">Rechazada</span></td>
+    </tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2 id="recursos">7. Tipos de Recursos</h2>
+
+<h3>Recursos Generales del Curso</h3>
+<table>
+    <tr>
+        <th>Recurso</th>
+        <th>Descripción</th>
+    </tr>
+    <tr><td>CVP</td><td>Curso Virtual Portable</td></tr>
+    <tr><td>Sala Virtual</td><td>Espacio para clases sincrónicas</td></tr>
+    <tr><td>Video de Bienvenida</td><td>Presentación del curso</td></tr>
+    <tr><td>Foro del Curso</td><td>Espacio de comunicación</td></tr>
+    <tr><td>Mapa del Curso</td><td>Navegación visual del curso</td></tr>
+</table>
+
+<h3>Recursos Educativos Digitales</h3>
+<table>
+    <tr>
+        <th>Categoría</th>
+        <th>Recursos</th>
+    </tr>
+    <tr>
+        <td><strong>Educativos Digitales</strong></td>
+        <td>E-book, Video Clase, Podcast, Comic Virtual, Paso a Paso, Línea de Tiempo, Infografía, Mapa Conceptual, Mapa Mental, Video Interactivo, Video con Diapositivas, Video Explicativo</td>
+    </tr>
+    <tr>
+        <td><strong>Interactivos Digitales</strong></td>
+        <td>Hotspots, Emparejamiento, Arrastra las Palabras, Crucigrama, Ordena los Párrafos, Sopa de Letras, Glosario Interactivo</td>
+    </tr>
+    <tr>
+        <td><strong>Evaluativos</strong></td>
+        <td>Opción Única, Opción Múltiple, Verdadero o Falso, Marca las Palabras, Espacios en Blanco, Dictado, Tarjeta Didáctica, Tarjetas de Diálogo</td>
+    </tr>
+    <tr>
+        <td><strong>Colaborativos</strong></td>
+        <td>Wiki, Tarea, Lección, Foro Temático, Foro Social</td>
+    </tr>
+    <tr>
+        <td><strong>Externos</strong></td>
+        <td>Video Conferencias, Paquetes SCORM, Plataformas Externas</td>
+    </tr>
+</table>
+
+<h2 id="notificaciones">8. Notificaciones</h2>
+
+<p>El sistema envía notificaciones automáticas cuando:</p>
+
+<table>
+    <tr>
+        <th>Evento</th>
+        <th>Usuarios Notificados</th>
+    </tr>
+    <tr><td>Fase 1 aprobada</td><td>Revisor Curricular</td></tr>
+    <tr><td>Fase 2 aprobada</td><td>Par Académico, Corrector de Estilo</td></tr>
+    <tr><td>Fase 3 aprobada</td><td>Coordinación de Producción</td></tr>
+    <tr><td>Fase 4 aprobada</td><td>Alistamiento</td></tr>
+    <tr><td>Fase 5 aprobada</td><td>Asesor Metodológico</td></tr>
+    <tr><td>Fase rechazada</td><td>Actores de la fase</td></tr>
+</table>
+
+<p>Las notificaciones se envían tanto por el sistema de mensajería de Moodle como por correo electrónico (según la configuración del usuario).</p>
+
+<h2 id="faq">9. Preguntas Frecuentes</h2>
+
+<h4>¿Por qué no puedo ver el botón "Nueva Matriz"?</h4>
+<p>Necesita tener el permiso <code>mod/caracterizacion:crearmatriz</code>. Este permiso está asignado a los roles de Experto Disciplinar y Asesor Metodológico.</p>
+
+<h4>¿Por qué no puedo aprobar una fase?</h4>
+<p>Solo el rol designado como "aprobador" de esa fase puede aprobarla. Verifique que tenga el rol correcto asignado y que sea su turno en el flujo.</p>
+
+<h4>¿Cómo puedo ver todas las matrices del sistema?</h4>
+<p>Necesita el permiso <code>mod/caracterizacion:vertodasmatrices</code>. Este permiso está asignado a los roles de Asesor Metodológico y Coordinación de Producción.</p>
+
+<h4>¿Qué pasa si se rechaza una fase?</h4>
+<p>Cuando una fase es rechazada, los actores de esa fase reciben una notificación y deben realizar los ajustes solicitados antes de volver a enviar a revisión.</p>
+
+<h4>¿Se pueden eliminar matrices?</h4>
+<p>Sí, pero solo usuarios con el permiso <code>mod/caracterizacion:eliminarmatriz</code> pueden hacerlo. Esta acción es irreversible.</p>
+
+<hr>
+
+<h2>Soporte</h2>
+<p>Para soporte técnico, contacte a:</p>
+<ul>
+    <li><strong>Email:</strong> soporte@orioncloud.com.co</li>
+    <li><strong>Desarrollador:</strong> Alonso Arias</li>
+</ul>
+
+<hr>
+<p style="text-align: center; color: #7f8c8d;">
+    <strong>© 2024 Universidad de Santander - UDES. Todos los derechos reservados.</strong>
+</p>
+
+</body>
+</html>
