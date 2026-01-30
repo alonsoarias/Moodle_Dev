@@ -18,7 +18,9 @@
  * Settings for the Grade Items Report plugin.
  *
  * @package    report_gradeitems
- * @copyright  2025 Your Institution
+ * @copyright  2026 Alonso Arias <soporte@orioncloud.com.co>
+ * @author     Alonso Arias <soporte@orioncloud.com.co>
+ * @link       https://orioncloud.com.co
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
