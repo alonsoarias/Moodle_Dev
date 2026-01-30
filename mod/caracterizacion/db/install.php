@@ -151,9 +151,13 @@ function xmldb_caracterizacion_install() {
             set_role_contextlevels($roleid, [CONTEXT_COURSE, CONTEXT_MODULE]);
         }
 
-        // Assign capabilities to the role.
+        // Assign capabilities to the role (only if capability exists).
+        // Note: During fresh install, capabilities may not be registered yet.
+        // They will be assigned later when upgrade runs or admin purges caches.
         foreach ($roledata['capabilities'] as $capability => $permission) {
-            assign_capability($capability, $permission, $roleid, $systemcontext->id, true);
+            if ($DB->record_exists('capabilities', ['name' => $capability])) {
+                assign_capability($capability, $permission, $roleid, $systemcontext->id, true);
+            }
         }
     }
 

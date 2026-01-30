@@ -51,6 +51,14 @@ function xmldb_caracterizacion_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024012902, 'caracterizacion');
     }
 
+    // Upgrade to version 2024012903: Fix capability assignment (check if exists first).
+    if ($oldversion < 2024012903) {
+        // Re-create or update the 8 UDES workflow roles with safe capability assignment.
+        caracterizacion_create_udes_roles();
+
+        upgrade_mod_savepoint(true, 2024012903, 'caracterizacion');
+    }
+
     return true;
 }
 
@@ -178,9 +186,12 @@ function caracterizacion_create_udes_roles() {
             set_role_contextlevels($roleid, [CONTEXT_COURSE, CONTEXT_MODULE]);
         }
 
-        // Assign capabilities to the role.
+        // Assign capabilities to the role (only if capability exists).
         foreach ($roledata['capabilities'] as $capability => $permission) {
-            assign_capability($capability, $permission, $roleid, $systemcontext->id, true);
+            // Check if capability exists in the database before assigning.
+            if ($DB->record_exists('capabilities', ['name' => $capability])) {
+                assign_capability($capability, $permission, $roleid, $systemcontext->id, true);
+            }
         }
     }
 
