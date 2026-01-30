@@ -29,39 +29,43 @@ $string['gradeitems:view'] = 'View grade items report';
 
 // Page titles and headers.
 $string['pagetitle'] = 'Grade Items Report';
-$string['pageheading'] = 'Grade Items Report - Exportable to Excel';
-$string['reportdescription'] = 'This report shows all gradeable activities from courses with their configuration and statistics. Use the filters to narrow down results and export to Excel.';
+$string['pageheading'] = 'Grade Items Report - Courses Summary';
+$string['reportdescription'] = 'This report shows courses with the count of total and gradeable activities. Click on a course name to see the detail of its gradeable activities.';
+$string['coursedetail'] = 'Course Detail';
+$string['courseinfo'] = 'Course Information';
+$string['gradeableactivities'] = 'Gradeable Activities';
 
 // Filter labels.
 $string['filters'] = 'Filters';
 $string['filter_category'] = 'Category';
 $string['filter_course'] = 'Course';
-$string['filter_moduletype'] = 'Module type';
-$string['filter_gradetype'] = 'Grade type';
-$string['filter_visibility'] = 'Visibility';
+$string['filter_visibility'] = 'Course visibility';
 $string['allcategories'] = 'All categories';
 $string['allcourses'] = 'All courses';
-$string['allmoduletypes'] = 'All module types';
-$string['allgradetypes'] = 'All grade types';
 $string['allvisibility'] = 'All';
 $string['visible'] = 'Visible';
 $string['hidden'] = 'Hidden';
 $string['applyfilters'] = 'Apply filters';
 $string['clearfilters'] = 'Clear filters';
 
-// Table headers.
+// Table headers - Course list.
 $string['col_category'] = 'Category';
 $string['col_categorypath'] = 'Category path';
 $string['col_courseshortname'] = 'Short name';
 $string['col_coursefullname'] = 'Course name';
-$string['col_coursevisible'] = 'Course visible';
+$string['col_coursevisible'] = 'Visible';
 $string['col_coursestartdate'] = 'Start date';
 $string['col_courseenddate'] = 'End date';
 $string['col_enrolledstudents'] = 'Enrolled students';
 $string['col_teachers'] = 'Teachers';
+$string['col_totalactivities'] = 'Total activities';
+$string['col_gradeableactivities'] = 'Gradeable activities';
+$string['col_actions'] = 'Actions';
+
+// Table headers - Activity details.
 $string['col_activityname'] = 'Activity name';
 $string['col_moduletype'] = 'Module type';
-$string['col_activityvisible'] = 'Activity visible';
+$string['col_activityvisible'] = 'Visible';
 $string['col_section'] = 'Section';
 $string['col_gradetype'] = 'Grade type';
 $string['col_grademax'] = 'Max grade';
@@ -86,10 +90,14 @@ $string['downloadexcel'] = 'Download Excel (.xlsx)';
 $string['downloadcsv'] = 'Download CSV';
 $string['exportoptions'] = 'Export options';
 
-// Results.
-$string['totalrecords'] = 'Total records: {$a}';
-$string['norecordsfound'] = 'No records found with the current filters.';
-$string['showing'] = 'Showing {$a->from} to {$a->to} of {$a->total} records';
+// Results and navigation.
+$string['totalrecords'] = 'Total courses: {$a}';
+$string['totalactivities_count'] = 'Total gradeable activities: {$a}';
+$string['norecordsfound'] = 'No courses found with the current filters.';
+$string['noactivitiesfound'] = 'No gradeable activities found in this course.';
+$string['showing'] = 'Showing {$a->from} to {$a->to} of {$a->total} courses';
+$string['viewactivities'] = 'View activities';
+$string['backtocourselist'] = 'Back to course list';
 
 // Errors.
 $string['nopermission'] = 'You do not have permission to view this report.';

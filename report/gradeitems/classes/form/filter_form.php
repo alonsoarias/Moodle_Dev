@@ -49,25 +49,10 @@ class filter_form extends \moodleform {
         $mform->addElement('select', 'category', get_string('filter_category', 'report_gradeitems'), $categories);
         $mform->setType('category', PARAM_INT);
 
-        // Course filter (will be populated via JavaScript based on category, or show all).
+        // Course filter.
         $courses = $this->get_courses();
         $mform->addElement('select', 'course', get_string('filter_course', 'report_gradeitems'), $courses);
         $mform->setType('course', PARAM_INT);
-
-        // Module type filter.
-        $moduletypes = $this->get_module_types();
-        $mform->addElement('select', 'moduletype', get_string('filter_moduletype', 'report_gradeitems'), $moduletypes);
-        $mform->setType('moduletype', PARAM_ALPHANUMEXT);
-
-        // Grade type filter.
-        $gradetypes = [
-            '' => get_string('allgradetypes', 'report_gradeitems'),
-            '1' => get_string('gradetype_value', 'report_gradeitems'),
-            '2' => get_string('gradetype_scale', 'report_gradeitems'),
-            '3' => get_string('gradetype_text', 'report_gradeitems'),
-        ];
-        $mform->addElement('select', 'gradetype', get_string('filter_gradetype', 'report_gradeitems'), $gradetypes);
-        $mform->setType('gradetype', PARAM_INT);
 
         // Visibility filter.
         $visibility = [
@@ -152,32 +137,5 @@ class filter_form extends \moodleform {
         }
 
         return $courses;
-    }
-
-    /**
-     * Get all module types that have grade items.
-     *
-     * @return array
-     */
-    protected function get_module_types(): array {
-        global $DB;
-
-        $moduletypes = ['' => get_string('allmoduletypes', 'report_gradeitems')];
-
-        $sql = "SELECT DISTINCT gi.itemmodule
-                  FROM {grade_items} gi
-                 WHERE gi.itemtype = 'mod'
-                   AND gi.itemmodule IS NOT NULL
-              ORDER BY gi.itemmodule";
-
-        $modules = $DB->get_records_sql($sql);
-
-        foreach ($modules as $module) {
-            $modname = get_string('pluginname', 'mod_' . $module->itemmodule);
-            $moduletypes[$module->itemmodule] = $modname;
-        }
-
-        asort($moduletypes);
-        return $moduletypes;
     }
 }

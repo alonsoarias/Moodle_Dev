@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Grade Items Report - Main page.
+ * Grade Items Report - Main page (Course summary view).
  *
- * This report displays all gradeable activities from courses with their
- * configuration and statistics. Users can filter and export to Excel.
+ * This report displays a summary of courses with their total and gradeable
+ * activities count. Click on a course to see the detailed activities.
  *
  * @package    report_gradeitems
  * @copyright  2025 Your Institution
@@ -37,8 +37,6 @@ $perpage = optional_param('perpage', 50, PARAM_INT);
 // Filter parameters.
 $categoryid = optional_param('category', '', PARAM_INT);
 $courseid = optional_param('course', '', PARAM_INT);
-$moduletype = optional_param('moduletype', '', PARAM_ALPHANUMEXT);
-$gradetype = optional_param('gradetype', '', PARAM_INT);
 $visibility = optional_param('visibility', '', PARAM_RAW);
 $resetfilters = optional_param('resetbutton', '', PARAM_RAW);
 
@@ -56,16 +54,13 @@ require_capability('report/gradeitems:view', $context);
 $baseurl = new moodle_url('/report/gradeitems/index.php', [
     'category' => $categoryid,
     'course' => $courseid,
-    'moduletype' => $moduletype,
-    'gradetype' => $gradetype,
     'visibility' => $visibility,
     'perpage' => $perpage,
 ]);
 
 // Build the SQL query with filters.
 $params = [];
-$where = ['gi.itemtype = :itemtype', 'gi.gradetype > 0', 'c.id > 1'];
-$params['itemtype'] = 'mod';
+$where = ['c.id > 1'];
 
 if (!empty($categoryid)) {
     // Include subcategories.
@@ -80,18 +75,8 @@ if (!empty($courseid)) {
     $params['courseid'] = $courseid;
 }
 
-if (!empty($moduletype)) {
-    $where[] = 'gi.itemmodule = :moduletype';
-    $params['moduletype'] = $moduletype;
-}
-
-if (!empty($gradetype)) {
-    $where[] = 'gi.gradetype = :gradetype';
-    $params['gradetype'] = $gradetype;
-}
-
 if ($visibility !== '') {
-    $where[] = 'cm.visible = :visibility';
+    $where[] = 'c.visible = :visibility';
     $params['visibility'] = (int)$visibility;
 }
 
@@ -100,30 +85,16 @@ $wheresql = implode(' AND ', $where);
 // Add current time parameter for enrollment check.
 $params['timenow'] = time();
 
-// Main SQL query with all improvements.
+// Main SQL query - Course summary with activity counts.
 $sql = "SELECT
-            gi.id AS gradeitemid,
-            cc.id AS categoryid,
-            cc.name AS categoryname,
             c.id AS courseid,
             c.shortname AS courseshortname,
             c.fullname AS coursefullname,
             c.visible AS coursevisible,
             c.startdate AS coursestartdate,
             c.enddate AS courseenddate,
-            gi.itemname AS activityname,
-            gi.itemmodule AS moduletype,
-            gi.iteminstance,
-            cm.id AS cmid,
-            cm.visible AS activityvisible,
-            cm.section AS sectionid,
-            cs.name AS sectionname,
-            cs.section AS sectionnumber,
-            gi.gradetype,
-            gi.grademax,
-            gi.gradepass,
-            gi.aggregationcoef AS gradeweight,
-            gi.aggregationcoef2 AS gradeweight2,
+            cc.id AS categoryid,
+            cc.name AS categoryname,
             (SELECT COUNT(DISTINCT ue.userid)
              FROM {user_enrolments} ue
              JOIN {enrol} e ON e.id = ue.enrolid
@@ -132,49 +103,41 @@ $sql = "SELECT
                AND ue.status = 0
                AND (ue.timeend = 0 OR ue.timeend > :timenow)
             ) AS enrolledstudents,
-            (SELECT COUNT(gg.id)
-             FROM {grade_grades} gg
-             WHERE gg.itemid = gi.id
-               AND gg.finalgrade IS NOT NULL
-            ) AS gradecount,
-            (SELECT AVG(gg.finalgrade)
-             FROM {grade_grades} gg
-             WHERE gg.itemid = gi.id
-               AND gg.finalgrade IS NOT NULL
-            ) AS gradeaverage
-        FROM {grade_items} gi
-        JOIN {course} c ON c.id = gi.courseid
+            (SELECT COUNT(cm.id)
+             FROM {course_modules} cm
+             WHERE cm.course = c.id
+               AND cm.deletioninprogress = 0
+            ) AS totalactivities,
+            (SELECT COUNT(gi.id)
+             FROM {grade_items} gi
+             WHERE gi.courseid = c.id
+               AND gi.itemtype = 'mod'
+               AND gi.gradetype > 0
+            ) AS gradeableactivities
+        FROM {course} c
         JOIN {course_categories} cc ON cc.id = c.category
-        JOIN {modules} m ON m.name = gi.itemmodule
-        JOIN {course_modules} cm ON cm.course = c.id
-                                AND cm.module = m.id
-                                AND cm.instance = gi.iteminstance
-        LEFT JOIN {course_sections} cs ON cs.id = cm.section
        WHERE $wheresql
-    ORDER BY cc.name, c.fullname, gi.sortorder";
+    ORDER BY cc.name, c.fullname";
 
 // Count total records.
-$countsql = "SELECT COUNT(gi.id)
-               FROM {grade_items} gi
-               JOIN {course} c ON c.id = gi.courseid
+$countsql = "SELECT COUNT(c.id)
+               FROM {course} c
                JOIN {course_categories} cc ON cc.id = c.category
-               JOIN {modules} m ON m.name = gi.itemmodule
-               JOIN {course_modules} cm ON cm.course = c.id
-                                       AND cm.module = m.id
-                                       AND cm.instance = gi.iteminstance
               WHERE $wheresql";
 
-$totalcount = $DB->count_records_sql($countsql, $params);
+// Remove timenow from count params (not used in count query).
+$countparams = array_diff_key($params, ['timenow' => '']);
+$totalcount = $DB->count_records_sql($countsql, $countparams);
 
 // Handle Excel download.
 if ($download === 'excel') {
-    download_excel($sql, $params);
+    download_courses_excel($sql, $params);
     exit;
 }
 
 // Handle CSV download.
 if ($download === 'csv') {
-    download_csv($sql, $params);
+    download_courses_csv($sql, $params);
     exit;
 }
 
@@ -182,7 +145,7 @@ if ($download === 'csv') {
 $records = $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
 
 // Get teachers for all courses in results.
-$courseids = array_unique(array_column($records, 'courseid'));
+$courseids = array_keys($records);
 $teachersbycourse = [];
 if (!empty($courseids)) {
     $teachersbycourse = get_teachers_by_course($courseids);
@@ -199,8 +162,6 @@ $filterform = new \report_gradeitems\form\filter_form($baseurl);
 $filterform->set_data([
     'category' => $categoryid,
     'course' => $courseid,
-    'moduletype' => $moduletype,
-    'gradetype' => $gradetype,
     'visibility' => $visibility,
 ]);
 $filterform->display();
@@ -243,16 +204,9 @@ if ($totalcount == 0) {
         get_string('col_coursestartdate', 'report_gradeitems'),
         get_string('col_enrolledstudents', 'report_gradeitems'),
         get_string('col_teachers', 'report_gradeitems'),
-        get_string('col_activityname', 'report_gradeitems'),
-        get_string('col_moduletype', 'report_gradeitems'),
-        get_string('col_activityvisible', 'report_gradeitems'),
-        get_string('col_section', 'report_gradeitems'),
-        get_string('col_gradetype', 'report_gradeitems'),
-        get_string('col_grademax', 'report_gradeitems'),
-        get_string('col_gradepass', 'report_gradeitems'),
-        get_string('col_gradeweight', 'report_gradeitems'),
-        get_string('col_gradecount', 'report_gradeitems'),
-        get_string('col_gradeaverage', 'report_gradeitems'),
+        get_string('col_totalactivities', 'report_gradeitems'),
+        get_string('col_gradeableactivities', 'report_gradeitems'),
+        get_string('col_actions', 'report_gradeitems'),
     ];
     $table->attributes['class'] = 'table table-striped table-hover table-sm';
     $table->data = [];
@@ -260,42 +214,24 @@ if ($totalcount == 0) {
     foreach ($records as $record) {
         $teachers = isset($teachersbycourse[$record->courseid]) ? $teachersbycourse[$record->courseid] : '-';
 
-        // Get module display name.
-        $modname = get_string('pluginname', 'mod_' . $record->moduletype);
-
-        // Format grade type.
-        $gradetypestr = format_grade_type($record->gradetype);
-
-        // Format section.
-        $section = $record->sectionname ?: get_string('section') . ' ' . $record->sectionnumber;
-
-        // Calculate weight percentage.
-        $weight = ($record->gradeweight2 > 0) ? round($record->gradeweight2 * 100, 2) : round($record->gradeweight, 2);
+        // Link to course detail page.
+        $detailurl = new moodle_url('/report/gradeitems/course.php', ['id' => $record->courseid]);
 
         $table->data[] = [
             format_string($record->categoryname),
             format_string($record->courseshortname),
-            html_writer::link(
-                new moodle_url('/course/view.php', ['id' => $record->courseid]),
-                format_string($record->coursefullname)
-            ),
+            html_writer::link($detailurl, format_string($record->coursefullname), [
+                'title' => get_string('viewactivities', 'report_gradeitems'),
+            ]),
             $record->coursevisible ? get_string('yes', 'report_gradeitems') : get_string('no', 'report_gradeitems'),
             $record->coursestartdate ? userdate($record->coursestartdate, get_string('strftimedateshort', 'langconfig')) : '-',
             $record->enrolledstudents,
             html_writer::tag('small', $teachers),
-            html_writer::link(
-                new moodle_url('/mod/' . $record->moduletype . '/view.php', ['id' => $record->cmid]),
-                format_string($record->activityname)
-            ),
-            $modname,
-            $record->activityvisible ? get_string('yes', 'report_gradeitems') : get_string('no', 'report_gradeitems'),
-            $section,
-            $gradetypestr,
-            format_float($record->grademax, 2),
-            format_float($record->gradepass, 2),
-            $weight . '%',
-            $record->gradecount,
-            $record->gradeaverage !== null ? format_float($record->gradeaverage, 2) : '-',
+            $record->totalactivities,
+            html_writer::tag('strong', $record->gradeableactivities),
+            html_writer::link($detailurl, get_string('viewactivities', 'report_gradeitems'), [
+                'class' => 'btn btn-sm btn-outline-primary',
+            ]),
         ];
     }
 
@@ -374,25 +310,6 @@ function get_teachers_by_course(array $courseids): array {
 }
 
 /**
- * Format grade type to string.
- *
- * @param int $gradetype
- * @return string
- */
-function format_grade_type(int $gradetype): string {
-    switch ($gradetype) {
-        case 1:
-            return get_string('gradetype_value', 'report_gradeitems');
-        case 2:
-            return get_string('gradetype_scale', 'report_gradeitems');
-        case 3:
-            return get_string('gradetype_text', 'report_gradeitems');
-        default:
-            return get_string('gradetype_none', 'report_gradeitems');
-    }
-}
-
-/**
  * Get category path for a category.
  *
  * @param int $categoryid
@@ -418,22 +335,22 @@ function get_category_path(int $categoryid): string {
 }
 
 /**
- * Download report as Excel file.
+ * Download courses report as Excel file.
  *
  * @param string $sql
  * @param array $params
  */
-function download_excel(string $sql, array $params): void {
+function download_courses_excel(string $sql, array $params): void {
     global $DB;
 
     $records = $DB->get_records_sql($sql, $params);
 
     // Get teachers for all courses.
-    $courseids = array_unique(array_column($records, 'courseid'));
+    $courseids = array_keys($records);
     $teachersbycourse = get_teachers_by_course($courseids);
 
     // Create workbook.
-    $filename = 'grade_items_report_' . date('Y-m-d_His');
+    $filename = 'courses_gradeable_activities_' . date('Y-m-d_His');
     $workbook = new MoodleExcelWorkbook($filename);
 
     // Add worksheet.
@@ -449,14 +366,8 @@ function download_excel(string $sql, array $params): void {
     ]);
 
     // Data format.
-    $dataformat = $workbook->add_format([
-        'border' => 1,
-    ]);
-
-    $numformat = $workbook->add_format([
-        'border' => 1,
-        'align' => 'right',
-    ]);
+    $dataformat = $workbook->add_format(['border' => 1]);
+    $numformat = $workbook->add_format(['border' => 1, 'align' => 'right']);
 
     // Headers.
     $headers = [
@@ -469,17 +380,8 @@ function download_excel(string $sql, array $params): void {
         get_string('col_courseenddate', 'report_gradeitems'),
         get_string('col_enrolledstudents', 'report_gradeitems'),
         get_string('col_teachers', 'report_gradeitems'),
-        get_string('col_activityname', 'report_gradeitems'),
-        get_string('col_moduletype', 'report_gradeitems'),
-        get_string('col_activityvisible', 'report_gradeitems'),
-        get_string('col_section', 'report_gradeitems'),
-        get_string('col_gradetype', 'report_gradeitems'),
-        get_string('col_grademax', 'report_gradeitems'),
-        get_string('col_gradepass', 'report_gradeitems'),
-        get_string('col_gradeweight', 'report_gradeitems'),
-        get_string('col_gradecount', 'report_gradeitems'),
-        get_string('col_gradeaverage', 'report_gradeitems'),
-        get_string('col_cmid', 'report_gradeitems'),
+        get_string('col_totalactivities', 'report_gradeitems'),
+        get_string('col_gradeableactivities', 'report_gradeitems'),
     ];
 
     // Write headers.
@@ -490,31 +392,20 @@ function download_excel(string $sql, array $params): void {
     }
 
     // Set column widths.
-    $worksheet->set_column(0, 0, 20);   // Category.
-    $worksheet->set_column(1, 1, 30);   // Category path.
-    $worksheet->set_column(2, 2, 15);   // Short name.
-    $worksheet->set_column(3, 3, 40);   // Full name.
-    $worksheet->set_column(4, 4, 10);   // Course visible.
-    $worksheet->set_column(5, 6, 12);   // Dates.
-    $worksheet->set_column(7, 7, 12);   // Enrolled.
-    $worksheet->set_column(8, 8, 40);   // Teachers.
-    $worksheet->set_column(9, 9, 35);   // Activity name.
-    $worksheet->set_column(10, 10, 15); // Module type.
-    $worksheet->set_column(11, 11, 12); // Activity visible.
-    $worksheet->set_column(12, 12, 20); // Section.
-    $worksheet->set_column(13, 13, 12); // Grade type.
-    $worksheet->set_column(14, 16, 12); // Grades.
-    $worksheet->set_column(17, 18, 12); // Count/Average.
-    $worksheet->set_column(19, 19, 10); // CM ID.
+    $worksheet->set_column(0, 0, 20);
+    $worksheet->set_column(1, 1, 35);
+    $worksheet->set_column(2, 2, 15);
+    $worksheet->set_column(3, 3, 40);
+    $worksheet->set_column(4, 4, 10);
+    $worksheet->set_column(5, 6, 12);
+    $worksheet->set_column(7, 7, 12);
+    $worksheet->set_column(8, 8, 40);
+    $worksheet->set_column(9, 10, 15);
 
     // Write data.
     $row = 1;
     foreach ($records as $record) {
         $teachers = isset($teachersbycourse[$record->courseid]) ? $teachersbycourse[$record->courseid] : '';
-        $modname = get_string('pluginname', 'mod_' . $record->moduletype);
-        $gradetypestr = format_grade_type($record->gradetype);
-        $section = $record->sectionname ?: get_string('section') . ' ' . $record->sectionnumber;
-        $weight = ($record->gradeweight2 > 0) ? round($record->gradeweight2 * 100, 2) : round($record->gradeweight, 2);
         $categorypath = get_category_path($record->categoryid);
 
         $col = 0;
@@ -529,21 +420,8 @@ function download_excel(string $sql, array $params): void {
             $record->courseenddate ? userdate($record->courseenddate, '%Y-%m-%d') : '', $dataformat);
         $worksheet->write_number($row, $col++, $record->enrolledstudents, $numformat);
         $worksheet->write_string($row, $col++, $teachers, $dataformat);
-        $worksheet->write_string($row, $col++, format_string($record->activityname), $dataformat);
-        $worksheet->write_string($row, $col++, $modname, $dataformat);
-        $worksheet->write_string($row, $col++, $record->activityvisible ? get_string('yes') : get_string('no'), $dataformat);
-        $worksheet->write_string($row, $col++, $section, $dataformat);
-        $worksheet->write_string($row, $col++, $gradetypestr, $dataformat);
-        $worksheet->write_number($row, $col++, $record->grademax, $numformat);
-        $worksheet->write_number($row, $col++, $record->gradepass, $numformat);
-        $worksheet->write_number($row, $col++, $weight, $numformat);
-        $worksheet->write_number($row, $col++, $record->gradecount, $numformat);
-        if ($record->gradeaverage !== null) {
-            $worksheet->write_number($row, $col++, round($record->gradeaverage, 2), $numformat);
-        } else {
-            $worksheet->write_string($row, $col++, '', $dataformat);
-        }
-        $worksheet->write_number($row, $col++, $record->cmid, $numformat);
+        $worksheet->write_number($row, $col++, $record->totalactivities, $numformat);
+        $worksheet->write_number($row, $col++, $record->gradeableactivities, $numformat);
 
         $row++;
     }
@@ -552,12 +430,12 @@ function download_excel(string $sql, array $params): void {
 }
 
 /**
- * Download report as CSV file.
+ * Download courses report as CSV file.
  *
  * @param string $sql
  * @param array $params
  */
-function download_csv(string $sql, array $params): void {
+function download_courses_csv(string $sql, array $params): void {
     global $DB, $CFG;
 
     require_once($CFG->libdir . '/csvlib.class.php');
@@ -565,10 +443,10 @@ function download_csv(string $sql, array $params): void {
     $records = $DB->get_records_sql($sql, $params);
 
     // Get teachers for all courses.
-    $courseids = array_unique(array_column($records, 'courseid'));
+    $courseids = array_keys($records);
     $teachersbycourse = get_teachers_by_course($courseids);
 
-    $filename = 'grade_items_report_' . date('Y-m-d_His');
+    $filename = 'courses_gradeable_activities_' . date('Y-m-d_His');
     $csvexport = new csv_export_writer('comma');
     $csvexport->set_filename($filename);
 
@@ -583,17 +461,8 @@ function download_csv(string $sql, array $params): void {
         get_string('col_courseenddate', 'report_gradeitems'),
         get_string('col_enrolledstudents', 'report_gradeitems'),
         get_string('col_teachers', 'report_gradeitems'),
-        get_string('col_activityname', 'report_gradeitems'),
-        get_string('col_moduletype', 'report_gradeitems'),
-        get_string('col_activityvisible', 'report_gradeitems'),
-        get_string('col_section', 'report_gradeitems'),
-        get_string('col_gradetype', 'report_gradeitems'),
-        get_string('col_grademax', 'report_gradeitems'),
-        get_string('col_gradepass', 'report_gradeitems'),
-        get_string('col_gradeweight', 'report_gradeitems'),
-        get_string('col_gradecount', 'report_gradeitems'),
-        get_string('col_gradeaverage', 'report_gradeitems'),
-        get_string('col_cmid', 'report_gradeitems'),
+        get_string('col_totalactivities', 'report_gradeitems'),
+        get_string('col_gradeableactivities', 'report_gradeitems'),
     ];
 
     $csvexport->add_data($headers);
@@ -601,10 +470,6 @@ function download_csv(string $sql, array $params): void {
     // Data.
     foreach ($records as $record) {
         $teachers = isset($teachersbycourse[$record->courseid]) ? $teachersbycourse[$record->courseid] : '';
-        $modname = get_string('pluginname', 'mod_' . $record->moduletype);
-        $gradetypestr = format_grade_type($record->gradetype);
-        $section = $record->sectionname ?: get_string('section') . ' ' . $record->sectionnumber;
-        $weight = ($record->gradeweight2 > 0) ? round($record->gradeweight2 * 100, 2) : round($record->gradeweight, 2);
         $categorypath = get_category_path($record->categoryid);
 
         $row = [
@@ -617,17 +482,8 @@ function download_csv(string $sql, array $params): void {
             $record->courseenddate ? userdate($record->courseenddate, '%Y-%m-%d') : '',
             $record->enrolledstudents,
             $teachers,
-            format_string($record->activityname),
-            $modname,
-            $record->activityvisible ? get_string('yes') : get_string('no'),
-            $section,
-            $gradetypestr,
-            $record->grademax,
-            $record->gradepass,
-            $weight,
-            $record->gradecount,
-            $record->gradeaverage !== null ? round($record->gradeaverage, 2) : '',
-            $record->cmid,
+            $record->totalactivities,
+            $record->gradeableactivities,
         ];
 
         $csvexport->add_data($row);

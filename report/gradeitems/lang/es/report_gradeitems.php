@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Cadenas de idioma para el plugin de Reporte de Items de Calificación.
+ * Cadenas de idioma para el plugin de Reporte de Actividades Calificables.
  *
  * @package    report_gradeitems
  * @copyright  2025 Your Institution
@@ -29,39 +29,43 @@ $string['gradeitems:view'] = 'Ver reporte de actividades calificables';
 
 // Títulos y encabezados.
 $string['pagetitle'] = 'Reporte de Actividades Calificables';
-$string['pageheading'] = 'Reporte de Actividades Calificables - Exportable a Excel';
-$string['reportdescription'] = 'Este reporte muestra todas las actividades calificables de los cursos con su configuración y estadísticas. Use los filtros para acotar los resultados y exporte a Excel.';
+$string['pageheading'] = 'Reporte de Actividades Calificables - Resumen de Cursos';
+$string['reportdescription'] = 'Este reporte muestra los cursos con la cantidad de actividades totales y calificables. Haga clic en el nombre del curso para ver el detalle de sus actividades calificables.';
+$string['coursedetail'] = 'Detalle del Curso';
+$string['courseinfo'] = 'Información del Curso';
+$string['gradeableactivities'] = 'Actividades Calificables';
 
 // Etiquetas de filtros.
 $string['filters'] = 'Filtros';
 $string['filter_category'] = 'Categoría';
 $string['filter_course'] = 'Curso';
-$string['filter_moduletype'] = 'Tipo de módulo';
-$string['filter_gradetype'] = 'Tipo de calificación';
-$string['filter_visibility'] = 'Visibilidad';
+$string['filter_visibility'] = 'Visibilidad del curso';
 $string['allcategories'] = 'Todas las categorías';
 $string['allcourses'] = 'Todos los cursos';
-$string['allmoduletypes'] = 'Todos los tipos de módulo';
-$string['allgradetypes'] = 'Todos los tipos de calificación';
 $string['allvisibility'] = 'Todos';
 $string['visible'] = 'Visible';
 $string['hidden'] = 'Oculto';
 $string['applyfilters'] = 'Aplicar filtros';
 $string['clearfilters'] = 'Limpiar filtros';
 
-// Encabezados de tabla.
+// Encabezados de tabla - Lista de cursos.
 $string['col_category'] = 'Categoría';
 $string['col_categorypath'] = 'Ruta de categoría';
 $string['col_courseshortname'] = 'Nombre corto';
 $string['col_coursefullname'] = 'Nombre del curso';
-$string['col_coursevisible'] = 'Curso visible';
+$string['col_coursevisible'] = 'Visible';
 $string['col_coursestartdate'] = 'Fecha de inicio';
 $string['col_courseenddate'] = 'Fecha de fin';
 $string['col_enrolledstudents'] = 'Estudiantes matriculados';
 $string['col_teachers'] = 'Profesores';
+$string['col_totalactivities'] = 'Actividades totales';
+$string['col_gradeableactivities'] = 'Actividades calificables';
+$string['col_actions'] = 'Acciones';
+
+// Encabezados de tabla - Detalle de actividades.
 $string['col_activityname'] = 'Nombre de actividad';
 $string['col_moduletype'] = 'Tipo de módulo';
-$string['col_activityvisible'] = 'Actividad visible';
+$string['col_activityvisible'] = 'Visible';
 $string['col_section'] = 'Sección';
 $string['col_gradetype'] = 'Tipo de calificación';
 $string['col_grademax'] = 'Nota máxima';
@@ -86,10 +90,14 @@ $string['downloadexcel'] = 'Descargar Excel (.xlsx)';
 $string['downloadcsv'] = 'Descargar CSV';
 $string['exportoptions'] = 'Opciones de exportación';
 
-// Resultados.
-$string['totalrecords'] = 'Total de registros: {$a}';
-$string['norecordsfound'] = 'No se encontraron registros con los filtros actuales.';
-$string['showing'] = 'Mostrando {$a->from} a {$a->to} de {$a->total} registros';
+// Resultados y navegación.
+$string['totalrecords'] = 'Total de cursos: {$a}';
+$string['totalactivities_count'] = 'Total de actividades calificables: {$a}';
+$string['norecordsfound'] = 'No se encontraron cursos con los filtros actuales.';
+$string['noactivitiesfound'] = 'No se encontraron actividades calificables en este curso.';
+$string['showing'] = 'Mostrando {$a->from} a {$a->to} de {$a->total} cursos';
+$string['viewactivities'] = 'Ver actividades';
+$string['backtocourselist'] = 'Volver a la lista de cursos';
 
 // Errores.
 $string['nopermission'] = 'No tiene permiso para ver este reporte.';

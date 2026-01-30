@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2025013000;
+$plugin->version   = 2025013001;
 $plugin->requires  = 2022041900;        // Requires Moodle 4.0 or later.
 $plugin->component = 'report_gradeitems';
 $plugin->maturity  = MATURITY_STABLE;
