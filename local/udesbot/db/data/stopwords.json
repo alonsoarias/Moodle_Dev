@@ -1,0 +1,26 @@
+{
+    "version": "1.0.0",
+    "description": "udesbot Spanish stopwords - common words to optionally filter",
+    "lang": "es",
+    "stopwords": [
+        "el", "la", "los", "las", "un", "una", "unos", "unas",
+        "de", "del", "al", "a", "en", "con", "por", "para",
+        "y", "o", "u", "e", "ni", "que", "se", "su", "sus",
+        "lo", "le", "les", "me", "te", "nos", "os",
+        "mi", "tu", "mis", "tus", "este", "esta", "esto",
+        "ese", "esa", "eso", "aquel", "aquella", "aquello",
+        "es", "son", "fue", "era", "ser", "estar", "esta",
+        "muy", "mas", "menos", "tan", "tanto",
+        "yo", "tu", "el", "ella", "nosotros", "ellos", "ellas",
+        "pero", "sin", "sobre", "entre", "hasta", "desde",
+        "como", "cuando", "donde", "porque", "aunque",
+        "cual", "cuales", "quien", "quienes",
+        "uno", "dos", "tres", "todo", "todos", "toda", "todas",
+        "otro", "otra", "otros", "otras", "mismo", "misma",
+        "tal", "tales", "algo", "nada", "nadie", "alguien",
+        "cada", "poco", "mucho", "muy", "bien", "mal",
+        "aqui", "ahi", "alli", "ahora", "entonces", "luego",
+        "ya", "aun", "todavia", "siempre", "nunca", "tambien",
+        "si", "no", "solo", "apenas", "casi", "quiza", "acaso"
+    ]
+}

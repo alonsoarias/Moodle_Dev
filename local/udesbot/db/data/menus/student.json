@@ -1,0 +1,23 @@
+{
+    "version": "2.0.9",
+    "description": "udesbot menu for students",
+    "archetype": "student",
+    "menu": {
+        "title": "Menu Estudiante",
+        "greeting": "¡Hola estudiante! ¿Tienes dudas sobre tus tareas o calificaciones?",
+        "options": [
+            {"id": "courses", "label": "Mis Cursos", "icon": "📚", "action": "mis cursos", "enabled": true},
+            {"id": "tasks", "label": "Tareas Pendientes", "icon": "📝", "action": "mis tareas pendientes", "enabled": true},
+            {"id": "grades", "label": "Calificaciones", "icon": "📊", "action": "mis calificaciones", "enabled": true},
+            {"id": "calendar", "label": "Calendario", "icon": "📅", "action": "eventos del calendario", "enabled": true},
+            {"id": "messages", "label": "Mensajes", "icon": "💬", "action": "mis mensajes", "enabled": true},
+            {"id": "progress", "label": "Mi Progreso", "icon": "📈", "action": "mi progreso", "enabled": true}
+        ]
+    },
+    "suggestions": [
+        "¿Como entrego una tarea?",
+        "¿Donde veo mis calificaciones?",
+        "¿Como participo en un foro?",
+        "¿Como uso BigBlueButton?"
+    ]
+}

@@ -1,0 +1,308 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Theme management page for udesbot.
+ *
+ * @package     local_udesbot
+ * @author      Alonso Arias <soporte@orioncloud.com.co>
+ * @copyright   2025 OrionCloud<https://orioncloud.com.co>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
+
+use local_udesbot\form\theme_form;
+
+// Parameters.
+$action = optional_param('action', 'list', PARAM_ALPHA);
+$id = optional_param('id', 0, PARAM_INT);
+$confirm = optional_param('confirm', 0, PARAM_INT);
+
+// Admin setup.
+admin_externalpage_setup('local_udesbot_themes');
+
+$context = context_system::instance();
+require_capability('local/udesbot:manage', $context);
+
+$PAGE->set_url(new moodle_url('/local/udesbot/themes.php'));
+$PAGE->set_title(get_string('managethemes', 'local_udesbot'));
+$PAGE->set_heading(get_string('managethemes', 'local_udesbot'));
+
+$baseurl = new moodle_url('/local/udesbot/themes.php');
+
+// Process actions.
+switch ($action) {
+    case 'add':
+    case 'edit':
+        $theme = null;
+        if ($id) {
+            $theme = $DB->get_record('local_udesbot_theme', ['id' => $id], '*', MUST_EXIST);
+        }
+
+        // Build form URL with action and id to ensure correct processing on POST.
+        $formurl = new moodle_url($baseurl, ['action' => $action]);
+        if ($id) {
+            $formurl->param('id', $id);
+        }
+        $form = new theme_form($formurl, ['context' => $context, 'themeid' => $id]);
+
+        if ($theme) {
+            $form->set_data($theme);
+        }
+
+        if ($form->is_cancelled()) {
+            redirect($baseurl);
+        } else if ($data = $form->get_data()) {
+            $now = time();
+            $fs = get_file_storage();
+
+            $record = new stdClass();
+            $record->name = $data->name;
+            $record->primarycolor = $data->primarycolor;
+            $record->secondarycolor = $data->secondarycolor;
+            $record->textcolor = $data->textcolor;
+            $record->backgroundcolor = $data->backgroundcolor;
+            $record->usercolor = $data->usercolor;
+            $record->botcolor = $data->botcolor;
+            $record->isdefault = $data->isdefault ?? 0;
+            $record->timemodified = $now;
+
+            // Widget icon customization (v1.8.1).
+            $record->widgeticontype = $data->widgeticontype ?? 'default';
+            $record->widgeticonurl = null;
+
+            // Handle widget icon based on type.
+            switch ($record->widgeticontype) {
+                case 'emoji':
+                    $record->widgeticonurl = clean_param($data->widgeticonemoji ?? '', PARAM_TEXT);
+                    break;
+                case 'bootstrap':
+                    $record->widgeticonurl = clean_param($data->widgeticonbs ?? '', PARAM_TEXT);
+                    break;
+                case 'custom':
+                    // Will be handled after record is saved.
+                    break;
+            }
+
+            // Mascot customization (v1.8.1).
+            $record->mascotenabled = $data->mascotenabled ?? 0;
+            $record->mascottype = $data->mascottype ?? 'none';
+            $record->mascoturl = null;
+
+            if (!empty($data->id)) {
+                $record->id = $data->id;
+                $DB->update_record('local_udesbot_theme', $record);
+                $themeid = $record->id;
+                \core\notification::success(get_string('themeupdated', 'local_udesbot'));
+            } else {
+                $record->timecreated = $now;
+                $themeid = $DB->insert_record('local_udesbot_theme', $record);
+                \core\notification::success(get_string('themecreated', 'local_udesbot'));
+            }
+
+            // Handle custom icon file upload (v1.8.1).
+            if ($record->widgeticontype === 'custom' && !empty($data->widgeticonfile)) {
+                file_save_draft_area_files(
+                    $data->widgeticonfile,
+                    $context->id,
+                    'local_udesbot',
+                    'widgeticon',
+                    $themeid,
+                    ['subdirs' => false, 'maxfiles' => 1]
+                );
+
+                // Get the file URL.
+                $files = $fs->get_area_files($context->id, 'local_udesbot', 'widgeticon', $themeid, 'id', false);
+                if ($file = reset($files)) {
+                    $iconurl = moodle_url::make_pluginfile_url(
+                        $file->get_contextid(),
+                        $file->get_component(),
+                        $file->get_filearea(),
+                        $file->get_itemid(),
+                        $file->get_filepath(),
+                        $file->get_filename()
+                    )->out();
+                    $DB->set_field('local_udesbot_theme', 'widgeticonurl', $iconurl, ['id' => $themeid]);
+                }
+            }
+
+            // Handle custom mascot file upload (v1.8.1).
+            if ($record->mascottype === 'custom' && !empty($data->mascotfile)) {
+                file_save_draft_area_files(
+                    $data->mascotfile,
+                    $context->id,
+                    'local_udesbot',
+                    'mascot',
+                    $themeid,
+                    ['subdirs' => false, 'maxfiles' => 1]
+                );
+
+                // Get the file URL.
+                $files = $fs->get_area_files($context->id, 'local_udesbot', 'mascot', $themeid, 'id', false);
+                if ($file = reset($files)) {
+                    $mascoturl = moodle_url::make_pluginfile_url(
+                        $file->get_contextid(),
+                        $file->get_component(),
+                        $file->get_filearea(),
+                        $file->get_itemid(),
+                        $file->get_filepath(),
+                        $file->get_filename()
+                    )->out();
+                    $DB->set_field('local_udesbot_theme', 'mascoturl', $mascoturl, ['id' => $themeid]);
+                }
+            }
+
+            // If this theme is set as default, unset others.
+            if ($record->isdefault) {
+                $DB->execute("UPDATE {local_udesbot_theme} SET isdefault = 0 WHERE id != ?", [$themeid]);
+            }
+
+            redirect($baseurl);
+        }
+
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading($id ? get_string('edittheme', 'local_udesbot') : get_string('addtheme', 'local_udesbot'));
+        $form->display();
+        echo $OUTPUT->footer();
+        exit;
+
+    case 'delete':
+        if (!$id) {
+            redirect($baseurl);
+        }
+
+        $theme = $DB->get_record('local_udesbot_theme', ['id' => $id], '*', MUST_EXIST);
+
+        // Cannot delete default theme.
+        if ($theme->isdefault) {
+            \core\notification::error(get_string('cannotdeletedefault', 'local_udesbot'));
+            redirect($baseurl);
+        }
+
+        if ($confirm) {
+            require_sesskey();
+            $DB->delete_records('local_udesbot_theme', ['id' => $id]);
+            \core\notification::success(get_string('themedeleted', 'local_udesbot'));
+            redirect($baseurl);
+        }
+
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('deletetheme', 'local_udesbot'));
+        echo $OUTPUT->confirm(
+            get_string('confirmdelete', 'local_udesbot', $theme->name),
+            new moodle_url($baseurl, ['action' => 'delete', 'id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]),
+            $baseurl
+        );
+        echo $OUTPUT->footer();
+        exit;
+
+    case 'setdefault':
+        if (!$id) {
+            redirect($baseurl);
+        }
+        require_sesskey();
+
+        // Unset all defaults.
+        $DB->execute("UPDATE {local_udesbot_theme} SET isdefault = 0");
+        // Set this as default.
+        $DB->set_field('local_udesbot_theme', 'isdefault', 1, ['id' => $id]);
+
+        \core\notification::success(get_string('themesetasdefault', 'local_udesbot'));
+        redirect($baseurl);
+
+    default:
+        // List themes.
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('managethemes', 'local_udesbot'));
+
+        // Add theme button.
+        $addurl = new moodle_url($baseurl, ['action' => 'add']);
+        echo html_writer::div(
+            $OUTPUT->single_button($addurl, get_string('addtheme', 'local_udesbot'), 'get'),
+            'mb-3'
+        );
+
+        // Get all themes.
+        $themes = $DB->get_records('local_udesbot_theme', [], 'isdefault DESC, name ASC');
+
+        if (empty($themes)) {
+            echo $OUTPUT->notification(get_string('nothemes', 'local_udesbot'), 'info');
+        } else {
+            echo html_writer::start_tag('div', ['class' => 'row']);
+
+            foreach ($themes as $theme) {
+                echo html_writer::start_tag('div', ['class' => 'col-md-4 mb-4']);
+                echo html_writer::start_tag('div', ['class' => 'card', 'style' => 'border: 2px solid ' . $theme->primarycolor]);
+
+                // Theme preview.
+                echo html_writer::start_tag('div', [
+                    'class' => 'card-body',
+                    'style' => 'background-color: ' . $theme->backgroundcolor . '; color: ' . $theme->textcolor,
+                ]);
+                echo html_writer::tag('h5', $theme->name, ['class' => 'card-title']);
+
+                if ($theme->isdefault) {
+                    echo html_writer::tag('span', get_string('default'), ['class' => 'badge badge-success']);
+                }
+
+                // Color preview boxes.
+                echo html_writer::start_tag('div', ['class' => 'mt-2']);
+                echo html_writer::tag('span', '&nbsp;&nbsp;&nbsp;', [
+                    'style' => 'background-color: ' . $theme->primarycolor . '; display: inline-block; width: 30px; height: 20px; border-radius: 3px;',
+                    'title' => 'Primary',
+                ]);
+                echo html_writer::tag('span', '&nbsp;&nbsp;&nbsp;', [
+                    'style' => 'background-color: ' . $theme->secondarycolor . '; display: inline-block; width: 30px; height: 20px; border-radius: 3px; margin-left: 5px;',
+                    'title' => 'Secondary',
+                ]);
+                echo html_writer::tag('span', '&nbsp;&nbsp;&nbsp;', [
+                    'style' => 'background-color: ' . $theme->usercolor . '; display: inline-block; width: 30px; height: 20px; border-radius: 3px; margin-left: 5px;',
+                    'title' => 'User message',
+                ]);
+                echo html_writer::tag('span', '&nbsp;&nbsp;&nbsp;', [
+                    'style' => 'background-color: ' . $theme->botcolor . '; display: inline-block; width: 30px; height: 20px; border-radius: 3px; margin-left: 5px; border: 1px solid #ccc;',
+                    'title' => 'Bot message',
+                ]);
+                echo html_writer::end_tag('div');
+
+                echo html_writer::end_tag('div');
+
+                // Actions.
+                echo html_writer::start_tag('div', ['class' => 'card-footer']);
+
+                $editurl = new moodle_url($baseurl, ['action' => 'edit', 'id' => $theme->id]);
+                echo html_writer::link($editurl, get_string('edit'), ['class' => 'btn btn-sm btn-primary']);
+
+                if (!$theme->isdefault) {
+                    $setdefaulturl = new moodle_url($baseurl, ['action' => 'setdefault', 'id' => $theme->id, 'sesskey' => sesskey()]);
+                    echo html_writer::link($setdefaulturl, get_string('setasdefault', 'local_udesbot'), ['class' => 'btn btn-sm btn-secondary ml-1']);
+
+                    $deleteurl = new moodle_url($baseurl, ['action' => 'delete', 'id' => $theme->id]);
+                    echo html_writer::link($deleteurl, get_string('delete'), ['class' => 'btn btn-sm btn-danger ml-1']);
+                }
+
+                echo html_writer::end_tag('div');
+                echo html_writer::end_tag('div');
+                echo html_writer::end_tag('div');
+            }
+
+            echo html_writer::end_tag('div');
+        }
+
+        echo $OUTPUT->footer();
+}
