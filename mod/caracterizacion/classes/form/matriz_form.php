@@ -74,7 +74,10 @@ class matriz_form extends \moodleform {
 
         // Get enrolled users for the course.
         $context = \context_course::instance($courseid);
-        $enrolledusers = get_enrolled_users($context, '', 0, 'u.id, u.firstname, u.lastname, u.email');
+        // Include all name fields required by fullname() function.
+        $namefields = \core_user\fields::for_name()->get_sql('u', false, '', '', false)->selects;
+        $userfields = 'u.id, u.email, ' . $namefields;
+        $enrolledusers = get_enrolled_users($context, '', 0, $userfields);
         $useroptions = [0 => get_string('seleccioneusuario', 'mod_caracterizacion')];
         foreach ($enrolledusers as $user) {
             $useroptions[$user->id] = fullname($user) . ' (' . $user->email . ')';
