@@ -141,6 +141,16 @@ $capabilities = [
         ],
     ],
 
+    // Role: Jefe de Medios - Supervises production phase 4.
+    'mod/caracterizacion:jefemedios' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+
     // Role: Produccion - Phase 4.
     'mod/caracterizacion:produccion' => [
         'captype' => 'write',

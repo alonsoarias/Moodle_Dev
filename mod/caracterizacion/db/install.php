@@ -17,7 +17,7 @@
 /**
  * Post-installation script for mod_caracterizacion.
  *
- * Creates the 8 UDES roles required for the characterization workflow.
+ * Creates the 9 UDES roles required for the characterization workflow.
  *
  * @package     mod_caracterizacion
  * @copyright   2024 Alonso Arias <soporte@orioncloud.com.co>
@@ -29,14 +29,14 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Post-installation procedure.
  *
- * Creates the 8 UDES workflow roles with their specific capabilities.
+ * Creates the 9 UDES workflow roles with their specific capabilities.
  *
  * @return bool
  */
 function xmldb_caracterizacion_install() {
     global $DB;
 
-    // Define the 8 UDES roles with their capabilities.
+    // Define the 9 UDES roles with their capabilities.
     $udesroles = [
         [
             'shortname' => 'udes_experto_disciplinar',
@@ -103,6 +103,17 @@ function xmldb_caracterizacion_install() {
                 'mod/caracterizacion:view' => CAP_ALLOW,
                 'mod/caracterizacion:coordproduccion' => CAP_ALLOW,
                 'mod/caracterizacion:aprobarfase' => CAP_ALLOW,
+                'mod/caracterizacion:vertodasmatrices' => CAP_ALLOW,
+            ],
+        ],
+        [
+            'shortname' => 'udes_jefe_medios',
+            'name' => 'UDES - Jefe de Medios',
+            'description' => 'Rol para el jefe de medios educativos en el proceso de producción de recursos educativos UDES. Supervisa la fase 4 junto con Coordinación de Producción.',
+            'archetype' => 'editingteacher',
+            'capabilities' => [
+                'mod/caracterizacion:view' => CAP_ALLOW,
+                'mod/caracterizacion:jefemedios' => CAP_ALLOW,
                 'mod/caracterizacion:vertodasmatrices' => CAP_ALLOW,
             ],
         ],

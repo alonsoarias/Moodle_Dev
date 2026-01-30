@@ -59,18 +59,26 @@ function xmldb_caracterizacion_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024012903, 'caracterizacion');
     }
 
+    // Upgrade to version 2024012904: Add Jefe de Medios role (9th role).
+    if ($oldversion < 2024012904) {
+        // Re-create or update all 9 UDES workflow roles.
+        caracterizacion_create_udes_roles();
+
+        upgrade_mod_savepoint(true, 2024012904, 'caracterizacion');
+    }
+
     return true;
 }
 
 /**
- * Create the 8 UDES workflow roles with their specific capabilities.
+ * Create the 9 UDES workflow roles with their specific capabilities.
  *
  * This function can be called during installation or upgrade.
  */
 function caracterizacion_create_udes_roles() {
     global $DB;
 
-    // Define the 8 UDES roles with their capabilities.
+    // Define the 9 UDES roles with their capabilities.
     $udesroles = [
         [
             'shortname' => 'udes_experto_disciplinar',
@@ -137,6 +145,17 @@ function caracterizacion_create_udes_roles() {
                 'mod/caracterizacion:view' => CAP_ALLOW,
                 'mod/caracterizacion:coordproduccion' => CAP_ALLOW,
                 'mod/caracterizacion:aprobarfase' => CAP_ALLOW,
+                'mod/caracterizacion:vertodasmatrices' => CAP_ALLOW,
+            ],
+        ],
+        [
+            'shortname' => 'udes_jefe_medios',
+            'name' => 'UDES - Jefe de Medios',
+            'description' => 'Rol para el jefe de medios educativos en el proceso de producción de recursos educativos UDES. Supervisa y recibe notificaciones de la fase 4 junto con Coordinación de Producción.',
+            'archetype' => 'editingteacher',
+            'capabilities' => [
+                'mod/caracterizacion:view' => CAP_ALLOW,
+                'mod/caracterizacion:jefemedios' => CAP_ALLOW,
                 'mod/caracterizacion:vertodasmatrices' => CAP_ALLOW,
             ],
         ],
