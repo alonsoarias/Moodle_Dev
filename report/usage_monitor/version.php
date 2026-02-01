@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030505;  // Fix chart display, threshold updates, cleanup unused strings.
+$plugin->version   = 2025030506;  // Fix Bootstrap 4 tab compatibility for chart display.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.5';     // Fixed chart in hidden tabs, dynamic threshold updates, removed unused settings.
+$plugin->release   = '5.3.6';     // Fixed tabs to use Bootstrap 4 data attributes (data-toggle instead of data-bs-toggle).
 $plugin->maturity  = MATURITY_STABLE;

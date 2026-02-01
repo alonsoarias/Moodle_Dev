@@ -300,13 +300,35 @@ const initDiskHistoryChart = (config) => {
  */
 const setupTabListeners = () => {
     // Listen for Bootstrap tab show events on the users chart tab.
+    // Support both Bootstrap 4 (shown.bs.tab via jQuery) and Bootstrap 5 (shown.bs.tab native).
     const chartTab = document.getElementById('grafica10-tab');
     if (chartTab) {
-        chartTab.addEventListener('shown.bs.tab', () => {
-            // Initialize the users line chart when the tab becomes visible.
+        // Handler function to initialize chart.
+        const initChartOnShow = () => {
             if (globalConfig && globalConfig.usersLine && !usersLineChart) {
                 initUsersLineChart(globalConfig.usersLine);
             }
+        };
+
+        // Try jQuery event (Bootstrap 4 in Moodle).
+        if (typeof jQuery !== 'undefined') {
+            jQuery(chartTab).on('shown.bs.tab', initChartOnShow);
+        }
+
+        // Also add native event listener for Bootstrap 5 compatibility.
+        chartTab.addEventListener('shown.bs.tab', initChartOnShow);
+
+        // Fallback: listen for click and use setTimeout to wait for tab transition.
+        chartTab.addEventListener('click', () => {
+            setTimeout(() => {
+                if (globalConfig && globalConfig.usersLine && !usersLineChart) {
+                    // Check if the chart pane is now visible.
+                    const chartPane = document.getElementById('grafica10');
+                    if (chartPane && chartPane.classList.contains('active')) {
+                        initUsersLineChart(globalConfig.usersLine);
+                    }
+                }
+            }, 200);
         });
     }
 };
