@@ -49,8 +49,22 @@ class integrity_checker {
      * @var array
      */
     private const REQUIRED_CLASSES = [
+        'report_usage_monitor\\license',
         'report_usage_monitor\\hostname_validator',
         'report_usage_monitor\\integrity_checker',
+    ];
+
+    /**
+     * Required methods in license class.
+     * @var array
+     */
+    private const LICENSE_METHODS = [
+        'get_token',
+        'validate_token',
+        'is_authorized',
+        'require_authorized',
+        'sync_tasks',
+        'get_valid_hostname',
     ];
 
     /**
@@ -69,7 +83,7 @@ class integrity_checker {
      * @return bool True if all integrity checks pass.
      */
     public static function verify(): bool {
-        return self::vc() && self::vm() && self::vh();
+        return self::vc() && self::vl() && self::vm() && self::vh();
     }
 
     /**
@@ -87,7 +101,30 @@ class integrity_checker {
     }
 
     /**
-     * Verify required methods exist.
+     * Verify license class methods exist.
+     *
+     * @return bool True if all license methods exist.
+     */
+    private static function vl(): bool {
+        if (!class_exists('\\report_usage_monitor\\license')) {
+            return false;
+        }
+        foreach (self::LICENSE_METHODS as $m) {
+            if (!method_exists('\\report_usage_monitor\\license', $m)) {
+                return false;
+            }
+        }
+        // Verify license returns correct hostname.
+        $eh = base64_decode(self::EH);
+        $lh = \report_usage_monitor\license::get_valid_hostname();
+        if ($lh !== $eh) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Verify hostname_validator methods exist.
      *
      * @return bool True if all required methods exist.
      */
@@ -131,6 +168,7 @@ class integrity_checker {
     public static function get_status(): array {
         return [
             'classes_exist' => self::vc(),
+            'license_valid' => self::vl(),
             'methods_exist' => self::vm(),
             'hostname_valid' => self::vh(),
             'overall' => self::verify(),

@@ -83,8 +83,8 @@ class get_notification_history extends external_api {
         self::validate_context($context);
         require_capability('report/usage_monitor:view', $context);
 
-        // Check hostname validity - throws exception if not authorized.
-        \report_usage_monitor\hostname_validator::require_valid();
+        // Check license validity - throws exception if not authorized.
+        \report_usage_monitor\license::require_authorized();
 
         // Validate parameters.
         $params = self::validate_parameters(self::execute_parameters(), [

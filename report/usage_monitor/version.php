@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030521;  // Fix percentage recalculation on threshold change.
+$plugin->version   = 2025030522;  // Centralize all validation in license class with token system.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.21';    // Auto-recalculate chart percentages when thresholds change.
+$plugin->release   = '5.3.22';    // Centralized token-based license validation.
 $plugin->maturity  = MATURITY_STABLE;
