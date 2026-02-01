@@ -86,15 +86,10 @@ class disk_usage extends \core\task\scheduled_task {
             mtrace("Iniciando tarea de cálculo de uso del disco...");
         }
 
-        // Calcular el tamaño de la base de datos con la función refactorizada
-        $size_sql = size_database();
-        $size_database = $DB->get_records_sql($size_sql);
-        $totalusagereadabledb = 0;
-        
-        foreach ($size_database as $item) {
-            $totalusagereadabledb = $item->size;
-            set_config('totalusagereadabledb', $totalusagereadabledb, 'report_usage_monitor');
-        }
+        // Calcular el tamaño de la base de datos con la función refactorizada.
+        // size_database() devuelve directamente el tamaño en bytes.
+        $totalusagereadabledb = size_database();
+        set_config('totalusagereadabledb', $totalusagereadabledb, 'report_usage_monitor');
 
         // Calcular el tamaño del directorio dataroot
         $totalusagedataroot = directory_size($CFG->dataroot);

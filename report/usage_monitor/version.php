@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025013105;  // Fixed settings page shell_exec warning not blocking other settings.
+$plugin->version   = 2025030500;  // Fixed size_database() usage and shell_exec detection.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.2.2';     // Fixed settings page layout when shell_exec is not available.
+$plugin->release   = '5.3.0';     // Fixed critical bugs: size_database(), users_today(), shell_exec detection.
 $plugin->maturity  = MATURITY_STABLE;

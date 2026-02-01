@@ -81,18 +81,13 @@ class users_daily extends \core\task\scheduled_task {
 
         $array_daily_top = [];
 
-        // REFACTORIZADO: Obtener el top de usuarios diarios usando la nueva función
-        $sql = report_user_daily_top_task();
-        if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Ejecutando consulta: $sql");
-        }
-        
         // Iniciar transacción para asegurar consistencia de datos
         $transaction = $DB->start_delegated_transaction();
-        
+
         try {
-            // Ajustar la consulta para no incluir la columna `id`
-            $userdaily_records = $DB->get_records_sql($sql);
+            // Obtener el top de usuarios diarios usando la nueva función.
+            // report_user_daily_top_task() ya devuelve un array de registros.
+            $userdaily_records = report_user_daily_top_task();
             
             foreach ($userdaily_records as $record) {
                 // Validar que fecha sea un timestamp válido
@@ -114,10 +109,9 @@ class users_daily extends \core\task\scheduled_task {
                 $menor = null;
             }
 
-            // REFACTORIZADO: Verificar si hay que insertar un nuevo registro de usuarios
-            // usando la función refactorizada
-            $sql = user_limit_daily_task();
-            $users_daily_record = $DB->get_records_sql($sql);
+            // Verificar si hay que insertar un nuevo registro de usuarios.
+            // user_limit_daily_task() ya devuelve un array de registros.
+            $users_daily_record = user_limit_daily_task();
             $users = [];
             
             foreach ($users_daily_record as $log) {

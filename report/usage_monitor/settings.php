@@ -175,10 +175,19 @@ if ($ADMIN->fulltree) {
     // Configuración para el comando 'du'
     $defaultPathToDu = '';
 
+    // Verificar si shell_exec está disponible (no solo existe, sino que no está deshabilitada).
+    $shellexecavailable = false;
     if (function_exists('shell_exec')) {
+        $disabledfunctions = ini_get('disable_functions');
+        if (empty($disabledfunctions) || strpos($disabledfunctions, 'shell_exec') === false) {
+            $shellexecavailable = true;
+        }
+    }
+
+    if ($shellexecavailable) {
         // Intentar detectar automáticamente la ruta de 'du' en sistemas Linux.
         if (PHP_OS_FAMILY === 'Linux') {
-            $pathToDu = @shell_exec('which du');
+            $pathToDu = @shell_exec('which du 2>/dev/null');
             $pathToDu = $pathToDu !== null ? trim($pathToDu) : '';
 
             if (!empty($pathToDu) && file_exists($pathToDu) && is_executable($pathToDu)) {
@@ -225,7 +234,7 @@ if ($ADMIN->fulltree) {
             255
         ));
     } else {
-        // Mostrar advertencia si shell_exec no está activo (solo informativo).
+        // Mostrar advertencia si shell_exec no está activo (solo informativo, no bloquea).
         $alertcontent = html_writer::tag('div',
             get_string('activateshellexec', 'report_usage_monitor'),
             ['class' => 'alert alert-warning']

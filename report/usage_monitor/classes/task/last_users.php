@@ -79,7 +79,8 @@ class last_users extends \core\task\scheduled_task {
         
         try {
             // Recuperar los usuarios conectados recientemente para hoy.
-            $users = $DB->get_records_sql(users_today());
+            // users_today() ya devuelve un array de registros.
+            $users = users_today();
             $users_today = 0;
             
             foreach ($users as $log) {
@@ -138,7 +139,5 @@ class last_users extends \core\task\scheduled_task {
             // Permitir que la excepción se propague para registrar el fallo de la tarea
             throw $e;
         }
-
-        return true;
     }
 }

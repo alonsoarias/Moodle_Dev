@@ -75,32 +75,26 @@ class users_daily_90_days extends \core\task\scheduled_task {
             mtrace("Iniciando tarea de cálculo de usuarios diarios en los últimos 90 días...");
         }
 
-        // REFACTORIZADO: Usamos la consulta SQL sin necesidad de pasar un formato de fecha
-        $sql = max_userdaily_for_90_days();
-        
         $max_users = 0;
         $max_date = 0;
-        
+
         // Iniciar transacción para asegurar consistencia de datos
         $transaction = $DB->start_delegated_transaction();
-        
+
         try {
-            $users_90_days_records = $DB->get_records_sql($sql);
+            // max_userdaily_for_90_days() ya devuelve un objeto o false.
+            $record = max_userdaily_for_90_days();
 
-            foreach ($users_90_days_records as $record) {
-                // Validar que la fecha sea un timestamp válido
-                if (!is_numeric($record->fecha) || $record->fecha <= 0) {
+            if ($record && isset($record->usuarios) && isset($record->fecha)) {
+                // Validar que la fecha sea un timestamp válido.
+                if (is_numeric($record->fecha) && $record->fecha > 0) {
+                    $max_users = (int)$record->usuarios;
+                    $max_date = (int)$record->fecha;
+
+                    set_config('max_userdaily_for_90_days_date', $max_date, 'report_usage_monitor');
+                    set_config('max_userdaily_for_90_days_users', $max_users, 'report_usage_monitor');
+                } else {
                     debugging('users_daily_90_days: Timestamp inválido encontrado: ' . var_export($record->fecha, true), DEBUG_DEVELOPER);
-                    continue;
-                }
-                
-                // La consulta ahora devuelve campos estandarizados
-                if (isset($record->usuarios)) {
-                    $max_users = $record->usuarios;
-                    $max_date = $record->fecha;
-
-                    set_config('max_userdaily_for_90_days_date', $record->fecha, 'report_usage_monitor');
-                    set_config('max_userdaily_for_90_days_users', $record->usuarios, 'report_usage_monitor');
                 }
             }
 

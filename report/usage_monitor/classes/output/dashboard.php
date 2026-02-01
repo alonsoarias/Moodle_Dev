@@ -92,10 +92,8 @@ class dashboard implements renderable, templatable {
      * @return array
      */
     private function get_user_daily_records(): array {
-        global $DB;
-
-        $sql = report_user_daily_sql();
-        $records = $DB->get_records_sql($sql);
+        // report_user_daily_sql() ya devuelve un array de registros.
+        $records = report_user_daily_sql();
 
         $formatted = [];
         foreach ($records as $record) {
@@ -116,10 +114,8 @@ class dashboard implements renderable, templatable {
      * @return array
      */
     private function get_top_user_records(): array {
-        global $DB;
-
-        $sql = report_user_daily_top_sql();
-        $records = $DB->get_records_sql($sql);
+        // report_user_daily_top_sql() ya devuelve un array de registros.
+        $records = report_user_daily_top_sql();
 
         $threshold = (int)($this->config->max_daily_users_threshold ?? 100);
         $formatted = [];
