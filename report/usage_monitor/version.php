@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030520;  // Add sync_tasks and integrity checker for protection.
+$plugin->version   = 2025030521;  // Fix percentage recalculation on threshold change.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.20';    // Added integrity verification and sync_tasks for auto-migration.
+$plugin->release   = '5.3.21';    // Auto-recalculate chart percentages when thresholds change.
 $plugin->maturity  = MATURITY_STABLE;

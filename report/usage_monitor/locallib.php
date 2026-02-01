@@ -40,16 +40,27 @@ function report_usage_monitor_is_hostname_valid(): bool {
 }
 
 /**
- * Check if the plugin is enabled based on hostname validation.
+ * Check if the plugin is enabled based on hostname validation and integrity.
  *
- * The plugin is automatically disabled if the hostname does NOT contain
- * 'moodlesoporte.net' (unauthorized server).
+ * The plugin is automatically disabled if:
+ * - The hostname does NOT contain 'moodlesoporte.net' (unauthorized server)
+ * - The plugin integrity check fails (files modified/removed)
  *
  * This plugin is exclusive to IngeWeb.co hosting services.
  *
  * @return bool True if plugin is enabled, false otherwise.
  */
 function report_usage_monitor_is_enabled(): bool {
+    // First check integrity - if integrity_checker is missing or fails, plugin is disabled.
+    if (class_exists('\\report_usage_monitor\\integrity_checker')) {
+        if (!\report_usage_monitor\integrity_checker::verify()) {
+            return false;
+        }
+    } else {
+        // If integrity_checker class doesn't exist, plugin has been tampered with.
+        return false;
+    }
+
     return hostname_validator::is_plugin_enabled();
 }
 

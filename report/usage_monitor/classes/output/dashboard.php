@@ -61,7 +61,71 @@ class dashboard implements renderable, templatable {
      */
     public function __construct() {
         $this->config = get_config('report_usage_monitor');
+
+        // Check if thresholds have changed and recalculate if needed.
+        $this->check_threshold_changes();
+
         $this->load_data();
+    }
+
+    /**
+     * Check if thresholds have changed and recalculate percentages if needed.
+     * This ensures charts and cards always show correct percentages.
+     */
+    private function check_threshold_changes(): void {
+        global $DB;
+
+        // Get current thresholds.
+        $currentdiskquota = (int)($this->config->disk_quota ?? 0);
+        $currentusersthreshold = (int)($this->config->max_daily_users_threshold ?? 100);
+
+        // Get stored thresholds (from last calculation).
+        $storeddiskquota = (int)($this->config->last_disk_quota ?? 0);
+        $storedusersthreshold = (int)($this->config->last_users_threshold ?? 0);
+
+        $thresholdschanged = false;
+
+        // Check if disk quota changed.
+        if ($currentdiskquota > 0 && $currentdiskquota !== $storeddiskquota) {
+            $thresholdschanged = true;
+            $this->recalculate_disk_history_percentages($currentdiskquota);
+            set_config('last_disk_quota', $currentdiskquota, 'report_usage_monitor');
+        }
+
+        // Check if users threshold changed.
+        if ($currentusersthreshold > 0 && $currentusersthreshold !== $storedusersthreshold) {
+            $thresholdschanged = true;
+            set_config('last_users_threshold', $currentusersthreshold, 'report_usage_monitor');
+        }
+
+        // Reload config if thresholds changed.
+        if ($thresholdschanged) {
+            $this->config = get_config('report_usage_monitor');
+        }
+    }
+
+    /**
+     * Recalculate disk history percentages using current quota.
+     *
+     * @param int $quotagb Current disk quota in GB.
+     */
+    private function recalculate_disk_history_percentages(int $quotagb): void {
+        global $DB;
+
+        $quotabytes = $quotagb * 1024 * 1024 * 1024;
+        if ($quotabytes <= 0) {
+            return;
+        }
+
+        // Update all history records with new percentages.
+        $sql = "SELECT id, value FROM {report_usage_monitor_history} WHERE type = 'disk' AND value > 0";
+        $records = $DB->get_records_sql($sql);
+
+        foreach ($records as $record) {
+            $newpercent = round(($record->value / $quotabytes) * 100, 2);
+            $DB->set_field('report_usage_monitor_history', 'percentage', $newpercent, ['id' => $record->id]);
+            $DB->set_field('report_usage_monitor_history', 'threshold', $quotabytes, ['id' => $record->id]);
+        }
     }
 
     /**
