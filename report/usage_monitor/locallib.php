@@ -1150,3 +1150,56 @@ function report_usage_monitor_schedule_tasks_now(): void {
     // Store timestamp of when tasks were scheduled.
     set_config('tasks_scheduled_at', $now, 'report_usage_monitor');
 }
+
+/**
+ * Execute all plugin tasks immediately.
+ *
+ * This function directly executes the main plugin tasks to populate
+ * dashboard data immediately after installation or upgrade.
+ * Only executes the essential tasks for initial data: disk_usage, last_users,
+ * users_daily, and users_daily_90_days.
+ *
+ * @return array Results of task execution with task name as key and success status as value
+ */
+function report_usage_monitor_run_tasks_now(): array {
+    global $CFG;
+
+    $results = [];
+
+    // List of essential tasks to run for initial data (excluding notifications).
+    $taskclasses = [
+        'disk_usage' => '\\report_usage_monitor\\task\\disk_usage',
+        'last_users' => '\\report_usage_monitor\\task\\last_users',
+        'users_daily' => '\\report_usage_monitor\\task\\users_daily',
+        'users_daily_90_days' => '\\report_usage_monitor\\task\\users_daily_90_days',
+    ];
+
+    foreach ($taskclasses as $name => $classname) {
+        try {
+            if (class_exists($classname)) {
+                $task = new $classname();
+                $task->execute();
+                $results[$name] = true;
+
+                if (debugging('', DEBUG_DEVELOPER)) {
+                    mtrace("report_usage_monitor: Tarea $name ejecutada correctamente.");
+                }
+            } else {
+                $results[$name] = false;
+                if (debugging('', DEBUG_DEVELOPER)) {
+                    mtrace("report_usage_monitor: Clase $classname no encontrada.");
+                }
+            }
+        } catch (\Exception $e) {
+            $results[$name] = false;
+            if (debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Error ejecutando tarea $name: " . $e->getMessage());
+            }
+        }
+    }
+
+    // Store timestamp of when tasks were executed.
+    set_config('tasks_executed_at', time(), 'report_usage_monitor');
+
+    return $results;
+}

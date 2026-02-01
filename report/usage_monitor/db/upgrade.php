@@ -234,15 +234,39 @@ function xmldb_report_usage_monitor_upgrade($oldversion)
             report_usage_monitor_update_scheduled_tasks($pathtodu);
         }
 
-        // Schedule all tasks to run immediately so dashboard has updated data.
-        report_usage_monitor_schedule_tasks_now();
+        // Execute all tasks immediately so dashboard has updated data.
+        if (debugging('', DEBUG_DEVELOPER)) {
+            mtrace("report_usage_monitor: Ejecutando tareas para obtener datos iniciales...");
+        }
+
+        $results = report_usage_monitor_run_tasks_now();
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("report_usage_monitor: Scheduled all tasks for immediate execution.");
+            $successcount = count(array_filter($results));
+            $totalcount = count($results);
+            mtrace("report_usage_monitor: Tareas ejecutadas: $successcount/$totalcount completadas.");
         }
 
         // Punto de guardado para la versión con programación automática de tareas.
         upgrade_plugin_savepoint(true, 2025030502, 'report', 'usage_monitor');
+    }
+
+    // Nueva actualización: ejecutar tareas inmediatamente (no solo programarlas).
+    if ($oldversion < 2025030503) {
+        // Execute all tasks immediately so dashboard has updated data right away.
+        if (debugging('', DEBUG_DEVELOPER)) {
+            mtrace("report_usage_monitor: Ejecutando tareas inmediatamente para datos del dashboard...");
+        }
+
+        $results = report_usage_monitor_run_tasks_now();
+
+        if (debugging('', DEBUG_DEVELOPER)) {
+            $successcount = count(array_filter($results));
+            $totalcount = count($results);
+            mtrace("report_usage_monitor: Tareas ejecutadas: $successcount/$totalcount completadas.");
+        }
+
+        upgrade_plugin_savepoint(true, 2025030503, 'report', 'usage_monitor');
     }
 
     return true;

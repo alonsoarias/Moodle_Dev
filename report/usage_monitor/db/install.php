@@ -89,13 +89,29 @@ function xmldb_report_usage_monitor_install()
         report_usage_monitor_update_scheduled_tasks($pathtodu);
     }
 
-    // Schedule all tasks to run immediately so dashboard has data after installation.
-    report_usage_monitor_schedule_tasks_now();
-
+    // Execute all tasks immediately so dashboard has data right after installation.
     echo $OUTPUT->notification(
-        get_string('tasks_scheduled_install', 'report_usage_monitor'),
-        'success'
+        get_string('tasks_executing', 'report_usage_monitor'),
+        'info'
     );
+
+    $results = report_usage_monitor_run_tasks_now();
+
+    // Show results of task execution.
+    $successcount = count(array_filter($results));
+    $totalcount = count($results);
+
+    if ($successcount === $totalcount) {
+        echo $OUTPUT->notification(
+            get_string('tasks_executed_success', 'report_usage_monitor'),
+            'success'
+        );
+    } else {
+        echo $OUTPUT->notification(
+            get_string('tasks_executed_partial', 'report_usage_monitor', "$successcount/$totalcount"),
+            'warning'
+        );
+    }
 
     return true;
 }
