@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030523;  // Robust hostname validation with obfuscation and cross-verification.
+$plugin->version   = 2025030524;  // Fix self-verification hash calculation.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.23';    // Enhanced hostname_validator with self-verification and integrity cross-check.
+$plugin->release   = '5.3.24';    // Correct VH hash for proper self-verification.
 $plugin->maturity  = MATURITY_STABLE;

@@ -43,7 +43,7 @@ class integrity_checker {
     private const EH = 'bW9vZGxlc29wb3J0ZS5uZXQ=';
 
     /** @var string Verification hash - must match hostname_validator */
-    private const VH = 'a2f8c3d1e5b9';
+    private const VH = 'd86f51455bc3';
 
     /** @var string Internal key - must match hostname_validator */
     private const IK = 'iw_hv_2025';

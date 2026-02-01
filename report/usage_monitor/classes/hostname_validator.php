@@ -43,7 +43,7 @@ class hostname_validator {
     private const EH = 'bW9vZGxlc29wb3J0ZS5uZXQ=';
 
     /** @var string Verification hash of the encoded hostname */
-    private const VH = 'a2f8c3d1e5b9';
+    private const VH = 'd86f51455bc3';
 
     /** @var string Internal key for self-verification */
     private const IK = 'iw_hv_2025';
