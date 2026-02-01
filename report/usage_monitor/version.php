@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030511;  // Add hostname to API GET methods.
+$plugin->version   = 2025030512;  // Recreate README.md without changelog.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.11';    // Include server hostname in all API GET responses.
+$plugin->release   = '5.3.12';    // Updated documentation, removed changelog from README.
 $plugin->maturity  = MATURITY_STABLE;
