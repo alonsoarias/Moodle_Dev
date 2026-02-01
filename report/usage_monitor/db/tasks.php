@@ -104,5 +104,19 @@ $tasks = array(
         'month' => '*',
         'dayofweek' => '*',
         'disabled' => $taskdisabled,
+    ),
+    // Tarea de sincronización de tareas (bootstrap).
+    // IMPORTANTE: Esta tarea SIEMPRE está habilitada (disabled => 0) sin importar
+    // la validación del hostname. Su propósito es sincronizar el estado de las
+    // demás tareas automáticamente y verificar la integridad del plugin.
+    array(
+        'classname' => 'report_usage_monitor\task\sync_tasks',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '*',  // Cada hora para detectar cambios rápidamente.
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0,  // SIEMPRE habilitada - no usar $taskdisabled aquí.
     )
 );
