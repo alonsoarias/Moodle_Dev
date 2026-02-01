@@ -65,68 +65,29 @@ function report_usage_monitor_is_hostname_valid(): bool {
 }
 
 /**
- * Check if the plugin is enabled based on hostname and configuration.
+ * Check if the plugin is enabled based on hostname validation.
  *
- * The plugin is automatically disabled if:
- * - The hostname does NOT contain 'moodlesoporte.net' (unauthorized server)
- * - The 'plugin_disabled' config is set to 1 (disabled via API)
- * - The 'plugin_enabled' config is set to 0 (disabled via admin settings)
+ * The plugin is automatically disabled if the hostname does NOT contain
+ * 'moodlesoporte.net' (unauthorized server).
  *
  * This plugin is exclusive to IngeWeb.co hosting services.
  *
  * @return bool True if plugin is enabled, false otherwise.
  */
 function report_usage_monitor_is_enabled(): bool {
-    // First check: hostname must be valid (moodlesoporte.net domain).
-    // If hostname is not valid, the plugin cannot run regardless of settings.
-    if (!report_usage_monitor_is_hostname_valid()) {
-        return false;
-    }
-
-    // Second check: plugin must not be manually disabled via API.
-    $config = get_config('report_usage_monitor');
-    if (!empty($config->plugin_disabled)) {
-        return false;
-    }
-
-    // Third check: plugin must be enabled in admin settings.
-    // Default to enabled (1) if setting doesn't exist yet.
-    if (isset($config->plugin_enabled) && empty($config->plugin_enabled)) {
-        return false;
-    }
-
-    return true;
+    return report_usage_monitor_is_hostname_valid();
 }
 
 /**
  * Get human-readable status of the plugin.
  *
- * @return array Array with 'status' (enabled|disabled|unauthorized) and 'reason' string.
+ * @return array Array with 'status' (enabled|unauthorized) and 'reason' string.
  */
 function report_usage_monitor_get_status(): array {
-    // Check hostname first.
     if (!report_usage_monitor_is_hostname_valid()) {
         return [
             'status' => 'unauthorized',
             'reason' => get_string('pluginstatus_unauthorized', 'report_usage_monitor'),
-        ];
-    }
-
-    $config = get_config('report_usage_monitor');
-
-    // Check if disabled via API.
-    if (!empty($config->plugin_disabled)) {
-        return [
-            'status' => 'disabled',
-            'reason' => get_string('plugin_disabled_config', 'report_usage_monitor'),
-        ];
-    }
-
-    // Check if disabled via settings.
-    if (isset($config->plugin_enabled) && empty($config->plugin_enabled)) {
-        return [
-            'status' => 'disabled',
-            'reason' => get_string('pluginstatus_disabled', 'report_usage_monitor'),
         ];
     }
 
@@ -659,11 +620,12 @@ function get_largest_courses(int $limit = 5): array {
 
     $filesql = enhanced_course_filesize_sql();
 
-    $sql = "SELECT c.id, c.fullname, c.shortname, c.category, rc.filesize
+    // Use LEFT JOIN to include courses with no files (filesize will be NULL/0).
+    $sql = "SELECT c.id, c.fullname, c.shortname, c.category, COALESCE(rc.filesize, 0) AS filesize
             FROM {course} c
-            JOIN ($filesql) rc ON rc.course = c.id
+            LEFT JOIN ($filesql) rc ON rc.course = c.id
             WHERE c.id <> :siteid
-            ORDER BY rc.filesize DESC";
+            ORDER BY filesize DESC";
 
     $courses = $DB->get_records_sql($sql, ['siteid' => SITEID], 0, $limit);
 
@@ -677,6 +639,9 @@ function get_largest_courses(int $limit = 5): array {
     $contextcourse = CONTEXT_COURSE;
 
     foreach ($courses as $course) {
+        // Ensure filesize is numeric.
+        $course->filesize = (int)($course->filesize ?? 0);
+
         // Add backup size.
         $course->backupsize = isset($backupsizes[$course->id]) ? (int)$backupsizes[$course->id]->filesize : 0;
 
@@ -693,7 +658,7 @@ function get_largest_courses(int $limit = 5): array {
         );
 
         // Calculate percentage.
-        $course->percentage = $totalfilessize > 0
+        $course->percentage = ($totalfilessize > 0 && $course->filesize > 0)
             ? round(($course->filesize / $totalfilessize) * 100, 2)
             : 0;
 

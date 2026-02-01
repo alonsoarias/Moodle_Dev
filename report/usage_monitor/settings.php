@@ -40,8 +40,6 @@ if ($ADMIN->fulltree) {
 
     // Check hostname validity and show appropriate message.
     $hostvalid = report_usage_monitor_is_hostname_valid();
-    $config = get_config('report_usage_monitor');
-    $plugindisabled = !empty($config->plugin_disabled);
 
     if (!$hostvalid) {
         // Hostname not valid - plugin cannot be enabled.
@@ -56,27 +54,6 @@ if ($ADMIN->fulltree) {
             '',
             $statusmsg
         ));
-    } else if ($plugindisabled) {
-        // Plugin manually disabled via API.
-        $statusmsg = html_writer::tag('div',
-            html_writer::tag('strong', get_string('pluginstatus_disabled', 'report_usage_monitor')) .
-            html_writer::empty_tag('br') .
-            get_string('pluginstatus_disabled_desc', 'report_usage_monitor'),
-            ['class' => 'alert alert-warning']
-        );
-        $settings->add(new admin_setting_heading(
-            'report_usage_monitor/pluginstatus_msg',
-            '',
-            $statusmsg
-        ));
-
-        // Show enable checkbox (only on valid hostnames).
-        $settings->add(new admin_setting_configcheckbox(
-            'report_usage_monitor/plugin_enabled',
-            get_string('plugin_enable', 'report_usage_monitor'),
-            get_string('plugin_enable_desc', 'report_usage_monitor'),
-            1
-        ));
     } else {
         // Plugin enabled and hostname valid.
         $statusmsg = html_writer::tag('div',
@@ -89,14 +66,6 @@ if ($ADMIN->fulltree) {
             'report_usage_monitor/pluginstatus_msg',
             '',
             $statusmsg
-        ));
-
-        // Show disable checkbox.
-        $settings->add(new admin_setting_configcheckbox(
-            'report_usage_monitor/plugin_enabled',
-            get_string('plugin_enable', 'report_usage_monitor'),
-            get_string('plugin_enable_desc', 'report_usage_monitor'),
-            1
         ));
     }
 
@@ -254,14 +223,6 @@ if ($ADMIN->fulltree) {
             $alertcontent
         ));
     }
-
-    // Habilitar API para integración con sistemas externos.
-    $settings->add(new admin_setting_configcheckbox(
-        'report_usage_monitor/enable_api',
-        get_string('enable_api', 'report_usage_monitor'),
-        get_string('configenable_api', 'report_usage_monitor'),
-        1 // Habilitado por defecto.
-    ));
 
     } // End if ($hostvalid)
 

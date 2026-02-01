@@ -43,10 +43,10 @@ class renderer extends plugin_renderer_base {
         $data = $dashboard->export_for_template($this);
 
         // Include the AMD module for charts.
+        // Configuration data is passed via data attribute in the template.
         $this->page->requires->js_call_amd(
             'report_usage_monitor/dashboard_charts',
-            'init',
-            [json_decode($data['chart_config'], true)]
+            'init'
         );
 
         return $this->render_from_template('report_usage_monitor/dashboard', $data);

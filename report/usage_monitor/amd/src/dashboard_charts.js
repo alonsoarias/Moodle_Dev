@@ -283,15 +283,32 @@ const initDiskHistoryChart = (config) => {
 
 /**
  * Initialize all dashboard charts.
- *
- * @param {Object} config Configuration object containing all chart data
+ * Reads configuration from data attribute on the page.
  */
-export const init = (config) => {
+export const init = () => {
     // Wait for DOM to be ready.
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => initCharts(config));
+        document.addEventListener('DOMContentLoaded', () => loadAndInitCharts());
     } else {
+        loadAndInitCharts();
+    }
+};
+
+/**
+ * Load configuration from data attribute and initialize charts.
+ */
+const loadAndInitCharts = () => {
+    const configElement = document.getElementById('usage-monitor-chart-config');
+    if (!configElement) {
+        return;
+    }
+
+    try {
+        const config = JSON.parse(configElement.getAttribute('data-chart-config') || '{}');
         initCharts(config);
+    } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to parse chart configuration:', e);
     }
 };
 

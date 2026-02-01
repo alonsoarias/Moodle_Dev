@@ -152,7 +152,7 @@ class dashboard implements renderable, templatable {
         global $DB;
 
         $monthago = time() - (30 * 24 * 60 * 60);
-        $sql = "SELECT timecreated, value, percentage
+        $sql = "SELECT id, timecreated, value, percentage
                 FROM {report_usage_monitor_history}
                 WHERE type = 'disk' AND timecreated > ?
                 ORDER BY timecreated ASC";
@@ -328,8 +328,8 @@ class dashboard implements renderable, templatable {
         $userswarningclass = $this->get_warning_class($userspercent);
 
         // Get timestamps.
-        $lastdiskts = (int)($this->config->lastexecutioncalculate ?? 0);
-        $lastuserts = (int)($this->config->lastexecution ?? 0);
+        $lastdiskts = (int)($this->config->lastexecutioncalculatedisk ?? 0);
+        $lastuserts = (int)($this->config->lastexecutioncalculateuserdaily ?? 0);
         $max90datets = (int)($this->config->max_userdaily_for_90_days_date ?? 0);
         $lastcalc90ts = (int)($this->config->lastexecutioncalculateusers90days ?? 0);
 

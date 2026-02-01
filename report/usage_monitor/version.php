@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030503;  // Execute tasks immediately on install/upgrade.
+$plugin->version   = 2025030504;  // Fix dashboard issues and simplify plugin status.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.3';     // Tasks now execute immediately on install/upgrade for instant dashboard data.
+$plugin->release   = '5.3.4';     // Fixed config keys, largest courses query, and simplified plugin status logic.
 $plugin->maturity  = MATURITY_STABLE;

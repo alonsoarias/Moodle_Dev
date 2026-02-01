@@ -64,57 +64,6 @@ class observer {
             case 'disk_quota':
                 self::recalculate_disk_values((int)$newvalue);
                 break;
-
-            case 'plugin_enabled':
-                // Sync plugin_disabled when plugin_enabled changes from admin settings.
-                self::sync_plugin_status((int)$newvalue);
-                break;
-
-            case 'plugin_disabled':
-                // Sync plugin_enabled when plugin_disabled changes from API.
-                self::sync_plugin_status_inverse((int)$newvalue);
-                break;
-        }
-    }
-
-    /**
-     * Sync plugin_disabled based on plugin_enabled value.
-     *
-     * @param int $enabled The new plugin_enabled value (1 or 0).
-     */
-    private static function sync_plugin_status(int $enabled): void {
-        // When plugin_enabled is set, update plugin_disabled to inverse.
-        // This ensures both configs stay in sync.
-        $disabled = $enabled ? 0 : 1;
-        $currentdisabled = get_config('report_usage_monitor', 'plugin_disabled');
-
-        // Only update if different to avoid infinite loop.
-        if ((int)$currentdisabled !== $disabled) {
-            set_config('plugin_disabled', $disabled, 'report_usage_monitor');
-        }
-
-        if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("report_usage_monitor: Synced plugin status - enabled: {$enabled}, disabled: {$disabled}");
-        }
-    }
-
-    /**
-     * Sync plugin_enabled based on plugin_disabled value.
-     *
-     * @param int $disabled The new plugin_disabled value (1 or 0).
-     */
-    private static function sync_plugin_status_inverse(int $disabled): void {
-        // When plugin_disabled is set, update plugin_enabled to inverse.
-        $enabled = $disabled ? 0 : 1;
-        $currentenabled = get_config('report_usage_monitor', 'plugin_enabled');
-
-        // Only update if different to avoid infinite loop.
-        if ((int)$currentenabled !== $enabled) {
-            set_config('plugin_enabled', $enabled, 'report_usage_monitor');
-        }
-
-        if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("report_usage_monitor: Synced plugin status inverse - disabled: {$disabled}, enabled: {$enabled}");
         }
     }
 

@@ -31,15 +31,8 @@ admin_externalpage_setup('report_usage_monitor', '', null, '', ['pagelayout' => 
 
 // Check if plugin is enabled (hostname validation).
 if (!report_usage_monitor_is_enabled()) {
-    // Check if disabled by config or by hostname.
-    $config = get_config('report_usage_monitor');
-    if (!empty($config->plugin_disabled)) {
-        $message = get_string('plugin_disabled_config', 'report_usage_monitor');
-    } else {
-        $message = get_string('plugin_disabled_hostname', 'report_usage_monitor');
-    }
     echo $OUTPUT->header();
-    echo $OUTPUT->notification($message, 'error');
+    echo $OUTPUT->notification(get_string('plugin_disabled_hostname', 'report_usage_monitor'), 'error');
     echo $OUTPUT->footer();
     die();
 }
