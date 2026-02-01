@@ -65,7 +65,29 @@ class dashboard implements renderable, templatable {
         // Check if thresholds have changed and recalculate if needed.
         $this->check_threshold_changes();
 
+        // Clean up any duplicate daily user records (one-time cleanup).
+        $this->cleanup_duplicate_records();
+
         $this->load_data();
+    }
+
+    /**
+     * Clean up duplicate daily user records.
+     * This runs once and sets a flag to avoid repeated cleanup.
+     */
+    private function cleanup_duplicate_records(): void {
+        $lastcleanup = get_config('report_usage_monitor', 'last_duplicate_cleanup');
+        $today = date('Y-m-d');
+
+        // Only run cleanup once per day.
+        if ($lastcleanup !== $today) {
+            $removed = report_usage_monitor_cleanup_duplicates();
+            set_config('last_duplicate_cleanup', $today, 'report_usage_monitor');
+
+            if ($removed > 0 && debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Removed {$removed} duplicate daily user records.");
+            }
+        }
     }
 
     /**

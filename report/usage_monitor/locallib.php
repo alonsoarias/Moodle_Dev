@@ -236,11 +236,30 @@ function update_min_top_sql(int $fecha, int $usuarios, int $min): void {
         return;
     }
 
+    // Normalize timestamp to start of day to check for duplicates.
+    $daystart = strtotime('today', $fecha);
+    $dayend = strtotime('tomorrow', $fecha);
+
     // Use transaction for consistency.
     $transaction = $DB->start_delegated_transaction();
 
     try {
-        // Get the oldest record with minimum users.
+        // First check if a record for this day already exists.
+        $sql = "SELECT id, cantidad_usuarios FROM {report_usage_monitor}
+                WHERE fecha >= :daystart AND fecha < :dayend";
+        $existing = $DB->get_record_sql($sql, ['daystart' => $daystart, 'dayend' => $dayend]);
+
+        if ($existing) {
+            // Update existing record if new count is higher.
+            if ($usuarios > $existing->cantidad_usuarios) {
+                $DB->set_field('report_usage_monitor', 'fecha', $fecha, ['id' => $existing->id]);
+                $DB->set_field('report_usage_monitor', 'cantidad_usuarios', $usuarios, ['id' => $existing->id]);
+            }
+            $transaction->allow_commit();
+            return;
+        }
+
+        // Get the oldest record with minimum users to replace.
         $sql = "SELECT id, fecha FROM {report_usage_monitor}
                 WHERE cantidad_usuarios = :min
                 ORDER BY fecha ASC";
@@ -259,6 +278,60 @@ function update_min_top_sql(int $fecha, int $usuarios, int $min): void {
 }
 
 /**
+ * Clean up duplicate daily user records.
+ * Keeps only the record with the highest user count for each day.
+ *
+ * @return int Number of duplicate records removed.
+ */
+function report_usage_monitor_cleanup_duplicates(): int {
+    global $DB;
+
+    $removed = 0;
+
+    // Get all records ordered by date and user count.
+    $sql = "SELECT id, fecha, cantidad_usuarios FROM {report_usage_monitor} ORDER BY fecha DESC, cantidad_usuarios DESC";
+    $records = $DB->get_records_sql($sql);
+
+    if (empty($records)) {
+        return 0;
+    }
+
+    // Group records by day (normalized to start of day).
+    $byDay = [];
+    foreach ($records as $record) {
+        $dayKey = date('Y-m-d', $record->fecha);
+        if (!isset($byDay[$dayKey])) {
+            $byDay[$dayKey] = [];
+        }
+        $byDay[$dayKey][] = $record;
+    }
+
+    // For each day, keep only the record with highest user count.
+    $idsToDelete = [];
+    foreach ($byDay as $day => $dayRecords) {
+        if (count($dayRecords) > 1) {
+            // Sort by user count descending, keep first (highest).
+            usort($dayRecords, function($a, $b) {
+                return $b->cantidad_usuarios - $a->cantidad_usuarios;
+            });
+
+            // Mark all but the first for deletion.
+            for ($i = 1; $i < count($dayRecords); $i++) {
+                $idsToDelete[] = $dayRecords[$i]->id;
+            }
+        }
+    }
+
+    // Delete duplicates.
+    if (!empty($idsToDelete)) {
+        $DB->delete_records_list('report_usage_monitor', 'id', $idsToDelete);
+        $removed = count($idsToDelete);
+    }
+
+    return $removed;
+}
+
+/**
  * Insert a new record into the top users table.
  * Maintains only the 10 most recent records.
  *
@@ -274,29 +347,53 @@ function insert_top_sql(int $fecha, int $cantidadusuarios): void {
         return;
     }
 
+    // Normalize timestamp to start of day to avoid duplicates.
+    $daystart = strtotime('today', $fecha);
+    $dayend = strtotime('tomorrow', $fecha);
+
     // Use transaction for consistency.
     $transaction = $DB->start_delegated_transaction();
 
     try {
-        // Insert the new record.
-        $record = new stdClass();
-        $record->fecha = $fecha;
-        $record->cantidad_usuarios = $cantidadusuarios;
-        $DB->insert_record('report_usage_monitor', $record);
+        // Check if record for this day already exists.
+        $sql = "SELECT id, cantidad_usuarios FROM {report_usage_monitor}
+                WHERE fecha >= :daystart AND fecha < :dayend";
+        $existing = $DB->get_record_sql($sql, ['daystart' => $daystart, 'dayend' => $dayend]);
 
-        // Count and remove excess records.
-        $count = $DB->count_records('report_usage_monitor');
-        if ($count > 10) {
-            // Get IDs of oldest records to delete.
-            $sql = "SELECT id FROM {report_usage_monitor} ORDER BY fecha ASC";
-            $records = $DB->get_records_sql($sql, [], 0, $count - 10);
-
-            if (!empty($records)) {
-                $ids = array_keys($records);
-                $DB->delete_records_list('report_usage_monitor', 'id', $ids);
-
+        if ($existing) {
+            // Update existing record if new count is higher.
+            if ($cantidadusuarios > $existing->cantidad_usuarios) {
+                $DB->set_field('report_usage_monitor', 'fecha', $fecha, ['id' => $existing->id]);
+                $DB->set_field('report_usage_monitor', 'cantidad_usuarios', $cantidadusuarios, ['id' => $existing->id]);
                 if (debugging('', DEBUG_DEVELOPER)) {
-                    mtrace("Removed " . count($ids) . " old records to maintain 10 record limit.");
+                    mtrace("Updated existing record for this day with higher count: {$cantidadusuarios}");
+                }
+            } else {
+                if (debugging('', DEBUG_DEVELOPER)) {
+                    mtrace("Record for this day already exists with equal or higher count.");
+                }
+            }
+        } else {
+            // Insert the new record.
+            $record = new stdClass();
+            $record->fecha = $fecha;
+            $record->cantidad_usuarios = $cantidadusuarios;
+            $DB->insert_record('report_usage_monitor', $record);
+
+            // Count and remove excess records.
+            $count = $DB->count_records('report_usage_monitor');
+            if ($count > 10) {
+                // Get IDs of oldest records to delete.
+                $sql = "SELECT id FROM {report_usage_monitor} ORDER BY fecha ASC";
+                $records = $DB->get_records_sql($sql, [], 0, $count - 10);
+
+                if (!empty($records)) {
+                    $ids = array_keys($records);
+                    $DB->delete_records_list('report_usage_monitor', 'id', $ids);
+
+                    if (debugging('', DEBUG_DEVELOPER)) {
+                        mtrace("Removed " . count($ids) . " old records to maintain 10 record limit.");
+                    }
                 }
             }
         }
