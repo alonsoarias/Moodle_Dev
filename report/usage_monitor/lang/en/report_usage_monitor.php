@@ -148,7 +148,7 @@ $string['error_disk_threshold_negative'] = 'Disk threshold must be greater than 
 $string['error_no_thresholds_provided'] = 'No thresholds provided to update.';
 
 // Plugin status strings
-$string['plugin_disabled_hostname'] = 'This report is only available on Moodle platforms supported and hosted by ingeweb.co.';
+$string['plugin_disabled_hostname'] = 'This report is only available on Moodle platforms supported and hosted by <a href="https://ingeweb.co" target="_blank">ingeweb.co</a>.';
 $string['plugin_disabled_config'] = 'This plugin has been disabled by an administrator.';
 $string['tasks_scheduled_install'] = 'Scheduled tasks have been configured to run immediately. The dashboard will display updated data after the next cron execution.';
 $string['tasks_executing'] = 'Executing tasks to obtain initial dashboard data...';

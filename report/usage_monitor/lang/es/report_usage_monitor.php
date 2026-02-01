@@ -148,7 +148,7 @@ $string['error_disk_threshold_negative'] = 'El umbral de disco debe ser mayor qu
 $string['error_no_thresholds_provided'] = 'No se proporcionaron umbrales para actualizar.';
 
 // Plugin status strings
-$string['plugin_disabled_hostname'] = 'Este reporte solo está disponible en plataformas Moodle soportadas y alojadas por ingeweb.co.';
+$string['plugin_disabled_hostname'] = 'Este reporte solo está disponible en plataformas Moodle soportadas y alojadas por <a href="https://ingeweb.co" target="_blank">ingeweb.co</a>.';
 $string['plugin_disabled_config'] = 'Este plugin ha sido desactivado por un administrador.';
 $string['tasks_scheduled_install'] = 'Las tareas programadas se han configurado para ejecutarse inmediatamente. El dashboard mostrará datos actualizados después de la próxima ejecución del cron.';
 $string['tasks_executing'] = 'Ejecutando tareas para obtener datos iniciales del dashboard...';
