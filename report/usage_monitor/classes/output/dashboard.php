@@ -145,11 +145,15 @@ class dashboard implements renderable, templatable {
 
     /**
      * Get disk history data.
+     * Recalculates percentages using the current threshold.
      *
      * @return array
      */
     private function get_disk_history(): array {
         global $DB;
+
+        // Get current threshold for recalculation.
+        $currentthreshold = ((int)($this->config->disk_quota ?? 0)) * 1024 * 1024 * 1024;
 
         $monthago = time() - (30 * 24 * 60 * 60);
         $sql = "SELECT id, timecreated, value, percentage
@@ -162,9 +166,16 @@ class dashboard implements renderable, templatable {
         foreach ($records as $record) {
             if (is_numeric($record->timecreated) && $record->timecreated > 0) {
                 $datekey = date('Y-m-d', (int)$record->timecreated);
+
+                // Recalculate percentage using current threshold if value is available.
+                $percentage = $record->percentage;
+                if ($currentthreshold > 0 && isset($record->value) && $record->value > 0) {
+                    $percentage = calculate_threshold_percentage((int)$record->value, $currentthreshold);
+                }
+
                 $dailydata[$datekey] = [
                     'label' => $this->format_date((int)$record->timecreated),
-                    'percentage' => round($record->percentage, 1),
+                    'percentage' => round($percentage, 1),
                 ];
             }
         }

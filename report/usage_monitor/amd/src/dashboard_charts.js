@@ -35,6 +35,12 @@ const COLORS = {
     light: '#dee2e6',
 };
 
+/** @var {ChartJS|null} usersLineChart - Reference to users line chart instance */
+let usersLineChart = null;
+
+/** @var {Object|null} globalConfig - Stored chart configuration for deferred initialization */
+let globalConfig = null;
+
 /**
  * Initialize the doughnut chart for disk distribution.
  *
@@ -84,6 +90,7 @@ const initDoughnutChart = (config) => {
 
 /**
  * Initialize the line chart for last 10 days users.
+ * This chart is in a hidden tab, so it must be initialized when the tab becomes visible.
  *
  * @param {Object} config Chart configuration
  */
@@ -93,7 +100,13 @@ const initUsersLineChart = (config) => {
         return;
     }
 
-    new ChartJS(canvas, {
+    // Destroy existing chart if it exists (for re-initialization).
+    if (usersLineChart) {
+        usersLineChart.destroy();
+        usersLineChart = null;
+    }
+
+    usersLineChart = new ChartJS(canvas, {
         type: 'line',
         data: {
             labels: config.labels,
@@ -282,6 +295,23 @@ const initDiskHistoryChart = (config) => {
 };
 
 /**
+ * Set up tab event listeners to initialize charts when tabs become visible.
+ * Chart.js cannot properly size a canvas in a hidden container.
+ */
+const setupTabListeners = () => {
+    // Listen for Bootstrap tab show events on the users chart tab.
+    const chartTab = document.getElementById('grafica10-tab');
+    if (chartTab) {
+        chartTab.addEventListener('shown.bs.tab', () => {
+            // Initialize the users line chart when the tab becomes visible.
+            if (globalConfig && globalConfig.usersLine && !usersLineChart) {
+                initUsersLineChart(globalConfig.usersLine);
+            }
+        });
+    }
+};
+
+/**
  * Initialize all dashboard charts.
  * Reads configuration from data attribute on the page.
  */
@@ -304,8 +334,9 @@ const loadAndInitCharts = () => {
     }
 
     try {
-        const config = JSON.parse(configElement.getAttribute('data-chart-config') || '{}');
-        initCharts(config);
+        globalConfig = JSON.parse(configElement.getAttribute('data-chart-config') || '{}');
+        initCharts(globalConfig);
+        setupTabListeners();
     } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Failed to parse chart configuration:', e);
@@ -314,24 +345,24 @@ const loadAndInitCharts = () => {
 
 /**
  * Initialize all charts with provided configuration.
+ * Note: Charts in hidden tabs are deferred until the tab is shown.
  *
  * @param {Object} config Configuration object
  */
 const initCharts = (config) => {
-    // Doughnut chart for disk distribution.
+    // Doughnut chart for disk distribution (visible immediately).
     if (config.doughnut) {
         initDoughnutChart(config.doughnut);
     }
 
-    // Line chart for users last 10 days.
-    if (config.usersLine) {
-        initUsersLineChart(config.usersLine);
-    }
-
-    // Line chart for disk history.
+    // Line chart for disk history (visible immediately).
     if (config.diskHistory) {
         initDiskHistoryChart(config.diskHistory);
     }
+
+    // Note: Users line chart (chartjs-last10days) is initialized when its tab is shown,
+    // because Chart.js cannot properly calculate dimensions in hidden containers.
+    // See setupTabListeners() for the deferred initialization.
 };
 
 export default {

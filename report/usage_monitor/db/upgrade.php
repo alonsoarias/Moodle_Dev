@@ -234,17 +234,24 @@ function xmldb_report_usage_monitor_upgrade($oldversion)
             report_usage_monitor_update_scheduled_tasks($pathtodu);
         }
 
-        // Execute all tasks immediately so dashboard has updated data.
-        if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("report_usage_monitor: Ejecutando tareas para obtener datos iniciales...");
-        }
+        // Only execute tasks if the server is authorized (hostname validation).
+        if (report_usage_monitor_is_enabled()) {
+            // Execute all tasks immediately so dashboard has updated data.
+            if (debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Ejecutando tareas para obtener datos iniciales...");
+            }
 
-        $results = report_usage_monitor_run_tasks_now();
+            $results = report_usage_monitor_run_tasks_now();
 
-        if (debugging('', DEBUG_DEVELOPER)) {
-            $successcount = count(array_filter($results));
-            $totalcount = count($results);
-            mtrace("report_usage_monitor: Tareas ejecutadas: $successcount/$totalcount completadas.");
+            if (debugging('', DEBUG_DEVELOPER)) {
+                $successcount = count(array_filter($results));
+                $totalcount = count($results);
+                mtrace("report_usage_monitor: Tareas ejecutadas: $successcount/$totalcount completadas.");
+            }
+        } else {
+            if (debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Servidor no autorizado - no se ejecutan tareas.");
+            }
         }
 
         // Punto de guardado para la versión con programación automática de tareas.
@@ -253,17 +260,24 @@ function xmldb_report_usage_monitor_upgrade($oldversion)
 
     // Nueva actualización: ejecutar tareas inmediatamente (no solo programarlas).
     if ($oldversion < 2025030503) {
-        // Execute all tasks immediately so dashboard has updated data right away.
-        if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("report_usage_monitor: Ejecutando tareas inmediatamente para datos del dashboard...");
-        }
+        // Only execute tasks if the server is authorized (hostname validation).
+        if (report_usage_monitor_is_enabled()) {
+            // Execute all tasks immediately so dashboard has updated data right away.
+            if (debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Ejecutando tareas inmediatamente para datos del dashboard...");
+            }
 
-        $results = report_usage_monitor_run_tasks_now();
+            $results = report_usage_monitor_run_tasks_now();
 
-        if (debugging('', DEBUG_DEVELOPER)) {
-            $successcount = count(array_filter($results));
-            $totalcount = count($results);
-            mtrace("report_usage_monitor: Tareas ejecutadas: $successcount/$totalcount completadas.");
+            if (debugging('', DEBUG_DEVELOPER)) {
+                $successcount = count(array_filter($results));
+                $totalcount = count($results);
+                mtrace("report_usage_monitor: Tareas ejecutadas: $successcount/$totalcount completadas.");
+            }
+        } else {
+            if (debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Servidor no autorizado - no se ejecutan tareas.");
+            }
         }
 
         upgrade_plugin_savepoint(true, 2025030503, 'report', 'usage_monitor');

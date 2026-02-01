@@ -34,12 +34,8 @@ $string['exclusivedisclaimer'] = 'This plugin is part of, and is to be exclusive
 $string['pluginstatus'] = 'Plugin Status';
 $string['pluginstatus_enabled'] = 'Plugin Enabled';
 $string['pluginstatus_enabled_desc'] = 'The plugin is active and running on an authorized server.';
-$string['pluginstatus_disabled'] = 'Plugin Disabled';
-$string['pluginstatus_disabled_desc'] = 'The plugin has been manually disabled. Check the box below to enable it.';
 $string['pluginstatus_unauthorized'] = 'Unauthorized Server';
-$string['pluginstatus_unauthorized_desc'] = 'This plugin is exclusively for moodlesoporte.net hosted platforms. It cannot be enabled on this server.';
-$string['plugin_enable'] = 'Enable plugin';
-$string['plugin_enable_desc'] = 'Enable or disable the Usage Monitor plugin functionality.';
+$string['pluginstatus_unauthorized_desc'] = 'This report is only available on Moodle platforms supported and hosted by <a href="https://ingeweb.co" target="_blank">ingeweb.co</a>.';
 
 // Dashboard strings
 $string['dashboard'] = 'Dashboard';
@@ -128,8 +124,6 @@ $string['configpathtodu'] = 'Configure the path to the du command (disk usage). 
 $string['pathtodurecommendation'] = 'We recommend that you review and configure the path to \'du\' in the Moodle System Paths. You can find this setting under Site administration > Server > System Paths. <a target="_blank" href="settings.php?section=systempaths#id_s__pathtodu">Click here to go to System Paths</a>.';
 $string['pathtodunote'] = 'Note: The path to \'du\' will be automatically detected only if this plugin is on a Linux system and if the location of \'du\' can be successfully detected.';
 $string['activateshellexec'] = 'The shell_exec function is not active on this server. To use the auto-detection of the path to du, you need to enable shell_exec in your server configuration.';
-$string['enable_api'] = 'Enable API';
-$string['configenable_api'] = 'Enable API access for external systems to retrieve usage information.';
 
 // Email notification strings
 $string['subjectemail1'] = 'Daily User Limit Exceeded on Platform:';
@@ -149,7 +143,6 @@ $string['error_no_thresholds_provided'] = 'No thresholds provided to update.';
 
 // Plugin status strings
 $string['plugin_disabled_hostname'] = 'This report is only available on Moodle platforms supported and hosted by <a href="https://ingeweb.co" target="_blank">ingeweb.co</a>.';
-$string['plugin_disabled_config'] = 'This plugin has been disabled by an administrator.';
 $string['tasks_scheduled_install'] = 'Scheduled tasks have been configured to run immediately. The dashboard will display updated data after the next cron execution.';
 $string['tasks_executing'] = 'Executing tasks to obtain initial dashboard data...';
 $string['tasks_executed_success'] = 'All tasks executed successfully. The dashboard now displays updated data.';
