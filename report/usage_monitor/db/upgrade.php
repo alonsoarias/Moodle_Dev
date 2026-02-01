@@ -195,6 +195,56 @@ function xmldb_report_usage_monitor_upgrade($oldversion)
         upgrade_plugin_savepoint(true, 2025030403, 'report', 'usage_monitor');
     }
 
+    // Nueva actualización: programar tareas y detectar du automáticamente.
+    if ($oldversion < 2025030502) {
+        $pathtodu = '';
+
+        // First, check if $CFG->pathtodu is already configured in Moodle's global settings.
+        if (!empty($CFG->pathtodu) && file_exists($CFG->pathtodu) && is_executable($CFG->pathtodu)) {
+            $pathtodu = $CFG->pathtodu;
+            if (debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Using Moodle's configured du path: " . $pathtodu);
+            }
+        } else {
+            // If not configured globally, try to auto-detect.
+            $shellexecavailable = false;
+            if (function_exists('shell_exec')) {
+                $disabledfunctions = ini_get('disable_functions');
+                if (empty($disabledfunctions) || strpos($disabledfunctions, 'shell_exec') === false) {
+                    $shellexecavailable = true;
+                }
+            }
+
+            if ($shellexecavailable && PHP_OS_FAMILY === 'Linux') {
+                $detectedpath = @shell_exec('which du 2>/dev/null');
+                $detectedpath = $detectedpath !== null ? trim($detectedpath) : '';
+
+                if (!empty($detectedpath) && file_exists($detectedpath) && is_executable($detectedpath)) {
+                    $pathtodu = $detectedpath;
+                    set_config('pathtodu', $pathtodu);
+                    if (debugging('', DEBUG_DEVELOPER)) {
+                        mtrace("report_usage_monitor: Auto-detected du path: " . $pathtodu);
+                    }
+                }
+            }
+        }
+
+        // If du path is available, update scheduled tasks to run more frequently.
+        if (!empty($pathtodu)) {
+            report_usage_monitor_update_scheduled_tasks($pathtodu);
+        }
+
+        // Schedule all tasks to run immediately so dashboard has updated data.
+        report_usage_monitor_schedule_tasks_now();
+
+        if (debugging('', DEBUG_DEVELOPER)) {
+            mtrace("report_usage_monitor: Scheduled all tasks for immediate execution.");
+        }
+
+        // Punto de guardado para la versión con programación automática de tareas.
+        upgrade_plugin_savepoint(true, 2025030502, 'report', 'usage_monitor');
+    }
+
     return true;
 }
 

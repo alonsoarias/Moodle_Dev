@@ -24,6 +24,9 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/../locallib.php');
+
 /**
  * Configura el script de instalación.
  * Esta función se ejecuta durante la instalación del complemento y muestra notificaciones al usuario según las capacidades del servidor.
@@ -31,25 +34,68 @@ defined('MOODLE_INTERNAL') || die();
  */
 function xmldb_report_usage_monitor_install()
 {
-    global $OUTPUT;
+    global $OUTPUT, $CFG;
 
-    // Comprobamos si la función shell_exec está disponible en el servidor.
-    // Si está disponible, mostramos recomendaciones y notas relacionadas con la ruta 'du'.
-    if (function_exists('shell_exec')) {
+    $pathtodu = '';
+
+    // First, check if $CFG->pathtodu is already configured in Moodle's global settings.
+    if (!empty($CFG->pathtodu) && file_exists($CFG->pathtodu) && is_executable($CFG->pathtodu)) {
+        $pathtodu = $CFG->pathtodu;
         echo $OUTPUT->notification(
-            get_string('pathtodurecommendation', 'report_usage_monitor'), // Mostramos un mensaje de recomendación. Este texto será traducido según el idioma del usuario.
-            'info' // Se muestra una notificación informativa.
-        );
-        echo $OUTPUT->notification(
-            get_string('pathtodunote', 'report_usage_monitor'), // Mostramos una nota adicional. Este texto será traducido según el idioma del usuario.
-            'info' // Se muestra una notificación informativa.
+            get_string('pathtodu', 'report_usage_monitor') . ': ' . $pathtodu . ' (Moodle config)',
+            'success'
         );
     } else {
-        // Si la función shell_exec no está disponible, mostramos una advertencia al usuario.
-        echo $OUTPUT->notification(
-            get_string('activateshellexec', 'report_usage_monitor'), // Mostramos un mensaje de advertencia. Este texto será traducido según el idioma del usuario.
-            'warning' // Se muestra una notificación de advertencia.
-        );
+        // If not configured globally, try to auto-detect.
+        $shellexecavailable = false;
+        if (function_exists('shell_exec')) {
+            $disabledfunctions = ini_get('disable_functions');
+            if (empty($disabledfunctions) || strpos($disabledfunctions, 'shell_exec') === false) {
+                $shellexecavailable = true;
+            }
+        }
+
+        if ($shellexecavailable) {
+            echo $OUTPUT->notification(
+                get_string('pathtodurecommendation', 'report_usage_monitor'),
+                'info'
+            );
+
+            // Auto-detect du path on Linux systems.
+            if (PHP_OS_FAMILY === 'Linux') {
+                $detectedpath = @shell_exec('which du 2>/dev/null');
+                $detectedpath = $detectedpath !== null ? trim($detectedpath) : '';
+
+                if (!empty($detectedpath) && file_exists($detectedpath) && is_executable($detectedpath)) {
+                    $pathtodu = $detectedpath;
+                    // Save to global config so it persists.
+                    set_config('pathtodu', $pathtodu);
+                    echo $OUTPUT->notification(
+                        get_string('pathtodu', 'report_usage_monitor') . ': ' . $pathtodu,
+                        'success'
+                    );
+                }
+            }
+        } else {
+            echo $OUTPUT->notification(
+                get_string('activateshellexec', 'report_usage_monitor'),
+                'warning'
+            );
+        }
     }
+
+    // If du path is available, update scheduled tasks to run more frequently.
+    if (!empty($pathtodu)) {
+        report_usage_monitor_update_scheduled_tasks($pathtodu);
+    }
+
+    // Schedule all tasks to run immediately so dashboard has data after installation.
+    report_usage_monitor_schedule_tasks_now();
+
+    echo $OUTPUT->notification(
+        get_string('tasks_scheduled_install', 'report_usage_monitor'),
+        'success'
+    );
+
     return true;
 }

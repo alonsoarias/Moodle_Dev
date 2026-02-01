@@ -174,6 +174,20 @@ if ($ADMIN->fulltree) {
     
     // Configuración para el comando 'du'
     $defaultPathToDu = '';
+    $dudetected = false;
+
+    // First, check if $CFG->pathtodu is already configured in Moodle's global settings.
+    if (!empty($CFG->pathtodu) && file_exists($CFG->pathtodu) && is_executable($CFG->pathtodu)) {
+        $defaultPathToDu = $CFG->pathtodu;
+        $dudetected = true;
+
+        // Update scheduled tasks if not already configured.
+        $currentpathtodu = get_config('pathtodu');
+        if (empty($currentpathtodu) || $currentpathtodu !== $defaultPathToDu) {
+            set_config('pathtodu', $defaultPathToDu);
+            report_usage_monitor_update_scheduled_tasks($defaultPathToDu);
+        }
+    }
 
     // Verificar si shell_exec está disponible (no solo existe, sino que no está deshabilitada).
     $shellexecavailable = false;
@@ -185,13 +199,14 @@ if ($ADMIN->fulltree) {
     }
 
     if ($shellexecavailable) {
-        // Intentar detectar automáticamente la ruta de 'du' en sistemas Linux.
-        if (PHP_OS_FAMILY === 'Linux') {
+        // If not detected from $CFG, try to auto-detect on Linux systems.
+        if (!$dudetected && PHP_OS_FAMILY === 'Linux') {
             $pathToDu = @shell_exec('which du 2>/dev/null');
             $pathToDu = $pathToDu !== null ? trim($pathToDu) : '';
 
             if (!empty($pathToDu) && file_exists($pathToDu) && is_executable($pathToDu)) {
                 $defaultPathToDu = $pathToDu;
+                $dudetected = true;
 
                 // Actualizar la configuración global si no está ya configurada.
                 $currentpathtodu = get_config('pathtodu');
@@ -199,24 +214,12 @@ if ($ADMIN->fulltree) {
                     set_config('pathtodu', $defaultPathToDu);
                     // Auto-detected du path: update scheduled tasks to run more frequently.
                     report_usage_monitor_update_scheduled_tasks($defaultPathToDu);
-                } else if ($currentpathtodu !== $defaultPathToDu) {
-                    // Path changed: update scheduled tasks configuration.
-                    report_usage_monitor_update_scheduled_tasks($currentpathtodu);
                 }
-            } else {
-                // Mostrar recomendación si no se puede detectar automáticamente.
-                $infocontent = html_writer::tag('div',
-                    get_string('pathtodurecommendation', 'report_usage_monitor'),
-                    ['class' => 'alert alert-info']
-                );
-                $settings->add(new admin_setting_heading(
-                    'report_usage_monitor/pathtodurecommendation',
-                    '',
-                    $infocontent
-                ));
             }
-        } else {
-            // Mostrar recomendación para sistemas no Linux.
+        }
+
+        if (!$dudetected) {
+            // Mostrar recomendación si no se puede detectar automáticamente.
             $infocontent = html_writer::tag('div',
                 get_string('pathtodurecommendation', 'report_usage_monitor'),
                 ['class' => 'alert alert-info']

@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030501;  // Auto-update scheduled tasks when du path is detected.
+$plugin->version   = 2025030502;  // Run scheduled tasks on install/upgrade for initial data.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.1';     // Auto-detect du path and update scheduled tasks automatically.
+$plugin->release   = '5.3.2';     // Execute tasks on install/upgrade for dashboard data.
 $plugin->maturity  = MATURITY_STABLE;
