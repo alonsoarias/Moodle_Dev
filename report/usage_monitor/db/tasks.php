@@ -29,6 +29,30 @@ global $CFG;
 // Lista de tareas programadas para el complemento report_usage_monitor.
 // Estas tareas se ejecutarán automáticamente en los intervalos de tiempo especificados.
 $du_command_available = !empty($CFG->pathtodu) && is_executable(trim($CFG->pathtodu));
+
+// Check if hostname is valid for IngeWeb hosting.
+// Tasks are disabled by default on unauthorized servers.
+$validhostname = 'moodlesoporte.net';
+$hostnamevalid = false;
+
+// First check wwwroot.
+if (!empty($CFG->wwwroot) && stripos($CFG->wwwroot, $validhostname) !== false) {
+    $hostnamevalid = true;
+} else {
+    // Check extracted hostname.
+    $hostname = '';
+    if (!empty($CFG->wwwroot)) {
+        $parsed = parse_url($CFG->wwwroot);
+        $hostname = $parsed['host'] ?? '';
+    }
+    if (!empty($hostname) && stripos($hostname, $validhostname) !== false) {
+        $hostnamevalid = true;
+    }
+}
+
+// Set disabled=1 if hostname is not valid.
+$taskdisabled = $hostnamevalid ? 0 : 1;
+
 $tasks = array(
     // Tarea para calcular el uso del disco.
     array(
@@ -38,7 +62,8 @@ $tasks = array(
         'hour' => $du_command_available ? '*/6' : '12', // Cada 6 horas si du está activo, de lo contrario, cada 12 horas.
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
+        'disabled' => $taskdisabled,
     ),
     // Tarea para calcular los usuarios conectados más recientes.
     array(
@@ -48,7 +73,8 @@ $tasks = array(
         'hour' => '*/2',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
+        'disabled' => $taskdisabled,
     ),
     // Tarea para procesar notificaciones sobre el espacio en disco.
     array(
@@ -58,7 +84,8 @@ $tasks = array(
         'hour' => '*/12',  // Cada 12 horas
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
+        'disabled' => $taskdisabled,
     ),
     // Tarea para procesar notificaciones sobre los límites de usuarios diarios.
     array(
@@ -68,7 +95,8 @@ $tasks = array(
         'hour' => '8',  // Una vez al día a las 8 AM
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
+        'disabled' => $taskdisabled,
     ),
     // Tarea para calcular los usuarios principales en los últimos 90 días.
     array(
@@ -78,7 +106,8 @@ $tasks = array(
         'hour' => '0',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
+        'disabled' => $taskdisabled,
     ),
     // Tarea para calcular los usuarios diarios.
     array(
@@ -88,6 +117,7 @@ $tasks = array(
         'hour' => '0',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
+        'disabled' => $taskdisabled,
     )
 );

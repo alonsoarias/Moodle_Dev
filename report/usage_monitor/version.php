@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030514;  // Disable scheduled tasks when hostname is invalid.
+$plugin->version   = 2025030515;  // Use Moodle task manager API for task state management.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.14';    // Plugin completely disabled on unauthorized servers including scheduled tasks.
+$plugin->release   = '5.3.15';    // Tasks properly disabled on unauthorized servers via Moodle API.
 $plugin->maturity  = MATURITY_STABLE;

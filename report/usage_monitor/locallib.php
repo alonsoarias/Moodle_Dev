@@ -110,26 +110,39 @@ function report_usage_monitor_get_status(): array {
  * When the hostname is not valid, all scheduled tasks are disabled.
  * When the hostname becomes valid, tasks are re-enabled.
  *
+ * Uses Moodle's task manager API for proper task state management.
+ *
  * @param bool $enabled True to enable tasks, false to disable them.
  * @return void
  */
 function report_usage_monitor_set_tasks_enabled(bool $enabled): void {
-    global $DB;
-
     // List of all task class names for this plugin.
     $taskclasses = [
-        '\report_usage_monitor\task\disk_usage',
-        '\report_usage_monitor\task\last_users',
-        '\report_usage_monitor\task\notification_disk',
-        '\report_usage_monitor\task\notification_userlimit',
-        '\report_usage_monitor\task\users_daily',
-        '\report_usage_monitor\task\users_daily_90_days',
+        '\\report_usage_monitor\\task\\disk_usage',
+        '\\report_usage_monitor\\task\\last_users',
+        '\\report_usage_monitor\\task\\notification_disk',
+        '\\report_usage_monitor\\task\\notification_userlimit',
+        '\\report_usage_monitor\\task\\users_daily',
+        '\\report_usage_monitor\\task\\users_daily_90_days',
     ];
 
-    $disabled = $enabled ? 0 : 1;
-
     foreach ($taskclasses as $classname) {
-        $DB->set_field('task_scheduled', 'disabled', $disabled, ['classname' => $classname]);
+        $task = \core\task\manager::get_scheduled_task($classname);
+        if ($task) {
+            if ($enabled) {
+                // Enable the task using Moodle's API.
+                if ($task->get_disabled()) {
+                    $task->set_disabled(false);
+                    \core\task\manager::configure_scheduled_task($task);
+                }
+            } else {
+                // Disable the task using Moodle's API.
+                if (!$task->get_disabled()) {
+                    $task->set_disabled(true);
+                    \core\task\manager::configure_scheduled_task($task);
+                }
+            }
+        }
     }
 }
 

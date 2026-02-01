@@ -315,6 +315,23 @@ function xmldb_report_usage_monitor_upgrade($oldversion)
         upgrade_plugin_savepoint(true, 2025030514, 'report', 'usage_monitor');
     }
 
+    // Nueva actualización: usar API de Moodle para gestión de tareas programadas.
+    if ($oldversion < 2025030515) {
+        // Re-sync tasks using proper Moodle task manager API.
+        // This ensures tasks are properly enabled/disabled based on hostname.
+        $hostnamevalid = report_usage_monitor_sync_tasks_state();
+
+        if (debugging('', DEBUG_DEVELOPER)) {
+            if ($hostnamevalid) {
+                mtrace("report_usage_monitor: Hostname valid - scheduled tasks enabled via Moodle API.");
+            } else {
+                mtrace("report_usage_monitor: Hostname invalid - scheduled tasks disabled via Moodle API.");
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2025030515, 'report', 'usage_monitor');
+    }
+
     return true;
 }
 

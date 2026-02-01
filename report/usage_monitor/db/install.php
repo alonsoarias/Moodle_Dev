@@ -84,42 +84,23 @@ function xmldb_report_usage_monitor_install()
         }
     }
 
-    // If du path is available, update scheduled tasks to run more frequently.
-    if (!empty($pathtodu)) {
-        report_usage_monitor_update_scheduled_tasks($pathtodu);
-    }
+    // Check if hostname is valid for this plugin.
+    // Note: Scheduled tasks are created AFTER install.php runs (by upgrade_component_updated).
+    // The task state (enabled/disabled) is determined in db/tasks.php based on hostname.
+    $hostnamevalid = report_usage_monitor_is_hostname_valid();
 
-    // Sync scheduled tasks state based on hostname validation.
-    // This will disable all tasks if hostname is invalid, or enable them if valid.
-    $hostnamevalid = report_usage_monitor_sync_tasks_state();
-
-    // Only execute tasks if the server is authorized (hostname validation).
     if ($hostnamevalid) {
-        // Execute all tasks immediately so dashboard has data right after installation.
+        // Server is authorized - tasks will be enabled when created.
         echo $OUTPUT->notification(
-            get_string('tasks_executing', 'report_usage_monitor'),
-            'info'
+            get_string('pluginstatus_enabled', 'report_usage_monitor'),
+            'success'
         );
-
-        $results = report_usage_monitor_run_tasks_now();
-
-        // Show results of task execution.
-        $successcount = count(array_filter($results));
-        $totalcount = count($results);
-
-        if ($successcount === $totalcount) {
-            echo $OUTPUT->notification(
-                get_string('tasks_executed_success', 'report_usage_monitor'),
-                'success'
-            );
-        } else {
-            echo $OUTPUT->notification(
-                get_string('tasks_executed_partial', 'report_usage_monitor', "$successcount/$totalcount"),
-                'warning'
-            );
+        // Store du path info for when tasks are created.
+        if (!empty($pathtodu)) {
+            set_config('pathtodu_detected', $pathtodu, 'report_usage_monitor');
         }
     } else {
-        // Server not authorized - tasks have been disabled.
+        // Server not authorized - tasks will be disabled when created.
         echo $OUTPUT->notification(
             get_string('plugin_disabled_hostname', 'report_usage_monitor'),
             'warning'
