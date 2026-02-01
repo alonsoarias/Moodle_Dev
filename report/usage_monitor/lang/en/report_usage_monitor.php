@@ -35,7 +35,7 @@ $string['pluginstatus'] = 'Plugin Status';
 $string['pluginstatus_enabled'] = 'Plugin Enabled';
 $string['pluginstatus_enabled_desc'] = 'The plugin is active and running on an authorized server.';
 $string['pluginstatus_unauthorized'] = 'Unauthorized Server';
-$string['pluginstatus_unauthorized_desc'] = 'This report is only available on Moodle platforms supported and hosted by <a href="https://ingeweb.co" target="_blank">ingeweb.co</a>.';
+$string['pluginstatus_unauthorized_desc'] = 'The <strong>Usage Monitor</strong> is an exclusive tool for Moodle platforms managed by <a href="https://ingeweb.co" target="_blank">IngeWeb</a>. If you are interested in this service, <a href="https://ingeweb.co/contacto" target="_blank">contact us</a>.';
 
 // Dashboard strings
 $string['dashboard'] = 'Dashboard';
@@ -142,7 +142,19 @@ $string['error_disk_threshold_negative'] = 'Disk threshold must be greater than 
 $string['error_no_thresholds_provided'] = 'No thresholds provided to update.';
 
 // Plugin status strings
-$string['plugin_disabled_hostname'] = 'This report is only available on Moodle platforms supported and hosted by <a href="https://ingeweb.co" target="_blank">ingeweb.co</a>.';
+$string['plugin_disabled_hostname'] = '<div class="text-center">
+<h4 class="mb-3"><i class="fa fa-lock"></i> Restricted Access</h4>
+<p class="mb-2">The <strong>Usage Monitor</strong> is an exclusive tool that allows you to visualize in real-time your Moodle platform resource consumption, including:</p>
+<ul class="list-unstyled mb-3">
+<li><i class="fa fa-hdd-o text-primary"></i> Disk space and database usage</li>
+<li><i class="fa fa-users text-primary"></i> Daily active users and trends</li>
+<li><i class="fa fa-chart-line text-primary"></i> Growth charts and projections</li>
+<li><i class="fa fa-bell text-primary"></i> Automatic email alerts</li>
+</ul>
+<p class="mb-3">This functionality is available <strong>exclusively</strong> for Moodle platforms managed and hosted by IngeWeb.</p>
+<p><a href="https://ingeweb.co/contacto" target="_blank" class="btn btn-primary"><i class="fa fa-envelope"></i> Contact us for more information</a></p>
+<p class="small text-muted mt-2">Already have hosting with us? <a href="https://ingeweb.co/soporte" target="_blank">Contact support</a> to activate this feature.</p>
+</div>';
 $string['tasks_scheduled_install'] = 'Scheduled tasks have been configured to run immediately. The dashboard will display updated data after the next cron execution.';
 $string['tasks_executing'] = 'Executing tasks to obtain initial dashboard data...';
 $string['tasks_executed_success'] = 'All tasks executed successfully. The dashboard now displays updated data.';

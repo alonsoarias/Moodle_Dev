@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030506;  // Fix Bootstrap 4 tab compatibility for chart display.
+$plugin->version   = 2025030507;  // Improve unauthorized server message with detailed feature description.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.6';     // Fixed tabs to use Bootstrap 4 data attributes (data-toggle instead of data-bs-toggle).
+$plugin->release   = '5.3.7';     // Enhanced unauthorized access message with feature list and contact links.
 $plugin->maturity  = MATURITY_STABLE;

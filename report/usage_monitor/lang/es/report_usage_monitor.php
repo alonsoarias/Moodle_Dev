@@ -35,11 +35,11 @@ $string['pluginstatus'] = 'Estado del Plugin';
 $string['pluginstatus_enabled'] = 'Plugin Habilitado';
 $string['pluginstatus_enabled_desc'] = 'El plugin está activo y funcionando en un servidor autorizado.';
 $string['pluginstatus_unauthorized'] = 'Servidor No Autorizado';
-$string['pluginstatus_unauthorized_desc'] = 'Este reporte solo está disponible en plataformas Moodle soportadas y alojadas por <a href="https://ingeweb.co" target="_blank">ingeweb.co</a>.';
+$string['pluginstatus_unauthorized_desc'] = 'El <strong>Usage Monitor</strong> es una herramienta exclusiva para plataformas Moodle administradas por <a href="https://ingeweb.co" target="_blank">IngeWeb</a>. Si estás interesado en este servicio, <a href="https://ingeweb.co/contacto" target="_blank">contáctanos</a>.';
 
 // Dashboard strings
 $string['dashboard'] = 'Panel de Control';
-$string['dashboard_title'] = 'Panel de Control de Uso';
+$string['dashboard_title'] = 'Dashboard de Usage Monitor';
 $string['diskusage'] = 'Uso del disco';
 $string['users_today_card'] = 'Usuarios Diarios Hoy';
 $string['max_userdaily_for_90_days'] = 'Máximo de usuarios diarios en los últimos 90 días';
@@ -142,7 +142,19 @@ $string['error_disk_threshold_negative'] = 'El umbral de disco debe ser mayor qu
 $string['error_no_thresholds_provided'] = 'No se proporcionaron umbrales para actualizar.';
 
 // Plugin status strings
-$string['plugin_disabled_hostname'] = 'Este reporte solo está disponible en plataformas Moodle soportadas y alojadas por <a href="https://ingeweb.co" target="_blank">ingeweb.co</a>.';
+$string['plugin_disabled_hostname'] = '<div class="text-center">
+<h4 class="mb-3"><i class="fa fa-lock"></i> Acceso Restringido</h4>
+<p class="mb-2">El <strong>Usage Monitor</strong> es una herramienta exclusiva que permite visualizar en tiempo real el consumo de recursos de tu plataforma Moodle, incluyendo:</p>
+<ul class="list-unstyled mb-3">
+<li><i class="fa fa-hdd-o text-primary"></i> Uso de espacio en disco y base de datos</li>
+<li><i class="fa fa-users text-primary"></i> Usuarios activos diarios y tendencias</li>
+<li><i class="fa fa-chart-line text-primary"></i> Gráficas de crecimiento y proyecciones</li>
+<li><i class="fa fa-bell text-primary"></i> Alertas automáticas por correo electrónico</li>
+</ul>
+<p class="mb-3">Esta funcionalidad está disponible <strong>exclusivamente</strong> para plataformas Moodle administradas y alojadas por IngeWeb.</p>
+<p><a href="https://ingeweb.co/contacto" target="_blank" class="btn btn-primary"><i class="fa fa-envelope"></i> Contáctanos para más información</a></p>
+<p class="small text-muted mt-2">¿Ya tienes hosting con nosotros? <a href="https://ingeweb.co/soporte" target="_blank">Contacta a soporte</a> para activar esta funcionalidad.</p>
+</div>';
 $string['tasks_scheduled_install'] = 'Las tareas programadas se han configurado para ejecutarse inmediatamente. El dashboard mostrará datos actualizados después de la próxima ejecución del cron.';
 $string['tasks_executing'] = 'Ejecutando tareas para obtener datos iniciales del dashboard...';
 $string['tasks_executed_success'] = 'Todas las tareas se ejecutaron correctamente. El dashboard ahora muestra datos actualizados.';
