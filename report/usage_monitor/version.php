@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030529;  // Add system hostname check for shared hosting environments.
+$plugin->version   = 2025030530;  // Fix AMD module format for RequireJS compatibility.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.29';    // Hostname validator now checks gethostname() and php_uname for server identity.
+$plugin->release   = '5.3.30';    // Minified JS now uses proper AMD define() format instead of ES6 import.
 $plugin->maturity  = MATURITY_STABLE;
