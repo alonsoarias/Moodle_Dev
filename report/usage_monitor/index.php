@@ -33,6 +33,8 @@ admin_externalpage_setup('report_usage_monitor', '', null, '', ['pagelayout' => 
 if (!report_usage_monitor_is_enabled()) {
     echo $OUTPUT->header();
     echo $OUTPUT->notification(get_string('plugin_disabled_hostname', 'report_usage_monitor'), 'error');
+    // Show credits when plugin is disabled.
+    echo html_writer::tag('div', get_string('reportinfotext', 'report_usage_monitor'), ['class' => 'mt-4 text-center text-muted small']);
     echo $OUTPUT->footer();
     die();
 }

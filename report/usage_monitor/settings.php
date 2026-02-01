@@ -43,10 +43,9 @@ if ($ADMIN->fulltree) {
 
     if (!$hostvalid) {
         // Hostname not valid - plugin cannot be enabled.
+        // Show the same message as index.php for consistency.
         $statusmsg = html_writer::tag('div',
-            html_writer::tag('strong', get_string('pluginstatus_unauthorized', 'report_usage_monitor')) .
-            html_writer::empty_tag('br') .
-            get_string('pluginstatus_unauthorized_desc', 'report_usage_monitor'),
+            get_string('plugin_disabled_hostname', 'report_usage_monitor'),
             ['class' => 'alert alert-danger']
         );
         $settings->add(new admin_setting_heading(
@@ -54,6 +53,7 @@ if ($ADMIN->fulltree) {
             '',
             $statusmsg
         ));
+        // Credits are shown at the end of the page (always show section).
     } else {
         // Plugin enabled and hostname valid.
         $statusmsg = html_writer::tag('div',

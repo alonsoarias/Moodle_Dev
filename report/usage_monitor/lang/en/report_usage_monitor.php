@@ -144,9 +144,7 @@ $string['error_no_thresholds_provided'] = 'No thresholds provided to update.';
 // Plugin status strings
 $string['plugin_disabled_hostname'] = '<div class="text-center">
 <h4 class="mb-3 text-danger"><i class="fa fa-exclamation-triangle"></i> Unauthorized Server</h4>
-<p class="mb-3">This plugin is part of and is for the exclusive use of the Moodle hosting service provided by <a href="https://ingeweb.co" target="_blank"><strong>IngeWeb</strong></a>.</p>
-<p class="mb-2"><a href="https://ingeweb.co/hosting-moodle" target="_blank" class="btn btn-primary"><i class="fa fa-server"></i> Learn about our Moodle Hosting</a></p>
-<p class="small text-muted">Already an IngeWeb customer? <a href="https://ingeweb.co/soporte" target="_blank">Contact technical support</a> to activate this plugin on your platform.</p>
+<p class="mb-0">This plugin is part of and is for the exclusive use of the Moodle hosting service provided by <a href="https://ingeweb.co" target="_blank"><strong>IngeWeb</strong></a>.</p>
 </div>';
 $string['tasks_scheduled_install'] = 'Scheduled tasks have been configured to run immediately. The dashboard will display updated data after the next cron execution.';
 $string['tasks_executing'] = 'Executing tasks to obtain initial dashboard data...';

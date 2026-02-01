@@ -144,9 +144,7 @@ $string['error_no_thresholds_provided'] = 'No se proporcionaron umbrales para ac
 // Plugin status strings
 $string['plugin_disabled_hostname'] = '<div class="text-center">
 <h4 class="mb-3 text-danger"><i class="fa fa-exclamation-triangle"></i> Servidor No Autorizado</h4>
-<p class="mb-3">Este plugin hace parte y es de uso exclusivo del servicio de hosting para Moodle proporcionado por <a href="https://ingeweb.co" target="_blank"><strong>IngeWeb</strong></a>.</p>
-<p class="mb-2"><a href="https://ingeweb.co/hosting-moodle" target="_blank" class="btn btn-primary"><i class="fa fa-server"></i> Conoce nuestro Hosting Moodle</a></p>
-<p class="small text-muted">¿Ya eres cliente de IngeWeb? <a href="https://ingeweb.co/soporte" target="_blank">Contacta a soporte técnico</a> para activar este plugin en tu plataforma.</p>
+<p class="mb-0">Este plugin hace parte y es de uso exclusivo del servicio de hosting para Moodle proporcionado por <a href="https://ingeweb.co" target="_blank"><strong>IngeWeb</strong></a>.</p>
 </div>';
 $string['tasks_scheduled_install'] = 'Las tareas programadas se han configurado para ejecutarse inmediatamente. El dashboard mostrará datos actualizados después de la próxima ejecución del cron.';
 $string['tasks_executing'] = 'Ejecutando tareas para obtener datos iniciales del dashboard...';
