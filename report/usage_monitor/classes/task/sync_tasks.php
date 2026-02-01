@@ -50,9 +50,9 @@ class sync_tasks extends \core\task\scheduled_task {
      * @return bool True on success.
      */
     public function execute(): bool {
-        // All validation is centralized in the license class.
-        // The license class uses token-based validation to prevent bypass attacks.
-        $isvalid = \report_usage_monitor\license::sync_tasks();
+        // All validation is centralized in hostname_validator.
+        // Uses integrity cross-verification and obfuscated hostname.
+        $isvalid = \report_usage_monitor\hostname_validator::sync_scheduled_tasks();
 
         if (debugging('', DEBUG_DEVELOPER)) {
             $status = $isvalid ? 'authorized (tasks enabled)' : 'unauthorized (tasks disabled)';

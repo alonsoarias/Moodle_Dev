@@ -76,8 +76,8 @@ class set_usage_thresholds extends external_api {
         self::validate_context($context);
         require_capability('report/usage_monitor:manage', $context);
 
-        // Check license validity - throws exception if not authorized.
-        \report_usage_monitor\license::require_authorized();
+        // Check hostname validity - throws exception if not authorized.
+        \report_usage_monitor\hostname_validator::require_valid();
 
         // Validate parameters.
         $params = self::validate_parameters(self::execute_parameters(), [

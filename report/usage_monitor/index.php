@@ -29,11 +29,11 @@ require_once($CFG->dirroot . '/report/usage_monitor/locallib.php');
 // Setup admin page.
 admin_externalpage_setup('report_usage_monitor', '', null, '', ['pagelayout' => 'admin']);
 
-// Sync scheduled tasks state based on license validity.
+// Sync scheduled tasks state based on hostname validity.
 // This auto-corrects manually enabled tasks on unauthorized servers.
-$hostvalid = \report_usage_monitor\license::sync_tasks();
+$hostvalid = \report_usage_monitor\hostname_validator::sync_scheduled_tasks();
 
-// Check if plugin is authorized (license validation).
+// Check if plugin is authorized (hostname validation).
 if (!$hostvalid) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('dashboard_title', 'report_usage_monitor'));

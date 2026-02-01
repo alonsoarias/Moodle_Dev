@@ -28,18 +28,28 @@
 
 namespace report_usage_monitor;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Hostname validator class.
  *
  * Provides centralized hostname validation for the plugin.
  * All validation logic is contained here to avoid code duplication.
+ * Uses multiple layers of verification for robustness.
  */
 class hostname_validator {
 
-    /**
-     * The valid hostname pattern for IngeWeb hosting.
-     */
-    private const VALID_HOSTNAME = 'moodlesoporte.net';
+    /** @var string Encoded hostname pattern (base64) */
+    private const EH = 'bW9vZGxlc29wb3J0ZS5uZXQ=';
+
+    /** @var string Verification hash of the encoded hostname */
+    private const VH = 'a2f8c3d1e5b9';
+
+    /** @var string Internal key for self-verification */
+    private const IK = 'iw_hv_2025';
+
+    /** @var bool|null Cached validation result */
+    private static $cv = null;
 
     /**
      * Check if the current server hostname is valid for this plugin.
@@ -47,42 +57,23 @@ class hostname_validator {
      * The plugin is only authorized to run on moodlesoporte.net domains
      * (e.g., hera.moodlesoporte.net, zeus.moodlesoporte.net, etc.)
      *
-     * Validation order:
-     * 1. First checks if wwwroot contains the valid hostname pattern
-     * 2. If not, checks the extracted hostname from wwwroot
-     * 3. As fallback, checks HTTP_HOST server variable
-     *
      * @return bool True if hostname is valid, false otherwise.
      */
     public static function is_valid(): bool {
-        global $CFG;
-
-        // First, check if wwwroot contains the valid hostname (case insensitive).
-        // This covers cases where the full URL contains the valid domain.
-        if (!empty($CFG->wwwroot) && stripos($CFG->wwwroot, self::VALID_HOSTNAME) !== false) {
-            return true;
+        // Return cached result if available.
+        if (self::$cv !== null) {
+            return self::$cv;
         }
 
-        // Try to get hostname from wwwroot.
-        $hostname = '';
-        if (!empty($CFG->wwwroot)) {
-            $parsed = parse_url($CFG->wwwroot);
-            $hostname = $parsed['host'] ?? '';
-        }
-
-        // Fallback to server hostname.
-        if (empty($hostname) && !empty($_SERVER['HTTP_HOST'])) {
-            $hostname = $_SERVER['HTTP_HOST'];
-        }
-
-        // If no hostname could be determined, plugin is not authorized.
-        if (empty($hostname)) {
+        // Self-verification: ensure constants haven't been tampered with.
+        if (!self::sv()) {
+            self::$cv = false;
             return false;
         }
 
-        // Check if hostname contains the valid domain (case insensitive).
-        // Valid examples: hera.moodlesoporte.net, zeus.moodlesoporte.net, moodlesoporte.net
-        return stripos($hostname, self::VALID_HOSTNAME) !== false;
+        // Perform actual hostname validation.
+        self::$cv = self::vh();
+        return self::$cv;
     }
 
     /**
@@ -91,7 +82,7 @@ class hostname_validator {
      * @return string The valid hostname pattern.
      */
     public static function get_valid_hostname(): string {
-        return self::VALID_HOSTNAME;
+        return self::dh();
     }
 
     /**
@@ -109,7 +100,6 @@ class hostname_validator {
      * Require valid hostname or throw exception.
      *
      * Use this method in API endpoints to block access on unauthorized servers.
-     * Throws an exception that will be properly formatted in API responses.
      *
      * @throws \moodle_exception If hostname is not valid.
      * @return void
@@ -124,20 +114,21 @@ class hostname_validator {
      * Synchronize scheduled tasks state based on hostname validation.
      *
      * This method ensures all plugin tasks are disabled on unauthorized servers
-     * and enabled on authorized servers. Call this method when accessing
-     * plugin pages to auto-correct manually changed task states.
-     *
-     * IMPORTANT: The sync_tasks task is excluded from this method because it
-     * must always remain enabled to perform the synchronization on every server.
+     * and enabled on authorized servers.
      *
      * @return bool True if hostname is valid (tasks enabled), false otherwise.
      */
     public static function sync_scheduled_tasks(): bool {
+        // Verify integrity before syncing tasks.
+        if (!self::vi()) {
+            self::dt(true);
+            return false;
+        }
+
         $isvalid = self::is_valid();
 
         // List of all task class names for this plugin.
-        // NOTE: sync_tasks is intentionally excluded - it must always be enabled
-        // to perform hostname validation and task synchronization automatically.
+        // NOTE: sync_tasks is excluded - it must always be enabled.
         $taskclasses = [
             '\\report_usage_monitor\\task\\disk_usage',
             '\\report_usage_monitor\\task\\last_users',
@@ -153,7 +144,6 @@ class hostname_validator {
                 $shouldbedisabled = !$isvalid;
                 $currentlydisabled = (bool) $task->get_disabled();
 
-                // Only update if state needs to change.
                 if ($shouldbedisabled !== $currentlydisabled) {
                     $task->set_disabled($shouldbedisabled);
                     \core\task\manager::configure_scheduled_task($task);
@@ -162,5 +152,129 @@ class hostname_validator {
         }
 
         return $isvalid;
+    }
+
+    /**
+     * Decode hostname (internal).
+     *
+     * @return string Decoded hostname.
+     */
+    private static function dh(): string {
+        return base64_decode(self::EH);
+    }
+
+    /**
+     * Self-verification: check if constants are intact.
+     *
+     * @return bool True if self-verification passes.
+     */
+    private static function sv(): bool {
+        $h = self::dh();
+        // Verify the decoded hostname produces expected hash prefix.
+        $hash = substr(md5($h . self::IK), 0, 12);
+        return $hash === self::VH;
+    }
+
+    /**
+     * Validate hostname against server configuration.
+     *
+     * @return bool True if hostname matches.
+     */
+    private static function vh(): bool {
+        global $CFG;
+
+        $vh = self::dh();
+
+        // Method 1: Check wwwroot directly.
+        if (!empty($CFG->wwwroot) && stripos($CFG->wwwroot, $vh) !== false) {
+            return true;
+        }
+
+        // Method 2: Parse and check hostname from wwwroot.
+        $hostname = '';
+        if (!empty($CFG->wwwroot)) {
+            $parsed = parse_url($CFG->wwwroot);
+            $hostname = $parsed['host'] ?? '';
+        }
+
+        // Method 3: Fallback to HTTP_HOST.
+        if (empty($hostname) && !empty($_SERVER['HTTP_HOST'])) {
+            $hostname = $_SERVER['HTTP_HOST'];
+        }
+
+        // Method 4: Fallback to SERVER_NAME.
+        if (empty($hostname) && !empty($_SERVER['SERVER_NAME'])) {
+            $hostname = $_SERVER['SERVER_NAME'];
+        }
+
+        if (empty($hostname)) {
+            return false;
+        }
+
+        return stripos($hostname, $vh) !== false;
+    }
+
+    /**
+     * Verify integrity by checking if integrity_checker exists and validates.
+     *
+     * @return bool True if integrity check passes.
+     */
+    private static function vi(): bool {
+        if (!class_exists('\\report_usage_monitor\\integrity_checker')) {
+            return false;
+        }
+
+        // Verify integrity_checker confirms this class.
+        if (!method_exists('\\report_usage_monitor\\integrity_checker', 'verify')) {
+            return false;
+        }
+
+        return \report_usage_monitor\integrity_checker::verify();
+    }
+
+    /**
+     * Disable all tasks (emergency function).
+     *
+     * @param bool $force Force disable even if already disabled.
+     */
+    private static function dt(bool $force = false): void {
+        $taskclasses = [
+            '\\report_usage_monitor\\task\\disk_usage',
+            '\\report_usage_monitor\\task\\last_users',
+            '\\report_usage_monitor\\task\\notification_disk',
+            '\\report_usage_monitor\\task\\notification_userlimit',
+            '\\report_usage_monitor\\task\\users_daily',
+            '\\report_usage_monitor\\task\\users_daily_90_days',
+        ];
+
+        foreach ($taskclasses as $classname) {
+            $task = \core\task\manager::get_scheduled_task($classname);
+            if ($task && ($force || !$task->get_disabled())) {
+                $task->set_disabled(true);
+                \core\task\manager::configure_scheduled_task($task);
+            }
+        }
+    }
+
+    /**
+     * Clear validation cache.
+     * Used primarily for testing.
+     */
+    public static function clear_cache(): void {
+        self::$cv = null;
+    }
+
+    /**
+     * Get verification status for debugging.
+     *
+     * @return array Status of internal checks.
+     */
+    public static function get_status(): array {
+        return [
+            'self_verification' => self::sv(),
+            'hostname_valid' => self::vh(),
+            'integrity_valid' => self::vi(),
+            'overall' => self::is_valid(),
+        ];
     }
 }

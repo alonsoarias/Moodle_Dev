@@ -61,8 +61,8 @@ class get_monitor_stats extends external_api {
         self::validate_context($context);
         require_capability('report/usage_monitor:view', $context);
 
-        // Check license validity - throws exception if not authorized.
-        \report_usage_monitor\license::require_authorized();
+        // Check hostname validity - throws exception if not authorized.
+        \report_usage_monitor\hostname_validator::require_valid();
 
         // Get plugin configuration.
         $reportconfig = get_config('report_usage_monitor');

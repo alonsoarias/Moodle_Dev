@@ -38,12 +38,12 @@ if ($ADMIN->fulltree) {
         ''
     ));
 
-    // Sync scheduled tasks state based on license validity.
+    // Sync scheduled tasks state based on hostname validity.
     // This auto-corrects manually enabled tasks on unauthorized servers.
-    $hostvalid = \report_usage_monitor\license::sync_tasks();
+    $hostvalid = \report_usage_monitor\hostname_validator::sync_scheduled_tasks();
 
     if (!$hostvalid) {
-        // License not valid - plugin cannot be enabled.
+        // Hostname not valid - plugin cannot be enabled.
         // Show the same message as index.php for consistency.
         $statusmsg = html_writer::tag('div',
             get_string('plugin_disabled_hostname', 'report_usage_monitor'),
@@ -56,7 +56,7 @@ if ($ADMIN->fulltree) {
         ));
         // Credits are shown at the end of the page (always show section).
     } else {
-        // Plugin enabled and license valid.
+        // Plugin enabled and hostname valid.
         $statusmsg = html_writer::tag('div',
             html_writer::tag('strong', get_string('pluginstatus_enabled', 'report_usage_monitor')) .
             html_writer::empty_tag('br') .

@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-use report_usage_monitor\license;
 use report_usage_monitor\hostname_validator;
+use report_usage_monitor\integrity_checker;
 
 /**
  * Check if the current hostname is valid for this plugin.
@@ -37,25 +37,23 @@ use report_usage_monitor\hostname_validator;
  * @return bool True if hostname is valid, false otherwise.
  */
 function report_usage_monitor_is_hostname_valid(): bool {
-    return license::is_authorized();
+    return hostname_validator::is_valid();
 }
 
 /**
- * Check if the plugin is enabled based on license validation.
+ * Check if the plugin is enabled based on hostname validation and integrity.
  *
  * The plugin is automatically disabled if:
- * - The license validation fails (uses centralized token-based validation)
+ * - The integrity check fails (critical files modified/removed)
  * - The hostname does NOT contain 'moodlesoporte.net' (unauthorized server)
  *
  * This plugin is exclusive to IngeWeb.co hosting services.
- * All validation is performed by the centralized license class.
  *
  * @return bool True if plugin is enabled, false otherwise.
  */
 function report_usage_monitor_is_enabled(): bool {
-    // All validation is centralized in the license class.
-    // The license class uses token-based validation to prevent bypass attacks.
-    return license::is_authorized();
+    // Use integrity_checker which verifies both integrity AND hostname.
+    return integrity_checker::is_authorized();
 }
 
 /**
@@ -64,7 +62,7 @@ function report_usage_monitor_is_enabled(): bool {
  * @return array Array with 'status' (enabled|unauthorized) and 'reason' string.
  */
 function report_usage_monitor_get_status(): array {
-    if (!license::is_authorized()) {
+    if (!hostname_validator::is_valid()) {
         return [
             'status' => 'unauthorized',
             'reason' => get_string('pluginstatus_unauthorized', 'report_usage_monitor'),
@@ -120,15 +118,15 @@ function report_usage_monitor_set_tasks_enabled(bool $enabled): void {
 }
 
 /**
- * Synchronize scheduled tasks state based on license validity.
+ * Synchronize scheduled tasks state based on hostname validity.
  *
  * This function should be called during install, upgrade, and when settings change.
- * If license is invalid, all tasks are disabled. Otherwise, they are enabled.
+ * If hostname is invalid, all tasks are disabled. Otherwise, they are enabled.
  *
- * @return bool True if tasks are enabled (license valid), false if disabled.
+ * @return bool True if tasks are enabled (hostname valid), false if disabled.
  */
 function report_usage_monitor_sync_tasks_state(): bool {
-    return license::sync_tasks();
+    return hostname_validator::sync_scheduled_tasks();
 }
 
 /**

@@ -35,46 +35,32 @@ defined('MOODLE_INTERNAL') || die();
  *
  * Provides integrity verification for the plugin to prevent unauthorized
  * modifications and ensure the plugin only runs in authorized environments.
+ * Cross-verifies with hostname_validator for mutual protection.
  */
 class integrity_checker {
 
-    /**
-     * Encoded valid hostname (base64 of 'moodlesoporte.net').
-     * @var string
-     */
+    /** @var string Encoded valid hostname (base64) */
     private const EH = 'bW9vZGxlc29wb3J0ZS5uZXQ=';
 
-    /**
-     * Required class signatures for integrity verification.
-     * @var array
-     */
-    private const REQUIRED_CLASSES = [
-        'report_usage_monitor\\license',
+    /** @var string Verification hash - must match hostname_validator */
+    private const VH = 'a2f8c3d1e5b9';
+
+    /** @var string Internal key - must match hostname_validator */
+    private const IK = 'iw_hv_2025';
+
+    /** @var array Required classes for integrity */
+    private const RC = [
         'report_usage_monitor\\hostname_validator',
         'report_usage_monitor\\integrity_checker',
     ];
 
-    /**
-     * Required methods in license class.
-     * @var array
-     */
-    private const LICENSE_METHODS = [
-        'get_token',
-        'validate_token',
-        'is_authorized',
-        'require_authorized',
-        'sync_tasks',
-        'get_valid_hostname',
-    ];
-
-    /**
-     * Required methods in hostname_validator.
-     * @var array
-     */
-    private const REQUIRED_METHODS = [
+    /** @var array Required methods in hostname_validator */
+    private const RM = [
         'is_valid',
-        'sync_scheduled_tasks',
+        'get_valid_hostname',
+        'is_plugin_enabled',
         'require_valid',
+        'sync_scheduled_tasks',
     ];
 
     /**
@@ -83,7 +69,7 @@ class integrity_checker {
      * @return bool True if all integrity checks pass.
      */
     public static function verify(): bool {
-        return self::vc() && self::vl() && self::vm() && self::vh();
+        return self::vc() && self::vm() && self::vh() && self::vs();
     }
 
     /**
@@ -92,33 +78,10 @@ class integrity_checker {
      * @return bool True if all required classes exist.
      */
     private static function vc(): bool {
-        foreach (self::REQUIRED_CLASSES as $c) {
+        foreach (self::RC as $c) {
             if (!class_exists('\\' . $c)) {
                 return false;
             }
-        }
-        return true;
-    }
-
-    /**
-     * Verify license class methods exist.
-     *
-     * @return bool True if all license methods exist.
-     */
-    private static function vl(): bool {
-        if (!class_exists('\\report_usage_monitor\\license')) {
-            return false;
-        }
-        foreach (self::LICENSE_METHODS as $m) {
-            if (!method_exists('\\report_usage_monitor\\license', $m)) {
-                return false;
-            }
-        }
-        // Verify license returns correct hostname.
-        $eh = base64_decode(self::EH);
-        $lh = \report_usage_monitor\license::get_valid_hostname();
-        if ($lh !== $eh) {
-            return false;
         }
         return true;
     }
@@ -132,7 +95,7 @@ class integrity_checker {
         if (!class_exists('\\report_usage_monitor\\hostname_validator')) {
             return false;
         }
-        foreach (self::REQUIRED_METHODS as $m) {
+        foreach (self::RM as $m) {
             if (!method_exists('\\report_usage_monitor\\hostname_validator', $m)) {
                 return false;
             }
@@ -141,23 +104,31 @@ class integrity_checker {
     }
 
     /**
-     * Verify hostname validation is working correctly.
+     * Verify hostname_validator returns correct hostname pattern.
      *
      * @return bool True if hostname validation is functional.
      */
     private static function vh(): bool {
-        // Decode and verify the hostname validator returns expected pattern.
         $eh = base64_decode(self::EH);
 
-        // Get the valid hostname from validator.
         if (!method_exists('\\report_usage_monitor\\hostname_validator', 'get_valid_hostname')) {
             return false;
         }
 
         $vh = \report_usage_monitor\hostname_validator::get_valid_hostname();
 
-        // Verify the hostname matches our encoded value.
         return $vh === $eh;
+    }
+
+    /**
+     * Self-verification: ensure our constants match hostname_validator.
+     *
+     * @return bool True if self-verification passes.
+     */
+    private static function vs(): bool {
+        $h = base64_decode(self::EH);
+        $hash = substr(md5($h . self::IK), 0, 12);
+        return $hash === self::VH;
     }
 
     /**
@@ -168,16 +139,16 @@ class integrity_checker {
     public static function get_status(): array {
         return [
             'classes_exist' => self::vc(),
-            'license_valid' => self::vl(),
             'methods_exist' => self::vm(),
             'hostname_valid' => self::vh(),
+            'self_verification' => self::vs(),
             'overall' => self::verify(),
         ];
     }
 
     /**
      * Verify and get hostname validation result.
-     * This is an alternative entry point that combines integrity and hostname checks.
+     * Combines integrity and hostname checks.
      *
      * @return bool True only if integrity passes AND hostname is valid.
      */
@@ -190,7 +161,6 @@ class integrity_checker {
 
     /**
      * Generate a verification token for the current installation.
-     * This can be used to verify the plugin hasn't been moved to another server.
      *
      * @return string Verification token.
      */
