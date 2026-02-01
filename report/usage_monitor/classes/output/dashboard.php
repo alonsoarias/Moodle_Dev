@@ -456,8 +456,9 @@ class dashboard implements renderable, templatable {
         $userdataraw = [];
         foreach ($this->userdailyrecords as $record) {
             $userlabels[] = $record['date'];
+            // Allow percentages above 100% to show when threshold is exceeded.
             $percent = $maxthreshold > 0
-                     ? min(100, round(($record['users'] / $maxthreshold) * 100, 1))
+                     ? round(($record['users'] / $maxthreshold) * 100, 1)
                      : 0;
             $userdata[] = $percent;
             $userdataraw[] = $record['users'];

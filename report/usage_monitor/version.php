@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030527;  // Fix task to cleanup before processing top daily users.
+$plugin->version   = 2025030528;  // Charts now display percentages above 100% when threshold exceeded.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.27';    // Task now cleans old records first, then inserts/updates correctly.
+$plugin->release   = '5.3.28';    // Charts use suggestedMax instead of max to show actual usage percentages.
 $plugin->maturity  = MATURITY_STABLE;

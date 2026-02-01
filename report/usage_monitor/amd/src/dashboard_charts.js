@@ -160,7 +160,9 @@ const initUsersLineChart = (config) => {
                     type: 'linear',
                     position: 'left',
                     beginAtZero: true,
-                    max: 100,
+                    // Allow values above 100% - use suggestedMax instead of max
+                    // to let Chart.js extend if data exceeds 100%.
+                    suggestedMax: 100,
                     grid: {
                         color: 'rgba(0,0,0,0.05)',
                     },
@@ -262,7 +264,9 @@ const initDiskHistoryChart = (config) => {
                     type: 'linear',
                     position: 'left',
                     beginAtZero: true,
-                    max: 100,
+                    // Allow values above 100% - use suggestedMax instead of max
+                    // to let Chart.js extend if data exceeds 100%.
+                    suggestedMax: 100,
                     grid: {
                         color: 'rgba(0,0,0,0.05)',
                     },
