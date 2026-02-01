@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030512;  // Recreate README.md without changelog.
+$plugin->version   = 2025030513;  // Improve hostname validation to also check wwwroot.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.12';    // Updated documentation, removed changelog from README.
+$plugin->release   = '5.3.13';    // Hostname validation now checks both wwwroot and extracted hostname.
 $plugin->maturity  = MATURITY_STABLE;

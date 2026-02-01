@@ -36,10 +36,17 @@ defined('MOODLE_INTERNAL') || die();
 function report_usage_monitor_is_hostname_valid(): bool {
     global $CFG;
 
-    // Check hostname - plugin only works on moodlesoporte.net domains.
-    $hostname = '';
+    // Valid hostname pattern for IngeWeb hosting.
+    $validhostname = 'moodlesoporte.net';
+
+    // First, check if wwwroot contains the valid hostname (case insensitive).
+    // This covers cases where the full URL contains the valid domain.
+    if (!empty($CFG->wwwroot) && stripos($CFG->wwwroot, $validhostname) !== false) {
+        return true;
+    }
 
     // Try to get hostname from wwwroot.
+    $hostname = '';
     if (!empty($CFG->wwwroot)) {
         $parsed = parse_url($CFG->wwwroot);
         $hostname = $parsed['host'] ?? '';
@@ -55,13 +62,13 @@ function report_usage_monitor_is_hostname_valid(): bool {
         return false;
     }
 
-    // Check if hostname contains moodlesoporte.net (case insensitive).
+    // Check if hostname contains the valid domain (case insensitive).
     // Valid examples: hera.moodlesoporte.net, zeus.moodlesoporte.net, moodlesoporte.net
-    if (stripos($hostname, 'moodlesoporte.net') === false) {
-        return false;
+    if (stripos($hostname, $validhostname) !== false) {
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /**
