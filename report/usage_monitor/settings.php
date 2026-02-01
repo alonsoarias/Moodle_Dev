@@ -38,8 +38,9 @@ if ($ADMIN->fulltree) {
         ''
     ));
 
-    // Check hostname validity and show appropriate message.
-    $hostvalid = report_usage_monitor_is_hostname_valid();
+    // Sync scheduled tasks state based on hostname validity.
+    // This auto-corrects manually enabled tasks on unauthorized servers.
+    $hostvalid = \report_usage_monitor\hostname_validator::sync_scheduled_tasks();
 
     if (!$hostvalid) {
         // Hostname not valid - plugin cannot be enabled.

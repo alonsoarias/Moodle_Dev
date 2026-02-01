@@ -36,6 +36,7 @@ $string['pluginstatus_enabled'] = 'Plugin Habilitado';
 $string['pluginstatus_enabled_desc'] = 'El plugin está activo y funcionando en un servidor autorizado.';
 $string['pluginstatus_unauthorized'] = 'Servidor No Autorizado';
 $string['pluginstatus_unauthorized_desc'] = 'El <strong>Usage Monitor</strong> es una herramienta exclusiva para plataformas Moodle administradas por <a href="https://ingeweb.co" target="_blank">IngeWeb</a>. Si estás interesado en este servicio, <a href="https://ingeweb.co/contacto" target="_blank">contáctanos</a>.';
+$string['hostname_not_authorized'] = 'Este servidor no está autorizado para usar el plugin Usage Monitor. Este plugin es exclusivo del servicio de hosting de IngeWeb.';
 
 // Dashboard strings
 $string['dashboard'] = 'Panel de Control';

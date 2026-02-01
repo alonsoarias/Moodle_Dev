@@ -123,9 +123,7 @@ function report_usage_monitor_set_tasks_enabled(bool $enabled): void {
  * @return bool True if tasks are enabled (hostname valid), false if disabled.
  */
 function report_usage_monitor_sync_tasks_state(): bool {
-    $hostnamevalid = report_usage_monitor_is_hostname_valid();
-    report_usage_monitor_set_tasks_enabled($hostnamevalid);
-    return $hostnamevalid;
+    return hostname_validator::sync_scheduled_tasks();
 }
 
 /**

@@ -104,4 +104,58 @@ class hostname_validator {
     public static function is_plugin_enabled(): bool {
         return self::is_valid();
     }
+
+    /**
+     * Require valid hostname or throw exception.
+     *
+     * Use this method in API endpoints to block access on unauthorized servers.
+     * Throws an exception that will be properly formatted in API responses.
+     *
+     * @throws \moodle_exception If hostname is not valid.
+     * @return void
+     */
+    public static function require_valid(): void {
+        if (!self::is_valid()) {
+            throw new \moodle_exception('hostname_not_authorized', 'report_usage_monitor');
+        }
+    }
+
+    /**
+     * Synchronize scheduled tasks state based on hostname validation.
+     *
+     * This method ensures all plugin tasks are disabled on unauthorized servers
+     * and enabled on authorized servers. Call this method when accessing
+     * plugin pages to auto-correct manually changed task states.
+     *
+     * @return bool True if hostname is valid (tasks enabled), false otherwise.
+     */
+    public static function sync_scheduled_tasks(): bool {
+        $isvalid = self::is_valid();
+
+        // List of all task class names for this plugin.
+        $taskclasses = [
+            '\\report_usage_monitor\\task\\disk_usage',
+            '\\report_usage_monitor\\task\\last_users',
+            '\\report_usage_monitor\\task\\notification_disk',
+            '\\report_usage_monitor\\task\\notification_userlimit',
+            '\\report_usage_monitor\\task\\users_daily',
+            '\\report_usage_monitor\\task\\users_daily_90_days',
+        ];
+
+        foreach ($taskclasses as $classname) {
+            $task = \core\task\manager::get_scheduled_task($classname);
+            if ($task) {
+                $shouldbedisabled = !$isvalid;
+                $currentlydisabled = (bool) $task->get_disabled();
+
+                // Only update if state needs to change.
+                if ($shouldbedisabled !== $currentlydisabled) {
+                    $task->set_disabled($shouldbedisabled);
+                    \core\task\manager::configure_scheduled_task($task);
+                }
+            }
+        }
+
+        return $isvalid;
+    }
 }

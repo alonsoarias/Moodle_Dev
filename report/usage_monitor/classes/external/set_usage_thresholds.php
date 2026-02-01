@@ -76,10 +76,8 @@ class set_usage_thresholds extends external_api {
         self::validate_context($context);
         require_capability('report/usage_monitor:manage', $context);
 
-        // Check if plugin is enabled (hostname validation).
-        if (!report_usage_monitor_is_enabled()) {
-            throw new \moodle_exception('plugin_disabled_hostname', 'report_usage_monitor');
-        }
+        // Check hostname validity - throws exception if not authorized.
+        \report_usage_monitor\hostname_validator::require_valid();
 
         // Validate parameters.
         $params = self::validate_parameters(self::execute_parameters(), [

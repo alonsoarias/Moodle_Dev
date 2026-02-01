@@ -29,8 +29,12 @@ require_once($CFG->dirroot . '/report/usage_monitor/locallib.php');
 // Setup admin page.
 admin_externalpage_setup('report_usage_monitor', '', null, '', ['pagelayout' => 'admin']);
 
+// Sync scheduled tasks state based on hostname validity.
+// This auto-corrects manually enabled tasks on unauthorized servers.
+$hostvalid = \report_usage_monitor\hostname_validator::sync_scheduled_tasks();
+
 // Check if plugin is enabled (hostname validation).
-if (!report_usage_monitor_is_enabled()) {
+if (!$hostvalid) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('dashboard_title', 'report_usage_monitor'));
     echo $OUTPUT->notification(get_string('plugin_disabled_hostname', 'report_usage_monitor'), 'error');
