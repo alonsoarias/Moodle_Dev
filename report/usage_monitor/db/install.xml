@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    XMLDB file for Moodle report_usage_monitor
+    
+    This XML file defines the database schema for the report_usage_monitor plugin.
+    It holds all known information about Users Daily connected.
+    
+    @package     report_usage_monitor
+    @category    admin
+    @copyright   2023 Soporte IngeWeb <soporte@ingeweb.co>
+    @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+-->
+<XMLDB PATH="report/usage_monitor/db" VERSION="2025030300" COMMENT="XMLDB file for Moodle report_usage_monitor" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+    <TABLES>
+        <!-- Table to hold Users Daily connected information -->
+        <TABLE NAME="report_usage_monitor" COMMENT="Holds all known information about Users Daily connected">
+            <FIELDS>
+                <!-- Unique identifier for each record -->
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <!-- Date of the record - Changed to INTEGER for proper timestamp storage -->
+                <FIELD NAME="fecha" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+                <!-- Number of users connected for the given date -->
+                <FIELD NAME="cantidad_usuarios" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+            </FIELDS>
+            <KEYS>
+                <!-- Primary key for the table -->
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <!-- Index on fecha field -->
+                <INDEX NAME="idx_fecha" UNIQUE="false" FIELDS="fecha" />
+                <!-- Index on cantidad_usuarios field -->
+                <INDEX NAME="idx_cantidad_usuarios" UNIQUE="false" FIELDS="cantidad_usuarios" />
+            </INDEXES>
+        </TABLE>
+        
+        <!-- Table to hold notification history information -->
+        <TABLE NAME="report_usage_monitor_history" COMMENT="Holds history of notifications sent">
+            <FIELDS>
+                <!-- Unique identifier for each record -->
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+                <!-- Type of notification (disk or users) -->
+                <FIELD NAME="type" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+                <!-- Percentage value of the notification (disk or users percentage) -->
+                <FIELD NAME="percentage" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true" SEQUENCE="false" />
+                <!-- Actual value (disk usage in bytes or user count) -->
+                <FIELD NAME="value" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" />
+                <!-- Threshold value (disk quota in bytes or user limit) -->
+                <FIELD NAME="threshold" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" />
+                <!-- Timestamp when notification was sent -->
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+            </FIELDS>
+            <KEYS>
+                <!-- Primary key for the table -->
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <!-- Index on type field -->
+                <INDEX NAME="idx_type" UNIQUE="false" FIELDS="type" />
+                <!-- Index on timecreated field -->
+                <INDEX NAME="idx_timecreated" UNIQUE="false" FIELDS="timecreated" />
+            </INDEXES>
+        </TABLE>
+    </TABLES>
+</XMLDB>

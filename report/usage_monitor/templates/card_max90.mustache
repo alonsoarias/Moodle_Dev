@@ -1,0 +1,31 @@
+{{!
+    @template report_usage_monitor/card_max90
+
+    Max 90 days users card template.
+
+    Context variables required:
+    * max90_card.title - Card title
+    * max90_card.max_users - Maximum users in 90 days
+    * max90_card.threshold - User threshold
+    * max90_card.max_date - Date of maximum
+    * max90_card.last_calculation - Last calculation date
+    * max90_card.show_date - Whether to show the date
+}}
+<div class="col-md-4 mb-4">
+    <div class="card h-100 shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">{{max90_card.title}}</h5>
+        </div>
+        <div class="card-body text-center">
+            <h2 class="display-5">
+                {{max90_card.max_users}} / {{max90_card.threshold}}
+            </h2>
+            <p class="text-muted mt-2">
+                {{#max90_card.show_date}}
+                    {{max90_card.date_label}}: {{max90_card.max_date}}<br>
+                {{/max90_card.show_date}}
+                {{max90_card.last_calc_label}}: {{max90_card.last_calculation}}
+            </p>
+        </div>
+    </div>
+</div>

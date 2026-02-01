@@ -1,0 +1,25 @@
+{{!
+    @template report_usage_monitor/section_disk_history
+
+    Disk usage history chart section.
+
+    Context variables required:
+    * disk_history.title - Section title
+    * disk_history.has_data - Whether there is data
+    * disk_history.no_data_message - Message when no data
+}}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="mb-0">{{disk_history.title}}</h5>
+    </div>
+    <div class="card-body">
+        {{#disk_history.has_data}}
+            <canvas id="chartjs-disk-history" style="height: 300px;"></canvas>
+        {{/disk_history.has_data}}
+        {{^disk_history.has_data}}
+            <div class="alert alert-info">
+                {{disk_history.no_data_message}}
+            </div>
+        {{/disk_history.has_data}}
+    </div>
+</div>

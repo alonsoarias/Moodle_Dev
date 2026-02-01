@@ -1,0 +1,87 @@
+{{!
+    @template report_usage_monitor/section_users_last10
+
+    Users last 10 days section with tabs.
+
+    Context variables required:
+    * users_last10.title - Section title
+    * users_last10.tab_table - Table tab label
+    * users_last10.tab_chart - Chart tab label
+    * users_last10.has_data - Whether there is data
+    * users_last10.no_data_message - Message when no data
+    * users_last10.records - Array of user records
+    * strings.date, strings.users_quantity
+}}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5 class="mb-0">{{users_last10.title}}</h5>
+    </div>
+    <div class="card-body">
+        {{! Nav Tabs }}
+        <ul class="nav nav-tabs" id="last10daysTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tabla10-tab" data-bs-toggle="tab"
+                    data-bs-target="#tabla10" type="button" role="tab"
+                    aria-controls="tabla10" aria-selected="true">
+                    {{users_last10.tab_table}}
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="grafica10-tab" data-bs-toggle="tab"
+                    data-bs-target="#grafica10" type="button" role="tab"
+                    aria-controls="grafica10" aria-selected="false">
+                    {{users_last10.tab_chart}}
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3" id="last10daysTabContent">
+            {{! Table Pane }}
+            <div class="tab-pane fade show active" id="tabla10" role="tabpanel"
+                aria-labelledby="tabla10-tab">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{{strings.date}}</th>
+                                <th>{{strings.users_quantity}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#users_last10.has_data}}
+                                {{#users_last10.records}}
+                                    <tr>
+                                        <td>{{date}}</td>
+                                        <td>{{users}}</td>
+                                    </tr>
+                                {{/users_last10.records}}
+                            {{/users_last10.has_data}}
+                            {{^users_last10.has_data}}
+                                <tr>
+                                    <td colspan="2" class="text-center">
+                                        {{users_last10.no_data_message}}
+                                    </td>
+                                </tr>
+                            {{/users_last10.has_data}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{! Chart Pane }}
+            <div class="tab-pane fade" id="grafica10" role="tabpanel"
+                aria-labelledby="grafica10-tab">
+                <div style="position:relative; min-height:400px;">
+                    {{#users_last10.has_data}}
+                        <canvas id="chartjs-last10days"></canvas>
+                    {{/users_last10.has_data}}
+                    {{^users_last10.has_data}}
+                        <div class="alert alert-info">
+                            {{users_last10.no_data_message}}
+                        </div>
+                    {{/users_last10.has_data}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

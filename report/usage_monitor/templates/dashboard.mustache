@@ -1,0 +1,90 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template report_usage_monitor/dashboard
+
+    Dashboard main template for usage monitor.
+
+    Context variables required for this template:
+    * disclaimer - String with disclaimer text
+    * dashboard_title - Dashboard title string
+    * disk_card - Object with disk usage card data
+    * users_card - Object with users card data
+    * max90_card - Object with max 90 days card data
+    * disk_distribution - Object with disk distribution data
+    * disk_history - Object with disk history data
+    * users_last10 - Object with last 10 days users data
+    * top_users - Object with top users data
+    * system_info - Object with system information
+    * recommendations - Object with recommendations
+
+    Example context (json):
+    {
+        "disclaimer": "Exclusive monitoring plugin",
+        "dashboard_title": "Usage Monitor Dashboard"
+    }
+}}
+<div class="alert alert-info mb-2 text-center small">
+    {{{disclaimer}}}
+</div>
+
+<div class="container-fluid mt-4">
+    {{! Summary Cards Row }}
+    <div class="row">
+        {{> report_usage_monitor/card_disk }}
+        {{> report_usage_monitor/card_users }}
+        {{> report_usage_monitor/card_max90 }}
+    </div>
+
+    {{! Disk Distribution Row }}
+    <div class="row">
+        {{> report_usage_monitor/section_disk_distribution }}
+        {{> report_usage_monitor/section_disk_tables }}
+    </div>
+
+    {{! Disk History Row }}
+    <div class="row">
+        <div class="col-12 mb-4">
+            {{> report_usage_monitor/section_disk_history }}
+        </div>
+    </div>
+
+    {{! Users Last 10 Days Row }}
+    <div class="row mb-4">
+        <div class="col-12">
+            {{> report_usage_monitor/section_users_last10 }}
+        </div>
+    </div>
+
+    {{! Top Users Row }}
+    <div class="row mb-4">
+        <div class="col-12">
+            {{> report_usage_monitor/section_top_users }}
+        </div>
+    </div>
+
+    {{! System Info and Recommendations Row }}
+    <div class="row">
+        {{> report_usage_monitor/section_system_info }}
+        {{> report_usage_monitor/section_recommendations }}
+    </div>
+</div>
+
+{{! Plugin Credits }}
+<div class="mt-4 text-center text-muted small">
+    {{{credits}}}
+</div>

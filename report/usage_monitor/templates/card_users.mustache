@@ -1,0 +1,43 @@
+{{!
+    @template report_usage_monitor/card_users
+
+    Users today card template.
+
+    Context variables required:
+    * users_card.title - Card title
+    * users_card.percent - Usage percentage
+    * users_card.warning_class - CSS class for warning level
+    * users_card.users_today - Current users count
+    * users_card.threshold - User threshold
+    * users_card.last_execution - Last calculation timestamp
+}}
+<div class="col-md-4 mb-4">
+    <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{users_card.title}}</h5>
+            <span class="badge {{users_card.warning_class}} rounded-pill">
+                {{users_card.percent}}%
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="progress mb-3" style="height:25px;">
+                <div class="progress-bar {{users_card.warning_class}}"
+                    role="progressbar"
+                    style="width:{{users_card.percent}}%;"
+                    aria-valuenow="{{users_card.percent}}"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+                    {{users_card.percent}}%
+                </div>
+            </div>
+            <div class="text-center">
+                <h5>
+                    {{users_card.users_today}} / {{users_card.threshold}}
+                </h5>
+                <p class="text-muted">
+                    {{users_card.last_execution_label}}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

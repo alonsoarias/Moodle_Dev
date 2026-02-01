@@ -1,0 +1,76 @@
+{{!
+    @template report_usage_monitor/section_system_info
+
+    System information section.
+
+    Context variables required:
+    * system_info.title - Section title
+    * system_info.moodle_version_label - Moodle version label
+    * system_info.moodle_version - Moodle version value
+    * system_info.total_courses_label - Total courses label
+    * system_info.total_courses - Total courses count
+    * system_info.backup_label - Backup per course label
+    * system_info.backup_count - Backup count
+    * system_info.users_label - Registered users label
+    * system_info.active_users - Active users count
+    * system_info.suspended_users - Suspended users count
+    * system_info.active_label - Active label
+    * system_info.suspended_label - Suspended label
+}}
+<div class="col-md-6">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">{{system_info.title}}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-light">
+                        <div class="card-body p-3">
+                            <div class="small text-muted">
+                                {{system_info.moodle_version_label}}
+                            </div>
+                            <div class="h5">{{system_info.moodle_version}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-light">
+                        <div class="card-body p-3">
+                            <div class="small text-muted">
+                                {{system_info.total_courses_label}}
+                            </div>
+                            <div class="h5">{{system_info.total_courses}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-light">
+                        <div class="card-body p-3">
+                            <div class="small text-muted">
+                                {{system_info.backup_label}}
+                            </div>
+                            <div class="h5">{{system_info.backup_count}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-light">
+                        <div class="card-body p-3">
+                            <div class="small text-muted">
+                                {{system_info.users_label}}
+                            </div>
+                            <div class="h5">
+                                {{system_info.active_users}}/{{system_info.suspended_users}}
+                                <br>
+                                <small class="text-muted">
+                                    {{system_info.active_label}}/{{system_info.suspended_label}}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

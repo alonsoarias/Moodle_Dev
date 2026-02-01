@@ -1,0 +1,93 @@
+{{!
+    @template report_usage_monitor/section_disk_tables
+
+    Disk usage tables section (directories and courses).
+
+    Context variables required:
+    * disk_tables.directories_title - Directories table title
+    * disk_tables.directories - Array of directory data
+    * disk_tables.courses_title - Courses table title
+    * disk_tables.courses - Array of course data
+    * disk_tables.has_data - Whether there is data
+    * disk_tables.no_data_message - Message when no data
+    * strings.directory, strings.size, strings.percentage, etc.
+}}
+<div class="col-md-6 mb-4">
+    {{! Directories Table }}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">{{disk_tables.directories_title}}</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{{strings.directory}}</th>
+                        <th>{{strings.size}}</th>
+                        <th>{{strings.percentage}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#disk_tables.has_data}}
+                        {{#disk_tables.directories}}
+                            <tr>
+                                <td>{{label}}</td>
+                                <td>{{size}} GB</td>
+                                <td>{{percent}}%</td>
+                            </tr>
+                        {{/disk_tables.directories}}
+                    {{/disk_tables.has_data}}
+                    {{^disk_tables.has_data}}
+                        <tr>
+                            <td colspan="3" class="text-center">
+                                {{disk_tables.no_data_message}}
+                            </td>
+                        </tr>
+                    {{/disk_tables.has_data}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{! Courses Table }}
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">{{disk_tables.courses_title}}</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{{strings.course}}</th>
+                        <th>{{strings.size}}</th>
+                        <th>{{strings.percentage}}</th>
+                        <th>{{strings.backup_count}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#disk_tables.has_courses}}
+                        {{#disk_tables.courses}}
+                            <tr>
+                                <td>
+                                    <a href="{{url}}">
+                                        {{fullname}} ({{shortname}})
+                                    </a>
+                                </td>
+                                <td>{{size}}</td>
+                                <td>{{percentage}}%</td>
+                                <td>{{backupcount}}</td>
+                            </tr>
+                        {{/disk_tables.courses}}
+                    {{/disk_tables.has_courses}}
+                    {{^disk_tables.has_courses}}
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                {{disk_tables.no_data_message}}
+                            </td>
+                        </tr>
+                    {{/disk_tables.has_courses}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

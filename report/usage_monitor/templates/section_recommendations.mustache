@@ -1,0 +1,62 @@
+{{!
+    @template report_usage_monitor/section_recommendations
+
+    Recommendations section.
+
+    Context variables required:
+    * recommendations.title - Section title
+    * recommendations.show_disk_warning - Whether to show disk warning
+    * recommendations.disk_warning_level - danger or warning
+    * recommendations.disk_tips_title - Disk tips title
+    * recommendations.disk_tips - Array of disk tips
+    * recommendations.disk_ok_message - Message when disk is ok
+    * recommendations.show_user_warning - Whether to show user warning
+    * recommendations.user_warning_level - danger or warning
+    * recommendations.user_tips_title - User tips title
+    * recommendations.user_tips - Array of user tips
+    * recommendations.user_ok_message - Message when users are ok
+}}
+<div class="col-md-6">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">{{recommendations.title}}</h5>
+        </div>
+        <div class="card-body">
+            {{! Disk Alert }}
+            {{#recommendations.show_disk_warning}}
+                <div class="alert alert-{{recommendations.disk_warning_level}}">
+                    <h5>{{recommendations.disk_tips_title}}</h5>
+                    <ul class="mb-0">
+                        {{#recommendations.disk_tips}}
+                            <li>{{.}}</li>
+                        {{/recommendations.disk_tips}}
+                    </ul>
+                </div>
+            {{/recommendations.show_disk_warning}}
+            {{^recommendations.show_disk_warning}}
+                <div class="alert alert-success">
+                    <i class="fa fa-check-circle"></i>
+                    {{recommendations.disk_ok_message}}
+                </div>
+            {{/recommendations.show_disk_warning}}
+
+            {{! User Alert }}
+            {{#recommendations.show_user_warning}}
+                <div class="alert alert-{{recommendations.user_warning_level}}">
+                    <h5>{{recommendations.user_tips_title}}</h5>
+                    <ul class="mb-0">
+                        {{#recommendations.user_tips}}
+                            <li>{{.}}</li>
+                        {{/recommendations.user_tips}}
+                    </ul>
+                </div>
+            {{/recommendations.show_user_warning}}
+            {{^recommendations.show_user_warning}}
+                <div class="alert alert-success">
+                    <i class="fa fa-check-circle"></i>
+                    {{recommendations.user_ok_message}}
+                </div>
+            {{/recommendations.show_user_warning}}
+        </div>
+    </div>
+</div>

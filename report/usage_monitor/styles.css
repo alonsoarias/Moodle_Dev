@@ -1,0 +1,96 @@
+/**
+ * Styles for the usage monitor report.
+ *
+ * @package    report_usage_monitor
+ * @copyright  2025 Soporte IngeWeb <soporte@ingeweb.co>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Progress bar text visibility */
+.progress-bar.bg-success,
+.progress-bar.bg-warning,
+.progress-bar.bg-danger {
+    color: #fff;
+}
+
+/* Badge text visibility */
+.badge.bg-success,
+.badge.bg-warning,
+.badge.bg-danger {
+    color: #fff;
+}
+
+/* Card styling improvements */
+.report-usage-monitor .card {
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.report-usage-monitor .card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Table improvements */
+.report-usage-monitor .table-striped tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Chart container */
+.report-usage-monitor .chart-container {
+    position: relative;
+    min-height: 300px;
+}
+
+/* Tab styling */
+.report-usage-monitor .nav-tabs .nav-link {
+    color: #495057;
+}
+
+.report-usage-monitor .nav-tabs .nav-link.active {
+    font-weight: 600;
+}
+
+/* Alert icons */
+.report-usage-monitor .alert .fa-check-circle {
+    margin-right: 0.5rem;
+}
+
+/* System info cards */
+.report-usage-monitor .card.bg-light {
+    border: 1px solid #e9ecef;
+}
+
+/* Warning classes for text */
+.text-warning {
+    color: #856404 !important;
+}
+
+.text-danger {
+    color: #721c24 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .report-usage-monitor .display-5 {
+        font-size: 1.5rem;
+    }
+
+    .report-usage-monitor .card-header h5 {
+        font-size: 1rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .report-usage-monitor .card {
+        break-inside: avoid;
+    }
+
+    .report-usage-monitor .nav-tabs,
+    .report-usage-monitor .tab-pane:not(.active) {
+        display: none;
+    }
+
+    .report-usage-monitor .tab-pane.active {
+        display: block !important;
+    }
+}

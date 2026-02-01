@@ -1,0 +1,46 @@
+{{!
+    @template report_usage_monitor/section_top_users
+
+    Top users daily section.
+
+    Context variables required:
+    * top_users.title - Section title
+    * top_users.has_data - Whether there is data
+    * top_users.no_data_message - Message when no data
+    * top_users.records - Array of top user records
+    * strings.date, strings.users_quantity, strings.percentage
+}}
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">{{top_users.title}}</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>{{strings.date}}</th>
+                    <th>{{strings.users_quantity}}</th>
+                    <th>{{strings.percentage}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#top_users.has_data}}
+                    {{#top_users.records}}
+                        <tr>
+                            <td>{{date}}</td>
+                            <td>{{users}}</td>
+                            <td class="{{warning_class}}">{{percent}}%</td>
+                        </tr>
+                    {{/top_users.records}}
+                {{/top_users.has_data}}
+                {{^top_users.has_data}}
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            {{top_users.no_data_message}}
+                        </td>
+                    </tr>
+                {{/top_users.has_data}}
+            </tbody>
+        </table>
+    </div>
+</div>

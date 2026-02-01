@@ -1,0 +1,43 @@
+{{!
+    @template report_usage_monitor/card_disk
+
+    Disk usage card template.
+
+    Context variables required:
+    * disk_card.title - Card title
+    * disk_card.percent - Usage percentage
+    * disk_card.warning_class - CSS class for warning level
+    * disk_card.usage_gb - Current usage in GB
+    * disk_card.quota_gb - Quota in GB
+    * disk_card.last_execution - Last calculation timestamp
+}}
+<div class="col-md-4 mb-4">
+    <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{disk_card.title}}</h5>
+            <span class="badge {{disk_card.warning_class}} rounded-pill">
+                {{disk_card.percent}}%
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="progress mb-3" style="height:25px;">
+                <div class="progress-bar {{disk_card.warning_class}}"
+                    role="progressbar"
+                    style="width:{{disk_card.percent}}%;"
+                    aria-valuenow="{{disk_card.percent}}"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
+                    {{disk_card.percent}}%
+                </div>
+            </div>
+            <div class="text-center">
+                <h5>
+                    {{disk_card.usage_gb}} GB / {{disk_card.quota_gb}} GB
+                </h5>
+                <p class="text-muted">
+                    {{disk_card.last_execution_label}}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
