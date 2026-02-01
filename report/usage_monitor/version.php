@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030530;  // Fix AMD module format for RequireJS compatibility.
+$plugin->version   = 2025030531;  // Increase disk history chart height by 20%.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.30';    // Minified JS now uses proper AMD define() format instead of ES6 import.
+$plugin->release   = '5.3.31';    // Disk history chart now 360px tall (was 300px).
 $plugin->maturity  = MATURITY_STABLE;
