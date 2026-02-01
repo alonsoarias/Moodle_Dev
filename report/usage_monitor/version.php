@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030515;  // Use Moodle task manager API for task state management.
+$plugin->version   = 2025030516;  // Centralize hostname validation in hostname_validator class.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.15';    // Tasks properly disabled on unauthorized servers via Moodle API.
+$plugin->release   = '5.3.16';    // Hostname validation centralized in dedicated class.
 $plugin->maturity  = MATURITY_STABLE;

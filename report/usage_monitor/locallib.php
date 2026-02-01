@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use report_usage_monitor\hostname_validator;
+
 /**
  * Check if the current hostname is valid for this plugin.
  *
@@ -34,41 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool True if hostname is valid, false otherwise.
  */
 function report_usage_monitor_is_hostname_valid(): bool {
-    global $CFG;
-
-    // Valid hostname pattern for IngeWeb hosting.
-    $validhostname = 'moodlesoporte.net';
-
-    // First, check if wwwroot contains the valid hostname (case insensitive).
-    // This covers cases where the full URL contains the valid domain.
-    if (!empty($CFG->wwwroot) && stripos($CFG->wwwroot, $validhostname) !== false) {
-        return true;
-    }
-
-    // Try to get hostname from wwwroot.
-    $hostname = '';
-    if (!empty($CFG->wwwroot)) {
-        $parsed = parse_url($CFG->wwwroot);
-        $hostname = $parsed['host'] ?? '';
-    }
-
-    // Fallback to server hostname.
-    if (empty($hostname) && !empty($_SERVER['HTTP_HOST'])) {
-        $hostname = $_SERVER['HTTP_HOST'];
-    }
-
-    // If no hostname could be determined, plugin is not authorized.
-    if (empty($hostname)) {
-        return false;
-    }
-
-    // Check if hostname contains the valid domain (case insensitive).
-    // Valid examples: hera.moodlesoporte.net, zeus.moodlesoporte.net, moodlesoporte.net
-    if (stripos($hostname, $validhostname) !== false) {
-        return true;
-    }
-
-    return false;
+    return hostname_validator::is_valid();
 }
 
 /**
@@ -82,7 +50,7 @@ function report_usage_monitor_is_hostname_valid(): bool {
  * @return bool True if plugin is enabled, false otherwise.
  */
 function report_usage_monitor_is_enabled(): bool {
-    return report_usage_monitor_is_hostname_valid();
+    return hostname_validator::is_plugin_enabled();
 }
 
 /**
@@ -91,7 +59,7 @@ function report_usage_monitor_is_enabled(): bool {
  * @return array Array with 'status' (enabled|unauthorized) and 'reason' string.
  */
 function report_usage_monitor_get_status(): array {
-    if (!report_usage_monitor_is_hostname_valid()) {
+    if (!hostname_validator::is_valid()) {
         return [
             'status' => 'unauthorized',
             'reason' => get_string('pluginstatus_unauthorized', 'report_usage_monitor'),

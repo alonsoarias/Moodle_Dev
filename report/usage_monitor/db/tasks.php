@@ -32,23 +32,8 @@ $du_command_available = !empty($CFG->pathtodu) && is_executable(trim($CFG->patht
 
 // Check if hostname is valid for IngeWeb hosting.
 // Tasks are disabled by default on unauthorized servers.
-$validhostname = 'moodlesoporte.net';
-$hostnamevalid = false;
-
-// First check wwwroot.
-if (!empty($CFG->wwwroot) && stripos($CFG->wwwroot, $validhostname) !== false) {
-    $hostnamevalid = true;
-} else {
-    // Check extracted hostname.
-    $hostname = '';
-    if (!empty($CFG->wwwroot)) {
-        $parsed = parse_url($CFG->wwwroot);
-        $hostname = $parsed['host'] ?? '';
-    }
-    if (!empty($hostname) && stripos($hostname, $validhostname) !== false) {
-        $hostnamevalid = true;
-    }
-}
+// Use the centralized hostname_validator class.
+$hostnamevalid = \report_usage_monitor\hostname_validator::is_valid();
 
 // Set disabled=1 if hostname is not valid.
 $taskdisabled = $hostnamevalid ? 0 : 1;
