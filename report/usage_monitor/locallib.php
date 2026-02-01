@@ -236,6 +236,9 @@ function update_min_top_sql(int $fecha, int $usuarios, int $min): void {
         return;
     }
 
+    // First, clean up records older than 6 months.
+    report_usage_monitor_cleanup_old_top_records();
+
     // Normalize timestamp to start of day to check for duplicates.
     $daystart = strtotime('today', $fecha);
     $dayend = strtotime('tomorrow', $fecha);
@@ -278,22 +281,55 @@ function update_min_top_sql(int $fecha, int $usuarios, int $min): void {
 }
 
 /**
+ * Clean up records older than 6 months from the top daily users table.
+ *
+ * @return int Number of old records removed.
+ */
+function report_usage_monitor_cleanup_old_top_records(): int {
+    global $DB;
+
+    // Calculate 6 months ago.
+    $sixMonthsAgo = strtotime('-6 months');
+
+    // Get records older than 6 months.
+    $sql = "SELECT id FROM {report_usage_monitor} WHERE fecha < :cutoff";
+    $oldRecords = $DB->get_records_sql($sql, ['cutoff' => $sixMonthsAgo]);
+
+    if (empty($oldRecords)) {
+        return 0;
+    }
+
+    $ids = array_keys($oldRecords);
+    $DB->delete_records_list('report_usage_monitor', 'id', $ids);
+
+    if (debugging('', DEBUG_DEVELOPER)) {
+        mtrace("report_usage_monitor: Removed " . count($ids) . " records older than 6 months from top users table.");
+    }
+
+    return count($ids);
+}
+
+/**
  * Clean up duplicate daily user records.
  * Keeps only the record with the highest user count for each day.
+ * Also removes records older than 6 months.
  *
- * @return int Number of duplicate records removed.
+ * @return int Number of records removed (duplicates + old records).
  */
 function report_usage_monitor_cleanup_duplicates(): int {
     global $DB;
 
     $removed = 0;
 
-    // Get all records ordered by date and user count.
+    // First, remove records older than 6 months.
+    $removed += report_usage_monitor_cleanup_old_top_records();
+
+    // Get all remaining records ordered by date and user count.
     $sql = "SELECT id, fecha, cantidad_usuarios FROM {report_usage_monitor} ORDER BY fecha DESC, cantidad_usuarios DESC";
     $records = $DB->get_records_sql($sql);
 
     if (empty($records)) {
-        return 0;
+        return $removed;
     }
 
     // Group records by day (normalized to start of day).
@@ -325,7 +361,7 @@ function report_usage_monitor_cleanup_duplicates(): int {
     // Delete duplicates.
     if (!empty($idsToDelete)) {
         $DB->delete_records_list('report_usage_monitor', 'id', $idsToDelete);
-        $removed = count($idsToDelete);
+        $removed += count($idsToDelete);
     }
 
     return $removed;
@@ -333,7 +369,8 @@ function report_usage_monitor_cleanup_duplicates(): int {
 
 /**
  * Insert a new record into the top users table.
- * Maintains only the 10 most recent records.
+ * Maintains only the 10 records with highest user counts.
+ * Automatically removes records older than 6 months.
  *
  * @param int $fecha Timestamp of the date.
  * @param int $cantidadusuarios Number of users.
@@ -346,6 +383,9 @@ function insert_top_sql(int $fecha, int $cantidadusuarios): void {
         debugging('insert_top_sql: Invalid timestamp provided: ' . $fecha, DEBUG_DEVELOPER);
         return;
     }
+
+    // First, clean up records older than 6 months.
+    report_usage_monitor_cleanup_old_top_records();
 
     // Normalize timestamp to start of day to avoid duplicates.
     $daystart = strtotime('today', $fecha);
@@ -380,11 +420,11 @@ function insert_top_sql(int $fecha, int $cantidadusuarios): void {
             $record->cantidad_usuarios = $cantidadusuarios;
             $DB->insert_record('report_usage_monitor', $record);
 
-            // Count and remove excess records.
+            // Count and remove excess records (keep top 10 by user count).
             $count = $DB->count_records('report_usage_monitor');
             if ($count > 10) {
-                // Get IDs of oldest records to delete.
-                $sql = "SELECT id FROM {report_usage_monitor} ORDER BY fecha ASC";
+                // Get IDs of records with lowest user counts to delete.
+                $sql = "SELECT id FROM {report_usage_monitor} ORDER BY cantidad_usuarios ASC, fecha ASC";
                 $records = $DB->get_records_sql($sql, [], 0, $count - 10);
 
                 if (!empty($records)) {
@@ -392,7 +432,7 @@ function insert_top_sql(int $fecha, int $cantidadusuarios): void {
                     $DB->delete_records_list('report_usage_monitor', 'id', $ids);
 
                     if (debugging('', DEBUG_DEVELOPER)) {
-                        mtrace("Removed " . count($ids) . " old records to maintain 10 record limit.");
+                        mtrace("Removed " . count($ids) . " records with lowest user counts to maintain top 10.");
                     }
                 }
             }

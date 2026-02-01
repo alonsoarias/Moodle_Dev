@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030525;  // Fix duplicate daily user records.
+$plugin->version   = 2025030526;  // Add 6-month cleanup for top daily users.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.25';    // Prevent and cleanup duplicate entries in top daily users table.
+$plugin->release   = '5.3.26';    // Auto-remove records older than 6 months from top daily users.
 $plugin->maturity  = MATURITY_STABLE;
