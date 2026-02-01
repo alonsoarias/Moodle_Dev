@@ -152,6 +152,7 @@ $string['tasks_executed_success'] = 'All tasks executed successfully. The dashbo
 $string['tasks_executed_partial'] = '{$a} tasks were executed. Some tasks may have failed, but the dashboard should display partial data.';
 
 // API response field descriptions
+$string['server_hostname'] = 'Server hostname';
 $string['site_name'] = 'Site name';
 $string['site_shortname'] = 'Site short name';
 $string['moodle_release'] = 'Human-readable Moodle version';

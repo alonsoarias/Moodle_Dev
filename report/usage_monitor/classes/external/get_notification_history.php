@@ -76,7 +76,7 @@ class get_notification_history extends external_api {
      * @return array Notification history data
      */
     public static function execute(string $type = 'all', int $limit = 30, int $offset = 0): array {
-        global $DB;
+        global $DB, $CFG;
 
         // Validate context and capabilities.
         $context = \context_system::instance();
@@ -135,7 +135,11 @@ class get_notification_history extends external_api {
             ];
         }
 
+        // Get server hostname.
+        $hostname = parse_url($CFG->wwwroot, PHP_URL_HOST);
+
         return [
+            'hostname' => $hostname,
             'total' => $total,
             'limit' => $params['limit'],
             'offset' => $params['offset'],
@@ -150,6 +154,7 @@ class get_notification_history extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
+            'hostname' => new external_value(PARAM_TEXT, 'Server hostname'),
             'total' => new external_value(PARAM_INT, 'Total number of records'),
             'limit' => new external_value(PARAM_INT, 'Records per page'),
             'offset' => new external_value(PARAM_INT, 'Current offset'),

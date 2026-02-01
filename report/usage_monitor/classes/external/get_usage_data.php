@@ -88,7 +88,11 @@ class get_usage_data extends external_api {
         $diskgrowthrate = calculate_growth_rate('disk');
         $usersgrowthrate = calculate_growth_rate('users');
 
+        // Get server hostname.
+        $hostname = parse_url($CFG->wwwroot, PHP_URL_HOST);
+
         return [
+            'hostname' => $hostname,
             'disk_usage' => [
                 'current' => $diskusage,
                 'current_readable' => display_size($diskusage),
@@ -129,6 +133,7 @@ class get_usage_data extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
+            'hostname' => new external_value(PARAM_TEXT, 'Server hostname'),
             'disk_usage' => new external_single_structure([
                 'current' => new external_value(PARAM_INT, 'Current disk usage in bytes'),
                 'current_readable' => new external_value(PARAM_TEXT, 'Current disk usage readable'),

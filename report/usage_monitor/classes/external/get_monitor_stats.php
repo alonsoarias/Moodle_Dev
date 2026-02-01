@@ -107,9 +107,13 @@ class get_monitor_stats extends external_api {
         $lastuserscalc = self::validate_timestamp($reportconfig->lastexecution ?? 0);
         $max90daysdate = self::validate_timestamp($reportconfig->max_userdaily_for_90_days_date ?? 0);
 
+        // Get server hostname.
+        $hostname = parse_url($CFG->wwwroot, PHP_URL_HOST);
+
         // Build response structure.
         $response = [
             'site_info' => [
+                'hostname' => $hostname,
                 'name' => format_string($SITE->fullname),
                 'shortname' => format_string($SITE->shortname),
                 'moodle_version' => (int)$CFG->version,
@@ -169,6 +173,7 @@ class get_monitor_stats extends external_api {
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'site_info' => new external_single_structure([
+                'hostname' => new external_value(PARAM_TEXT, 'Server hostname'),
                 'name' => new external_value(PARAM_TEXT, 'Site name'),
                 'shortname' => new external_value(PARAM_TEXT, 'Site short name'),
                 'moodle_version' => new external_value(PARAM_INT, 'Moodle version number'),
