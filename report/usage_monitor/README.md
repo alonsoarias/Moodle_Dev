@@ -152,14 +152,20 @@ report/usage_monitor/
 
 ## Validacion de Servidor
 
-Este plugin valida automaticamente el hostname del servidor y solo se ejecuta en servidores autorizados por IngeWeb.
+Este plugin valida automaticamente el servidor y solo se ejecuta en servidores autorizados por IngeWeb.
+
+La validacion funciona de la siguiente manera:
+
+1. **Primero**: Verifica si `wwwroot` contiene el patron `moodlesoporte.net`
+2. **Si no**: Verifica si el hostname del servidor contiene `moodlesoporte.net`
+3. **Si ninguno es valido**: El plugin se deshabilita completamente
 
 En servidores no autorizados, el plugin:
 
-- Muestra un mensaje de error en el dashboard
-- Omite todas las tareas programadas silenciosamente
+- Muestra un mensaje de error en el dashboard y configuracion
+- **Deshabilita todas las tareas programadas** (no solo las omite)
 - Retorna errores desde los endpoints de API
-- Oculta opciones de configuracion
+- Bloquea el acceso a todas las funcionalidades
 
 ## Soporte
 

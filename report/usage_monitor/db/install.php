@@ -89,8 +89,12 @@ function xmldb_report_usage_monitor_install()
         report_usage_monitor_update_scheduled_tasks($pathtodu);
     }
 
+    // Sync scheduled tasks state based on hostname validation.
+    // This will disable all tasks if hostname is invalid, or enable them if valid.
+    $hostnamevalid = report_usage_monitor_sync_tasks_state();
+
     // Only execute tasks if the server is authorized (hostname validation).
-    if (report_usage_monitor_is_enabled()) {
+    if ($hostnamevalid) {
         // Execute all tasks immediately so dashboard has data right after installation.
         echo $OUTPUT->notification(
             get_string('tasks_executing', 'report_usage_monitor'),
@@ -115,7 +119,7 @@ function xmldb_report_usage_monitor_install()
             );
         }
     } else {
-        // Server not authorized - do not execute tasks.
+        // Server not authorized - tasks have been disabled.
         echo $OUTPUT->notification(
             get_string('plugin_disabled_hostname', 'report_usage_monitor'),
             'warning'

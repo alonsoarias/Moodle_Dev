@@ -105,6 +105,49 @@ function report_usage_monitor_get_status(): array {
 }
 
 /**
+ * Disable or enable all scheduled tasks for this plugin.
+ *
+ * When the hostname is not valid, all scheduled tasks are disabled.
+ * When the hostname becomes valid, tasks are re-enabled.
+ *
+ * @param bool $enabled True to enable tasks, false to disable them.
+ * @return void
+ */
+function report_usage_monitor_set_tasks_enabled(bool $enabled): void {
+    global $DB;
+
+    // List of all task class names for this plugin.
+    $taskclasses = [
+        '\report_usage_monitor\task\disk_usage',
+        '\report_usage_monitor\task\last_users',
+        '\report_usage_monitor\task\notification_disk',
+        '\report_usage_monitor\task\notification_userlimit',
+        '\report_usage_monitor\task\users_daily',
+        '\report_usage_monitor\task\users_daily_90_days',
+    ];
+
+    $disabled = $enabled ? 0 : 1;
+
+    foreach ($taskclasses as $classname) {
+        $DB->set_field('task_scheduled', 'disabled', $disabled, ['classname' => $classname]);
+    }
+}
+
+/**
+ * Synchronize scheduled tasks state based on hostname validity.
+ *
+ * This function should be called during install, upgrade, and when settings change.
+ * If hostname is invalid, all tasks are disabled. Otherwise, they are enabled.
+ *
+ * @return bool True if tasks are enabled (hostname valid), false if disabled.
+ */
+function report_usage_monitor_sync_tasks_state(): bool {
+    $hostnamevalid = report_usage_monitor_is_hostname_valid();
+    report_usage_monitor_set_tasks_enabled($hostnamevalid);
+    return $hostnamevalid;
+}
+
+/**
  * Get SQL fragment for grouping by day in a cross-database compatible way.
  *
  * @param string $fieldname The timestamp field name.

@@ -283,6 +283,38 @@ function xmldb_report_usage_monitor_upgrade($oldversion)
         upgrade_plugin_savepoint(true, 2025030503, 'report', 'usage_monitor');
     }
 
+    // Nueva actualización: sincronizar estado de tareas programadas según hostname.
+    if ($oldversion < 2025030514) {
+        // Sync scheduled tasks state based on hostname validation.
+        // This will disable all tasks if hostname is invalid, or enable them if valid.
+        $hostnamevalid = report_usage_monitor_sync_tasks_state();
+
+        if (debugging('', DEBUG_DEVELOPER)) {
+            if ($hostnamevalid) {
+                mtrace("report_usage_monitor: Hostname valid - scheduled tasks enabled.");
+            } else {
+                mtrace("report_usage_monitor: Hostname invalid - scheduled tasks disabled.");
+            }
+        }
+
+        // If hostname is valid, execute tasks to update dashboard data.
+        if ($hostnamevalid) {
+            if (debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Executing tasks for updated dashboard data...");
+            }
+
+            $results = report_usage_monitor_run_tasks_now();
+
+            if (debugging('', DEBUG_DEVELOPER)) {
+                $successcount = count(array_filter($results));
+                $totalcount = count($results);
+                mtrace("report_usage_monitor: Tasks executed: $successcount/$totalcount completed.");
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2025030514, 'report', 'usage_monitor');
+    }
+
     return true;
 }
 

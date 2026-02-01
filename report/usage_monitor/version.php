@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030513;  // Improve hostname validation to also check wwwroot.
+$plugin->version   = 2025030514;  // Disable scheduled tasks when hostname is invalid.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.13';    // Hostname validation now checks both wwwroot and extracted hostname.
+$plugin->release   = '5.3.14';    // Plugin completely disabled on unauthorized servers including scheduled tasks.
 $plugin->maturity  = MATURITY_STABLE;
