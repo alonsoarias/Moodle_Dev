@@ -143,17 +143,10 @@ $string['error_no_thresholds_provided'] = 'No thresholds provided to update.';
 
 // Plugin status strings
 $string['plugin_disabled_hostname'] = '<div class="text-center">
-<h4 class="mb-3"><i class="fa fa-lock"></i> Restricted Access</h4>
-<p class="mb-2">The <strong>Usage Monitor</strong> is an exclusive tool that allows you to visualize in real-time your Moodle platform resource consumption, including:</p>
-<ul class="list-unstyled mb-3">
-<li><i class="fa fa-hdd-o text-primary"></i> Disk space and database usage</li>
-<li><i class="fa fa-users text-primary"></i> Daily active users and trends</li>
-<li><i class="fa fa-chart-line text-primary"></i> Growth charts and projections</li>
-<li><i class="fa fa-bell text-primary"></i> Automatic email alerts</li>
-</ul>
-<p class="mb-3">This functionality is available <strong>exclusively</strong> for Moodle platforms managed and hosted by IngeWeb.</p>
-<p><a href="https://ingeweb.co/contacto" target="_blank" class="btn btn-primary"><i class="fa fa-envelope"></i> Contact us for more information</a></p>
-<p class="small text-muted mt-2">Already have hosting with us? <a href="https://ingeweb.co/soporte" target="_blank">Contact support</a> to activate this feature.</p>
+<h4 class="mb-3 text-danger"><i class="fa fa-exclamation-triangle"></i> Unauthorized Server</h4>
+<p class="mb-3">This plugin is part of and is for the exclusive use of the Moodle hosting service provided by <a href="https://ingeweb.co" target="_blank"><strong>IngeWeb</strong></a>.</p>
+<p class="mb-2"><a href="https://ingeweb.co/hosting-moodle" target="_blank" class="btn btn-primary"><i class="fa fa-server"></i> Learn about our Moodle Hosting</a></p>
+<p class="small text-muted">Already an IngeWeb customer? <a href="https://ingeweb.co/soporte" target="_blank">Contact technical support</a> to activate this plugin on your platform.</p>
 </div>';
 $string['tasks_scheduled_install'] = 'Scheduled tasks have been configured to run immediately. The dashboard will display updated data after the next cron execution.';
 $string['tasks_executing'] = 'Executing tasks to obtain initial dashboard data...';

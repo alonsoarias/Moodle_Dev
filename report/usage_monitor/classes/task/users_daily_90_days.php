@@ -66,13 +66,13 @@ class users_daily_90_days extends \core\task\scheduled_task {
         // Check if plugin is enabled (hostname validation).
         if (!report_usage_monitor_is_enabled()) {
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("Plugin deshabilitado: hostname no autorizado o desactivado por configuración.");
+                mtrace("report_usage_monitor: Plugin disabled - unauthorized hostname.");
             }
             return;
         }
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Iniciando tarea de cálculo de usuarios diarios en los últimos 90 días...");
+            mtrace("report_usage_monitor: Starting 90-day maximum users calculation task...");
         }
 
         $max_users = 0;
@@ -122,7 +122,7 @@ class users_daily_90_days extends \core\task\scheduled_task {
 
                     $DB->insert_record('report_usage_monitor_history', $record);
                     if (debugging('', DEBUG_DEVELOPER)) {
-                        mtrace("Máximo de usuarios 90 días registrado en el historial.");
+                        mtrace("report_usage_monitor: 90-day maximum users recorded in history.");
                     }
                 }
             }
@@ -140,8 +140,8 @@ class users_daily_90_days extends \core\task\scheduled_task {
 
         if (debugging('', DEBUG_DEVELOPER)) {
             $formatted_date = ($max_date && is_numeric($max_date) && $max_date > 0) ? date('d/m/Y', (int)$max_date) : 'N/A';
-            mtrace("Usuarios principales en los últimos 90 días calculados: " . $max_users . " en fecha " . $formatted_date);
-            mtrace("Tarea de cálculo de usuarios principales en los últimos 90 días completada.");
+            mtrace("report_usage_monitor: Maximum users in last 90 days calculated: " . $max_users . " on date " . $formatted_date);
+            mtrace("report_usage_monitor: 90-day maximum users calculation task completed.");
         }
     }
 }

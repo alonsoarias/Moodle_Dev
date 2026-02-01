@@ -77,13 +77,13 @@ class disk_usage extends \core\task\scheduled_task {
         // Check if plugin is enabled (hostname validation).
         if (!report_usage_monitor_is_enabled()) {
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("Plugin deshabilitado: hostname no autorizado o desactivado por configuración.");
+                mtrace("report_usage_monitor: Plugin disabled - unauthorized hostname.");
             }
             return true; // Return true to not mark task as failed.
         }
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Iniciando tarea de cálculo de uso del disco...");
+            mtrace("report_usage_monitor: Starting disk usage calculation task...");
         }
 
         // Calcular el tamaño de la base de datos con la función refactorizada.
@@ -145,11 +145,11 @@ class disk_usage extends \core\task\scheduled_task {
             try {
                 $DB->insert_record('report_usage_monitor_history', $record);
                 if (debugging('', DEBUG_DEVELOPER)) {
-                    mtrace("Uso de disco registrado en el historial.");
+                    mtrace("report_usage_monitor: Disk usage recorded in history.");
                 }
             } catch (\Exception $e) {
                 if (debugging('', DEBUG_DEVELOPER)) {
-                    mtrace("Error al registrar el uso de disco: " . $e->getMessage());
+                    mtrace("report_usage_monitor: Error recording disk usage: " . $e->getMessage());
                 }
             }
         }
@@ -175,11 +175,11 @@ class disk_usage extends \core\task\scheduled_task {
         set_config('disk_growth_history', json_encode($growth_history), 'report_usage_monitor');
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Uso del disco calculado. Total base de datos: $totalusagereadabledb bytes, Total dataroot: $totalusagedataroot bytes, Total dirroot: $totalusagedirroot bytes, Total uso legible: $totalusagereadable bytes.");
-            mtrace("Análisis por directorios completado y guardado en configuración.");
-            mtrace("Información de cursos más grandes guardada en configuración.");
-            mtrace("Tasa de crecimiento mensual calculada: $growth_rate%");
-            mtrace("Tarea de cálculo de uso del disco completada.");
+            mtrace("report_usage_monitor: Disk usage calculated. DB: {$totalusagereadabledb}B, dataroot: {$totalusagedataroot}B, dirroot: {$totalusagedirroot}B, total: {$totalusagereadable}B.");
+            mtrace("report_usage_monitor: Directory analysis completed and saved.");
+            mtrace("report_usage_monitor: Largest courses information saved.");
+            mtrace("report_usage_monitor: Monthly growth rate: {$growth_rate}%");
+            mtrace("report_usage_monitor: Disk usage calculation task completed.");
         }
 
         return true;

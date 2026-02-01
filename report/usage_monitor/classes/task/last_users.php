@@ -65,13 +65,13 @@ class last_users extends \core\task\scheduled_task {
         // Check if plugin is enabled (hostname validation).
         if (!report_usage_monitor_is_enabled()) {
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("Plugin deshabilitado: hostname no autorizado o desactivado por configuración.");
+                mtrace("report_usage_monitor: Plugin disabled - unauthorized hostname.");
             }
             return;
         }
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Iniciando tarea de cálculo de usuarios conectados recientemente...");
+            mtrace("report_usage_monitor: Starting recent users calculation task...");
         }
 
         // Iniciar transacción para garantizar consistencia de datos
@@ -99,7 +99,7 @@ class last_users extends \core\task\scheduled_task {
                 set_config('totalusersdaily', $users_today, 'report_usage_monitor');
                 
                 if (debugging('', DEBUG_DEVELOPER)) {
-                    mtrace("Usuarios conectados hoy: $users_today para la fecha " . userdate($log->timestamp_fecha));
+                    mtrace("report_usage_monitor: Users today: {$users_today} for date " . userdate($log->timestamp_fecha));
                 }
             }
 
@@ -121,19 +121,19 @@ class last_users extends \core\task\scheduled_task {
             $transaction->allow_commit();
             
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("Usuarios conectados recientemente: $users_today.");
-                mtrace("Porcentaje del umbral: $users_percent%");
-                mtrace("Tarea completada con éxito.");
+                mtrace("report_usage_monitor: Recent users count: {$users_today}.");
+                mtrace("report_usage_monitor: Threshold percentage: {$users_percent}%");
+                mtrace("report_usage_monitor: Task completed successfully.");
             }
         } catch (Exception $e) {
             // Revertir cambios en caso de error
             $transaction->rollback($e);
-            
-            debugging('last_users: Error en tarea de cálculo de usuarios: ' . $e->getMessage(), DEBUG_DEVELOPER);
-            
+
+            debugging('report_usage_monitor: Error in users calculation task: ' . $e->getMessage(), DEBUG_DEVELOPER);
+
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("Error durante el cálculo de usuarios: " . $e->getMessage());
-                mtrace("Se ha revertido cualquier cambio parcial.");
+                mtrace("report_usage_monitor: Error during users calculation: " . $e->getMessage());
+                mtrace("report_usage_monitor: Partial changes have been rolled back.");
             }
             
             // Permitir que la excepción se propague para registrar el fallo de la tarea

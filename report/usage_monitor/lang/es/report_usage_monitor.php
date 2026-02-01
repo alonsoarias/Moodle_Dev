@@ -143,17 +143,10 @@ $string['error_no_thresholds_provided'] = 'No se proporcionaron umbrales para ac
 
 // Plugin status strings
 $string['plugin_disabled_hostname'] = '<div class="text-center">
-<h4 class="mb-3"><i class="fa fa-lock"></i> Acceso Restringido</h4>
-<p class="mb-2">El <strong>Usage Monitor</strong> es una herramienta exclusiva que permite visualizar en tiempo real el consumo de recursos de tu plataforma Moodle, incluyendo:</p>
-<ul class="list-unstyled mb-3">
-<li><i class="fa fa-hdd-o text-primary"></i> Uso de espacio en disco y base de datos</li>
-<li><i class="fa fa-users text-primary"></i> Usuarios activos diarios y tendencias</li>
-<li><i class="fa fa-chart-line text-primary"></i> Gráficas de crecimiento y proyecciones</li>
-<li><i class="fa fa-bell text-primary"></i> Alertas automáticas por correo electrónico</li>
-</ul>
-<p class="mb-3">Esta funcionalidad está disponible <strong>exclusivamente</strong> para plataformas Moodle administradas y alojadas por IngeWeb.</p>
-<p><a href="https://ingeweb.co/contacto" target="_blank" class="btn btn-primary"><i class="fa fa-envelope"></i> Contáctanos para más información</a></p>
-<p class="small text-muted mt-2">¿Ya tienes hosting con nosotros? <a href="https://ingeweb.co/soporte" target="_blank">Contacta a soporte</a> para activar esta funcionalidad.</p>
+<h4 class="mb-3 text-danger"><i class="fa fa-exclamation-triangle"></i> Servidor No Autorizado</h4>
+<p class="mb-3">Este plugin hace parte y es de uso exclusivo del servicio de hosting para Moodle proporcionado por <a href="https://ingeweb.co" target="_blank"><strong>IngeWeb</strong></a>.</p>
+<p class="mb-2"><a href="https://ingeweb.co/hosting-moodle" target="_blank" class="btn btn-primary"><i class="fa fa-server"></i> Conoce nuestro Hosting Moodle</a></p>
+<p class="small text-muted">¿Ya eres cliente de IngeWeb? <a href="https://ingeweb.co/soporte" target="_blank">Contacta a soporte técnico</a> para activar este plugin en tu plataforma.</p>
 </div>';
 $string['tasks_scheduled_install'] = 'Las tareas programadas se han configurado para ejecutarse inmediatamente. El dashboard mostrará datos actualizados después de la próxima ejecución del cron.';
 $string['tasks_executing'] = 'Ejecutando tareas para obtener datos iniciales del dashboard...';

@@ -55,20 +55,20 @@ class notification_disk extends \core\task\scheduled_task {
         // Check if plugin is enabled (hostname validation).
         if (!report_usage_monitor_is_enabled()) {
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("Plugin deshabilitado: hostname no autorizado o desactivado por configuración.");
+                mtrace("report_usage_monitor: Plugin disabled - unauthorized hostname.");
             }
             return true; // Return true to not mark task as failed.
         }
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Iniciando tarea de notificación de uso de disco...");
+            mtrace("report_usage_monitor: Starting disk usage notification task...");
         }
 
         // Procesar la notificación de disco
         $result = $this->notify_disk_usage();
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Tarea de notificación de uso de disco completada.");
+            mtrace("report_usage_monitor: Disk usage notification task completed.");
         }
         
         return $result;
@@ -127,14 +127,14 @@ class notification_disk extends \core\task\scheduled_task {
         $warning_level = !empty($reportconfig->disk_warning_level) ? $reportconfig->disk_warning_level : 90;
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Cuota de disco: $quotadisk bytes, Uso de disco: $disk_usage bytes, Porcentaje: $disk_percent%");
-            mtrace("Nivel de advertencia: $warning_level%");
+            mtrace("report_usage_monitor: Disk quota: {$quotadisk}B, Usage: {$disk_usage}B, Percent: {$disk_percent}%");
+            mtrace("report_usage_monitor: Warning level: {$warning_level}%");
         }
 
         // Verificar si el porcentaje supera el nivel de advertencia configurado
         if ($disk_percent < $warning_level) {
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("El uso del disco ($disk_percent%) está por debajo del nivel de advertencia ($warning_level%). No se enviará notificación.");
+                mtrace("report_usage_monitor: Disk usage ({$disk_percent}%) is below warning level ({$warning_level}%). No notification sent.");
             }
             return true;
         }
@@ -145,24 +145,24 @@ class notification_disk extends \core\task\scheduled_task {
         $current_time = time();
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Intervalo de notificación: $notification_interval segundos, Última notificación: $last_notification_time");
+            mtrace("report_usage_monitor: Notification interval: {$notification_interval}s, Last notification: {$last_notification_time}");
             $time_since_last = $current_time - $last_notification_time;
-            mtrace("Tiempo transcurrido desde la última notificación: $time_since_last segundos");
+            mtrace("report_usage_monitor: Time since last notification: {$time_since_last}s");
         }
 
         // Verificar si ha pasado suficiente tiempo desde la última notificación
         if ($current_time - $last_notification_time < $notification_interval) {
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("No ha pasado el intervalo de notificación.");
+                mtrace("report_usage_monitor: Notification interval not reached.");
                 $time_remaining = ($last_notification_time + $notification_interval) - $current_time;
-                mtrace("Próxima notificación posible en: " . format_time($time_remaining));
+                mtrace("report_usage_monitor: Next notification possible in: " . format_time($time_remaining));
             }
             return true;
         }
 
         // Llegados a este punto, debemos enviar la notificación
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Enviando notificación de uso de disco...");
+            mtrace("report_usage_monitor: Sending disk usage notification...");
         }
         
         // Recopilar información adicional para la notificación

@@ -57,7 +57,7 @@ function xmldb_report_usage_monitor_upgrade($oldversion)
                 $dbman->create_table($table);
             }
         } catch (Exception $e) {
-            echo "Error generado: $e";
+            debugging("report_usage_monitor upgrade error: " . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
         // Punto de guardado de la versión 2022090200.

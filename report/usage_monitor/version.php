@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030507;  // Improve unauthorized server message with detailed feature description.
+$plugin->version   = 2025030508;  // Standardize debugging messages to English, simplify unauthorized message.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.7';     // Enhanced unauthorized access message with feature list and contact links.
+$plugin->release   = '5.3.8';     // All debugging messages in English, cleaner unauthorized server message.
 $plugin->maturity  = MATURITY_STABLE;

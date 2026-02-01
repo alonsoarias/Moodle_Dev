@@ -70,13 +70,13 @@ class users_daily extends \core\task\scheduled_task {
         // Check if plugin is enabled (hostname validation).
         if (!report_usage_monitor_is_enabled()) {
             if (debugging('', DEBUG_DEVELOPER)) {
-                mtrace("Plugin deshabilitado: hostname no autorizado o desactivado por configuración.");
+                mtrace("report_usage_monitor: Plugin disabled - unauthorized hostname.");
             }
             return;
         }
 
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Iniciando tarea para calcular el top de accesos únicos diarios...");
+            mtrace("report_usage_monitor: Starting daily unique access top calculation task...");
         }
 
         $array_daily_top = [];
@@ -129,30 +129,30 @@ class users_daily extends \core\task\scheduled_task {
                 break;
             }
 
-            // Si no hay usuarios para el día actual, no hacemos nada
+            // If no users for current day, do nothing
             if (empty($users)) {
                 if (debugging('', DEBUG_DEVELOPER)) {
-                    mtrace("No se encontraron registros de usuarios para el día actual.");
+                    mtrace("report_usage_monitor: No user records found for current day.");
                 }
             } else {
-                // Procesamos los registros de usuarios diarios
+                // Process daily user records
                 if (empty($array_daily_top) || count($array_daily_top) < 10) {
-                    // Se inserta si la tabla está vacía o tiene menos de 10 registros
+                    // Insert if table is empty or has less than 10 records
                     insert_top_sql($users['fecha'], $users['usuarios']);
                     if (debugging('', DEBUG_DEVELOPER)) {
-                        mtrace("Insertando nuevo registro con {$users['usuarios']} usuarios para timestamp {$users['fecha']}.");
+                        mtrace("report_usage_monitor: Inserting new record with {$users['usuarios']} users for timestamp {$users['fecha']}.");
                     }
                 } else {
-                    // Se actualiza si hay 10 o más registros y el nuevo registro tiene más usuarios
+                    // Update if there are 10 or more records and new record has more users
                     if (!is_null($menor) && $users['usuarios'] >= $menor) {
-                        // La función update_min_top_sql actualiza el registro más antiguo con la menor cantidad
+                        // update_min_top_sql updates the oldest record with the lowest count
                         update_min_top_sql($users['fecha'], $users['usuarios'], $menor);
                         if (debugging('', DEBUG_DEVELOPER)) {
-                            mtrace("Actualizando registro existente con menor valor ($menor) a nuevo valor ({$users['usuarios']}).");
+                            mtrace("report_usage_monitor: Updating existing record with lowest value ($menor) to new value ({$users['usuarios']}).");
                         }
                     } else {
                         if (debugging('', DEBUG_DEVELOPER)) {
-                            mtrace("El nuevo registro ({$users['usuarios']} usuarios) no supera el mínimo actual ($menor).");
+                            mtrace("report_usage_monitor: New record ({$users['usuarios']} users) does not exceed current minimum ($menor).");
                         }
                     }
                 }
@@ -193,7 +193,7 @@ class users_daily extends \core\task\scheduled_task {
         }
         
         if (debugging('', DEBUG_DEVELOPER)) {
-            mtrace("Tarea para calcular el top de accesos únicos diarios completada.");
+            mtrace("report_usage_monitor: Daily unique access top calculation task completed.");
         }
     }
 }
