@@ -148,7 +148,7 @@ $string['error_disk_threshold_negative'] = 'El umbral de disco debe ser mayor qu
 $string['error_no_thresholds_provided'] = 'No se proporcionaron umbrales para actualizar.';
 
 // Plugin status strings
-$string['plugin_disabled_hostname'] = 'Este plugin solo está disponible en plataformas alojadas en moodlesoporte.net.';
+$string['plugin_disabled_hostname'] = 'Este reporte solo está disponible en plataformas soportadas por ingeweb.co.';
 $string['plugin_disabled_config'] = 'Este plugin ha sido desactivado por un administrador.';
 
 // API response field descriptions

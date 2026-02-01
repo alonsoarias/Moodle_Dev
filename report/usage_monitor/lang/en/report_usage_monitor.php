@@ -148,7 +148,7 @@ $string['error_disk_threshold_negative'] = 'Disk threshold must be greater than 
 $string['error_no_thresholds_provided'] = 'No thresholds provided to update.';
 
 // Plugin status strings
-$string['plugin_disabled_hostname'] = 'This plugin is only available on moodlesoporte.net hosted platforms.';
+$string['plugin_disabled_hostname'] = 'This report is only available on platforms supported by ingeweb.co.';
 $string['plugin_disabled_config'] = 'This plugin has been disabled by an administrator.';
 
 // API response field descriptions
