@@ -85,42 +85,46 @@ class users_daily extends \core\task\scheduled_task {
         $transaction = $DB->start_delegated_transaction();
 
         try {
-            // Obtener el top de usuarios diarios usando la nueva función.
-            // report_user_daily_top_task() ya devuelve un array de registros.
+            // First, clean up records older than 6 months.
+            $oldremoved = report_usage_monitor_cleanup_old_top_records();
+            if ($oldremoved > 0 && debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Removed $oldremoved records older than 6 months.");
+            }
+
+            // Get the current top daily users AFTER cleanup.
             $userdaily_records = report_user_daily_top_task();
-            
+
             foreach ($userdaily_records as $record) {
                 // Validar que fecha sea un timestamp válido
                 if (!is_numeric($record->fecha) || $record->fecha <= 0) {
                     debugging('users_daily: Timestamp inválido encontrado: ' . var_export($record->fecha, true), DEBUG_DEVELOPER);
                     continue;
                 }
-                
+
                 $array_daily_top[] = [
                     "usuarios" => $record->cantidad_usuarios,
                     "fecha" => $record->fecha,
                 ];
             }
 
-            // Corrige el uso de min() verificando si $array_daily_top está vacío
+            // Calculate minimum user count from current records.
             if (!empty($array_daily_top)) {
                 $menor = min(array_column($array_daily_top, 'usuarios'));
             } else {
                 $menor = null;
             }
 
-            // Verificar si hay que insertar un nuevo registro de usuarios.
-            // user_limit_daily_task() ya devuelve un array de registros.
+            // Get today's/yesterday's user count.
             $users_daily_record = user_limit_daily_task();
             $users = [];
-            
+
             foreach ($users_daily_record as $log) {
                 // Validar que fecha sea un timestamp válido
                 if (!is_numeric($log->fecha) || $log->fecha <= 0) {
                     debugging('users_daily: Timestamp inválido en user_limit_daily_task: ' . var_export($log->fecha, true), DEBUG_DEVELOPER);
                     continue;
                 }
-                
+
                 $users = [
                     "usuarios" => $log->conteo_accesos_unicos,
                     "fecha" => $log->fecha,
@@ -135,26 +139,11 @@ class users_daily extends \core\task\scheduled_task {
                     mtrace("report_usage_monitor: No user records found for current day.");
                 }
             } else {
-                // Process daily user records
-                if (empty($array_daily_top) || count($array_daily_top) < 10) {
-                    // Insert if table is empty or has less than 10 records
-                    insert_top_sql($users['fecha'], $users['usuarios']);
-                    if (debugging('', DEBUG_DEVELOPER)) {
-                        mtrace("report_usage_monitor: Inserting new record with {$users['usuarios']} users for timestamp {$users['fecha']}.");
-                    }
-                } else {
-                    // Update if there are 10 or more records and new record has more users
-                    if (!is_null($menor) && $users['usuarios'] >= $menor) {
-                        // update_min_top_sql updates the oldest record with the lowest count
-                        update_min_top_sql($users['fecha'], $users['usuarios'], $menor);
-                        if (debugging('', DEBUG_DEVELOPER)) {
-                            mtrace("report_usage_monitor: Updating existing record with lowest value ($menor) to new value ({$users['usuarios']}).");
-                        }
-                    } else {
-                        if (debugging('', DEBUG_DEVELOPER)) {
-                            mtrace("report_usage_monitor: New record ({$users['usuarios']} users) does not exceed current minimum ($menor).");
-                        }
-                    }
+                // Always try to insert - the function handles duplicate checking and
+                // will replace the lowest count record if table is full.
+                insert_top_sql($users['fecha'], $users['usuarios']);
+                if (debugging('', DEBUG_DEVELOPER)) {
+                    mtrace("report_usage_monitor: Processing record with {$users['usuarios']} users for timestamp {$users['fecha']}.");
                 }
             }
             
