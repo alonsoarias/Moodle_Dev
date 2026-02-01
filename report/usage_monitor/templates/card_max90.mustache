@@ -14,13 +14,20 @@
 <div class="col-md-4 mb-4">
     <div class="card h-100 shadow-sm">
         <div class="card-header">
-            <h5 class="mb-0">{{max90_card.title}}</h5>
+            <h5 class="mb-0">
+                {{max90_card.title}}
+                <i class="fa fa-question-circle text-muted ml-1"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="{{max90_card.tooltip}}"
+                   style="font-size: 0.8em; cursor: help;"></i>
+            </h5>
         </div>
         <div class="card-body text-center">
             <h2 class="display-5">
                 {{max90_card.max_users}} / {{max90_card.threshold}}
             </h2>
-            <p class="text-muted mt-2">
+            <p class="text-muted mt-2" data-toggle="tooltip" data-placement="bottom" title="{{max90_card.tooltip_last_calc}}" style="cursor: help;">
                 {{#max90_card.show_date}}
                     {{max90_card.date_label}}: {{max90_card.max_date}}<br>
                 {{/max90_card.show_date}}

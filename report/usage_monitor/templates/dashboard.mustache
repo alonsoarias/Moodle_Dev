@@ -91,3 +91,13 @@
 <div class="mt-4 text-center text-muted small">
     {{{credits}}}
 </div>
+
+{{! Initialize Bootstrap tooltips }}
+{{#js}}
+require(['jquery'], function($) {
+    // Initialize all tooltips on the page
+    $(function() {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+});
+{{/js}}

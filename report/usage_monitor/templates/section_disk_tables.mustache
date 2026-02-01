@@ -52,7 +52,14 @@
     {{! Courses Table }}
     <div class="card shadow-sm">
         <div class="card-header">
-            <h5 class="mb-0">{{disk_tables.courses_title}}</h5>
+            <h5 class="mb-0">
+                {{disk_tables.courses_title}}
+                <i class="fa fa-question-circle text-muted ml-1"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="{{disk_tables.tooltip_courses}}"
+                   style="font-size: 0.8em; cursor: help;"></i>
+            </h5>
         </div>
         <div class="card-body p-0">
             <table class="table table-striped table-hover mb-0">

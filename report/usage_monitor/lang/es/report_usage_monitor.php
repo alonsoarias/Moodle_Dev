@@ -80,6 +80,23 @@ $string['active_users'] = 'usuarios activos';
 $string['suspended_users'] = 'usuarios suspendidos';
 $string['recommendations'] = 'Recomendaciones';
 
+// Tooltips para elementos del dashboard
+$string['tooltip_disk_usage'] = 'Espacio total en disco usado incluyendo base de datos, archivos y caché. El porcentaje muestra cuánto de su cuota asignada está siendo utilizada.';
+$string['tooltip_disk_percent'] = 'Porcentaje de la cuota de disco asignada actualmente en uso. Verde es seguro, amarillo es advertencia, rojo es crítico.';
+$string['tooltip_users_today'] = 'Número de usuarios únicos que han iniciado sesión hoy. Este conteo se reinicia a medianoche y se compara con su límite de usuarios diarios.';
+$string['tooltip_users_percent'] = 'Porcentaje de su límite de usuarios diarios actualmente alcanzado. Monitoree esto para asegurarse de mantenerse dentro de los límites de su plan.';
+$string['tooltip_max90'] = 'El mayor número de usuarios únicos diarios registrados en los últimos 90 días. Ayuda a identificar períodos de uso pico para planificación de capacidad.';
+$string['tooltip_disk_distribution'] = 'Desglose visual de cómo se está utilizando el espacio en disco entre diferentes componentes: base de datos, archivos, caché y otros datos.';
+$string['tooltip_disk_history'] = 'Tendencia histórica del uso de disco en los últimos 30 días. Útil para predecir cuándo podría necesitar más espacio.';
+$string['tooltip_largest_courses'] = 'Cursos que consumen más espacio en disco. Considere archivar o limpiar cursos grandes para liberar espacio.';
+$string['tooltip_users_last10'] = 'Conteos de inicio de sesión de usuarios diarios de los últimos 10 días. Ayuda a identificar patrones y tendencias de uso.';
+$string['tooltip_top_users'] = 'Días con el mayor número de inicios de sesión de usuarios únicos en el período de monitoreo.';
+$string['tooltip_system_info'] = 'Información general del sistema incluyendo versión de Moodle, total de cursos y estadísticas de usuarios.';
+$string['tooltip_recommendations'] = 'Acciones sugeridas basadas en los niveles de uso actuales para ayudar a optimizar su plataforma.';
+$string['tooltip_quota_used'] = 'Uso actual de disco comparado con su cuota asignada. Formato: Usado / Total.';
+$string['tooltip_users_threshold'] = 'Usuarios diarios actuales comparados con su límite. Formato: Actual / Límite.';
+$string['tooltip_last_calculation'] = 'Cuándo se actualizaron estos datos por última vez mediante la tarea programada.';
+
 // Warning levels and indicator labels
 $string['warning70'] = 'Advertencia (70%)';
 $string['critical90'] = 'Crítico (90%)';

@@ -10,7 +10,14 @@
 }}
 <div class="card shadow-sm">
     <div class="card-header">
-        <h5 class="mb-0">{{disk_history.title}}</h5>
+        <h5 class="mb-0">
+            {{disk_history.title}}
+            <i class="fa fa-question-circle text-muted ml-1"
+               data-toggle="tooltip"
+               data-placement="top"
+               title="{{disk_history.tooltip}}"
+               style="font-size: 0.8em; cursor: help;"></i>
+        </h5>
     </div>
     <div class="card-body">
         {{#disk_history.has_data}}

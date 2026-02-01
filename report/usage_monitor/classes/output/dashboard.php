@@ -413,28 +413,37 @@ class dashboard implements renderable, templatable {
             // Disk card.
             'disk_card' => [
                 'title' => get_string('diskusage', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_disk_usage', 'report_usage_monitor'),
+                'tooltip_percent' => get_string('tooltip_disk_percent', 'report_usage_monitor'),
+                'tooltip_quota' => get_string('tooltip_quota_used', 'report_usage_monitor'),
                 'percent' => $diskpercent,
                 'warning_class' => $diskwarningclass,
                 'usage_gb' => $diskusagegb,
                 'quota_gb' => $quotadiskgb,
                 'last_execution_label' => get_string('lastexecutioncalculate', 'report_usage_monitor',
                                                      $this->format_date($lastdiskts, true)),
+                'tooltip_last_calc' => get_string('tooltip_last_calculation', 'report_usage_monitor'),
             ],
 
             // Users card.
             'users_card' => [
                 'title' => get_string('users_today_card', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_users_today', 'report_usage_monitor'),
+                'tooltip_percent' => get_string('tooltip_users_percent', 'report_usage_monitor'),
+                'tooltip_threshold' => get_string('tooltip_users_threshold', 'report_usage_monitor'),
                 'percent' => $userspercent,
                 'warning_class' => $userswarningclass,
                 'users_today' => $userstoday,
                 'threshold' => $maxthreshold,
                 'last_execution_label' => get_string('lastexecution', 'report_usage_monitor',
                                                      $this->format_date($lastuserts, true)),
+                'tooltip_last_calc' => get_string('tooltip_last_calculation', 'report_usage_monitor'),
             ],
 
             // Max 90 days card.
             'max90_card' => [
                 'title' => get_string('max_userdaily_for_90_days', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_max90', 'report_usage_monitor'),
                 'max_users' => $this->config->max_userdaily_for_90_days_users
                              ?? get_string('notcalculatedyet', 'report_usage_monitor'),
                 'threshold' => $maxthreshold,
@@ -443,11 +452,13 @@ class dashboard implements renderable, templatable {
                 'date_label' => get_string('date', 'report_usage_monitor'),
                 'last_calculation' => $this->format_date($lastcalc90ts, true),
                 'last_calc_label' => get_string('last_calculation', 'report_usage_monitor'),
+                'tooltip_last_calc' => get_string('tooltip_last_calculation', 'report_usage_monitor'),
             ],
 
             // Disk distribution.
             'disk_distribution' => [
                 'title' => get_string('disk_usage_distribution', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_disk_distribution', 'report_usage_monitor'),
                 'has_data' => $diskusagebytes > 0,
                 'no_data_message' => get_string('notcalculatedyet', 'report_usage_monitor'),
             ],
@@ -456,6 +467,7 @@ class dashboard implements renderable, templatable {
             'disk_tables' => [
                 'directories_title' => get_string('disk_usage_by_directory', 'report_usage_monitor'),
                 'courses_title' => get_string('largest_courses', 'report_usage_monitor'),
+                'tooltip_courses' => get_string('tooltip_largest_courses', 'report_usage_monitor'),
                 'has_data' => $diskusagebytes > 0,
                 'has_courses' => !empty($this->largestcourses),
                 'directories' => $directories,
@@ -466,6 +478,7 @@ class dashboard implements renderable, templatable {
             // Disk history.
             'disk_history' => [
                 'title' => get_string('disk_usage_history', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_disk_history', 'report_usage_monitor'),
                 'has_data' => !empty($this->diskhistory['labels']),
                 'no_data_message' => get_string('notcalculatedyet', 'report_usage_monitor'),
             ],
@@ -473,6 +486,7 @@ class dashboard implements renderable, templatable {
             // Users last 10 days.
             'users_last10' => [
                 'title' => get_string('lastusers', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_users_last10', 'report_usage_monitor'),
                 'tab_table' => get_string('usertable', 'report_usage_monitor'),
                 'tab_chart' => get_string('userchart', 'report_usage_monitor'),
                 'has_data' => !empty($this->userdailyrecords),
@@ -483,6 +497,7 @@ class dashboard implements renderable, templatable {
             // Top users.
             'top_users' => [
                 'title' => get_string('topuser', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_top_users', 'report_usage_monitor'),
                 'has_data' => !empty($this->userdailytop),
                 'records' => $this->userdailytop,
                 'no_data_message' => get_string('notcalculatedyet', 'report_usage_monitor'),
@@ -491,6 +506,7 @@ class dashboard implements renderable, templatable {
             // System info.
             'system_info' => [
                 'title' => get_string('system_info', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_system_info', 'report_usage_monitor'),
                 'moodle_version_label' => get_string('moodle_version', 'report_usage_monitor'),
                 'moodle_version' => $CFG->release,
                 'total_courses_label' => get_string('total_courses', 'report_usage_monitor'),
@@ -507,6 +523,7 @@ class dashboard implements renderable, templatable {
             // Recommendations.
             'recommendations' => [
                 'title' => get_string('recommendations', 'report_usage_monitor'),
+                'tooltip' => get_string('tooltip_recommendations', 'report_usage_monitor'),
                 'show_disk_warning' => $diskpercent > 70,
                 'disk_warning_level' => $diskpercent > 90 ? 'danger' : 'warning',
                 'disk_tips_title' => get_string('space_saving_tips', 'report_usage_monitor'),

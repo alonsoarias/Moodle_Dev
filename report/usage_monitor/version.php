@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030517;  // Auto-sync tasks and block API on unauthorized servers.
+$plugin->version   = 2025030518;  // Add tooltips to dashboard for better UX.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.17';    // Tasks auto-disabled on page access, API blocked on unauthorized servers.
+$plugin->release   = '5.3.18';    // Dashboard tooltips added for improved user understanding.
 $plugin->maturity  = MATURITY_STABLE;

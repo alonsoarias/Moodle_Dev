@@ -11,7 +11,14 @@
 <div class="col-md-6 mb-4">
     <div class="card shadow-sm h-100">
         <div class="card-header">
-            <h5 class="mb-0">{{disk_distribution.title}}</h5>
+            <h5 class="mb-0">
+                {{disk_distribution.title}}
+                <i class="fa fa-question-circle text-muted ml-1"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="{{disk_distribution.tooltip}}"
+                   style="font-size: 0.8em; cursor: help;"></i>
+            </h5>
         </div>
         <div class="card-body" style="position:relative; min-height:400px;">
             {{#disk_distribution.has_data}}

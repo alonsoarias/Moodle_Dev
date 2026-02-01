@@ -19,7 +19,14 @@
 <div class="col-md-6">
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
-            <h5 class="mb-0">{{recommendations.title}}</h5>
+            <h5 class="mb-0">
+                {{recommendations.title}}
+                <i class="fa fa-question-circle text-muted ml-1"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="{{recommendations.tooltip}}"
+                   style="font-size: 0.8em; cursor: help;"></i>
+            </h5>
         </div>
         <div class="card-body">
             {{! Disk Alert }}

@@ -80,6 +80,23 @@ $string['active_users'] = 'active users';
 $string['suspended_users'] = 'suspended users';
 $string['recommendations'] = 'Recommendations';
 
+// Tooltips for dashboard elements
+$string['tooltip_disk_usage'] = 'Total disk space used including database, files, and cache. The percentage shows how much of your allocated quota is being used.';
+$string['tooltip_disk_percent'] = 'Percentage of allocated disk quota currently in use. Green is safe, yellow is warning, red is critical.';
+$string['tooltip_users_today'] = 'Number of unique users who have logged in today. This count resets at midnight and is compared against your daily user limit.';
+$string['tooltip_users_percent'] = 'Percentage of your daily user limit currently reached. Monitor this to ensure you stay within your plan limits.';
+$string['tooltip_max90'] = 'The highest number of unique daily users recorded in the past 90 days. Helps identify peak usage periods for capacity planning.';
+$string['tooltip_disk_distribution'] = 'Visual breakdown of how disk space is being used across different components: database, files, cache, and other data.';
+$string['tooltip_disk_history'] = 'Historical trend of disk usage over the last 30 days. Useful for predicting when you might need more space.';
+$string['tooltip_largest_courses'] = 'Courses consuming the most disk space. Consider archiving or cleaning large courses to free up space.';
+$string['tooltip_users_last10'] = 'Daily user login counts for the past 10 days. Helps identify usage patterns and trends.';
+$string['tooltip_top_users'] = 'Days with the highest number of unique user logins in the monitoring period.';
+$string['tooltip_system_info'] = 'General system information including Moodle version, total courses, and user statistics.';
+$string['tooltip_recommendations'] = 'Suggested actions based on current usage levels to help optimize your platform.';
+$string['tooltip_quota_used'] = 'Current disk usage compared to your allocated quota. Format: Used / Total.';
+$string['tooltip_users_threshold'] = 'Current daily users compared to your limit. Format: Current / Limit.';
+$string['tooltip_last_calculation'] = 'When this data was last updated by the scheduled task.';
+
 // Warning levels and indicator labels
 $string['warning70'] = 'Warning (70%)';
 $string['critical90'] = 'Critical (90%)';

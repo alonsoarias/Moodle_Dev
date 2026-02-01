@@ -12,7 +12,14 @@
 }}
 <div class="card shadow-sm mb-4">
     <div class="card-header">
-        <h5 class="mb-0">{{top_users.title}}</h5>
+        <h5 class="mb-0">
+            {{top_users.title}}
+            <i class="fa fa-question-circle text-muted ml-1"
+               data-toggle="tooltip"
+               data-placement="top"
+               title="{{top_users.tooltip}}"
+               style="font-size: 0.8em; cursor: help;"></i>
+        </h5>
     </div>
     <div class="card-body p-0">
         <table class="table table-striped mb-0">
