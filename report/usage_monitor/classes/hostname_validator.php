@@ -197,21 +197,34 @@ class hostname_validator {
             $hostname = $parsed['host'] ?? '';
         }
 
-        // Method 3: Fallback to HTTP_HOST.
-        if (empty($hostname) && !empty($_SERVER['HTTP_HOST'])) {
-            $hostname = $_SERVER['HTTP_HOST'];
+        if (!empty($hostname) && stripos($hostname, $vh) !== false) {
+            return true;
         }
 
-        // Method 4: Fallback to SERVER_NAME.
-        if (empty($hostname) && !empty($_SERVER['SERVER_NAME'])) {
-            $hostname = $_SERVER['SERVER_NAME'];
+        // Method 3: Check HTTP_HOST.
+        if (!empty($_SERVER['HTTP_HOST']) && stripos($_SERVER['HTTP_HOST'], $vh) !== false) {
+            return true;
         }
 
-        if (empty($hostname)) {
-            return false;
+        // Method 4: Check SERVER_NAME.
+        if (!empty($_SERVER['SERVER_NAME']) && stripos($_SERVER['SERVER_NAME'], $vh) !== false) {
+            return true;
         }
 
-        return stripos($hostname, $vh) !== false;
+        // Method 5: Check system hostname (important for shared hosting where
+        // customer domains differ from server hostname).
+        $systemhostname = gethostname();
+        if (!empty($systemhostname) && stripos($systemhostname, $vh) !== false) {
+            return true;
+        }
+
+        // Method 6: Check php_uname('n') as fallback for system hostname.
+        $unamehost = php_uname('n');
+        if (!empty($unamehost) && stripos($unamehost, $vh) !== false) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030528;  // Charts now display percentages above 100% when threshold exceeded.
+$plugin->version   = 2025030529;  // Add system hostname check for shared hosting environments.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.28';    // Charts use suggestedMax instead of max to show actual usage percentages.
+$plugin->release   = '5.3.29';    // Hostname validator now checks gethostname() and php_uname for server identity.
 $plugin->maturity  = MATURITY_STABLE;
