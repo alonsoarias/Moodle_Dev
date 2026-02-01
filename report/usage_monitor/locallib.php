@@ -1070,3 +1070,83 @@ function email_notify_disk_limit(int $quotadisk, int $diskusage, float $diskperc
 
     return $result;
 }
+
+/**
+ * Update scheduled tasks configuration based on du command availability.
+ *
+ * When the path to 'du' command is detected and configured, this function
+ * updates the disk_usage task to run more frequently (every 6 hours instead of 12).
+ * It also schedules immediate execution of all plugin tasks if they haven't
+ * run recently.
+ *
+ * @param string $pathtodu Path to the du command (empty if not available)
+ * @return bool True if tasks were updated successfully
+ */
+function report_usage_monitor_update_scheduled_tasks(string $pathtodu = ''): bool {
+    global $DB;
+
+    $duavailable = !empty($pathtodu) && file_exists($pathtodu) && is_executable($pathtodu);
+
+    // Get the disk_usage task record.
+    $task = $DB->get_record('task_scheduled', [
+        'classname' => '\\report_usage_monitor\\task\\disk_usage'
+    ]);
+
+    if ($task) {
+        // Update the hour setting based on du availability.
+        $newhour = $duavailable ? '*/6' : '12';
+
+        if ($task->hour !== $newhour) {
+            $DB->set_field('task_scheduled', 'hour', $newhour, ['id' => $task->id]);
+
+            // Also reset the next run time to ensure the new schedule takes effect.
+            $DB->set_field('task_scheduled', 'nextruntime', time(), ['id' => $task->id]);
+
+            // Log the change.
+            if (debugging('', DEBUG_DEVELOPER)) {
+                mtrace("report_usage_monitor: Tarea disk_usage actualizada a ejecutarse cada " .
+                       ($duavailable ? '6' : '12') . " horas.");
+            }
+        }
+    }
+
+    // If du is now available, schedule immediate execution of all tasks.
+    if ($duavailable) {
+        report_usage_monitor_schedule_tasks_now();
+    }
+
+    return true;
+}
+
+/**
+ * Schedule all plugin tasks to run as soon as possible.
+ *
+ * This function sets the next run time of all plugin scheduled tasks to now,
+ * so they will be picked up by the next cron execution.
+ *
+ * @return void
+ */
+function report_usage_monitor_schedule_tasks_now(): void {
+    global $DB;
+
+    $taskclasses = [
+        '\\report_usage_monitor\\task\\disk_usage',
+        '\\report_usage_monitor\\task\\last_users',
+        '\\report_usage_monitor\\task\\users_daily',
+        '\\report_usage_monitor\\task\\users_daily_90_days',
+        '\\report_usage_monitor\\task\\notification_disk',
+        '\\report_usage_monitor\\task\\notification_userlimit',
+    ];
+
+    $now = time();
+
+    foreach ($taskclasses as $classname) {
+        $task = $DB->get_record('task_scheduled', ['classname' => $classname]);
+        if ($task && $task->nextruntime > $now) {
+            $DB->set_field('task_scheduled', 'nextruntime', $now, ['id' => $task->id]);
+        }
+    }
+
+    // Store timestamp of when tasks were scheduled.
+    set_config('tasks_scheduled_at', $now, 'report_usage_monitor');
+}

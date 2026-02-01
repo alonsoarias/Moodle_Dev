@@ -194,8 +194,14 @@ if ($ADMIN->fulltree) {
                 $defaultPathToDu = $pathToDu;
 
                 // Actualizar la configuración global si no está ya configurada.
-                if (empty(get_config('pathtodu'))) {
+                $currentpathtodu = get_config('pathtodu');
+                if (empty($currentpathtodu)) {
                     set_config('pathtodu', $defaultPathToDu);
+                    // Auto-detected du path: update scheduled tasks to run more frequently.
+                    report_usage_monitor_update_scheduled_tasks($defaultPathToDu);
+                } else if ($currentpathtodu !== $defaultPathToDu) {
+                    // Path changed: update scheduled tasks configuration.
+                    report_usage_monitor_update_scheduled_tasks($currentpathtodu);
                 }
             } else {
                 // Mostrar recomendación si no se puede detectar automáticamente.
