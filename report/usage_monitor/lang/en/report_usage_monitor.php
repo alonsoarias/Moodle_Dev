@@ -122,6 +122,7 @@ $string['getlastusers90days'] = 'Task to get the top users in the last 90 days';
 $string['getlastusersconnected'] = 'Task to calculate the number of daily users today';
 $string['processdisknotificationtask'] = 'Process disk usage notification task';
 $string['processuserlimitnotificationtask'] = 'Process daily user limit notification task';
+$string['synctaskstask'] = 'Synchronize plugin tasks based on hostname';
 
 // Settings strings
 $string['mainsettings'] = 'Main settings';

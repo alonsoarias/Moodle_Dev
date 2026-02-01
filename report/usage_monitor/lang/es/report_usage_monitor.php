@@ -122,6 +122,7 @@ $string['getlastusers90days'] = 'Tarea para obtener el top de usuarios en los ú
 $string['getlastusersconnected'] = 'Tarea para calcular la cantidad de usuarios diarios de hoy';
 $string['processdisknotificationtask'] = 'Tarea de notificación del uso del disco';
 $string['processuserlimitnotificationtask'] = 'Tarea de notificación del límite de usuarios diarios';
+$string['synctaskstask'] = 'Sincronizar tareas del plugin según el hostname';
 
 // Settings strings
 $string['mainsettings'] = 'Configuraciones principales';

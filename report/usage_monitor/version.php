@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_usage_monitor';
-$plugin->version   = 2025030518;  // Add tooltips to dashboard for better UX.
+$plugin->version   = 2025030519;  // Add bootstrap sync_tasks for automatic task enabling.
 $plugin->requires  = 2022112800;  // Requires Moodle 4.1+ for modern external API classes.
-$plugin->release   = '5.3.18';    // Dashboard tooltips added for improved user understanding.
+$plugin->release   = '5.3.19';    // Bootstrap task to auto-sync tasks on server migration.
 $plugin->maturity  = MATURITY_STABLE;
