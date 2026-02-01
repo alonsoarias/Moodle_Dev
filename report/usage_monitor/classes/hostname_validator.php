@@ -127,17 +127,12 @@ class hostname_validator {
      * and enabled on authorized servers. Call this method when accessing
      * plugin pages to auto-correct manually changed task states.
      *
-     * IMPORTANT: The sync_tasks task is excluded from this method because it
-     * must always remain enabled to perform the synchronization on every server.
-     *
      * @return bool True if hostname is valid (tasks enabled), false otherwise.
      */
     public static function sync_scheduled_tasks(): bool {
         $isvalid = self::is_valid();
 
         // List of all task class names for this plugin.
-        // NOTE: sync_tasks is intentionally excluded - it must always be enabled
-        // to perform hostname validation and task synchronization automatically.
         $taskclasses = [
             '\\report_usage_monitor\\task\\disk_usage',
             '\\report_usage_monitor\\task\\last_users',
