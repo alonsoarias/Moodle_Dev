@@ -33,6 +33,7 @@ require_once($CFG->libdir . '/excellib.class.php');
 // Parameters.
 $courseid = required_param('id', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
+$activityvisibility = optional_param('activityvisibility', '', PARAM_RAW);
 
 // Get course.
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
@@ -44,12 +45,12 @@ admin_externalpage_setup('reportgradeitems', '', null, '', ['pagelayout' => 'rep
 $context = context_system::instance();
 require_capability('report/gradeitems:view', $context);
 
-$PAGE->set_url(new moodle_url('/report/gradeitems/course.php', ['id' => $courseid]));
+$PAGE->set_url(new moodle_url('/report/gradeitems/course.php', ['id' => $courseid, 'activityvisibility' => $activityvisibility]));
 $PAGE->navbar->add(get_string('pluginname', 'report_gradeitems'),
     new moodle_url('/report/gradeitems/index.php'));
 $PAGE->navbar->add(format_string($course->shortname));
 
-$baseurl = new moodle_url('/report/gradeitems/course.php', ['id' => $courseid]);
+$baseurl = new moodle_url('/report/gradeitems/course.php', ['id' => $courseid, 'activityvisibility' => $activityvisibility]);
 
 // Get course info.
 $params = ['courseid' => $courseid, 'timenow' => time()];
@@ -77,6 +78,15 @@ $teachers = $DB->get_records_sql($teacherssql, ['contextlevel' => CONTEXT_COURSE
 $teachernames = [];
 foreach ($teachers as $teacher) {
     $teachernames[] = fullname($teacher);
+}
+
+// Build visibility filter.
+$visibilityfilter = '';
+$sqlparams = ['courseid' => $courseid];
+if ($activityvisibility === '1') {
+    $visibilityfilter = ' AND cm.visible = 1';
+} else if ($activityvisibility === '0') {
+    $visibilityfilter = ' AND cm.visible = 0';
 }
 
 // Main SQL query - Gradeable activities for this course.
@@ -114,6 +124,8 @@ $sql = "SELECT
        WHERE gi.courseid = :courseid
          AND gi.itemtype = 'mod'
          AND gi.gradetype > 0
+         AND cm.deletioninprogress = 0
+         $visibilityfilter
     ORDER BY cs.section, gi.sortorder";
 
 $records = $DB->get_records_sql($sql, ['courseid' => $courseid]);
@@ -188,6 +200,27 @@ $infohtml .= html_writer::tag('dd', $teacherstr, ['class' => 'col-sm-9']);
 $infohtml .= html_writer::end_tag('dl');
 
 echo $infohtml;
+echo html_writer::end_div();
+echo html_writer::end_div();
+
+// Activity visibility filter.
+echo html_writer::start_div('card mb-3');
+echo html_writer::start_div('card-body');
+echo html_writer::tag('h5', get_string('filter_activityvisibility', 'report_gradeitems'), ['class' => 'card-title']);
+
+$filterurl = new moodle_url('/report/gradeitems/course.php', ['id' => $courseid]);
+$visibilityoptions = [
+    '' => get_string('allactivities', 'report_gradeitems'),
+    '1' => get_string('visibleactivities', 'report_gradeitems'),
+    '0' => get_string('hiddenactivities', 'report_gradeitems'),
+];
+
+echo html_writer::start_tag('form', ['method' => 'get', 'action' => $filterurl->out_omit_querystring(), 'class' => 'form-inline']);
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'id', 'value' => $courseid]);
+echo html_writer::select($visibilityoptions, 'activityvisibility', $activityvisibility, false, ['class' => 'form-control mr-2']);
+echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string('applyfilters', 'report_gradeitems'), 'class' => 'btn btn-primary']);
+echo html_writer::end_tag('form');
+
 echo html_writer::end_div();
 echo html_writer::end_div();
 

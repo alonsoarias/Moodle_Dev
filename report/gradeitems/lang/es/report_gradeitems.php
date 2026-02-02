@@ -42,9 +42,13 @@ $string['filters'] = 'Filtros';
 $string['filter_category'] = 'Categoría';
 $string['filter_course'] = 'Curso';
 $string['filter_visibility'] = 'Visibilidad del curso';
+$string['filter_activityvisibility'] = 'Visibilidad de actividades';
 $string['allcategories'] = 'Todas las categorías';
 $string['allcourses'] = 'Todos los cursos';
 $string['allvisibility'] = 'Todos';
+$string['allactivities'] = 'Todas las actividades';
+$string['visibleactivities'] = 'Solo actividades visibles';
+$string['hiddenactivities'] = 'Solo actividades ocultas';
 $string['visible'] = 'Visible';
 $string['hidden'] = 'Oculto';
 $string['applyfilters'] = 'Aplicar filtros';
@@ -100,6 +104,8 @@ $string['noactivitiesfound'] = 'No se encontraron actividades calificables en es
 $string['showing'] = 'Mostrando {$a->from} a {$a->to} de {$a->total} cursos';
 $string['viewactivities'] = 'Ver actividades';
 $string['backtocourselist'] = 'Volver a la lista de cursos';
+$string['gotocourse'] = 'Ir al curso';
+$string['col_hiddengradeableactivities'] = 'Calificables ocultas';
 
 // Errores.
 $string['nopermission'] = 'No tiene permiso para ver este reporte.';

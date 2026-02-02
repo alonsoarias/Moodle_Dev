@@ -42,9 +42,13 @@ $string['filters'] = 'Filters';
 $string['filter_category'] = 'Category';
 $string['filter_course'] = 'Course';
 $string['filter_visibility'] = 'Course visibility';
+$string['filter_activityvisibility'] = 'Activity visibility';
 $string['allcategories'] = 'All categories';
 $string['allcourses'] = 'All courses';
 $string['allvisibility'] = 'All';
+$string['allactivities'] = 'All activities';
+$string['visibleactivities'] = 'Visible activities only';
+$string['hiddenactivities'] = 'Hidden activities only';
 $string['visible'] = 'Visible';
 $string['hidden'] = 'Hidden';
 $string['applyfilters'] = 'Apply filters';
@@ -100,6 +104,8 @@ $string['noactivitiesfound'] = 'No gradeable activities found in this course.';
 $string['showing'] = 'Showing {$a->from} to {$a->to} of {$a->total} courses';
 $string['viewactivities'] = 'View activities';
 $string['backtocourselist'] = 'Back to course list';
+$string['gotocourse'] = 'Go to course';
+$string['col_hiddengradeableactivities'] = 'Hidden gradeable';
 
 // Errors.
 $string['nopermission'] = 'You do not have permission to view this report.';

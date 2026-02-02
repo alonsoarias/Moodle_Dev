@@ -109,13 +109,32 @@ $sql = "SELECT
              FROM {course_modules} cm
              WHERE cm.course = c.id
                AND cm.deletioninprogress = 0
+               AND cm.visible = 1
             ) AS totalactivities,
             (SELECT COUNT(gi.id)
              FROM {grade_items} gi
+             JOIN {modules} m ON m.name = gi.itemmodule
+             JOIN {course_modules} cm ON cm.course = gi.courseid
+                                     AND cm.module = m.id
+                                     AND cm.instance = gi.iteminstance
              WHERE gi.courseid = c.id
                AND gi.itemtype = 'mod'
                AND gi.gradetype > 0
-            ) AS gradeableactivities
+               AND cm.visible = 1
+               AND cm.deletioninprogress = 0
+            ) AS gradeableactivities,
+            (SELECT COUNT(gi.id)
+             FROM {grade_items} gi
+             JOIN {modules} m ON m.name = gi.itemmodule
+             JOIN {course_modules} cm ON cm.course = gi.courseid
+                                     AND cm.module = m.id
+                                     AND cm.instance = gi.iteminstance
+             WHERE gi.courseid = c.id
+               AND gi.itemtype = 'mod'
+               AND gi.gradetype > 0
+               AND cm.visible = 0
+               AND cm.deletioninprogress = 0
+            ) AS hiddengradeableactivities
         FROM {course} c
         JOIN {course_categories} cc ON cc.id = c.category
        WHERE $wheresql
@@ -215,20 +234,30 @@ if ($totalcount == 0) {
     foreach ($records as $record) {
         $teachers = isset($teachersbycourse[$record->courseid]) ? $teachersbycourse[$record->courseid] : '-';
 
-        // Link to course detail page.
+        // Link to course page.
+        $courseurl = new moodle_url('/course/view.php', ['id' => $record->courseid]);
+        // Link to activities detail page.
         $detailurl = new moodle_url('/report/gradeitems/course.php', ['id' => $record->courseid]);
+
+        // Format gradeable activities with hidden count.
+        $gradeabletext = $record->gradeableactivities;
+        if ($record->hiddengradeableactivities > 0) {
+            $gradeabletext .= ' ' . html_writer::tag('small', '(' . $record->hiddengradeableactivities . ' ' .
+                get_string('hidden', 'report_gradeitems') . ')', ['class' => 'text-muted']);
+        }
 
         $table->data[] = [
             format_string($record->categoryname),
             format_string($record->courseshortname),
-            html_writer::link($detailurl, format_string($record->coursefullname), [
-                'title' => get_string('viewactivities', 'report_gradeitems'),
+            html_writer::link($courseurl, format_string($record->coursefullname), [
+                'target' => '_blank',
+                'title' => get_string('gotocourse', 'report_gradeitems'),
             ]),
             $record->coursevisible ? get_string('yes', 'report_gradeitems') : get_string('no', 'report_gradeitems'),
             $record->enrolledstudents,
             html_writer::tag('small', $teachers),
             $record->totalactivities,
-            html_writer::tag('strong', $record->gradeableactivities),
+            $gradeabletext,
             html_writer::link($detailurl, get_string('viewactivities', 'report_gradeitems'), [
                 'class' => 'btn btn-sm btn-outline-primary',
             ]),
@@ -391,6 +420,7 @@ function download_courses_excel(string $sql, array $params): void {
         get_string('col_teachers', 'report_gradeitems'),
         get_string('col_totalactivities', 'report_gradeitems'),
         get_string('col_gradeableactivities', 'report_gradeitems'),
+        get_string('col_hiddengradeableactivities', 'report_gradeitems'),
     ];
 
     // Write headers.
@@ -409,7 +439,7 @@ function download_courses_excel(string $sql, array $params): void {
     $worksheet->set_column(5, 6, 12);
     $worksheet->set_column(7, 7, 12);
     $worksheet->set_column(8, 8, 40);
-    $worksheet->set_column(9, 10, 15);
+    $worksheet->set_column(9, 11, 15);
 
     // Write data.
     $row = 1;
@@ -431,6 +461,7 @@ function download_courses_excel(string $sql, array $params): void {
         $worksheet->write_string($row, $col++, $teachers, $dataformat);
         $worksheet->write_number($row, $col++, $record->totalactivities, $numformat);
         $worksheet->write_number($row, $col++, $record->gradeableactivities, $numformat);
+        $worksheet->write_number($row, $col++, $record->hiddengradeableactivities, $numformat);
 
         $row++;
     }
@@ -472,6 +503,7 @@ function download_courses_csv(string $sql, array $params): void {
         get_string('col_teachers', 'report_gradeitems'),
         get_string('col_totalactivities', 'report_gradeitems'),
         get_string('col_gradeableactivities', 'report_gradeitems'),
+        get_string('col_hiddengradeableactivities', 'report_gradeitems'),
     ];
 
     $csvexport->add_data($headers);
@@ -493,6 +525,7 @@ function download_courses_csv(string $sql, array $params): void {
             $teachers,
             $record->totalactivities,
             $record->gradeableactivities,
+            $record->hiddengradeableactivities,
         ];
 
         $csvexport->add_data($row);
