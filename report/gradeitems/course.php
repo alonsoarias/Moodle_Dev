@@ -251,34 +251,64 @@ if ($activitycount == 0) {
     $table = new html_table();
     $table->head = [
         html_writer::tag('span', get_string('col_section', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_section', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_activityname', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_activityname', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_moduletype', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_moduletype', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_activityvisible', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_activityvisible', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_gradetype', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_gradetype', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_grademax', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_grademax', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_gradepass', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_gradepass', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_gradeweight', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_gradeweight', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_gradecount', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_gradecount', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
         html_writer::tag('span', get_string('col_gradeaverage', 'report_gradeitems'), [
+            'data-toggle' => 'tooltip',
+            'data-placement' => 'top',
             'title' => get_string('tooltip_gradeaverage', 'report_gradeitems'),
+            'class' => 'tooltip-header',
         ]),
     ];
     $table->attributes['class'] = 'table table-striped table-hover table-sm';
@@ -326,6 +356,13 @@ echo html_writer::link('https://orioncloud.com.co', 'OrionCloud.com.co', [
     'class' => 'text-muted',
 ]);
 echo html_writer::end_div();
+
+// Initialize Bootstrap tooltips.
+$PAGE->requires->js_amd_inline("
+    require(['jquery'], function($) {
+        $('[data-toggle=\"tooltip\"]').tooltip();
+    });
+");
 
 echo $OUTPUT->footer();
 
