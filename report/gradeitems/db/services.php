@@ -35,4 +35,12 @@ $functions = [
         'ajax'          => true,
         'capabilities'  => 'report/gradeitems:view',
     ],
+    'report_gradeitems_get_activities' => [
+        'classname'     => 'report_gradeitems\external\get_activities',
+        'methodname'    => 'execute',
+        'description'   => 'Get gradeable activities for a course',
+        'type'          => 'read',
+        'ajax'          => true,
+        'capabilities'  => 'report/gradeitems:view',
+    ],
 ];

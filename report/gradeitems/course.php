@@ -251,18 +251,18 @@ echo html_writer::start_div('card mb-3');
 echo html_writer::start_div('card-body');
 echo html_writer::tag('h5', get_string('filter_activityvisibility', 'report_gradeitems'), ['class' => 'card-title']);
 
-$filterurl = new moodle_url('/report/gradeitems/course.php', ['id' => $courseid]);
 $visibilityoptions = [
     '' => get_string('allactivities', 'report_gradeitems'),
     '1' => get_string('visibleactivities', 'report_gradeitems'),
     '0' => get_string('hiddenactivities', 'report_gradeitems'),
 ];
 
-echo html_writer::start_tag('form', ['method' => 'get', 'action' => $filterurl->out_omit_querystring(), 'class' => 'form-inline']);
-echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'id', 'value' => $courseid]);
-echo html_writer::select($visibilityoptions, 'activityvisibility', $activityvisibility, false, ['class' => 'form-control mr-2']);
-echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string('applyfilters', 'report_gradeitems'), 'class' => 'btn btn-primary']);
-echo html_writer::end_tag('form');
+echo html_writer::start_div('form-inline');
+echo html_writer::select($visibilityoptions, 'activityvisibility', $activityvisibility, false, [
+    'class' => 'form-control',
+    'id' => 'gradeitems-activityvisibility',
+]);
+echo html_writer::end_div();
 
 echo html_writer::end_div();
 echo html_writer::end_div();
@@ -285,10 +285,13 @@ echo html_writer::tag('h4', get_string('gradeableactivities', 'report_gradeitems
 
 $activitycount = count($records);
 echo html_writer::tag('p', get_string('totalactivities_count', 'report_gradeitems', $activitycount),
-    ['class' => 'font-weight-bold']);
+    ['class' => 'font-weight-bold', 'id' => 'gradeitems-activities-count']);
+
+// Activities table container for AJAX updates.
+echo html_writer::start_div('', ['id' => 'gradeitems-activities-container']);
 
 if ($activitycount == 0) {
-    echo $OUTPUT->notification(get_string('noactivitiesfound', 'report_gradeitems'), 'info');
+    echo html_writer::div(get_string('noactivitiesfound', 'report_gradeitems'), 'alert alert-info', ['id' => 'gradeitems-no-results']);
 } else {
     // Display table.
     $table = new html_table();
@@ -341,6 +344,8 @@ if ($activitycount == 0) {
     echo html_writer::table($table);
 }
 
+echo html_writer::end_div(); // End activities container.
+
 // Developer credits.
 echo html_writer::start_div('mt-4 pt-3 border-top text-center text-muted');
 echo html_writer::tag('small', get_string('developedby', 'report_gradeitems') . ' ');
@@ -349,6 +354,12 @@ echo html_writer::link('https://orioncloud.com.co', 'OrionCloud.com.co', [
     'class' => 'text-muted',
 ]);
 echo html_writer::end_div();
+
+// Initialize JavaScript module for AJAX handling.
+$PAGE->requires->js_call_amd('report_gradeitems/course', 'init', [[
+    'courseid' => $courseid,
+    'activityvisibility' => $activityvisibility,
+]]);
 
 echo $OUTPUT->footer();
 
