@@ -245,31 +245,24 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
      * Initialize event handlers.
      */
     var initEventHandlers = function() {
-        // Filter form submission.
-        $('#gradeitems-filter-form').on('submit', function(e) {
-            e.preventDefault();
-
-            state.categoryid = parseInt($('#id_category').val()) || 0;
-            state.courseid = parseInt($('#id_course').val()) || 0;
-            state.visibility = $('#id_visibility').val() || '';
+        // Category filter change - AJAX on change.
+        $('#id_category').on('change', function() {
+            state.categoryid = parseInt($(this).val()) || 0;
             state.page = 0;
-
             fetchCourses();
         });
 
-        // Clear filters button.
-        $('#gradeitems-filter-form').on('click', '[name="resetbutton"]', function(e) {
-            e.preventDefault();
-
-            $('#id_category').val('');
-            $('#id_course').val('');
-            $('#id_visibility').val('');
-
-            state.categoryid = 0;
-            state.courseid = 0;
-            state.visibility = '';
+        // Course filter change - AJAX on change.
+        $('#id_course').on('change', function() {
+            state.courseid = parseInt($(this).val()) || 0;
             state.page = 0;
+            fetchCourses();
+        });
 
+        // Visibility filter change - AJAX on change.
+        $('#id_visibility').on('change', function() {
+            state.visibility = $(this).val() || '';
+            state.page = 0;
             fetchCourses();
         });
 

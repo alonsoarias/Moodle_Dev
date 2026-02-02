@@ -68,11 +68,7 @@ class filter_form extends \moodleform {
         $mform->addElement('select', 'visibility', get_string('filter_visibility', 'report_gradeitems'), $visibility);
         $mform->setType('visibility', PARAM_INT);
 
-        // Button group.
-        $buttonarray = [];
-        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('applyfilters', 'report_gradeitems'));
-        $buttonarray[] = $mform->createElement('submit', 'resetbutton', get_string('clearfilters', 'report_gradeitems'));
-        $mform->addGroup($buttonarray, 'buttonar', '', ' ', false);
+        // No buttons needed - filters use AJAX on change.
     }
 
     /**

@@ -40,12 +40,6 @@ $perpage = optional_param('perpage', 25, PARAM_INT);
 $categoryid = optional_param('category', '', PARAM_INT);
 $courseid = optional_param('course', '', PARAM_INT);
 $visibility = optional_param('visibility', '', PARAM_RAW);
-$resetfilters = optional_param('resetbutton', '', PARAM_RAW);
-
-// Reset filters if requested.
-if (!empty($resetfilters)) {
-    redirect(new moodle_url('/report/gradeitems/index.php'));
-}
 
 // Setup page.
 admin_externalpage_setup('reportgradeitems', '', null, '', ['pagelayout' => 'report']);
