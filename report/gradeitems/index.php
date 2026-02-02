@@ -218,15 +218,33 @@ if ($totalcount == 0) {
     // Display table.
     $table = new html_table();
     $table->head = [
-        get_string('col_category', 'report_gradeitems'),
-        get_string('col_courseshortname', 'report_gradeitems'),
-        get_string('col_coursefullname', 'report_gradeitems'),
-        get_string('col_coursevisible', 'report_gradeitems'),
-        get_string('col_enrolledstudents', 'report_gradeitems'),
-        get_string('col_teachers', 'report_gradeitems'),
-        get_string('col_totalactivities', 'report_gradeitems'),
-        get_string('col_gradeableactivities', 'report_gradeitems'),
-        get_string('col_actions', 'report_gradeitems'),
+        html_writer::tag('span', get_string('col_category', 'report_gradeitems'), [
+            'title' => get_string('tooltip_category', 'report_gradeitems'),
+        ]),
+        html_writer::tag('span', get_string('col_courseshortname', 'report_gradeitems'), [
+            'title' => get_string('tooltip_courseshortname', 'report_gradeitems'),
+        ]),
+        html_writer::tag('span', get_string('col_coursefullname', 'report_gradeitems'), [
+            'title' => get_string('tooltip_coursefullname', 'report_gradeitems'),
+        ]),
+        html_writer::tag('span', get_string('col_coursevisible', 'report_gradeitems'), [
+            'title' => get_string('tooltip_coursevisible', 'report_gradeitems'),
+        ]),
+        html_writer::tag('span', get_string('col_enrolledstudents', 'report_gradeitems'), [
+            'title' => get_string('tooltip_enrolledstudents', 'report_gradeitems'),
+        ]),
+        html_writer::tag('span', get_string('col_teachers', 'report_gradeitems'), [
+            'title' => get_string('tooltip_teachers', 'report_gradeitems'),
+        ]),
+        html_writer::tag('span', get_string('col_totalactivities', 'report_gradeitems'), [
+            'title' => get_string('tooltip_totalactivities', 'report_gradeitems'),
+        ]),
+        html_writer::tag('span', get_string('col_gradeableactivities', 'report_gradeitems'), [
+            'title' => get_string('tooltip_gradeableactivities', 'report_gradeitems'),
+        ]),
+        html_writer::tag('span', get_string('col_actions', 'report_gradeitems'), [
+            'title' => get_string('tooltip_viewactivities', 'report_gradeitems'),
+        ]),
     ];
     $table->attributes['class'] = 'table table-striped table-hover table-sm';
     $table->data = [];

@@ -112,3 +112,25 @@ $string['nopermission'] = 'You do not have permission to view this report.';
 
 // Credits.
 $string['developedby'] = 'Developed by';
+
+// Tooltips.
+$string['tooltip_category'] = 'Category where the course is located';
+$string['tooltip_courseshortname'] = 'Short identifier for the course';
+$string['tooltip_coursefullname'] = 'Click to open the course in a new tab';
+$string['tooltip_coursevisible'] = 'Indicates if the course is visible to students';
+$string['tooltip_enrolledstudents'] = 'Number of students with active enrollment';
+$string['tooltip_teachers'] = 'Teachers and non-editing teachers assigned to the course';
+$string['tooltip_totalactivities'] = 'Total visible activities in the course (resources and activities)';
+$string['tooltip_gradeableactivities'] = 'Visible activities that have grading configured';
+$string['tooltip_hiddengradeableactivities'] = 'Hidden activities that have grading configured';
+$string['tooltip_viewactivities'] = 'View the list of gradeable activities for this course';
+$string['tooltip_section'] = 'Course section where the activity is located';
+$string['tooltip_activityname'] = 'Click to open the activity in a new tab';
+$string['tooltip_moduletype'] = 'Type of activity module (quiz, assignment, forum, etc.)';
+$string['tooltip_activityvisible'] = 'Indicates if the activity is visible to students';
+$string['tooltip_gradetype'] = 'Type of grading: Value (numeric), Scale, or Text';
+$string['tooltip_grademax'] = 'Maximum grade that can be achieved';
+$string['tooltip_gradepass'] = 'Minimum grade required to pass';
+$string['tooltip_gradeweight'] = 'Weight of this activity in the gradebook calculation';
+$string['tooltip_gradecount'] = 'Number of students who have received a grade';
+$string['tooltip_gradeaverage'] = 'Average grade of all graded students';

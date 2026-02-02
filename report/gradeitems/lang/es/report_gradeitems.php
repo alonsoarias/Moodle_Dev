@@ -112,3 +112,25 @@ $string['nopermission'] = 'No tiene permiso para ver este reporte.';
 
 // Créditos.
 $string['developedby'] = 'Desarrollado por';
+
+// Tooltips.
+$string['tooltip_category'] = 'Categoría donde se encuentra el curso';
+$string['tooltip_courseshortname'] = 'Identificador corto del curso';
+$string['tooltip_coursefullname'] = 'Clic para abrir el curso en una nueva pestaña';
+$string['tooltip_coursevisible'] = 'Indica si el curso es visible para los estudiantes';
+$string['tooltip_enrolledstudents'] = 'Número de estudiantes con matrícula activa';
+$string['tooltip_teachers'] = 'Profesores y profesores sin permisos de edición asignados al curso';
+$string['tooltip_totalactivities'] = 'Total de actividades visibles en el curso (recursos y actividades)';
+$string['tooltip_gradeableactivities'] = 'Actividades visibles que tienen calificación configurada';
+$string['tooltip_hiddengradeableactivities'] = 'Actividades ocultas que tienen calificación configurada';
+$string['tooltip_viewactivities'] = 'Ver la lista de actividades calificables de este curso';
+$string['tooltip_section'] = 'Sección del curso donde se encuentra la actividad';
+$string['tooltip_activityname'] = 'Clic para abrir la actividad en una nueva pestaña';
+$string['tooltip_moduletype'] = 'Tipo de módulo de actividad (cuestionario, tarea, foro, etc.)';
+$string['tooltip_activityvisible'] = 'Indica si la actividad es visible para los estudiantes';
+$string['tooltip_gradetype'] = 'Tipo de calificación: Valor (numérico), Escala o Texto';
+$string['tooltip_grademax'] = 'Calificación máxima que se puede obtener';
+$string['tooltip_gradepass'] = 'Calificación mínima requerida para aprobar';
+$string['tooltip_gradeweight'] = 'Peso de esta actividad en el cálculo del libro de calificaciones';
+$string['tooltip_gradecount'] = 'Número de estudiantes que han recibido una calificación';
+$string['tooltip_gradeaverage'] = 'Promedio de calificación de todos los estudiantes calificados';
