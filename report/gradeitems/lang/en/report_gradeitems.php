@@ -106,6 +106,8 @@ $string['viewactivities'] = 'View activities';
 $string['backtocourselist'] = 'Back to course list';
 $string['gotocourse'] = 'Go to course';
 $string['col_hiddengradeableactivities'] = 'Hidden gradeable';
+$string['resultsperpage'] = 'Results per page';
+$string['showall'] = 'Show all';
 
 // Errors.
 $string['nopermission'] = 'You do not have permission to view this report.';

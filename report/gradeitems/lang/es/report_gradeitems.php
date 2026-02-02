@@ -106,6 +106,8 @@ $string['viewactivities'] = 'Ver actividades';
 $string['backtocourselist'] = 'Volver a la lista de cursos';
 $string['gotocourse'] = 'Ir al curso';
 $string['col_hiddengradeableactivities'] = 'Calificables ocultas';
+$string['resultsperpage'] = 'Resultados por página';
+$string['showall'] = 'Mostrar todos';
 
 // Errores.
 $string['nopermission'] = 'No tiene permiso para ver este reporte.';

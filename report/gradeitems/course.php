@@ -145,6 +145,49 @@ if ($download === 'csv') {
 // Output page.
 echo $OUTPUT->header();
 
+// Add CSS for tooltip help icons.
+echo html_writer::tag('style', '
+    .header-with-tooltip {
+        cursor: help;
+        white-space: nowrap;
+    }
+    .header-with-tooltip .tooltip-icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        text-align: center;
+        background-color: #6c757d;
+        color: white;
+        border-radius: 50%;
+        font-size: 11px;
+        font-weight: bold;
+        margin-left: 4px;
+        vertical-align: middle;
+    }
+    .header-with-tooltip:hover .tooltip-icon {
+        background-color: #0d6efd;
+    }
+    .header-with-tooltip .tooltip-text {
+        visibility: hidden;
+        position: absolute;
+        z-index: 1000;
+        background-color: #333;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: normal;
+        max-width: 250px;
+        white-space: normal;
+        margin-top: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .header-with-tooltip:hover .tooltip-text {
+        visibility: visible;
+    }
+');
+
 // Back button.
 echo html_writer::start_div('mb-3');
 echo html_writer::link(
@@ -250,66 +293,16 @@ if ($activitycount == 0) {
     // Display table.
     $table = new html_table();
     $table->head = [
-        html_writer::tag('span', get_string('col_section', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_section', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_activityname', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_activityname', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_moduletype', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_moduletype', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_activityvisible', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_activityvisible', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_gradetype', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_gradetype', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_grademax', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_grademax', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_gradepass', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_gradepass', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_gradeweight', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_gradeweight', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_gradecount', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_gradecount', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_gradeaverage', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_gradeaverage', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
+        format_header_with_tooltip('col_section', 'tooltip_section'),
+        format_header_with_tooltip('col_activityname', 'tooltip_activityname'),
+        format_header_with_tooltip('col_moduletype', 'tooltip_moduletype'),
+        format_header_with_tooltip('col_activityvisible', 'tooltip_activityvisible'),
+        format_header_with_tooltip('col_gradetype', 'tooltip_gradetype'),
+        format_header_with_tooltip('col_grademax', 'tooltip_grademax'),
+        format_header_with_tooltip('col_gradepass', 'tooltip_gradepass'),
+        format_header_with_tooltip('col_gradeweight', 'tooltip_gradeweight'),
+        format_header_with_tooltip('col_gradecount', 'tooltip_gradecount'),
+        format_header_with_tooltip('col_gradeaverage', 'tooltip_gradeaverage'),
     ];
     $table->attributes['class'] = 'table table-striped table-hover table-sm';
     $table->data = [];
@@ -357,14 +350,26 @@ echo html_writer::link('https://orioncloud.com.co', 'OrionCloud.com.co', [
 ]);
 echo html_writer::end_div();
 
-// Initialize Bootstrap tooltips.
-$PAGE->requires->js_amd_inline("
-    require(['jquery'], function($) {
-        $('[data-toggle=\"tooltip\"]').tooltip();
-    });
-");
-
 echo $OUTPUT->footer();
+
+/**
+ * Format a table header with a visible tooltip icon.
+ *
+ * @param string $headerkey Language string key for the header text
+ * @param string $tooltipkey Language string key for the tooltip text
+ * @return string HTML for the header with tooltip
+ */
+function format_header_with_tooltip(string $headerkey, string $tooltipkey): string {
+    $headertext = get_string($headerkey, 'report_gradeitems');
+    $tooltiptext = get_string($tooltipkey, 'report_gradeitems');
+
+    return html_writer::tag('span',
+        $headertext .
+        html_writer::tag('span', '?', ['class' => 'tooltip-icon']) .
+        html_writer::tag('span', $tooltiptext, ['class' => 'tooltip-text']),
+        ['class' => 'header-with-tooltip']
+    );
+}
 
 /**
  * Format grade type to string.

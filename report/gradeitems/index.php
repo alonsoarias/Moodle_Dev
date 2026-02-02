@@ -162,8 +162,12 @@ if ($download === 'csv') {
     exit;
 }
 
-// Get records for current page.
-$records = $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
+// Get records for current page (perpage=0 means show all).
+if ($perpage > 0) {
+    $records = $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
+} else {
+    $records = $DB->get_records_sql($sql, $params);
+}
 
 // Get teachers for all courses in results.
 $courseids = array_keys($records);
@@ -175,6 +179,49 @@ if (!empty($courseids)) {
 // Output page.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pageheading', 'report_gradeitems'));
+
+// Add CSS for tooltip help icons.
+echo html_writer::tag('style', '
+    .header-with-tooltip {
+        cursor: help;
+        white-space: nowrap;
+    }
+    .header-with-tooltip .tooltip-icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        text-align: center;
+        background-color: #6c757d;
+        color: white;
+        border-radius: 50%;
+        font-size: 11px;
+        font-weight: bold;
+        margin-left: 4px;
+        vertical-align: middle;
+    }
+    .header-with-tooltip:hover .tooltip-icon {
+        background-color: #0d6efd;
+    }
+    .header-with-tooltip .tooltip-text {
+        visibility: hidden;
+        position: absolute;
+        z-index: 1000;
+        background-color: #333;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: normal;
+        max-width: 250px;
+        white-space: normal;
+        margin-top: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .header-with-tooltip:hover .tooltip-text {
+        visibility: visible;
+    }
+');
 
 echo html_writer::tag('p', get_string('reportdescription', 'report_gradeitems'), ['class' => 'lead']);
 
@@ -206,72 +253,58 @@ echo html_writer::tag('p', get_string('totalrecords', 'report_gradeitems', $tota
 if ($totalcount == 0) {
     echo $OUTPUT->notification(get_string('norecordsfound', 'report_gradeitems'), 'info');
 } else {
-    // Display pagination info.
-    $from = ($page * $perpage) + 1;
-    $to = min(($page + 1) * $perpage, $totalcount);
-    echo html_writer::tag('p', get_string('showing', 'report_gradeitems', (object)[
+    // Display pagination info and page size selector.
+    if ($perpage > 0) {
+        $from = ($page * $perpage) + 1;
+        $to = min(($page + 1) * $perpage, $totalcount);
+    } else {
+        $from = 1;
+        $to = $totalcount;
+    }
+
+    echo html_writer::start_div('d-flex justify-content-between align-items-center mb-3');
+
+    // Showing X to Y of Z text.
+    echo html_writer::tag('span', get_string('showing', 'report_gradeitems', (object)[
         'from' => $from,
         'to' => $to,
         'total' => $totalcount,
     ]));
 
+    // Page size selector.
+    $perpageoptions = [10 => 10, 25 => 25, 50 => 50, 100 => 100, 0 => get_string('showall', 'report_gradeitems')];
+    $perpageurl = new moodle_url('/report/gradeitems/index.php', [
+        'category' => $categoryid,
+        'course' => $courseid,
+        'visibility' => $visibility,
+        'page' => 0,
+    ]);
+
+    echo html_writer::start_tag('form', ['method' => 'get', 'action' => $perpageurl->out_omit_querystring(), 'class' => 'form-inline']);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'category', 'value' => $categoryid]);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'course', 'value' => $courseid]);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'visibility', 'value' => $visibility]);
+    echo html_writer::tag('label', get_string('resultsperpage', 'report_gradeitems') . ': ', ['class' => 'mr-2']);
+    echo html_writer::select($perpageoptions, 'perpage', $perpage, false, [
+        'class' => 'form-control form-control-sm',
+        'onchange' => 'this.form.submit()',
+    ]);
+    echo html_writer::end_tag('form');
+
+    echo html_writer::end_div();
+
     // Display table.
     $table = new html_table();
     $table->head = [
-        html_writer::tag('span', get_string('col_category', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_category', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_courseshortname', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_courseshortname', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_coursefullname', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_coursefullname', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_coursevisible', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_coursevisible', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_enrolledstudents', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_enrolledstudents', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_teachers', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_teachers', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_totalactivities', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_totalactivities', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_gradeableactivities', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_gradeableactivities', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
-        html_writer::tag('span', get_string('col_actions', 'report_gradeitems'), [
-            'data-toggle' => 'tooltip',
-            'data-placement' => 'top',
-            'title' => get_string('tooltip_viewactivities', 'report_gradeitems'),
-            'class' => 'tooltip-header',
-        ]),
+        format_header_with_tooltip('col_category', 'tooltip_category'),
+        format_header_with_tooltip('col_courseshortname', 'tooltip_courseshortname'),
+        format_header_with_tooltip('col_coursefullname', 'tooltip_coursefullname'),
+        format_header_with_tooltip('col_coursevisible', 'tooltip_coursevisible'),
+        format_header_with_tooltip('col_enrolledstudents', 'tooltip_enrolledstudents'),
+        format_header_with_tooltip('col_teachers', 'tooltip_teachers'),
+        format_header_with_tooltip('col_totalactivities', 'tooltip_totalactivities'),
+        format_header_with_tooltip('col_gradeableactivities', 'tooltip_gradeableactivities'),
+        format_header_with_tooltip('col_actions', 'tooltip_viewactivities'),
     ];
     $table->attributes['class'] = 'table table-striped table-hover table-sm';
     $table->data = [];
@@ -311,8 +344,10 @@ if ($totalcount == 0) {
 
     echo html_writer::table($table);
 
-    // Pagination.
-    echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $baseurl);
+    // Pagination (only show if perpage > 0).
+    if ($perpage > 0) {
+        echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $baseurl);
+    }
 }
 
 // Developer credits.
@@ -324,14 +359,26 @@ echo html_writer::link('https://orioncloud.com.co', 'OrionCloud.com.co', [
 ]);
 echo html_writer::end_div();
 
-// Initialize Bootstrap tooltips.
-$PAGE->requires->js_amd_inline("
-    require(['jquery'], function($) {
-        $('[data-toggle=\"tooltip\"]').tooltip();
-    });
-");
-
 echo $OUTPUT->footer();
+
+/**
+ * Format a table header with a visible tooltip icon.
+ *
+ * @param string $headerkey Language string key for the header text
+ * @param string $tooltipkey Language string key for the tooltip text
+ * @return string HTML for the header with tooltip
+ */
+function format_header_with_tooltip(string $headerkey, string $tooltipkey): string {
+    $headertext = get_string($headerkey, 'report_gradeitems');
+    $tooltiptext = get_string($tooltipkey, 'report_gradeitems');
+
+    return html_writer::tag('span',
+        $headertext .
+        html_writer::tag('span', '?', ['class' => 'tooltip-icon']) .
+        html_writer::tag('span', $tooltiptext, ['class' => 'tooltip-text']),
+        ['class' => 'header-with-tooltip']
+    );
+}
 
 /**
  * Get category and all its children IDs.
