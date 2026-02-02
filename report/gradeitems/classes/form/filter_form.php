@@ -43,6 +43,9 @@ class filter_form extends \moodleform {
 
         $mform = $this->_form;
 
+        // Set form ID for AJAX handling.
+        $mform->_attributes['id'] = 'gradeitems-filter-form';
+
         $mform->addElement('header', 'filterheader', get_string('filters', 'report_gradeitems'));
         $mform->setExpanded('filterheader', true);
 

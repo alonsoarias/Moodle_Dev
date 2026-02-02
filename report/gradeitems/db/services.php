@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details for the Grade Items Report plugin.
+ * External services definitions for the Grade Items Report plugin.
  *
  * @package    report_gradeitems
  * @copyright  2026 Alonso Arias <soporte@orioncloud.com.co>
@@ -26,8 +26,13 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2026020204;
-$plugin->requires  = 2022041900;        // Requires Moodle 4.0 or later.
-$plugin->component = 'report_gradeitems';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+$functions = [
+    'report_gradeitems_get_courses' => [
+        'classname'     => 'report_gradeitems\external\get_courses',
+        'methodname'    => 'execute',
+        'description'   => 'Get courses with gradeable activities count',
+        'type'          => 'read',
+        'ajax'          => true,
+        'capabilities'  => 'report/gradeitems:view',
+    ],
+];

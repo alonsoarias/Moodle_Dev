@@ -34,7 +34,7 @@ require_once($CFG->libdir . '/excellib.class.php');
 // Parameters.
 $download = optional_param('download', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', 50, PARAM_INT);
+$perpage = optional_param('perpage', 25, PARAM_INT);
 
 // Filter parameters.
 $categoryid = optional_param('category', '', PARAM_INT);
@@ -248,51 +248,52 @@ echo html_writer::link($csvurl, get_string('downloadcsv', 'report_gradeitems'), 
 echo html_writer::end_div();
 
 // Display total count.
-echo html_writer::tag('p', get_string('totalrecords', 'report_gradeitems', $totalcount), ['class' => 'font-weight-bold']);
+echo html_writer::tag('p', get_string('totalrecords', 'report_gradeitems', $totalcount), [
+    'class' => 'font-weight-bold',
+    'id' => 'gradeitems-total-count',
+]);
 
-if ($totalcount == 0) {
-    echo $OUTPUT->notification(get_string('norecordsfound', 'report_gradeitems'), 'info');
+// Display pagination info and page size selector.
+if ($perpage > 0) {
+    $from = ($page * $perpage) + 1;
+    $to = min(($page + 1) * $perpage, $totalcount);
 } else {
-    // Display pagination info and page size selector.
-    if ($perpage > 0) {
-        $from = ($page * $perpage) + 1;
-        $to = min(($page + 1) * $perpage, $totalcount);
-    } else {
-        $from = 1;
-        $to = $totalcount;
-    }
+    $from = 1;
+    $to = $totalcount;
+}
 
-    echo html_writer::start_div('d-flex justify-content-between align-items-center mb-3');
+echo html_writer::start_div('d-flex justify-content-between align-items-center mb-3');
 
-    // Showing X to Y of Z text.
+// Showing X to Y of Z text.
+if ($totalcount > 0) {
     echo html_writer::tag('span', get_string('showing', 'report_gradeitems', (object)[
         'from' => $from,
         'to' => $to,
         'total' => $totalcount,
-    ]));
+    ]), ['id' => 'gradeitems-showing']);
+} else {
+    echo html_writer::tag('span', '', ['id' => 'gradeitems-showing', 'style' => 'display:none;']);
+}
 
-    // Page size selector.
-    $perpageoptions = [10 => 10, 25 => 25, 50 => 50, 100 => 100, 0 => get_string('showall', 'report_gradeitems')];
-    $perpageurl = new moodle_url('/report/gradeitems/index.php', [
-        'category' => $categoryid,
-        'course' => $courseid,
-        'visibility' => $visibility,
-        'page' => 0,
-    ]);
+// Page size selector.
+$perpageoptions = [10 => 10, 25 => 25, 50 => 50, 100 => 100, 0 => get_string('showall', 'report_gradeitems')];
 
-    echo html_writer::start_tag('form', ['method' => 'get', 'action' => $perpageurl->out_omit_querystring(), 'class' => 'form-inline']);
-    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'category', 'value' => $categoryid]);
-    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'course', 'value' => $courseid]);
-    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'visibility', 'value' => $visibility]);
-    echo html_writer::tag('label', get_string('resultsperpage', 'report_gradeitems') . ': ', ['class' => 'mr-2']);
-    echo html_writer::select($perpageoptions, 'perpage', $perpage, false, [
-        'class' => 'form-control form-control-sm',
-        'onchange' => 'this.form.submit()',
-    ]);
-    echo html_writer::end_tag('form');
+echo html_writer::start_div('form-inline');
+echo html_writer::tag('label', get_string('resultsperpage', 'report_gradeitems') . ': ', ['class' => 'mr-2']);
+echo html_writer::select($perpageoptions, 'perpage', $perpage, false, [
+    'class' => 'form-control form-control-sm',
+    'id' => 'gradeitems-perpage',
+]);
+echo html_writer::end_div();
 
-    echo html_writer::end_div();
+echo html_writer::end_div();
 
+// Table container for AJAX updates.
+echo html_writer::start_div('', ['id' => 'gradeitems-table-container']);
+
+if ($totalcount == 0) {
+    echo html_writer::div(get_string('norecordsfound', 'report_gradeitems'), 'alert alert-info', ['id' => 'gradeitems-no-results']);
+} else {
     // Display table.
     $table = new html_table();
     $table->head = [
@@ -343,12 +344,16 @@ if ($totalcount == 0) {
     }
 
     echo html_writer::table($table);
-
-    // Pagination (only show if perpage > 0).
-    if ($perpage > 0) {
-        echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $baseurl);
-    }
 }
+
+echo html_writer::end_div(); // End table container.
+
+// Pagination container.
+echo html_writer::start_div('', ['id' => 'gradeitems-pagination']);
+if ($totalcount > 0 && $perpage > 0) {
+    echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $baseurl);
+}
+echo html_writer::end_div();
 
 // Developer credits.
 echo html_writer::start_div('mt-4 pt-3 border-top text-center text-muted');
@@ -358,6 +363,15 @@ echo html_writer::link('https://orioncloud.com.co', 'OrionCloud.com.co', [
     'class' => 'text-muted',
 ]);
 echo html_writer::end_div();
+
+// Initialize JavaScript module for AJAX handling.
+$PAGE->requires->js_call_amd('report_gradeitems/report', 'init', [[
+    'categoryid' => $categoryid,
+    'courseid' => $courseid,
+    'visibility' => $visibility,
+    'page' => $page,
+    'perpage' => $perpage,
+]]);
 
 echo $OUTPUT->footer();
 
